@@ -1,0 +1,7 @@
+{
+  "format": "opsis.public-source.v1",
+  "sourceTreeDigest": "4d04e358ddb6d9968a7d047074fda5954bc29f18352b5423d0d3729e4742917e",
+  "files": {
+    ".githooks/pre-commit": "7c59996b2757341240727badb98e1dd2691b2e412078591610d9153e3a4a6af8"
+  }
+}
