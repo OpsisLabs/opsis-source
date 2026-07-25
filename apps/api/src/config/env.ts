@@ -76,7 +76,12 @@ const envSchema = z.object({
   RETENTION_USAGE_DAYS: z.coerce.number().int().positive().default(90),
   RETENTION_CHAT_DAYS: z.coerce.number().int().positive().default(365),
   LOG_LEVEL: z.string().default("info"),
-  ENABLE_METRICS: envBoolean.default(true)
+  ENABLE_METRICS: envBoolean.default(true),
+  // Swagger UI is useful in development but advertises the whole surface,
+  // including admin routes. Defaults off in production; set true to publish it.
+  ENABLE_API_DOCS: z.preprocess((v) => (v === "" ? undefined : v), envBoolean.optional()),
+  // When set, /metrics requires this bearer token and 404s otherwise.
+  METRICS_TOKEN: optionalString
 }).superRefine((env, context) => {
   if (env.AI_PROVIDER === "openai" && !env.OPENAI_API_KEY) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: "OPENAI_API_KEY is required when AI_PROVIDER is openai" });

@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "6aeacac8f45c2aa3a808d096a86eb8fa6f5859043e0b68fe837764a531194d34",
+  "sourceTreeDigest": "2cfbbfcc1f4b15b2a4507e9c54214657ae59881f4ebe96347ca21175024aa152",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "45e7da660e9156329adfe00238c4a641bccee44b55181179883982a754383395",
@@ -18,7 +18,7 @@
     "apps/api/railway.json": "f92e06b60220d57c78fd86987590fd68720b09914844c3a4abde1ded2a0b2639",
     "apps/api/src/ai/provider.ts": "bdb95993a746963c1129fdcc755bc101665adf9555673911e5e79bab242dd605",
     "apps/api/src/ai/service.ts": "45234c7557058f79c823c3679fbf62379040719783e0053f9e523a76efd46c72",
-    "apps/api/src/app.ts": "354760f658caa70c9bee5a8e3de785e22d1c042efaff8379f404d99b3dc46c17",
+    "apps/api/src/app.ts": "6ef106b6ded2cecdc0ec8a9e986cd8ae18f6810b5a816bfbf8d912de547478c0",
     "apps/api/src/audit/service.ts": "1a216179fdc48e728eac4b9a7cc3b4a8e2497991047f66771b944d928b0edb6e",
     "apps/api/src/auth/email.ts": "0d902bcc071cd0da209811e7d22d7080986b7fab16757c15b56dc99d31e25491",
     "apps/api/src/auth/repository.ts": "db291b3f3576933961db05a5f928d318277f291b8e025a8b50e62f24d74cb3ad",
@@ -34,7 +34,7 @@
     "apps/api/src/chain/resolver.ts": "374697168c4f2534eb13f7eea6e7f01a96ccd495fe476131ae1bdb5afe1ef7b6",
     "apps/api/src/chain/types.ts": "6f980d08e2b3863fec543b91469ec79469db9af65aa02279b88c7b0bfc11da8f",
     "apps/api/src/chat/repository.ts": "baf43e5eedcd9b91653cb3b7b7b87d08c9dbd7f21cc42f7ae362ae3d640074fc",
-    "apps/api/src/config/env.ts": "2076022d319ef7009e241131044f743d38d539fb771e61510bc042f8507ae73d",
+    "apps/api/src/config/env.ts": "eff71199b6ebd80195f0f48a63d7246d565bb244c9e64a67e83d9dc69bc07343",
     "apps/api/src/db/memory.ts": "6e997bcba7b3e1cfe6f77138901956b5271e4008a707d27f3cf9ffa1d059582a",
     "apps/api/src/db/prisma.ts": "c83df9960efdc4f84b13126cfe325e278c4ac0afebfc996a928f57addaf20733",
     "apps/api/src/entities/identify.ts": "317c49a602d062e5a1d05dad28de6aaa287e67277734bf6ab7bef1d9f2ed055b",

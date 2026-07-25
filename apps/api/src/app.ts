@@ -65,7 +65,20 @@ export async function buildApp(env: Env, prisma?: PrismaClient) {
       ]
     }
   });
-  await app.register(swaggerUi, { routePrefix: "/docs" });
+  // The OpenAPI document is always built (routes stay self-describing), but the
+  // browsable UI is only mounted where it is wanted.
+  if (env.ENABLE_API_DOCS ?? env.NODE_ENV !== "production") {
+    await app.register(swaggerUi, { routePrefix: "/docs" });
+  }
+  if (env.METRICS_TOKEN) {
+    // 404 rather than 401 so an unauthenticated scraper cannot confirm it exists.
+    app.addHook("onRequest", async (request, reply) => {
+      if (!request.url.startsWith("/metrics")) return;
+      if (request.headers.authorization !== `Bearer ${env.METRICS_TOKEN}`) {
+        return reply.status(404).send({ error: { code: "NOT_FOUND", message: "Not found" } });
+      }
+    });
+  }
   if (env.ENABLE_METRICS) await installMetrics(app);
   await healthRoutes(app, env, prisma, redis);
   await authRoutes(app, env, prisma);
