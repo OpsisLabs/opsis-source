@@ -77,6 +77,14 @@ export async function persistResolutionWithClient(client: PersistenceClient, res
   return chainEntity.id;
 }
 
+/**
+ * A resolution for a busy address can carry dozens of source documents, each
+ * holding a full provider response. Writing them all sequentially overruns
+ * Prisma's 5s default interactive-transaction timeout and fails with P2028
+ * ("Transaction already closed"), which surfaced as a 500 on active wallets.
+ */
+export const CHAIN_PERSIST_TX_OPTIONS = { maxWait: 15_000, timeout: 45_000 };
+
 export async function persistResolution(prisma: PrismaClient, resolution: ResolvedEntity): Promise<string> {
-  return prisma.$transaction((tx) => persistResolutionWithClient(tx, resolution));
+  return prisma.$transaction((tx) => persistResolutionWithClient(tx, resolution), CHAIN_PERSIST_TX_OPTIONS);
 }

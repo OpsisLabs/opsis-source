@@ -1,7 +1,7 @@
 import type { Prisma, PrismaClient } from "@prisma/client";
 import type { AiExplorerAnswer, ChainEntityType } from "@rh-chain/shared";
 import type { ResolvedEntity } from "../chain/types.js";
-import { persistResolutionWithClient } from "../chain/persistence.js";
+import { CHAIN_PERSIST_TX_OPTIONS, persistResolutionWithClient } from "../chain/persistence.js";
 import { memoryStore, type MemoryMessage, type MemorySession } from "../db/memory.js";
 
 export type ChatSessionRecord = MemorySession;
@@ -20,7 +20,7 @@ export class ChatRepository {
     return this.prisma.$transaction(async (tx) => {
       const activeEntityId = await persistResolutionWithClient(tx, resolution);
       return tx.chatSession.create({ data: { userId, title, activeEntityId } });
-    });
+    }, CHAIN_PERSIST_TX_OPTIONS);
   }
 
   /**
@@ -118,6 +118,6 @@ export class ChatRepository {
         });
       }
       return message;
-    });
+    }, CHAIN_PERSIST_TX_OPTIONS);
   }
 }

@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "2cfbbfcc1f4b15b2a4507e9c54214657ae59881f4ebe96347ca21175024aa152",
+  "sourceTreeDigest": "ca303357394559db36192804b257bff61ed888da2a4e5300abb09f5d91ccb497",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "45e7da660e9156329adfe00238c4a641bccee44b55181179883982a754383395",
@@ -29,11 +29,11 @@
     "apps/api/src/chain/blockscout.ts": "8de447c7b154cf6b5a2ec4877df429301dee25b112dfdab3c29391ce1577e90f",
     "apps/api/src/chain/goldrush.ts": "ca82a759a01296f7ccbfa22ca5a15a93b0212d3314598f16fb273145173c8554",
     "apps/api/src/chain/normalize.ts": "5b3e8ac6e5ca56392802ca77aaa5349959d68eb67c682daa380c77b967dbd28f",
-    "apps/api/src/chain/persistence.ts": "4c1a06f88704d006d480e8274812a5b6d9b310dcfc794913fb1e55899d88bd78",
+    "apps/api/src/chain/persistence.ts": "e981eeca6ce140a44121b86b2151f45df7709e268acf376f3c9f2a2aa4bc89dc",
     "apps/api/src/chain/provider-http.ts": "73194aa262419e47f9d794d07455b62882f157b22293fe3b0cd21c02bc38fb76",
     "apps/api/src/chain/resolver.ts": "374697168c4f2534eb13f7eea6e7f01a96ccd495fe476131ae1bdb5afe1ef7b6",
     "apps/api/src/chain/types.ts": "6f980d08e2b3863fec543b91469ec79469db9af65aa02279b88c7b0bfc11da8f",
-    "apps/api/src/chat/repository.ts": "baf43e5eedcd9b91653cb3b7b7b87d08c9dbd7f21cc42f7ae362ae3d640074fc",
+    "apps/api/src/chat/repository.ts": "9161e7e68861bd9753bef11d32404f1bc4c4cc6919c75cd1e157b7238932eca4",
     "apps/api/src/config/env.ts": "eff71199b6ebd80195f0f48a63d7246d565bb244c9e64a67e83d9dc69bc07343",
     "apps/api/src/db/memory.ts": "6e997bcba7b3e1cfe6f77138901956b5271e4008a707d27f3cf9ffa1d059582a",
     "apps/api/src/db/prisma.ts": "c83df9960efdc4f84b13126cfe325e278c4ac0afebfc996a928f57addaf20733",
