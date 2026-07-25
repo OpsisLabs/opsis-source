@@ -1,0 +1,12 @@
+[
+  {
+    "value": "2500000000000000000",
+    "token": {
+      "address_hash": "0x0000000000000000000000000000000000000010",
+      "name": "Fixture Token",
+      "symbol": "FIX",
+      "decimals": "18",
+      "type": "ERC-20"
+    }
+  }
+]

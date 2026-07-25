@@ -1,0 +1,17 @@
+{
+  "hash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "status": "ok",
+  "from": { "hash": "0x0000000000000000000000000000000000000001" },
+  "to": { "hash": "0x0000000000000000000000000000000000000002" },
+  "value": "0",
+  "method": "transfer",
+  "decoded_input": {
+    "method_call": "transfer(address to, uint256 value)",
+    "method_id": "0xa9059cbb",
+    "parameters": []
+  },
+  "fee": { "type": "actual", "value": "21000000000000" },
+  "gas_used": "21000",
+  "has_error_in_internal_transactions": false,
+  "revert_reason": null
+}

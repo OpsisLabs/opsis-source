@@ -1,0 +1,32 @@
+{
+  "name": "robinhood-chain-ai-explorer",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@8.15.9",
+  "engines": {
+    "node": ">=22.12 <23"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel --filter @rh-chain/api --filter @rh-chain/web dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "test:integration": "pnpm --filter @rh-chain/api test:integration",
+    "test:e2e": "playwright test e2e/wallet-ai.mock.spec.ts",
+    "test:e2e:headed": "playwright test e2e/wallet-ai.mock.spec.ts --headed",
+    "test:e2e:live": "E2E_LIVE=1 playwright test e2e/wallet-ai.live.spec.ts",
+    "test:e2e:live:headed": "E2E_LIVE=1 playwright test e2e/wallet-ai.live.spec.ts --headed",
+    "test:e2e:report": "playwright show-report",
+    "audit": "pnpm audit",
+    "licenses": "pnpm licenses list --prod",
+    "lint": "pnpm -r lint",
+    "db:generate": "pnpm --filter @rh-chain/api db:generate",
+    "db:migrate": "pnpm --filter @rh-chain/api db:migrate"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "@types/node": "^20.14.15",
+    "prettier": "^3.3.3",
+    "typescript": "^5.5.4"
+  }
+}

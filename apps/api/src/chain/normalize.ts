@@ -1,0 +1,559 @@
+import type { Citation, ChainEntityType, NormalizedEntity, RiskNote } from "@rh-chain/shared";
+import { decodeFunctionData, toFunctionSelector, type Abi, type AbiFunction, type Hex } from "viem";
+import type { SourceDocumentInput } from "./types.js";
+
+function citation(doc: SourceDocumentInput, fieldsUsed: string[], description: string, explorerBase: string): Citation {
+  const url =
+    doc.entityType === "transaction"
+      ? `${explorerBase}/tx/${doc.entityValue}`
+      : doc.entityType === "block"
+        ? `${explorerBase}/block/${doc.entityValue}`
+        : `${explorerBase}/address/${doc.entityValue}`;
+  return {
+    id: doc.id,
+    provider: doc.provider,
+    url: doc.requestUrl ?? url,
+    fetchedAt: doc.fetchedAt,
+    fieldsUsed,
+    description
+  };
+}
+
+export function normalizeEntity(
+  chainId: number,
+  type: ChainEntityType,
+  value: string,
+  docs: SourceDocumentInput[],
+  explorerBase = "https://robinhoodchain.blockscout.com"
+): NormalizedEntity {
+  const citations = docs.map((doc) => citation(doc, fieldsUsedForDoc(doc), `${doc.provider} ${doc.entityType} source data`, explorerBase));
+  const facts = summarizeFacts(type, docs);
+  facts.chainId = chainId;
+  facts.explorerUrl = type === "transaction" ? `${explorerBase}/tx/${value}` : `${explorerBase}/address/${value}`;
+  facts.sourceIds = citations.map((source) => source.id);
+  return {
+    chainId,
+    type,
+    value,
+    facts,
+    citations,
+    riskNotes: buildRiskNotes(type, facts, citations)
+  };
+}
+
+function fieldsUsedForDoc(doc: SourceDocumentInput): string[] {
+  const url = doc.requestUrl ?? "";
+  const method = (doc.responseJson as { method?: string })?.method;
+  if (method === "eth_getTransactionByHash") return ["result.hash", "result.from", "result.to", "result.value", "result.input", "result.blockNumber"];
+  if (method === "eth_getTransactionReceipt") return ["result.status", "result.gasUsed", "result.contractAddress", "result.logs"];
+  if (method === "eth_getBalance") return ["result"];
+  if (method === "eth_getCode") return ["result"];
+  if (method === "eth_call") return ["result", "token", "spender", "query"];
+  if (url.includes("/token-transfers") || url.includes("/transfers")) return ["items[].from", "items[].to", "items[].token", "items[].value", "items[].transaction_hash"];
+  if (url.includes("/internal-transactions")) return ["items[].from", "items[].to", "items[].value", "items[].success", "items[].error"];
+  if (url.includes("/transactions")) return ["items[].hash", "items[].timestamp", "items[].status", "items[].from", "items[].to", "items[].value", "items[].method"];
+  if (url.includes("/token-balances") || url.includes("/balances_v2/")) return ["items[].token", "items[].balance", "items[].value"];
+  if (url.includes("/approvals/")) return ["items[].token_address", "items[].spender_address", "items[].allowance"];
+  if (url.includes("/smart-contracts/")) return ["is_verified", "abi", "name", "proxy_type", "implementations"];
+  if (doc.entityType === "token") return ["name", "symbol", "decimals", "total_supply", "holders_count"];
+  if (doc.entityType === "wallet" || doc.entityType === "contract") return ["hash", "coin_balance", "is_contract", "token", "implementations"];
+  return ["hash", "status", "from", "to", "value", "gas_used", "method", "block_number"];
+}
+
+function summarizeFacts(type: ChainEntityType, docs: SourceDocumentInput[]): Record<string, unknown> {
+  const primary = docs[0]?.responseJson as Record<string, unknown> | undefined;
+  if (type === "transaction") {
+    const receipt = docs.find((doc) => JSON.stringify(doc.responseJson).includes("eth_getTransactionReceipt"))?.responseJson as Record<string, unknown> | undefined;
+    const transfers = documentItems(docs, "/token-transfers").map(normalizeTokenTransfer);
+    const internalTransactions = documentItems(docs, "/internal-transactions");
+    const logs = documentItems(docs, "/logs");
+    const rawTrace = docs.find((doc) => doc.requestUrl?.includes("/raw-trace"))?.responseJson;
+    const stateChanges = documentItems(docs, "/state-changes");
+    const decodedInput = (primary?.decoded_input as Record<string, unknown> | undefined) ?? decodeWithContractAbi(primary, docs);
+    const rawValue = primary?.value ?? valueFromRpc(docs, "value");
+    return {
+      hash: primary?.hash ?? valueFromRpc(docs, "hash"),
+      blockNumber: primary?.block_number ?? valueFromRpc(docs, "blockNumber"),
+      timestamp: primary?.timestamp ?? null,
+      status: primary?.status ?? valueFromRpc([...(receipt ? [{ responseJson: receipt }] : [])], "status"),
+      from: addressHash(primary?.from) ?? valueFromRpc(docs, "from"),
+      to: addressHash(primary?.to) ?? valueFromRpc(docs, "to"),
+      value: rawValue,
+      valueEth: weiToEth(rawValue),
+      method: primary?.method ?? decodedInput?.method_call ?? primary?.method_id,
+      methodId: decodedInput?.method_id ?? primary?.method_id,
+      decodedInput,
+      fee: primary?.fee,
+      gasUsed: primary?.gas_used ?? valueFromRpc(docs, "gasUsed"),
+      gasPriceWei: primary?.gas_price ?? valueFromRpc(docs, "gasPrice"),
+      contractAddress: addressHash(primary?.created_contract) ?? valueFromRpc(docs, "contractAddress"),
+      tokenTransfers: transfers.length > 0 ? transfers : primary?.token_transfers,
+      internalTransactions,
+      events: logs.map(normalizeEvent),
+      rawTrace,
+      stateChanges,
+      internalTransactionFailure: Boolean(primary?.has_error_in_internal_transactions),
+      failureDetail: primary?.revert_reason ?? primary?.result,
+      rawSourceCount: docs.length
+    };
+  }
+  if (type === "wallet") {
+    const items = documentItems(docs, "/transactions");
+    const transactions = items.map(normalizeWalletTransaction);
+    const failedTransactions = transactions.filter((transaction) => isFailedStatus(transaction.status));
+    const highValueThresholdWei = "1000000000000000000";
+    const highValueMovements = transactions.filter((transaction) => integerAtLeast(transaction.value, highValueThresholdWei));
+    const allowanceByPair = allowanceResults(docs);
+    const approvalTransactions = [
+      ...transactions.map((transaction) => normalizeApproval(transaction, allowanceByPair)).filter((approval) => approval !== undefined),
+      ...documentItems(docs, "/approvals/").map(normalizeGoldRushApproval)
+    ];
+    const tokenTransfers = documentItems(docs, "/token-transfers").map(normalizeTokenTransfer);
+    const internalTransactions = documentItems(docs, "/internal-transactions");
+    const balanceDoc = docs.find((doc) => doc.requestUrl?.includes("/token-balances"));
+    const tokenBalances = [
+      ...(Array.isArray(balanceDoc?.responseJson) ? balanceDoc.responseJson : []).map(normalizeTokenBalance),
+      ...documentItems(docs, "/balances_v2/").map(normalizeTokenBalance)
+    ];
+    const todayTransactions = transactions.filter((transaction) => isTodayUtc(transaction.timestamp));
+    const timestamps = transactions.map((transaction) => transaction.timestamp).filter((timestamp): timestamp is string => typeof timestamp === "string");
+    const unusualActivity: string[] = [];
+    if (failedTransactions.length >= 3) unusualActivity.push("Multiple failed transactions appear in the fetched activity window.");
+    if (approvalTransactions.filter((approval) => approval.unlimited === true).length > 0) {
+      unusualActivity.push("An unlimited or operator-wide approval appears in the fetched activity window.");
+    }
+    const coinBalance = primary?.coin_balance ?? rpcResult(docs, "eth_getBalance");
+    return {
+      address: primary?.hash ?? primary?.address ?? docs[0]?.entityValue,
+      coinBalance,
+      nativeBalanceEth: weiToEth(coinBalance),
+      transactionsFetched: transactions.length,
+      recentTransactions: transactions,
+      todayActivity: todayTransactions,
+      activityTimeWindow: timestamps.length > 0 ? { newest: timestamps[0], oldest: timestamps[timestamps.length - 1] } : null,
+      contractsInteractedWith: [...new Set(transactions.filter((transaction) => transaction.method).map((transaction) => transaction.to).filter(Boolean))],
+      failedTransactions,
+      highValueThresholdWei,
+      highValueMovements,
+      approvalTransactions,
+      tokenTransfers,
+      internalTransactions,
+      tokenBalances,
+      unusualActivity,
+      hasTokenTransfers: Boolean(primary?.has_token_transfers),
+      hasTokens: Boolean(primary?.has_tokens),
+      isContract: Boolean(primary?.is_contract) || Boolean(rpcResult(docs, "eth_getCode") && !/^0x0*$/.test(String(rpcResult(docs, "eth_getCode"))))
+    };
+  }
+  if (type === "token") {
+    const tokenDoc = docs.find((doc) => doc.entityType === "token");
+    const token = (tokenDoc?.responseJson ?? primary?.token ?? primary) as Record<string, unknown>;
+    const contract = docs.find((doc) => doc.requestUrl?.includes("/smart-contracts/"))?.responseJson as Record<string, unknown> | undefined;
+    return {
+      address: docs[0]?.entityValue,
+      name: token?.name,
+      symbol: token?.symbol,
+      decimals: token?.decimals,
+      type: token?.type,
+      totalSupply: token?.total_supply,
+      holders: token?.holders ?? token?.holders_count,
+      exchangeRate: token?.exchange_rate,
+      deployedAt: contract?.creation_timestamp ?? contract?.deployed_at,
+      verified: contract ? Boolean(contract.is_verified || contract.is_verified_via_eth_bytecode_db) : null,
+      proxy: Boolean(contract?.is_proxy || contract?.proxy_type),
+      recentTransfers: documentItems(docs, "/transfers").map(normalizeTokenTransfer)
+    };
+  }
+  if (type === "contract") {
+    const contractDoc = docs.find((doc) => doc.entityType === "contract");
+    const contract = (contractDoc?.responseJson ?? primary) as Record<string, unknown>;
+    const address = docs.find((doc) => doc.requestUrl?.includes("/addresses/") && !doc.requestUrl.includes("/transactions"))?.responseJson as Record<string, unknown> | undefined;
+    const recentInteractions = documentItems(docs, "/transactions").map(normalizeWalletTransaction);
+    return {
+      address: docs[0]?.entityValue,
+      verified: Boolean(contract?.is_verified || contract?.is_verified_via_eth_bytecode_db),
+      name: contract?.name,
+      compiler: contract?.compiler_version,
+      language: contract?.language,
+      abiAvailable: Boolean(contract?.abi),
+      proxy: Boolean(contract?.is_proxy || contract?.proxy_type || address?.implementations),
+      proxyType: contract?.proxy_type,
+      implementations: contract?.implementations ?? address?.implementations,
+      deployer: addressHash(address?.creator_address_hash ?? contract?.creator_address_hash),
+      creationTransaction: address?.creation_tx_hash ?? contract?.creation_tx_hash,
+      deployedAt: address?.creation_timestamp ?? contract?.creation_timestamp ?? contract?.deployed_at,
+      recentInteractions,
+      recentMethods: [...new Set(recentInteractions.map((transaction) => transaction.method).filter(Boolean))]
+    };
+  }
+  return { value: docs[0]?.entityValue, rawSourceCount: docs.length };
+}
+
+function decodeWithContractAbi(
+  transaction: Record<string, unknown> | undefined,
+  docs: SourceDocumentInput[]
+): Record<string, unknown> | undefined {
+  const input = transaction?.raw_input ?? transaction?.input;
+  const contract = docs.find((doc) => doc.requestUrl?.includes("/smart-contracts/"))?.responseJson as { abi?: unknown } | undefined;
+  if (typeof input !== "string" || !input.startsWith("0x") || !Array.isArray(contract?.abi)) return undefined;
+  try {
+    const decoded = decodeFunctionData({ abi: contract.abi as Abi, data: input as Hex });
+    const item = (contract.abi as Array<Record<string, unknown>>).find((entry) => {
+      if (entry.type !== "function" || entry.name !== decoded.functionName) return false;
+      return toFunctionSelector(entry as AbiFunction) === input.slice(0, 10);
+    });
+    const inputs = Array.isArray(item?.inputs) ? (item.inputs as Array<Record<string, unknown>>) : [];
+    const args = Array.isArray(decoded.args) ? decoded.args : [];
+    return {
+      method_call: decoded.functionName,
+      method_id: input.slice(0, 10),
+      parameters: inputs.map((parameter, index) => ({
+        name: parameter.name,
+        type: parameter.type,
+        value: serializeAbiValue(args[index])
+      })),
+      decoding_source: "local_contract_abi"
+    };
+  } catch {
+    return undefined;
+  }
+}
+
+function serializeAbiValue(value: unknown): unknown {
+  if (typeof value === "bigint") return value.toString();
+  if (Array.isArray(value)) return value.map(serializeAbiValue);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, serializeAbiValue(item)]));
+  }
+  return value;
+}
+
+function normalizeWalletTransaction(value: unknown): Record<string, unknown> {
+  const transaction = value as Record<string, unknown>;
+  return {
+    hash: transaction.hash ?? transaction.tx_hash,
+    timestamp: transaction.timestamp ?? transaction.block_signed_at,
+    status: transaction.status ?? (transaction.successful === true ? "ok" : transaction.successful === false ? "error" : undefined),
+    from: addressHash(transaction.from ?? transaction.from_address),
+    to: addressHash(transaction.to ?? transaction.to_address),
+    value: transaction.value ?? transaction.value_quote,
+    method: transaction.method ?? transaction.method_name,
+    decodedInput: transaction.decoded_input,
+    failureDetail: transaction.revert_reason ?? transaction.result
+  };
+}
+
+function normalizeApproval(
+  transaction: Record<string, unknown>,
+  allowanceByPair: Map<string, string>
+): Record<string, unknown> | undefined {
+  const method = String(transaction.method ?? "").toLowerCase();
+  if ((method !== "approve" && method !== "setapprovalforall") || isFailedStatus(transaction.status)) return undefined;
+  const decodedInput = transaction.decodedInput as { parameters?: Array<Record<string, unknown>> } | undefined;
+  const parameters = Array.isArray(decodedInput?.parameters) ? decodedInput.parameters : [];
+  const spender = parameterValue(parameters, ["spender", "operator", "to"]);
+  const amount = parameterValue(parameters, ["amount", "value", "wad"]);
+  const approved = parameterValue(parameters, ["approved"]);
+  const unlimited = amount === MAX_UINT256 || (method === "setapprovalforall" && approved !== false && approved !== "false");
+  const contract = transaction.to;
+  const query = method === "setapprovalforall" ? "isApprovedForAll" : "allowance";
+  const allowanceKey =
+    typeof contract === "string" && typeof spender === "string"
+      ? `${contract.toLowerCase()}:${spender.toLowerCase()}:${query}`
+      : undefined;
+  const currentAllowanceRaw = allowanceKey ? allowanceByPair.get(allowanceKey) : undefined;
+  return {
+    transactionHash: transaction.hash,
+    contract,
+    method: transaction.method,
+    spender,
+    amount,
+    approved,
+    unlimited,
+    currentAllowanceRaw,
+    currentAllowanceConfirmed: currentAllowanceRaw !== undefined,
+    currentUnlimited: method === "setapprovalforall" ? currentAllowanceRaw === "1" : currentAllowanceRaw === MAX_UINT256,
+    currentlyActive: currentAllowanceRaw !== undefined ? BigInt(currentAllowanceRaw) > 0n : undefined,
+    status: transaction.status
+  };
+}
+
+const MAX_UINT256 = "115792089237316195423570985008687907853269984665640564039457584007913129639935";
+
+function parameterValue(parameters: Array<Record<string, unknown>>, names: string[]): unknown {
+  return parameters.find((parameter) => names.includes(String(parameter.name).toLowerCase()))?.value;
+}
+
+function allowanceResults(docs: SourceDocumentInput[]): Map<string, string> {
+  const results = new Map<string, string>();
+  for (const doc of docs) {
+    const response = doc.responseJson as Record<string, unknown>;
+    if (response?.method !== "eth_call" || typeof response.token !== "string" || typeof response.spender !== "string") continue;
+    if (typeof response.result !== "string" || !/^0x[0-9a-fA-F]+$/.test(response.result)) continue;
+    const query = response.query === "isApprovedForAll" ? "isApprovedForAll" : "allowance";
+    results.set(`${response.token.toLowerCase()}:${response.spender.toLowerCase()}:${query}`, BigInt(response.result).toString());
+  }
+  return results;
+}
+
+function isFailedStatus(status: unknown): boolean {
+  return ["fail", "error", "0x0"].some((value) => String(status).toLowerCase().includes(value));
+}
+
+function integerAtLeast(value: unknown, threshold: string): boolean {
+  try {
+    return typeof value === "string" && /^\d+$/.test(value) && BigInt(value) >= BigInt(threshold);
+  } catch {
+    return false;
+  }
+}
+
+function normalizeTokenBalance(value: unknown): Record<string, unknown> {
+  const balance = value as Record<string, unknown>;
+  const token = (balance.token ?? {}) as Record<string, unknown>;
+  return {
+    tokenAddress: token.address_hash ?? balance.contract_address,
+    tokenName: token.name ?? balance.contract_name,
+    tokenSymbol: token.symbol ?? balance.contract_ticker_symbol,
+    tokenType: token.type ?? balance.type,
+    rawValue: balance.value ?? balance.balance,
+    formattedValue: formatUnits(balance.value ?? balance.balance, token.decimals ?? balance.contract_decimals)
+  };
+}
+
+function documentItems(docs: SourceDocumentInput[], path: string): unknown[] {
+  return docs.flatMap((doc) => {
+    if (!doc.requestUrl?.includes(path)) return [];
+    const response = doc.responseJson as { items?: unknown[]; data?: { items?: unknown[] } } | undefined;
+    return Array.isArray(response?.items) ? response.items : Array.isArray(response?.data?.items) ? response.data.items : [];
+  });
+}
+
+function addressHash(value: unknown): unknown {
+  if (value && typeof value === "object" && "hash" in value) return (value as { hash: unknown }).hash;
+  return value;
+}
+
+function normalizeTokenTransfer(value: unknown): Record<string, unknown> {
+  const transfer = value as Record<string, unknown>;
+  const token = (transfer.token ?? {}) as Record<string, unknown>;
+  const total = (transfer.total ?? {}) as Record<string, unknown>;
+  const rawValue = total.value ?? transfer.value;
+  return {
+    from: addressHash(transfer.from),
+    to: addressHash(transfer.to),
+    method: transfer.method,
+    tokenAddress: token.address_hash,
+    tokenName: token.name,
+    tokenSymbol: token.symbol,
+    tokenType: token.type,
+    rawValue,
+    formattedValue: formatUnits(rawValue, token.decimals ?? total.decimals)
+  };
+}
+
+function normalizeEvent(value: unknown): Record<string, unknown> {
+  const log = value as Record<string, unknown>;
+  const decoded = log.decoded as Record<string, unknown> | undefined;
+  return {
+    index: log.index,
+    address: addressHash(log.address_hash ?? log.smart_contract),
+    signature: decoded?.method_call,
+    methodId: decoded?.method_id,
+    parameters: decoded?.parameters,
+    topics: log.topics
+  };
+}
+
+export function formatUnits(value: unknown, decimals: unknown): string | undefined {
+  if (typeof value !== "string" || !/^\d+$/.test(value)) return undefined;
+  const places = Number(decimals);
+  if (!Number.isInteger(places) || places < 0 || places > 255) return value;
+  if (places === 0) return value;
+  const padded = value.padStart(places + 1, "0");
+  const integer = padded.slice(0, -places);
+  const fraction = padded.slice(-places).replace(/0+$/, "");
+  return fraction ? `${integer}.${fraction}` : integer;
+}
+
+function valueFromRpc(docs: Array<{ responseJson: unknown }>, key: string): unknown {
+  for (const doc of docs) {
+    const result = (doc.responseJson as { result?: Record<string, unknown> })?.result;
+    if (result && key in result) return result[key];
+  }
+  return undefined;
+}
+
+function rpcResult(docs: SourceDocumentInput[], method: string): unknown {
+  return (docs.find((doc) => (doc.responseJson as { method?: string })?.method === method)?.responseJson as { result?: unknown } | undefined)?.result;
+}
+
+function isTodayUtc(value: unknown, now = new Date()): boolean {
+  if (typeof value !== "string") return false;
+  const timestamp = new Date(value);
+  return !Number.isNaN(timestamp.getTime())
+    && timestamp.getUTCFullYear() === now.getUTCFullYear()
+    && timestamp.getUTCMonth() === now.getUTCMonth()
+    && timestamp.getUTCDate() === now.getUTCDate();
+}
+
+function normalizeGoldRushApproval(value: unknown): Record<string, unknown> {
+  const approval = value as Record<string, unknown>;
+  return {
+    contract: approval.token_address ?? approval.contract_address,
+    tokenSymbol: approval.ticker_symbol ?? approval.contract_ticker_symbol,
+    spender: approval.spender_address,
+    amount: approval.allowance ?? approval.balance,
+    currentAllowanceConfirmed: true,
+    currentlyActive: typeof approval.allowance === "string" ? approval.allowance !== "0" : undefined,
+    currentUnlimited: approval.allowance === MAX_UINT256,
+    source: "goldrush"
+  };
+}
+
+function weiToEth(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  try {
+    const decimal = value.startsWith("0x") ? BigInt(value).toString() : value;
+    return formatUnits(decimal, 18);
+  } catch {
+    return undefined;
+  }
+}
+
+function buildRiskNotes(type: ChainEntityType, facts: Record<string, unknown>, citations: Citation[]): RiskNote[] {
+  const ids = citations.map((source) => source.id);
+  const notes: RiskNote[] = [];
+  const transactionFailed = isFailedStatus(facts.status);
+  if (type === "transaction" && transactionFailed) {
+    notes.push({
+      severity: "medium",
+      title: "Transaction may have failed",
+      detail: facts.failureDetail
+        ? `The source data indicates an unsuccessful transaction: ${String(facts.failureDetail).slice(0, 240)}.`
+        : "The source data indicates a failed or unsuccessful transaction status. This is a data-based note, not a judgment about intent.",
+      evidenceCitationIds: ids
+    });
+  }
+  if (type === "transaction" && facts.internalTransactionFailure === true) {
+    notes.push({
+      severity: "medium",
+      title: "An internal call may have failed",
+      detail: "The transaction source reports an error in at least one internal call. Review the internal-call evidence for context.",
+      evidenceCitationIds: ids
+    });
+  }
+  if (type === "transaction" && !facts.method && facts.to) {
+    notes.push({
+      severity: "info",
+      title: "Method is not decoded",
+      detail: "The available provider data did not identify the called method. This can limit interpretation of the transaction intent.",
+      evidenceCitationIds: ids
+    });
+  }
+  if (type === "wallet") {
+    const approvals = Array.isArray(facts.approvalTransactions) ? (facts.approvalTransactions as Array<Record<string, unknown>>) : [];
+    const currentUnlimited = approvals.filter((approval) => approval.currentUnlimited === true);
+    const unconfirmedUnlimited = approvals.filter(
+      (approval) => approval.unlimited === true && approval.currentAllowanceConfirmed !== true
+    );
+    if (currentUnlimited.length > 0) {
+      notes.push({
+        severity: "high",
+        title: "Active unlimited token approval found",
+        detail: `${currentUnlimited.length} unlimited approval(s) remain active according to the latest read-only allowance call.`,
+        evidenceCitationIds: ids
+      });
+    }
+    if (approvals.length > 0) {
+      notes.push({
+        severity: "info",
+        title: "Token approval activity found",
+        detail: `${approvals.length} approval transaction or active approval record(s) appear in the fetched evidence. Review the spender and current allowance state.`,
+        evidenceCitationIds: ids
+      });
+    }
+    if (unconfirmedUnlimited.length > 0) {
+      notes.push({
+        severity: "medium",
+        title: "Historical broad token approval found",
+        detail: `${unconfirmedUnlimited.length} unlimited or operator-wide approval transaction(s) appear in the fetched activity window, but current allowance state was not available.`,
+        evidenceCitationIds: ids
+      });
+    }
+    const failures = Array.isArray(facts.failedTransactions) ? facts.failedTransactions.length : 0;
+    if (failures >= 3) {
+      notes.push({
+        severity: "medium",
+        title: "Repeated transaction failures",
+        detail: `${failures} failed transactions appear in the fetched activity window. This can indicate contract errors, insufficient gas, or repeated unsuccessful attempts.`,
+        evidenceCitationIds: ids
+      });
+    }
+    const largeMovements = Array.isArray(facts.highValueMovements) ? facts.highValueMovements.length : 0;
+    if (largeMovements > 0) {
+      notes.push({
+        severity: "info",
+        title: "High-value native movement found",
+        detail: `${largeMovements} transaction(s) met the disclosed one-native-token review threshold. Value alone does not imply risk.`,
+        evidenceCitationIds: ids
+      });
+    }
+    const contractCount = Array.isArray(facts.contractsInteractedWith) ? facts.contractsInteractedWith.length : 0;
+    if (contractCount >= 10) {
+      notes.push({
+        severity: "info",
+        title: "Frequent contract interaction",
+        detail: `The fetched window includes interactions with ${contractCount} distinct contracts. This is an activity observation, not a risk verdict.`,
+        evidenceCitationIds: ids
+      });
+    }
+  }
+  if (type === "contract" && facts.verified === false) {
+    notes.push({
+      severity: "medium",
+      title: "Contract is not verified in available source data",
+      detail: "Unverified contracts are harder to inspect. Treat this as a review signal, not proof of malicious behavior.",
+      evidenceCitationIds: ids
+    });
+  }
+  if ((type === "contract" || type === "token") && facts.proxy === true) {
+    notes.push({
+      severity: "info",
+      title: "Proxy contract detected",
+      detail: "The available explorer metadata indicates proxy behavior. Review the current implementation contract when interpreting source code.",
+      evidenceCitationIds: ids
+    });
+  }
+  if (type === "token" && !facts.name && !facts.symbol) {
+    notes.push({
+      severity: "low",
+      title: "Token metadata is incomplete",
+      detail: "The provider did not return basic token metadata. This can happen for new or unsupported tokens.",
+      evidenceCitationIds: ids
+    });
+  }
+  if (type === "token" && facts.verified === false) {
+    notes.push({
+      severity: "medium",
+      title: "Token contract is not verified in available source data",
+      detail: "The explorer data did not report verified source code for this token contract. This is a review signal, not a scam verdict.",
+      evidenceCitationIds: ids
+    });
+  }
+  if ((type === "token" || type === "contract") && isRecentDate(facts.deployedAt, 30)) {
+    notes.push({
+      severity: "info",
+      title: "Recently deployed contract",
+      detail: "The available deployment timestamp is within the last 30 days. Recency is a review signal, not evidence of malicious behavior.",
+      evidenceCitationIds: ids
+    });
+  }
+  return notes;
+}
+
+function isRecentDate(value: unknown, days: number, now = new Date()): boolean {
+  if (typeof value !== "string") return false;
+  const timestamp = new Date(value).getTime();
+  return Number.isFinite(timestamp) && timestamp <= now.getTime() && timestamp >= now.getTime() - days * 86_400_000;
+}

@@ -1,0 +1,16 @@
+node_modules
+dist
+.corepack
+.corepack-node22
+.home
+.node
+.pnpm-store
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+.DS_Store
+coverage
+playwright-report
+test-results
+*.log

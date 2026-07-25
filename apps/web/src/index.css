@@ -1,0 +1,158 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #1d1d1d;
+  --ink-2: #242424;
+  --ink-3: #2e2e2e;
+  --line: #383838;
+  --bone: #e9e0d1;
+  --bone-2: #d6ccba;
+  --bone-3: #ccbd9f;
+  --cream: #f0e8da;
+  --orange: #fa6c34;
+  --orange-2: #ff7038;
+  --mute: #9a938a;
+  --mute-dark: #635d5a;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--bone);
+  font-family: "Geist", "Inter", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--orange);
+  color: #1d1d1d;
+}
+
+.font-serif-d {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-weight: 400;
+}
+.font-mono-d {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+}
+.font-wordmark {
+  font-family: "Playfair Display", "Instrument Serif", Georgia, serif;
+}
+
+/* diagonal hatch texture */
+.hatch {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(214, 204, 186, 0.28) 0px,
+    rgba(214, 204, 186, 0.28) 1px,
+    transparent 1px,
+    transparent 5px
+  );
+}
+.hatch-dark {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(29, 29, 29, 0.16) 0px,
+    rgba(29, 29, 29, 0.16) 1px,
+    transparent 1px,
+    transparent 5px
+  );
+}
+.hatch-orange {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(29, 29, 29, 0.35) 0px,
+    rgba(29, 29, 29, 0.35) 1px,
+    transparent 1px,
+    transparent 6px
+  );
+}
+
+/* dotted grid texture */
+.dots {
+  background-image: radial-gradient(rgba(214, 204, 186, 0.35) 1px, transparent 1px);
+  background-size: 9px 9px;
+}
+.dots-dark {
+  background-image: radial-gradient(rgba(29, 29, 29, 0.3) 1px, transparent 1px);
+  background-size: 9px 9px;
+}
+
+/* clipped corner buttons / panels (all four corners) */
+.clip-btn {
+  clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 12px, 100% calc(100% - 12px), calc(100% - 12px) 100%, 12px 100%, 0 calc(100% - 12px), 0 12px);
+}
+.clip-btn-sm {
+  clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px);
+}
+.clip-panel {
+  clip-path: polygon(18px 0, calc(100% - 18px) 0, 100% 18px, 100% calc(100% - 18px), calc(100% - 18px) 100%, 18px 100%, 0 calc(100% - 18px), 0 18px);
+}
+.clip-notch-tl {
+  clip-path: polygon(14px 0, 100% 0, 100% 100%, 0 100%, 0 14px);
+}
+
+/* corner ticks (viewfinder brackets) */
+.ticks {
+  position: relative;
+}
+.ticks::before,
+.ticks::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: currentColor;
+  opacity: 0.9;
+  pointer-events: none;
+}
+.ticks::before {
+  top: 6px;
+  left: 6px;
+  border-top: 1px solid;
+  border-left: 1px solid;
+}
+.ticks::after {
+  bottom: 6px;
+  right: 6px;
+  border-bottom: 1px solid;
+  border-right: 1px solid;
+}
+
+/* thin scrollbar hidden on rail */
+.no-bar::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes ticker-up {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
+
+/* hide third-party injected badges/watermarks appended to <body> (not part of app UI) */
+body > [style*="position: fixed"],
+body > [style*="position:fixed"],
+body > iframe[src*="badge"],
+body > iframe[title*="badge"],
+body > [class*="kimi"],
+body > [id*="kimi"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}

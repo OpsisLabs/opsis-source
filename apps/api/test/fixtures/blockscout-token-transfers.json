@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "from": { "hash": "0x0000000000000000000000000000000000000001" },
+      "to": { "hash": "0x0000000000000000000000000000000000000002" },
+      "method": "transfer",
+      "token": {
+        "address_hash": "0x0000000000000000000000000000000000000010",
+        "name": "Fixture Token",
+        "symbol": "FIX",
+        "decimals": "18",
+        "type": "ERC-20"
+      },
+      "total": { "value": "1250000000000000000" },
+      "transaction_hash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "type": "token_transfer"
+    }
+  ],
+  "next_page_params": null
+}

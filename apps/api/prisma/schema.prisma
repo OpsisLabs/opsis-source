@@ -1,0 +1,208 @@
+generator client {
+  provider = "prisma-client-js"
+  // The runtime image is node:22-alpine, which ships OpenSSL 3. Without this,
+  // Prisma generates only the musl/OpenSSL 1.1 engine and fails at startup with
+  // "Error loading shared library libssl.so.1.1".
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x", "linux-musl-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String         @id @default(cuid())
+  // Wallet users have no email or password; email users have no wallet.
+  email           String?        @unique
+  passwordHash    String?
+  walletAddress   String?        @unique
+  username        String?        @unique
+  emailVerifiedAt DateTime?
+  role            UserRole       @default(USER)
+  status          UserStatus     @default(ACTIVE)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  refreshTokens   RefreshToken[]
+  authTokens      AuthToken[]
+  chatSessions    ChatSession[]
+  usageEvents     UsageEvent[]
+  usageAggregates UsageAggregate[]
+  auditLogs       AuditLog[]
+}
+
+model AuthToken {
+  id        String        @id @default(cuid())
+  userId    String
+  tokenHash String        @unique
+  kind      AuthTokenKind
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime      @default(now())
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId, kind, expiresAt])
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+  userAgent String?
+  ipHash    String?
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ChatSession {
+  id             String        @id @default(cuid())
+  userId         String
+  title          String
+  activeEntityId String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages       ChatMessage[]
+  activeEntity   ChainEntity?  @relation(fields: [activeEntityId], references: [id])
+}
+
+model ChatMessage {
+  id             String          @id @default(cuid())
+  sessionId      String
+  role           MessageRole
+  content        String
+  aiResponseJson Json?
+  tokenUsageJson Json?
+  createdAt      DateTime        @default(now())
+  session        ChatSession     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sources        MessageSource[]
+}
+
+model ChainEntity {
+  id          String          @id @default(cuid())
+  chainId     Int
+  type        ChainEntityType
+  value       String
+  label       String?
+  metadata    Json?
+  firstSeenAt DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  sessions    ChatSession[]
+  @@unique([chainId, type, value])
+}
+
+model SourceDocument {
+  id             String          @id @default(cuid())
+  provider       String
+  chainId         Int
+  entityType      ChainEntityType
+  entityValue     String
+  requestUrl      String?
+  requestHash     String
+  responseJson    Json
+  normalizedJson  Json?
+  fetchedAt       DateTime        @default(now())
+  expiresAt       DateTime?
+  messages        MessageSource[]
+  @@index([provider, chainId, entityType, entityValue])
+  @@index([expiresAt])
+}
+
+model MessageSource {
+  messageId        String
+  sourceDocumentId String
+  fieldsUsed       String[]
+  message          ChatMessage    @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  sourceDocument   SourceDocument @relation(fields: [sourceDocumentId], references: [id], onDelete: Cascade)
+  @@id([messageId, sourceDocumentId])
+}
+
+model CachedApiResponse {
+  id           String   @id @default(cuid())
+  cacheKey     String   @unique
+  provider     String
+  responseJson Json
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
+  @@index([expiresAt])
+}
+
+model UsageEvent {
+  id        String         @id @default(cuid())
+  userId    String?
+  eventType UsageEventType
+  quantity  Int            @default(1)
+  metadata  Json?
+  createdAt DateTime       @default(now())
+  user      User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model UsageAggregate {
+  userId    String
+  month     DateTime
+  eventType UsageEventType
+  quantity  Int            @default(0)
+  updatedAt DateTime       @updatedAt
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@id([userId, month, eventType])
+  @@index([month])
+}
+
+model RateLimitBucket {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  points    Int
+  resetAt   DateTime
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  ipHash    String?
+  userAgent String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  DISABLED
+}
+
+enum AuthTokenKind {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+enum ChainEntityType {
+  WALLET
+  TRANSACTION
+  TOKEN
+  CONTRACT
+  BLOCK
+  UNKNOWN
+}
+
+enum UsageEventType {
+  AI_MESSAGE
+  CHAIN_LOOKUP
+  PROVIDER_CALL
+  CACHE_HIT
+  CACHE_MISS
+  AUTH_LOGIN
+}

@@ -1,0 +1,16 @@
+.git
+.env
+.node
+.corepack*
+.home
+.pnpm-store
+node_modules
+**/node_modules
+**/dist
+# TypeScript's composite-project cache. If a host-built tsbuildinfo is copied
+# into the image, tsc considers the build current, emits nothing, and the
+# resulting image is missing packages/shared/dist entirely.
+*.tsbuildinfo
+**/*.tsbuildinfo
+.DS_Store
+*.log

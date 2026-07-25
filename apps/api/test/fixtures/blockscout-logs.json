@@ -1,0 +1,18 @@
+{
+  "items": [
+    {
+      "address_hash": { "hash": "0x0000000000000000000000000000000000000010" },
+      "decoded": {
+        "method_call": "Transfer(address indexed from, address indexed to, uint256 value)",
+        "method_id": "0xddf252ad",
+        "parameters": [
+          { "name": "from", "type": "address", "indexed": true, "value": "0x0000000000000000000000000000000000000001" },
+          { "name": "to", "type": "address", "indexed": true, "value": "0x0000000000000000000000000000000000000002" }
+        ]
+      },
+      "index": 0,
+      "topics": ["0xddf252ad"]
+    }
+  ],
+  "next_page_params": null
+}
