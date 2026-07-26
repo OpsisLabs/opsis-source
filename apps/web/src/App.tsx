@@ -12,8 +12,8 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   const loc = useLocation();
   if (loading)
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#1d1d1d]">
-        <span className="h-2 w-2 animate-ping rounded-full bg-[#fa6c34]" />
+      <div className="hud flex min-h-screen items-center justify-center">
+        <span className="h-2 w-2 animate-ping rounded-full bg-[#3fd0ff]" />
       </div>
     );
   if (!user) return <Navigate to="/login" state={{ from: loc.pathname }} replace />;
@@ -22,15 +22,15 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
 
 function DashboardIndex() {
   return (
-    <div className="dots flex flex-1 items-center justify-center">
-      <div className="max-w-[420px] text-center">
-        <p className="font-mono-d text-[11px] tracking-wider text-[#635d5a]">ROBINHOOD CHAIN · 4663</p>
-        <h2 className="mt-4 text-[26px] font-medium tracking-[-0.02em] text-[#e9e0d1]">
-          Start a session or resolve an entity
+    <div className="flex flex-1 items-center justify-center">
+      <div className="max-w-[460px] text-center">
+        <p className="hud-key text-[#3fd0ff]">ROBINHOOD CHAIN · 4663</p>
+        <h2 className="mt-4 text-[26px] font-light tracking-[-0.02em] text-[#eaf7ff]">
+          Acquire a target to begin
         </h2>
-        <p className="mt-3 text-[13.5px] leading-relaxed text-[#9a938a]">
-          Paste a wallet, transaction hash, token, or contract in the search bar above, or pick
-          a session from the left rail.
+        <p className="mt-3 text-[13.5px] leading-relaxed text-[#6d8ba3]">
+          Paste a wallet, transaction hash, token, or contract into the scanner above,
+          or resume a session from the log.
         </p>
       </div>
     </div>

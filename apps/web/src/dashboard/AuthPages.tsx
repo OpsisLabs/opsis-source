@@ -21,25 +21,25 @@ function AuthLayout({
   footer: React.ReactNode;
 }) {
   return (
-    <div className="dots flex min-h-screen items-center justify-center bg-[#1d1d1d] px-4">
+    <div className="hud flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-[420px]">
         <Link to="/" className="mb-10 flex items-center gap-3">
-          <span className="flex h-11 w-11 items-center justify-center bg-[#fa6c34]">
+          <span className="flex h-11 w-11 items-center justify-center border border-[#3fd0ff]/30 bg-[#3fd0ff]/10">
             <LogoMark />
           </span>
-          <span className="font-mono-d text-[12px] leading-4 text-[#9a938a]">
+          <span className="hud-key leading-4">
             RH CHAIN
             <br />
             AI EXPLORER
           </span>
         </Link>
-        <div className="clip-panel border border-[#2e2e2e] bg-[#242424] p-8">
-          <h1 className="text-[26px] font-medium tracking-[-0.02em] text-[#f0e8da]">{title}</h1>
-          <p className="mt-2 text-[13.5px] leading-relaxed text-[#9a938a]">{sub}</p>
+        <div className="hud-module hud-brackets hud-glow p-8">
+          <h1 className="text-[26px] font-light tracking-[-0.02em] text-[#eaf7ff]">{title}</h1>
+          <p className="mt-2 text-[13.5px] leading-relaxed text-[#6d8ba3]">{sub}</p>
           {children}
         </div>
-        <div className="mt-6 text-center text-[13px] text-[#9a938a]">{footer}</div>
-        <p className="mt-10 text-center font-mono-d text-[10.5px] leading-relaxed text-[#635d5a]">
+        <div className="mt-6 text-center text-[13px] text-[#6d8ba3]">{footer}</div>
+        <p className="hud-label mt-10 block text-center leading-relaxed">
           READ-ONLY · NO TRANSACTIONS · NO APPROVALS
           <br />
           Informational only. Not financial advice.
@@ -64,14 +64,14 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-2 block font-mono-d text-[11px] tracking-wider text-[#635d5a]">{label}</span>
+      <span className="hud-label mb-2 block">{label}</span>
       <input
         type={type}
         required
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full border border-[#383838] bg-[#1d1d1d] px-4 py-3 text-[14px] text-[#e9e0d1] outline-none transition-colors placeholder:text-[#635d5a] focus:border-[#fa6c34]"
+        className="w-full border border-[#3fd0ff]/16 bg-[#070c14] px-4 py-3 text-[14px] text-[#eaf7ff] outline-none transition-colors placeholder:text-[#405a70] focus:border-[#3fd0ff]/50"
       />
     </label>
   );
@@ -83,7 +83,7 @@ function Field({
  * before is asked for a username, reusing the signature already given so the
  * wallet only prompts once.
  */
-function WalletAuth({ variant }: { variant: "signin" | "signup" }) {
+function WalletAuth() {
   const { signInWithWallet } = useAuth();
   const nav = useNavigate();
   const [username, setUsername] = useState("");
@@ -107,14 +107,14 @@ function WalletAuth({ variant }: { variant: "signin" | "signup" }) {
   if (!hasMetaMask()) {
     return (
       <div className="mt-8 space-y-5">
-        <p className="border border-[#e0738a]/40 bg-[#e0738a]/10 px-4 py-3 text-[12.5px] text-[#e0738a]">
+        <p className="border border-[#ff5c7c]/40 bg-[#ff5c7c]/10 px-4 py-3 text-[12.5px] text-[#ff5c7c]">
           MetaMask was not detected in this browser.
         </p>
         <a
           href="https://metamask.io/download/"
           target="_blank"
           rel="noreferrer"
-          className="clip-btn flex h-[52px] w-full items-center justify-center gap-2 bg-[#e9e0d1] font-mono-d text-[12.5px] font-medium tracking-wide text-[#1d1d1d] transition-colors hover:bg-[#f0e8da]"
+          className="hud-chip h-[52px] w-full justify-center border-[#3fd0ff]/40 bg-[#3fd0ff]/12 text-[12px] text-[#3fd0ff]"
         >
           <Wallet size={14} />
           INSTALL METAMASK
@@ -130,7 +130,7 @@ function WalletAuth({ variant }: { variant: "signin" | "signup" }) {
     };
     return (
       <form onSubmit={submit} className="mt-8 space-y-5">
-        <p className="font-mono-d text-[10.5px] tracking-wider text-[#7fb069]">WALLET VERIFIED</p>
+        <p className="hud-key text-[#3ff5c0]">WALLET VERIFIED</p>
         <Field
           label="USERNAME"
           type="text"
@@ -138,11 +138,11 @@ function WalletAuth({ variant }: { variant: "signin" | "signup" }) {
           onChange={setUsername}
           placeholder="3-20 letters, numbers, or _"
         />
-        {err && <p className="border border-[#e0738a]/40 bg-[#e0738a]/10 px-4 py-3 text-[12.5px] text-[#e0738a]">{err}</p>}
+        {err && <p className="border border-[#ff5c7c]/40 bg-[#ff5c7c]/10 px-4 py-3 text-[12.5px] text-[#ff5c7c]">{err}</p>}
         <button
           type="submit"
           disabled={busy || !username.trim()}
-          className="clip-btn flex h-[52px] w-full items-center justify-center bg-[#fa6c34] font-mono-d text-[12.5px] font-medium tracking-wide text-[#1d1d1d] transition-colors hover:bg-[#ff7038] disabled:opacity-60"
+          className="hud-chip h-[52px] w-full justify-center border-[#3fd0ff]/50 bg-[#3fd0ff]/16 text-[12px] text-[#3fd0ff] disabled:opacity-40"
         >
           {busy ? "CREATING…" : "CLAIM USERNAME"}
         </button>
@@ -152,19 +152,17 @@ function WalletAuth({ variant }: { variant: "signin" | "signup" }) {
 
   return (
     <div className="mt-8 space-y-5">
-      {err && <p className="border border-[#e0738a]/40 bg-[#e0738a]/10 px-4 py-3 text-[12.5px] text-[#e0738a]">{err}</p>}
+      {err && <p className="border border-[#ff5c7c]/40 bg-[#ff5c7c]/10 px-4 py-3 text-[12.5px] text-[#ff5c7c]">{err}</p>}
       <button
         type="button"
         onClick={() => run()}
         disabled={busy}
-        className={`clip-btn flex h-[52px] w-full items-center justify-center gap-2 font-mono-d text-[12.5px] font-medium tracking-wide text-[#1d1d1d] transition-colors disabled:opacity-60 ${
-          variant === "signup" ? "bg-[#fa6c34] hover:bg-[#ff7038]" : "bg-[#e9e0d1] hover:bg-[#f0e8da]"
-        }`}
+        className="hud-chip h-[52px] w-full justify-center border-[#3fd0ff]/50 bg-[#3fd0ff]/16 text-[12px] text-[#3fd0ff] disabled:opacity-40"
       >
         <Wallet size={14} />
         {busy ? "CHECK METAMASK…" : "CONNECT WALLET"}
       </button>
-      <p className="font-mono-d text-[10.5px] leading-relaxed text-[#635d5a]">
+      <p className="hud-label leading-relaxed">
         MetaMask will ask you to sign a short message. It proves you control the
         address. It is not a transaction, moves no funds, and grants no approvals.
       </p>
@@ -180,13 +178,13 @@ export function LoginPage() {
       footer={
         <>
           First time here?{" "}
-          <Link to="/register" className="text-[#e9e0d1] underline decoration-[#635d5a] underline-offset-4 hover:decoration-[#e9e0d1]">
+          <Link to="/register" className="text-[#3fd0ff] underline decoration-[#3fd0ff]/40 underline-offset-4 hover:decoration-[#3fd0ff]">
             Create an account
           </Link>
         </>
       }
     >
-      <WalletAuth variant="signin" />
+      <WalletAuth />
     </AuthLayout>
   );
 }
@@ -199,13 +197,13 @@ export function RegisterPage() {
       footer={
         <>
           Already have an account?{" "}
-          <Link to="/login" className="text-[#e9e0d1] underline decoration-[#635d5a] underline-offset-4 hover:decoration-[#e9e0d1]">
+          <Link to="/login" className="text-[#3fd0ff] underline decoration-[#3fd0ff]/40 underline-offset-4 hover:decoration-[#3fd0ff]">
             Sign in
           </Link>
         </>
       }
     >
-      <WalletAuth variant="signup" />
+      <WalletAuth />
     </AuthLayout>
   );
 }
