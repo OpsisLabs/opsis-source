@@ -233,8 +233,13 @@ export function errorAnswer(message: string): AiExplorerAnswer {
 /* ---------------- answer header ---------------- */
 
 const bool = (v: unknown): boolean | undefined => (typeof v === "boolean" ? v : undefined);
-const count = (v: unknown): number | undefined =>
-  Array.isArray(v) ? v.length : typeof v === "number" ? v : undefined;
+// Counts arrive as arrays, numbers, or numeric strings ("539" holders).
+const count = (v: unknown): number | undefined => {
+  if (Array.isArray(v)) return v.length;
+  if (typeof v === "number") return v;
+  if (typeof v === "string" && v.trim() !== "" && Number.isFinite(Number(v))) return Number(v);
+  return undefined;
+};
 
 /** Scales a raw integer token supply by its decimals for display. */
 function scaleSupply(raw: unknown, decimals: unknown): string | undefined {
@@ -281,13 +286,16 @@ export function deriveCard(
     push("Supply", scaleSupply(facts.totalSupply, facts.decimals));
     push("Holders", holders !== undefined ? formatAmount(String(holders), 0) : undefined);
     push("Transfers seen", count(facts.recentTransfers) !== undefined ? String(count(facts.recentTransfers)) : undefined);
-    if (verified !== undefined) push("Source code", verified ? "Verified" : "Unverified", verified ? "good" : "warn");
-    if (bool(facts.proxy)) push("Contract", "Proxy", "warn");
+    const badges: AnswerCardMeta["badges"] = [{ label: str(facts.type) ?? "ERC-20" }];
+    if (bool(facts.proxy)) badges.push({ label: "PROXY", tone: "warn" });
+    if (verified === false) badges.push({ label: "UNVERIFIED", tone: "warn" });
+    if (verified === true) badges.push({ label: "VERIFIED", tone: "good" });
     return {
       kind,
       id: str(facts.address) ?? fallbackId,
       title: str(facts.name) ?? (symbol ? `$${symbol}` : shortHex(fallbackId)),
       subtitle: symbol && str(facts.name) ? `$${symbol}` : undefined,
+      badges,
       stats,
     };
   }
@@ -295,12 +303,14 @@ export function deriveCard(
   if (kind === "transaction") {
     const status = str(facts.status)?.toLowerCase();
     const ok = status === "ok" || status === "success" || status === "1";
-    if (status) push("Status", ok ? "Succeeded" : "Failed", ok ? "good" : "bad");
     push("Value", facts.valueEth != null ? `${formatAmount(String(facts.valueEth))} ETH` : undefined);
-    push("Method", str(facts.method));
     push("Gas used", facts.gasUsed != null ? formatAmount(String(Number(facts.gasUsed)), 0) : undefined);
     push("Token transfers", count(facts.tokenTransfers) !== undefined ? String(count(facts.tokenTransfers)) : undefined);
-    return { kind, id: str(facts.hash) ?? fallbackId, title: "Transaction", subtitle: shortHex(str(facts.hash) ?? fallbackId), stats };
+    const badges: AnswerCardMeta["badges"] = [];
+    if (status) badges.push(ok ? { label: "SUCCEEDED", tone: "good" } : { label: "FAILED", tone: "bad" });
+    const method = str(facts.method);
+    if (method) badges.push({ label: method });
+    return { kind, id: str(facts.hash) ?? fallbackId, title: "Transaction", subtitle: shortHex(str(facts.hash) ?? fallbackId), badges, stats };
   }
 
   // wallet or contract
@@ -312,14 +322,15 @@ export function deriveCard(
   if (approvals) push("Approvals", String(approvals), "warn");
   const failed = count(facts.failedTransactions);
   if (failed) push("Failed", String(failed), "warn");
-  if (isContract && bool(facts.verified) !== undefined) {
-    push("Source code", facts.verified ? "Verified" : "Unverified", facts.verified ? "good" : "warn");
-  }
+  const badges: AnswerCardMeta["badges"] = [{ label: isContract ? "CONTRACT" : "WALLET" }];
+  if (isContract && bool(facts.verified) === false) badges.push({ label: "UNVERIFIED", tone: "warn" });
+  if (isContract && bool(facts.verified) === true) badges.push({ label: "VERIFIED", tone: "good" });
   return {
     kind: isContract ? "contract" : "wallet",
     id: str(facts.address) ?? fallbackId,
     title: isContract ? (str(facts.name) ?? "Smart contract") : "Wallet",
     subtitle: shortHex(str(facts.address) ?? fallbackId),
+    badges,
     stats,
   };
 }
@@ -377,33 +388,26 @@ export function deriveWidgets(facts: Record<string, unknown>, kind: ChainEntityT
     const dp = num(facts.decimals) ?? 18;
     const scale = 10 ** dp;
 
-    const moved = new Map<string, { total: number; count: number }>();
+    // Receiving side is a true partition of transferred volume, so it can be a
+    // donut without double counting (senders and receivers overlap).
+    const received = new Map<string, number>();
     let volume = 0;
     for (const t of transfers) {
       const value = transferAmount(t, scale);
       volume += value;
-      for (const side of [hexOf(t.from), hexOf(t.to)]) {
-        if (!side) continue;
-        const entry = moved.get(side) ?? { total: 0, count: 0 };
-        entry.total += value;
-        entry.count += 1;
-        moved.set(side, entry);
-      }
+      const to = hexOf(t.to);
+      if (to && value > 0) received.set(to, (received.get(to) ?? 0) + value);
     }
-    const top = [...moved.entries()]
-      .sort((a, b) => b[1].total - a[1].total || b[1].count - a[1].count)
-      .slice(0, 5);
-    if (top.length >= 2) {
+    if (volume > 0 && received.size >= 2) {
+      const segments = [...received.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([addr, total]) => ({ label: shortHex(addr), pct: (total / volume) * 100, pivot: addr }));
       widgets.push({
-        kind: "rows",
-        title: "Most active addresses",
-        note: "recent transfers, not all-time holders",
-        rows: top.map(([addr, m]) => ({
-          label: shortHex(addr),
-          sub: `${m.count} transfer${m.count === 1 ? "" : "s"}`,
-          value: volume > 0 ? `${Math.min(100, Math.round((m.total / volume) * 100))}% of volume` : undefined,
-          pivot: addr,
-        })),
+        kind: "donut",
+        title: "Where the volume went",
+        note: `${transfers.length} recent transfers`,
+        segments,
       });
     }
 
@@ -411,7 +415,8 @@ export function deriveWidgets(facts: Record<string, unknown>, kind: ChainEntityT
       .map((t) => ({ from: hexOf(t.from), to: hexOf(t.to), value: transferAmount(t, scale) }))
       .filter((t): t is { from: string; to: string; value: number } => Boolean(t.from && t.to) && t.value > 0)
       .sort((a, b) => b.value - a.value)
-      .slice(0, 3);
+      .slice(0, 5);
+    const maxValue = ranked[0]?.value ?? 0;
     if (ranked.length > 0) {
       widgets.push({
         kind: "rows",
@@ -419,6 +424,7 @@ export function deriveWidgets(facts: Record<string, unknown>, kind: ChainEntityT
         rows: ranked.map((t) => ({
           label: `${shortHex(t.from)} → ${shortHex(t.to)}`,
           value: formatAmount(String(t.value), 2),
+          barPct: maxValue > 0 ? (t.value / maxValue) * 100 : undefined,
           pivot: t.to,
         })),
       });
@@ -468,6 +474,7 @@ export function deriveWidgets(facts: Record<string, unknown>, kind: ChainEntityT
         }
       }
       const top = [...counterparties.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
+      const maxCount = top[0]?.[1] ?? 0;
       if (top.length >= 2) {
         widgets.push({
           kind: "rows",
@@ -476,6 +483,7 @@ export function deriveWidgets(facts: Record<string, unknown>, kind: ChainEntityT
           rows: top.map(([addr, count]) => ({
             label: shortHex(addr),
             value: `${count}×`,
+            barPct: maxCount > 0 ? (count / maxCount) * 100 : undefined,
             pivot: addr,
           })),
         });

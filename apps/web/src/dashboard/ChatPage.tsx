@@ -37,6 +37,15 @@ const STAT_TONE: Record<NonNullable<AnswerStat["tone"]>, string> = {
   bad: "text-[#e0738a]",
 };
 
+const BADGE_TONE: Record<NonNullable<AnswerStat["tone"]>, string> = {
+  neutral: "border-[#383838] bg-[#1d1d1d] text-[#9a938a]",
+  good: "border-[#7fb069]/50 bg-[#7fb069]/10 text-[#7fb069]",
+  warn: "border-[#fa6c34]/50 bg-[#fa6c34]/10 text-[#fa6c34]",
+  bad: "border-[#e0738a]/50 bg-[#e0738a]/10 text-[#e0738a]",
+};
+
+const DONUT_PALETTE = ["#fa6c34", "#e0738a", "#7cc4f8", "#d6ccba", "#7fb069"];
+
 /** 0x addresses and tx hashes become buttons that pivot to that entity. */
 function Linkified({ text, onPivot }: { text: string; onPivot: (v: string) => void }) {
   const parts = text.split(/(0x[a-fA-F0-9]{40,64})/g);
@@ -80,13 +89,45 @@ function CopyButton({ value }: { value: string }) {
   );
 }
 
-
 /** Citation lists can run to 15 ids; show a few and summarize the rest. */
 const fmtSources = (ids: string[]): string =>
   ids.length > 4 ? `${ids.slice(0, 4).join(", ")} +${ids.length - 4}` : ids.join(", ");
 
 const CHIP_CLASS =
-  "flex items-center gap-1.5 border border-[#2e2e2e] px-3 py-1.5 font-mono-d text-[10px] tracking-wider text-[#9a938a] transition-colors hover:border-[#fa6c34]/50 hover:text-[#e9e0d1]";
+  "flex items-center gap-1.5 border border-[#2e2e2e] px-3 py-1.5 font-mono-d text-[10px] tracking-wider text-[#9a938a] transition-colors hover:border-[#fa6c34]/60 hover:bg-[#fa6c34]/10 hover:text-[#e9e0d1]";
+
+/** Eased count-up for stat tiles; runs once per mount. */
+function useCountUp(target: number, duration = 750): number {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    let raf = 0;
+    const t0 = performance.now();
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - t0) / duration);
+      setValue(target * (1 - (1 - p) ** 3));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration]);
+  return value;
+}
+
+/** Animates the numeric part of a stat and compacts huge values (1.00B). */
+function StatValue({ text }: { text: string }) {
+  const match = /^([\d,]+(?:\.\d+)?)(.*)$/.exec(text);
+  const target = match ? Number(match[1].replace(/,/g, "")) : NaN;
+  const animated = useCountUp(Number.isFinite(target) ? target : 0);
+  if (!match || !Number.isFinite(target)) return <span>{text}</span>;
+  const decimals = match[1].includes(".") ? match[1].split(".")[1]!.length : 0;
+  const display =
+    target >= 1e9
+      ? `${(animated / 1e9).toFixed(2)}B`
+      : target >= 1e6
+        ? `${(animated / 1e6).toFixed(2)}M`
+        : animated.toLocaleString("en-US", { maximumFractionDigits: decimals });
+  return <span title={text}>{display}{match[2]}</span>;
+}
 
 function CardActions({ card, answer }: { card: AnswerCardMeta; answer: string }) {
   const [flash, setFlash] = useState<"" | "copy" | "share">("");
@@ -108,7 +149,7 @@ function CardActions({ card, answer }: { card: AnswerCardMeta; answer: string })
   ].join("\n");
 
   return (
-    <div className="mt-4 flex flex-wrap items-center gap-2">
+    <div className="mt-5 flex flex-wrap items-center gap-2">
       <button type="button" className={CHIP_CLASS} onClick={() => navigator.clipboard?.writeText(card.id).then(() => blink("copy"))}>
         <Copy size={10} />
         {flash === "copy" ? "COPIED" : card.kind === "transaction" ? "COPY HASH" : "COPY ADDRESS"}
@@ -133,14 +174,91 @@ function CardActions({ card, answer }: { card: AnswerCardMeta; answer: string })
   );
 }
 
-function WidgetPanel({ w, onPivot }: { w: AnswerWidget; onPivot: (v: string) => void }) {
+/** Animated donut whose segments partition the whole; legend rows pivot. */
+function Donut({ segments, onPivot }: { segments: NonNullable<AnswerWidget["segments"]>; onPivot: (v: string) => void }) {
+  const R = 34;
+  const C = 2 * Math.PI * R;
+  const [drawn, setDrawn] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setDrawn(true), 120);
+    return () => clearTimeout(t);
+  }, []);
+  const total = segments.reduce((sum, seg) => sum + seg.pct, 0);
+  let acc = 0;
+  const top = segments[0];
+  return (
+    <div className="flex items-center gap-5">
+      <div className="relative h-[108px] w-[108px] shrink-0">
+        <svg viewBox="0 0 84 84" className="h-full w-full -rotate-90">
+          <circle cx="42" cy="42" r={R} fill="none" stroke="#2e2e2e" strokeWidth="9" />
+          {segments.map((seg, i) => {
+            const dash = (seg.pct / 100) * C;
+            const offset = -(acc / 100) * C;
+            acc += seg.pct;
+            return (
+              <circle
+                key={seg.label}
+                cx="42"
+                cy="42"
+                r={R}
+                fill="none"
+                stroke={DONUT_PALETTE[i % DONUT_PALETTE.length]}
+                strokeWidth="9"
+                strokeDasharray={`${drawn ? dash : 0} ${C}`}
+                strokeDashoffset={offset}
+                style={{ transition: `stroke-dasharray 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) ${i * 110}ms` }}
+              />
+            );
+          })}
+        </svg>
+        {top && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="font-num text-[17px] leading-none text-[#f0e8da]">{Math.round(top.pct)}%</span>
+            <span className="mt-1 font-mono-d text-[8px] tracking-wider text-[#635d5a]">TOP</span>
+          </div>
+        )}
+      </div>
+      <div className="min-w-0 flex-1 space-y-0.5">
+        {segments.map((seg, i) => (
+          <button
+            key={seg.label}
+            type="button"
+            disabled={!seg.pivot}
+            onClick={() => seg.pivot && onPivot(seg.pivot)}
+            title={seg.pivot ? `Look up ${seg.pivot}` : undefined}
+            className="flex w-full items-center gap-2 px-1.5 py-1 text-left transition-colors enabled:hover:bg-[#242424]"
+          >
+            <span className="h-2 w-2 shrink-0" style={{ background: DONUT_PALETTE[i % DONUT_PALETTE.length] }} />
+            <span className="min-w-0 flex-1 truncate font-mono-d text-[10.5px] text-[#d6ccba]">{seg.label}</span>
+            <span className="font-num text-[11px] text-[#9a938a]">{seg.pct < 1 ? "<1" : Math.round(seg.pct)}%</span>
+          </button>
+        ))}
+        {total < 99 && (
+          <div className="flex items-center gap-2 px-1.5 py-1">
+            <span className="h-2 w-2 shrink-0 bg-[#2e2e2e]" />
+            <span className="min-w-0 flex-1 truncate font-mono-d text-[10.5px] text-[#635d5a]">everyone else</span>
+            <span className="font-num text-[11px] text-[#635d5a]">{Math.max(0, 100 - Math.round(total))}%</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function WidgetPanel({ w, onPivot, delay = 0 }: { w: AnswerWidget; onPivot: (v: string) => void; delay?: number }) {
   const max = Math.max(...(w.bars ?? []).map((b) => b.count), 1);
   return (
-    <div className="border border-[#2e2e2e] bg-[#1f1f1f] p-4">
+    <div className="deck-rise border border-[#2e2e2e] bg-[#1f1f1f] p-4" style={{ animationDelay: `${delay}ms` }}>
       <div className="flex items-baseline justify-between gap-3">
         <p className="font-mono-d text-[10px] tracking-wider text-[#635d5a]">{w.title.toUpperCase()}</p>
         {w.note && <p className="truncate font-mono-d text-[9px] text-[#4c4844]">{w.note.toUpperCase()}</p>}
       </div>
+
+      {w.kind === "donut" && w.segments && (
+        <div className="mt-3">
+          <Donut segments={w.segments} onPivot={onPivot} />
+        </div>
+      )}
 
       {w.kind === "bars" && w.bars && (
         <div className="mt-3">
@@ -149,7 +267,7 @@ function WidgetPanel({ w, onPivot }: { w: AnswerWidget; onPivot: (v: string) => 
               <div
                 key={b.label}
                 title={`${b.label}: ${b.count}`}
-                className="flex-1 bg-[#fa6c34]/60 transition-colors hover:bg-[#fa6c34]"
+                className="flex-1 bg-gradient-to-t from-[#fa6c34]/80 to-[#fa6c34]/30 transition-colors hover:from-[#fa6c34] hover:to-[#fa6c34]/60"
                 style={{ height: `${Math.max(8, (b.count / max) * 100)}%` }}
               />
             ))}
@@ -166,12 +284,18 @@ function WidgetPanel({ w, onPivot }: { w: AnswerWidget; onPivot: (v: string) => 
           {w.rows.map((r, i) => {
             const inner = (
               <>
-                <span className="min-w-0 flex-1 truncate text-left">
+                {r.barPct !== undefined && (
+                  <span
+                    className="absolute inset-y-0 left-0 bg-[#fa6c34]/10"
+                    style={{ width: `${Math.max(2, r.barPct)}%` }}
+                  />
+                )}
+                <span className="relative min-w-0 flex-1 truncate text-left">
                   <span className="font-mono-d text-[11.5px] text-[#d6ccba]">{r.label}</span>
                   {r.sub && <span className="ml-2 font-mono-d text-[10px] text-[#635d5a]">{r.sub}</span>}
                 </span>
                 {r.value && (
-                  <span className={`shrink-0 font-mono-d text-[11px] ${STAT_TONE[r.tone ?? "neutral"]}`}>{r.value}</span>
+                  <span className={`relative shrink-0 font-num text-[11.5px] ${STAT_TONE[r.tone ?? "neutral"]}`}>{r.value}</span>
                 )}
               </>
             );
@@ -180,14 +304,14 @@ function WidgetPanel({ w, onPivot }: { w: AnswerWidget; onPivot: (v: string) => 
                 key={`${r.label}${i}`}
                 type="button"
                 onClick={() => onPivot(r.pivot!)}
-                className="flex w-full items-center gap-2 border border-transparent px-2 py-1.5 transition-colors hover:border-[#2e2e2e] hover:bg-[#242424]"
+                className="relative flex w-full items-center gap-2 overflow-hidden border border-transparent px-2 py-1.5 transition-colors hover:border-[#2e2e2e] hover:bg-[#242424]"
                 title={`Look up ${r.pivot}`}
               >
                 {inner}
-                <Search size={10} className="shrink-0 text-[#635d5a]" />
+                <Search size={10} className="relative shrink-0 text-[#635d5a]" />
               </button>
             ) : (
-              <div key={`${r.label}${i}`} className="flex items-center gap-2 px-2 py-1.5">
+              <div key={`${r.label}${i}`} className="relative flex items-center gap-2 overflow-hidden px-2 py-1.5">
                 {inner}
               </div>
             );
@@ -200,6 +324,7 @@ function WidgetPanel({ w, onPivot }: { w: AnswerWidget; onPivot: (v: string) => 
 
 function AnswerCard({ ai, onPivot }: { ai: AiExplorerAnswer; onPivot: (v: string) => void }) {
   const [tab, setTab] = useState<"facts" | "risk" | "sources">("facts");
+  const monogram = (ai.card?.subtitle?.replace(/^\$/, "") ?? ai.card?.title ?? "?").slice(0, 2).toUpperCase();
   return (
     <div className="clip-panel border border-[#2e2e2e] bg-[#242424]">
       <div className="flex items-center gap-2 border-b border-[#2e2e2e] px-6 py-3.5">
@@ -208,23 +333,49 @@ function AnswerCard({ ai, onPivot }: { ai: AiExplorerAnswer; onPivot: (v: string
       </div>
 
       {ai.card && (
-        <div className="border-b border-[#2e2e2e] px-6 py-5">
-          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <span className="border border-[#fa6c34]/40 bg-[#fa6c34]/10 px-2 py-0.5 font-mono-d text-[9.5px] tracking-wider text-[#fa6c34]">
-              {KIND_LABEL[ai.card.kind] ?? "ENTITY"}
-            </span>
-            <h3 className="text-[19px] font-medium tracking-[-0.01em] text-[#f0e8da]">{ai.card.title}</h3>
-            {ai.card.subtitle && (
-              <span className="font-mono-d text-[11.5px] text-[#9a938a]">{ai.card.subtitle}</span>
-            )}
+        <div className="deck-rise relative overflow-hidden border-b border-[#2e2e2e] px-6 py-6">
+          <div
+            className="pointer-events-none absolute -right-20 -top-24 h-[260px] w-[260px] rounded-full"
+            style={{ background: "radial-gradient(circle, rgba(250,108,52,0.14) 0%, rgba(250,108,52,0) 70%)" }}
+          />
+          <div className="relative flex items-start gap-4">
+            <div className="clip-btn-sm flex h-14 w-14 shrink-0 items-center justify-center bg-gradient-to-br from-[#fa6c34] to-[#b8481a] font-mono-d text-[19px] font-bold text-[#1d1d1d]">
+              {monogram}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <span className="border border-[#fa6c34]/40 bg-[#fa6c34]/10 px-2 py-0.5 font-mono-d text-[9.5px] tracking-wider text-[#fa6c34]">
+                  {KIND_LABEL[ai.card.kind] ?? "ENTITY"}
+                </span>
+                <h3 className="text-[24px] font-medium tracking-[-0.02em] text-[#f0e8da]">{ai.card.title}</h3>
+                {ai.card.subtitle && <span className="font-mono-d text-[12px] text-[#9a938a]">{ai.card.subtitle}</span>}
+              </div>
+              {ai.card.badges.length > 0 && (
+                <div className="mt-2.5 flex flex-wrap gap-1.5">
+                  {ai.card.badges.map((badge) => (
+                    <span
+                      key={badge.label}
+                      className={`border px-2 py-0.5 font-mono-d text-[9.5px] tracking-wider ${BADGE_TONE[badge.tone ?? "neutral"]}`}
+                    >
+                      {badge.label}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
+
           {ai.card.stats.length > 0 && (
-            <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3 lg:grid-cols-4">
-              {ai.card.stats.map((stat) => (
-                <div key={stat.label}>
-                  <p className="font-mono-d text-[9.5px] tracking-wider text-[#635d5a]">{stat.label.toUpperCase()}</p>
-                  <p className={`font-num mt-1 truncate text-[16px] ${STAT_TONE[stat.tone ?? "neutral"]}`} title={stat.value}>
-                    {stat.value}
+            <div className="relative mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
+              {ai.card.stats.map((stat, i) => (
+                <div
+                  key={stat.label}
+                  className="deck-rise border border-[#2e2e2e] bg-[#1d1d1d]/80 px-3.5 py-3 transition-colors hover:border-[#383838]"
+                  style={{ animationDelay: `${90 + i * 70}ms` }}
+                >
+                  <p className="font-mono-d text-[9px] tracking-wider text-[#635d5a]">{stat.label.toUpperCase()}</p>
+                  <p className={`font-num mt-1.5 truncate text-[21px] leading-none ${STAT_TONE[stat.tone ?? "neutral"]}`}>
+                    <StatValue text={stat.value} />
                   </p>
                 </div>
               ))}
@@ -245,7 +396,9 @@ function AnswerCard({ ai, onPivot }: { ai: AiExplorerAnswer; onPivot: (v: string
                 : "bg-transparent"
           }`}
         >
-          <ShieldAlert size={13} className={SEV_STYLE[ai.riskNotes[0]!.severity].text} />
+          <span className={`pulse-dot ${SEV_STYLE[ai.riskNotes[0]!.severity].text}`}>
+            <ShieldAlert size={13} />
+          </span>
           <span className="flex-1 truncate text-[12.5px] text-[#d6ccba]">{ai.riskNotes[0]!.note}</span>
           {ai.riskNotes.length > 1 && (
             <span className="shrink-0 font-mono-d text-[10px] text-[#635d5a]">+{ai.riskNotes.length - 1} more</span>
@@ -253,7 +406,7 @@ function AnswerCard({ ai, onPivot }: { ai: AiExplorerAnswer; onPivot: (v: string
         </button>
       )}
 
-      <div className="px-6 py-5">
+      <div className="deck-rise px-6 py-5" style={{ animationDelay: "150ms" }}>
         <p className="text-[14.5px] leading-relaxed text-[#e9e0d1]">
           <Linkified text={ai.answer} onPivot={onPivot} />
         </p>
@@ -271,8 +424,8 @@ function AnswerCard({ ai, onPivot }: { ai: AiExplorerAnswer; onPivot: (v: string
 
       {ai.widgets && ai.widgets.length > 0 && (
         <div className="grid gap-3 border-t border-[#2e2e2e] px-6 py-5 sm:grid-cols-2">
-          {ai.widgets.map((w) => (
-            <WidgetPanel key={w.title} w={w} onPivot={onPivot} />
+          {ai.widgets.map((w, i) => (
+            <WidgetPanel key={w.title} w={w} onPivot={onPivot} delay={200 + i * 90} />
           ))}
         </div>
       )}

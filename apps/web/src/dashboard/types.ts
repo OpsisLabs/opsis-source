@@ -43,6 +43,8 @@ export interface AnswerCardMeta {
   id: string;
   title: string;
   subtitle?: string;
+  /** Qualities as pills: ERC-20, PROXY, UNVERIFIED, SUCCEEDED… */
+  badges: { label: string; tone?: AnswerStat["tone"] }[];
   stats: AnswerStat[];
 }
 
@@ -52,17 +54,21 @@ export interface WidgetRow {
   sub?: string;
   value?: string;
   tone?: AnswerStat["tone"];
+  /** 0-100; renders a proportional bar behind the row. */
+  barPct?: number;
   /** When set, clicking the row asks about this value. */
   pivot?: string;
 }
 
 /** A data panel rendered inside the answer card. */
 export interface AnswerWidget {
-  kind: "bars" | "rows";
+  kind: "bars" | "rows" | "donut";
   title: string;
   note?: string;
   bars?: { label: string; count: number }[];
   rows?: WidgetRow[];
+  /** Donut segments; pcts are a true partition of the whole. */
+  segments?: { label: string; pct: number; pivot?: string }[];
 }
 
 export interface AiExplorerAnswer {
