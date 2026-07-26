@@ -149,6 +149,13 @@ function summarizeFacts(type: ChainEntityType, docs: SourceDocumentInput[]): Rec
     const tokenDoc = docs.find((doc) => doc.entityType === "token");
     const token = (tokenDoc?.responseJson ?? primary?.token ?? primary) as Record<string, unknown>;
     const contract = docs.find((doc) => doc.requestUrl?.includes("/smart-contracts/"))?.responseJson as Record<string, unknown> | undefined;
+    const counters = docs.find((doc) => doc.requestUrl?.includes("/counters"))?.responseJson as Record<string, unknown> | undefined;
+    const addressInfo = docs.find(
+      (doc) => doc.requestUrl?.includes("/addresses/") && !doc.requestUrl.includes("/counters")
+    )?.responseJson as Record<string, unknown> | undefined;
+    const deployer = addressHash(addressInfo?.creator_address_hash);
+    const distribution = summarizeDistribution(documentItems(docs, "/holders"), token?.total_supply, deployer);
+
     return {
       address: docs[0]?.entityValue,
       name: token?.name,
@@ -156,12 +163,15 @@ function summarizeFacts(type: ChainEntityType, docs: SourceDocumentInput[]): Rec
       decimals: token?.decimals,
       type: token?.type,
       totalSupply: token?.total_supply,
-      holders: token?.holders ?? token?.holders_count,
+      holders: token?.holders ?? token?.holders_count ?? counters?.token_holders_count,
+      lifetimeTransfers: counters?.transfers_count,
       exchangeRate: token?.exchange_rate,
+      deployer,
       deployedAt: contract?.creation_timestamp ?? contract?.deployed_at,
       verified: contract ? Boolean(contract.is_verified || contract.is_verified_via_eth_bytecode_db) : null,
       proxy: Boolean(contract?.is_proxy || contract?.proxy_type),
-      recentTransfers: documentItems(docs, "/transfers").map(normalizeTokenTransfer)
+      recentTransfers: documentItems(docs, "/transfers").map(normalizeTokenTransfer),
+      ...distribution
     };
   }
   if (type === "contract") {
@@ -334,6 +344,75 @@ function addressHash(value: unknown): unknown {
   return value;
 }
 
+
+/** Contracts whose name marks them as a trading pool rather than a holder. */
+const POOL_NAME = /pair|pool|swap|router|lp\b/i;
+
+/**
+ * Turns the holder list into the numbers that actually decide whether a token
+ * is safe to touch: how much supply sits in the trading pool (that is the
+ * liquidity you would buy from and sell into), how much a handful of private
+ * wallets control, and whether the deployer still holds a position.
+ *
+ * The pool is separated from the whales deliberately — counting it as
+ * concentration makes every liquid token look dangerous, and ignoring it makes
+ * an illiquid one look safe.
+ */
+function summarizeDistribution(
+  rawHolders: unknown[],
+  rawSupply: unknown,
+  deployer: unknown
+): Record<string, unknown> {
+  const supply = Number(rawSupply);
+  if (!Number.isFinite(supply) || supply <= 0 || rawHolders.length === 0) return {};
+
+  const holders = rawHolders
+    .map((item) => {
+      const row = item as Record<string, unknown>;
+      const account = (row.address ?? {}) as Record<string, unknown>;
+      const value = Number(row.value);
+      return {
+        address: typeof account.hash === "string" ? account.hash : "",
+        label: typeof account.name === "string" ? account.name : undefined,
+        isContract: Boolean(account.is_contract),
+        flaggedScam: Boolean(account.is_scam),
+        share: Number.isFinite(value) ? (value / supply) * 100 : 0
+      };
+    })
+    .filter((h) => h.address)
+    .sort((a, b) => b.share - a.share);
+
+  const isPool = (h: (typeof holders)[number]): boolean => h.isContract && Boolean(h.label && POOL_NAME.test(h.label));
+  const pools = holders.filter(isPool);
+  const wallets = holders.filter((h) => !isPool(h));
+  const share = (list: typeof holders, n: number): number =>
+    Math.round(list.slice(0, n).reduce((sum, h) => sum + h.share, 0) * 10) / 10;
+
+  const deployerAddress = typeof deployer === "string" ? deployer.toLowerCase() : undefined;
+  const deployerHolding = deployerAddress
+    ? holders.find((h) => h.address.toLowerCase() === deployerAddress)
+    : undefined;
+
+  return {
+    liquidityPoolShare: pools.length > 0 ? share(pools, pools.length) : 0,
+    liquidityPools: pools.slice(0, 3).map((p) => ({ address: p.address, label: p.label, share: Math.round(p.share * 10) / 10 })),
+    top1WalletShare: share(wallets, 1),
+    top5WalletShare: share(wallets, 5),
+    top10WalletShare: share(wallets, 10),
+    topHolders: holders.slice(0, 10).map((h) => ({
+      address: h.address,
+      label: h.label,
+      isPool: isPool(h),
+      isContract: h.isContract,
+      flaggedScam: h.flaggedScam,
+      share: Math.round(h.share * 100) / 100
+    })),
+    holdersAnalyzed: holders.length,
+    deployerStillHolds: deployerHolding ? Math.round(deployerHolding.share * 100) / 100 : deployerAddress ? 0 : undefined,
+    scamFlaggedHolders: holders.filter((h) => h.flaggedScam).length
+  };
+}
+
 function normalizeTokenTransfer(value: unknown): Record<string, unknown> {
   const transfer = value as Record<string, unknown>;
   const token = (transfer.token ?? {}) as Record<string, unknown>;
@@ -451,6 +530,68 @@ function buildRiskNotes(type: ChainEntityType, facts: Record<string, unknown>, c
       evidenceCitationIds: ids
     });
   }
+  if (type === "token") {
+    const top10 = Number(facts.top10WalletShare);
+    const top1 = Number(facts.top1WalletShare);
+    const pool = Number(facts.liquidityPoolShare);
+    const deployerHolds = Number(facts.deployerStillHolds);
+
+    // Benchmarks: a broadly held token typically keeps its top ten private
+    // wallets under ~25% of supply. Past 50% a small group can move the price
+    // at will, which is the single most useful number a newcomer can be given.
+    if (Number.isFinite(top10) && top10 >= 50) {
+      notes.push({
+        severity: "high",
+        title: "Supply is concentrated in a few wallets",
+        detail: `The ten largest private wallets hold ${top10}% of supply, excluding any trading pool. Widely held tokens are usually under 25%. A group this size can move the price on its own.`,
+        evidenceCitationIds: ids
+      });
+    } else if (Number.isFinite(top10) && top10 >= 25) {
+      notes.push({
+        severity: "medium",
+        title: "Supply is somewhat concentrated",
+        detail: `The ten largest private wallets hold ${top10}% of supply, excluding any trading pool. That is above the ~25% typical of widely held tokens.`,
+        evidenceCitationIds: ids
+      });
+    }
+
+    if (Number.isFinite(top1) && top1 >= 15) {
+      notes.push({
+        severity: "medium",
+        title: "One wallet holds a large share",
+        detail: `The largest single wallet holds ${top1}% of supply. A sale from one address that size would be felt by everyone else.`,
+        evidenceCitationIds: ids
+      });
+    }
+
+    if (Number.isFinite(pool) && pool > 0 && pool < 3) {
+      notes.push({
+        severity: "medium",
+        title: "Very little of the supply is tradeable",
+        detail: `Only ${pool}% of supply sits in a trading pool. Thin liquidity means even modest trades move the price sharply, and large positions can be hard to exit.`,
+        evidenceCitationIds: ids
+      });
+    }
+
+    if (Number.isFinite(deployerHolds) && deployerHolds >= 5) {
+      notes.push({
+        severity: "medium",
+        title: "The deployer still holds a position",
+        detail: `The wallet that created this token still holds ${deployerHolds}% of supply. That is not wrongdoing by itself, but it is a position that could be sold.`,
+        evidenceCitationIds: ids
+      });
+    }
+
+    if (Number(facts.scamFlaggedHolders) > 0) {
+      notes.push({
+        severity: "medium",
+        title: "A holder is flagged by the explorer",
+        detail: `${facts.scamFlaggedHolders} address(es) among the largest holders carry a scam flag in explorer metadata. Treat that as a prompt to look closer, not a verdict.`,
+        evidenceCitationIds: ids
+      });
+    }
+  }
+
   if (type === "wallet") {
     const approvals = Array.isArray(facts.approvalTransactions) ? (facts.approvalTransactions as Array<Record<string, unknown>>) : [];
     const currentUnlimited = approvals.filter((approval) => approval.currentUnlimited === true);

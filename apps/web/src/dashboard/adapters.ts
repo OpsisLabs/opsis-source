@@ -283,9 +283,16 @@ export function deriveCard(
     const symbol = str(facts.symbol);
     const holders = count(facts.holders);
     const verified = bool(facts.verified);
-    push("Supply", scaleSupply(facts.totalSupply, facts.decimals));
+    const top10 = num(facts.top10WalletShare);
+    const pool = num(facts.liquidityPoolShare);
     push("Holders", holders !== undefined ? formatAmount(String(holders), 0) : undefined);
-    push("Transfers seen", count(facts.recentTransfers) !== undefined ? String(count(facts.recentTransfers)) : undefined);
+    // Concentration and liquidity decide whether a position can be entered and
+    // exited at all, so they outrank supply in the header.
+    if (top10 !== undefined) push("Top 10 wallets", `${top10}%`, top10 >= 50 ? "bad" : top10 >= 25 ? "warn" : "good");
+    if (pool !== undefined) push("In trading pool", `${pool}%`, pool > 0 && pool < 3 ? "warn" : "neutral");
+    push("Supply", scaleSupply(facts.totalSupply, facts.decimals));
+    const lifetime = num(facts.lifetimeTransfers);
+    push("Transfers", lifetime !== undefined ? formatAmount(String(lifetime), 0) : (count(facts.recentTransfers) !== undefined ? String(count(facts.recentTransfers)) : undefined));
     const badges: AnswerCardMeta["badges"] = [{ label: str(facts.type) ?? "ERC-20" }];
     if (bool(facts.proxy)) badges.push({ label: "PROXY", tone: "warn" });
     if (verified === false) badges.push({ label: "UNVERIFIED", tone: "warn" });
@@ -384,6 +391,49 @@ export function deriveWidgets(facts: Record<string, unknown>, kind: ChainEntityT
   const transferAmount = (t: Record<string, unknown>, scale: number): number =>
     num(t.formattedValue) ?? (num(t.rawValue) ?? num(t.value) ?? 0) / scale;
 
+  if (kind === "token") {
+    const topHolders = rows(facts.topHolders);
+    const pool = num(facts.liquidityPoolShare) ?? 0;
+    const top10 = num(facts.top10WalletShare) ?? 0;
+
+    if (topHolders.length > 0) {
+      const rest = Math.max(0, 100 - pool - top10);
+      widgets.push({
+        kind: "donut",
+        title: "Who controls the supply",
+        note: "pool is tradeable, not owned",
+        segments: [
+          ...(pool > 0 ? [{ label: "Trading pool", pct: pool }] : []),
+          ...(top10 > 0 ? [{ label: "Top 10 wallets", pct: top10 }] : []),
+          ...(rest > 0 ? [{ label: "Everyone else", pct: rest }] : []),
+        ],
+      });
+
+      const peak = Math.max(...topHolders.map((h) => num(h.share) ?? 0), 1);
+      widgets.push({
+        kind: "rows",
+        title: "Largest holders",
+        note: `${facts.holdersAnalyzed ?? topHolders.length} analyzed`,
+        rows: topHolders.map((h) => {
+          const share = num(h.share) ?? 0;
+          const isPool = h.isPool === true;
+          return {
+            label: shortHex(h.address),
+            sub: isPool
+              ? "trading pool"
+              : h.flaggedScam === true
+                ? "flagged"
+                : (str(h.label) ?? (h.isContract === true ? "contract" : "wallet")),
+            value: `${share}%`,
+            tone: isPool ? "neutral" : h.flaggedScam === true ? "bad" : share >= 10 ? "warn" : undefined,
+            barPct: (share / peak) * 100,
+            pivot: str(h.address),
+          };
+        }),
+      });
+    }
+  }
+
   if (kind === "token" && transfers.length > 0) {
     const dp = num(facts.decimals) ?? 18;
     const scale = 10 ** dp;
@@ -399,15 +449,18 @@ export function deriveWidgets(facts: Record<string, unknown>, kind: ChainEntityT
       if (to && value > 0) received.set(to, (received.get(to) ?? 0) + value);
     }
     if (volume > 0 && received.size >= 2) {
-      const segments = [...received.entries()]
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5)
-        .map(([addr, total]) => ({ label: shortHex(addr), pct: (total / volume) * 100, pivot: addr }));
+      const top = [...received.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
+      const peak = top[0]?.[1] ?? 0;
       widgets.push({
-        kind: "donut",
-        title: "Where the volume went",
+        kind: "rows",
+        title: "Where recent volume went",
         note: `${transfers.length} recent transfers`,
-        segments,
+        rows: top.map(([addr, total]) => ({
+          label: shortHex(addr),
+          value: `${Math.round((total / volume) * 100)}%`,
+          barPct: peak > 0 ? (total / peak) * 100 : undefined,
+          pivot: addr,
+        })),
       });
     }
 

@@ -68,6 +68,8 @@ describe("JSON cache", () => {
 
     expect(resolution.entity.type).toBe("token");
     expect(resolution.entity.facts).toMatchObject({ name: "Fixture Token", symbol: "FIX", decimals: "18" });
-    expect(fetchMock).toHaveBeenCalledTimes(8);
+    // 8 baseline calls plus holders, counters and the deploying address, which
+    // together supply the distribution analysis.
+    expect(fetchMock).toHaveBeenCalledTimes(11);
   });
 });

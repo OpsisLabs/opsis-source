@@ -45,11 +45,24 @@ export class BlockscoutProvider implements ChainProvider {
 
   async getToken(address: string): Promise<SourceDocumentInput[]> {
     const token = await this.fetchDoc("token", address, `/tokens/${address}`);
-    const [transfers, contract] = await Promise.all([
+    // Holders, lifetime counters and the deploying address are what make
+    // distribution analysis possible; the transfer window alone cannot show
+    // who actually controls the supply.
+    const [transfers, contract, holders, counters, addressInfo] = await Promise.all([
       this.fetchPaginated("token", address, `/tokens/${address}/transfers`, true),
-      this.fetchOptionalDoc("token", address, `/smart-contracts/${address}`)
+      this.fetchOptionalDoc("token", address, `/smart-contracts/${address}`),
+      this.fetchOptionalDoc("token", address, `/tokens/${address}/holders`),
+      this.fetchOptionalDoc("token", address, `/tokens/${address}/counters`),
+      this.fetchOptionalDoc("token", address, `/addresses/${address}`)
     ]);
-    return [token, ...transfers, ...(contract ? [contract] : [])];
+    return [
+      token,
+      ...transfers,
+      ...(contract ? [contract] : []),
+      ...(holders ? [holders] : []),
+      ...(counters ? [counters] : []),
+      ...(addressInfo ? [addressInfo] : [])
+    ];
   }
 
   async getContract(address: string): Promise<SourceDocumentInput[]> {
