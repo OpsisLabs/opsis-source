@@ -195,10 +195,14 @@ export async function sendMessage(
   entity?: string,
 ): Promise<ChatMessage> {
   const resolved = entity ? classify(entity) : undefined;
+  // A 64-char hash is unambiguously a transaction, but classify() calls every
+  // address a wallet — and sending that as entityType overrides the backend's
+  // own detection, so token and contract addresses get explained as wallets.
+  // Send the value alone and let the API identify what it actually is.
   const body = {
     question: message,
     ...(resolved && resolved.type !== "unknown"
-      ? { entity: resolved.id, entityType: resolved.type }
+      ? { entity: resolved.id, ...(resolved.type === "transaction" ? { entityType: "transaction" as const } : {}) }
       : {}),
   };
 

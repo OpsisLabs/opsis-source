@@ -9,6 +9,8 @@
  */
 import type {
   AiExplorerAnswer,
+  AnswerCardMeta,
+  AnswerStat,
   ChainEntityType,
   ChatMessage,
   ChatSession,
@@ -41,6 +43,7 @@ export interface BackendRiskNote {
 
 export interface BackendAnswer {
   answer: string;
+  facts?: Record<string, unknown>;
   summaryBullets?: string[];
   confirmedFacts?: { fact: string; sourceIds: string[] }[];
   inferences?: { inference: string; confidence: "low" | "medium" | "high"; sourceIds: string[] }[];
@@ -103,7 +106,10 @@ function formatAmount(value: string, decimals = 6): string {
   if (numeric !== 0 && Math.abs(numeric) < 10 ** -decimals) {
     text = numeric.toPrecision(3); // dust: keep significant digits instead of 0.000000
   } else {
-    text = numeric.toFixed(decimals).replace(/\.?0+$/, "");
+    text = numeric.toFixed(decimals);
+    // Trim only the fractional tail. Stripping trailing zeros unconditionally
+    // turns 1000000000 into 1 and 680 into 68.
+    if (text.includes(".")) text = text.replace(/0+$/, "").replace(/\.$/, "");
   }
 
   const [whole = "", fraction] = text.split(".");
@@ -173,6 +179,7 @@ export function adaptAnswer(
   const relabel = (ids?: string[]): string[] => (ids ?? []).map((id) => alias.get(id) ?? id);
 
   return {
+    card: source.facts ? deriveCard(source.facts, entityType, entityId) : undefined,
     answer: source.answer ?? "",
     summaryBullets: source.summaryBullets ?? [],
     confirmedFacts: (source.confirmedFacts ?? []).map((entry) => ({
@@ -216,6 +223,99 @@ export function errorAnswer(message: string): AiExplorerAnswer {
     riskNotes: [],
     citations: [],
     suggestedFollowUps: [],
+  };
+}
+
+
+/* ---------------- answer header ---------------- */
+
+const bool = (v: unknown): boolean | undefined => (typeof v === "boolean" ? v : undefined);
+const count = (v: unknown): number | undefined =>
+  Array.isArray(v) ? v.length : typeof v === "number" ? v : undefined;
+
+/** Scales a raw integer token supply by its decimals for display. */
+function scaleSupply(raw: unknown, decimals: unknown): string | undefined {
+  const text = str(raw);
+  const dp = Number(decimals);
+  if (!text || !/^\d+$/.test(text)) return undefined;
+  if (!Number.isFinite(dp) || dp <= 0) return formatAmount(text, 0);
+  const whole = text.length > dp ? text.slice(0, text.length - dp) : "0";
+  return formatAmount(whole, 0);
+}
+
+/**
+ * Builds the header from the entity's own facts rather than asking the model
+ * for them: these are exact values, and the card should never disagree with the
+ * data underneath it.
+ */
+export function deriveCard(
+  facts: Record<string, unknown>,
+  hintedKind: ChainEntityType,
+  fallbackId: string,
+): AnswerCardMeta {
+  // The caller's hint comes from client-side pattern matching, which cannot tell
+  // a token contract from a wallet. The fact bundle can, so trust it first.
+  const kind: ChainEntityType =
+    facts.symbol !== undefined || facts.totalSupply !== undefined
+      ? "token"
+      : facts.gasUsed !== undefined || facts.valueEth !== undefined
+        ? "transaction"
+        : facts.abiAvailable !== undefined || facts.compiler !== undefined
+          ? "contract"
+          : hintedKind === "unknown"
+            ? "wallet"
+            : hintedKind;
+
+  const stats: AnswerStat[] = [];
+  const push = (label: string, value: string | undefined, tone?: AnswerStat["tone"]) => {
+    if (value !== undefined && value !== "") stats.push({ label, value, tone });
+  };
+
+  if (kind === "token") {
+    const symbol = str(facts.symbol);
+    const holders = count(facts.holders);
+    const verified = bool(facts.verified);
+    push("Supply", scaleSupply(facts.totalSupply, facts.decimals));
+    push("Holders", holders !== undefined ? formatAmount(String(holders), 0) : undefined);
+    push("Transfers seen", count(facts.recentTransfers) !== undefined ? String(count(facts.recentTransfers)) : undefined);
+    if (verified !== undefined) push("Source code", verified ? "Verified" : "Unverified", verified ? "good" : "warn");
+    if (bool(facts.proxy)) push("Contract", "Proxy", "warn");
+    return {
+      kind,
+      title: str(facts.name) ?? (symbol ? `$${symbol}` : shortHex(fallbackId)),
+      subtitle: symbol && str(facts.name) ? `$${symbol}` : undefined,
+      stats,
+    };
+  }
+
+  if (kind === "transaction") {
+    const status = str(facts.status)?.toLowerCase();
+    const ok = status === "ok" || status === "success" || status === "1";
+    if (status) push("Status", ok ? "Succeeded" : "Failed", ok ? "good" : "bad");
+    push("Value", facts.valueEth != null ? `${formatAmount(String(facts.valueEth))} ETH` : undefined);
+    push("Method", str(facts.method));
+    push("Gas used", facts.gasUsed != null ? formatAmount(String(Number(facts.gasUsed)), 0) : undefined);
+    push("Token transfers", count(facts.tokenTransfers) !== undefined ? String(count(facts.tokenTransfers)) : undefined);
+    return { kind, title: "Transaction", subtitle: shortHex(str(facts.hash) ?? fallbackId), stats };
+  }
+
+  // wallet or contract
+  const isContract = bool(facts.isContract) || kind === "contract";
+  push("Balance", facts.nativeBalanceEth != null ? `${formatAmount(String(facts.nativeBalanceEth))} ETH` : undefined);
+  push("Tokens held", count(facts.tokenBalances) !== undefined ? String(count(facts.tokenBalances)) : undefined);
+  push("Transactions", count(facts.transactionsFetched) !== undefined ? String(count(facts.transactionsFetched)) : undefined);
+  const approvals = count(facts.approvalTransactions);
+  if (approvals) push("Approvals", String(approvals), "warn");
+  const failed = count(facts.failedTransactions);
+  if (failed) push("Failed", String(failed), "warn");
+  if (isContract && bool(facts.verified) !== undefined) {
+    push("Source code", facts.verified ? "Verified" : "Unverified", facts.verified ? "good" : "warn");
+  }
+  return {
+    kind: isContract ? "contract" : "wallet",
+    title: isContract ? (str(facts.name) ?? "Smart contract") : "Wallet",
+    subtitle: shortHex(str(facts.address) ?? fallbackId),
+    stats,
   };
 }
 

@@ -29,7 +29,23 @@ export interface SourceCitation {
   fieldsUsed: string[];
 }
 
+/** One stat tile in the answer header. */
+export interface AnswerStat {
+  label: string;
+  value: string;
+  tone?: "neutral" | "good" | "warn" | "bad";
+}
+
+/** Header derived from the entity's facts, so the card leads with what it is. */
+export interface AnswerCardMeta {
+  kind: ChainEntityType;
+  title: string;
+  subtitle?: string;
+  stats: AnswerStat[];
+}
+
 export interface AiExplorerAnswer {
+  card?: AnswerCardMeta;
   answer: string;
   summaryBullets: string[];
   confirmedFacts: { fact: string; sourceIds: string[] }[];

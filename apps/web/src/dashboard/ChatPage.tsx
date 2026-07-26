@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useLocation, useOutletContext, useParams } from "react-router";
-import { AlertTriangle, ArrowUp, CheckCircle2, ExternalLink, Info, Sparkles } from "lucide-react";
+import { AlertTriangle, ArrowUp, CheckCircle2, Copy, ExternalLink, Info, Search, ShieldAlert, Sparkles } from "lucide-react";
 import { classify, getEntitySummary, listMessages, listSessions, SAMPLE_TX, SAMPLE_WALLET, sendMessage } from "./api";
 import { useWallet } from "./walletStore";
 import { shortAddress } from "./wallet";
-import type { AiExplorerAnswer, ChatMessage, ChatSession, EntitySummary, Severity } from "./types";
+import type { AiExplorerAnswer, AnswerStat, ChatMessage, ChatSession, EntitySummary, Severity } from "./types";
 
 const SEV_STYLE: Record<Severity, { dot: string; text: string; icon: React.ReactNode }> = {
   info: { dot: "#7cc4f8", text: "text-[#7cc4f8]", icon: <Info size={12} /> },
@@ -20,7 +20,67 @@ const STARTERS = [
   "Is this token contract verified?",
 ];
 
-function AnswerCard({ ai }: { ai: AiExplorerAnswer }) {
+
+const KIND_LABEL: Record<string, string> = {
+  wallet: "WALLET",
+  token: "TOKEN",
+  contract: "CONTRACT",
+  transaction: "TRANSACTION",
+  block: "BLOCK",
+  unknown: "ENTITY",
+};
+
+const STAT_TONE: Record<NonNullable<AnswerStat["tone"]>, string> = {
+  neutral: "text-[#e9e0d1]",
+  good: "text-[#7fb069]",
+  warn: "text-[#fa6c34]",
+  bad: "text-[#e0738a]",
+};
+
+/** 0x addresses and tx hashes become buttons that pivot to that entity. */
+function Linkified({ text, onPivot }: { text: string; onPivot: (v: string) => void }) {
+  const parts = text.split(/(0x[a-fA-F0-9]{40,64})/g);
+  return (
+    <>
+      {parts.map((part, i) =>
+        /^0x[a-fA-F0-9]{40,64}$/.test(part) ? (
+          <button
+            key={i}
+            onClick={() => onPivot(part)}
+            title={`Look up ${part}`}
+            className="mx-0.5 inline-flex items-center gap-1 border-b border-dashed border-[#7cc4f8]/50 font-mono-d text-[12.5px] text-[#7cc4f8] transition-colors hover:border-[#7cc4f8] hover:text-[#a9d8fb]"
+          >
+            {part.length > 20 ? `${part.slice(0, 6)}…${part.slice(-4)}` : part}
+            <Search size={10} />
+          </button>
+        ) : (
+          <span key={i}>{part}</span>
+        ),
+      )}
+    </>
+  );
+}
+
+function CopyButton({ value }: { value: string }) {
+  const [done, setDone] = useState(false);
+  return (
+    <button
+      onClick={() => {
+        navigator.clipboard?.writeText(value).then(() => {
+          setDone(true);
+          setTimeout(() => setDone(false), 1200);
+        });
+      }}
+      className="flex items-center gap-1 font-mono-d text-[10px] text-[#635d5a] transition-colors hover:text-[#e9e0d1]"
+      aria-label="Copy address"
+    >
+      <Copy size={11} />
+      {done ? "COPIED" : "COPY"}
+    </button>
+  );
+}
+
+function AnswerCard({ ai, onPivot }: { ai: AiExplorerAnswer; onPivot: (v: string) => void }) {
   const [tab, setTab] = useState<"facts" | "risk" | "sources">("facts");
   return (
     <div className="clip-panel border border-[#2e2e2e] bg-[#242424]">
@@ -28,8 +88,56 @@ function AnswerCard({ ai }: { ai: AiExplorerAnswer }) {
         <Sparkles size={13} className="text-[#fa6c34]" />
         <span className="font-mono-d text-[10.5px] tracking-wider text-[#9a938a]">AI ANSWER · CITED</span>
       </div>
+
+      {ai.card && (
+        <div className="border-b border-[#2e2e2e] px-6 py-5">
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <span className="border border-[#fa6c34]/40 bg-[#fa6c34]/10 px-2 py-0.5 font-mono-d text-[9.5px] tracking-wider text-[#fa6c34]">
+              {KIND_LABEL[ai.card.kind] ?? "ENTITY"}
+            </span>
+            <h3 className="text-[19px] font-medium tracking-[-0.01em] text-[#f0e8da]">{ai.card.title}</h3>
+            {ai.card.subtitle && (
+              <span className="font-mono-d text-[11.5px] text-[#9a938a]">{ai.card.subtitle}</span>
+            )}
+          </div>
+          {ai.card.stats.length > 0 && (
+            <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3 lg:grid-cols-4">
+              {ai.card.stats.map((stat) => (
+                <div key={stat.label}>
+                  <p className="font-mono-d text-[9.5px] tracking-wider text-[#635d5a]">{stat.label.toUpperCase()}</p>
+                  <p className={`font-num mt-1 truncate text-[16px] ${STAT_TONE[stat.tone ?? "neutral"]}`} title={stat.value}>
+                    {stat.value}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {ai.riskNotes.length > 0 && (
+        <button
+          onClick={() => setTab("risk")}
+          className={`flex w-full items-center gap-2.5 border-b border-[#2e2e2e] px-6 py-3 text-left transition-colors hover:bg-[#2a2a2a] ${
+            ai.riskNotes.some((r) => r.severity === "high")
+              ? "bg-[#e0738a]/10"
+              : ai.riskNotes.some((r) => r.severity === "medium")
+                ? "bg-[#fa6c34]/10"
+                : "bg-transparent"
+          }`}
+        >
+          <ShieldAlert size={13} className={SEV_STYLE[ai.riskNotes[0]!.severity].text} />
+          <span className="flex-1 truncate text-[12.5px] text-[#d6ccba]">{ai.riskNotes[0]!.note}</span>
+          {ai.riskNotes.length > 1 && (
+            <span className="shrink-0 font-mono-d text-[10px] text-[#635d5a]">+{ai.riskNotes.length - 1} more</span>
+          )}
+        </button>
+      )}
+
       <div className="px-6 py-5">
-        <p className="text-[14.5px] leading-relaxed text-[#e9e0d1]">{ai.answer}</p>
+        <p className="text-[14.5px] leading-relaxed text-[#e9e0d1]">
+          <Linkified text={ai.answer} onPivot={onPivot} />
+        </p>
         {ai.summaryBullets.length > 0 && (
           <ul className="mt-4 space-y-2">
             {ai.summaryBullets.map((b) => (
@@ -151,9 +259,12 @@ function EntityPanel({ summary }: { summary: EntitySummary | null }) {
         </span>
       </div>
       <p className="break-all font-mono-d text-[11px] leading-relaxed text-[#9a938a]">{summary.address}</p>
-      <a href={summary.explorerUrl} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1.5 font-mono-d text-[10.5px] text-[#7cc4f8] hover:underline">
-        Open in Blockscout <ExternalLink size={10} />
-      </a>
+      <div className="mt-2 flex items-center gap-4">
+        <a href={summary.explorerUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 font-mono-d text-[10.5px] text-[#7cc4f8] hover:underline">
+          Open in Blockscout <ExternalLink size={10} />
+        </a>
+        <CopyButton value={summary.address} />
+      </div>
 
       <div className="mt-5 border border-[#2e2e2e] bg-[#242424] p-4">
         <p className="font-mono-d text-[10px] tracking-wider text-[#635d5a]">NATIVE BALANCE</p>
@@ -327,7 +438,7 @@ export default function ChatPage() {
             ) : (
               m.ai && (
                 <div key={m.id} className="max-w-[92%]">
-                  <AnswerCard ai={m.ai} />
+                  <AnswerCard ai={m.ai} onPivot={(v) => ask(`What can you tell me about ${v}?`)} />
                 </div>
               )
             )

@@ -5,13 +5,38 @@ import { observeAiCall } from "../observability/metrics.js";
 import { OllamaProvider, OpenAiProvider, type AiProvider } from "./provider.js";
 
 const SYSTEM_INSTRUCTIONS = [
-  "You are Robinhood Chain AI Explorer, a read-only blockchain data explainer.",
-  "Use only the supplied source bundle. Do not invent on-chain facts.",
-  "Do not provide financial, investment, tax, legal, trading, or compliance advice.",
-  "Never recommend buying, selling, holding, swapping, bridging, approving, signing, or submitting a transaction.",
-  "Use careful risk wording: describe signals and uncertainty, never make absolute scam or safety claims.",
-  "Refer to the supplied entity by type; do not repeat full wallet addresses or transaction hashes in generated text.",
-  "Return strict JSON with answer, summaryBullets, inferences, uncertainty, and suggestedFollowUps."
+  "You explain Robinhood Chain activity to curious people who are not blockchain engineers.",
+  "",
+  "Everything you are shown happened on Robinhood Chain, an Ethereum layer-2 network",
+  "(chain ID 4663). Never describe it as Ethereum mainnet or say a token lives 'on",
+  "Ethereum'. Say 'on Robinhood Chain'. Standards such as ERC-20 still apply and can",
+  "be named.",
+  "",
+  "How to write:",
+  "- Open with what this thing IS, in one sentence a newcomer understands.",
+  "- Plain English, short sentences. Gloss any unavoidable jargon in a few words.",
+  "- Write about the thing itself, never about how you obtained the data. Never mention",
+  "  providers, source records, citations, indexing, normalization, or how many data",
+  "  sources agreed. The reader cares about the chain, not the pipeline.",
+  "- Never restate raw field names like coinBalance, rawSourceCount or transactionsFetched.",
+  "  Translate them: 'has never held any ETH', not 'zero native coin balance'.",
+  "- Describe absent data as what it means in practice. Nothing at all to report is a",
+  "  short answer, not a list of everything that is zero.",
+  "- Format numbers for humans: 1,000,000,000 tokens, not raw wei or exponents.",
+  "- The interface already shows the address, so do not repeat it in full. Say 'this",
+  "  token' or 'this wallet'. Shorten any other address to its 0x1234…abcd form.",
+  "",
+  "Accuracy and safety:",
+  "- Use only the supplied facts. Never invent on-chain activity.",
+  "- Say plainly when something is unknown rather than implying it is absent.",
+  "- No financial, investment, tax, legal, trading, or compliance advice, and never",
+  "  recommend buying, selling, swapping, approving, or signing anything.",
+  "- Report risk signals as observations with their evidence. No absolute scam or",
+  "  safety verdicts, and no reassurance that something is safe.",
+  "",
+  "Return strict JSON with answer, summaryBullets, inferences, uncertainty, and suggestedFollowUps.",
+  "summaryBullets: at most four, each a distinct takeaway, no repetition of the answer text.",
+  "suggestedFollowUps: questions this specific entity makes worth asking next."
 ].join("\n");
 
 const aiOutputSchema = z.object({
@@ -78,19 +103,37 @@ export class AiService {
   }
 }
 
+/**
+ * Bookkeeping the model should never narrate. These are pipeline details, and
+ * when they reach the prompt the answer starts describing how the data was
+ * fetched instead of what is on the chain.
+ */
+const INTERNAL_FACT_KEYS = new Set([
+  "sourceIds",
+  "rawSourceCount",
+  "explorerUrl",
+  "chainId",
+  "highValueThresholdWei",
+  "activityTimeWindow"
+]);
+
 function buildAiEntityInput(entity: NormalizedEntity): unknown {
-  const compactFacts = compactValue(entity.facts, 0);
+  const visibleFacts = Object.fromEntries(
+    Object.entries(entity.facts).filter(([key]) => !INTERNAL_FACT_KEYS.has(key))
+  );
+  const compactFacts = compactValue(visibleFacts, 0);
   const serializedFacts = JSON.stringify(compactFacts);
   return {
+    chain: "Robinhood Chain, an Ethereum layer-2 network",
     chainId: entity.chainId,
     type: entity.type,
     facts: serializedFacts.length <= 6_000
       ? compactFacts
       : { preview: serializedFacts.slice(0, 6_000), truncated: true },
+    // Ids and fields only: passing provider names and descriptions invites the
+    // model to write about where the data came from.
     citations: entity.citations.slice(0, 25).map((citation) => ({
       id: citation.id,
-      provider: citation.provider,
-      description: citation.description.slice(0, 300),
       fieldsUsed: citation.fieldsUsed.slice(0, 25)
     })),
     riskNotes: entity.riskNotes.slice(0, 10).map((note) => ({
