@@ -138,7 +138,11 @@ function RailBody({
               }`
             }
           >
-            <p className="truncate text-[13px]">{s.title}</p>
+            <p className="truncate text-[13px]">
+              {s.title === "Untitled session" && s.entity
+                ? `${s.entity.id.slice(0, 8)}…${s.entity.id.slice(-4)}`
+                : s.title}
+            </p>
             {s.entity && (
               <p className="mt-1 truncate font-mono-d text-[10px] text-[#635d5a]">
                 {s.entity.type.toUpperCase()} · {s.entity.id.slice(0, 8)}…{s.entity.id.slice(-4)}

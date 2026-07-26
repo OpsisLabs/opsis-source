@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useLocation, useOutletContext, useParams } from "react-router";
 import { AlertTriangle, ArrowUp, CheckCircle2, Copy, ExternalLink, Info, Search, ShieldAlert, Sparkles } from "lucide-react";
-import { classify, getEntitySummary, listMessages, listSessions, SAMPLE_TX, SAMPLE_WALLET, sendMessage } from "./api";
+import { classify, EXPLORER, getEntitySummary, listMessages, listSessions, SAMPLE_TX, SAMPLE_WALLET, sendMessage } from "./api";
 import { useWallet } from "./walletStore";
 import { shortAddress } from "./wallet";
-import type { AiExplorerAnswer, AnswerStat, ChatMessage, ChatSession, EntitySummary, Severity } from "./types";
+import type { AiExplorerAnswer, AnswerCardMeta, AnswerStat, AnswerWidget, ChatMessage, ChatSession, EntitySummary, Severity } from "./types";
 
 const SEV_STYLE: Record<Severity, { dot: string; text: string; icon: React.ReactNode }> = {
   info: { dot: "#7cc4f8", text: "text-[#7cc4f8]", icon: <Info size={12} /> },
@@ -80,6 +80,124 @@ function CopyButton({ value }: { value: string }) {
   );
 }
 
+
+/** Citation lists can run to 15 ids; show a few and summarize the rest. */
+const fmtSources = (ids: string[]): string =>
+  ids.length > 4 ? `${ids.slice(0, 4).join(", ")} +${ids.length - 4}` : ids.join(", ");
+
+const CHIP_CLASS =
+  "flex items-center gap-1.5 border border-[#2e2e2e] px-3 py-1.5 font-mono-d text-[10px] tracking-wider text-[#9a938a] transition-colors hover:border-[#fa6c34]/50 hover:text-[#e9e0d1]";
+
+function CardActions({ card, answer }: { card: AnswerCardMeta; answer: string }) {
+  const [flash, setFlash] = useState<"" | "copy" | "share">("");
+  const blink = (kind: "copy" | "share") => {
+    setFlash(kind);
+    setTimeout(() => setFlash(""), 1200);
+  };
+  const explorer =
+    card.kind === "transaction"
+      ? `${EXPLORER}/tx/${card.id}`
+      : card.kind === "token"
+        ? `${EXPLORER}/token/${card.id}`
+        : `${EXPLORER}/address/${card.id}`;
+  const shareText = [
+    `${card.title}${card.subtitle ? ` (${card.subtitle})` : ""} — Robinhood Chain`,
+    card.stats.map((s) => `${s.label}: ${s.value}`).join(" · "),
+    "",
+    answer,
+  ].join("\n");
+
+  return (
+    <div className="mt-4 flex flex-wrap items-center gap-2">
+      <button type="button" className={CHIP_CLASS} onClick={() => navigator.clipboard?.writeText(card.id).then(() => blink("copy"))}>
+        <Copy size={10} />
+        {flash === "copy" ? "COPIED" : card.kind === "transaction" ? "COPY HASH" : "COPY ADDRESS"}
+      </button>
+      <a className={CHIP_CLASS} href={explorer} target="_blank" rel="noreferrer">
+        EXPLORER <ExternalLink size={10} />
+      </a>
+      {card.kind === "token" && (
+        <>
+          <a className={CHIP_CLASS} href={`${EXPLORER}/token/${card.id}?tab=holders`} target="_blank" rel="noreferrer">
+            HOLDERS <ExternalLink size={10} />
+          </a>
+          <a className={CHIP_CLASS} href={`${EXPLORER}/token/${card.id}?tab=token_transfers`} target="_blank" rel="noreferrer">
+            TRANSFERS <ExternalLink size={10} />
+          </a>
+        </>
+      )}
+      <button type="button" className={CHIP_CLASS} onClick={() => navigator.clipboard?.writeText(shareText).then(() => blink("share"))}>
+        {flash === "share" ? "COPIED" : "SHARE"}
+      </button>
+    </div>
+  );
+}
+
+function WidgetPanel({ w, onPivot }: { w: AnswerWidget; onPivot: (v: string) => void }) {
+  const max = Math.max(...(w.bars ?? []).map((b) => b.count), 1);
+  return (
+    <div className="border border-[#2e2e2e] bg-[#1f1f1f] p-4">
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="font-mono-d text-[10px] tracking-wider text-[#635d5a]">{w.title.toUpperCase()}</p>
+        {w.note && <p className="truncate font-mono-d text-[9px] text-[#4c4844]">{w.note.toUpperCase()}</p>}
+      </div>
+
+      {w.kind === "bars" && w.bars && (
+        <div className="mt-3">
+          <div className="flex h-[64px] items-end gap-[3px]">
+            {w.bars.map((b) => (
+              <div
+                key={b.label}
+                title={`${b.label}: ${b.count}`}
+                className="flex-1 bg-[#fa6c34]/60 transition-colors hover:bg-[#fa6c34]"
+                style={{ height: `${Math.max(8, (b.count / max) * 100)}%` }}
+              />
+            ))}
+          </div>
+          <div className="mt-1.5 flex justify-between font-mono-d text-[9px] text-[#635d5a]">
+            <span>{w.bars[0]?.label}</span>
+            <span>{w.bars[w.bars.length - 1]?.label}</span>
+          </div>
+        </div>
+      )}
+
+      {w.kind === "rows" && w.rows && (
+        <div className="mt-2.5 space-y-1">
+          {w.rows.map((r, i) => {
+            const inner = (
+              <>
+                <span className="min-w-0 flex-1 truncate text-left">
+                  <span className="font-mono-d text-[11.5px] text-[#d6ccba]">{r.label}</span>
+                  {r.sub && <span className="ml-2 font-mono-d text-[10px] text-[#635d5a]">{r.sub}</span>}
+                </span>
+                {r.value && (
+                  <span className={`shrink-0 font-mono-d text-[11px] ${STAT_TONE[r.tone ?? "neutral"]}`}>{r.value}</span>
+                )}
+              </>
+            );
+            return r.pivot ? (
+              <button
+                key={`${r.label}${i}`}
+                type="button"
+                onClick={() => onPivot(r.pivot!)}
+                className="flex w-full items-center gap-2 border border-transparent px-2 py-1.5 transition-colors hover:border-[#2e2e2e] hover:bg-[#242424]"
+                title={`Look up ${r.pivot}`}
+              >
+                {inner}
+                <Search size={10} className="shrink-0 text-[#635d5a]" />
+              </button>
+            ) : (
+              <div key={`${r.label}${i}`} className="flex items-center gap-2 px-2 py-1.5">
+                {inner}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function AnswerCard({ ai, onPivot }: { ai: AiExplorerAnswer; onPivot: (v: string) => void }) {
   const [tab, setTab] = useState<"facts" | "risk" | "sources">("facts");
   return (
@@ -112,6 +230,7 @@ function AnswerCard({ ai, onPivot }: { ai: AiExplorerAnswer; onPivot: (v: string
               ))}
             </div>
           )}
+          <CardActions card={ai.card} answer={ai.answer} />
         </div>
       )}
 
@@ -150,6 +269,14 @@ function AnswerCard({ ai, onPivot }: { ai: AiExplorerAnswer; onPivot: (v: string
         )}
       </div>
 
+      {ai.widgets && ai.widgets.length > 0 && (
+        <div className="grid gap-3 border-t border-[#2e2e2e] px-6 py-5 sm:grid-cols-2">
+          {ai.widgets.map((w) => (
+            <WidgetPanel key={w.title} w={w} onPivot={onPivot} />
+          ))}
+        </div>
+      )}
+
       {/* tabs */}
       <div className="flex border-t border-[#2e2e2e] font-mono-d text-[10.5px] tracking-wider">
         {(
@@ -178,7 +305,7 @@ function AnswerCard({ ai, onPivot }: { ai: AiExplorerAnswer; onPivot: (v: string
             {ai.confirmedFacts.map((f) => (
               <div key={f.fact} className="flex items-start justify-between gap-4 text-[12.5px]">
                 <span className="text-[#9a938a]">{f.fact}</span>
-                <span className="shrink-0 font-mono-d text-[10px] text-[#635d5a]">{f.sourceIds.join(", ")}</span>
+                <span className="shrink-0 font-mono-d text-[10px] text-[#635d5a]">{fmtSources(f.sourceIds)}</span>
               </div>
             ))}
             {ai.inferences.map((inf) => (
@@ -187,7 +314,7 @@ function AnswerCard({ ai, onPivot }: { ai: AiExplorerAnswer; onPivot: (v: string
                   <span className="mr-2 font-mono-d text-[10px] uppercase text-[#7cc4f8]">inference · {inf.confidence}</span>
                   {inf.inference}
                 </span>
-                <span className="shrink-0 font-mono-d text-[10px] text-[#635d5a]">{inf.sourceIds.join(", ")}</span>
+                <span className="shrink-0 font-mono-d text-[10px] text-[#635d5a]">{fmtSources(inf.sourceIds)}</span>
               </div>
             ))}
           </div>
@@ -205,7 +332,7 @@ function AnswerCard({ ai, onPivot }: { ai: AiExplorerAnswer; onPivot: (v: string
                 <div>
                   <span className={`mr-2 font-mono-d text-[10px] uppercase ${SEV_STYLE[r.severity].text}`}>{r.severity}</span>
                   <span className="text-[#9a938a]">{r.note}</span>
-                  <span className="ml-2 font-mono-d text-[10px] text-[#635d5a]">{r.sourceIds.join(", ")}</span>
+                  <span className="ml-2 font-mono-d text-[10px] text-[#635d5a]">{fmtSources(r.sourceIds)}</span>
                 </div>
               </div>
             ))}
@@ -306,7 +433,7 @@ function EntityPanel({ summary }: { summary: EntitySummary | null }) {
 export default function ChatPage() {
   const { sessionId } = useParams();
   const location = useLocation() as { state?: { firstMessage?: string } };
-  useOutletContext<{ refreshSessions: () => void }>();
+  const { refreshSessions } = useOutletContext<{ refreshSessions: () => void }>();
   const [session, setSession] = useState<ChatSession | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -347,6 +474,9 @@ export default function ChatPage() {
     const ai = await sendMessage(sessionId, text, ent.type !== "unknown" ? ent.id : session?.entity?.id);
     if (ent.type !== "unknown") getEntitySummary(ent.id).then(setEntity);
     setMessages((m) => [...m.filter((x) => !x.id.startsWith("tmp_")), { id: `u_${ai.id}`, role: "USER", content: text, createdAt: new Date().toISOString() }, ai]);
+    // The answer may retitle the entity (e.g. wallet -> token) and consumes
+    // quota; refresh the rail so both update without a reload.
+    refreshSessions();
     setPending(false);
   };
 
@@ -374,7 +504,7 @@ export default function ChatPage() {
       <div className="flex min-h-[calc(100vh-64px)] flex-col">
         <div className="flex items-center justify-between border-b border-[#2e2e2e] px-6 py-3.5">
           <div>
-            <p className="text-[14px] text-[#e9e0d1]">{session?.title ?? "Session"}</p>
+            <p className="text-[14px] text-[#e9e0d1]">{session?.title === "Untitled session" && lastAi?.card ? lastAi.card.title : (session?.title ?? "Session")}</p>
             <p className="mt-0.5 font-mono-d text-[10px] text-[#635d5a]">
               {session?.entity ? `${session.entity.type.toUpperCase()} · CHAIN 4663` : "NO ENTITY · CHAIN 4663"}
             </p>

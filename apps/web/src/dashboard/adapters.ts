@@ -11,6 +11,7 @@ import type {
   AiExplorerAnswer,
   AnswerCardMeta,
   AnswerStat,
+  AnswerWidget,
   ChainEntityType,
   ChatMessage,
   ChatSession,
@@ -178,8 +179,10 @@ export function adaptAnswer(
   const alias = new Map(citations.map((citation, index) => [citation.id, `src_${index + 1}`]));
   const relabel = (ids?: string[]): string[] => (ids ?? []).map((id) => alias.get(id) ?? id);
 
+  const card = source.facts ? deriveCard(source.facts, entityType, entityId) : undefined;
   return {
-    card: source.facts ? deriveCard(source.facts, entityType, entityId) : undefined,
+    card,
+    widgets: card && source.facts ? deriveWidgets(source.facts, card.kind) : undefined,
     answer: source.answer ?? "",
     summaryBullets: source.summaryBullets ?? [],
     confirmedFacts: (source.confirmedFacts ?? []).map((entry) => ({
@@ -282,6 +285,7 @@ export function deriveCard(
     if (bool(facts.proxy)) push("Contract", "Proxy", "warn");
     return {
       kind,
+      id: str(facts.address) ?? fallbackId,
       title: str(facts.name) ?? (symbol ? `$${symbol}` : shortHex(fallbackId)),
       subtitle: symbol && str(facts.name) ? `$${symbol}` : undefined,
       stats,
@@ -296,7 +300,7 @@ export function deriveCard(
     push("Method", str(facts.method));
     push("Gas used", facts.gasUsed != null ? formatAmount(String(Number(facts.gasUsed)), 0) : undefined);
     push("Token transfers", count(facts.tokenTransfers) !== undefined ? String(count(facts.tokenTransfers)) : undefined);
-    return { kind, title: "Transaction", subtitle: shortHex(str(facts.hash) ?? fallbackId), stats };
+    return { kind, id: str(facts.hash) ?? fallbackId, title: "Transaction", subtitle: shortHex(str(facts.hash) ?? fallbackId), stats };
   }
 
   // wallet or contract
@@ -313,10 +317,190 @@ export function deriveCard(
   }
   return {
     kind: isContract ? "contract" : "wallet",
+    id: str(facts.address) ?? fallbackId,
     title: isContract ? (str(facts.name) ?? "Smart contract") : "Wallet",
     subtitle: shortHex(str(facts.address) ?? fallbackId),
     stats,
   };
+}
+
+
+/* ---------------- answer widgets ---------------- */
+
+/** Blockscout returns addresses as strings in some payloads and {hash} in others. */
+const hexOf = (value: unknown): string | undefined => {
+  if (typeof value === "string" && value.startsWith("0x")) return value;
+  const hash = (value as { hash?: unknown } | null)?.hash;
+  return typeof hash === "string" ? hash : undefined;
+};
+
+const num = (value: unknown): number | undefined => {
+  const n = Number(str(value));
+  return Number.isFinite(n) ? n : undefined;
+};
+
+/**
+ * Interactive panels derived from the entity's facts. Everything here is
+ * computed from data already fetched for the answer — no extra API calls —
+ * and every address row can pivot into its own lookup.
+ */
+export function deriveWidgets(facts: Record<string, unknown>, kind: ChainEntityType): AnswerWidget[] {
+  const widgets: AnswerWidget[] = [];
+  const transfers = rows(facts.recentTransfers).length > 0 ? rows(facts.recentTransfers) : rows(facts.tokenTransfers);
+  const transactions = rows(facts.recentTransactions);
+
+  // Activity chart from whatever timestamped events the window contains.
+  const stamps = [...transfers, ...transactions]
+    .map((r) => str(r.timestamp) ?? str(r.block_signed_at))
+    .filter((t): t is string => typeof t === "string" && t.length >= 10);
+  if (stamps.length >= 3) {
+    const byDay = new Map<string, number>();
+    for (const t of stamps) {
+      const day = t.slice(0, 10);
+      byDay.set(day, (byDay.get(day) ?? 0) + 1);
+    }
+    const bars = [...byDay.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-12)
+      .map(([day, count]) => ({ label: day.slice(5), count }));
+    if (bars.length >= 2) {
+      widgets.push({ kind: "bars", title: "Activity by day", note: `${stamps.length} recent events · UTC`, bars });
+    }
+  }
+
+  // Transfer rows carry formattedValue (already scaled by the token's decimals)
+  // with rawValue as the wei-sized fallback.
+  const transferAmount = (t: Record<string, unknown>, scale: number): number =>
+    num(t.formattedValue) ?? (num(t.rawValue) ?? num(t.value) ?? 0) / scale;
+
+  if (kind === "token" && transfers.length > 0) {
+    const dp = num(facts.decimals) ?? 18;
+    const scale = 10 ** dp;
+
+    const moved = new Map<string, { total: number; count: number }>();
+    let volume = 0;
+    for (const t of transfers) {
+      const value = transferAmount(t, scale);
+      volume += value;
+      for (const side of [hexOf(t.from), hexOf(t.to)]) {
+        if (!side) continue;
+        const entry = moved.get(side) ?? { total: 0, count: 0 };
+        entry.total += value;
+        entry.count += 1;
+        moved.set(side, entry);
+      }
+    }
+    const top = [...moved.entries()]
+      .sort((a, b) => b[1].total - a[1].total || b[1].count - a[1].count)
+      .slice(0, 5);
+    if (top.length >= 2) {
+      widgets.push({
+        kind: "rows",
+        title: "Most active addresses",
+        note: "recent transfers, not all-time holders",
+        rows: top.map(([addr, m]) => ({
+          label: shortHex(addr),
+          sub: `${m.count} transfer${m.count === 1 ? "" : "s"}`,
+          value: volume > 0 ? `${Math.min(100, Math.round((m.total / volume) * 100))}% of volume` : undefined,
+          pivot: addr,
+        })),
+      });
+    }
+
+    const ranked = transfers
+      .map((t) => ({ from: hexOf(t.from), to: hexOf(t.to), value: transferAmount(t, scale) }))
+      .filter((t): t is { from: string; to: string; value: number } => Boolean(t.from && t.to) && t.value > 0)
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 3);
+    if (ranked.length > 0) {
+      widgets.push({
+        kind: "rows",
+        title: "Largest recent transfers",
+        rows: ranked.map((t) => ({
+          label: `${shortHex(t.from)} → ${shortHex(t.to)}`,
+          value: formatAmount(String(t.value), 2),
+          pivot: t.to,
+        })),
+      });
+    }
+  }
+
+  if (kind === "wallet" || kind === "contract") {
+    const balances = rows(facts.tokenBalances);
+    if (balances.length > 0) {
+      widgets.push({
+        kind: "rows",
+        title: "Token holdings",
+        rows: balances.slice(0, 6).map((b) => ({
+          label: str(b.tokenSymbol) ?? str(b.tokenName) ?? shortHex(b.tokenAddress),
+          value: formatAmount(str(b.formattedValue) ?? "0"),
+          pivot: hexOf(b.tokenAddress),
+        })),
+      });
+    }
+
+    const approvals = rows(facts.approvalTransactions);
+    if (approvals.length > 0) {
+      widgets.push({
+        kind: "rows",
+        title: "Token approvals",
+        note: "spenders this wallet has authorized",
+        rows: approvals.slice(0, 5).map((a) => {
+          const unlimited = a.currentUnlimited === true || a.unlimited === true;
+          return {
+            label: str(a.tokenSymbol) ?? shortHex(a.contract),
+            sub: `spender ${shortHex(a.spender)}`,
+            value: unlimited ? "Unlimited" : (str(a.amount) ?? "—"),
+            tone: unlimited ? ("warn" as const) : undefined,
+            pivot: hexOf(a.spender),
+          };
+        }),
+      });
+    }
+
+    if (transactions.length >= 3) {
+      const self = (str(facts.address) ?? "").toLowerCase();
+      const counterparties = new Map<string, number>();
+      for (const t of transactions) {
+        for (const side of [hexOf(t.from), hexOf(t.to)]) {
+          if (!side || side.toLowerCase() === self) continue;
+          counterparties.set(side, (counterparties.get(side) ?? 0) + 1);
+        }
+      }
+      const top = [...counterparties.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
+      if (top.length >= 2) {
+        widgets.push({
+          kind: "rows",
+          title: "Top counterparties",
+          note: "from recent transactions",
+          rows: top.map(([addr, count]) => ({
+            label: shortHex(addr),
+            value: `${count}×`,
+            pivot: addr,
+          })),
+        });
+      }
+    }
+  }
+
+  if (kind === "transaction") {
+    const steps: NonNullable<AnswerWidget["rows"]> = [];
+    const method = str(facts.method);
+    if (method) steps.push({ label: "Called", value: method });
+    for (const t of rows(facts.tokenTransfers).slice(0, 4)) {
+      steps.push({
+        label: `${shortHex(hexOf(t.from))} → ${shortHex(hexOf(t.to))}`,
+        sub: str(t.tokenSymbol),
+        value: str(t.formattedValue) ?? str(t.value),
+        pivot: hexOf(t.to),
+      });
+    }
+    const internal = rows(facts.internalTransactions);
+    if (internal.length > 0) steps.push({ label: "Internal calls", value: String(internal.length) });
+    if (steps.length > 0) widgets.push({ kind: "rows", title: "What happened", rows: steps });
+  }
+
+  return widgets;
 }
 
 /* ---------------- chat ---------------- */

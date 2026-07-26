@@ -39,13 +39,35 @@ export interface AnswerStat {
 /** Header derived from the entity's facts, so the card leads with what it is. */
 export interface AnswerCardMeta {
   kind: ChainEntityType;
+  /** Full address or hash, for the copy/explorer/share actions. */
+  id: string;
   title: string;
   subtitle?: string;
   stats: AnswerStat[];
 }
 
+/** One row in a list widget. */
+export interface WidgetRow {
+  label: string;
+  sub?: string;
+  value?: string;
+  tone?: AnswerStat["tone"];
+  /** When set, clicking the row asks about this value. */
+  pivot?: string;
+}
+
+/** A data panel rendered inside the answer card. */
+export interface AnswerWidget {
+  kind: "bars" | "rows";
+  title: string;
+  note?: string;
+  bars?: { label: string; count: number }[];
+  rows?: WidgetRow[];
+}
+
 export interface AiExplorerAnswer {
   card?: AnswerCardMeta;
+  widgets?: AnswerWidget[];
   answer: string;
   summaryBullets: string[];
   confirmedFacts: { fact: string; sourceIds: string[] }[];
