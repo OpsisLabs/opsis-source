@@ -55,14 +55,52 @@ export class BlockscoutProvider implements ChainProvider {
       this.fetchOptionalDoc("token", address, `/tokens/${address}/counters`),
       this.fetchOptionalDoc("token", address, `/addresses/${address}`)
     ]);
+    // A token amount in the millions means nothing on its own. The transfer
+    // rows carry no price, but the transaction that produced each one carries
+    // the native coin it moved — fetch that for the largest few only, so the
+    // headline transfers can be shown in ETH instead of raw token units.
+    const valueDocs = await this.fetchTopTransferTransactions(address, transfers);
+
     return [
       token,
       ...transfers,
       ...(contract ? [contract] : []),
       ...(holders ? [holders] : []),
       ...(counters ? [counters] : []),
-      ...(addressInfo ? [addressInfo] : [])
+      ...(addressInfo ? [addressInfo] : []),
+      ...valueDocs
     ];
+  }
+
+  /** Transactions behind the five largest transfers, for native-coin pricing. */
+  private async fetchTopTransferTransactions(
+    address: string,
+    transferDocs: SourceDocumentInput[]
+  ): Promise<SourceDocumentInput[]> {
+    const items = transferDocs.flatMap((doc) => {
+      const body = doc.responseJson as { items?: unknown[] } | undefined;
+      return Array.isArray(body?.items) ? body.items : [];
+    });
+
+    const ranked = items
+      .map((item) => {
+        const row = item as Record<string, unknown>;
+        const total = (row.total ?? {}) as Record<string, unknown>;
+        return { hash: row.transaction_hash, amount: Number(total.value ?? row.value ?? 0) };
+      })
+      .filter((entry): entry is { hash: string; amount: number } => typeof entry.hash === "string" && Number.isFinite(entry.amount))
+      .sort((a, b) => b.amount - a.amount);
+
+    const unique: string[] = [];
+    for (const { hash } of ranked) {
+      if (!unique.includes(hash)) unique.push(hash);
+      if (unique.length === 5) break;
+    }
+
+    const docs = await Promise.all(
+      unique.map((hash) => this.fetchOptionalDoc("token", address, `/transactions/${hash}`))
+    );
+    return docs.filter((doc): doc is SourceDocumentInput => doc !== undefined);
   }
 
   async getContract(address: string): Promise<SourceDocumentInput[]> {

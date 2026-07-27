@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useLocation, useOutletContext, useParams } from "react-router";
-import { AlertTriangle, ArrowUp, CheckCircle2, Copy, ExternalLink, Info, Search, ShieldAlert, Sparkles } from "lucide-react";
+import { AlertTriangle, ArrowUp, CheckCircle2, ChevronDown, ChevronRight, Copy, ExternalLink, Info, Search, ShieldAlert, Sparkles } from "lucide-react";
 import { classify, EXPLORER, getEntitySummary, listMessages, listSessions, SAMPLE_TX, SAMPLE_WALLET, sendMessage } from "./api";
 import { useWallet } from "./walletStore";
 import { shortAddress } from "./wallet";
@@ -89,9 +89,6 @@ function CopyButton({ value }: { value: string }) {
   );
 }
 
-/** Citation lists can run to 15 ids; show a few and summarize the rest. */
-const fmtSources = (ids: string[]): string =>
-  ids.length > 4 ? `${ids.slice(0, 4).join(", ")} +${ids.length - 4}` : ids.join(", ");
 
 const CHIP_CLASS =
   "flex items-center gap-1.5 border border-[#2e2e2e] px-3 py-1.5 font-mono-d text-[10px] tracking-wider text-[#9a938a] transition-colors hover:border-[#fa6c34]/60 hover:bg-[#fa6c34]/10 hover:text-[#e9e0d1]";
@@ -323,7 +320,8 @@ function WidgetPanel({ w, onPivot, delay = 0 }: { w: AnswerWidget; onPivot: (v: 
 }
 
 function AnswerCard({ ai, onPivot }: { ai: AiExplorerAnswer; onPivot: (v: string) => void }) {
-  const [tab, setTab] = useState<"facts" | "risk" | "sources">("facts");
+  const [expanded, setExpanded] = useState(false);
+  const [showSources, setShowSources] = useState(false);
   const monogram = (ai.card?.subtitle?.replace(/^\$/, "") ?? ai.card?.title ?? "?").slice(0, 2).toUpperCase();
   return (
     <div className="clip-panel border border-[#2e2e2e] bg-[#242424]">
@@ -387,7 +385,7 @@ function AnswerCard({ ai, onPivot }: { ai: AiExplorerAnswer; onPivot: (v: string
 
       {ai.riskNotes.length > 0 && (
         <button
-          onClick={() => setTab("risk")}
+          onClick={() => setExpanded((v) => !v)}
           className={`flex w-full items-center gap-2.5 border-b border-[#2e2e2e] px-6 py-3 text-left transition-colors hover:bg-[#2a2a2a] ${
             ai.riskNotes.some((r) => r.severity === "high")
               ? "bg-[#e0738a]/10"
@@ -400,9 +398,9 @@ function AnswerCard({ ai, onPivot }: { ai: AiExplorerAnswer; onPivot: (v: string
             <ShieldAlert size={13} />
           </span>
           <span className="flex-1 truncate text-[12.5px] text-[#d6ccba]">{ai.riskNotes[0]!.note}</span>
-          {ai.riskNotes.length > 1 && (
-            <span className="shrink-0 font-mono-d text-[10px] text-[#635d5a]">+{ai.riskNotes.length - 1} more</span>
-          )}
+          <span className="shrink-0 font-mono-d text-[10px] text-[#635d5a]">
+            {expanded ? "HIDE" : ai.riskNotes.length > 1 ? `+${ai.riskNotes.length - 1} MORE` : "DETAIL"}
+          </span>
         </button>
       )}
 
@@ -430,89 +428,53 @@ function AnswerCard({ ai, onPivot }: { ai: AiExplorerAnswer; onPivot: (v: string
         </div>
       )}
 
-      {/* tabs */}
-      <div className="flex border-t border-[#2e2e2e] font-mono-d text-[10.5px] tracking-wider">
-        {(
-          [
-            ["facts", `FACTS ${ai.confirmedFacts.length}`],
-            ["risk", `RISK NOTES ${ai.riskNotes.length}`],
-            ["sources", `SOURCES ${ai.citations.length}`],
-          ] as const
-        ).map(([k, label]) => (
-          <button
-            key={k}
-            onClick={() => setTab(k)}
-            className={`flex-1 border-r border-[#2e2e2e] py-2.5 transition-colors last:border-r-0 ${
-              tab === k ? "bg-[#2e2e2e] text-[#e9e0d1]" : "text-[#635d5a] hover:text-[#9a938a]"
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
-      <div className="border-t border-[#2e2e2e] px-6 py-4">
-        {tab === "facts" && (
+      {/* risk detail: expanded from the banner rather than parked in a tab */}
+      {expanded && ai.riskNotes.length > 0 && (
+        <div className="border-t border-[#2e2e2e] bg-[#1f1f1f] px-6 py-4">
           <div className="space-y-3">
-            {ai.confirmedFacts.length === 0 && <p className="text-[12.5px] text-[#635d5a]">No confirmed facts extracted for this answer.</p>}
-            {ai.confirmedFacts.map((f) => (
-              <div key={f.fact} className="flex items-start justify-between gap-4 text-[12.5px]">
-                <span className="text-[#9a938a]">{f.fact}</span>
-                <span className="shrink-0 font-mono-d text-[10px] text-[#635d5a]">{fmtSources(f.sourceIds)}</span>
-              </div>
-            ))}
-            {ai.inferences.map((inf) => (
-              <div key={inf.inference} className="flex items-start justify-between gap-4 border-t border-[#2e2e2e] pt-3 text-[12.5px]">
-                <span className="text-[#635d5a]">
-                  <span className="mr-2 font-mono-d text-[10px] uppercase text-[#7cc4f8]">inference · {inf.confidence}</span>
-                  {inf.inference}
-                </span>
-                <span className="shrink-0 font-mono-d text-[10px] text-[#635d5a]">{fmtSources(inf.sourceIds)}</span>
-              </div>
-            ))}
-          </div>
-        )}
-        {tab === "risk" && (
-          <div className="space-y-3">
-            {ai.riskNotes.length === 0 && (
-              <p className="flex items-center gap-2 text-[12.5px] text-[#7fb069]">
-                <CheckCircle2 size={13} /> No risk signals triggered in the retrieved data.
-              </p>
-            )}
             {ai.riskNotes.map((r) => (
               <div key={r.note} className="flex items-start gap-3 text-[12.5px]">
                 <span className={`mt-0.5 shrink-0 ${SEV_STYLE[r.severity].text}`}>{SEV_STYLE[r.severity].icon}</span>
                 <div>
                   <span className={`mr-2 font-mono-d text-[10px] uppercase ${SEV_STYLE[r.severity].text}`}>{r.severity}</span>
                   <span className="text-[#9a938a]">{r.note}</span>
-                  <span className="ml-2 font-mono-d text-[10px] text-[#635d5a]">{fmtSources(r.sourceIds)}</span>
                 </div>
               </div>
             ))}
-            <p className="border-t border-[#2e2e2e] pt-3 font-mono-d text-[10px] leading-relaxed text-[#635d5a]">
-              RISK NOTES ARE EVIDENCE-BASED OBSERVATIONS, NOT VERDICTS OR ADVICE.
-            </p>
           </div>
-        )}
-        {tab === "sources" && (
-          <div className="space-y-2.5">
-            {ai.citations.map((c) => (
-              <div key={c.id} className="flex items-center gap-3 text-[12.5px]">
-                <span className="w-12 shrink-0 font-mono-d text-[10px] text-[#635d5a]">{c.id}</span>
-                <span className="flex-1 truncate text-[#9a938a]">{c.label}</span>
-                <span className="shrink-0 font-mono-d text-[10px] uppercase text-[#7cc4f8]">{c.provider}</span>
-                {c.url ? (
-                  <a href={c.url} target="_blank" rel="noreferrer" className="shrink-0 text-[#635d5a] transition-colors hover:text-[#fa6c34]" aria-label="Open in explorer">
-                    <ExternalLink size={12} />
-                  </a>
-                ) : (
-                  <span className="w-3 shrink-0" />
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+          <p className="mt-3 border-t border-[#2e2e2e] pt-3 font-mono-d text-[10px] leading-relaxed text-[#635d5a]">
+            RISK NOTES ARE EVIDENCE-BASED OBSERVATIONS, NOT VERDICTS OR ADVICE.
+          </p>
+        </div>
+      )}
+
+      {/* provenance stays available but out of the way */}
+      {ai.citations.length > 0 && (
+        <div className="border-t border-[#2e2e2e] px-6 py-3">
+          <button
+            onClick={() => setShowSources((v) => !v)}
+            className="flex items-center gap-2 font-mono-d text-[10px] tracking-wider text-[#635d5a] transition-colors hover:text-[#9a938a]"
+          >
+            {showSources ? <ChevronDown size={11} /> : <ChevronRight size={11} />}
+            {ai.citations.length} SOURCES · {[...new Set(ai.citations.map((c) => c.provider))].join(", ").toUpperCase()}
+          </button>
+          {showSources && (
+            <div className="mt-3 space-y-1.5">
+              {ai.citations.map((c) => (
+                <div key={c.id} className="flex items-center gap-3 text-[12px]">
+                  <span className="w-10 shrink-0 font-mono-d text-[10px] text-[#635d5a]">{c.id}</span>
+                  <span className="min-w-0 flex-1 truncate text-[#9a938a]">{c.label}</span>
+                  {c.url && (
+                    <a href={c.url} target="_blank" rel="noreferrer" className="shrink-0 text-[#635d5a] transition-colors hover:text-[#fa6c34]">
+                      <ExternalLink size={11} />
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

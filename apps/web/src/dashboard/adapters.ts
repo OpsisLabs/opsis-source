@@ -345,6 +345,30 @@ export function deriveCard(
 
 /* ---------------- answer widgets ---------------- */
 
+/** 6,421,605.38 -> 6.42M, so a row stays readable at a glance. */
+function compact(value: number): string {
+  if (!Number.isFinite(value)) return "—";
+  if (Math.abs(value) >= 1e9) return `${(value / 1e9).toFixed(2)}B`;
+  if (Math.abs(value) >= 1e6) return `${(value / 1e6).toFixed(2)}M`;
+  if (Math.abs(value) >= 1e3) return `${(value / 1e3).toFixed(1)}K`;
+  return formatAmount(String(value), 2);
+}
+
+/** "27 Jul" for this year, "27 Jul 25" otherwise. */
+function shortDate(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const sameYear = d.getUTCFullYear() === new Date().getUTCFullYear();
+  return d.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    ...(sameYear ? {} : { year: "2-digit" }),
+    timeZone: "UTC",
+  });
+}
+
+
+
 /** Blockscout returns addresses as strings in some payloads and {hash} in others. */
 const hexOf = (value: unknown): string | undefined => {
   if (typeof value === "string" && value.startsWith("0x")) return value;
@@ -465,8 +489,16 @@ export function deriveWidgets(facts: Record<string, unknown>, kind: ChainEntityT
     }
 
     const ranked = transfers
-      .map((t) => ({ from: hexOf(t.from), to: hexOf(t.to), value: transferAmount(t, scale) }))
-      .filter((t): t is { from: string; to: string; value: number } => Boolean(t.from && t.to) && t.value > 0)
+      .map((t) => ({
+        from: hexOf(t.from),
+        to: hexOf(t.to),
+        value: transferAmount(t, scale),
+        native: num(t.nativeValue),
+        when: str(t.timestamp),
+      }))
+      .filter((t): t is { from: string; to: string; value: number; native: number | undefined; when: string | undefined } =>
+        Boolean(t.from && t.to) && t.value > 0,
+      )
       .sort((a, b) => b.value - a.value)
       .slice(0, 5);
     const maxValue = ranked[0]?.value ?? 0;
@@ -474,9 +506,14 @@ export function deriveWidgets(facts: Record<string, unknown>, kind: ChainEntityT
       widgets.push({
         kind: "rows",
         title: "Largest recent transfers",
+        note: "value in ETH where the transfer moved any",
         rows: ranked.map((t) => ({
           label: `${shortHex(t.from)} → ${shortHex(t.to)}`,
-          value: formatAmount(String(t.value), 2),
+          // Millions of a memecoin mean nothing; the ETH the transaction moved
+          // does. Plain wallet-to-wallet transfers move none, so fall back to a
+          // compact token amount rather than showing a misleading zero.
+          value: t.native ? `${formatAmount(String(t.native), 4)} ETH` : compact(t.value),
+          sub: t.when ? shortDate(t.when) : undefined,
           barPct: maxValue > 0 ? (t.value / maxValue) * 100 : undefined,
           pivot: t.to,
         })),

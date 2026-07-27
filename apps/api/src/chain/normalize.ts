@@ -170,7 +170,7 @@ function summarizeFacts(type: ChainEntityType, docs: SourceDocumentInput[]): Rec
       deployedAt: contract?.creation_timestamp ?? contract?.deployed_at,
       verified: contract ? Boolean(contract.is_verified || contract.is_verified_via_eth_bytecode_db) : null,
       proxy: Boolean(contract?.is_proxy || contract?.proxy_type),
-      recentTransfers: documentItems(docs, "/transfers").map(normalizeTokenTransfer),
+      recentTransfers: withNativeValues(documentItems(docs, "/transfers").map(normalizeTokenTransfer), docs),
       ...distribution
     };
   }
@@ -413,6 +413,36 @@ function summarizeDistribution(
   };
 }
 
+
+/**
+ * Prices transfers in the chain's native coin. Only the largest few have their
+ * transaction fetched, so most rows keep an undefined nativeValue — a plain
+ * wallet-to-wallet transfer moves no ETH at all and should not be shown as 0.
+ */
+function withNativeValues(
+  transfers: Record<string, unknown>[],
+  docs: SourceDocumentInput[]
+): Record<string, unknown>[] {
+  const byHash = new Map<string, string>();
+  for (const doc of docs) {
+    if (!doc.requestUrl?.includes("/transactions/")) continue;
+    const body = doc.responseJson as Record<string, unknown> | undefined;
+    const hash = typeof body?.hash === "string" ? body.hash.toLowerCase() : undefined;
+    // weiToEth returns the string "0" for a transfer that moved no native coin,
+    // which is truthy — guard on the number so those rows stay unpriced rather
+    // than rendering a misleading "0 ETH".
+    const eth = weiToEth(body?.value);
+    if (hash && eth && Number(eth) > 0) byHash.set(hash, eth);
+  }
+  if (byHash.size === 0) return transfers;
+
+  return transfers.map((transfer) => {
+    const hash = typeof transfer.transactionHash === "string" ? transfer.transactionHash.toLowerCase() : undefined;
+    const nativeValue = hash ? byHash.get(hash) : undefined;
+    return nativeValue ? { ...transfer, nativeValue } : transfer;
+  });
+}
+
 function normalizeTokenTransfer(value: unknown): Record<string, unknown> {
   const transfer = value as Record<string, unknown>;
   const token = (transfer.token ?? {}) as Record<string, unknown>;
@@ -422,6 +452,8 @@ function normalizeTokenTransfer(value: unknown): Record<string, unknown> {
     from: addressHash(transfer.from),
     to: addressHash(transfer.to),
     method: transfer.method,
+    timestamp: transfer.timestamp,
+    transactionHash: transfer.transaction_hash,
     tokenAddress: token.address_hash,
     tokenName: token.name,
     tokenSymbol: token.symbol,
