@@ -185,3 +185,93 @@ test("sample transaction is valid and resolve failures are visible", async ({ pa
   await expect(page.getByRole("button", { name: /resolve/i })).toBeEnabled();
   expect(calls.createCalls()).toBe(1);
 });
+
+test("parallel startup requests share one refresh-token rotation", async ({ page }) => {
+  let refreshCalls = 0;
+  const session = {
+    id: "refreshed-session",
+    title: "Recovered session",
+    createdAt: timestamp,
+    updatedAt: timestamp,
+    activeEntity: null,
+  };
+
+  await page.route("**/v1/**", async (route) => {
+    const request = route.request();
+    const path = new URL(request.url()).pathname;
+
+    if (path === "/v1/auth/refresh") {
+      refreshCalls += 1;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      await route.fulfill({
+        json: {
+          user: { id: "e2e-user", username: "browser-user", walletAddress: null },
+          accessToken: "refreshed-access-token",
+          refreshToken: "refreshed-refresh-token",
+        },
+      });
+      return;
+    }
+
+    if (request.headers().authorization !== "Bearer refreshed-access-token") {
+      await route.fulfill({
+        status: 401,
+        json: { error: { code: "UNAUTHORIZED", message: "Expired access token" } },
+      });
+      return;
+    }
+
+    if (path === "/v1/chat/sessions") {
+      await route.fulfill({ json: { sessions: [session] } });
+      return;
+    }
+    if (path === "/v1/usage/me") {
+      await route.fulfill({
+        json: {
+          periodStart: "2026-08-01T00:00:00.000Z",
+          periodEnd: "2026-09-01T00:00:00.000Z",
+          aiMessages: 3,
+          chainLookups: 9,
+          quota: { aiMessages: 500, chainLookups: 5000 },
+        },
+      });
+      return;
+    }
+
+    await route.fulfill({ status: 500, json: { error: { code: "UNHANDLED_TEST_REQUEST" } } });
+  });
+
+  await page.goto("/app");
+  await expect(page.getByRole("link", { name: /Recovered session/ })).toBeVisible();
+  await expect(page.getByText("3/500")).toBeVisible();
+  await expect(page.getByText("9/5000")).toBeVisible();
+  expect(refreshCalls).toBe(1);
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("rh_auth") ?? "null").accessToken)).toBe(
+    "refreshed-access-token",
+  );
+});
+
+test("a rejected refresh exits the stale authenticated shell", async ({ page }) => {
+  let refreshCalls = 0;
+
+  await page.route("**/v1/**", async (route) => {
+    const path = new URL(route.request().url()).pathname;
+    if (path === "/v1/auth/refresh") {
+      refreshCalls += 1;
+      await route.fulfill({
+        status: 401,
+        json: { error: { code: "INVALID_REFRESH_TOKEN", message: "Invalid refresh token" } },
+      });
+      return;
+    }
+    await route.fulfill({
+      status: 401,
+      json: { error: { code: "UNAUTHORIZED", message: "Expired access token" } },
+    });
+  });
+
+  await page.goto("/app");
+  await expect(page).toHaveURL(/\/login$/);
+  await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
+  expect(refreshCalls).toBe(1);
+});

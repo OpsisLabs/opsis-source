@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "b5081cb270a5d303b920a12a0186d7c21ae40860a0452dc6ec5f5a3f8b01a963",
+  "sourceTreeDigest": "9022e656b45cce90ed1670815d1ca8f65c8bfd84b419552f97faa4f3cc4115ac",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "45e7da660e9156329adfe00238c4a641bccee44b55181179883982a754383395",
@@ -99,8 +99,8 @@
     "apps/web/src/dashboard/AppShell.tsx": "f004b0d162a2b8c2cf8dcf89921c10c27e562d4915a25dac8dfe49f3f50defc4",
     "apps/web/src/dashboard/AuthPages.tsx": "97ba143dedbd9c86c4b326c92aa161d3d729127a1a03d593d358db3776f71c5a",
     "apps/web/src/dashboard/ChatPage.tsx": "72e86a1e9c15e4675102a55025b990cc650055cb788e523e88b1081e7f8adaab",
-    "apps/web/src/dashboard/http.ts": "70e1156b936dd717616c19399cb49e46811fe045533c78b39a3cfb09cb63f4a8",
-    "apps/web/src/dashboard/store.tsx": "dbca3327313efccab7fb3bd4ff0c0af1309c938ab3ad501b9313ed259b31266b",
+    "apps/web/src/dashboard/http.ts": "44e6bf708878a92bb2d390e1c30896def786500a73cd2860161591bdf0e00ca5",
+    "apps/web/src/dashboard/store.tsx": "f03da98dc54517e659e6fb5ff4b7b3ae41d8ac716fc36aaa2a9f5a7fd5a97823",
     "apps/web/src/dashboard/types.ts": "2e9b0fb61d1108d71f603099925154714f6b035dc9e6a686302881423a657c10",
     "apps/web/src/dashboard/wallet.ts": "96ae3bc683d07141bdca0cf6ce990d44d8ec8cc2644d066cd56165bc6af7e86a",
     "apps/web/src/dashboard/walletStore.tsx": "afea45df32a4ea1f8338b1f38fc2994a277573490564eb154210c7786d6f0718",
@@ -132,7 +132,7 @@
     "docker-compose.yml": "34cd2feaa1920f115eebabb31b882f0cd25425d0a0f6c60c596f033d68a9cae2",
     "docs/dependency-licenses.md": "dd5cf96d5501a5089387cf78273d87095cc6bd842fbdbddc008820200cd2ecd3",
     "e2e/wallet-ai.live.spec.ts": "0b74831125b671378e36c1fad76be23f98a9f4beec3c08250df2451ca107727e",
-    "e2e/wallet-ai.mock.spec.ts": "9a52c362cdea6d3077934ed04b84f019c05a8089ed9ca908b45516fd026c8598",
+    "e2e/wallet-ai.mock.spec.ts": "6e5e138b90c1ce9d62ba220abaa03094a5d00cfe04d146d469d1d52382a08ffe",
     "package.json": "d26f5de88561c5c409dfe1fbe90e0c5d1eaf4d7ce0516ae57eb74c149dc75625",
     "packages/shared/package.json": "cbeb5593b144f6eaf00e0abcc3f4f6cf4a8df87325ecde9946e7d24821a63da5",
     "packages/shared/src/index.ts": "92acc574cf5a86768ecab80c935d5d45317881368708cbc301e5bc538a533edb",

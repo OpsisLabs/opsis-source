@@ -7,6 +7,8 @@
 
 const BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 const AUTH_KEY = "rh_auth";
+const AUTH_EVENT = "rh-auth-change";
+let refreshPromise: Promise<boolean> | null = null;
 
 export interface StoredAuth {
   accessToken: string;
@@ -26,6 +28,18 @@ export function readAuth(): StoredAuth | null {
 export function writeAuth(auth: StoredAuth | null): void {
   if (auth) localStorage.setItem(AUTH_KEY, JSON.stringify(auth));
   else localStorage.removeItem(AUTH_KEY);
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(AUTH_EVENT));
+}
+
+/** Keep React auth state aligned when the HTTP layer rotates or clears tokens. */
+export function subscribeAuth(listener: () => void): () => void {
+  if (typeof window === "undefined") return () => undefined;
+  window.addEventListener(AUTH_EVENT, listener);
+  window.addEventListener("storage", listener);
+  return () => {
+    window.removeEventListener(AUTH_EVENT, listener);
+    window.removeEventListener("storage", listener);
+  };
 }
 
 /** Error carrying the backend's machine-readable code, e.g. MONTHLY_QUOTA_EXCEEDED. */
@@ -95,7 +109,7 @@ async function raw(path: string, init: RequestInit, token?: string): Promise<Res
 }
 
 /** Exchange the refresh token for a new pair. Returns false when it is spent. */
-async function refresh(): Promise<boolean> {
+async function rotateRefreshToken(): Promise<boolean> {
   const auth = readAuth();
   if (!auth?.refreshToken) return false;
   const response = await raw("/v1/auth/refresh", {
@@ -122,6 +136,18 @@ async function refresh(): Promise<boolean> {
     },
   });
   return true;
+}
+
+async function refresh(): Promise<boolean> {
+  // Session bootstrap performs several authenticated requests concurrently.
+  // A refresh token is single-use, so every 401 must await the same rotation
+  // instead of spending the token twice and clearing the successful result.
+  if (!refreshPromise) {
+    refreshPromise = rotateRefreshToken().finally(() => {
+      refreshPromise = null;
+    });
+  }
+  return refreshPromise;
 }
 
 /** Authenticated request. Refreshes once on 401 before giving up. */

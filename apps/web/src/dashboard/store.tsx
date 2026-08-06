@@ -1,4 +1,4 @@
-import { createContext, useContext, useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import {
   currentUser,
   login as apiLogin,
@@ -7,6 +7,7 @@ import {
   walletChallenge,
   walletLogin,
 } from "./api";
+import { subscribeAuth } from "./http";
 import { connectWallet, signSignInMessage } from "./wallet";
 import type { User } from "./types";
 
@@ -30,6 +31,8 @@ const Ctx = createContext<AuthCtx | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(() => currentUser());
   const pending = useRef<{ nonce: string; signature: string } | null>(null);
+
+  useEffect(() => subscribeAuth(() => setUser(currentUser())), []);
 
   const signInWithWallet = async (username?: string) => {
     if (!pending.current) {
