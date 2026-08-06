@@ -5,6 +5,12 @@ import { sha256 } from "../security/hash.js";
 
 type PersistenceClient = Prisma.TransactionClient;
 
+export type ChainEntityReference = {
+  chainId: number;
+  type: ChainEntityType;
+  value: string;
+};
+
 const entityTypes: Record<ChainEntityType, "WALLET" | "TRANSACTION" | "TOKEN" | "CONTRACT" | "BLOCK" | "UNKNOWN"> = {
   wallet: "WALLET",
   transaction: "TRANSACTION",
@@ -74,6 +80,30 @@ export async function persistResolutionWithClient(client: PersistenceClient, res
     });
   }
 
+  return chainEntity.id;
+}
+
+/** Attach a validated entity to a session without blocking on live provider enrichment. */
+export async function persistEntityReferenceWithClient(
+  client: PersistenceClient,
+  entity: ChainEntityReference
+): Promise<string> {
+  const chainEntity = await client.chainEntity.upsert({
+    where: {
+      chainId_type_value: {
+        chainId: entity.chainId,
+        type: entityTypes[entity.type],
+        value: entity.value
+      }
+    },
+    create: {
+      chainId: entity.chainId,
+      type: entityTypes[entity.type],
+      value: entity.value
+    },
+    // Preserve richer labels and metadata from any earlier full resolution.
+    update: { value: entity.value }
+  });
   return chainEntity.id;
 }
 

@@ -313,7 +313,7 @@ export default function AppShell() {
               disabled={resolving || !q.trim()}
               className="hidden shrink-0 font-mono-d text-[10.5px] tracking-wider text-[#9a938a] transition-colors hover:text-[#fa6c34] disabled:cursor-not-allowed disabled:opacity-50 sm:block"
             >
-              {resolving ? "RESOLVING…" : "RESOLVE ⏎"}
+              {resolving ? "OPENING…" : "INSPECT ⏎"}
             </button>
           </form>
           <div className="hidden items-center gap-2 border border-[#2e2e2e] px-3 py-2 md:flex">

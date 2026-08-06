@@ -37,6 +37,10 @@ describe("product specification API compatibility", () => {
     });
     expect(created.statusCode).toBe(200);
     expect(created.json()).toMatchObject({ entity: { type: "block", chainId: 4663, id: "123456" } });
+    expect((await app.inject({ method: "GET", url: "/v1/usage/me", headers })).json()).toMatchObject({
+      chainLookups: 1,
+      aiMessages: 0
+    });
 
     const sent = await app.inject({
       method: "POST",
@@ -49,6 +53,10 @@ describe("product specification API compatibility", () => {
     expect(sent.json().confirmedFacts).toBeInstanceOf(Array);
     expect(sent.json().suggestedFollowUps).toBeInstanceOf(Array);
     expect(sent.json().citations.length).toBeGreaterThan(0);
+    expect((await app.inject({ method: "GET", url: "/v1/usage/me", headers })).json()).toMatchObject({
+      chainLookups: 2,
+      aiMessages: 1
+    });
   });
 
   it("rejects malformed entities without creating a session or consuming quota", async () => {

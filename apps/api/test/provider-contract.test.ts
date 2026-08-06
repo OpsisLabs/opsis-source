@@ -139,5 +139,8 @@ describe("provider fixture contracts", () => {
       "0xpage1",
       "0xpage2"
     ]);
+
+    const limitedSources = await provider.getAddressSummary(address, { limit: 25 });
+    expect(limitedSources.filter((source) => source.requestUrl?.includes("/transactions?"))).toHaveLength(1);
   });
 });

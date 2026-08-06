@@ -484,8 +484,45 @@ function AnswerCard({ ai, onPivot }: { ai: AiExplorerAnswer; onPivot: (v: string
   );
 }
 
-function EntityPanel({ summary }: { summary: EntitySummary | null }) {
+function EntityPanel({
+  summary,
+  selected,
+  resolving,
+}: {
+  summary: EntitySummary | null;
+  selected?: ChatSession["entity"];
+  resolving: boolean;
+}) {
   if (!summary) {
+    if (selected) {
+      const explorerUrl = `${EXPLORER}/${selected.type === "transaction" ? "tx" : "address"}/${selected.id}`;
+      return (
+        <div className="p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <span className="font-mono-d text-[10.5px] tracking-wider text-[#635d5a]">
+              {resolving ? "RESOLVING ENTITY" : "ENTITY SELECTED"}
+            </span>
+            <span className="border border-[#fa6c34]/40 bg-[#fa6c34]/10 px-2 py-0.5 font-mono-d text-[9.5px] uppercase tracking-wider text-[#fa6c34]">
+              {selected.type}
+            </span>
+          </div>
+          <p className="break-all font-mono-d text-[11px] leading-relaxed text-[#9a938a]">{selected.id}</p>
+          <div className="mt-2 flex items-center gap-4">
+            <a href={explorerUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 font-mono-d text-[10.5px] text-[#7cc4f8] hover:underline">
+              Open in Blockscout <ExternalLink size={10} />
+            </a>
+            <CopyButton value={selected.id} />
+          </div>
+          <div className="mt-5 space-y-3 border border-[#2e2e2e] bg-[#242424] p-4">
+            <div className="h-3 w-24 animate-pulse bg-[#383838]" />
+            <div className="h-7 w-32 animate-pulse bg-[#2e2e2e]" />
+            <p className="pt-1 font-mono-d text-[9.5px] tracking-wider text-[#635d5a]">
+              {resolving ? "FETCHING LIVE CHAIN DATA…" : "DETAILS LOAD WITH THE FIRST ANSWER"}
+            </p>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 p-8 text-center">
         <div className="dots h-16 w-16 opacity-40" />
@@ -804,7 +841,7 @@ export default function ChatPage() {
 
       {/* entity panel */}
       <aside className="hidden border-l border-[#2e2e2e] bg-[#1c1c1c] xl:block">
-        <EntityPanel summary={entity} />
+        <EntityPanel summary={entity} selected={session?.entity} resolving={pending} />
       </aside>
     </div>
   );

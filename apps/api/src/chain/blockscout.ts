@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { Env } from "../config/env.js";
-import type { ChainProvider, SourceDocumentInput } from "./types.js";
+import type { ChainProvider, ProviderQueryOptions, SourceDocumentInput } from "./types.js";
 import { createProviderHttp, type ProviderHttp } from "./provider-http.js";
 
 export class BlockscoutProvider implements ChainProvider {
@@ -32,24 +32,26 @@ export class BlockscoutProvider implements ChainProvider {
     ];
   }
 
-  async getAddressSummary(address: string): Promise<SourceDocumentInput[]> {
+  async getAddressSummary(address: string, options: ProviderQueryOptions = {}): Promise<SourceDocumentInput[]> {
     const wallet = await this.fetchDoc("wallet", address, `/addresses/${address}`);
+    const maxPages = this.maxPagesFor(options);
     const [transactions, tokenTransfers, internalTransactions, tokenBalances] = await Promise.all([
-      this.fetchPaginated("wallet", address, `/addresses/${address}/transactions?filter=to%20%7C%20from`, true),
-      this.fetchPaginated("wallet", address, `/addresses/${address}/token-transfers`, true),
-      this.fetchPaginated("wallet", address, `/addresses/${address}/internal-transactions`, true),
+      this.fetchPaginated("wallet", address, `/addresses/${address}/transactions?filter=to%20%7C%20from`, true, maxPages),
+      this.fetchPaginated("wallet", address, `/addresses/${address}/token-transfers`, true, maxPages),
+      this.fetchPaginated("wallet", address, `/addresses/${address}/internal-transactions`, true, maxPages),
       this.fetchOptionalDoc("wallet", address, `/addresses/${address}/token-balances`)
     ]);
     return [wallet, ...transactions, ...tokenTransfers, ...internalTransactions, ...(tokenBalances ? [tokenBalances] : [])];
   }
 
-  async getToken(address: string): Promise<SourceDocumentInput[]> {
+  async getToken(address: string, options: ProviderQueryOptions = {}): Promise<SourceDocumentInput[]> {
     const token = await this.fetchDoc("token", address, `/tokens/${address}`);
+    const maxPages = this.maxPagesFor(options);
     // Holders, lifetime counters and the deploying address are what make
     // distribution analysis possible; the transfer window alone cannot show
     // who actually controls the supply.
     const [transfers, contract, holders, counters, addressInfo] = await Promise.all([
-      this.fetchPaginated("token", address, `/tokens/${address}/transfers`, true),
+      this.fetchPaginated("token", address, `/tokens/${address}/transfers`, true, maxPages),
       this.fetchOptionalDoc("token", address, `/smart-contracts/${address}`),
       this.fetchOptionalDoc("token", address, `/tokens/${address}/holders`),
       this.fetchOptionalDoc("token", address, `/tokens/${address}/counters`),
@@ -103,11 +105,11 @@ export class BlockscoutProvider implements ChainProvider {
     return docs.filter((doc): doc is SourceDocumentInput => doc !== undefined);
   }
 
-  async getContract(address: string): Promise<SourceDocumentInput[]> {
+  async getContract(address: string, options: ProviderQueryOptions = {}): Promise<SourceDocumentInput[]> {
     const contract = await this.fetchDoc("contract", address, `/smart-contracts/${address}`);
     const [addressDoc, transactions] = await Promise.all([
       this.fetchOptionalDoc("contract", address, `/addresses/${address}`),
-      this.fetchPaginated("contract", address, `/addresses/${address}/transactions`, true)
+      this.fetchPaginated("contract", address, `/addresses/${address}/transactions`, true, this.maxPagesFor(options))
     ]);
     return [contract, ...(addressDoc ? [addressDoc] : []), ...transactions];
   }
@@ -137,12 +139,13 @@ export class BlockscoutProvider implements ChainProvider {
     entityType: SourceDocumentInput["entityType"],
     entityValue: string,
     path: string,
-    optional = false
+    optional = false,
+    maxPages = this.env.BLOCKSCOUT_MAX_PAGES
   ): Promise<SourceDocumentInput[]> {
     const docs: SourceDocumentInput[] = [];
     let nextPath: string | undefined = path;
     const visited = new Set<string>();
-    while (nextPath && docs.length < this.env.BLOCKSCOUT_MAX_PAGES && !visited.has(nextPath)) {
+    while (nextPath && docs.length < maxPages && !visited.has(nextPath)) {
       visited.add(nextPath);
       let doc: SourceDocumentInput;
       try {
@@ -155,6 +158,12 @@ export class BlockscoutProvider implements ChainProvider {
       nextPath = nextPageUrl(doc);
     }
     return docs;
+  }
+
+  /** Blockscout pages contain up to 50 rows; do not fetch unused pages for a smaller UI window. */
+  private maxPagesFor(options: ProviderQueryOptions): number {
+    if (options.limit === undefined) return this.env.BLOCKSCOUT_MAX_PAGES;
+    return Math.min(this.env.BLOCKSCOUT_MAX_PAGES, Math.max(1, Math.ceil(options.limit / 50)));
   }
 
   private async fetchOptionalDoc(

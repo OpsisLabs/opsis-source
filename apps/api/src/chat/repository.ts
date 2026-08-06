@@ -1,7 +1,12 @@
 import type { Prisma, PrismaClient } from "@prisma/client";
 import type { AiExplorerAnswer, ChainEntityType } from "@rh-chain/shared";
 import type { ResolvedEntity } from "../chain/types.js";
-import { CHAIN_PERSIST_TX_OPTIONS, persistResolutionWithClient } from "../chain/persistence.js";
+import {
+  CHAIN_PERSIST_TX_OPTIONS,
+  persistEntityReferenceWithClient,
+  persistResolutionWithClient,
+  type ChainEntityReference
+} from "../chain/persistence.js";
 import { memoryStore, type MemoryMessage, type MemorySession } from "../db/memory.js";
 
 export type ChatSessionRecord = MemorySession;
@@ -10,15 +15,15 @@ export type ChatMessageRecord = MemoryMessage | Prisma.ChatMessageGetPayload<Rec
 export class ChatRepository {
   constructor(private readonly prisma?: PrismaClient) {}
 
-  async createSession(userId: string, title: string, resolution?: ResolvedEntity): Promise<ChatSessionRecord> {
+  async createSession(userId: string, title: string, entity?: ChainEntityReference): Promise<ChatSessionRecord> {
     if (!this.prisma) {
       const session = memoryStore.createSession(userId, title);
-      if (resolution) session.activeEntity = { type: resolution.entity.type, value: resolution.entity.value };
+      if (entity) session.activeEntity = { type: entity.type, value: entity.value };
       return session;
     }
-    if (!resolution) return this.prisma.chatSession.create({ data: { userId, title } });
+    if (!entity) return this.prisma.chatSession.create({ data: { userId, title } });
     return this.prisma.$transaction(async (tx) => {
-      const activeEntityId = await persistResolutionWithClient(tx, resolution);
+      const activeEntityId = await persistEntityReferenceWithClient(tx, entity);
       return tx.chatSession.create({ data: { userId, title, activeEntityId } });
     }, CHAIN_PERSIST_TX_OPTIONS);
   }

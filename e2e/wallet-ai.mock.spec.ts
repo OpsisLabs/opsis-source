@@ -5,7 +5,7 @@ const sampleTransaction = "0x79ec8bb466286ee463d7e2a91b714a5e09e24d24f9e6cd4a474
 const answerText = "The supplied evidence shows two recent wallet transactions.";
 const timestamp = "2026-07-11T00:00:00.000Z";
 
-type MockOptions = { createDelayMs?: number; failCreate?: boolean };
+type MockOptions = { createDelayMs?: number; messageDelayMs?: number; failCreate?: boolean };
 
 async function authenticate(page: Page) {
   await page.addInitScript(() => {
@@ -79,6 +79,7 @@ async function mockApi(page: Page, options: MockOptions = {}) {
 
     if (path === "/v1/chat/sessions/e2e-session/messages" && method === "POST") {
       messageCalls += 1;
+      if (options.messageDelayMs) await new Promise((resolve) => setTimeout(resolve, options.messageDelayMs));
       const userMessage = { id: `user-${messageCalls}`, role: "USER", content: address, createdAt: timestamp };
       const assistantMessage = {
         id: `assistant-${messageCalls}`,
@@ -108,7 +109,7 @@ async function mockApi(page: Page, options: MockOptions = {}) {
           periodStart: "2026-07-01T00:00:00.000Z",
           periodEnd: "2026-08-01T00:00:00.000Z",
           aiMessages: messageCalls,
-          chainLookups: createCalls + messageCalls,
+          chainLookups: messageCalls,
           quota: { aiMessages: 500, chainLookups: 5000 },
         },
       });
@@ -149,8 +150,8 @@ test.beforeEach(async ({ page }) => {
   await authenticate(page);
 });
 
-test("wallet analysis is single-submit and does not replay after reload", async ({ page }) => {
-  const calls = await mockApi(page, { createDelayMs: 250 });
+test("wallet analysis opens before enrichment, is single-submit, and does not replay after reload", async ({ page }) => {
+  const calls = await mockApi(page, { createDelayMs: 250, messageDelayMs: 750 });
 
   await page.goto("/app");
   const search = page.getByLabel("Wallet, token, contract, or transaction");
@@ -159,6 +160,8 @@ test("wallet analysis is single-submit and does not replay after reload", async 
   await search.press("Enter");
 
   await expect(page).toHaveURL(/\/app\/chat\/e2e-session$/);
+  await expect(page.getByText("RESOLVING ENTITY")).toBeVisible();
+  await expect(page.getByText("FETCHING LIVE CHAIN DATA…")).toBeVisible();
   await expect(page.getByText(answerText)).toBeVisible();
   expect(calls.createCalls()).toBe(1);
   expect(calls.messageCalls()).toBe(1);
@@ -191,7 +194,7 @@ test("sample transaction is valid and resolve failures are visible", async ({ pa
   await search.press("Enter");
 
   await expect(page.getByRole("alert")).toHaveText("That transaction could not be found.");
-  await expect(page.getByRole("button", { name: /resolve/i })).toBeEnabled();
+  await expect(page.getByRole("button", { name: /inspect/i })).toBeEnabled();
   expect(calls.createCalls()).toBe(1);
 });
 

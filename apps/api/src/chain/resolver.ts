@@ -31,8 +31,9 @@ export class ChainEntityResolver {
   }
 
   async resolveWithSources(inputType: ChainEntityType, value: string, options: ResolveOptions = {}): Promise<ResolvedEntity> {
-    const identified = validatedEntity(inputType, value);
-    const cacheKey = `${this.env.ROBINHOOD_CHAIN_ID}:${identified.type}:${identified.value}:${options.limit ?? "default"}:${options.includeApprovals ?? true}`;
+    const identified = validateEntityInput(inputType, value);
+    const limit = options.limit ?? 25;
+    const cacheKey = `${this.env.ROBINHOOD_CHAIN_ID}:${identified.type}:${identified.value}:${limit}:${options.includeApprovals ?? true}`;
     const cached = options.refresh ? undefined : await this.cache.get<ResolvedEntity>(cacheKey);
     if (cached) return cached;
     const persisted = options.refresh ? undefined : await this.getPersisted(cacheKey);
@@ -55,7 +56,7 @@ export class ChainEntityResolver {
       }
     } else if (identified.type === "wallet") {
       const providerResults = await Promise.allSettled([
-        this.blockscout.getAddressSummary(identified.value),
+        this.blockscout.getAddressSummary(identified.value, { limit }),
         this.alchemy.getAddressSummary(identified.value),
         this.goldrush.getAddressSummary(identified.value)
       ]);
@@ -66,8 +67,8 @@ export class ChainEntityResolver {
       }
       if (inputType === "unknown") {
         resolvedType = classifyAddressSources(docs);
-        if (resolvedType === "token") docs.push(...(await this.blockscout.getToken(identified.value)));
-        if (resolvedType === "contract") docs.push(...(await this.blockscout.getContract(identified.value)));
+        if (resolvedType === "token") docs.push(...(await this.blockscout.getToken(identified.value, { limit })));
+        if (resolvedType === "contract") docs.push(...(await this.blockscout.getContract(identified.value, { limit })));
       }
       if (resolvedType === "wallet") {
         const provisional = normalizeEntity(this.env.ROBINHOOD_CHAIN_ID, resolvedType, identified.value, docs);
@@ -83,14 +84,14 @@ export class ChainEntityResolver {
       }
     } else if (identified.type === "token") {
       try {
-        docs = await this.blockscout.getToken(identified.value);
+        docs = await this.blockscout.getToken(identified.value, { limit });
       } catch (error) {
         if (stale) return markStale(stale);
         throw error;
       }
     } else if (identified.type === "contract") {
       try {
-        docs = await this.blockscout.getContract(identified.value);
+        docs = await this.blockscout.getContract(identified.value, { limit });
       } catch (error) {
         if (stale) return markStale(stale);
         throw error;
@@ -152,7 +153,7 @@ export class ChainEntityResolver {
   }
 }
 
-function validatedEntity(inputType: ChainEntityType, input: string): { type: ChainEntityType; value: string } {
+export function validateEntityInput(inputType: ChainEntityType, input: string): { type: ChainEntityType; value: string } {
   const value = input.trim();
   if (inputType === "unknown") {
     const identified = identifyEntity(value);

@@ -14,9 +14,13 @@ export type SourceDocumentInput = {
 export type ChainProvider = {
   name: string;
   getTransaction(hash: string): Promise<SourceDocumentInput[]>;
-  getAddressSummary(address: string): Promise<SourceDocumentInput[]>;
-  getToken(address: string): Promise<SourceDocumentInput[]>;
-  getContract(address: string): Promise<SourceDocumentInput[]>;
+  getAddressSummary(address: string, options?: ProviderQueryOptions): Promise<SourceDocumentInput[]>;
+  getToken(address: string, options?: ProviderQueryOptions): Promise<SourceDocumentInput[]>;
+  getContract(address: string, options?: ProviderQueryOptions): Promise<SourceDocumentInput[]>;
+};
+
+export type ProviderQueryOptions = {
+  limit?: number;
 };
 
 export type EntityResolver = {

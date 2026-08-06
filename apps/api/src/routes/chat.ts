@@ -3,7 +3,7 @@ import type { FastifyInstance } from "fastify";
 import type { Env } from "../config/env.js";
 import { AiService } from "../ai/service.js";
 import { ChatRepository } from "../chat/repository.js";
-import { ChainEntityResolver } from "../chain/resolver.js";
+import { ChainEntityResolver, validateEntityInput } from "../chain/resolver.js";
 import type { JsonCache } from "../cache/service.js";
 import { authenticate } from "../http/authenticate.js";
 import { AppError } from "../http/errors.js";
@@ -33,12 +33,16 @@ export async function chatRoutes(app: FastifyInstance, env: Env, prisma?: Prisma
   app.post("/v1/chat/sessions", { preHandler }, async (request) => {
     const body = createSessionBody.parse(request.body ?? {});
     if (!request.user) throw new AppError("UNAUTHORIZED", 401, "Authentication required");
-    if (body.initialEntity) await usage.assertAvailable(request.user.sub, "CHAIN_LOOKUP", quota);
-    const resolution = body.initialEntity ? await resolver.resolveWithSources("unknown", body.initialEntity) : undefined;
-    const session = await chats.createSession(request.user.sub, body.title, resolution);
-    if (resolution) await usage.record(request.user.sub, "CHAIN_LOOKUP");
-    const entity = resolution ? { type: resolution.entity.type, chainId: resolution.entity.chainId, id: resolution.entity.value } : null;
-    return { session, id: session.id, title: session.title, entity };
+    // Opening a chat should be a local database operation. Provider enrichment
+    // happens once, when the first question is sent, instead of blocking the
+    // navigation and then being counted again by the analysis request.
+    const identified = body.initialEntity ? validateEntityInput("unknown", body.initialEntity) : undefined;
+    const entity = identified
+      ? { type: identified.type, chainId: env.ROBINHOOD_CHAIN_ID, value: identified.value }
+      : undefined;
+    const session = await chats.createSession(request.user.sub, body.title, entity);
+    const responseEntity = entity ? { type: entity.type, chainId: entity.chainId, id: entity.value } : null;
+    return { session, id: session.id, title: session.title, entity: responseEntity };
   });
 
   app.get("/v1/chat/sessions", { preHandler }, async (request) => {
@@ -74,7 +78,10 @@ export async function chatRoutes(app: FastifyInstance, env: Env, prisma?: Prisma
       if (!activeEntity) throw new AppError("ENTITY_REQUIRED", 400, "Provide an entity or create the session with an initial entity");
       const question = body.question ?? body.message!;
       const providerStartedAt = performance.now();
-      const resolution = await resolver.resolveWithSources(activeEntity.type, activeEntity.value);
+      // Addresses are provisionally stored as wallets so the session can open
+      // immediately. Let the full lookup promote them to a token or contract.
+      const resolutionType = activeEntity.type === "wallet" ? "unknown" : activeEntity.type;
+      const resolution = await resolver.resolveWithSources(resolutionType, activeEntity.value);
       const providerLatencyMs = performance.now() - providerStartedAt;
       const aiStartedAt = performance.now();
       const answer = await ai.answer(question, resolution.entity);
