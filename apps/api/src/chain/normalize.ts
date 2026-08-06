@@ -75,6 +75,9 @@ function summarizeFacts(type: ChainEntityType, docs: SourceDocumentInput[]): Rec
     const stateChanges = documentItems(docs, "/state-changes");
     const decodedInput = (primary?.decoded_input as Record<string, unknown> | undefined) ?? decodeWithContractAbi(primary, docs);
     const rawValue = primary?.value ?? valueFromRpc(docs, "value");
+    const providerMethod = typeof primary?.method === "string" && !primary.method.startsWith("eth_")
+      ? primary.method
+      : undefined;
     return {
       hash: primary?.hash ?? valueFromRpc(docs, "hash"),
       blockNumber: primary?.block_number ?? valueFromRpc(docs, "blockNumber"),
@@ -84,7 +87,7 @@ function summarizeFacts(type: ChainEntityType, docs: SourceDocumentInput[]): Rec
       to: addressHash(primary?.to) ?? valueFromRpc(docs, "to"),
       value: rawValue,
       valueEth: weiToEth(rawValue),
-      method: primary?.method ?? decodedInput?.method_call ?? primary?.method_id,
+      method: providerMethod ?? decodedInput?.method_call ?? primary?.method_id,
       methodId: decodedInput?.method_id ?? primary?.method_id,
       decodedInput,
       fee: primary?.fee,

@@ -83,6 +83,34 @@ describe("transaction normalization", () => {
     expect(normalized.facts.contractAddress).toBeNull();
   });
 
+  it("does not present an RPC operation name as the called contract method", () => {
+    const normalized = normalizeEntity(4663, "transaction", hash, [
+      {
+        ...source("/rpc-transaction", {
+          method: "eth_getTransactionByHash",
+          result: { hash, from: transaction.from.hash, to: transaction.to.hash, value: "0x0" }
+        }),
+        provider: "alchemy",
+        requestUrl: "https://rpc.mainnet.chain.robinhood.com"
+      },
+      {
+        ...source("/rpc-receipt", {
+          method: "eth_getTransactionReceipt",
+          result: { status: "0x1", gasUsed: "0x3074c", contractAddress: null }
+        }),
+        provider: "alchemy",
+        requestUrl: "https://rpc.mainnet.chain.robinhood.com"
+      }
+    ]);
+
+    expect(normalized.facts).toMatchObject({
+      hash,
+      status: "0x1",
+      gasUsed: "0x3074c"
+    });
+    expect(normalized.facts.method).toBeUndefined();
+  });
+
   it("decodes transaction input from a verified contract ABI when provider decoding is absent", () => {
     const recipient = "0x0000000000000000000000000000000000000003";
     const rawInput = `0xa9059cbb${recipient.slice(2).padStart(64, "0")}${"5".padStart(64, "0")}`;

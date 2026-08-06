@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { useLocation, useNavigate, useOutletContext, useParams } from "react-router";
 import { AlertTriangle, ArrowUp, CheckCircle2, ChevronDown, ChevronRight, Copy, ExternalLink, Info, Search, ShieldAlert, Sparkles } from "lucide-react";
-import { classify, EXPLORER, getEntitySummary, listMessages, listSessions, SAMPLE_TX, SAMPLE_WALLET, sendMessage } from "./api";
+import { classify, EXPLORER, listMessages, listSessions, SAMPLE_TX, SAMPLE_WALLET, sendMessage } from "./api";
 import { useWallet } from "./walletStore";
 import { shortAddress } from "./wallet";
 import type { AiExplorerAnswer, AnswerCardMeta, AnswerStat, AnswerWidget, ChatMessage, ChatSession, EntitySummary, Severity } from "./types";
@@ -578,7 +578,7 @@ export default function ChatPage() {
         const nextSession = sessions.find((candidate) => candidate.id === sessionId) ?? null;
         setSession(nextSession);
         setMessages(nextMessages);
-        setEntity(null);
+        setEntity([...nextMessages].reverse().find((message) => message.ai?.entitySummary)?.ai?.entitySummary ?? null);
         setLoadError(nextSession ? "" : "This session could not be found.");
       })
       .catch((err) => {
@@ -595,11 +595,6 @@ export default function ChatPage() {
   }, [sessionId]);
 
   useEffect(() => {
-    const ent = session?.entity?.id;
-    if (ent) getEntitySummary(ent).then(setEntity);
-  }, [session]);
-
-  useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, pending]);
 
@@ -613,7 +608,7 @@ export default function ChatPage() {
     setMessages((current) => [...current, { id: temporaryId, role: "USER", content: text, createdAt: new Date().toISOString() }]);
     try {
       const ai = await sendMessage(sessionId, text, ent.type !== "unknown" ? ent.id : session?.entity?.id);
-      if (ent.type !== "unknown") void getEntitySummary(ent.id).then(setEntity);
+      if (ai.ai?.entitySummary) setEntity(ai.ai.entitySummary);
       setMessages((current) => [
         ...current.filter((message) => message.id !== temporaryId),
         { id: `u_${ai.id}`, role: "USER", content: text, createdAt: new Date().toISOString() },

@@ -74,6 +74,8 @@ export interface AnswerWidget {
 export interface AiExplorerAnswer {
   card?: AnswerCardMeta;
   widgets?: AnswerWidget[];
+  /** Side-panel data derived from the same saved facts as the answer. */
+  entitySummary?: EntitySummary;
   answer: string;
   summaryBullets: string[];
   confirmedFacts: { fact: string; sourceIds: string[] }[];

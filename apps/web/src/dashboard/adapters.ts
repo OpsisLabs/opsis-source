@@ -181,9 +181,21 @@ export function adaptAnswer(
   const relabel = (ids?: string[]): string[] => (ids ?? []).map((id) => alias.get(id) ?? id);
 
   const card = source.facts ? deriveCard(source.facts, entityType, entityId) : undefined;
+  const entityValue = card?.id ?? str(source.facts?.hash) ?? str(source.facts?.address) ?? entityId;
+  const entitySummary = source.facts && card
+    ? adaptEntitySummary({
+        chainId: CHAIN_ID,
+        type: card.kind,
+        value: entityValue,
+        facts: source.facts,
+        citations,
+        riskNotes: source.riskNotes ?? [],
+      })
+    : undefined;
   return {
     card,
     widgets: card && source.facts ? deriveWidgets(source.facts, card.kind) : undefined,
+    entitySummary,
     answer: source.answer ?? "",
     summaryBullets: source.summaryBullets ?? [],
     confirmedFacts: (source.confirmedFacts ?? []).map((entry) => ({
@@ -312,7 +324,7 @@ export function deriveCard(
 
   if (kind === "transaction") {
     const status = str(facts.status)?.toLowerCase();
-    const ok = status === "ok" || status === "success" || status === "1";
+    const ok = status === "ok" || status === "success" || status === "1" || status === "0x1" || status === "0x01";
     push("Value", facts.valueEth != null ? `${formatAmount(String(facts.valueEth))} ETH` : undefined);
     push("Gas used", facts.gasUsed != null ? formatAmount(String(Number(facts.gasUsed)), 0) : undefined);
     push("Token transfers", count(facts.tokenTransfers) !== undefined ? String(count(facts.tokenTransfers)) : undefined);

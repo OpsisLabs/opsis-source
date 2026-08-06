@@ -20,6 +20,7 @@ async function authenticate(page: Page) {
 async function mockApi(page: Page, options: MockOptions = {}) {
   let createCalls = 0;
   let messageCalls = 0;
+  let entityCalls = 0;
   let sessions: Array<Record<string, unknown>> = [];
   let messages: Array<Record<string, unknown>> = [];
 
@@ -115,6 +116,7 @@ async function mockApi(page: Page, options: MockOptions = {}) {
     }
 
     if (path === `/v1/wallets/${address}/summary`) {
+      entityCalls += 1;
       await route.fulfill({
         json: {
           entity: {
@@ -139,6 +141,7 @@ async function mockApi(page: Page, options: MockOptions = {}) {
   return {
     createCalls: () => createCalls,
     messageCalls: () => messageCalls,
+    entityCalls: () => entityCalls,
   };
 }
 
@@ -159,11 +162,17 @@ test("wallet analysis is single-submit and does not replay after reload", async 
   await expect(page.getByText(answerText)).toBeVisible();
   expect(calls.createCalls()).toBe(1);
   expect(calls.messageCalls()).toBe(1);
+  expect(calls.entityCalls()).toBe(0);
 
   await page.reload();
   await expect(page.getByText(answerText)).toBeVisible();
   await page.waitForTimeout(300);
   expect(calls.messageCalls()).toBe(1);
+  expect(calls.entityCalls()).toBe(0);
+  await expect(page.getByRole("link", { name: "Open in Blockscout" })).toHaveAttribute(
+    "href",
+    `https://robinhoodchain.blockscout.com/address/${address}`,
+  );
 
   await page.getByRole("button", { name: /1 sources/i }).click();
   await expect(page.getByRole("link", { name: "Verify src_1 on Blockscout" })).toHaveAttribute(
