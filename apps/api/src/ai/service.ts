@@ -220,9 +220,13 @@ function sanitizeAnswer(raw: RawAiAnswer, entity: NormalizedEntity, tokenUsage?:
   const fallback = deterministicAnswer("", entity);
   const candidate = typeof raw.answer === "string" ? raw.answer.trim().slice(0, 4000) : "";
   const suggested = cleanStrings(raw.suggestedFollowUps ?? raw.suggestedQuestions, 5, 300, fallback.suggestedQuestions);
+  const summaryBullets = cleanStrings(raw.summaryBullets, 10, 500, fallback.summaryBullets)
+    .map((bullet) => groundTransactionGas(bullet, entity));
   return {
-    answer: candidate && !containsUnsafeDirective(candidate) ? candidate : fallback.answer,
-    summaryBullets: cleanStrings(raw.summaryBullets, 10, 500, fallback.summaryBullets),
+    answer: candidate && !containsUnsafeDirective(candidate)
+      ? groundTransactionGas(candidate, entity)
+      : fallback.answer,
+    summaryBullets,
     confirmedFacts: buildConfirmedFacts(entity),
     inferences: cleanInferences(raw.inferences, entity),
     facts: entity.facts,
@@ -233,6 +237,21 @@ function sanitizeAnswer(raw: RawAiAnswer, entity: NormalizedEntity, tokenUsage?:
     suggestedFollowUps: suggested,
     ...(tokenUsage ? { tokenUsage } : {})
   };
+}
+
+/** Correct a common model digit-transposition without rewriting its prose. */
+function groundTransactionGas(text: string, entity: NormalizedEntity): string {
+  if (entity.type !== "transaction") return text;
+  const raw = entity.facts.gasUsed;
+  if (typeof raw !== "string" && typeof raw !== "number") return text;
+  try {
+    const exact = BigInt(raw).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return text
+      .replace(/\b[\d,]+(?=\s+gas\b)/gi, exact)
+      .replace(/(\bgas\s+used(?:\s+(?:was|is|of))?\s*)[\d,]+/gi, `$1${exact}`);
+  } catch {
+    return text;
+  }
 }
 
 function buildSummaryBullets(entity: NormalizedEntity): string[] {

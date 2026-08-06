@@ -42,6 +42,23 @@ describe("AI answer boundary", () => {
     expect(answer.answer).toBe("The source reports a successful transaction.");
   });
 
+  it("grounds transaction gas figures in the normalized receipt", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      output_text: JSON.stringify({
+        answer: "This successful call used 19892 gas.",
+        summaryBullets: ["Gas used 19,892 — moderate cost."]
+      })
+    }), { status: 200, headers: { "content-type": "application/json" } })));
+
+    const answer = await new AiService(loadEnv({ NODE_ENV: "test", OPENAI_API_KEY: "test-key" })).answer(
+      "Explain",
+      { ...entity, facts: { ...entity.facts, gasUsed: "0x3074c" } },
+    );
+
+    expect(answer.answer).toContain("198,476 gas");
+    expect(answer.summaryBullets).toContain("Gas used 198,476 — moderate cost.");
+  });
+
   it("replaces transactional advice with the deterministic safe answer", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({
       output_text: JSON.stringify({ answer: "You should buy this token now.", uncertainty: [], suggestedQuestions: [] })

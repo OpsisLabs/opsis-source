@@ -172,7 +172,12 @@ export function adaptAnswer(
   const entityType = entity?.type ?? "unknown";
   const entityId = entity?.id ?? "";
   const citations = source.citations ?? [];
-  const explorerUrl = str(source.facts?.explorerUrl);
+  // Older RPC-only answers persisted the JSON-RPC operation as the contract
+  // method. Scrub it at the adapter boundary so saved chats are repaired too.
+  const facts = source.facts && typeof source.facts.method === "string" && source.facts.method.startsWith("eth_")
+    ? { ...source.facts, method: undefined }
+    : source.facts;
+  const explorerUrl = str(facts?.explorerUrl);
 
   // Source ids arrive as UUIDs. The answer card renders them inline next to
   // every fact and risk note in a narrow column, so alias them to short
@@ -180,21 +185,21 @@ export function adaptAnswer(
   const alias = new Map(citations.map((citation, index) => [citation.id, `src_${index + 1}`]));
   const relabel = (ids?: string[]): string[] => (ids ?? []).map((id) => alias.get(id) ?? id);
 
-  const card = source.facts ? deriveCard(source.facts, entityType, entityId) : undefined;
-  const entityValue = card?.id ?? str(source.facts?.hash) ?? str(source.facts?.address) ?? entityId;
-  const entitySummary = source.facts && card
+  const card = facts ? deriveCard(facts, entityType, entityId) : undefined;
+  const entityValue = card?.id ?? str(facts?.hash) ?? str(facts?.address) ?? entityId;
+  const entitySummary = facts && card
     ? adaptEntitySummary({
         chainId: CHAIN_ID,
         type: card.kind,
         value: entityValue,
-        facts: source.facts,
+        facts,
         citations,
         riskNotes: source.riskNotes ?? [],
       })
     : undefined;
   return {
     card,
-    widgets: card && source.facts ? deriveWidgets(source.facts, card.kind) : undefined,
+    widgets: card && facts ? deriveWidgets(facts, card.kind) : undefined,
     entitySummary,
     answer: source.answer ?? "",
     summaryBullets: source.summaryBullets ?? [],
