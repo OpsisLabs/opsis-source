@@ -87,6 +87,19 @@ const str = (value: unknown): string | undefined =>
 const rows = (value: unknown): Record<string, unknown>[] =>
   Array.isArray(value) ? (value.filter((item) => item && typeof item === "object") as Record<string, unknown>[]) : [];
 
+function groundTransactionGas(text: string, facts?: Record<string, unknown>): string {
+  const raw = facts?.gasUsed;
+  if ((typeof raw !== "string" && typeof raw !== "number") || !text) return text;
+  try {
+    const exact = BigInt(raw).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return text
+      .replace(/\b[\d,]+(?=\s+gas\b)/gi, exact)
+      .replace(/(\bgas\s+used(?:\s+(?:was|is|of))?\s*)[\d,]+/gi, `$1${exact}`);
+  } catch {
+    return text;
+  }
+}
+
 export function shortHex(value: unknown): string {
   const text = str(value);
   if (!text) return NONE;
@@ -201,8 +214,8 @@ export function adaptAnswer(
     card,
     widgets: card && facts ? deriveWidgets(facts, card.kind) : undefined,
     entitySummary,
-    answer: source.answer ?? "",
-    summaryBullets: source.summaryBullets ?? [],
+    answer: groundTransactionGas(source.answer ?? "", facts),
+    summaryBullets: (source.summaryBullets ?? []).map((bullet) => groundTransactionGas(bullet, facts)),
     confirmedFacts: (source.confirmedFacts ?? []).map((entry) => ({
       fact: formatFact(entry.fact),
       sourceIds: relabel(entry.sourceIds),

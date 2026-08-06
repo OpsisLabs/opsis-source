@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "8cd8762af2ea7f527fb2d84069ccd94610f630f06e09df85357b19a6e8849870",
+  "sourceTreeDigest": "7548c2ed186aca45b6de6d0edb1a385355a29b019e75819f3c85935ebc2b0b8e",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "45e7da660e9156329adfe00238c4a641bccee44b55181179883982a754383395",
@@ -94,7 +94,7 @@
     "apps/web/railway.json": "90cc1ae5d061c79535485e9501b7e83d0c033207e348679dd0178b9eaa8350ea",
     "apps/web/README.md": "d99aa6a95cdf99243795c0f742e3d51ce47a42ff7da397bc702134a6c78bd931",
     "apps/web/src/App.tsx": "3978720393708e9e1716160bddc41144c099de8767533e982ddaa6514477a3ad",
-    "apps/web/src/dashboard/adapters.ts": "81aa255b32c5147fbc17a857312e463f3d8ede665e49fd7e70dd7039f4ebed31",
+    "apps/web/src/dashboard/adapters.ts": "3e9b81c2eaa25fefe5cd6553f9d78477902bd27c07efd2ff5fe1db954884fd0a",
     "apps/web/src/dashboard/api.ts": "40dea99a6f54fb3a24e982d7ef2a13ae88066dcb8d3d9f52ae40e677da9ff955",
     "apps/web/src/dashboard/AppShell.tsx": "f004b0d162a2b8c2cf8dcf89921c10c27e562d4915a25dac8dfe49f3f50defc4",
     "apps/web/src/dashboard/AuthPages.tsx": "97ba143dedbd9c86c4b326c92aa161d3d729127a1a03d593d358db3776f71c5a",
