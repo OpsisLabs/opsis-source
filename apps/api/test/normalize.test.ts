@@ -55,12 +55,32 @@ describe("transaction normalization", () => {
     ]);
     expect(normalized.facts.rawTrace).toEqual(rawTrace);
     expect(normalized.facts.stateChanges).toEqual(stateChanges.items);
+    expect([...new Set(normalized.citations.map((citation) => citation.url))]).toEqual([
+      `https://robinhoodchain.blockscout.com/tx/${hash}`
+    ]);
   });
 
   it("formats integer units without floating-point loss", () => {
     expect(formatUnits("1000000000000000001", "18")).toBe("1.000000000000000001");
     expect(formatUnits("1", 6)).toBe("0.000001");
     expect(formatUnits("10", 0)).toBe("10");
+  });
+
+  it("ignores scalar Blockscout result fields while reading RPC objects", () => {
+    const normalized = normalizeEntity(4663, "transaction", hash, [
+      source("", { ...transaction, result: "success", created_contract: null }),
+      {
+        ...source("/rpc", {
+          method: "eth_getTransactionReceipt",
+          result: { status: "0x1", contractAddress: null }
+        }),
+        provider: "alchemy",
+        requestUrl: "https://rpc.mainnet.chain.robinhood.com"
+      }
+    ]);
+
+    expect(normalized.facts.status).toBe(transaction.status);
+    expect(normalized.facts.contractAddress).toBeNull();
   });
 
   it("decodes transaction input from a verified contract ABI when provider decoding is absent", () => {
@@ -140,6 +160,9 @@ describe("wallet normalization", () => {
     ]);
     expect(normalized.facts.tokenBalances).toEqual([
       expect.objectContaining({ tokenSymbol: "FIX", formattedValue: "2.5" })
+    ]);
+    expect([...new Set(normalized.citations.map((citation) => citation.url))]).toEqual([
+      `https://robinhoodchain.blockscout.com/address/${wallet}`
     ]);
     expect(normalized.riskNotes).toEqual(expect.arrayContaining([
       expect.objectContaining({ severity: "high", title: "Active unlimited token approval found" }),

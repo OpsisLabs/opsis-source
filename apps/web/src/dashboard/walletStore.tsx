@@ -60,6 +60,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   return <Ctx.Provider value={{ wallet, connecting, error, connect, disconnect }}>{children}</Ctx.Provider>;
 }
 
+// Context hooks intentionally live beside their provider.
+// eslint-disable-next-line react-refresh/only-export-components
 export function useWallet() {
   const ctx = useContext(Ctx);
   if (!ctx) throw new Error("useWallet outside provider");

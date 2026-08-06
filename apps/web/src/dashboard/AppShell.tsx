@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router";
 import { LogOut, Menu, MessageSquarePlus, Search, ShieldCheck, Unplug, Wallet, X } from "lucide-react";
 import { createSession, getUsage, listSessions, SAMPLE_TX, SAMPLE_WALLET } from "./api";
@@ -13,11 +13,8 @@ function LogoMark({ className = "w-6 h-6" }: { className?: string }) {
 
 function WalletButton() {
   const { wallet, connecting, error, connect, disconnect } = useWallet();
-  const [showErr, setShowErr] = useState(false);
-
-  useEffect(() => {
-    if (error) setShowErr(true);
-  }, [error]);
+  const [dismissedError, setDismissedError] = useState<string | null>(null);
+  const showError = Boolean(error && error !== dismissedError);
 
   if (!hasMetaMask()) {
     return (
@@ -67,10 +64,10 @@ function WalletButton() {
         <Wallet size={13} />
         {connecting ? "CONNECTING…" : "CONNECT WALLET"}
       </button>
-      {showErr && error && (
+      {showError && error && (
         <div className="absolute right-0 top-[46px] z-50 w-[280px] border border-[#e0738a]/40 bg-[#242424] p-3.5 text-[11.5px] leading-relaxed text-[#e0738a]">
           {error}
-          <button onClick={() => setShowErr(false)} className="ml-2 font-mono-d text-[10px] text-[#9a938a] underline">
+          <button onClick={() => setDismissedError(error)} className="ml-2 font-mono-d text-[10px] text-[#9a938a] underline">
             dismiss
           </button>
         </div>
@@ -194,7 +191,10 @@ export default function AppShell() {
   const [usage, setUsage] = useState<Usage | null>(null);
   const [q, setQ] = useState("");
   const [creating, setCreating] = useState(false);
+  const [resolving, setResolving] = useState(false);
+  const [shellError, setShellError] = useState("");
   const [drawer, setDrawer] = useState(false);
+  const resolvingRef = useRef(false);
 
   const refresh = () => {
     listSessions()
@@ -208,6 +208,7 @@ export default function AppShell() {
 
   const newChat = async () => {
     setCreating(true);
+    setShellError("");
     try {
       const s = await createSession("Untitled session");
       refresh();
@@ -215,6 +216,7 @@ export default function AppShell() {
       nav(`/app/chat/${s.id}`);
     } catch (err) {
       console.error("failed to create session", err);
+      setShellError(err instanceof Error ? err.message : "Could not create a new session. Try again.");
     } finally {
       setCreating(false);
     }
@@ -223,7 +225,10 @@ export default function AppShell() {
   const search = async (e: FormEvent) => {
     e.preventDefault();
     const v = q.trim();
-    if (!v) return;
+    if (!v || resolvingRef.current) return;
+    resolvingRef.current = true;
+    setResolving(true);
+    setShellError("");
     try {
       const s = await createSession(
         v.length > 24 ? `${v.slice(0, 10)}…${v.slice(-6)}` : v,
@@ -234,6 +239,10 @@ export default function AppShell() {
       nav(`/app/chat/${s.id}`, { state: { firstMessage: v } });
     } catch (err) {
       console.error("failed to resolve entity", err);
+      setShellError(err instanceof Error ? err.message : "Could not resolve that entity. Check the address or hash and try again.");
+    } finally {
+      resolvingRef.current = false;
+      setResolving(false);
     }
   };
 
@@ -285,12 +294,21 @@ export default function AppShell() {
             <Search size={15} className="shrink-0 text-[#635d5a]" />
             <input
               value={q}
-              onChange={(e) => setQ(e.target.value)}
+              onChange={(e) => {
+                setQ(e.target.value);
+                if (shellError) setShellError("");
+              }}
+              aria-label="Wallet, token, contract, or transaction"
+              aria-describedby={shellError ? "entity-search-error" : undefined}
               placeholder="Paste a wallet, tx hash, token, or contract…"
               className="w-full bg-transparent py-3 text-[13.5px] text-[#e9e0d1] outline-none placeholder:text-[#635d5a]"
             />
-            <button type="submit" className="hidden shrink-0 font-mono-d text-[10.5px] tracking-wider text-[#9a938a] transition-colors hover:text-[#fa6c34] sm:block">
-              RESOLVE ⏎
+            <button
+              type="submit"
+              disabled={resolving || !q.trim()}
+              className="hidden shrink-0 font-mono-d text-[10.5px] tracking-wider text-[#9a938a] transition-colors hover:text-[#fa6c34] disabled:cursor-not-allowed disabled:opacity-50 sm:block"
+            >
+              {resolving ? "RESOLVING…" : "RESOLVE ⏎"}
             </button>
           </form>
           <div className="hidden items-center gap-2 border border-[#2e2e2e] px-3 py-2 md:flex">
@@ -313,6 +331,16 @@ export default function AppShell() {
             </button>
           </div>
         </header>
+
+        {shellError && (
+          <div
+            id="entity-search-error"
+            role="alert"
+            className="border-b border-[#e0738a]/40 bg-[#e0738a]/10 px-4 py-3 text-[12.5px] text-[#e0738a] md:px-6"
+          >
+            {shellError}
+          </div>
+        )}
 
         <Outlet context={{ refreshSessions: refresh }} />
       </div>

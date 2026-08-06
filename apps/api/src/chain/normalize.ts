@@ -3,20 +3,24 @@ import { decodeFunctionData, toFunctionSelector, type Abi, type AbiFunction, typ
 import type { SourceDocumentInput } from "./types.js";
 
 function citation(doc: SourceDocumentInput, fieldsUsed: string[], description: string, explorerBase: string): Citation {
-  const url =
-    doc.entityType === "transaction"
-      ? `${explorerBase}/tx/${doc.entityValue}`
-      : doc.entityType === "block"
-        ? `${explorerBase}/block/${doc.entityValue}`
-        : `${explorerBase}/address/${doc.entityValue}`;
   return {
     id: doc.id,
     provider: doc.provider,
-    url: doc.requestUrl ?? url,
+    // Provider request URLs are useful for durable internal snapshots, but
+    // raw API/RPC endpoints are not reliable browser citations. Link readers
+    // to the stable human explorer page for the exact entity instead.
+    url: explorerUrl(doc.entityType, doc.entityValue, explorerBase),
     fetchedAt: doc.fetchedAt,
     fieldsUsed,
     description
   };
+}
+
+function explorerUrl(type: ChainEntityType, value: string, explorerBase: string): string {
+  if (type === "transaction") return `${explorerBase}/tx/${value}`;
+  if (type === "block") return `${explorerBase}/block/${value}`;
+  if (type === "token") return `${explorerBase}/token/${value}`;
+  return `${explorerBase}/address/${value}`;
 }
 
 export function normalizeEntity(
@@ -29,7 +33,7 @@ export function normalizeEntity(
   const citations = docs.map((doc) => citation(doc, fieldsUsedForDoc(doc), `${doc.provider} ${doc.entityType} source data`, explorerBase));
   const facts = summarizeFacts(type, docs);
   facts.chainId = chainId;
-  facts.explorerUrl = type === "transaction" ? `${explorerBase}/tx/${value}` : `${explorerBase}/address/${value}`;
+  facts.explorerUrl = explorerUrl(type, value, explorerBase);
   facts.sourceIds = citations.map((source) => source.id);
   return {
     chainId,
@@ -489,8 +493,10 @@ export function formatUnits(value: unknown, decimals: unknown): string | undefin
 
 function valueFromRpc(docs: Array<{ responseJson: unknown }>, key: string): unknown {
   for (const doc of docs) {
-    const result = (doc.responseJson as { result?: Record<string, unknown> })?.result;
-    if (result && key in result) return result[key];
+    const result = (doc.responseJson as { result?: unknown })?.result;
+    if (result && typeof result === "object" && !Array.isArray(result) && key in result) {
+      return (result as Record<string, unknown>)[key];
+    }
   }
   return undefined;
 }

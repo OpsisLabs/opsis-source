@@ -172,6 +172,7 @@ export function adaptAnswer(
   const entityType = entity?.type ?? "unknown";
   const entityId = entity?.id ?? "";
   const citations = source.citations ?? [];
+  const explorerUrl = str(source.facts?.explorerUrl);
 
   // Source ids arrive as UUIDs. The answer card renders them inline next to
   // every fact and risk note in a narrow column, so alias them to short
@@ -203,7 +204,9 @@ export function adaptAnswer(
       id: alias.get(citation.id) ?? citation.id,
       provider: citation.provider,
       label: citation.description ?? `${citation.provider} source data`,
-      url: citation.url ?? null,
+      // Older saved answers may contain raw provider API/RPC URLs. Prefer the
+      // normalized human explorer URL so those citations remain verifiable.
+      url: explorerUrl ?? citation.url ?? null,
       fetchedAt: citation.fetchedAt,
       entityType,
       entityId,

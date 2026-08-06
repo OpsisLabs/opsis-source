@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
-import { useLocation, useOutletContext, useParams } from "react-router";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import { useLocation, useNavigate, useOutletContext, useParams } from "react-router";
 import { AlertTriangle, ArrowUp, CheckCircle2, ChevronDown, ChevronRight, Copy, ExternalLink, Info, Search, ShieldAlert, Sparkles } from "lucide-react";
 import { classify, EXPLORER, getEntitySummary, listMessages, listSessions, SAMPLE_TX, SAMPLE_WALLET, sendMessage } from "./api";
 import { useWallet } from "./walletStore";
@@ -181,7 +181,7 @@ function Donut({ segments, onPivot }: { segments: NonNullable<AnswerWidget["segm
     return () => clearTimeout(t);
   }, []);
   const total = segments.reduce((sum, seg) => sum + seg.pct, 0);
-  let acc = 0;
+  const offsets = segments.map((_, index) => segments.slice(0, index).reduce((sum, segment) => sum + segment.pct, 0));
   const top = segments[0];
   return (
     <div className="flex items-center gap-5">
@@ -190,8 +190,7 @@ function Donut({ segments, onPivot }: { segments: NonNullable<AnswerWidget["segm
           <circle cx="42" cy="42" r={R} fill="none" stroke="#2e2e2e" strokeWidth="9" />
           {segments.map((seg, i) => {
             const dash = (seg.pct / 100) * C;
-            const offset = -(acc / 100) * C;
-            acc += seg.pct;
+            const offset = -((offsets[i] ?? 0) / 100) * C;
             return (
               <circle
                 key={seg.label}
@@ -465,7 +464,13 @@ function AnswerCard({ ai, onPivot }: { ai: AiExplorerAnswer; onPivot: (v: string
                   <span className="w-10 shrink-0 font-mono-d text-[10px] text-[#635d5a]">{c.id}</span>
                   <span className="min-w-0 flex-1 truncate text-[#9a938a]">{c.label}</span>
                   {c.url && (
-                    <a href={c.url} target="_blank" rel="noreferrer" className="shrink-0 text-[#635d5a] transition-colors hover:text-[#fa6c34]">
+                    <a
+                      href={c.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={`Verify ${c.id} on Blockscout`}
+                      className="shrink-0 text-[#635d5a] transition-colors hover:text-[#fa6c34]"
+                    >
                       <ExternalLink size={11} />
                     </a>
                   )}
@@ -547,67 +552,101 @@ function EntityPanel({ summary }: { summary: EntitySummary | null }) {
 
 export default function ChatPage() {
   const { sessionId } = useParams();
-  const location = useLocation() as { state?: { firstMessage?: string } };
+  const location = useLocation();
+  const navigate = useNavigate();
   const { refreshSessions } = useOutletContext<{ refreshSessions: () => void }>();
   const [session, setSession] = useState<ChatSession | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [pending, setPending] = useState(false);
   const [entity, setEntity] = useState<EntitySummary | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loadedSessionId, setLoadedSessionId] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState("");
+  const [requestError, setRequestError] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
   const handledFirst = useRef<string | null>(null);
+  const pendingRef = useRef(false);
   const { wallet } = useWallet();
+  const loading = loadedSessionId !== sessionId;
 
   useEffect(() => {
     if (!sessionId) return;
-    setLoading(true);
-    listSessions()
-      .then((ss) => setSession(ss.find((s) => s.id === sessionId) ?? null))
-      .catch((err) => console.error("failed to load session", err));
-    listMessages(sessionId)
-      .then(setMessages)
-      .catch((err) => console.error("failed to load messages", err))
-      .finally(() => setLoading(false));
+    let cancelled = false;
+    Promise.all([listSessions(), listMessages(sessionId)])
+      .then(([sessions, nextMessages]) => {
+        if (cancelled) return;
+        const nextSession = sessions.find((candidate) => candidate.id === sessionId) ?? null;
+        setSession(nextSession);
+        setMessages(nextMessages);
+        setEntity(null);
+        setLoadError(nextSession ? "" : "This session could not be found.");
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        console.error("failed to load session", err);
+        setLoadError(err instanceof Error ? err.message : "Could not load this session. Try again.");
+      })
+      .finally(() => {
+        if (!cancelled) setLoadedSessionId(sessionId);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [sessionId]);
 
   useEffect(() => {
     const ent = session?.entity?.id;
     if (ent) getEntitySummary(ent).then(setEntity);
-    else setEntity(null);
   }, [session]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, pending]);
 
-  const ask = async (text: string) => {
-    if (!sessionId || !text.trim() || pending) return;
+  const ask = useCallback(async (text: string) => {
+    if (!sessionId || !text.trim() || pendingRef.current) return;
     const ent = classify(text);
+    const temporaryId = `tmp_${Date.now()}`;
+    pendingRef.current = true;
     setPending(true);
-    setMessages((m) => [...m, { id: `tmp_${Date.now()}`, role: "USER", content: text, createdAt: new Date().toISOString() }]);
-    const ai = await sendMessage(sessionId, text, ent.type !== "unknown" ? ent.id : session?.entity?.id);
-    if (ent.type !== "unknown") getEntitySummary(ent.id).then(setEntity);
-    setMessages((m) => [...m.filter((x) => !x.id.startsWith("tmp_")), { id: `u_${ai.id}`, role: "USER", content: text, createdAt: new Date().toISOString() }, ai]);
-    // The answer may retitle the entity (e.g. wallet -> token) and consumes
-    // quota; refresh the rail so both update without a reload.
-    refreshSessions();
-    setPending(false);
-  };
+    setRequestError("");
+    setMessages((current) => [...current, { id: temporaryId, role: "USER", content: text, createdAt: new Date().toISOString() }]);
+    try {
+      const ai = await sendMessage(sessionId, text, ent.type !== "unknown" ? ent.id : session?.entity?.id);
+      if (ent.type !== "unknown") void getEntitySummary(ent.id).then(setEntity);
+      setMessages((current) => [
+        ...current.filter((message) => message.id !== temporaryId),
+        { id: `u_${ai.id}`, role: "USER", content: text, createdAt: new Date().toISOString() },
+        ai,
+      ]);
+      // The answer may retitle the entity (e.g. wallet -> token) and consumes
+      // quota; refresh the rail so both update without a reload.
+      refreshSessions();
+    } catch (error) {
+      console.error("failed to send question", error);
+      setMessages((current) => current.filter((message) => message.id !== temporaryId));
+      setRequestError(error instanceof Error ? error.message : "Could not analyze that request. Try again.");
+    } finally {
+      pendingRef.current = false;
+      setPending(false);
+    }
+  }, [refreshSessions, session, sessionId]);
 
   // handle firstMessage passed from search bar
   useEffect(() => {
-    const fm = location.state?.firstMessage;
-    if (fm && sessionId && handledFirst.current !== sessionId) {
+    const fm = (location.state as { firstMessage?: unknown } | null)?.firstMessage;
+    if (!loading && typeof fm === "string" && fm && sessionId && handledFirst.current !== sessionId) {
       handledFirst.current = sessionId;
-      ask(fm);
+      // History state survives a browser reload. Consume it before sending so
+      // refreshing a saved chat never repeats a paid AI/chain request.
+      navigate(location.pathname, { replace: true, state: null });
+      void ask(fm);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.state, sessionId]);
+  }, [ask, loading, location.pathname, location.state, navigate, sessionId]);
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    ask(input);
+    void ask(input);
     setInput("");
   };
 
@@ -636,7 +675,19 @@ export default function ChatPage() {
             </div>
           )}
 
-          {!loading && messages.length === 0 && (
+          {!loading && loadError && (
+            <div role="alert" className="border border-[#e0738a]/40 bg-[#e0738a]/10 px-5 py-4 text-[12.5px] text-[#e0738a]">
+              {loadError}
+            </div>
+          )}
+
+          {requestError && (
+            <div id="chat-request-error" role="alert" className="border border-[#e0738a]/40 bg-[#e0738a]/10 px-5 py-4 text-[12.5px] text-[#e0738a]">
+              {requestError}
+            </div>
+          )}
+
+          {!loading && !loadError && messages.length === 0 && (
             <div className="mx-auto max-w-[560px] pt-14 text-center">
               <div className="dots mx-auto mb-8 h-20 w-20 opacity-50" />
               <h2 className="text-[24px] font-medium tracking-[-0.02em] text-[#e9e0d1]">Ask about anything on Robinhood Chain</h2>
@@ -682,7 +733,7 @@ export default function ChatPage() {
               </div>
             ) : (
               m.ai && (
-                <div key={m.id} className="max-w-[92%]">
+                <div key={m.id} role={m.id.startsWith("err_") ? "alert" : undefined} className="max-w-[92%]">
                   <AnswerCard ai={m.ai} onPivot={(v) => ask(`What can you tell me about ${v}?`)} />
                 </div>
               )
@@ -721,7 +772,12 @@ export default function ChatPage() {
           <div className="flex items-center gap-3 border border-[#383838] bg-[#242424] pl-5 pr-2 transition-colors focus-within:border-[#fa6c34]">
             <input
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={(e) => {
+                setInput(e.target.value);
+                if (requestError) setRequestError("");
+              }}
+              aria-label="Question"
+              aria-describedby={requestError ? "chat-request-error" : undefined}
               placeholder="Ask a question, or paste a 0x address / tx hash…"
               className="w-full bg-transparent py-4 text-[13.5px] text-[#e9e0d1] outline-none placeholder:text-[#635d5a]"
             />

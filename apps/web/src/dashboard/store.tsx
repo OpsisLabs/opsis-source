@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useRef, useState, type ReactNode } from "react";
 import {
   currentUser,
   login as apiLogin,
@@ -28,14 +28,8 @@ interface AuthCtx {
 const Ctx = createContext<AuthCtx | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(() => currentUser());
   const pending = useRef<{ nonce: string; signature: string } | null>(null);
-
-  useEffect(() => {
-    setUser(currentUser());
-    setLoading(false);
-  }, []);
 
   const signInWithWallet = async (username?: string) => {
     if (!pending.current) {
@@ -45,18 +39,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       pending.current = { nonce: challenge.nonce, signature };
     }
     const { nonce, signature } = pending.current;
-    try {
-      setUser(await walletLogin(nonce, signature, username));
-      pending.current = null;
-    } catch (error) {
-      // Keep the signature so the username retry does not re-prompt the wallet.
-      throw error;
-    }
+    // On failure, keep the signature so a username retry does not re-prompt
+    // the wallet. Only clear it after the login exchange succeeds.
+    setUser(await walletLogin(nonce, signature, username));
+    pending.current = null;
   };
 
   const value: AuthCtx = {
     user,
-    loading,
+    loading: false,
     login: async (e, p) => setUser(await apiLogin(e, p)),
     register: async (e, p) => setUser(await apiRegister(e, p)),
     signInWithWallet,
@@ -69,6 +60,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
+// Context hooks intentionally live beside their provider.
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const ctx = useContext(Ctx);
   if (!ctx) throw new Error("useAuth outside provider");

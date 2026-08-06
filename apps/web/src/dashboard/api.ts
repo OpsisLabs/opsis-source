@@ -33,7 +33,7 @@ export const SAMPLE_WALLET =
   import.meta.env.VITE_SAMPLE_WALLET ?? "0x9c34Fb7b54f05eba5D28Af3fF18f8dD9D66f7292";
 export const SAMPLE_TX =
   import.meta.env.VITE_SAMPLE_TX ??
-  "0x8be14c0f9d2a7b31e65c48f0a19d3b72c5e68a90f14d2b6c83e07a51d9c24f7b";
+  "0x79ec8bb466286ee463d7e2a91b714a5e09e24d24f9e6cd4a474887b88e27d4df";
 
 /* ---------------- auth ---------------- */
 
