@@ -25,18 +25,18 @@ describe("product specification API compatibility", () => {
     const accessToken = await register(app, "compatibility");
     const headers = { authorization: `Bearer ${accessToken}` };
 
-    const resolved = await app.inject({ method: "GET", url: "/v1/entities/resolve?q=fixture", headers });
+    const resolved = await app.inject({ method: "GET", url: "/v1/entities/resolve?q=123456", headers });
     expect(resolved.statusCode).toBe(200);
-    expect(resolved.json()).toMatchObject({ query: "fixture", entity: { type: "unknown", value: "fixture" } });
+    expect(resolved.json()).toMatchObject({ query: "123456", entity: { type: "block", value: "123456" } });
 
     const created = await app.inject({
       method: "POST",
       url: "/v1/chat/sessions",
       headers,
-      payload: { title: "Active context", initialEntity: "fixture" }
+      payload: { title: "Active context", initialEntity: "123456" }
     });
     expect(created.statusCode).toBe(200);
-    expect(created.json()).toMatchObject({ entity: { type: "unknown", chainId: 4663, id: "fixture" } });
+    expect(created.json()).toMatchObject({ entity: { type: "block", chainId: 4663, id: "123456" } });
 
     const sent = await app.inject({
       method: "POST",
@@ -51,6 +51,31 @@ describe("product specification API compatibility", () => {
     expect(sent.json().citations.length).toBeGreaterThan(0);
   });
 
+  it("rejects malformed entities without creating a session or consuming quota", async () => {
+    const app = await buildApp(loadEnv({ NODE_ENV: "test", LOG_LEVEL: "silent" }));
+    apps.push(app);
+    const accessToken = await register(app, "invalid-entity");
+    const headers = { authorization: `Bearer ${accessToken}` };
+
+    const resolved = await app.inject({ method: "GET", url: "/v1/entities/resolve?q=0xbad", headers });
+    expect(resolved.statusCode).toBe(400);
+    expect(resolved.json().error.code).toBe("INVALID_ENTITY");
+
+    const created = await app.inject({
+      method: "POST",
+      url: "/v1/chat/sessions",
+      headers,
+      payload: { title: "Malformed", initialEntity: "0xbad" }
+    });
+    expect(created.statusCode).toBe(400);
+    expect(created.json().error.code).toBe("INVALID_ENTITY");
+
+    const sessions = await app.inject({ method: "GET", url: "/v1/chat/sessions", headers });
+    expect(sessions.json().sessions).toEqual([]);
+    const usage = await app.inject({ method: "GET", url: "/v1/usage/me", headers });
+    expect(usage.json()).toMatchObject({ chainLookups: 0, aiMessages: 0 });
+  });
+
   it("enforces monthly quotas and returns the documented usage window", async () => {
     const app = await buildApp(loadEnv({
       NODE_ENV: "test",
@@ -62,8 +87,8 @@ describe("product specification API compatibility", () => {
     const accessToken = await register(app, "quota");
     const headers = { authorization: `Bearer ${accessToken}` };
 
-    expect((await app.inject({ method: "GET", url: "/v1/entities/resolve?q=first", headers })).statusCode).toBe(200);
-    const denied = await app.inject({ method: "GET", url: "/v1/entities/resolve?q=second", headers });
+    expect((await app.inject({ method: "GET", url: "/v1/entities/resolve?q=1", headers })).statusCode).toBe(200);
+    const denied = await app.inject({ method: "GET", url: "/v1/entities/resolve?q=2", headers });
     expect(denied.statusCode).toBe(429);
     expect(denied.json().error.code).toBe("MONTHLY_QUOTA_EXCEEDED");
 
@@ -89,8 +114,8 @@ describe("product specification API compatibility", () => {
     const first = { authorization: `Bearer ${await register(app, "rate-first")}` };
     const second = { authorization: `Bearer ${await register(app, "rate-second")}` };
 
-    expect((await app.inject({ method: "GET", url: "/v1/entities/resolve?q=one", headers: first })).statusCode).toBe(200);
-    expect((await app.inject({ method: "GET", url: "/v1/entities/resolve?q=two", headers: second })).statusCode).toBe(200);
-    expect((await app.inject({ method: "GET", url: "/v1/entities/resolve?q=three", headers: first })).statusCode).toBe(429);
+    expect((await app.inject({ method: "GET", url: "/v1/entities/resolve?q=1", headers: first })).statusCode).toBe(200);
+    expect((await app.inject({ method: "GET", url: "/v1/entities/resolve?q=2", headers: second })).statusCode).toBe(200);
+    expect((await app.inject({ method: "GET", url: "/v1/entities/resolve?q=3", headers: first })).statusCode).toBe(429);
   });
 });

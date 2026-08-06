@@ -3,25 +3,47 @@ import type { PrismaClient } from "@prisma/client";
 import type { Env } from "../config/env.js";
 
 type RedisHealth = { ping(): Promise<string> };
+type ProviderConfiguration = { configured: boolean; status: "not_checked" | "disabled" };
+
+function providerConfiguration(configured: boolean): ProviderConfiguration {
+  return { configured, status: configured ? "not_checked" : "disabled" };
+}
 
 export async function healthRoutes(app: FastifyInstance, env: Env, prisma?: PrismaClient, redis?: RedisHealth): Promise<void> {
   app.get("/healthz", { config: { rateLimit: false } }, async () => ({ ok: true }));
   app.get("/readyz", { config: { rateLimit: false } }, async (_request, reply) => {
+    let database: "up" | "memory" | "unavailable" = prisma ? "up" : "memory";
+    let redisStatus: "up" | "disabled" | "unavailable" = redis ? "up" : "disabled";
+    let ok = true;
+    if (prisma) {
+      try {
+        await prisma.$queryRaw`SELECT 1`;
+      } catch {
+        database = "unavailable";
+        ok = false;
+      }
+    }
+    if (redis) {
+      try {
+        if (await redis.ping() !== "PONG") throw new Error("REDIS_NOT_READY");
+      } catch {
+        redisStatus = "unavailable";
+        ok = false;
+      }
+    }
+
     const status = {
-      database: prisma ? "up" : "memory",
-      redis: redis ? "up" : "disabled",
+      database,
+      redis: redisStatus,
       providers: {
-        blockscout: true,
-        alchemy: Boolean(env.ALCHEMY_ROBINHOOD_RPC_URL || env.ALCHEMY_API_KEY),
-        goldrush: env.GOLDRUSH_ENABLED && Boolean(env.GOLDRUSH_API_KEY)
+        // Readiness is intentionally limited to dependencies owned by this
+        // service. Provider availability is observed on real requests; do not
+        // label configuration as health without performing a live probe.
+        blockscout: providerConfiguration(Boolean(env.BLOCKSCOUT_API_BASE_URL)),
+        alchemy: providerConfiguration(Boolean(env.ALCHEMY_ROBINHOOD_RPC_URL || env.ALCHEMY_API_KEY)),
+        goldrush: providerConfiguration(env.GOLDRUSH_ENABLED && Boolean(env.GOLDRUSH_API_KEY))
       }
     };
-    try {
-      if (prisma) await prisma.$queryRaw`SELECT 1`;
-      if (redis && await redis.ping() !== "PONG") throw new Error("REDIS_NOT_READY");
-      return { ok: true, ...status };
-    } catch {
-      return reply.status(503).send({ ok: false, ...status, database: prisma ? "unavailable" : status.database, redis: redis ? "unavailable" : status.redis });
-    }
+    return ok ? { ok: true, ...status } : reply.status(503).send({ ok: false, ...status });
   });
 }

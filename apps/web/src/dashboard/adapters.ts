@@ -190,6 +190,11 @@ export function adaptAnswer(
   const facts = source.facts && typeof source.facts.method === "string" && source.facts.method.startsWith("eth_")
     ? { ...source.facts, method: undefined }
     : source.facts;
+  if (facts && !hasResolvableEntity(entity, facts)) {
+    return errorAnswer(
+      "This saved session contains an invalid entity identifier. Start a new session with a complete address or transaction hash.",
+    );
+  }
   const explorerUrl = str(facts?.explorerUrl);
 
   // Source ids arrive as UUIDs. The answer card renders them inline next to
@@ -244,6 +249,21 @@ export function adaptAnswer(
     })),
     suggestedFollowUps: source.suggestedFollowUps ?? source.suggestedQuestions ?? [],
   };
+}
+
+function hasResolvableEntity(
+  entity: { type: ChainEntityType; id: string } | undefined,
+  facts: Record<string, unknown>,
+): boolean {
+  if (entity && entity.type !== "unknown") return true;
+  const candidates = [facts.hash, facts.address, facts.value]
+    .map(str)
+    .filter((value): value is string => Boolean(value));
+  return candidates.some((value) =>
+    /^0x[a-fA-F0-9]{40}$/.test(value) ||
+    /^0x[a-fA-F0-9]{64}$/.test(value) ||
+    /^\d+$/.test(value),
+  );
 }
 
 /**

@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, useLocation } from "react-router";
+import { Routes, Route, Navigate, useLocation, useParams } from "react-router";
 import Home from "./pages/Home";
 import { PrivacyPage, TermsPage } from "./pages/Legal";
 import { AuthProvider, useAuth } from "./dashboard/store";
@@ -37,6 +37,14 @@ function DashboardIndex() {
   );
 }
 
+function ChatRoute() {
+  const { sessionId } = useParams();
+  // React Router reuses the route element when only the parameter changes.
+  // Remounting prevents any card, explorer URL, or pending request state from
+  // leaking from the previous saved session.
+  return <ChatPage key={sessionId} />;
+}
+
 export default function App() {
   return (
     <AuthProvider>
@@ -56,7 +64,7 @@ export default function App() {
             }
           >
             <Route index element={<DashboardIndex />} />
-            <Route path="chat/:sessionId" element={<ChatPage />} />
+            <Route path="chat/:sessionId" element={<ChatRoute />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

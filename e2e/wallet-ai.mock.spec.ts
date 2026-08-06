@@ -195,6 +195,140 @@ test("sample transaction is valid and resolve failures are visible", async ({ pa
   expect(calls.createCalls()).toBe(1);
 });
 
+test("malformed entity input is rejected before session creation", async ({ page }) => {
+  const calls = await mockApi(page);
+
+  await page.goto("/app");
+  const search = page.getByLabel("Wallet, token, contract, or transaction");
+  await search.fill("0xbad");
+  await search.press("Enter");
+
+  await expect(page.getByRole("alert")).toHaveText(
+    "Enter a complete wallet or contract address, or a complete transaction hash.",
+  );
+  await expect(page).toHaveURL(/\/app$/);
+  expect(calls.createCalls()).toBe(0);
+  expect(calls.messageCalls()).toBe(0);
+});
+
+test("saved-session navigation clears stale entity details and invalid legacy answers", async ({ page }) => {
+  const walletSession = {
+    id: "wallet-session",
+    title: "Wallet session",
+    createdAt: timestamp,
+    updatedAt: timestamp,
+    activeEntity: { type: "wallet", value: address },
+  };
+  const transactionSession = {
+    id: "transaction-session",
+    title: "Transaction session",
+    createdAt: timestamp,
+    updatedAt: timestamp,
+    activeEntity: { type: "transaction", value: sampleTransaction },
+  };
+  const invalidSession = {
+    id: "invalid-session",
+    title: "0xbad",
+    createdAt: timestamp,
+    updatedAt: timestamp,
+    activeEntity: null,
+  };
+  const answerFor = (facts: Record<string, unknown>) => ({
+    answer: "Grounded answer.",
+    facts,
+    summaryBullets: [],
+    confirmedFacts: [],
+    inferences: [],
+    uncertainty: [],
+    riskNotes: [],
+    citations: [],
+    suggestedQuestions: [],
+  });
+  const messages = {
+    "wallet-session": [{
+      id: "wallet-answer",
+      role: "ASSISTANT",
+      content: "Grounded answer.",
+      aiResponseJson: answerFor({
+        address,
+        explorerUrl: `https://robinhoodchain.blockscout.com/address/${address}`,
+        nativeBalanceEth: "1",
+        tokenBalances: [],
+      }),
+      createdAt: timestamp,
+    }],
+    "transaction-session": [{
+      id: "transaction-answer",
+      role: "ASSISTANT",
+      content: "Grounded answer.",
+      aiResponseJson: answerFor({
+        hash: sampleTransaction,
+        explorerUrl: `https://robinhoodchain.blockscout.com/tx/${sampleTransaction}`,
+        gasUsed: "198476",
+        valueEth: "0",
+      }),
+      createdAt: timestamp,
+    }],
+    "invalid-session": [{
+      id: "invalid-answer",
+      role: "ASSISTANT",
+      content: "No activity exists.",
+      aiResponseJson: answerFor({
+        value: "0xbad",
+        explorerUrl: "https://robinhoodchain.blockscout.com/address/0xbad",
+      }),
+      createdAt: timestamp,
+    }],
+  } as const;
+
+  await page.route("**/v1/**", async (route) => {
+    const path = new URL(route.request().url()).pathname;
+    if (path === "/v1/chat/sessions") {
+      await route.fulfill({ json: { sessions: [walletSession, transactionSession, invalidSession] } });
+      return;
+    }
+    const match = path.match(/^\/v1\/chat\/sessions\/([^/]+)\/messages$/);
+    if (match) {
+      if (match[1] === "transaction-session") await new Promise((resolve) => setTimeout(resolve, 250));
+      await route.fulfill({ json: { messages: messages[match[1] as keyof typeof messages] } });
+      return;
+    }
+    if (path === "/v1/usage/me") {
+      await route.fulfill({
+        json: {
+          periodStart: "2026-08-01T00:00:00.000Z",
+          periodEnd: "2026-09-01T00:00:00.000Z",
+          aiMessages: 3,
+          chainLookups: 3,
+          quota: { aiMessages: 500, chainLookups: 5000 },
+        },
+      });
+      return;
+    }
+    await route.fulfill({ status: 500, json: { error: { code: "UNHANDLED_TEST_REQUEST" } } });
+  });
+
+  await page.goto("/app/chat/wallet-session");
+  const summaryLink = page.getByRole("link", { name: "Open in Blockscout" });
+  await expect(summaryLink).toHaveAttribute(
+    "href",
+    `https://robinhoodchain.blockscout.com/address/${address}`,
+  );
+
+  await page.getByRole("link", { name: /Transaction session/ }).click();
+  await expect(page).toHaveURL(/\/app\/chat\/transaction-session$/);
+  await expect(summaryLink).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Open in Blockscout" })).toHaveAttribute(
+    "href",
+    `https://robinhoodchain.blockscout.com/tx/${sampleTransaction}`,
+  );
+
+  await page.getByRole("link", { name: /^0xbad/ }).click();
+  await expect(page.getByText(/saved session contains an invalid entity identifier/i)).toBeVisible();
+  await expect(page.getByText("No activity exists.")).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Open in Blockscout" })).toHaveCount(0);
+});
+
 test("parallel startup requests share one refresh-token rotation", async ({ page }) => {
   let refreshCalls = 0;
   const session = {
@@ -253,6 +387,70 @@ test("parallel startup requests share one refresh-token rotation", async ({ page
   await page.goto("/app");
   await expect(page.getByRole("link", { name: /Recovered session/ })).toBeVisible();
   await expect(page.getByText("3/500")).toBeVisible();
+  await expect(page.getByText("9/5000")).toBeVisible();
+  expect(refreshCalls).toBe(1);
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("rh_auth") ?? "null").accessToken)).toBe(
+    "refreshed-access-token",
+  );
+});
+
+test("a late 401 does not rotate or clear an already refreshed session", async ({ page }) => {
+  let refreshCalls = 0;
+  const session = {
+    id: "late-response-session",
+    title: "Recovered session",
+    createdAt: timestamp,
+    updatedAt: timestamp,
+    activeEntity: null,
+  };
+
+  await page.route("**/v1/**", async (route) => {
+    const request = route.request();
+    const path = new URL(request.url()).pathname;
+    const authorization = request.headers().authorization;
+
+    if (path === "/v1/auth/refresh") {
+      refreshCalls += 1;
+      await route.fulfill({
+        json: {
+          user: { id: "e2e-user", username: "browser-user", walletAddress: null },
+          accessToken: "refreshed-access-token",
+          refreshToken: "refreshed-refresh-token",
+        },
+      });
+      return;
+    }
+
+    if (authorization !== "Bearer refreshed-access-token") {
+      if (path === "/v1/usage/me") await new Promise((resolve) => setTimeout(resolve, 300));
+      await route.fulfill({
+        status: 401,
+        json: { error: { code: "UNAUTHORIZED", message: "Expired access token" } },
+      });
+      return;
+    }
+
+    if (path === "/v1/chat/sessions") {
+      await route.fulfill({ json: { sessions: [session] } });
+      return;
+    }
+    if (path === "/v1/usage/me") {
+      await route.fulfill({
+        json: {
+          periodStart: "2026-08-01T00:00:00.000Z",
+          periodEnd: "2026-09-01T00:00:00.000Z",
+          aiMessages: 3,
+          chainLookups: 9,
+          quota: { aiMessages: 500, chainLookups: 5000 },
+        },
+      });
+      return;
+    }
+    await route.fulfill({ status: 500, json: { error: { code: "UNHANDLED_TEST_REQUEST" } } });
+  });
+
+  await page.goto("/app");
+  await expect(page.getByRole("link", { name: /Recovered session/ })).toBeVisible();
   await expect(page.getByText("9/5000")).toBeVisible();
   expect(refreshCalls).toBe(1);
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem("rh_auth") ?? "null").accessToken)).toBe(

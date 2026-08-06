@@ -41,8 +41,8 @@ describe("product-spec example questions", () => {
         url: `/v1/chat/sessions/${sessionId}/messages`,
         headers: { authorization: `Bearer ${accessToken}` },
         payload: {
-          entity: "documented-question-fixture",
-          entityType: "unknown",
+          entity: "123456",
+          entityType: "block",
           question
         }
       });

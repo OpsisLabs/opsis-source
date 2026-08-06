@@ -47,7 +47,7 @@ describe("chat session ownership", () => {
       method: "POST",
       url: `/v1/chat/sessions/${sessionId}/messages`,
       headers: { authorization: `Bearer ${ownerToken}` },
-      payload: { entity: "local-fixture", entityType: "unknown", question: "What happened?" }
+      payload: { entity: "123456", entityType: "block", question: "What happened?" }
     });
     expect(ownerSend.statusCode).toBe(200);
     const ownerMessages = await app.inject({
@@ -62,7 +62,7 @@ describe("chat session ownership", () => {
       method: "POST",
       url: `/v1/chat/sessions/${sessionId}/messages`,
       headers: { authorization: `Bearer ${otherToken}` },
-      payload: { entity: "local-fixture", entityType: "unknown", question: "What happened?" }
+      payload: { entity: "123456", entityType: "block", question: "What happened?" }
     });
     expect(send.statusCode).toBe(404);
     expect(send.json().error.code).toBe("NOT_FOUND");

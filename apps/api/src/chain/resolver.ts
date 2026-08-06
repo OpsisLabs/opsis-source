@@ -3,7 +3,7 @@ import type { Prisma, PrismaClient } from "@prisma/client";
 import crypto from "node:crypto";
 import type { Env } from "../config/env.js";
 import { JsonCache } from "../cache/service.js";
-import { identifyEntity } from "../entities/identify.js";
+import { evmAddressSchema, identifyEntity, txHashSchema } from "../entities/identify.js";
 import { AlchemyProvider } from "./alchemy.js";
 import { BlockscoutProvider } from "./blockscout.js";
 import { GoldRushProvider } from "./goldrush.js";
@@ -31,7 +31,7 @@ export class ChainEntityResolver {
   }
 
   async resolveWithSources(inputType: ChainEntityType, value: string, options: ResolveOptions = {}): Promise<ResolvedEntity> {
-    const identified = inputType === "unknown" ? identifyEntity(value) : { type: inputType, value };
+    const identified = validatedEntity(inputType, value);
     const cacheKey = `${this.env.ROBINHOOD_CHAIN_ID}:${identified.type}:${identified.value}:${options.limit ?? "default"}:${options.includeApprovals ?? true}`;
     const cached = options.refresh ? undefined : await this.cache.get<ResolvedEntity>(cacheKey);
     if (cached) return cached;
@@ -150,6 +150,29 @@ export class ChainEntityResolver {
       return;
     }
   }
+}
+
+function validatedEntity(inputType: ChainEntityType, input: string): { type: ChainEntityType; value: string } {
+  const value = input.trim();
+  if (inputType === "unknown") {
+    const identified = identifyEntity(value);
+    if (identified.type !== "unknown") return identified;
+  } else if (inputType === "transaction" && txHashSchema.safeParse(value).success) {
+    return { type: inputType, value: value.toLowerCase() };
+  } else if (
+    (inputType === "wallet" || inputType === "token" || inputType === "contract") &&
+    evmAddressSchema.safeParse(value).success
+  ) {
+    return { type: inputType, value: value.toLowerCase() };
+  } else if (inputType === "block" && /^\d+$/.test(value)) {
+    return { type: inputType, value };
+  }
+
+  throw new AppError(
+    "INVALID_ENTITY",
+    400,
+    "Provide a complete Robinhood Chain address, transaction hash, or block number"
+  );
 }
 
 function markStale(resolution: ResolvedEntity): ResolvedEntity {

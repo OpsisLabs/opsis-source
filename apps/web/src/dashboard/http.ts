@@ -8,6 +8,7 @@
 const BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 const AUTH_KEY = "rh_auth";
 const AUTH_EVENT = "rh-auth-change";
+const AUTH_REFRESH_LOCK = "rh-auth-refresh";
 let refreshPromise: Promise<boolean> | null = null;
 
 export interface StoredAuth {
@@ -77,6 +78,8 @@ function humanize(code: string, message: string, status: number): string {
       return "Monthly quota reached. Usage resets at the start of next month.";
     case "ENTITY_REQUIRED":
       return "Add a wallet address or transaction hash to this question.";
+    case "INVALID_ENTITY":
+      return "Enter a complete Robinhood Chain address or transaction hash.";
     case "VALIDATION_ERROR":
       // The only validation the forms can trip is the 10-character password floor.
       return /password/i.test(message)
@@ -109,14 +112,17 @@ async function raw(path: string, init: RequestInit, token?: string): Promise<Res
 }
 
 /** Exchange the refresh token for a new pair. Returns false when it is spent. */
-async function rotateRefreshToken(): Promise<boolean> {
-  const auth = readAuth();
-  if (!auth?.refreshToken) return false;
+async function rotateRefreshToken(auth: StoredAuth): Promise<boolean> {
   const response = await raw("/v1/auth/refresh", {
     method: "POST",
     body: JSON.stringify({ refreshToken: auth.refreshToken }),
   });
   if (!response.ok) {
+    // Another request or browser tab may already have rotated this single-use
+    // token. Never erase a newer session because an older rotation lost the
+    // race.
+    const current = readAuth();
+    if (current?.refreshToken !== auth.refreshToken) return Boolean(current);
     writeAuth(null);
     return false;
   }
@@ -125,6 +131,9 @@ async function rotateRefreshToken(): Promise<boolean> {
     accessToken: string;
     refreshToken: string;
   };
+  const current = readAuth();
+  // Do not resurrect a logged-out session or overwrite a newer rotation.
+  if (current?.refreshToken !== auth.refreshToken) return Boolean(current);
   writeAuth({
     accessToken: next.accessToken,
     refreshToken: next.refreshToken,
@@ -138,12 +147,29 @@ async function rotateRefreshToken(): Promise<boolean> {
   return true;
 }
 
-async function refresh(): Promise<boolean> {
+async function refreshAfterUnauthorized(staleAccessToken?: string): Promise<boolean> {
+  const rotateIfStillNeeded = async () => {
+    const current = readAuth();
+    if (!current) return false;
+    if (staleAccessToken && current.accessToken !== staleAccessToken) return true;
+    return rotateRefreshToken(current);
+  };
+
+  // Web Locks coordinates refresh-token rotation across tabs. The access-token
+  // comparison also handles a late 401 that arrives after another request has
+  // already refreshed this tab.
+  if (typeof navigator !== "undefined" && navigator.locks) {
+    return navigator.locks.request(AUTH_REFRESH_LOCK, rotateIfStillNeeded);
+  }
+  return rotateIfStillNeeded();
+}
+
+async function refresh(staleAccessToken?: string): Promise<boolean> {
   // Session bootstrap performs several authenticated requests concurrently.
   // A refresh token is single-use, so every 401 must await the same rotation
   // instead of spending the token twice and clearing the successful result.
   if (!refreshPromise) {
-    refreshPromise = rotateRefreshToken().finally(() => {
+    refreshPromise = refreshAfterUnauthorized(staleAccessToken).finally(() => {
       refreshPromise = null;
     });
   }
@@ -152,9 +178,10 @@ async function refresh(): Promise<boolean> {
 
 /** Authenticated request. Refreshes once on 401 before giving up. */
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
-  let response = await raw(path, init, readAuth()?.accessToken);
+  const attemptedAccessToken = readAuth()?.accessToken;
+  let response = await raw(path, init, attemptedAccessToken);
 
-  if (response.status === 401 && (await refresh())) {
+  if (response.status === 401 && (await refresh(attemptedAccessToken))) {
     response = await raw(path, init, readAuth()?.accessToken);
   }
   if (response.status === 401) {

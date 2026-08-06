@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router";
 import { LogOut, Menu, MessageSquarePlus, Search, ShieldCheck, Unplug, Wallet, X } from "lucide-react";
-import { createSession, getUsage, listSessions, SAMPLE_TX, SAMPLE_WALLET } from "./api";
+import { classify, createSession, getUsage, listSessions, SAMPLE_TX, SAMPLE_WALLET } from "./api";
 import { useAuth } from "./store";
 import { useWallet } from "./walletStore";
 import { hasMetaMask, shortAddress } from "./wallet";
@@ -226,13 +226,18 @@ export default function AppShell() {
     e.preventDefault();
     const v = q.trim();
     if (!v || resolvingRef.current) return;
+    const identified = classify(v);
+    if (identified.type === "unknown" || identified.id.toLowerCase() !== v.toLowerCase()) {
+      setShellError("Enter a complete wallet or contract address, or a complete transaction hash.");
+      return;
+    }
     resolvingRef.current = true;
     setResolving(true);
     setShellError("");
     try {
       const s = await createSession(
         v.length > 24 ? `${v.slice(0, 10)}…${v.slice(-6)}` : v,
-        /^0x/.test(v) ? v : undefined
+        identified.id
       );
       refresh();
       setQ("");
