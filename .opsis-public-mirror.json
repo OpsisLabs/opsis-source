@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "4eae33d7c4ec1d597687479a163c59f1519a91d6676ba86f6e1aac3127ede3ca",
+  "sourceTreeDigest": "b7fab2c139b1855c765a3af31232473f60ea551e30a253fa5aef713fc67229fe",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "45e7da660e9156329adfe00238c4a641bccee44b55181179883982a754383395",
@@ -99,7 +99,7 @@
     "apps/web/src/dashboard/api.ts": "40dea99a6f54fb3a24e982d7ef2a13ae88066dcb8d3d9f52ae40e677da9ff955",
     "apps/web/src/dashboard/AppShell.tsx": "1fc829b772f40d91d10f28616f2dc51ef4b5ddc7231625a5d40a8f25072209c6",
     "apps/web/src/dashboard/AuthPages.tsx": "97ba143dedbd9c86c4b326c92aa161d3d729127a1a03d593d358db3776f71c5a",
-    "apps/web/src/dashboard/ChatPage.tsx": "fa8af3ee958498c66aea8f5e2f08f5fea3fae7b0871830a00b2d877aa8a1f160",
+    "apps/web/src/dashboard/ChatPage.tsx": "b1e832829a4f756616a60711b3110b13ceff70bf47ec3b16585a707b81aee1f9",
     "apps/web/src/dashboard/http.ts": "a2bfeadc8b9df2af341404c5dd09ff0ed0bf6fdda999dce60c535b9d51c31159",
     "apps/web/src/dashboard/store.tsx": "f03da98dc54517e659e6fb5ff4b7b3ae41d8ac716fc36aaa2a9f5a7fd5a97823",
     "apps/web/src/dashboard/types.ts": "ff469ef1eddd9a88574c882fb4545a53e3ae06e9f5cfbd2bde379b39c1b9cfb4",
@@ -133,7 +133,7 @@
     "docker-compose.yml": "34cd2feaa1920f115eebabb31b882f0cd25425d0a0f6c60c596f033d68a9cae2",
     "docs/dependency-licenses.md": "dd5cf96d5501a5089387cf78273d87095cc6bd842fbdbddc008820200cd2ecd3",
     "e2e/wallet-ai.live.spec.ts": "0b74831125b671378e36c1fad76be23f98a9f4beec3c08250df2451ca107727e",
-    "e2e/wallet-ai.mock.spec.ts": "de5a99c672b7e52dc3050c81f0b93fa2941eabdc23a89348f6ca5d2acc829f26",
+    "e2e/wallet-ai.mock.spec.ts": "b92df6779dead7750c911bc908be4621fe3e644d5b966d799dcd11557cbe33cb",
     "package.json": "d26f5de88561c5c409dfe1fbe90e0c5d1eaf4d7ce0516ae57eb74c149dc75625",
     "packages/shared/package.json": "cbeb5593b144f6eaf00e0abcc3f4f6cf4a8df87325ecde9946e7d24821a63da5",
     "packages/shared/src/index.ts": "92acc574cf5a86768ecab80c935d5d45317881368708cbc301e5bc538a533edb",

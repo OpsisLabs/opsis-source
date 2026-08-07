@@ -151,7 +151,8 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("wallet analysis opens before enrichment, is single-submit, and does not replay after reload", async ({ page }) => {
-  const calls = await mockApi(page, { createDelayMs: 250, messageDelayMs: 750 });
+  await page.setViewportSize({ width: 1280, height: 420 });
+  const calls = await mockApi(page, { createDelayMs: 250, messageDelayMs: 1_100 });
 
   await page.goto("/app");
   const search = page.getByLabel("Wallet, token, contract, or transaction");
@@ -164,10 +165,17 @@ test("wallet analysis opens before enrichment, is single-submit, and does not re
   expect(await page.getByTestId("resolving-answer-card").locator(".decode-reel").count()).toBeGreaterThan(10);
   await expect(page.getByText("RESOLVING ENTITY")).toBeVisible();
   await expect(page.getByText("FETCHING LIVE CHAIN DATA…")).toBeVisible();
+  await page.waitForTimeout(350);
+  const resolvingTop = (await page.getByTestId("active-response-anchor").boundingBox())?.y;
   await expect(page.getByTestId("answer-prose")).toHaveAttribute("data-streaming", "true");
   await expect(page.getByText(answerText)).toBeVisible();
   await expect(page.getByTestId("answer-prose")).toHaveAttribute("data-streaming", "false");
   await expect(page.getByTestId("resolving-answer-card")).toHaveCount(0);
+  await page.waitForTimeout(600);
+  const answerTop = (await page.getByTestId("answer-card").boundingBox())?.y;
+  expect(resolvingTop).toBeDefined();
+  expect(answerTop).toBeDefined();
+  expect(Math.abs(answerTop! - resolvingTop!)).toBeLessThan(80);
   expect(calls.createCalls()).toBe(1);
   expect(calls.messageCalls()).toBe(1);
   expect(calls.entityCalls()).toBe(0);

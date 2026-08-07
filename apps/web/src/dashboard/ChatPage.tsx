@@ -465,7 +465,7 @@ function AnswerCard({ ai, onPivot, animateText = false }: { ai: AiExplorerAnswer
   const streamedAnswer = useStreamedText(ai.answer, animateText);
   const monogram = (ai.card?.subtitle?.replace(/^\$/, "") ?? ai.card?.title ?? "?").slice(0, 2).toUpperCase();
   return (
-    <div className={`clip-panel border border-[#2e2e2e] bg-[#242424] ${animateText ? "result-materialize" : ""}`}>
+    <div data-testid="answer-card" className={`clip-panel border border-[#2e2e2e] bg-[#242424] ${animateText ? "result-materialize" : ""}`}>
       <div className="flex items-center gap-2 border-b border-[#2e2e2e] px-6 py-3.5">
         <Sparkles size={13} className="text-[#fa6c34]" />
         <span className="font-mono-d text-[10.5px] tracking-wider text-[#9a938a]">AI ANSWER · CITED</span>
@@ -758,7 +758,7 @@ export default function ChatPage() {
   const [loadError, setLoadError] = useState("");
   const [requestError, setRequestError] = useState("");
   const [pendingEntity, setPendingEntity] = useState<ChatSession["entity"]>();
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const activeResponseRef = useRef<HTMLDivElement>(null);
   const handledFirst = useRef<string | null>(null);
   const pendingRef = useRef(false);
   const [animatedMessageIds, setAnimatedMessageIds] = useState(() => new Set<string>());
@@ -791,8 +791,12 @@ export default function ChatPage() {
   }, [sessionId]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, pending]);
+    if (!pending) return;
+    const frame = requestAnimationFrame(() => {
+      activeResponseRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [pending]);
 
   const ask = useCallback(async (text: string) => {
     if (!sessionId || !text.trim() || pendingRef.current) return;
@@ -944,7 +948,9 @@ export default function ChatPage() {
           )}
 
           {pending && (
-            <ResolvingAnswerCard entity={pendingEntity ?? session?.entity} />
+            <div ref={activeResponseRef} data-testid="active-response-anchor" className="scroll-mt-20">
+              <ResolvingAnswerCard entity={pendingEntity ?? session?.entity} />
+            </div>
           )}
 
           {lastAi && lastAi.suggestedFollowUps.length > 0 && !pending && (
@@ -960,7 +966,6 @@ export default function ChatPage() {
               ))}
             </div>
           )}
-          <div ref={bottomRef} />
         </div>
 
         {/* composer */}
