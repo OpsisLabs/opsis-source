@@ -89,6 +89,7 @@ export default function FooterCta() {
               <a href="#capabilities" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">Product</a>
               <a href="#comparison" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">Comparison</a>
               <a href="#safety" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">Safety</a>
+              <Link to="/roadmap" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">Roadmap</Link>
               <Link to="/login" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">Sign in</Link>
               <a href="#faq" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">FAQ</a>
             </div>

@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "baseBranch": "main",
+  "activeRelease": "01-scout-swap",
+  "rules": {
+    "incrementalVendorBudgetUsdPerMonth": 0,
+    "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement",
+    "transactionExecutionOwner": "Official Uniswap app",
+    "branchCreation": "Create only the active release branch. Create the next branch from main only after the current RC tag is merged.",
+    "staging": "One Railway staging service follows only the active release branch.",
+    "production": "Only main deploys to production."
+  },
+  "releases": [
+    {
+      "order": 1,
+      "id": "01-scout-swap",
+      "branch": "release/01-scout-swap",
+      "tagPrefix": "rc/01-scout-swap/",
+      "status": "active",
+      "outcome": "Preview a live swap",
+      "shipGate": "Fresh Uniswap quote and successful simulation; all user-paid costs are disclosed; official-app handoff requotes; no signing method exists."
+    },
+    {
+      "order": 2,
+      "id": "02-approval-guard",
+      "branch": "release/02-approval-guard",
+      "tagPrefix": "rc/02-approval-guard/",
+      "status": "queued",
+      "outcome": "See who can spend",
+      "shipGate": "Allowances match direct onchain reads against versioned canonical spender addresses; the feature remains read-only."
+    },
+    {
+      "order": 3,
+      "id": "03-transaction-translator",
+      "branch": "release/03-transaction-translator",
+      "tagPrefix": "rc/03-transaction-translator/",
+      "status": "queued",
+      "outcome": "Understand a transaction",
+      "shipGate": "Receipts, logs, and movements reconcile; confidence is visible; ambiguous or unsupported intent is not guessed."
+    },
+    {
+      "order": 4,
+      "id": "04-wallet-safety",
+      "branch": "release/04-wallet-safety",
+      "tagPrefix": "rc/04-wallet-safety/",
+      "status": "queued",
+      "outcome": "Inspect wallet risk",
+      "shipGate": "Canonical balances and approvals reconcile at a finalized block; saved addresses and watchlists remain browser-local."
+    },
+    {
+      "order": 5,
+      "id": "05-token-yield-verify",
+      "branch": "release/05-token-yield-verify",
+      "tagPrefix": "rc/05-token-yield-verify/",
+      "status": "queued",
+      "outcome": "Verify tokens and yield",
+      "shipGate": "Primary-source allowlists and oracle staleness checks pass; no restricted data redistribution or transaction CTA exists."
+    },
+    {
+      "order": 6,
+      "id": "06-replay-lab",
+      "branch": "release/06-replay-lab",
+      "tagPrefix": "rc/06-replay-lab/",
+      "status": "queued",
+      "outcome": "Rebuild safely from history",
+      "shipGate": "Historic calldata and transaction parameters cannot enter the new path; a user-selected amount and fresh Uniswap quote are required."
+    }
+  ]
+}
