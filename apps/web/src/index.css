@@ -165,3 +165,125 @@ body > [id*="kimi"] {
 .deck-rise {
   animation: deck-rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
+
+/* provider-resolution state: rolling digits and binary traces become real data */
+.scan-panel {
+  position: relative;
+}
+.scan-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent 0%, rgba(250, 108, 52, 0.07) 48%, rgba(250, 108, 52, 0.2) 50%, transparent 53%);
+  background-size: 100% 220%;
+  animation: scan-sweep 2.1s linear infinite;
+}
+@keyframes scan-sweep {
+  from { background-position: 0 -120%; }
+  to { background-position: 0 120%; }
+}
+
+.decode-tile {
+  position: relative;
+  overflow: hidden;
+}
+.decode-tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 25%, rgba(124, 196, 248, 0.06) 50%, transparent 75%);
+  transform: translateX(-100%);
+  animation: data-shimmer 1.5s ease-in-out infinite;
+}
+@keyframes data-shimmer {
+  to { transform: translateX(100%); }
+}
+
+.decode-reel {
+  display: inline-block;
+  width: 0.58em;
+  height: 1em;
+  overflow: hidden;
+  line-height: 1;
+  vertical-align: top;
+}
+.decode-reel-track {
+  display: flex;
+  flex-direction: column;
+  animation: decode-reel-scroll 700ms steps(10, end) infinite;
+  will-change: transform;
+}
+.decode-reel-track > span {
+  display: block;
+  height: 1em;
+  min-height: 1em;
+  line-height: 1;
+}
+@keyframes decode-reel-scroll {
+  from { transform: translateY(0); }
+  to { transform: translateY(-10em); }
+}
+
+.binary-window {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.binary-track {
+  display: inline-block;
+  min-width: max-content;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: rgba(124, 196, 248, 0.34);
+  animation: binary-drift 4.8s linear infinite;
+  will-change: transform;
+}
+.binary-track-reverse {
+  color: rgba(250, 108, 52, 0.3);
+  animation-direction: reverse;
+  animation-duration: 5.7s;
+}
+@keyframes binary-drift {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes result-materialize {
+  0% { opacity: 0; transform: translateY(7px); filter: blur(4px); }
+  55% { opacity: 1; filter: blur(0); }
+  100% { opacity: 1; transform: none; filter: none; }
+}
+.result-materialize {
+  animation: result-materialize 520ms cubic-bezier(0.2, 0.75, 0.2, 1) both;
+}
+
+.stream-cursor {
+  display: inline-block;
+  width: 0.52em;
+  height: 1em;
+  margin-left: 0.18em;
+  vertical-align: -0.14em;
+  background: var(--orange);
+  animation: stream-cursor-blink 700ms steps(1, end) infinite;
+}
+@keyframes stream-cursor-blink {
+  0%, 48% { opacity: 1; }
+  49%, 100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deck-rise,
+  .result-materialize,
+  .scan-panel::after,
+  .decode-tile::after,
+  .decode-reel-track,
+  .binary-track,
+  .stream-cursor,
+  .pulse-dot {
+    animation: none !important;
+  }
+}

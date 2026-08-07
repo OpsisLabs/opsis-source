@@ -126,6 +126,147 @@ function StatValue({ text }: { text: string }) {
   return <span title={text}>{display}{match[2]}</span>;
 }
 
+function usePrefersReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReduced(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+  return reduced;
+}
+
+/** Reveals a newly returned answer a few words at a time without replaying saved chats. */
+function useStreamedText(text: string, enabled: boolean): { visible: string; complete: boolean } {
+  const reducedMotion = usePrefersReducedMotion();
+  const tokens = text.match(/\S+\s*/g) ?? (text ? [text] : []);
+  const shouldStream = enabled && !reducedMotion && tokens.length > 1;
+  const [visibleCount, setVisibleCount] = useState(shouldStream ? 0 : tokens.length);
+
+  useEffect(() => {
+    if (!shouldStream) return;
+    const tickMs = 32;
+    const duration = Math.min(2_200, Math.max(420, tokens.length * 34));
+    const perTick = Math.max(1, Math.ceil(tokens.length / (duration / tickMs)));
+    const timer = window.setInterval(() => {
+      setVisibleCount((current) => {
+        const next = Math.min(tokens.length, current + perTick);
+        if (next === tokens.length) window.clearInterval(timer);
+        return next;
+      });
+    }, tickMs);
+    return () => window.clearInterval(timer);
+  }, [shouldStream, text, tokens.length]);
+
+  return {
+    visible: tokens.slice(0, shouldStream ? visibleCount : tokens.length).join(""),
+    complete: !shouldStream || visibleCount >= tokens.length,
+  };
+}
+
+/** A CSS-driven odometer reel used while exact provider values are unknown. */
+function DigitReel({ offset }: { offset: number }) {
+  const digits = Array.from({ length: 11 }, (_, index) => (index + offset) % 10);
+  return (
+    <span className="decode-reel" aria-hidden="true">
+      <span
+        className="decode-reel-track"
+        style={{ animationDelay: `${-offset * 73}ms`, animationDuration: `${620 + offset * 47}ms` }}
+      >
+        {digits.map((digit, index) => <span key={`${digit}-${index}`}>{digit}</span>)}
+      </span>
+    </span>
+  );
+}
+
+function DecodingNumber({ digits = 6 }: { digits?: number }) {
+  return (
+    <span className="inline-flex items-center" aria-hidden="true">
+      {Array.from({ length: digits }, (_, index) => (
+        <span className="contents" key={index}>
+          {index === Math.max(1, digits - 3) && <span className="mx-px text-[#4c4844]">.</span>}
+          <DigitReel offset={(index * 3 + digits) % 10} />
+        </span>
+      ))}
+    </span>
+  );
+}
+
+const BINARY_SEQUENCE = "01001101 10110010 00101101 11010010 01100101 00110110";
+
+function BinaryTrace({ reverse = false }: { reverse?: boolean }) {
+  return (
+    <div className="binary-window" aria-hidden="true">
+      <span className={`binary-track ${reverse ? "binary-track-reverse" : ""}`}>
+        {BINARY_SEQUENCE}&nbsp;&nbsp;&nbsp;{BINARY_SEQUENCE}&nbsp;&nbsp;&nbsp;
+      </span>
+    </div>
+  );
+}
+
+const RESOLVING_STATS: Record<string, string[]> = {
+  wallet: ["NATIVE BALANCE", "TRANSACTIONS", "TOKEN BALANCES", "RISK SIGNALS"],
+  token: ["TOTAL SUPPLY", "HOLDERS", "TRANSFERS", "TOP HOLDER"],
+  contract: ["TRANSACTIONS", "METHODS", "AGE", "RISK SIGNALS"],
+  transaction: ["STATUS", "GAS USED", "VALUE", "EVENTS"],
+  block: ["TRANSACTIONS", "GAS USED", "TIMESTAMP", "STATUS"],
+  unknown: ["ENTITY TYPE", "ACTIVITY", "SOURCES", "RISK SIGNALS"],
+};
+
+function ResolvingAnswerCard({ entity }: { entity?: ChatSession["entity"] }) {
+  const kind = entity?.type ?? "unknown";
+  const labels = RESOLVING_STATS[kind] ?? RESOLVING_STATS.unknown!;
+  return (
+    <div
+      data-testid="resolving-answer-card"
+      role="status"
+      aria-label="Retrieving and decoding live chain data"
+      className="clip-panel scan-panel max-w-[92%] overflow-hidden border border-[#2e2e2e] bg-[#242424]"
+    >
+      <div className="flex items-center gap-2 border-b border-[#2e2e2e] px-6 py-3.5">
+        <Sparkles size={13} className="pulse-dot text-[#fa6c34]" />
+        <span className="font-mono-d text-[10.5px] tracking-wider text-[#9a938a]">CHAIN DATA · DECODING</span>
+        <span className="ml-auto font-mono-d text-[9px] tracking-wider text-[#fa6c34]">LIVE</span>
+      </div>
+
+      <div className="relative border-b border-[#2e2e2e] px-6 py-6">
+        <div className="flex items-start gap-4">
+          <div className="clip-btn-sm flex h-14 w-14 shrink-0 items-center justify-center bg-[#2e2e2e] font-mono-d text-[14px] text-[#fa6c34]">
+            01
+          </div>
+          <div className="min-w-0 flex-1">
+            <span className="border border-[#fa6c34]/30 bg-[#fa6c34]/10 px-2 py-0.5 font-mono-d text-[9.5px] tracking-wider text-[#fa6c34]">
+              {KIND_LABEL[kind] ?? "ENTITY"}
+            </span>
+            <p className="mt-2 truncate font-mono-d text-[11px] text-[#635d5a]">
+              {entity?.id ?? "WAITING FOR ENTITY CONTEXT"}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
+          {labels.map((label, index) => (
+            <div key={label} className="decode-tile border border-[#2e2e2e] bg-[#1d1d1d]/80 px-3.5 py-3">
+              <p className="font-mono-d text-[9px] tracking-wider text-[#635d5a]">{label}</p>
+              <p className="font-num mt-1.5 flex h-[21px] items-center text-[21px] leading-none text-[#9a938a]">
+                <DecodingNumber digits={index === 0 ? 7 : 5} />
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-2 px-6 py-5">
+        <BinaryTrace />
+        <BinaryTrace reverse />
+        <div className="max-w-[72%]"><BinaryTrace /></div>
+      </div>
+    </div>
+  );
+}
+
 function CardActions({ card, answer }: { card: AnswerCardMeta; answer: string }) {
   const [flash, setFlash] = useState<"" | "copy" | "share">("");
   const blink = (kind: "copy" | "share") => {
@@ -318,12 +459,13 @@ function WidgetPanel({ w, onPivot, delay = 0 }: { w: AnswerWidget; onPivot: (v: 
   );
 }
 
-function AnswerCard({ ai, onPivot }: { ai: AiExplorerAnswer; onPivot: (v: string) => void }) {
+function AnswerCard({ ai, onPivot, animateText = false }: { ai: AiExplorerAnswer; onPivot: (v: string) => void; animateText?: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const [showSources, setShowSources] = useState(false);
+  const streamedAnswer = useStreamedText(ai.answer, animateText);
   const monogram = (ai.card?.subtitle?.replace(/^\$/, "") ?? ai.card?.title ?? "?").slice(0, 2).toUpperCase();
   return (
-    <div className="clip-panel border border-[#2e2e2e] bg-[#242424]">
+    <div className={`clip-panel border border-[#2e2e2e] bg-[#242424] ${animateText ? "result-materialize" : ""}`}>
       <div className="flex items-center gap-2 border-b border-[#2e2e2e] px-6 py-3.5">
         <Sparkles size={13} className="text-[#fa6c34]" />
         <span className="font-mono-d text-[10.5px] tracking-wider text-[#9a938a]">AI ANSWER · CITED</span>
@@ -404,13 +546,25 @@ function AnswerCard({ ai, onPivot }: { ai: AiExplorerAnswer; onPivot: (v: string
       )}
 
       <div className="deck-rise px-6 py-5" style={{ animationDelay: "150ms" }}>
-        <p className="text-[14.5px] leading-relaxed text-[#e9e0d1]">
-          <Linkified text={ai.answer} onPivot={onPivot} />
+        <p
+          data-testid="answer-prose"
+          data-streaming={animateText && !streamedAnswer.complete ? "true" : "false"}
+          aria-label={animateText ? ai.answer : undefined}
+          className="text-[14.5px] leading-relaxed text-[#e9e0d1]"
+        >
+          <span aria-hidden={animateText ? "true" : undefined}>
+            <Linkified text={streamedAnswer.visible} onPivot={onPivot} />
+            {animateText && !streamedAnswer.complete && <span className="stream-cursor" aria-hidden="true" />}
+          </span>
         </p>
-        {ai.summaryBullets.length > 0 && (
+        {streamedAnswer.complete && ai.summaryBullets.length > 0 && (
           <ul className="mt-4 space-y-2">
-            {ai.summaryBullets.map((b) => (
-              <li key={b} className="flex items-start gap-2.5 text-[13px] text-[#9a938a]">
+            {ai.summaryBullets.map((b, index) => (
+              <li
+                key={b}
+                className="result-materialize flex items-start gap-2.5 text-[13px] text-[#9a938a]"
+                style={{ animationDelay: `${index * 70}ms` }}
+              >
                 <CheckCircle2 size={13} className="mt-0.5 shrink-0 text-[#7fb069]" />
                 {b}
               </li>
@@ -514,8 +668,11 @@ function EntityPanel({
             <CopyButton value={selected.id} />
           </div>
           <div className="mt-5 space-y-3 border border-[#2e2e2e] bg-[#242424] p-4">
-            <div className="h-3 w-24 animate-pulse bg-[#383838]" />
-            <div className="h-7 w-32 animate-pulse bg-[#2e2e2e]" />
+            <div className="flex h-7 items-center font-num text-[23px] text-[#9a938a]">
+              <DecodingNumber digits={7} />
+            </div>
+            <BinaryTrace />
+            <BinaryTrace reverse />
             <p className="pt-1 font-mono-d text-[9.5px] tracking-wider text-[#635d5a]">
               {resolving ? "FETCHING LIVE CHAIN DATA…" : "DETAILS LOAD WITH THE FIRST ANSWER"}
             </p>
@@ -535,7 +692,7 @@ function EntityPanel({
     );
   }
   return (
-    <div className="p-5">
+    <div className="result-materialize p-5">
       <div className="mb-4 flex items-center justify-between">
         <span className="font-mono-d text-[10.5px] tracking-wider text-[#635d5a]">ENTITY SUMMARY</span>
         <span className="border border-[#fa6c34]/40 bg-[#fa6c34]/10 px-2 py-0.5 font-mono-d text-[9.5px] uppercase tracking-wider text-[#fa6c34]">
@@ -600,9 +757,11 @@ export default function ChatPage() {
   const [loadedSessionId, setLoadedSessionId] = useState<string | null>(null);
   const [loadError, setLoadError] = useState("");
   const [requestError, setRequestError] = useState("");
+  const [pendingEntity, setPendingEntity] = useState<ChatSession["entity"]>();
   const bottomRef = useRef<HTMLDivElement>(null);
   const handledFirst = useRef<string | null>(null);
   const pendingRef = useRef(false);
+  const [animatedMessageIds, setAnimatedMessageIds] = useState(() => new Set<string>());
   const { wallet } = useWallet();
   const loading = loadedSessionId !== sessionId;
 
@@ -638,14 +797,21 @@ export default function ChatPage() {
   const ask = useCallback(async (text: string) => {
     if (!sessionId || !text.trim() || pendingRef.current) return;
     const ent = classify(text);
+    const targetEntity = ent.type !== "unknown"
+      ? { type: ent.type, chainId: ent.chainId, id: ent.id }
+      : session?.entity;
     const temporaryId = `tmp_${Date.now()}`;
     pendingRef.current = true;
     setPending(true);
+    setPendingEntity(targetEntity);
     setRequestError("");
     setMessages((current) => [...current, { id: temporaryId, role: "USER", content: text, createdAt: new Date().toISOString() }]);
     try {
       const ai = await sendMessage(sessionId, text, ent.type !== "unknown" ? ent.id : session?.entity?.id);
       if (ai.ai?.entitySummary) setEntity(ai.ai.entitySummary);
+      if (!ai.id.startsWith("err_")) {
+        setAnimatedMessageIds((current) => new Set(current).add(ai.id));
+      }
       setMessages((current) => [
         ...current.filter((message) => message.id !== temporaryId),
         { id: `u_${ai.id}`, role: "USER", content: text, createdAt: new Date().toISOString() },
@@ -661,6 +827,7 @@ export default function ChatPage() {
     } finally {
       pendingRef.current = false;
       setPending(false);
+      setPendingEntity(undefined);
     }
   }, [refreshSessions, session, sessionId]);
 
@@ -766,21 +933,18 @@ export default function ChatPage() {
             ) : (
               m.ai && (
                 <div key={m.id} role={m.id.startsWith("err_") ? "alert" : undefined} className="max-w-[92%]">
-                  <AnswerCard ai={m.ai} onPivot={(v) => ask(`What can you tell me about ${v}?`)} />
+                  <AnswerCard
+                    ai={m.ai}
+                    animateText={animatedMessageIds.has(m.id)}
+                    onPivot={(v) => ask(`What can you tell me about ${v}?`)}
+                  />
                 </div>
               )
             )
           )}
 
           {pending && (
-            <div className="flex max-w-[92%] items-center gap-3 border border-[#2e2e2e] bg-[#242424] px-6 py-4">
-              <span className="flex gap-1.5">
-                {[0, 1, 2].map((i) => (
-                  <span key={i} className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#fa6c34]" style={{ animationDelay: `${i * 150}ms` }} />
-                ))}
-              </span>
-              <span className="font-mono-d text-[10.5px] tracking-wider text-[#9a938a]">RETRIEVING SOURCES · NORMALIZING · ANSWERING</span>
-            </div>
+            <ResolvingAnswerCard entity={pendingEntity ?? session?.entity} />
           )}
 
           {lastAi && lastAi.suggestedFollowUps.length > 0 && !pending && (
@@ -841,7 +1005,7 @@ export default function ChatPage() {
 
       {/* entity panel */}
       <aside className="hidden border-l border-[#2e2e2e] bg-[#1c1c1c] xl:block">
-        <EntityPanel summary={entity} selected={session?.entity} resolving={pending} />
+        <EntityPanel summary={entity} selected={pendingEntity ?? session?.entity} resolving={pending} />
       </aside>
     </div>
   );

@@ -160,15 +160,21 @@ test("wallet analysis opens before enrichment, is single-submit, and does not re
   await search.press("Enter");
 
   await expect(page).toHaveURL(/\/app\/chat\/e2e-session$/);
+  await expect(page.getByTestId("resolving-answer-card")).toBeVisible();
+  expect(await page.getByTestId("resolving-answer-card").locator(".decode-reel").count()).toBeGreaterThan(10);
   await expect(page.getByText("RESOLVING ENTITY")).toBeVisible();
   await expect(page.getByText("FETCHING LIVE CHAIN DATA…")).toBeVisible();
+  await expect(page.getByTestId("answer-prose")).toHaveAttribute("data-streaming", "true");
   await expect(page.getByText(answerText)).toBeVisible();
+  await expect(page.getByTestId("answer-prose")).toHaveAttribute("data-streaming", "false");
+  await expect(page.getByTestId("resolving-answer-card")).toHaveCount(0);
   expect(calls.createCalls()).toBe(1);
   expect(calls.messageCalls()).toBe(1);
   expect(calls.entityCalls()).toBe(0);
 
   await page.reload();
   await expect(page.getByText(answerText)).toBeVisible();
+  await expect(page.getByTestId("answer-prose")).toHaveAttribute("data-streaming", "false");
   await page.waitForTimeout(300);
   expect(calls.messageCalls()).toBe(1);
   expect(calls.entityCalls()).toBe(0);
