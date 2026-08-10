@@ -44,6 +44,12 @@ describe("browser privacy static boundary", () => {
     expect(server).toContain('host: "::"');
   });
 
+  it("runs production migrations through a session-level database URL", () => {
+    const railway = readFileSync(resolve(repositoryRoot, "apps/api/railway.json"), "utf8");
+    expect(railway).toContain('if [ -z \\"$DIRECT_URL\\" ]');
+    expect(railway).toContain('DATABASE_URL=\\"$DIRECT_URL\\" pnpm --filter @rh-chain/api exec prisma migrate deploy');
+  });
+
   it("keeps the default private route outside auth and wallet providers", () => {
     const app = readFileSync(resolve(repositoryRoot, "apps/web/src/App.tsx"), "utf8");
     expect(app).toContain('<Route path="/app" element={<PrivateExplorer />} />');

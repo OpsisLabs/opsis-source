@@ -5,7 +5,7 @@
     "dockerfilePath": "apps/api/Dockerfile"
   },
   "deploy": {
-    "preDeployCommand": "if [ -n \"$DATABASE_URL\" ]; then pnpm --filter @rh-chain/api exec prisma migrate deploy; fi",
+    "preDeployCommand": "if [ -n \"$DATABASE_URL\" ]; then if [ -z \"$DIRECT_URL\" ]; then echo \"DIRECT_URL is required for database migrations\" >&2; exit 1; fi; DATABASE_URL=\"$DIRECT_URL\" pnpm --filter @rh-chain/api exec prisma migrate deploy; fi",
     "startCommand": "node apps/api/dist/server.js",
     "healthcheckPath": "/healthz",
     "healthcheckTimeout": 60,
