@@ -220,9 +220,9 @@ type DeterministicIntent = "overview" | "risk" | "evidence" | "activity";
 
 function detectDeterministicIntent(question: string): DeterministicIntent {
   const normalized = question.toLowerCase();
-  if (/\b(?:risk|warning|signal|safe|safety|scam|suspicious)\b/.test(normalized)) return "risk";
-  if (/\b(?:evidence|source|citation|proof|prove|verify|support)\b/.test(normalized)) return "evidence";
-  if (/\b(?:activity|transaction|transfer|movement|history|recent|happened)\b/.test(normalized)) return "activity";
+  if (/\b(?:risks?|warnings?|signals?|safe|safety|scams?|suspicious)\b/.test(normalized)) return "risk";
+  if (/\b(?:evidence|sources?|citations?|proof|prove|verify|supports?|supporting)\b/.test(normalized)) return "evidence";
+  if (/\b(?:activity|transactions?|transfers?|movements?|history|recent|happened)\b/.test(normalized)) return "activity";
   return "overview";
 }
 

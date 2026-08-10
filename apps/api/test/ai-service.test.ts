@@ -34,7 +34,7 @@ describe("AI answer boundary", () => {
 
     const [overview, risk, evidence, activity] = await Promise.all([
       service.answer("What stands out to a beginner?", wallet),
-      service.answer("Show the evidence-based risk notes.", wallet),
+      service.answer("What risks should I notice?", wallet),
       service.answer("What source data supports this answer?", wallet),
       service.answer("Explain the recent activity in plain English.", wallet)
     ]);

@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "687f21a1e276867fb54e48f4c0a687294a32f6966bf2f55ee6005fb5252c9f8f",
+  "sourceTreeDigest": "c2ae3e959f435b37b599534595024f21602821fd055abf899f71dbd045e5b487",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "de6dc750d8fa18ad811b56a4b78eca0c480902bcd83cdf560b50fa0ad3a38bcc",
@@ -19,7 +19,7 @@
     "apps/api/railway.json": "e27f0d5b058864cdf8d146c29959bf0a9e88e5449e49f310519e808b2af86e54",
     "apps/api/src/account/repository.ts": "c4374f14a4c1caa3680b7f41955e983e9d21970e24f8b1d1bc09ee3c42332700",
     "apps/api/src/ai/provider.ts": "174da159571bb2e73b9c34ef5274d1d51e72e944dca6172664682a254d8aea1a",
-    "apps/api/src/ai/service.ts": "cd42c3c60518a842ebaf3bf1419556cbcaef7a5bf59f1e323c267be9c354ef66",
+    "apps/api/src/ai/service.ts": "b5b4877b14ff0bb4bca3be9c733d56e1f0f4095a7e40a48c783a88c5b508e854",
     "apps/api/src/app.ts": "713baa67ffe6f52bdb61aac3c0e920d0a828a7d7a9ca90ffd026b3ecf79e0bda",
     "apps/api/src/audit/service.ts": "1a216179fdc48e728eac4b9a7cc3b4a8e2497991047f66771b944d928b0edb6e",
     "apps/api/src/auth/cookies.ts": "6b514180e7a929353c0568fdaa5e077a4762bd94298f2236703c8b195940db38",
@@ -65,7 +65,7 @@
     "apps/api/test/account.integration.test.ts": "854cfd5b81ceb8ae8d50e0452fcfbf3f86a7ad0f6e7e66159e3589183e9419f1",
     "apps/api/test/account.test.ts": "b5e68d10cbed41081a6192c7a25b9475c481e0f66ee2dd373ed2252a3a44da03",
     "apps/api/test/admin.test.ts": "8560c9cf53e66f40da61747de57198a72605f232818c9d688f3ba45a53938e37",
-    "apps/api/test/ai-service.test.ts": "c32d6e06ceaba4b5a85d74f5968669341985b1af213d4ed248c91985e74b825f",
+    "apps/api/test/ai-service.test.ts": "cbd58dbd42d4c91408baabc6192b20032b1fe8c254729e00155d75334e00eb62",
     "apps/api/test/auth.test.ts": "2d1a323abd92aa1432d2c34321f8c6719ac22f3100527786195f215691b67285",
     "apps/api/test/cache.test.ts": "14c23b408b9865bb25dbf16b01fc044c7c6d7e4b01d51e3c5730f203dbbab068",
     "apps/api/test/chat-ownership.test.ts": "cdb796feb849f134aa66fdb8acfc6d0e721e621b3a31a00b5157a55bc4e3f120",
