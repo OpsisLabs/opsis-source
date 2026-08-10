@@ -3,6 +3,7 @@ import type { Env } from "../config/env.js";
 import { z } from "zod";
 import { observeAiCall } from "../observability/metrics.js";
 import { OllamaProvider, OpenAiProvider, type AiProvider } from "./provider.js";
+import { formatUnits } from "../chain/normalize.js";
 
 const SYSTEM_INSTRUCTIONS = [
   "You explain Robinhood Chain activity to curious people who are not blockchain engineers.",
@@ -146,12 +147,14 @@ const RAW_BEGINNER_FACT_KEYS = new Set([
   "gasPriceWei",
   "methodId",
   "rawTrace",
-  "stateChanges"
+  "stateChanges",
+  "totalSupply"
 ]);
 
 function buildAiEntityInput(entity: NormalizedEntity): unknown {
+  const beginnerFacts = { ...entity.facts, ...derivedBeginnerFacts(entity.facts) };
   const visibleFacts = Object.fromEntries(
-    Object.entries(entity.facts)
+    Object.entries(beginnerFacts)
       .filter(([key]) => !INTERNAL_FACT_KEYS.has(key) && !RAW_BEGINNER_FACT_KEYS.has(key))
       .filter(([key]) => key !== "value" || entity.facts.valueEth === undefined)
   );
@@ -355,7 +358,8 @@ function conciseFact(value: unknown): string | undefined {
 
 function buildConfirmedFacts(entity: NormalizedEntity): AiExplorerAnswer["confirmedFacts"] {
   const sourceIds = entity.citations.map((citation) => citation.id);
-  return Object.entries(entity.facts)
+  const beginnerFacts = { ...entity.facts, ...derivedBeginnerFacts(entity.facts) };
+  return Object.entries(beginnerFacts)
     .filter(([key]) => !INTERNAL_FACT_KEYS.has(key) && !RAW_BEGINNER_FACT_KEYS.has(key))
     .filter(([key]) => key !== "value" || entity.facts.valueEth === undefined)
     .flatMap(([key, value]) => {
@@ -363,6 +367,11 @@ function buildConfirmedFacts(entity: NormalizedEntity): AiExplorerAnswer["confir
       return rendered ? [{ fact: `${humanizeFactKey(key)}: ${rendered}`, sourceIds }] : [];
     })
     .slice(0, 25);
+}
+
+function derivedBeginnerFacts(facts: Record<string, unknown>): Record<string, unknown> {
+  const formattedSupply = formatUnits(facts.totalSupply, facts.decimals);
+  return formattedSupply === undefined ? {} : { totalSupplyTokens: formattedSupply };
 }
 
 function renderConfirmedFact(value: unknown): string | undefined {

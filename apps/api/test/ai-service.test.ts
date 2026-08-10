@@ -78,6 +78,19 @@ describe("AI answer boundary", () => {
     expect(renderedFacts).not.toContain("Coin balance");
   });
 
+  it("converts raw token supply into decimal-adjusted beginner units", async () => {
+    const service = new AiService(loadEnv({ NODE_ENV: "test", AI_PROVIDER: "fallback" }));
+    const answer = await service.answer("Show the evidence", {
+      ...entity,
+      type: "token",
+      facts: { symbol: "TEST", totalSupply: "1234500000000000000000", decimals: "18" }
+    });
+    const renderedFacts = answer.confirmedFacts.map((fact) => fact.fact).join(" ");
+
+    expect(renderedFacts).toContain("Total supply tokens: 1234.5");
+    expect(renderedFacts).not.toContain("1234500000000000000000");
+  });
+
   it("keeps normalized facts and citations authoritative", async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
       output_text: JSON.stringify({
@@ -190,6 +203,8 @@ describe("AI answer boundary", () => {
       facts: {
         coinBalance: "45131510997491630",
         nativeBalanceEth: "0.04513151099749163",
+        totalSupply: "1234500000000000000000",
+        decimals: "18",
         transactions: Array.from({ length: 100 }, (_, index) => ({
           hash: `0x${String(index).padStart(64, "0")}`,
           input: "a".repeat(2_000)
@@ -204,7 +219,9 @@ describe("AI answer boundary", () => {
     expect(userContent.length).toBeLessThan(10_000);
     expect(userContent).toContain('"totalItems":100');
     expect(userContent).toContain('"nativeBalanceEth":"0.04513151099749163"');
+    expect(userContent).toContain('"totalSupplyTokens":"1234.5"');
     expect(userContent).not.toContain("45131510997491630");
+    expect(userContent).not.toContain("1234500000000000000000");
     expect(userContent).not.toContain("coinBalance");
     expect(userContent).not.toContain(hydratedEntity.value);
   });
