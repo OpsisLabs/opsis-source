@@ -40,9 +40,10 @@ export async function buildApp(env: Env, prisma?: PrismaClient) {
     // Fastify's default request logs include the raw URL and remote address.
     // ChainScout emits the bounded route-template summary below instead.
     logController: new LogController({ disableRequestLogging: true }),
-    // Railway terminates public HTTP at a private 100.0.0.0/8 edge proxy.
-    // Trust only that hop (plus local test/dev ranges) when deriving request.ip.
-    trustProxy: ["loopback", "linklocal", "uniquelocal", "100.0.0.0/8"],
+    // Do not let Fastify consume X-Forwarded-For. Railway documents
+    // X-Real-IP as its client-address header, and the rate-limit key accepts it
+    // only when the socket peer is a trusted Railway/local proxy hop.
+    trustProxy: false,
     bodyLimit: 1_000_000
   });
   app.addHook("onResponse", async (request, reply) => {
@@ -74,7 +75,7 @@ export async function buildApp(env: Env, prisma?: PrismaClient) {
   });
   await app.register(swagger, {
     openapi: {
-      info: { title: "Robinhood Chain AI Explorer API", version: "0.1.0" },
+      info: { title: "ChainScout API", version: "0.1.0" },
       tags: [
         { name: "auth" },
         { name: "entities" },

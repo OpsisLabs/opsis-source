@@ -121,7 +121,7 @@ export default function FooterCta() {
             <p className="mt-1 text-[13px] text-[#1d1d1d]/70">Answers cited</p>
           </div>
           <p className="max-w-[420px] font-mono-d text-[12px] leading-relaxed text-[#1d1d1d]/80 md:justify-self-end">
-            Robinhood Chain AI Explorer is a read-only AI assistant for Robinhood Chain. It
+            ChainScout is a read-only AI assistant for Robinhood Chain. It
             explains wallets, transactions, tokens, and contracts in plain English, with
             citations. Informational only, not financial advice.
           </p>

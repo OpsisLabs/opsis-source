@@ -80,12 +80,24 @@ function Metric({ label, value, note, tone = "neutral" }: { label: string; value
   );
 }
 
+function formatUsdCost(value: string): string {
+  const amount = Number(value);
+  if (!Number.isFinite(amount) || amount < 0) return "Not supplied";
+  if (amount > 0 && amount < 0.000001) return "<$0.000001";
+  return amount.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: amount > 0 && amount < 0.01 ? 6 : 2,
+  });
+}
+
 function QuotePanel({ quote, elapsedMs }: { quote: ScoutSwapQuote; elapsedMs: number }) {
   const stale = elapsedMs >= quote.freshForMs;
   const seconds = Math.max(0, Math.ceil((quote.freshForMs - elapsedMs) / 1000));
   const simulationOkay = quote.simulation.status === "passed";
   const gas = quote.estimatedGas.usdAmount
-    ? `$${quote.estimatedGas.usdAmount}`
+    ? formatUsdCost(quote.estimatedGas.usdAmount)
     : quote.estimatedGas.nativeAmount
       ? `${quote.estimatedGas.nativeAmount} ETH`
       : "Not supplied";

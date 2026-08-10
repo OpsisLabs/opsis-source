@@ -21,7 +21,7 @@ function quoteFixture(stale = false, warning = false) {
     route: { routing: "CLASSIC", label: "100% · WETH → USDG · v4 0.05%", protocols: ["V4"] },
     priceImpactPercent: 0.04,
     slippageTolerancePercent: 0.5,
-    estimatedGas: { nativeAmount: "0.000012", usdAmount: "0.04", paidBy: "user" },
+    estimatedGas: { nativeAmount: "0.000012", usdAmount: "0.004958764702551881", paidBy: "user" },
     simulation: warning
       ? { status: "warning", reasons: ["SIMULATION_UNAVAILABLE"] }
       : { status: "passed", reasons: [] },
@@ -71,6 +71,7 @@ test("Scout Swap explains a fresh quote and hands off only to official Uniswap",
   const calls = await mockQuote(page, { delayMs: 300 });
   await page.goto("/swap");
 
+  await expect(page).toHaveTitle("ChainScout: Robinhood Chain Intelligence in Plain English");
   await expect(page.getByRole("heading", { name: /See the trade/i })).toBeVisible();
   await expect(page.getByText("NO SIGNING")).toBeVisible();
   await expect(page.getByText("NO WALLET DATA")).toBeVisible();
@@ -83,7 +84,8 @@ test("Scout Swap explains a fresh quote and hands off only to official Uniswap",
   await expect(page.getByText("36.26775 USDG", { exact: true })).toBeVisible();
   await expect(page.getByText("Uniswap minimum · 0.5% tolerance")).toBeVisible();
   await expect(page.getByText("0.04%")).toBeVisible();
-  await expect(page.getByText("$0.04")).toBeVisible();
+  await expect(page.getByText("$0.004959", { exact: true })).toBeVisible();
+  await expect(page.getByText("$0.004958764702551881", { exact: true })).toHaveCount(0);
   await expect(page.getByText("Provider route check passed")).toBeVisible();
   await expect(page.getByText("CANNOT SIGN / SEND")).toBeVisible();
   await expect(page.getByText(/network gas, liquidity-provider or protocol fees/i)).toBeVisible();

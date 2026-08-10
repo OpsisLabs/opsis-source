@@ -695,7 +695,7 @@ export default function Roadmap() {
     window.addEventListener("resize", queueScrollMotion);
 
     return () => {
-      document.title = "Robinhood Chain AI Explorer: Understand On-Chain Activity in Plain English";
+      document.title = "ChainScout: Robinhood Chain Intelligence in Plain English";
       if (description && previousDescription) description.content = previousDescription;
       revealObserver.disconnect();
       phaseObserver.disconnect();

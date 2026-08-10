@@ -4,7 +4,7 @@ import { Link } from "react-router";
 const QA = [
   {
     q: "Is this an official Robinhood product?",
-    a: "No. Robinhood Chain AI Explorer is an independent tool built to help users understand public Robinhood Chain data.",
+    a: "No. ChainScout is an independent tool built to help users understand public Robinhood Chain data.",
   },
   {
     q: "Does the product trade or move funds?",

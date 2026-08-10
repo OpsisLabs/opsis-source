@@ -1,5 +1,6 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { createHmac } from "node:crypto";
+import { isIP } from "node:net";
 import type { Env } from "../config/env.js";
 import { AppError } from "./errors.js";
 import { verifyAccessToken, type AccessClaims } from "../security/jwt.js";
@@ -32,10 +33,33 @@ export function rateLimitKey(request: FastifyRequest, env: Env): string {
     try {
       return privateRateLimitKey("user", verifyAccessToken(env, auth.slice("Bearer ".length)).sub, env);
     } catch {
-      return privateRateLimitKey("ip", request.ip, env);
+      return privateRateLimitKey("ip", rateLimitClientAddress(request), env);
     }
   }
-  return privateRateLimitKey("ip", request.ip, env);
+  return privateRateLimitKey("ip", rateLimitClientAddress(request), env);
+}
+
+export function rateLimitClientAddress(request: FastifyRequest): string {
+  const socketAddress = normalizeIp(request.raw?.socket?.remoteAddress ?? request.ip);
+  const railwayAddress = request.headers["x-real-ip"];
+  if (isTrustedProxyAddress(socketAddress) && typeof railwayAddress === "string") {
+    const normalized = normalizeIp(railwayAddress);
+    if (isIP(normalized)) return normalized;
+  }
+  return socketAddress;
+}
+
+function normalizeIp(value: string): string {
+  const address = value.trim().toLowerCase();
+  return address.startsWith("::ffff:") ? address.slice("::ffff:".length) : address;
+}
+
+function isTrustedProxyAddress(address: string): boolean {
+  if (address === "::1") return true;
+  if (isIP(address) === 4) {
+    return address.startsWith("127.") || address.startsWith("169.254.") || address.startsWith("100.");
+  }
+  return address.startsWith("fe80:") || address.startsWith("fc") || address.startsWith("fd");
 }
 
 function privateRateLimitKey(kind: "ip" | "user", value: string, env: Env): string {
