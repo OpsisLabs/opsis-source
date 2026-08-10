@@ -23,6 +23,21 @@ function branchName() {
   return process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || git(["branch", "--show-current"]);
 }
 
+function baseBranchRef(baseBranch) {
+  try {
+    git(["rev-parse", "--verify", `refs/heads/${baseBranch}`]);
+    return baseBranch;
+  } catch {
+    const remoteRef = `origin/${baseBranch}`;
+    try {
+      git(["rev-parse", "--verify", `refs/remotes/${remoteRef}`]);
+      return remoteRef;
+    } catch {
+      fail(`cannot resolve base branch ${baseBranch}`);
+    }
+  }
+}
+
 function fail(message) {
   console.error(`\nrelease-train: ${message}\n`);
   process.exit(1);
@@ -88,7 +103,7 @@ function validateSequence(manifest, { allowMain = true } = {}) {
 
   if (currentBranch === active.branch) {
     try {
-      git(["merge-base", "--is-ancestor", manifest.baseBranch, "HEAD"]);
+      git(["merge-base", "--is-ancestor", baseBranchRef(manifest.baseBranch), "HEAD"]);
     } catch {
       fail(`${active.branch} must descend from ${manifest.baseBranch}`);
     }
