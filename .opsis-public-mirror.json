@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "952f9bbc723004e1364d7b757030f37791ff1abfcb5040d7a8e0803dbf7f71a1",
+  "sourceTreeDigest": "f15a08ab50cf811cd5bc16951a46119a8a5babc2d55f9ee89a4da0fea11acff6",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "6965d18d430ad1b50394ad1ccfaf3040eda940dd166dcad579b0f2b4a324c1e6",
@@ -97,8 +97,8 @@
     "apps/web/package.json": "294753f6b8100034fff1aa0509384f39cb011662fd13e8f0c35063803392e059",
     "apps/web/postcss.config.js": "190c877db466995bf1482f4a16abd06e04a89ede3119341e2a86ff96e1737b27",
     "apps/web/public/logo.svg": "17c8d90a50b95bf6d7aa3adb397a18c62418a8936e9b57d3403d64f395b7c3e2",
-    "apps/web/public/og-card.svg": "d9d8dde8f684b45bd87227405e82d23ed498d1bbee8d62d370a141e1cec226d6",
-    "apps/web/public/og.png": "46310549b81e2e16ffe393897492f31098eba76534d0b75991dce58b4d7d64b5",
+    "apps/web/public/og-card.svg": "e2434460e54b2a219fd7bc1eb789f6a9b5dee6b1b84ded8fbddd459c3f265b32",
+    "apps/web/public/og.png": "e588ca8a07f9e475ca7583d7471540ae318cd2740003c4541504dc5d3475735f",
     "apps/web/railway.json": "90cc1ae5d061c79535485e9501b7e83d0c033207e348679dd0178b9eaa8350ea",
     "apps/web/README.md": "7dceec95fd57a8fd734f4882a55b0c85789b7240099159efa0989fa567404b7f",
     "apps/web/src/App.tsx": "442bdda25527e5c38b0b195f2064634058c6231d9e38604fc905c8ece3c5fb81",
