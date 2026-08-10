@@ -55,8 +55,8 @@ describe("AI answer boundary", () => {
       type: "wallet",
       facts: {
         address: "0x0000000000000000000000000000000000000042",
-        coinBalance: undefined,
-        nativeBalanceEth: null,
+        coinBalance: "45131510997491630",
+        nativeBalanceEth: "0.04513151099749163",
         transactionsFetched: 0,
         recentTransactions: [],
         isContract: false,
@@ -67,11 +67,15 @@ describe("AI answer boundary", () => {
 
     expect(answer.confirmedFacts).toEqual([
       { fact: "Address: 0x0000000000000000000000000000000000000042", sourceIds: ["source-1"] },
+      { fact: "Native balance eth: 0.04513151099749163", sourceIds: ["source-1"] },
       { fact: "Transactions fetched: 0", sourceIds: ["source-1"] },
       { fact: "Recent transactions: 0 items returned", sourceIds: ["source-1"] },
       { fact: "Is contract: no", sourceIds: ["source-1"] }
     ]);
-    expect(answer.confirmedFacts.map((fact) => fact.fact).join(" ")).not.toContain("undefined");
+    const renderedFacts = answer.confirmedFacts.map((fact) => fact.fact).join(" ");
+    expect(renderedFacts).not.toContain("undefined");
+    expect(renderedFacts).not.toContain("45131510997491630");
+    expect(renderedFacts).not.toContain("Coin balance");
   });
 
   it("keeps normalized facts and citations authoritative", async () => {
@@ -184,6 +188,8 @@ describe("AI answer boundary", () => {
     const hydratedEntity: NormalizedEntity = {
       ...entity,
       facts: {
+        coinBalance: "45131510997491630",
+        nativeBalanceEth: "0.04513151099749163",
         transactions: Array.from({ length: 100 }, (_, index) => ({
           hash: `0x${String(index).padStart(64, "0")}`,
           input: "a".repeat(2_000)
@@ -197,6 +203,9 @@ describe("AI answer boundary", () => {
     const userContent = String(request.messages[1].content);
     expect(userContent.length).toBeLessThan(10_000);
     expect(userContent).toContain('"totalItems":100');
+    expect(userContent).toContain('"nativeBalanceEth":"0.04513151099749163"');
+    expect(userContent).not.toContain("45131510997491630");
+    expect(userContent).not.toContain("coinBalance");
     expect(userContent).not.toContain(hydratedEntity.value);
   });
 });

@@ -137,9 +137,23 @@ const INTERNAL_FACT_KEYS = new Set([
   "activityTimeWindow"
 ]);
 
+// These values are useful to machines but unsafe to show as plain numbers to
+// beginners. Their normalized siblings (for example nativeBalanceEth and
+// valueEth) carry the human unit; showing both can make raw wei look like an
+// enormous coin balance.
+const RAW_BEGINNER_FACT_KEYS = new Set([
+  "coinBalance",
+  "gasPriceWei",
+  "methodId",
+  "rawTrace",
+  "stateChanges"
+]);
+
 function buildAiEntityInput(entity: NormalizedEntity): unknown {
   const visibleFacts = Object.fromEntries(
-    Object.entries(entity.facts).filter(([key]) => !INTERNAL_FACT_KEYS.has(key))
+    Object.entries(entity.facts)
+      .filter(([key]) => !INTERNAL_FACT_KEYS.has(key) && !RAW_BEGINNER_FACT_KEYS.has(key))
+      .filter(([key]) => key !== "value" || entity.facts.valueEth === undefined)
   );
   const compactFacts = compactValue(visibleFacts, 0);
   const serializedFacts = JSON.stringify(compactFacts);
@@ -342,7 +356,8 @@ function conciseFact(value: unknown): string | undefined {
 function buildConfirmedFacts(entity: NormalizedEntity): AiExplorerAnswer["confirmedFacts"] {
   const sourceIds = entity.citations.map((citation) => citation.id);
   return Object.entries(entity.facts)
-    .filter(([key]) => !INTERNAL_FACT_KEYS.has(key))
+    .filter(([key]) => !INTERNAL_FACT_KEYS.has(key) && !RAW_BEGINNER_FACT_KEYS.has(key))
+    .filter(([key]) => key !== "value" || entity.facts.valueEth === undefined)
     .flatMap(([key, value]) => {
       const rendered = renderConfirmedFact(value);
       return rendered ? [{ fact: `${humanizeFactKey(key)}: ${rendered}`, sourceIds }] : [];
