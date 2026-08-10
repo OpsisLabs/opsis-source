@@ -49,7 +49,13 @@ export type ScoutSwapQuote = {
   pair: "WETH/USDG";
   chain: { id: 4663; name: "Robinhood Chain" };
   input: { symbol: "WETH" | "USDG"; address: string; amount: string };
-  output: { symbol: "WETH" | "USDG"; address: string; amount: string; minimumReceived: string };
+  output: {
+    symbol: "WETH" | "USDG";
+    address: string;
+    amount: string;
+    minimumReceived: string;
+    minimumSource: "provider" | "derived_tolerance";
+  };
   route: { routing: string; label: string; protocols: string[] };
   priceImpactPercent: number | null;
   slippageTolerancePercent: number;
@@ -222,7 +228,15 @@ export function normalizeQuote(raw: unknown, request: ScoutSwapRequest, now: num
   }
 
   const requestedRaw = parseSwapAmount(request.amount, input.decimals).toString();
-  const minimumRaw = quote.output.minimumAmount;
+  const isUniswapX = response.routing.startsWith("DUTCH") || response.routing === "PRIORITY";
+  const minimumSource = quote.output.minimumAmount ? "provider" : "derived_tolerance";
+  // The current OAS makes minimumAmount optional and its CLASSIC example omits
+  // it. For CLASSIC exact-input quotes only, the requested 0.5% tolerance has
+  // normal AMM semantics, so a transparent preview floor can be derived. The
+  // same inference is unsafe for UniswapX and therefore fails closed below.
+  const minimumRaw = quote.output.minimumAmount ?? (
+    response.routing === "CLASSIC" ? deriveClassicMinimum(quote.output.amount) : undefined
+  );
   if (
     quote.input.amount !== requestedRaw ||
     !minimumRaw ||
@@ -242,7 +256,6 @@ export function normalizeQuote(raw: unknown, request: ScoutSwapRequest, now: num
     : failureReasons.every(isPreviewSimulationLimitation)
       ? "warning"
       : "failed";
-  const isUniswapX = response.routing.startsWith("DUTCH") || response.routing === "PRIORITY";
   const gasNative = quote.gasFee ? trimAmount(formatEther(BigInt(quote.gasFee)), 8) : null;
   // For UniswapX, classicGasUseEstimateUSD is a comparator for the classic
   // route—not the selected route's user cost—so it must never be relabeled.
@@ -255,7 +268,13 @@ export function normalizeQuote(raw: unknown, request: ScoutSwapRequest, now: num
     pair: "WETH/USDG",
     chain: { id: SCOUT_SWAP_CHAIN_ID, name: "Robinhood Chain" },
     input: { symbol: input.symbol, address: input.address, amount },
-    output: { symbol: output.symbol, address: output.address, amount: outputAmount, minimumReceived },
+    output: {
+      symbol: output.symbol,
+      address: output.address,
+      amount: outputAmount,
+      minimumReceived,
+      minimumSource
+    },
     route: {
       routing: response.routing,
       label: routeLabel(response.routing, quote.routeString, input.symbol, output.symbol),
@@ -296,6 +315,11 @@ function trimAmount(value: string, maxDecimals: number): string {
   const [whole, fraction = ""] = value.split(".");
   const trimmed = fraction.slice(0, Math.min(maxDecimals, 8)).replace(/0+$/, "");
   return trimmed ? `${whole}.${trimmed}` : whole!;
+}
+
+function deriveClassicMinimum(outputAmount: string): string {
+  const slippageBps = BigInt(Math.round(SCOUT_SWAP_SLIPPAGE_PERCENT * 100));
+  return ((BigInt(outputAmount) * (10_000n - slippageBps)) / 10_000n).toString();
 }
 
 function isSupportedSwapRoute(routing: z.infer<typeof rawQuoteSchema>["routing"]): boolean {

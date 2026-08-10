@@ -83,7 +83,7 @@ Production requires unique JWT secrets plus `SMTP_HOST` and `EMAIL_FROM`. Regist
 
 ## Safety Boundary
 
-This app is informational and read-only. It must not ask for seed phrases, private keys, wallet signatures, approvals, swaps, trades, transfers, or transaction submission. Provider keys stay server-side.
+This app is informational and non-custodial. It must not ask for seed phrases, private keys, transaction signatures, token approvals, transfers, or transaction submission. Wallet sign-in may request one explicit plain-text ownership message that cannot move funds. Scout Swap may explain a short-lived quote and link to the official Uniswap app, but ChainScout never signs, broadcasts, executes, or routes a trade. Provider keys stay server-side.
 
 ## Useful Commands
 

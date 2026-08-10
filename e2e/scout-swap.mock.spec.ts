@@ -11,7 +11,13 @@ function quoteFixture(stale = false, warning = false) {
     pair: "WETH/USDG",
     chain: { id: 4663, name: "Robinhood Chain" },
     input: { symbol: "WETH", address: WETH, amount: "0.01" },
-    output: { symbol: "USDG", address: USDG, amount: "36.45", minimumReceived: "36.26775" },
+    output: {
+      symbol: "USDG",
+      address: USDG,
+      amount: "36.45",
+      minimumReceived: "36.26775",
+      minimumSource: "provider"
+    },
     route: { routing: "CLASSIC", label: "100% · WETH → USDG · v4 0.05%", protocols: ["V4"] },
     priceImpactPercent: 0.04,
     slippageTolerancePercent: 0.5,
@@ -75,6 +81,7 @@ test("Scout Swap explains a fresh quote and hands off only to official Uniswap",
   await expect(page.getByTestId("swap-quote")).toBeVisible();
   await expect(page.getByText("36.45 USDG")).toBeVisible();
   await expect(page.getByText("36.26775 USDG", { exact: true })).toBeVisible();
+  await expect(page.getByText("Uniswap minimum · 0.5% tolerance")).toBeVisible();
   await expect(page.getByText("0.04%")).toBeVisible();
   await expect(page.getByText("$0.04")).toBeVisible();
   await expect(page.getByText("Provider route check passed")).toBeVisible();
