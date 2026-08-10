@@ -370,6 +370,12 @@ function buildConfirmedFacts(entity: NormalizedEntity): AiExplorerAnswer["confir
 }
 
 function derivedBeginnerFacts(facts: Record<string, unknown>): Record<string, unknown> {
+  const decimals = typeof facts.decimals === "number"
+    ? facts.decimals
+    : typeof facts.decimals === "string" && /^\d+$/.test(facts.decimals)
+      ? Number(facts.decimals)
+      : Number.NaN;
+  if (!Number.isInteger(decimals) || decimals < 0 || decimals > 255) return {};
   const formattedSupply = formatUnits(facts.totalSupply, facts.decimals);
   return formattedSupply === undefined ? {} : { totalSupplyTokens: formattedSupply };
 }

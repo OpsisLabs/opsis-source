@@ -89,6 +89,15 @@ describe("AI answer boundary", () => {
 
     expect(renderedFacts).toContain("Total supply tokens: 1234.5");
     expect(renderedFacts).not.toContain("1234500000000000000000");
+
+    const missingDecimals = await service.answer("Show the evidence", {
+      ...entity,
+      type: "token",
+      facts: { symbol: "ODD", totalSupply: "1234500000000000000000" }
+    });
+    const missingDecimalsFacts = missingDecimals.confirmedFacts.map((fact) => fact.fact).join(" ");
+    expect(missingDecimalsFacts).not.toContain("Total supply");
+    expect(missingDecimalsFacts).not.toContain("1234500000000000000000");
   });
 
   it("keeps normalized facts and citations authoritative", async () => {
@@ -212,7 +221,8 @@ describe("AI answer boundary", () => {
       }
     };
 
-    await new AiService(loadEnv({ NODE_ENV: "test", AI_PROVIDER: "ollama" })).answer("Summarize", hydratedEntity);
+    const service = new AiService(loadEnv({ NODE_ENV: "test", AI_PROVIDER: "ollama" }));
+    await service.answer("Summarize", hydratedEntity);
 
     const request = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body));
     const userContent = String(request.messages[1].content);
@@ -224,5 +234,15 @@ describe("AI answer boundary", () => {
     expect(userContent).not.toContain("1234500000000000000000");
     expect(userContent).not.toContain("coinBalance");
     expect(userContent).not.toContain(hydratedEntity.value);
+
+    await service.answer("Summarize", {
+      ...entity,
+      type: "token",
+      facts: { symbol: "ODD", totalSupply: "1234500000000000000000", decimals: "unknown" }
+    });
+    const invalidDecimalsRequest = JSON.parse(String(fetchMock.mock.calls[1]?.[1]?.body));
+    const invalidDecimalsContent = String(invalidDecimalsRequest.messages[1].content);
+    expect(invalidDecimalsContent).not.toContain("1234500000000000000000");
+    expect(invalidDecimalsContent).not.toContain("totalSupplyTokens");
   });
 });
