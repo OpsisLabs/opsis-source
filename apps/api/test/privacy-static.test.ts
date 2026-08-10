@@ -44,10 +44,15 @@ describe("browser privacy static boundary", () => {
     expect(server).toContain('host: "::"');
   });
 
-  it("runs production migrations through a session-level database URL", () => {
+  it("keeps schema-owner credentials out of the runtime deployment", () => {
     const railway = readFileSync(resolve(repositoryRoot, "apps/api/railway.json"), "utf8");
-    expect(railway).toContain('if [ -z \\"$DIRECT_URL\\" ]');
-    expect(railway).toContain('DATABASE_URL=\\"$DIRECT_URL\\" pnpm --filter @rh-chain/api exec prisma migrate deploy');
+    const dockerfile = readFileSync(resolve(repositoryRoot, "apps/api/Dockerfile"), "utf8");
+    const envExample = readFileSync(resolve(repositoryRoot, ".env.example"), "utf8");
+    expect(railway).toContain("node apps/api/dist/ops/verify-deployment-schema.js");
+    expect(railway).not.toContain("migrate deploy");
+    expect(railway).not.toContain("DIRECT_URL");
+    expect(dockerfile).toContain("COPY --from=build /app/apps/api/dist apps/api/dist");
+    expect(envExample).not.toContain("DIRECT_URL=");
   });
 
   it("keeps the default private route outside auth and wallet providers", () => {
