@@ -50,9 +50,9 @@ Only after the current RC tag is merged into `main`:
 ```bash
 git switch main
 git pull --ff-only
-pnpm release:advance 02-approval-guard
+pnpm release:advance 02-privacy-foundation
 ```
 
 `release:advance` refuses to skip an item, refuses a dirty tree, requires the prior merged RC tag, creates only the immediate next branch, and updates the manifest. Commit the manifest update as the first commit on the new branch.
 
-Never create releases 02–06 in advance. Their absence is an intentional safety property.
+Never create later release branches in advance. Their absence is an intentional safety property.

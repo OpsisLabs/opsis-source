@@ -3,15 +3,25 @@ import { Link } from "react-router";
 import {
   ArrowLeft,
   ArrowRight,
+  BadgeCheck,
   Blocks,
   Bot,
   Check,
   CircleDollarSign,
+  Code2,
   Copy,
+  EyeOff,
+  KeyRound,
   Landmark,
+  LockKeyhole,
   Menu,
+  PackageSearch,
   Repeat2,
+  ScanSearch,
   ShieldCheck,
+  ShoppingCart,
+  Store,
+  Trash2,
   WalletCards,
   X,
   Zap,
@@ -37,6 +47,18 @@ type Release = {
   snapshot: string;
 };
 
+type HorizonIdea = {
+  code: string;
+  eyebrow: string;
+  title: string;
+  summary: string;
+  outcome: string;
+  icon: LucideIcon;
+  features: string[];
+  signals: string[];
+  boundary: string;
+};
+
 const RELEASES: Release[] = [
   {
     id: "scout-swap",
@@ -56,89 +78,157 @@ const RELEASES: Release[] = [
     snapshot: "scout-swap-rc1",
   },
   {
-    id: "approval-guard",
+    id: "privacy-foundation",
     number: "02",
-    branch: "release/02-approval-guard",
-    title: "Approval Guard",
-    eyebrow: "KNOW EVERY SPENDER",
-    summary: "Turn invisible token permissions into a readable map of what each known contract can access.",
-    outcome: "See who can spend",
+    branch: "release/02-privacy-foundation",
+    title: "Privacy Foundation",
+    eyebrow: "USE IT WITHOUT BECOMING A PROFILE",
+    summary: "Make no-account Private Mode the default and remove private details from server storage, logs, and browser-readable credentials.",
+    outcome: "Use ChainScout privately",
     icon: ShieldCheck,
     capabilities: [
-      { kicker: "SPENDER MAP", title: "Read current allowances for canonical Permit2 and router contracts", signal: "ONCHAIN READ", bars: [80, 56, 72, 44, 62, 36] },
-      { kicker: "RISK LEVEL", title: "Explain unlimited, bounded, active, and unused token approvals", signal: "RISK LABELED", bars: [30, 38, 52, 66, 76, 88] },
-      { kicker: "SOURCE LINK", title: "Show the spender address and evidence in the chain explorer", signal: "VERIFY DIRECTLY", bars: [88, 74, 64, 52, 46, 34] },
+      { kicker: "PRIVATE MODE", title: "Research public assets with no account and no permanent server-side history", signal: "DEFAULT ON", bars: [80, 56, 72, 44, 62, 36] },
+      { kicker: "SAFE SESSION", title: "Host-only secure cookies, bounded logs, and aggregate-only metrics", signal: "NO PROFILE", bars: [30, 38, 52, 66, 76, 88] },
+      { kicker: "PRIVACY RECEIPT", title: "Review the exact public facts approved for optional AI", signal: "CLEAR PERMISSION", bars: [88, 74, 64, 52, 46, 34] },
     ],
-    gate: "Allowances match direct contract reads; spender addresses are versioned; the feature stays read-only.",
-    snapshot: "approval-guard-rc1",
+    gate: "Private fields never enter logs, analytics, saved server records, or unapproved network requests.",
+    snapshot: "privacy-foundation-rc1",
   },
   {
-    id: "transaction-translator",
+    id: "encrypted-vault",
     number: "03",
-    branch: "release/03-transaction-translator",
-    title: "Transaction Translator",
-    eyebrow: "FROM HASH TO HUMAN",
-    summary: "Turn a dense Robinhood Chain receipt into a sourced explanation of what actually happened.",
-    outcome: "Understand a transaction",
-    icon: Bot,
+    branch: "release/03-encrypted-vault",
+    title: "Encrypted Asset Vault",
+    eyebrow: "YOUR ASSETS. YOUR DEVICE.",
+    summary: "Track purchase lots, notes, photos, grades, and manual assets in one encrypted browser Vault.",
+    outcome: "Track every asset privately",
+    icon: LockKeyhole,
     capabilities: [
-      { kicker: "VALUE FLOW", title: "Reconcile token movements, native value, approvals, and net wallet change", signal: "RECEIPT MATCHED", bars: [42, 74, 58, 86, 64, 78] },
-      { kicker: "CALL TRACE", title: "Name supported contracts and explain the purpose of each call", signal: "SOURCE LINKED", bars: [82, 70, 62, 54, 48, 40] },
-      { kicker: "CONFIDENCE", title: "Refuse ambiguous interpretations instead of inventing an answer", signal: "NO GUESSING", bars: [34, 46, 38, 62, 72, 92] },
+      { kicker: "ENCRYPTED LOCALLY", title: "Protect lots, cost basis, notes, and photos before they enter storage", signal: "AES-GCM", bars: [42, 74, 58, 86, 64, 78] },
+      { kicker: "ANY ASSET", title: "Add crypto, cards, phygitals, or a completely manual item", signal: "ONE VAULT", bars: [82, 70, 62, 54, 48, 40] },
+      { kicker: "BACKUP CONTROL", title: "Lock, export, import, recover, inspect storage health, or delete", signal: "USER OWNED", bars: [34, 46, 38, 62, 72, 92] },
     ],
-    gate: "Receipts, logs, and movements reconcile; unsupported intent is clearly labeled, never guessed.",
-    snapshot: "tx-translator-rc1",
+    gate: "Plaintext never crosses the network; encryption, recovery, corruption, eviction, and deletion states pass.",
+    snapshot: "encrypted-vault-rc1",
   },
   {
-    id: "wallet-safety",
+    id: "portfolio-intelligence",
     number: "04",
-    branch: "release/04-wallet-safety",
-    title: "Wallet Safety Snapshot",
-    eyebrow: "NO ACCOUNT REQUIRED",
-    summary: "Give any address a calm, local-first safety view without turning ChainScout into another profile system.",
-    outcome: "Inspect wallet risk",
+    branch: "release/04-portfolio-intelligence",
+    title: "Portfolio Intelligence",
+    eyebrow: "ONE VIEW. LESS NOISE.",
+    summary: "Combine holdings, cost basis, activity, approvals, performance, and plain-English transaction explanations.",
+    outcome: "Understand the whole portfolio",
     icon: WalletCards,
     capabilities: [
-      { kicker: "ASSET VIEW", title: "Canonical balances, suspicious-token filters, and readable allocation", signal: "FINALIZED BLOCK", bars: [30, 34, 46, 58, 76, 92] },
-      { kicker: "ACTIVITY LENS", title: "Recent transfers, counterparties, failures, and unusual movements", signal: "DECODED LOCALLY", bars: [64, 70, 66, 76, 72, 84] },
-      { kicker: "LOCAL WATCHLIST", title: "Save addresses and preferences inside this browser, not a new account", signal: "NO SERVER PROFILE", bars: [26, 52, 38, 70, 48, 86] },
+      { kicker: "PORTFOLIO VIEW", title: "Holdings, allocation, cost basis, gain or loss, and freshness in one place", signal: "LOCAL MATH", bars: [30, 34, 46, 58, 76, 92] },
+      { kicker: "TRANSACTION LENS", title: "Reconcile movements, approvals, failures, calls, and net wallet change", signal: "SOURCE MATCHED", bars: [64, 70, 66, 76, 72, 84] },
+      { kicker: "APPROVAL GUARD", title: "Explain who can spend, how much, and where to verify or revoke", signal: "READ ONLY", bars: [26, 52, 38, 70, 48, 86] },
     ],
-    gate: "Balances and approvals reconcile at a finalized block; saved addresses stay browser-local.",
-    snapshot: "wallet-safety-rc1",
+    gate: "Balances, NFTs, lots, activity, and approvals reconcile; unsupported intent is never guessed.",
+    snapshot: "portfolio-intelligence-rc1",
   },
   {
-    id: "token-yield-verify",
+    id: "rwa-phygital-verify",
     number: "05",
-    branch: "release/05-token-yield-verify",
-    title: "Token & Yield Verify",
-    eyebrow: "VERIFY BEFORE TRUSTING",
-    summary: "Check the real contract and unpack where a displayed price or yield figure actually comes from.",
-    outcome: "Verify tokens and yield",
+    branch: "release/05-rwa-phygital-verify",
+    title: "RWA & Phygital Verify",
+    eyebrow: "VERIFY THE CLAIM, NOT THE HYPE",
+    summary: "Explain Stock Tokens, yield, custody, redemption, and where a physical claim still cannot be proven.",
+    outcome: "Understand RWAs and phygitals",
     icon: Landmark,
     capabilities: [
-      { kicker: "TOKEN CHECK", title: "Canonical Stock Token contract, issuer context, and multiplier", signal: "PRIMARY SOURCES", bars: [28, 42, 54, 66, 78, 90] },
-      { kicker: "ORACLE HEALTH", title: "Chainlink feed address, timestamp, sequencer state, and staleness", signal: "STALENESS HARD STOP", bars: [84, 74, 64, 56, 48, 42] },
-      { kicker: "YIELD SOURCE", title: "Read-only Morpho vault APY, allocations, fees, and variable-yield risks", signal: "ONCHAIN FALLBACK", bars: [40, 52, 46, 68, 58, 88] },
+      { kicker: "STOCK TOKEN", title: "Canonical contract, multiplier, corporate actions, price timestamp, and trading state", signal: "PRIMARY SOURCES", bars: [28, 42, 54, 66, 78, 90] },
+      { kicker: "ORACLE + YIELD", title: "Chainlink freshness and Morpho vault APY, fees, liquidity, and allocations", signal: "VARIABLE / SOURCED", bars: [84, 74, 64, 56, 48, 42] },
+      { kicker: "PHYGITAL PROOF", title: "Custody, redemption, serial, jurisdiction, rights, and missing evidence", signal: "NO FALSE CERTAINTY", bars: [40, 52, 46, 68, 58, 88] },
     ],
-    gate: "Contracts use primary allowlists; stale data disappears; no price redistribution or transaction CTA.",
-    snapshot: "token-yield-rc1",
+    gate: "Every claim is source-linked; stale data stops; an image or token is never called proof of the physical object.",
+    snapshot: "rwa-phygital-rc1",
   },
   {
-    id: "replay-lab",
+    id: "collectible-catalog",
     number: "06",
-    branch: "release/06-replay-lab",
-    title: "Replay Lab",
-    eyebrow: "HISTORY, REBUILT SAFELY",
-    summary: "Learn from a supported Uniswap trade, choose a new amount, and preview today's completely fresh route.",
-    outcome: "Rebuild safely from history",
+    branch: "release/06-collectible-catalog",
+    title: "Collectible Catalog",
+    eyebrow: "FROM CARD TO TRACKED ASSET",
+    summary: "Find the exact Pokémon card, add its condition or grade, pull its image, and keep the private ownership details local.",
+    outcome: "Add collectibles without a spreadsheet",
+    icon: ScanSearch,
+    capabilities: [
+      { kicker: "EXACT MATCH", title: "Resolve set, number, printing, variant, condition, grade, and certificate", signal: "CONFIDENCE SHOWN", bars: [32, 48, 64, 58, 76, 92] },
+      { kicker: "IMAGE + VALUE", title: "Show sourced card art and dated market references without pretending they are live offers", signal: "DATE LABELED", bars: [88, 72, 62, 54, 42, 34] },
+      { kicker: "MANUAL PATH", title: "Track any unsupported card or physical collectible immediately", signal: "NEVER BLOCKED", bars: [24, 36, 50, 64, 78, 94] },
+    ],
+    gate: "Catalog and manual paths work; identity, image, price date, condition, grade, and source remain distinct.",
+    snapshot: "collectible-catalog-rc1",
+  },
+  {
+    id: "market-inventory",
+    number: "07",
+    branch: "release/07-market-inventory",
+    title: "Market & Inventory",
+    eyebrow: "FIND THE REAL AVAILABLE OPTION",
+    summary: "Compare exact-match crypto liquidity, opt-in retailer stock, landed costs, and available reputation signals.",
+    outcome: "Compare price, stock, and trust",
+    icon: PackageSearch,
+    capabilities: [
+      { kicker: "CRYPTO LIQUIDITY", title: "Match pools by chain and contract, with volume, liquidity, impact, and freshness", signal: "NOT BY TICKER", bars: [31, 54, 43, 68, 61, 91] },
+      { kicker: "MERCHANT STOCK", title: "Read approved Shopify, WooCommerce, and merchant feeds without broad scraping", signal: "OPT-IN SOURCES", bars: [76, 61, 70, 53, 44, 32] },
+      { kicker: "REAL OUTCOME", title: "Compare fees, shipping, tax inputs, condition, returns, and reported reputation", signal: "MISSING INPUTS SHOWN", bars: [28, 43, 57, 63, 81, 94] },
+    ],
+    gate: "Only fresh comparable exact matches are ranked; unsupported venues receive precise search handoffs.",
+    snapshot: "market-inventory-rc1",
+  },
+  {
+    id: "replay-actions",
+    number: "08",
+    branch: "release/08-replay-actions",
+    title: "Replay & Actions",
+    eyebrow: "LEARN FROM HISTORY. ACT ON TODAY.",
+    summary: "Rebuild a supported trade with a new amount or choose a current offer, then continue safely at the official venue.",
+    outcome: "Rebuild a trade or purchase safely",
     icon: Copy,
     capabilities: [
-      { kicker: "INTENT PARSER", title: "Explain the supported historical swap and its observed outcome", signal: "CONFIDENCE SCORED", bars: [32, 48, 64, 58, 76, 92] },
-      { kicker: "AMOUNT CONTROL", title: "Require a new user-selected amount before building any preview", signal: "USER DEFINED", bars: [88, 72, 62, 54, 42, 34] },
-      { kicker: "FRESH ROUTE", title: "Fetch today's Uniswap quote and continue only in the official app", signal: "NO OLD CALLDATA", bars: [24, 36, 50, 64, 78, 94] },
+      { kicker: "INTENT PARSER", title: "Explain the historical action without reusing calldata, approvals, or checkout data", signal: "HISTORY ONLY", bars: [36, 51, 62, 55, 73, 90] },
+      { kicker: "NEW CHOICE", title: "Require a new amount or current offer and show every changed assumption", signal: "USER DEFINED", bars: [87, 74, 63, 50, 41, 33] },
+      { kicker: "OFFICIAL HANDOFF", title: "Let Uniswap or the merchant requote, sign, charge, fulfill, and support", signal: "CHAINSCOUT NEVER EXECUTES", bars: [23, 38, 49, 66, 80, 95] },
     ],
-    gate: "Historic calldata and transaction parameters never enter the new path; execution stays on Uniswap.",
-    snapshot: "replay-lab-rc1",
+    gate: "No historic execution payload survives; every action starts fresh and leaves ChainScout before signing or payment.",
+    snapshot: "replay-actions-rc1",
+  },
+  {
+    id: "open-data-api",
+    number: "09",
+    branch: "release/09-open-data-api",
+    title: "ChainScout Open Data",
+    eyebrow: "PUBLIC FACTS. REUSABLE EVIDENCE.",
+    summary: "Expose capped, source-linked, independently derived public asset intelligence for other products.",
+    outcome: "Reuse ChainScout public intelligence",
+    icon: Code2,
+    capabilities: [
+      { kicker: "VERSIONED REST", title: "Search assets, read onchain summaries, and retrieve source-linked explanations", signal: "OPENAPI", bars: [29, 45, 60, 55, 77, 91] },
+      { kicker: "SAFE DATA CLASS", title: "Publish only independent/onchain facts—never Vault or restricted upstream payloads", signal: "LICENSE LABELED", bars: [84, 70, 58, 49, 42, 35] },
+      { kicker: "HARD BUDGET", title: "Cache, cap, degrade, and disable before any provider can create paid overage", signal: "$0 OVERAGE", bars: [27, 41, 52, 68, 82, 96] },
+    ],
+    gate: "No private or restricted data escapes; citations, freshness, confidence, limits, and kill switches are verified.",
+    snapshot: "open-data-api-rc1",
+  },
+  {
+    id: "launch-hardening",
+    number: "10",
+    branch: "release/10-launch-hardening",
+    title: "Launch Hardening",
+    eyebrow: "THE COMPLETE PRODUCT, PROVEN",
+    summary: "Test the whole private asset journey under real devices, stale providers, corrupted data, quota pressure, and human confusion.",
+    outcome: "Launch the complete command center",
+    icon: BadgeCheck,
+    capabilities: [
+      { kicker: "FULL JOURNEYS", title: "Private onboarding, Vault, portfolio, research, compare, handoff, backup, and deletion", signal: "DESKTOP + MOBILE", bars: [34, 48, 57, 69, 83, 97] },
+      { kicker: "BREAK IT SAFELY", title: "Provider chaos, load, quota, security, privacy, migration, and rollback drills", signal: "FAIL CLOSED", bars: [90, 77, 66, 53, 44, 31] },
+      { kicker: "HUMAN READY", title: "Accessibility, beginner comprehension, accurate legal copy, and independent review", signal: "GA GATE", bars: [25, 39, 51, 65, 79, 96] },
+    ],
+    gate: "Every launch gate passes on the exact deployed SHA; the private Vault receives independent security review.",
+    snapshot: "launch-hardening-rc1",
   },
 ];
 
@@ -148,6 +238,104 @@ const RELEASE_LOOP = [
   { label: "Test", note: "Run UX, data, and transaction checks", icon: Bot },
   { label: "Freeze", note: "Tag the approved release candidate", icon: ShieldCheck },
   { label: "Release", note: "Merge to main and move staging ahead", icon: Check },
+];
+
+const HORIZON_IDEAS: HorizonIdea[] = [
+  {
+    code: "API",
+    eyebrow: "OPEN INTELLIGENCE LAYER",
+    title: "ChainScout Open Data",
+    summary: "Let wallets, bots, marketplaces, and explorers use the same sourced asset intelligence that powers ChainScout.",
+    outcome: "One free API for understandable asset facts",
+    icon: Code2,
+    features: [
+      "Canonical identity, asset class, relationship, risk, markets, and freshness",
+      "Free capped REST endpoints, bulk snapshots, OpenAPI docs, and source citations",
+      "ChainScout analysis stays reusable without reselling restricted upstream datasets",
+    ],
+    signals: ["$0 OVERAGE", "NO KYB", "SOURCE LINKED"],
+    boundary: "Hard rate limits, caching, and a kill switch prevent public traffic from creating vendor spend.",
+  },
+  {
+    code: "FIND",
+    eyebrow: "UNIVERSAL OFFER GRAPH",
+    title: "Inventory Everywhere",
+    summary: "Match one exact asset to live crypto liquidity, marketplace listings, retailer stock, and opt-in merchant catalogs.",
+    outcome: "See where the exact asset is actually available",
+    icon: PackageSearch,
+    features: [
+      "Crypto pools and quotes matched by chain and contract—not ticker or token name",
+      "Cards and collectibles matched by set, number, variant, grade, condition, and certification",
+      "Official marketplace APIs, Shopify/WooCommerce storefronts, merchant feeds, and permitted public offers",
+    ],
+    signals: ["LAST CHECKED", "EXACT MATCH", "STOCK CONFIDENCE"],
+    boundary: "Unsupported stores get a searchable deep link; ChainScout never bypasses logins, CAPTCHA, robots, or marketplace terms.",
+  },
+  {
+    code: "BUY",
+    eyebrow: "BEST REAL OUTCOME",
+    title: "Scout Price & Purchase",
+    summary: "Compare the outcome the buyer receives—not the most attractive headline number—then continue through the official venue.",
+    outcome: "Find the best trusted route and open checkout",
+    icon: ShoppingCart,
+    features: [
+      "Rank crypto quotes after gas, price impact, slippage, route risk, and minimum received",
+      "Rank physical offers after condition, shipping, taxes, duties, returns, and seller reputation",
+      "Use prefilled deep links or native-feeling merchant carts that redirect to official checkout",
+    ],
+    signals: ["LANDED COST", "REPUTATION", "OFFICIAL HANDOFF"],
+    boundary: "ChainScout prepares and explains. Uniswap or the merchant owns signatures, payment details, fulfillment, and execution.",
+  },
+  {
+    code: "TRUST",
+    eyebrow: "PHYSICAL + DIGITAL PROOF",
+    title: "Trust & Phygital Advisor",
+    summary: "Explain whether a digital claim is connected to a real object, who holds it, how it can be redeemed, and what can fail.",
+    outcome: "Understand the asset before committing money",
+    icon: BadgeCheck,
+    features: [
+      "Check contract controls, creator history, holders, liquidity, verified source, and protocol reputation",
+      "Check custody, redemption rights, serial or grader certificate, audits, insurance, fees, and jurisdiction",
+      "Give plain-English buy, verify, store, redeem, and exit checklists with evidence—not invented certainty",
+    ],
+    signals: ["PROOF LEVEL", "CUSTODY", "EXIT PATH"],
+    boundary: "A token or photograph cannot prove physical authenticity or ownership; uncertain claims remain visibly unverified.",
+  },
+];
+
+const COMMERCE_FLOW = [
+  { label: "Identify", note: "Exact contract or collectible", icon: ScanSearch },
+  { label: "Find", note: "Fresh inventory and liquidity", icon: Store },
+  { label: "Compare", note: "True cost and reputation", icon: CircleDollarSign },
+  { label: "Verify", note: "Rights, custody, and risks", icon: ShieldCheck },
+  { label: "Continue", note: "Official protocol or checkout", icon: ArrowRight },
+];
+
+const PRIVACY_PROMISES = [
+  {
+    number: "01",
+    title: "Encrypted Vault",
+    body: "Purchase prices, wallet groupings, notes, photos, and profit or loss stay encrypted on the device.",
+    icon: LockKeyhole,
+  },
+  {
+    number: "02",
+    title: "Clear permission",
+    body: "Before an AI request, ChainScout shows the exact public facts that will leave the Vault.",
+    icon: KeyRound,
+  },
+  {
+    number: "03",
+    title: "Minimal footprint",
+    body: "Private Mode needs no account, seed phrase, advertising tracker, or permanent server-side portfolio.",
+    icon: EyeOff,
+  },
+  {
+    number: "04",
+    title: "Delete anytime",
+    body: "One clear action removes the local Vault, remembered wallets, photos, caches, and encryption keys.",
+    icon: Trash2,
+  },
 ];
 
 function RoadmapSidebar({ active }: { active: string }) {
@@ -169,7 +357,7 @@ function RoadmapSidebar({ active }: { active: string }) {
         <p className="mt-2 text-[15px] text-[#d6ccba]">Release roadmap</p>
       </div>
 
-      <nav className="flex flex-1 flex-col justify-center">
+      <nav className="flex flex-1 flex-col overflow-y-auto py-2">
         {RELEASES.map((release) => {
           const isActive = active === release.id;
           return (
@@ -222,6 +410,8 @@ function RoadmapNav() {
         <div className="flex-1" />
         <nav className="hidden items-center gap-8 pr-8 font-mono-d text-[11px] tracking-wide text-[#9a938a] md:flex">
           <a href="#releases" className="transition-colors hover:text-[#e9e0d1]">RELEASES</a>
+          <a href="#horizon" className="transition-colors hover:text-[#e9e0d1]">UTILITY</a>
+          <a href="#privacy" className="transition-colors hover:text-[#e9e0d1]">PRIVACY</a>
           <a href="#protocol" className="transition-colors hover:text-[#e9e0d1]">PROTOCOL</a>
         </nav>
         <Link
@@ -243,6 +433,12 @@ function RoadmapNav() {
         <div className="fixed inset-x-0 top-[60px] z-40 border-b border-[#2e2e2e] bg-[#1d1d1d] md:hidden">
           <a href="#releases" onClick={() => setOpen(false)} className="flex items-center justify-between border-b border-[#2e2e2e] px-6 py-4 font-mono-d text-[12px] text-[#9a938a]">
             RELEASES <ArrowRight size={14} />
+          </a>
+          <a href="#horizon" onClick={() => setOpen(false)} className="flex items-center justify-between border-b border-[#2e2e2e] px-6 py-4 font-mono-d text-[12px] text-[#9a938a]">
+            UTILITY <ArrowRight size={14} />
+          </a>
+          <a href="#privacy" onClick={() => setOpen(false)} className="flex items-center justify-between border-b border-[#2e2e2e] px-6 py-4 font-mono-d text-[12px] text-[#9a938a]">
+            PRIVACY <ArrowRight size={14} />
           </a>
           <a href="#protocol" onClick={() => setOpen(false)} className="flex items-center justify-between border-b border-[#2e2e2e] px-6 py-4 font-mono-d text-[12px] text-[#9a938a]">
             RELEASE PROTOCOL <ArrowRight size={14} />
@@ -288,11 +484,15 @@ function TrajectoryDiagram() {
       {RELEASES.map((release, index) => {
         const positions = [
           "left-[48%] top-[1%]",
-          "right-[4%] top-[22%]",
-          "right-[3%] bottom-[22%]",
+          "right-[16%] top-[9%]",
+          "right-[2%] top-[31%]",
+          "right-[2%] bottom-[31%]",
+          "right-[16%] bottom-[9%]",
           "left-[48%] bottom-[1%]",
-          "left-[3%] bottom-[22%]",
-          "left-[4%] top-[22%]",
+          "left-[16%] bottom-[9%]",
+          "left-[2%] bottom-[31%]",
+          "left-[2%] top-[31%]",
+          "left-[16%] top-[9%]",
         ];
         return (
           <div
@@ -392,8 +592,8 @@ function ReleaseCard({ release, index }: { release: Release; index: number }) {
                   <span className="font-mono-d text-[9px] tracking-[0.1em] text-[#b1aaa0]">PLANNED / SEQUENTIAL</span>
                 </div>
                 <div className="mt-3 flex gap-1">
-                  {[0, 1, 2, 3, 4, 5].map((segment) => (
-                    <span key={segment} className={`h-[2px] flex-1 ${segment <= index ? "bg-[#fa6c34]" : "bg-[#383838]"}`} />
+                  {RELEASES.map((segmentRelease, segment) => (
+                    <span key={segmentRelease.id} className={`h-[2px] flex-1 ${segment <= index ? "bg-[#fa6c34]" : "bg-[#383838]"}`} />
                   ))}
                 </div>
               </div>
@@ -435,7 +635,7 @@ export default function Roadmap() {
     const description = document.querySelector<HTMLMetaElement>('meta[name="description"]');
     const previousDescription = description?.content;
     if (description) {
-      description.content = "Explore ChainScout's zero-new-spend roadmap for live Uniswap previews, approval checks, transaction translation, wallet safety, token verification, and replay.";
+      description.content = "Explore ChainScout's zero-new-spend roadmap for safer swaps, open asset data, universal inventory, best-price routing, reputation, and phygital verification.";
     }
 
     const revealObserver = new IntersectionObserver(
@@ -520,7 +720,7 @@ export default function Roadmap() {
                 <span className="roadmap-live-dot h-1.5 w-1.5 rounded-full bg-[#fa6c34]" />
                 <span className="font-mono-d text-[10px] tracking-[0.14em] text-[#9a938a] sm:text-[11px]">CHAINSCOUT PRODUCT ROADMAP</span>
                 <span className="hatch h-3 flex-1 opacity-50" />
-                <span className="font-mono-d text-[9px] text-[#635d5a]">R01-R06</span>
+                <span className="font-mono-d text-[9px] text-[#635d5a]">R01-R10 / LAUNCH</span>
               </div>
 
               <h1 className="roadmap-hero-in roadmap-delay-1 mt-10 max-w-[740px] text-[46px] font-medium leading-[0.98] tracking-[-0.045em] text-[#d6ccba] sm:text-[64px] md:text-[78px] xl:text-[82px]">
@@ -529,8 +729,8 @@ export default function Roadmap() {
                 <span className="font-serif-d font-normal italic text-[#f0e8da]">to informed action.</span>
               </h1>
               <p className="roadmap-hero-in roadmap-delay-2 mt-8 max-w-[560px] text-[15px] leading-7 text-[#9a938a]">
-                Six focused releases help beginners understand, verify, and prepare—then hand final
-                execution to the official Uniswap app.
+                Ten cumulative releases turn the working explorer into a private asset command center:
+                one Vault, one portfolio, one research lens, and safe official handoffs.
               </p>
             </div>
 
@@ -589,6 +789,244 @@ export default function Roadmap() {
             {RELEASES.map((release, index) => (
               <ReleaseCard key={release.id} release={release} index={index} />
             ))}
+          </div>
+        </section>
+
+        <section id="horizon" className="scroll-mt-20 border-t border-[#2e2e2e] bg-[#171717]">
+          <div className="grid border-b border-[#2e2e2e] xl:grid-cols-[0.9fr_1.1fr]">
+            <div className="roadmap-reveal border-b border-[#2e2e2e] px-7 py-14 sm:px-10 md:px-12 md:py-20 xl:border-b-0 xl:border-r">
+              <div className="flex items-center gap-3">
+                <span className="h-2 w-2 rounded-full bg-[#fa6c34] shadow-[0_0_18px_rgba(250,108,52,0.75)]" />
+                <p className="font-mono-d text-[10px] tracking-[0.18em] text-[#fa6c34]">THE LAUNCH UTILITY</p>
+              </div>
+              <h2 className="mt-7 max-w-[620px] text-[42px] font-medium leading-[0.98] tracking-[-0.04em] text-[#e9e0d1] sm:text-[58px]">
+                One lens for
+                <br />
+                <span className="font-serif-d font-normal italic text-[#f0e8da]">anything with value.</span>
+              </h2>
+              <p className="mt-7 max-w-[550px] text-[14px] leading-7 text-[#9a938a]">
+                Discover it, prove what it is, see every comparable place it is available, understand
+                the real cost and risk, then continue through the official protocol or merchant.
+              </p>
+              <div className="mt-9 inline-flex items-center gap-3 border border-[#383838] bg-[#1d1d1d] px-4 py-3">
+                <Zap size={14} className="text-[#fa6c34]" />
+                <span className="font-mono-d text-[9px] tracking-[0.12em] text-[#9a938a]">BUILT SEQUENTIALLY INTO RELEASES 05—09</span>
+              </div>
+            </div>
+
+            <div className="roadmap-reveal dots flex flex-col justify-center p-7 sm:p-10 md:p-12">
+              <p className="font-mono-d text-[9px] tracking-[0.17em] text-[#635d5a]">A SINGLE CONSUMER FLOW</p>
+              <div className="mt-6 grid gap-px overflow-hidden border border-[#2e2e2e] bg-[#2e2e2e] sm:grid-cols-5">
+                {COMMERCE_FLOW.map((step, index) => {
+                  const Icon = step.icon;
+                  return (
+                    <div key={step.label} className="roadmap-commerce-step group relative min-h-[180px] bg-[#1d1d1d] p-4 transition-colors hover:bg-[#242424]">
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono-d text-[8px] text-[#635d5a]">0{index + 1}</span>
+                        <Icon size={16} strokeWidth={1.35} className="text-[#fa6c34]" />
+                      </div>
+                      <div className="mt-12 sm:mt-16">
+                        <p className="text-[16px] text-[#d6ccba]">{step.label}</p>
+                        <p className="mt-2 text-[10.5px] leading-5 text-[#635d5a]">{step.note}</p>
+                      </div>
+                      <span className="absolute bottom-0 left-0 h-[2px] w-0 bg-[#fa6c34] transition-all duration-500 group-hover:w-full" />
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="mt-5 font-mono-d text-[8px] leading-5 tracking-[0.08em] text-[#635d5a]">
+                “BEST” MEANS THE STRONGEST OBSERVED COMPARABLE OUTCOME—AFTER FEES, CONDITION,
+                FRESHNESS, REPUTATION, AND RISK. AVAILABILITY CAN CHANGE BEFORE CHECKOUT.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid gap-px bg-[#2e2e2e] lg:grid-cols-2">
+            {HORIZON_IDEAS.map((idea, index) => {
+              const Icon = idea.icon;
+              return (
+                <article
+                  key={idea.code}
+                  className="roadmap-reveal roadmap-horizon-card group relative overflow-hidden bg-[#1d1d1d] p-7 sm:p-10 md:p-12"
+                  style={{ "--reveal-delay": `${Math.min(index, 3) * 80}ms` } as CSSProperties}
+                >
+                  <div className="roadmap-horizon-scan pointer-events-none absolute inset-0" />
+                  <div className="relative flex items-start justify-between gap-6">
+                    <div>
+                      <p className="font-mono-d text-[9px] tracking-[0.18em] text-[#fa6c34]">{idea.eyebrow}</p>
+                      <h3 className="mt-5 text-[30px] font-medium leading-none tracking-[-0.03em] text-[#e9e0d1] sm:text-[38px]">{idea.title}</h3>
+                    </div>
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[#383838] bg-[#202020] transition-colors group-hover:border-[#fa6c34]/60">
+                      <Icon size={21} strokeWidth={1.25} className="text-[#fa6c34]" />
+                    </div>
+                  </div>
+
+                  <p className="relative mt-6 max-w-[630px] text-[13.5px] leading-7 text-[#9a938a]">{idea.summary}</p>
+
+                  <div className="relative mt-8 border border-[#2e2e2e] bg-[#202020]/70">
+                    <div className="flex items-center justify-between border-b border-[#2e2e2e] px-5 py-4">
+                      <span className="font-mono-d text-[8px] tracking-[0.15em] text-[#635d5a]">CONSUMER OUTCOME</span>
+                      <span className="font-serif-d text-[24px] text-[#383838]">{idea.code}</span>
+                    </div>
+                    <p className="px-5 py-5 text-[18px] leading-7 text-[#d6ccba]">{idea.outcome}</p>
+                  </div>
+
+                  <div className="relative mt-7 space-y-0 border-y border-[#2e2e2e]">
+                    {idea.features.map((feature, featureIndex) => (
+                      <div key={feature} className="flex gap-4 border-b border-[#2e2e2e] py-4 last:border-b-0">
+                        <span className="mt-0.5 font-mono-d text-[9px] text-[#fa6c34]">0{featureIndex + 1}</span>
+                        <p className="text-[12.5px] leading-6 text-[#b1aaa0]">{feature}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="relative mt-7 flex flex-wrap gap-2">
+                    {idea.signals.map((signal) => (
+                      <span key={signal} className="border border-[#383838] px-3 py-2 font-mono-d text-[8px] tracking-[0.1em] text-[#9a938a] transition-colors group-hover:border-[#4a3a32] group-hover:text-[#d6ccba]">
+                        {signal}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="relative mt-7 flex gap-3 bg-[#171717] p-4">
+                    <ShieldCheck size={15} strokeWidth={1.3} className="mt-0.5 shrink-0 text-[#fa6c34]" />
+                    <p className="text-[10.5px] leading-5 text-[#635d5a]">{idea.boundary}</p>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+
+          <div className="grid border-t border-[#2e2e2e] bg-[#e9e0d1] text-[#1d1d1d] md:grid-cols-[0.7fr_1.3fr]">
+            <div className="border-b border-[#1d1d1d]/15 px-7 py-10 sm:px-10 md:border-b-0 md:border-r md:px-12">
+              <p className="font-mono-d text-[9px] tracking-[0.17em] text-[#1d1d1d]/50">DOABLE BY DESIGN</p>
+              <p className="mt-3 text-[24px] font-medium tracking-[-0.025em]">Adapters, not one giant scraper.</p>
+            </div>
+            <div className="px-7 py-10 sm:px-10 md:px-12">
+              <p className="max-w-[820px] text-[13px] leading-7 text-[#1d1d1d]/65">
+                Start with onchain state and official APIs. Add approved marketplace integrations,
+                public Shopify and WooCommerce storefront data, merchant-submitted feeds, and permitted
+                Product/Offer metadata. Every adapter reports freshness and can fail independently without
+                taking down the rest of ChainScout.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section id="privacy" className="scroll-mt-20 border-t border-[#2e2e2e]">
+          <div className="grid bg-[#e9e0d1] text-[#1d1d1d] xl:grid-cols-[0.88fr_1.12fr]">
+            <div className="roadmap-reveal relative overflow-hidden border-b border-[#1d1d1d]/15 px-7 py-14 sm:px-10 md:px-12 md:py-20 xl:border-b-0 xl:border-r">
+              <div className="roadmap-privacy-orbit pointer-events-none absolute -bottom-28 -right-24 h-72 w-72 rounded-full border border-[#1d1d1d]/10" aria-hidden="true">
+                <div className="absolute inset-10 rounded-full border border-dashed border-[#1d1d1d]/15" />
+                <div className="absolute inset-[84px] flex items-center justify-center rounded-full bg-[#fa6c34]">
+                  <LockKeyhole size={26} strokeWidth={1.35} />
+                </div>
+              </div>
+              <div className="relative">
+                <div className="flex items-center gap-3">
+                  <span className="h-2 w-2 rounded-full bg-[#fa6c34]" />
+                  <p className="font-mono-d text-[10px] tracking-[0.18em] text-[#1d1d1d]/55">RELEASES 02—03 / VAULT PRIVACY MODEL</p>
+                </div>
+                <h2 className="mt-7 max-w-[610px] text-[44px] font-medium leading-[0.96] tracking-[-0.045em] sm:text-[62px]">
+                  Private by design.
+                  <br />
+                  <span className="font-serif-d font-normal italic text-[#fa6c34]">Useful by default.</span>
+                </h2>
+                <p className="mt-7 max-w-[520px] text-[14px] leading-7 text-[#1d1d1d]/65">
+                  A portfolio should make people feel informed and in control—not watched. The Vault
+                  is designed to keep sensitive ownership context on the device while ChainScout works
+                  with public asset facts.
+                </p>
+                <div className="mt-9 inline-flex items-center gap-3 border border-[#1d1d1d]/20 bg-[#e2d9ca] px-4 py-3">
+                  <ShieldCheck size={14} className="text-[#fa6c34]" />
+                  <span className="font-mono-d text-[8px] leading-4 tracking-[0.1em] text-[#1d1d1d]/60">
+                    DESIGN TARGET / EACH PROTECTION MUST PASS ITS RELEASE GATE
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="roadmap-reveal dots-dark bg-[#1d1d1d] p-7 text-[#e9e0d1] sm:p-10 md:p-12">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                  <p className="font-mono-d text-[9px] tracking-[0.18em] text-[#fa6c34]">YOUR PRIVACY RECEIPT</p>
+                  <h3 className="mt-4 text-[27px] font-medium tracking-[-0.025em] sm:text-[34px]">This answer used less than you think.</h3>
+                </div>
+                <span className="border border-[#383838] px-3 py-2 font-mono-d text-[8px] tracking-[0.12em] text-[#635d5a]">PLANNED UX</span>
+              </div>
+
+              <div className="mt-9 overflow-hidden border border-[#383838] bg-[#202020]/90">
+                {[
+                  {
+                    label: "STAYED ON YOUR DEVICE",
+                    body: "Wallet groupings, purchase prices, notes, photos, grades, and profit or loss.",
+                  },
+                  {
+                    label: "USED FOR THIS ANSWER",
+                    body: "One public contract address, its network, and the question the user approved.",
+                  },
+                  {
+                    label: "PRIVATE MODE DOES NOT SAVE",
+                    body: "The portfolio, personal context, or private conversation history.",
+                  },
+                ].map((row) => (
+                  <div key={row.label} className="roadmap-privacy-row group relative border-b border-[#383838] p-5 last:border-b-0 sm:p-6">
+                    <div className="flex items-center gap-3">
+                      <span className="h-2 w-2 rounded-full bg-[#fa6c34] shadow-[0_0_12px_rgba(250,108,52,0.45)]" />
+                      <p className="font-mono-d text-[8px] tracking-[0.14em] text-[#fa6c34]">{row.label}</p>
+                    </div>
+                    <p className="mt-3 max-w-[570px] pl-5 text-[12.5px] leading-6 text-[#9a938a]">{row.body}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-5 flex items-center justify-between gap-5 border border-[#383838] bg-[#171717] p-4">
+                <div className="flex items-center gap-3">
+                  <Check size={14} className="text-[#fa6c34]" />
+                  <span className="text-[12px] text-[#d6ccba]">No other Vault fields are approved for this request.</span>
+                </div>
+                <span className="font-mono-d text-[8px] tracking-[0.1em] text-[#635d5a]">CLEAR / REVIEWABLE</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-px bg-[#2e2e2e] sm:grid-cols-2 xl:grid-cols-4">
+            {PRIVACY_PROMISES.map((promise, index) => {
+              const Icon = promise.icon;
+              return (
+                <article
+                  key={promise.number}
+                  className="roadmap-reveal roadmap-privacy-promise group relative min-h-[265px] overflow-hidden bg-[#1d1d1d] p-7 sm:p-8"
+                  style={{ "--reveal-delay": `${index * 70}ms` } as CSSProperties}
+                >
+                  <div className="flex items-start justify-between">
+                    <span className="font-mono-d text-[9px] text-[#fa6c34]">{promise.number}</span>
+                    <span className="flex h-11 w-11 items-center justify-center rounded-full border border-[#383838] text-[#fa6c34] transition-colors group-hover:border-[#fa6c34]/55">
+                      <Icon size={18} strokeWidth={1.3} />
+                    </span>
+                  </div>
+                  <h3 className="mt-10 text-[23px] font-medium tracking-[-0.025em] text-[#e9e0d1]">{promise.title}</h3>
+                  <p className="mt-4 text-[12.5px] leading-6 text-[#9a938a]">{promise.body}</p>
+                  <span className="absolute bottom-0 left-0 h-[2px] w-0 bg-[#fa6c34] transition-all duration-500 group-hover:w-full" />
+                </article>
+              );
+            })}
+          </div>
+
+          <div className="roadmap-reveal grid bg-[#fa6c34] text-[#1d1d1d] xl:grid-cols-[1fr_auto]">
+            <div className="border-b border-[#1d1d1d]/20 px-7 py-10 sm:px-10 md:px-12 xl:border-b-0 xl:border-r">
+              <p className="font-mono-d text-[9px] tracking-[0.17em] text-[#1d1d1d]/55">THE TRUST HOOK</p>
+              <p className="mt-4 max-w-[900px] text-[26px] font-medium leading-tight tracking-[-0.025em] sm:text-[34px]">
+                ChainScout knows the assets. It does not need to know which ones are yours.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 px-7 py-8 sm:px-10 xl:max-w-[360px] xl:px-10">
+              {["ENCRYPTED VAULT", "NO ACCOUNT", "NO TRACKERS", "NO SEED PHRASES"].map((label) => (
+                <span key={label} className="border border-[#1d1d1d]/25 px-3 py-2 font-mono-d text-[8px] tracking-[0.1em]">
+                  {label}
+                </span>
+              ))}
+            </div>
           </div>
         </section>
 

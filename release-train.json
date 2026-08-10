@@ -22,48 +22,84 @@
     },
     {
       "order": 2,
-      "id": "02-approval-guard",
-      "branch": "release/02-approval-guard",
-      "tagPrefix": "rc/02-approval-guard/",
+      "id": "02-privacy-foundation",
+      "branch": "release/02-privacy-foundation",
+      "tagPrefix": "rc/02-privacy-foundation/",
       "status": "queued",
-      "outcome": "See who can spend",
-      "shipGate": "Allowances match direct onchain reads against versioned canonical spender addresses; the feature remains read-only."
+      "outcome": "Use ChainScout without becoming a profile",
+      "shipGate": "Private Mode needs no account; browser tokens are not readable by JavaScript; private fields never enter logs, analytics, or saved server records; legacy cloud data can be exported and deleted."
     },
     {
       "order": 3,
-      "id": "03-transaction-translator",
-      "branch": "release/03-transaction-translator",
-      "tagPrefix": "rc/03-transaction-translator/",
+      "id": "03-encrypted-vault",
+      "branch": "release/03-encrypted-vault",
+      "tagPrefix": "rc/03-encrypted-vault/",
       "status": "queued",
-      "outcome": "Understand a transaction",
-      "shipGate": "Receipts, logs, and movements reconcile; confidence is visible; ambiguous or unsupported intent is not guessed."
+      "outcome": "Track every asset privately",
+      "shipGate": "Lots, notes, photos, and purchase prices are encrypted in IndexedDB with tested export, import, lock, recovery, deletion, and storage-eviction states; plaintext never crosses the network."
     },
     {
       "order": 4,
-      "id": "04-wallet-safety",
-      "branch": "release/04-wallet-safety",
-      "tagPrefix": "rc/04-wallet-safety/",
+      "id": "04-portfolio-intelligence",
+      "branch": "release/04-portfolio-intelligence",
+      "tagPrefix": "rc/04-portfolio-intelligence/",
       "status": "queued",
-      "outcome": "Inspect wallet risk",
-      "shipGate": "Canonical balances and approvals reconcile at a finalized block; saved addresses and watchlists remain browser-local."
+      "outcome": "See holdings, performance, activity, and risk together",
+      "shipGate": "Balances, NFTs, transactions, approvals, and decoded movements reconcile at a finalized block; manual lot math is deterministic; saved ownership context remains encrypted and browser-local."
     },
     {
       "order": 5,
-      "id": "05-token-yield-verify",
-      "branch": "release/05-token-yield-verify",
-      "tagPrefix": "rc/05-token-yield-verify/",
+      "id": "05-rwa-phygital-verify",
+      "branch": "release/05-rwa-phygital-verify",
+      "tagPrefix": "rc/05-rwa-phygital-verify/",
       "status": "queued",
-      "outcome": "Verify tokens and yield",
-      "shipGate": "Primary-source allowlists and oracle staleness checks pass; no restricted data redistribution or transaction CTA exists."
+      "outcome": "Understand tokenized assets, yield, and physical claims",
+      "shipGate": "Stock Token identity, multipliers, corporate actions, oracle freshness, Morpho vault state, custody claims, and redemption limits are source-linked; unsupported authenticity is never inferred."
     },
     {
       "order": 6,
-      "id": "06-replay-lab",
-      "branch": "release/06-replay-lab",
-      "tagPrefix": "rc/06-replay-lab/",
+      "id": "06-collectible-catalog",
+      "branch": "release/06-collectible-catalog",
+      "tagPrefix": "rc/06-collectible-catalog/",
       "status": "queued",
-      "outcome": "Rebuild safely from history",
-      "shipGate": "Historic calldata and transaction parameters cannot enter the new path; a user-selected amount and fresh Uniswap quote are required."
+      "outcome": "Add cards and collectibles without a spreadsheet",
+      "shipGate": "Pokémon identity resolves by set, number, variant, condition, grade, and certificate; images and price dates are sourced; manual assets remain usable when no catalog match exists."
+    },
+    {
+      "order": 7,
+      "id": "07-market-inventory",
+      "branch": "release/07-market-inventory",
+      "tagPrefix": "rc/07-market-inventory/",
+      "status": "queued",
+      "outcome": "Compare fresh liquidity, prices, stock, and trust",
+      "shipGate": "Exact-match confidence, source freshness, landed-cost inputs, inventory state, and provider-reported reputation are visible; unsupported venues use precise search handoffs instead of scraping."
+    },
+    {
+      "order": 8,
+      "id": "08-replay-actions",
+      "branch": "release/08-replay-actions",
+      "tagPrefix": "rc/08-replay-actions/",
+      "status": "queued",
+      "outcome": "Rebuild a trade or purchase safely",
+      "shipGate": "Historical calldata and checkout data are never reused; users choose a new amount or offer; official Uniswap or merchant checkout independently requotes and owns execution."
+    },
+    {
+      "order": 9,
+      "id": "09-open-data-api",
+      "branch": "release/09-open-data-api",
+      "tagPrefix": "rc/09-open-data-api/",
+      "status": "queued",
+      "outcome": "Reuse ChainScout's sourced public intelligence",
+      "shipGate": "The capped API exposes independently derived public facts and citations only; it contains no Vault data or restricted upstream payloads and cannot create paid overage."
+    },
+    {
+      "order": 10,
+      "id": "10-launch-hardening",
+      "branch": "release/10-launch-hardening",
+      "tagPrefix": "rc/10-launch-hardening/",
+      "status": "queued",
+      "outcome": "Launch the complete private asset command center",
+      "shipGate": "End-to-end launch journeys pass on desktop and mobile; dependency, privacy, accessibility, provider-failure, load, legal-copy, backup, deletion, monitoring, and rollback gates are complete."
     }
   ]
 }
