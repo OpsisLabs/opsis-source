@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "dc97f7e45638a078f62feb3a18d41d20cc837dfa620be9bf2afd3adcef6d2e57",
+  "sourceTreeDigest": "22f7311e69674c8f55d31a9f4fb371a556f1efdc340a6936de5bb807f9fd9e69",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "de6dc750d8fa18ad811b56a4b78eca0c480902bcd83cdf560b50fa0ad3a38bcc",
@@ -13,7 +13,7 @@
     "apps/api/prisma/migrations/20260710152000_auth_tokens/migration.sql": "0616e0d3048393c4e130982c8a8f0b169fa6185b84dcdbfae0d5f28a8eda5d16",
     "apps/api/prisma/migrations/20260710211500_usage_aggregates/migration.sql": "ecfc56587803e58b7d70fc944cad2b0ae0c3d36d08f5bd96bb826dea6a4780ff",
     "apps/api/prisma/migrations/20260725180000_wallet_accounts/migration.sql": "1a8b085d7142aca85ac21b6e98bd0c2794a559b7f3de75ed152dd4583665abf4",
-    "apps/api/prisma/migrations/20260810223000_account_privacy_cascades/migration.sql": "5f234e4e1b5c5757e020dd6504bad7dfd4ff9c34e62989b12cdc197c448bebf9",
+    "apps/api/prisma/migrations/20260810223000_account_privacy_cascades/migration.sql": "df1e1366e32575233fcccea7294eb3d71a8eea381854c705cd612f3c0e8694fa",
     "apps/api/prisma/migrations/migration_lock.toml": "693566b52c49db47a2b0901d12400aa3d710d13a49f4a2a154b80c0505ed737c",
     "apps/api/prisma/schema.prisma": "a45880a7506fcf7ace76b8e9e547f6f1f433b9c207d2bbb65b8a9a5b971b4586",
     "apps/api/railway.json": "e27f0d5b058864cdf8d146c29959bf0a9e88e5449e49f310519e808b2af86e54",
