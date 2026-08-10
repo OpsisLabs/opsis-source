@@ -5,11 +5,11 @@ import type { AuthResult, RegistrationResult } from "./service.js";
 type SessionResult = AuthResult | RegistrationResult;
 
 export function accessCookieName(env: Env): string {
-  return env.NODE_ENV === "production" ? "__Host-chainscout_access" : "chainscout_access";
+  return usesSecureCookies(env) ? "__Host-chainscout_access" : "chainscout_access";
 }
 
 export function refreshCookieName(env: Env): string {
-  return env.NODE_ENV === "production" ? "__Host-chainscout_refresh" : "chainscout_refresh";
+  return usesSecureCookies(env) ? "__Host-chainscout_refresh" : "chainscout_refresh";
 }
 
 export function readAccessToken(request: FastifyRequest, env: Env): string | undefined {
@@ -25,7 +25,7 @@ export function setSessionCookies(reply: FastifyReply, env: Env, result: Session
   const common = {
     path: "/",
     httpOnly: true,
-    secure: env.NODE_ENV === "production",
+    secure: usesSecureCookies(env),
     sameSite: "strict" as const
   };
   reply.setCookie(accessCookieName(env), result.accessToken, {
@@ -42,7 +42,7 @@ export function clearSessionCookies(reply: FastifyReply, env: Env): void {
   const options = {
     path: "/",
     httpOnly: true,
-    secure: env.NODE_ENV === "production",
+    secure: usesSecureCookies(env),
     sameSite: "strict" as const
   };
   reply.clearCookie(accessCookieName(env), options);
@@ -69,4 +69,8 @@ function durationSeconds(value: string, fallback: number): number {
   const quantity = Number(match[1]);
   const multiplier = match[2] === "d" ? 86_400 : match[2] === "h" ? 3_600 : match[2] === "m" ? 60 : 1;
   return quantity * multiplier;
+}
+
+function usesSecureCookies(env: Env): boolean {
+  return env.NODE_ENV === "production" || env.SECURE_SESSION_COOKIES;
 }

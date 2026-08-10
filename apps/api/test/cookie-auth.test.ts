@@ -89,6 +89,29 @@ describe("HttpOnly browser sessions", () => {
     expect(calls.every((call) => !("domain" in call.options))).toBe(true);
   });
 
+  it("mirrors the production cookie boundary in an HTTPS preview environment", () => {
+    const env = loadEnv({ NODE_ENV: "test", SECURE_SESSION_COOKIES: "true" });
+    const calls: Array<{ name: string; options: Record<string, unknown> }> = [];
+    const reply = {
+      setCookie(name: string, _value: string, options: Record<string, unknown>) {
+        calls.push({ name, options });
+        return this;
+      }
+    } as unknown as FastifyReply;
+
+    setSessionCookies(reply, env, {
+      user: { id: "user", email: null, username: "user", walletAddress: null, role: "USER", status: "ACTIVE" },
+      accessToken: "access",
+      refreshToken: "refresh"
+    });
+
+    expect(calls.map((call) => call.name)).toEqual(["__Host-chainscout_access", "__Host-chainscout_refresh"]);
+    expect(calls.every((call) => call.options.secure === true)).toBe(true);
+    expect(calls.every((call) => call.options.httpOnly === true)).toBe(true);
+    expect(calls.every((call) => call.options.sameSite === "strict")).toBe(true);
+    expect(calls.every((call) => call.options.path === "/")).toBe(true);
+  });
+
   it("enforces exact Origin, JSON, Fetch Metadata, and the custom header when enabled", async () => {
     const resolve = vi.fn(async () => ({
       entity: { chainId: 4663, type: "wallet" as const, value: "0x0000000000000000000000000000000000000042", facts: {}, citations: [], riskNotes: [] },

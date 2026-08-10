@@ -29,6 +29,10 @@ const envSchema = z.object({
   JWT_REFRESH_SECRET: z.string().min(16).default("dev_refresh_secret_change_me"),
   ACCESS_TOKEN_TTL: z.string().default("15m"),
   REFRESH_TOKEN_TTL: z.string().default("30d"),
+  // HTTPS preview environments can exercise the exact production cookie
+  // boundary without pretending to have production persistence configured.
+  // Production is always secure regardless of this optional override.
+  SECURE_SESSION_COOKIES: envBoolean.default(false),
   AI_PROVIDER: z.enum(["auto", "fallback", "ollama", "openai"]).default("auto"),
   OPENAI_API_KEY: z.string().optional(),
   OPENAI_MODEL: z.string().default("gpt-4.1-mini"),
