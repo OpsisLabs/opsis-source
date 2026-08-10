@@ -5,7 +5,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
 COPY apps/web/package.json apps/web/package.json
 RUN pnpm install --frozen-lockfile
 COPY apps/web apps/web
-ARG VITE_API_BASE_URL=http://localhost:4000
+ARG VITE_API_BASE_URL=
 ARG VITE_BUILD_SHA
 ARG VITE_PUBLIC_SITE_URL
 ARG RAILWAY_GIT_COMMIT_SHA
@@ -19,5 +19,7 @@ RUN pnpm --filter @rh-chain/web build
 
 FROM nginx:1.27-alpine
 COPY --from=build /app/apps/web/dist /usr/share/nginx/html
-COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
+ENV API_PRIVATE_HOST=api.railway.internal
+ENV NGINX_ENVSUBST_FILTER=API_PRIVATE_HOST
+COPY apps/web/nginx.conf /etc/nginx/templates/default.conf.template
 EXPOSE 80

@@ -7,16 +7,6 @@ const timestamp = "2026-07-11T00:00:00.000Z";
 
 type MockOptions = { createDelayMs?: number; messageDelayMs?: number; failCreate?: boolean };
 
-async function authenticate(page: Page) {
-  await page.addInitScript(() => {
-    localStorage.setItem("rh_auth", JSON.stringify({
-      accessToken: "e2e-access-token",
-      refreshToken: "e2e-refresh-token",
-      user: { id: "e2e-user", username: "browser-user", walletAddress: null },
-    }));
-  });
-}
-
 async function mockApi(page: Page, options: MockOptions = {}) {
   let createCalls = 0;
   let messageCalls = 0;
@@ -52,6 +42,11 @@ async function mockApi(page: Page, options: MockOptions = {}) {
     const request = route.request();
     const path = new URL(request.url()).pathname;
     const method = request.method();
+
+    if (path === "/v1/auth/me") {
+      await route.fulfill({ json: { user: { id: "e2e-user", username: "browser-user", walletAddress: null } } });
+      return;
+    }
 
     if (path === "/v1/chat/sessions" && method === "POST") {
       createCalls += 1;
@@ -146,21 +141,17 @@ async function mockApi(page: Page, options: MockOptions = {}) {
   };
 }
 
-test.beforeEach(async ({ page }) => {
-  await authenticate(page);
-});
-
 test("wallet analysis opens before enrichment, is single-submit, and does not replay after reload", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 420 });
   const calls = await mockApi(page, { createDelayMs: 250, messageDelayMs: 1_100 });
 
-  await page.goto("/app");
+  await page.goto("/cloud");
   const search = page.getByLabel("Wallet, token, contract, or transaction");
   await search.fill(address);
   await search.press("Enter");
   await search.press("Enter");
 
-  await expect(page).toHaveURL(/\/app\/chat\/e2e-session$/);
+  await expect(page).toHaveURL(/\/cloud\/chat\/e2e-session$/);
   await expect(page.getByTestId("resolving-answer-card")).toBeVisible();
   expect(await page.getByTestId("resolving-answer-card").locator(".decode-reel").count()).toBeGreaterThan(10);
   await expect(page.getByText("RESOLVING ENTITY")).toBeVisible();
@@ -201,7 +192,7 @@ test("wallet analysis opens before enrichment, is single-submit, and does not re
 test("sample transaction is valid and resolve failures are visible", async ({ page }) => {
   const calls = await mockApi(page, { failCreate: true });
 
-  await page.goto("/app");
+  await page.goto("/cloud");
   await page.getByRole("button", { name: "SAMPLE TX" }).click();
   const search = page.getByLabel("Wallet, token, contract, or transaction");
   await expect(search).toHaveValue(sampleTransaction);
@@ -215,7 +206,7 @@ test("sample transaction is valid and resolve failures are visible", async ({ pa
 test("malformed entity input is rejected before session creation", async ({ page }) => {
   const calls = await mockApi(page);
 
-  await page.goto("/app");
+  await page.goto("/cloud");
   const search = page.getByLabel("Wallet, token, contract, or transaction");
   await search.fill("0xbad");
   await search.press("Enter");
@@ -223,7 +214,7 @@ test("malformed entity input is rejected before session creation", async ({ page
   await expect(page.getByRole("alert")).toHaveText(
     "Enter a complete wallet or contract address, or a complete transaction hash.",
   );
-  await expect(page).toHaveURL(/\/app$/);
+  await expect(page).toHaveURL(/\/cloud$/);
   expect(calls.createCalls()).toBe(0);
   expect(calls.messageCalls()).toBe(0);
 });
@@ -300,6 +291,10 @@ test("saved-session navigation clears stale entity details and invalid legacy an
 
   await page.route("**/v1/**", async (route) => {
     const path = new URL(route.request().url()).pathname;
+    if (path === "/v1/auth/me") {
+      await route.fulfill({ json: { user: { id: "e2e-user", username: "browser-user", walletAddress: null } } });
+      return;
+    }
     if (path === "/v1/chat/sessions") {
       await route.fulfill({ json: { sessions: [walletSession, transactionSession, invalidSession] } });
       return;
@@ -325,7 +320,7 @@ test("saved-session navigation clears stale entity details and invalid legacy an
     await route.fulfill({ status: 500, json: { error: { code: "UNHANDLED_TEST_REQUEST" } } });
   });
 
-  await page.goto("/app/chat/wallet-session");
+  await page.goto("/cloud/chat/wallet-session");
   const summaryLink = page.getByRole("link", { name: "Open in Blockscout" });
   await expect(summaryLink).toHaveAttribute(
     "href",
@@ -333,7 +328,7 @@ test("saved-session navigation clears stale entity details and invalid legacy an
   );
 
   await page.getByRole("link", { name: /Transaction session/ }).click();
-  await expect(page).toHaveURL(/\/app\/chat\/transaction-session$/);
+  await expect(page).toHaveURL(/\/cloud\/chat\/transaction-session$/);
   await expect(summaryLink).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Open in Blockscout" })).toHaveAttribute(
     "href",
@@ -346,8 +341,9 @@ test("saved-session navigation clears stale entity details and invalid legacy an
   await expect(page.getByRole("link", { name: "Open in Blockscout" })).toHaveCount(0);
 });
 
-test("parallel startup requests share one refresh-token rotation", async ({ page }) => {
+test("an expired cookie session rotates once and never exposes tokens to JavaScript", async ({ page }) => {
   let refreshCalls = 0;
+  let refreshed = false;
   const session = {
     id: "refreshed-session",
     title: "Recovered session",
@@ -360,24 +356,20 @@ test("parallel startup requests share one refresh-token rotation", async ({ page
     const request = route.request();
     const path = new URL(request.url()).pathname;
 
-    if (path === "/v1/auth/refresh") {
-      refreshCalls += 1;
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      await route.fulfill({
-        json: {
-          user: { id: "e2e-user", username: "browser-user", walletAddress: null },
-          accessToken: "refreshed-access-token",
-          refreshToken: "refreshed-refresh-token",
-        },
-      });
+    if (path === "/v1/auth/me") {
+      if (!refreshed) {
+        await route.fulfill({ status: 401, json: { error: { code: "UNAUTHORIZED" } } });
+      } else {
+        await route.fulfill({ json: { user: { id: "e2e-user", username: "browser-user", walletAddress: null } } });
+      }
       return;
     }
 
-    if (request.headers().authorization !== "Bearer refreshed-access-token") {
-      await route.fulfill({
-        status: 401,
-        json: { error: { code: "UNAUTHORIZED", message: "Expired access token" } },
-      });
+    if (path === "/v1/auth/refresh") {
+      refreshCalls += 1;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      refreshed = true;
+      await route.fulfill({ json: { user: { id: "e2e-user", username: "browser-user", walletAddress: null } } });
       return;
     }
 
@@ -401,18 +393,18 @@ test("parallel startup requests share one refresh-token rotation", async ({ page
     await route.fulfill({ status: 500, json: { error: { code: "UNHANDLED_TEST_REQUEST" } } });
   });
 
-  await page.goto("/app");
+  await page.goto("/cloud");
   await expect(page.getByRole("link", { name: /Recovered session/ })).toBeVisible();
   await expect(page.getByText("3/500")).toBeVisible();
   await expect(page.getByText("9/5000")).toBeVisible();
   expect(refreshCalls).toBe(1);
-  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("rh_auth") ?? "null").accessToken)).toBe(
-    "refreshed-access-token",
-  );
+  expect(await page.evaluate(() => localStorage.getItem("rh_auth"))).toBeNull();
+  expect(await page.evaluate(() => document.cookie)).not.toContain("chainscout_access");
 });
 
 test("a late 401 does not rotate or clear an already refreshed session", async ({ page }) => {
   let refreshCalls = 0;
+  let usageCalls = 0;
   const session = {
     id: "late-response-session",
     title: "Recovered session",
@@ -424,26 +416,15 @@ test("a late 401 does not rotate or clear an already refreshed session", async (
   await page.route("**/v1/**", async (route) => {
     const request = route.request();
     const path = new URL(request.url()).pathname;
-    const authorization = request.headers().authorization;
 
-    if (path === "/v1/auth/refresh") {
-      refreshCalls += 1;
-      await route.fulfill({
-        json: {
-          user: { id: "e2e-user", username: "browser-user", walletAddress: null },
-          accessToken: "refreshed-access-token",
-          refreshToken: "refreshed-refresh-token",
-        },
-      });
+    if (path === "/v1/auth/me") {
+      await route.fulfill({ json: { user: { id: "e2e-user", username: "browser-user", walletAddress: null } } });
       return;
     }
 
-    if (authorization !== "Bearer refreshed-access-token") {
-      if (path === "/v1/usage/me") await new Promise((resolve) => setTimeout(resolve, 300));
-      await route.fulfill({
-        status: 401,
-        json: { error: { code: "UNAUTHORIZED", message: "Expired access token" } },
-      });
+    if (path === "/v1/auth/refresh") {
+      refreshCalls += 1;
+      await route.fulfill({ json: { user: { id: "e2e-user", username: "browser-user", walletAddress: null } } });
       return;
     }
 
@@ -452,6 +433,12 @@ test("a late 401 does not rotate or clear an already refreshed session", async (
       return;
     }
     if (path === "/v1/usage/me") {
+      usageCalls += 1;
+      if (usageCalls === 1) {
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        await route.fulfill({ status: 401, json: { error: { code: "UNAUTHORIZED", message: "Late stale response" } } });
+        return;
+      }
       await route.fulfill({
         json: {
           periodStart: "2026-08-01T00:00:00.000Z",
@@ -466,13 +453,11 @@ test("a late 401 does not rotate or clear an already refreshed session", async (
     await route.fulfill({ status: 500, json: { error: { code: "UNHANDLED_TEST_REQUEST" } } });
   });
 
-  await page.goto("/app");
+  await page.goto("/cloud");
   await expect(page.getByRole("link", { name: /Recovered session/ })).toBeVisible();
   await expect(page.getByText("9/5000")).toBeVisible();
-  expect(refreshCalls).toBe(1);
-  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("rh_auth") ?? "null").accessToken)).toBe(
-    "refreshed-access-token",
-  );
+  expect(refreshCalls).toBe(0);
+  expect(await page.evaluate(() => localStorage.getItem("rh_auth"))).toBeNull();
 });
 
 test("a rejected refresh exits the stale authenticated shell", async ({ page }) => {
@@ -494,7 +479,7 @@ test("a rejected refresh exits the stale authenticated shell", async ({ page }) 
     });
   });
 
-  await page.goto("/app");
+  await page.goto("/cloud");
   await expect(page).toHaveURL(/\/login$/);
   await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
   expect(refreshCalls).toBe(1);

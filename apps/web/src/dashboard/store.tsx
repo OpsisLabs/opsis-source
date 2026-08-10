@@ -7,7 +7,7 @@ import {
   walletChallenge,
   walletLogin,
 } from "./api";
-import { subscribeAuth } from "./http";
+import { clearLegacyBrowserCredentials } from "./http";
 import { connectWallet, signSignInMessage } from "./wallet";
 import type { User } from "./types";
 
@@ -29,10 +29,24 @@ interface AuthCtx {
 const Ctx = createContext<AuthCtx | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => currentUser());
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const pending = useRef<{ nonce: string; signature: string } | null>(null);
 
-  useEffect(() => subscribeAuth(() => setUser(currentUser())), []);
+  useEffect(() => {
+    let active = true;
+    clearLegacyBrowserCredentials();
+    currentUser()
+      .then((next) => {
+        if (active) setUser(next);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const signInWithWallet = async (username?: string) => {
     if (!pending.current) {
@@ -50,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value: AuthCtx = {
     user,
-    loading: false,
+    loading,
     login: async (e, p) => setUser(await apiLogin(e, p)),
     register: async (e, p) => setUser(await apiRegister(e, p)),
     signInWithWallet,

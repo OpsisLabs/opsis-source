@@ -2,7 +2,7 @@
  * Real backend client. Exposes exactly the surface mockApi.ts did, so the
  * dashboard components consume it without changes.
  */
-import { api, ApiError, publicApi, readAuth, writeAuth } from "./http";
+import { api, ApiError, downloadAccountExport, publicApi } from "./http";
 import {
   CHAIN_ID,
   EXPLORER,
@@ -39,13 +39,11 @@ export const SAMPLE_TX =
 
 interface AuthResponse {
   user: { id: string; email?: string | null; username?: string | null; walletAddress?: string | null };
-  accessToken?: string;
-  refreshToken?: string;
   verificationRequired?: boolean;
 }
 
-function persist(result: AuthResponse): User {
-  if (!result.accessToken || !result.refreshToken) {
+function toUser(result: AuthResponse): User {
+  if (result.verificationRequired) {
     throw new ApiError(
       "EMAIL_VERIFICATION_REQUIRED",
       "Check your inbox to verify this address, then sign in.",
@@ -58,16 +56,15 @@ function persist(result: AuthResponse): User {
     username: result.user.username ?? null,
     walletAddress: result.user.walletAddress ?? null,
   };
-  writeAuth({ accessToken: result.accessToken, refreshToken: result.refreshToken, user });
   return user;
 }
 
 export async function login(email: string, password: string): Promise<User> {
-  return persist(await publicApi<AuthResponse>("/v1/auth/login", { email, password }));
+  return toUser(await publicApi<AuthResponse>("/v1/auth/login", { email, password }));
 }
 
 export async function register(email: string, password: string): Promise<User> {
-  return persist(await publicApi<AuthResponse>("/v1/auth/register", { email, password }));
+  return toUser(await publicApi<AuthResponse>("/v1/auth/register", { email, password }));
 }
 
 /** Thrown when a wallet signs in for the first time and needs to pick a username. */
@@ -95,24 +92,37 @@ export async function walletLogin(nonce: string, signature: string, username?: s
     signature,
     ...(username ? { username } : {}),
   });
-  return persist(result);
+  return toUser(result);
 }
 
 export async function logout(): Promise<void> {
-  const refreshToken = readAuth()?.refreshToken;
-  // Best effort: the local session is cleared even if revocation fails.
-  if (refreshToken) {
-    try {
-      await publicApi("/v1/auth/logout", { refreshToken });
-    } catch {
-      /* already expired or revoked */
-    }
+  try {
+    await publicApi("/v1/auth/logout", {});
+  } catch {
+    // Cookies are also expired by the server on invalid refresh. The React
+    // session is cleared by the caller regardless.
   }
-  writeAuth(null);
 }
 
-export function currentUser(): User | null {
-  return readAuth()?.user ?? null;
+export async function currentUser(): Promise<User | null> {
+  try {
+    const result = await api<{ user: User }>("/v1/auth/me");
+    return result.user;
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) return null;
+    throw error;
+  }
+}
+
+export async function exportAccount(): Promise<Blob> {
+  return downloadAccountExport();
+}
+
+export async function deleteAccount(): Promise<void> {
+  await api<void>("/v1/account", {
+    method: "DELETE",
+    body: JSON.stringify({ confirmation: "DELETE MY CHAINSCOUT ACCOUNT" })
+  });
 }
 
 /* ---------------- usage ---------------- */

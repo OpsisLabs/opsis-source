@@ -58,7 +58,7 @@ export default function Faq() {
                   through the setup.
                 </p>
                 <Link
-                  to="/login"
+                  to="/app"
                   className="clip-btn-sm mt-6 inline-flex bg-[#e9e0d1] px-5 py-3 font-mono-d text-[11px] font-medium tracking-wide transition-colors hover:bg-[#d6ccba]"
                 >
                   CONTACT US

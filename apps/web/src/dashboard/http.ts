@@ -1,49 +1,20 @@
 /**
- * Thin fetch wrapper for the @rh-chain/api backend.
- *
- * Holds the JWT pair, attaches the bearer token, and transparently rotates a
- * stale access token via /v1/auth/refresh before retrying a 401 once.
+ * Same-origin API client. Browser credentials live only in Secure, HttpOnly
+ * cookies; JavaScript never reads, stores, or serializes either token.
  */
 
 const BASE = import.meta.env.VITE_API_BASE_URL ?? "";
-const AUTH_KEY = "rh_auth";
-const AUTH_EVENT = "rh-auth-change";
-const AUTH_REFRESH_LOCK = "rh-auth-refresh";
+const AUTH_REFRESH_LOCK = "chainscout-cookie-refresh";
 let refreshPromise: Promise<boolean> | null = null;
 
-export interface StoredAuth {
-  accessToken: string;
-  refreshToken: string;
-  user: { id: string; email?: string | null; username?: string | null; walletAddress?: string | null };
+/** Remove the pre-cookie implementation's credential bundle without reading
+ * or migrating it. Any matching server refresh rows are rotated/revoked by the
+ * cookie session flow. */
+export function clearLegacyBrowserCredentials(): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem("rh_auth");
 }
 
-export function readAuth(): StoredAuth | null {
-  try {
-    const raw = localStorage.getItem(AUTH_KEY);
-    return raw ? (JSON.parse(raw) as StoredAuth) : null;
-  } catch {
-    return null;
-  }
-}
-
-export function writeAuth(auth: StoredAuth | null): void {
-  if (auth) localStorage.setItem(AUTH_KEY, JSON.stringify(auth));
-  else localStorage.removeItem(AUTH_KEY);
-  if (typeof window !== "undefined") window.dispatchEvent(new Event(AUTH_EVENT));
-}
-
-/** Keep React auth state aligned when the HTTP layer rotates or clears tokens. */
-export function subscribeAuth(listener: () => void): () => void {
-  if (typeof window === "undefined") return () => undefined;
-  window.addEventListener(AUTH_EVENT, listener);
-  window.addEventListener("storage", listener);
-  return () => {
-    window.removeEventListener(AUTH_EVENT, listener);
-    window.removeEventListener("storage", listener);
-  };
-}
-
-/** Error carrying the backend's machine-readable code, e.g. MONTHLY_QUOTA_EXCEEDED. */
 export class ApiError extends Error {
   code: string;
   status: number;
@@ -62,10 +33,6 @@ interface ApiErrorBody {
   message?: string;
 }
 
-/**
- * The API surfaces zod failures as validation errors whose message is not
- * presentable. Map the codes the UI can actually provoke onto plain sentences.
- */
 function humanize(code: string, message: string, status: number): string {
   switch (code) {
     case "INVALID_CREDENTIALS":
@@ -80,8 +47,9 @@ function humanize(code: string, message: string, status: number): string {
       return "Add a wallet address or transaction hash to this question.";
     case "INVALID_ENTITY":
       return "Enter a complete Robinhood Chain address or transaction hash.";
+    case "PRIVATE_MODE_DISABLED":
+      return "Private Mode is paused right now. Try again shortly.";
     case "VALIDATION_ERROR":
-      // The only validation the forms can trip is the 10-character password floor.
       return /password/i.test(message)
         ? "Password must be at least 10 characters."
         : "That input was not accepted. Check the address or hash and try again.";
@@ -97,105 +65,80 @@ async function toApiError(response: Response): Promise<ApiError> {
   try {
     body = (await response.json()) as ApiErrorBody;
   } catch {
-    /* non-JSON error body */
+    // The public error remains bounded even if a proxy returns non-JSON.
   }
   const code = body.error?.code ?? body.code ?? `HTTP_${response.status}`;
   const message = body.error?.message ?? body.message ?? response.statusText;
   return new ApiError(code, humanize(code, message, response.status), response.status);
 }
 
-async function raw(path: string, init: RequestInit, token?: string): Promise<Response> {
+async function raw(path: string, init: RequestInit = {}): Promise<Response> {
   const headers = new Headers(init.headers);
+  const method = (init.method ?? "GET").toUpperCase();
   if (init.body) headers.set("content-type", "application/json");
-  if (token) headers.set("authorization", `Bearer ${token}`);
-  return fetch(`${BASE}${path}`, { ...init, headers });
+  if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) headers.set("x-chainscout-csrf", "1");
+  return fetch(`${BASE}${path}`, {
+    ...init,
+    headers,
+    credentials: "include"
+  });
 }
 
-/** Exchange the refresh token for a new pair. Returns false when it is spent. */
-async function rotateRefreshToken(auth: StoredAuth): Promise<boolean> {
+async function sessionExists(): Promise<boolean> {
+  return (await raw("/v1/auth/me")).ok;
+}
+
+async function rotateCookieSession(): Promise<boolean> {
+  // Another tab may have completed the single-use refresh while this request
+  // was waiting for the Web Lock. Probe before spending it again.
+  if (await sessionExists()) return true;
   const response = await raw("/v1/auth/refresh", {
     method: "POST",
-    body: JSON.stringify({ refreshToken: auth.refreshToken }),
+    body: "{}"
   });
-  if (!response.ok) {
-    // Another request or browser tab may already have rotated this single-use
-    // token. Never erase a newer session because an older rotation lost the
-    // race.
-    const current = readAuth();
-    if (current?.refreshToken !== auth.refreshToken) return Boolean(current);
-    writeAuth(null);
-    return false;
-  }
-  const next = (await response.json()) as {
-    user: StoredAuth["user"];
-    accessToken: string;
-    refreshToken: string;
-  };
-  const current = readAuth();
-  // Do not resurrect a logged-out session or overwrite a newer rotation.
-  if (current?.refreshToken !== auth.refreshToken) return Boolean(current);
-  writeAuth({
-    accessToken: next.accessToken,
-    refreshToken: next.refreshToken,
-    user: {
-      id: next.user.id,
-      email: next.user.email ?? null,
-      username: next.user.username ?? null,
-      walletAddress: next.user.walletAddress ?? null,
-    },
-  });
-  return true;
+  return response.ok;
 }
 
-async function refreshAfterUnauthorized(staleAccessToken?: string): Promise<boolean> {
-  const rotateIfStillNeeded = async () => {
-    const current = readAuth();
-    if (!current) return false;
-    if (staleAccessToken && current.accessToken !== staleAccessToken) return true;
-    return rotateRefreshToken(current);
-  };
-
-  // Web Locks coordinates refresh-token rotation across tabs. The access-token
-  // comparison also handles a late 401 that arrives after another request has
-  // already refreshed this tab.
+async function refreshAfterUnauthorized(): Promise<boolean> {
   if (typeof navigator !== "undefined" && navigator.locks) {
-    return navigator.locks.request(AUTH_REFRESH_LOCK, rotateIfStillNeeded);
+    return navigator.locks.request(AUTH_REFRESH_LOCK, rotateCookieSession);
   }
-  return rotateIfStillNeeded();
+  return rotateCookieSession();
 }
 
-async function refresh(staleAccessToken?: string): Promise<boolean> {
-  // Session bootstrap performs several authenticated requests concurrently.
-  // A refresh token is single-use, so every 401 must await the same rotation
-  // instead of spending the token twice and clearing the successful result.
+async function refresh(): Promise<boolean> {
   if (!refreshPromise) {
-    refreshPromise = refreshAfterUnauthorized(staleAccessToken).finally(() => {
+    refreshPromise = refreshAfterUnauthorized().finally(() => {
       refreshPromise = null;
     });
   }
   return refreshPromise;
 }
 
-/** Authenticated request. Refreshes once on 401 before giving up. */
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const attemptedAccessToken = readAuth()?.accessToken;
-  let response = await raw(path, init, attemptedAccessToken);
-
-  if (response.status === 401 && (await refresh(attemptedAccessToken))) {
-    response = await raw(path, init, readAuth()?.accessToken);
-  }
-  if (response.status === 401) {
-    writeAuth(null);
-    throw new ApiError("UNAUTHORIZED", "Your session expired. Sign in again.", 401);
-  }
+  let response = await raw(path, init);
+  if (response.status === 401 && (await refresh())) response = await raw(path, init);
+  if (response.status === 401) throw new ApiError("UNAUTHORIZED", "Your session expired. Sign in again.", 401);
   if (!response.ok) throw await toApiError(response);
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
 }
 
-/** Unauthenticated request, for the auth endpoints themselves. */
 export async function publicApi<T>(path: string, body: unknown): Promise<T> {
   const response = await raw(path, { method: "POST", body: JSON.stringify(body) });
   if (!response.ok) throw await toApiError(response);
+  if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
+}
+
+/** Anonymous, same-origin request that never enters the cookie refresh path. */
+export async function privateApi<T>(path: string, body: unknown): Promise<T> {
+  return publicApi<T>(path, body);
+}
+
+export async function downloadAccountExport(): Promise<Blob> {
+  const response = await raw("/v1/account/export");
+  if (response.status === 401 && (await refresh())) return downloadAccountExport();
+  if (!response.ok) throw await toApiError(response);
+  return response.blob();
 }

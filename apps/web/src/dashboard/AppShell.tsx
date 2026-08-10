@@ -135,7 +135,7 @@ function RailBody({
         {sessions.map((s) => (
           <NavLink
             key={s.id}
-            to={`/app/chat/${s.id}`}
+            to={`/cloud/chat/${s.id}`}
             onClick={onNavigate}
             className={({ isActive }) =>
               `block border-t border-[#2e2e2e] px-5 py-3.5 transition-colors ${
@@ -184,6 +184,9 @@ function RailBody({
           {displayName?.[0]?.toUpperCase() ?? "?"}
         </span>
         <span className="flex-1 truncate text-[12.5px] text-[#9a938a]">{displayName}</span>
+        <Link to="/cloud/privacy" onClick={onNavigate} className="text-[#635d5a] transition-colors hover:text-[#7fb069]" aria-label="Account privacy" title="Account privacy">
+          <ShieldCheck size={15} />
+        </Link>
         <button onClick={onLogout} className="text-[#635d5a] transition-colors hover:text-[#e0738a]" aria-label="Log out">
           <LogOut size={15} />
         </button>
@@ -221,7 +224,7 @@ export default function AppShell() {
       const s = await createSession("Untitled session");
       refresh();
       setDrawer(false);
-      nav(`/app/chat/${s.id}`);
+      nav(`/cloud/chat/${s.id}`);
     } catch (err) {
       console.error("failed to create session", err);
       setShellError(err instanceof Error ? err.message : "Could not create a new session. Try again.");
@@ -249,7 +252,7 @@ export default function AppShell() {
       );
       refresh();
       setQ("");
-      nav(`/app/chat/${s.id}`, { state: { firstMessage: v } });
+      nav(`/cloud/chat/${s.id}`, { state: { firstMessage: v } });
     } catch (err) {
       console.error("failed to resolve entity", err);
       setShellError(err instanceof Error ? err.message : "Could not resolve that entity. Check the address or hash and try again.");

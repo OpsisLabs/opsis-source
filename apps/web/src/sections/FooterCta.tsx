@@ -71,7 +71,7 @@ export default function FooterCta() {
             source-linked answers.
           </p>
           <Link
-            to="/login"
+            to="/app"
             className="clip-btn mt-12 flex h-[58px] w-full max-w-[480px] items-center justify-center bg-[#e9e0d1] font-mono-d text-[13px] font-medium tracking-wide text-[#1d1d1d] transition-colors hover:bg-[#f0e8da]"
           >
             START EXPLORING

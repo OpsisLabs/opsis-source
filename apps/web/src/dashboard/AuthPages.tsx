@@ -96,7 +96,7 @@ function WalletAuth({ variant }: { variant: "signin" | "signup" }) {
     setErr("");
     try {
       await signInWithWallet(name);
-      nav("/app");
+      nav("/cloud");
     } catch (ex) {
       if ((ex as { code?: string }).code === USERNAME_REQUIRED) setNeedsUsername(true);
       else setErr((ex as Error).message);

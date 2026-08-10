@@ -415,7 +415,7 @@ function RoadmapNav() {
           <a href="#protocol" className="transition-colors hover:text-[#e9e0d1]">PROTOCOL</a>
         </nav>
         <Link
-          to="/login"
+          to="/app"
           className="clip-btn-sm mr-3 hidden h-full items-center bg-[#fa6c34] px-8 font-mono-d text-[11px] font-medium tracking-wide text-[#1d1d1d] transition-colors hover:bg-[#ff7038] sm:flex md:mr-0"
         >
           TRY THE EXPLORER
@@ -445,7 +445,7 @@ function RoadmapNav() {
           </a>
           <div className="grid grid-cols-2 gap-3 p-4">
             <Link to="/" className="clip-btn-sm flex items-center justify-center border border-[#383838] py-3.5 font-mono-d text-[11px] text-[#d6ccba]">HOME</Link>
-            <Link to="/login" className="clip-btn-sm flex items-center justify-center bg-[#fa6c34] py-3.5 font-mono-d text-[11px] font-medium text-[#1d1d1d]">TRY EXPLORER</Link>
+            <Link to="/app" className="clip-btn-sm flex items-center justify-center bg-[#fa6c34] py-3.5 font-mono-d text-[11px] font-medium text-[#1d1d1d]">TRY EXPLORER</Link>
           </div>
         </div>
       )}
@@ -1088,7 +1088,7 @@ export default function Roadmap() {
               <p className="mt-2 text-[20px] font-medium">Understand here. Execute in official tools.</p>
             </div>
             <Link
-              to="/login"
+              to="/app"
               className="clip-btn flex min-h-[56px] w-full items-center justify-between bg-[#1d1d1d] px-7 font-mono-d text-[11px] tracking-[0.08em] text-[#e9e0d1] transition-transform hover:-translate-y-0.5 sm:w-[280px]"
             >
               EXPLORE THE CURRENT BUILD

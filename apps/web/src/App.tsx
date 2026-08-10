@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, useLocation, useParams } from "react-router";
+import { Routes, Route, Navigate, Outlet, useLocation, useParams } from "react-router";
 import Home from "./pages/Home";
 import Roadmap from "./pages/Roadmap";
 import ScoutSwap from "./pages/ScoutSwap";
@@ -8,6 +8,8 @@ import { WalletProvider } from "./dashboard/walletStore";
 import { LoginPage, RegisterPage } from "./dashboard/AuthPages";
 import AppShell from "./dashboard/AppShell";
 import ChatPage from "./dashboard/ChatPage";
+import PrivateExplorer from "./pages/PrivateExplorer";
+import AccountPrivacyPage from "./dashboard/AccountPrivacyPage";
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -47,20 +49,30 @@ function ChatRoute() {
   return <ChatPage key={sessionId} />;
 }
 
-export default function App() {
+function CloudProviders() {
   return (
     <AuthProvider>
       <WalletProvider>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/roadmap" element={<Roadmap />} />
-          <Route path="/swap" element={<ScoutSwap />} />
-          <Route path="/privacy" element={<PrivacyPage />} />
-          <Route path="/terms" element={<TermsPage />} />
+        <Outlet />
+      </WalletProvider>
+    </AuthProvider>
+  );
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/roadmap" element={<Roadmap />} />
+      <Route path="/swap" element={<ScoutSwap />} />
+      <Route path="/app" element={<PrivateExplorer />} />
+      <Route path="/privacy" element={<PrivacyPage />} />
+      <Route path="/terms" element={<TermsPage />} />
+      <Route element={<CloudProviders />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route
-            path="/app"
+            path="/cloud"
             element={
               <RequireAuth>
                 <AppShell />
@@ -69,10 +81,10 @@ export default function App() {
           >
             <Route index element={<DashboardIndex />} />
             <Route path="chat/:sessionId" element={<ChatRoute />} />
+            <Route path="privacy" element={<AccountPrivacyPage />} />
           </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </WalletProvider>
-    </AuthProvider>
+      </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }

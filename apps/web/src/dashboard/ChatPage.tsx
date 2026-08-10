@@ -215,7 +215,7 @@ const RESOLVING_STATS: Record<string, string[]> = {
   unknown: ["ENTITY TYPE", "ACTIVITY", "SOURCES", "RISK SIGNALS"],
 };
 
-function ResolvingAnswerCard({ entity }: { entity?: ChatSession["entity"] }) {
+export function ResolvingAnswerCard({ entity }: { entity?: ChatSession["entity"] }) {
   const kind = entity?.type ?? "unknown";
   const labels = RESOLVING_STATS[kind] ?? RESOLVING_STATS.unknown!;
   return (
@@ -459,7 +459,17 @@ function WidgetPanel({ w, onPivot, delay = 0 }: { w: AnswerWidget; onPivot: (v: 
   );
 }
 
-function AnswerCard({ ai, onPivot, animateText = false }: { ai: AiExplorerAnswer; onPivot: (v: string) => void; animateText?: boolean }) {
+export function AnswerCard({
+  ai,
+  onPivot,
+  animateText = false,
+  eyebrow = "AI ANSWER · CITED",
+}: {
+  ai: AiExplorerAnswer;
+  onPivot: (v: string) => void;
+  animateText?: boolean;
+  eyebrow?: string;
+}) {
   const [expanded, setExpanded] = useState(false);
   const [showSources, setShowSources] = useState(false);
   const streamedAnswer = useStreamedText(ai.answer, animateText);
@@ -468,7 +478,7 @@ function AnswerCard({ ai, onPivot, animateText = false }: { ai: AiExplorerAnswer
     <div data-testid="answer-card" className={`clip-panel border border-[#2e2e2e] bg-[#242424] ${animateText ? "result-materialize" : ""}`}>
       <div className="flex items-center gap-2 border-b border-[#2e2e2e] px-6 py-3.5">
         <Sparkles size={13} className="text-[#fa6c34]" />
-        <span className="font-mono-d text-[10.5px] tracking-wider text-[#9a938a]">AI ANSWER · CITED</span>
+        <span className="font-mono-d text-[10.5px] tracking-wider text-[#9a938a]">{eyebrow}</span>
       </div>
 
       {ai.card && (

@@ -62,7 +62,8 @@ export function PrivacyPage() {
         <p>
           ChainScout is a read-only analysis tool for public blockchain data. It
           explains wallets, transactions, tokens, and contracts on Robinhood Chain (chain ID 4663)
-          in plain English, with source citations. Signing in asks your wallet for a single
+          in plain English, with source citations. Private Mode works without an account or wallet
+          connection and does not create server chat history. Optional cloud-account sign-in asks your wallet for a single
           message signature that proves you control the address; it authorizes nothing on-chain.
           The product never asks for seed phrases, private keys, or wallet credentials, and it
           never executes blockchain transactions or requests token approvals.
@@ -71,24 +72,31 @@ export function PrivacyPage() {
 
       <Section n="02" title="Data we collect">
         <p>
-          <span className="text-[#e9e0d1]">Account data.</span> Wallet sign-in accounts store the
+          <span className="text-[#e9e0d1]">Private Mode.</span> We do not save your question,
+          result, or an account link. The public wallet, transaction, token, or contract identifier
+          must be sent to the chain-data providers named in the on-screen privacy receipt. It may
+          pass through our server memory while the response is produced. Reloading clears the browser view.
+        </p>
+        <p>
+          <span className="text-[#e9e0d1]">Optional cloud account data.</span> Wallet sign-in accounts store the
           public wallet address and username you choose. If email registration is enabled, we
           store your email address and an Argon2id hash of your password. We never store plaintext
           passwords.
         </p>
         <p>
-          <span className="text-[#e9e0d1]">Usage data.</span> We record usage events such as AI
+          <span className="text-[#e9e0d1]">Cloud-account usage data.</span> We record usage events such as AI
           messages sent, chain lookups performed, provider calls, and cache hits, tied to your
           account for quota enforcement and abuse prevention.
         </p>
         <p>
-          <span className="text-[#e9e0d1]">Queries.</span> The addresses, transaction hashes, and
-          questions you submit are stored with your chat sessions so you can revisit them. All
+          <span className="text-[#e9e0d1]">Saved cloud queries.</span> Only queries submitted inside
+          the optional saved cloud workspace are stored with chat sessions so you can revisit them. All
           queried chain data is already public on Robinhood Chain.
         </p>
         <p>
-          <span className="text-[#e9e0d1]">Technical data.</span> IP addresses are hashed before
-          storage. We keep structured request logs (route, status, latency, provider), never
+          <span className="text-[#e9e0d1]">Technical data.</span> Rate-limit identities use keyed,
+          pseudonymous values instead of raw IPs. We keep structured request logs (route template,
+          status, and latency), never questions, identifiers, user IDs,
           passwords, tokens, API keys, or full request headers.
         </p>
       </Section>
@@ -104,8 +112,9 @@ export function PrivacyPage() {
 
       <Section n="04" title="Retention">
         <p>
-          Source documents retrieved from chain data providers are retained for 30 to 90 days for
-          auditability and citation durability. Chat messages are kept until you delete your
+          Private Mode questions and answers are not retained by ChainScout. Optional cloud-account
+          source documents retrieved from chain data providers may be retained for 30 to 90 days for
+          citation durability. Saved cloud chat messages are kept until you delete your
           account or an admin retention policy clears them. Raw usage events are retained for 90
           days; aggregated usage metrics for up to 12 months.
         </p>
@@ -113,9 +122,10 @@ export function PrivacyPage() {
 
       <Section n="05" title="Third-party providers">
         <p>
-          To answer questions, our servers query Blockscout, Alchemy, and optionally GoldRush for
-          public chain data, and an AI provider (OpenAI or a self-hosted model) to generate
-          explanations. Scout Swap sends Uniswap only the pair, amount, chain, and fixed non-user
+          Private Mode queries Blockscout, Alchemy, and optionally GoldRush for public chain data;
+          the on-screen receipt names the providers actually used, and your question is not sent to
+          a model provider. The optional saved cloud workspace may use OpenAI or a self-hosted model
+          to word an explanation. Scout Swap sends Uniswap only the pair, amount, chain, and fixed non-user
           preview address needed for a quote. If you choose to continue, you leave ChainScout for
           the official Uniswap app, where Uniswap's own terms and privacy policy apply. Provider
           API keys stay server-side and are never exposed to the frontend. We do not attach your
@@ -125,8 +135,10 @@ export function PrivacyPage() {
 
       <Section n="06" title="Security">
         <p>
-          Passwords are hashed with Argon2id. Refresh tokens are stored hashed and rotated on use.
-          API requests are validated and rate-limited, CORS is restricted to our allowlist in
+          Passwords are hashed with Argon2id. Browser access and refresh credentials use host-only,
+          Secure, HttpOnly, SameSite=Strict cookies and cannot be read by page JavaScript. Refresh
+          credentials are stored hashed and rotated on use. State-changing account requests enforce
+          exact-origin and anti-CSRF checks. API requests are validated and rate-limited, CORS is restricted to our allowlist in
           production, and all database access is parameterized. Chain-data calls are read-only;
           write RPC methods are disabled in our provider layer.
         </p>
@@ -134,9 +146,10 @@ export function PrivacyPage() {
 
       <Section n="07" title="Your choices">
         <p>
-          You may request export or deletion of your account and chat history at any time by
-          contacting us. Deleting your account removes your email, sessions, and messages, subject
-          to the retention windows above for anonymized usage aggregates.
+          The optional cloud workspace includes account privacy controls that download a versioned
+          JSON export and permanently delete the account, credentials, sessions, messages, linked
+          usage, and linked audit rows. Deletion cannot erase public blockchain history or shared,
+          de-associated public source documents. Private Mode has no saved ChainScout history to delete.
         </p>
       </Section>
 
@@ -197,7 +210,8 @@ export function TermsPage() {
 
       <Section n="05" title="Accounts and acceptable use">
         <p>
-          You are responsible for activity under your account. Usage is subject to rate limits and
+          Private Mode requires no account. If you choose the optional saved cloud workspace, you
+          are responsible for activity under that account. Usage is subject to rate limits and
           monthly quotas (for example, 500 AI messages and 5,000 chain lookups on standard plans).
           We may disable accounts that abuse the service, attempt to bypass limits, probe
           provider keys, or generate excessive error patterns.
