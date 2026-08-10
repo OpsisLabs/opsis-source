@@ -48,6 +48,32 @@ describe("AI answer boundary", () => {
     expect(activity.summaryBullets).toContain("9 recent transactions in the available activity window.");
   });
 
+  it("omits unavailable and internal fields from beginner-facing confirmed facts", async () => {
+    const service = new AiService(loadEnv({ NODE_ENV: "test", AI_PROVIDER: "fallback" }));
+    const answer = await service.answer("Show the evidence", {
+      ...entity,
+      type: "wallet",
+      facts: {
+        address: "0x0000000000000000000000000000000000000042",
+        coinBalance: undefined,
+        nativeBalanceEth: null,
+        transactionsFetched: 0,
+        recentTransactions: [],
+        isContract: false,
+        sourceIds: ["source-1"],
+        explorerUrl: "https://example.test/address/0x42"
+      }
+    });
+
+    expect(answer.confirmedFacts).toEqual([
+      { fact: "Address: 0x0000000000000000000000000000000000000042", sourceIds: ["source-1"] },
+      { fact: "Transactions fetched: 0", sourceIds: ["source-1"] },
+      { fact: "Recent transactions: 0 items returned", sourceIds: ["source-1"] },
+      { fact: "Is contract: no", sourceIds: ["source-1"] }
+    ]);
+    expect(answer.confirmedFacts.map((fact) => fact.fact).join(" ")).not.toContain("undefined");
+  });
+
   it("keeps normalized facts and citations authoritative", async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
       output_text: JSON.stringify({

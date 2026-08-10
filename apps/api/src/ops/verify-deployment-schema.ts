@@ -2,13 +2,7 @@ import { createHash } from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { PrismaClient } from "@prisma/client";
-
-type MigrationRow = {
-  migration_name: string;
-  checksum: string;
-  finished_at: Date | null;
-  rolled_back_at: Date | null;
-};
+import { assertExactMigrationHistory, type AppliedMigration } from "./schema-state.js";
 
 type ForeignKeyRow = {
   constraint_name: string;
@@ -31,27 +25,19 @@ async function verifyDeploymentSchema(): Promise<void> {
       throw new Error("Prisma migration history is missing; run the reviewed owner-only baseline before deployment");
     }
 
-    const applied = await prisma.$queryRaw<MigrationRow[]>`
+    const applied = await prisma.$queryRaw<AppliedMigration[]>`
       SELECT migration_name, checksum, finished_at, rolled_back_at
       FROM "_prisma_migrations"
     `;
-    const appliedByName = new Map(applied.map((row) => [row.migration_name, row]));
     const expectedMigrations = readdirSync(migrationsDirectory, { withFileTypes: true })
       .filter((entry) => entry.isDirectory())
       .map((entry) => entry.name)
       .sort();
-
-    for (const migrationName of expectedMigrations) {
-      const row = appliedByName.get(migrationName);
-      if (!row || !row.finished_at || row.rolled_back_at) {
-        throw new Error(`Required migration is not successfully applied: ${migrationName}`);
-      }
+    const expectedHistory = expectedMigrations.map((migrationName) => {
       const migrationSql = readFileSync(resolve(migrationsDirectory, migrationName, "migration.sql"));
-      const expectedChecksum = createHash("sha256").update(migrationSql).digest("hex");
-      if (row.checksum !== expectedChecksum) {
-        throw new Error(`Applied migration checksum does not match the reviewed file: ${migrationName}`);
-      }
-    }
+      return { name: migrationName, checksum: createHash("sha256").update(migrationSql).digest("hex") };
+    });
+    assertExactMigrationHistory(applied, expectedHistory);
 
     const foreignKeys = await prisma.$queryRaw<ForeignKeyRow[]>`
       SELECT constraint_name, delete_rule AS delete_action

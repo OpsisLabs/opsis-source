@@ -341,10 +341,37 @@ function conciseFact(value: unknown): string | undefined {
 
 function buildConfirmedFacts(entity: NormalizedEntity): AiExplorerAnswer["confirmedFacts"] {
   const sourceIds = entity.citations.map((citation) => citation.id);
-  return Object.entries(entity.facts).slice(0, 25).map(([key, value]) => ({
-    fact: `${key}: ${typeof value === "object" ? JSON.stringify(value).slice(0, 500) : String(value)}`,
-    sourceIds
-  }));
+  return Object.entries(entity.facts)
+    .filter(([key]) => !INTERNAL_FACT_KEYS.has(key))
+    .flatMap(([key, value]) => {
+      const rendered = renderConfirmedFact(value);
+      return rendered ? [{ fact: `${humanizeFactKey(key)}: ${rendered}`, sourceIds }] : [];
+    })
+    .slice(0, 25);
+}
+
+function renderConfirmedFact(value: unknown): string | undefined {
+  if (value === null || value === undefined) return undefined;
+  if (typeof value === "string") return value.trim() ? value.trim().slice(0, 500) : undefined;
+  if (typeof value === "number") return Number.isFinite(value) ? String(value) : undefined;
+  if (typeof value === "boolean") return value ? "yes" : "no";
+  if (Array.isArray(value)) return `${value.length} item${value.length === 1 ? "" : "s"} returned`;
+  if (typeof value !== "object") return undefined;
+  try {
+    const serialized = JSON.stringify(value);
+    return serialized && serialized !== "{}" ? serialized.slice(0, 500) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function humanizeFactKey(key: string): string {
+  const words = key
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/[_-]+/g, " ")
+    .trim()
+    .toLowerCase();
+  return words ? `${words[0]?.toUpperCase()}${words.slice(1)}` : "Fact";
 }
 
 function cleanInferences(value: RawAiAnswer["inferences"], entity: NormalizedEntity): AiExplorerAnswer["inferences"] {
