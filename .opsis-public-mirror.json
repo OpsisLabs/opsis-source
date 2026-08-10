@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "c2ae3e959f435b37b599534595024f21602821fd055abf899f71dbd045e5b487",
+  "sourceTreeDigest": "81ecb75b06bd62d429fff41c2dbb9d6f9978077c03305cebda03076bf205e265",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "de6dc750d8fa18ad811b56a4b78eca0c480902bcd83cdf560b50fa0ad3a38bcc",
@@ -160,7 +160,7 @@
     "e2e/private-mode.mock.spec.ts": "b1d93033e4b6c05905cf9311bae01d6c7ef902ca2d5f61af358e2cc3e5943435",
     "e2e/scout-swap.mock.spec.ts": "f43a64a6b760e2f14f3e0ef49dddd4049c480706461e485e9a02742d34d12c0a",
     "e2e/wallet-ai.live.spec.ts": "0b74831125b671378e36c1fad76be23f98a9f4beec3c08250df2451ca107727e",
-    "e2e/wallet-ai.mock.spec.ts": "932f44eef36613b647f393aa43ec42afec477fc13551450735cbe1ac7083124a",
+    "e2e/wallet-ai.mock.spec.ts": "9491bcb360a8a968e1a0e44e8a8e4b78f539a69d7f45d60c9d4eacdca73d1206",
     "package.json": "96a03f27bae08c9a32fbc229faa0136bffbb8fb6703e1d5f16c7c025e4562148",
     "packages/shared/package.json": "cbeb5593b144f6eaf00e0abcc3f4f6cf4a8df87325ecde9946e7d24821a63da5",
     "packages/shared/src/index.ts": "92acc574cf5a86768ecab80c935d5d45317881368708cbc301e5bc538a533edb",

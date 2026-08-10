@@ -143,7 +143,9 @@ async function mockApi(page: Page, options: MockOptions = {}) {
 
 test("wallet analysis opens before enrichment, is single-submit, and does not replay after reload", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 420 });
-  const calls = await mockApi(page, { createDelayMs: 250, messageDelayMs: 1_100 });
+  // Keep enough headroom for slower CI runners to observe the deliberately
+  // transient token-streaming state before the short answer completes.
+  const calls = await mockApi(page, { createDelayMs: 250, messageDelayMs: 2_000 });
 
   await page.goto("/cloud");
   const search = page.getByLabel("Wallet, token, contract, or transaction");
