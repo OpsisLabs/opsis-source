@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "01-scout-swap",
+  "activeRelease": "02-privacy-foundation",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement",
@@ -16,7 +16,7 @@
       "id": "01-scout-swap",
       "branch": "release/01-scout-swap",
       "tagPrefix": "rc/01-scout-swap/",
-      "status": "active",
+      "status": "released",
       "outcome": "Preview a live swap",
       "shipGate": "Fresh Uniswap quote and successful simulation; all user-paid costs are disclosed; official-app handoff requotes; no signing method exists."
     },
@@ -25,7 +25,7 @@
       "id": "02-privacy-foundation",
       "branch": "release/02-privacy-foundation",
       "tagPrefix": "rc/02-privacy-foundation/",
-      "status": "queued",
+      "status": "active",
       "outcome": "Use ChainScout without becoming a profile",
       "shipGate": "Private Mode needs no account; browser tokens are not readable by JavaScript; private fields never enter logs, analytics, or saved server records; legacy cloud data can be exported and deleted."
     },
