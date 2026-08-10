@@ -25,7 +25,7 @@ if (!databaseUrl) {
     it("persists a source-linked chat exchange and usage", async () => {
       const suffix = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
       const email = `persistence-${suffix}@example.com`;
-      const entityValue = `integration-fixture-${suffix}`;
+      const entityValue = String(Date.now());
       const app = await buildApp(
         loadEnv({ NODE_ENV: "test", DATABASE_URL: databaseUrl }),
         prisma,
@@ -58,7 +58,7 @@ if (!databaseUrl) {
           headers: { authorization: `Bearer ${accessToken}` },
           payload: {
             entity: entityValue,
-            entityType: "unknown",
+            entityType: "block",
             question: "What source supports this answer?",
           },
         });
@@ -76,7 +76,7 @@ if (!databaseUrl) {
         });
         expect(session?.userId).toBe(userId);
         expect(session?.activeEntity).toMatchObject({
-          type: "UNKNOWN",
+          type: "BLOCK",
           value: entityValue,
         });
         expect(session?.messages).toHaveLength(2);
@@ -88,7 +88,7 @@ if (!databaseUrl) {
         expect(assistant?.sources[0]?.fieldsUsed).toEqual(["hash", "status", "from", "to", "value", "gas_used", "method", "block_number"]);
         expect(assistant?.sources[0]?.sourceDocument).toMatchObject({
           provider: "local",
-          entityType: "UNKNOWN",
+          entityType: "BLOCK",
           entityValue,
         });
         expect(assistant?.sources[0]?.sourceDocument.requestHash).toMatch(

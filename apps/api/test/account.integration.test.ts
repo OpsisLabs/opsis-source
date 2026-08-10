@@ -115,6 +115,10 @@ if (!databaseUrl) {
         userId = register.json().user.id as string;
         await prisma.usageEvent.create({ data: { userId, eventType: "CHAIN_LOOKUP", quantity: 1 } });
         await prisma.auditLog.create({ data: { userId, action: "TEST_ROLLBACK_AUDIT" } });
+        const before = {
+          usageEvents: await prisma.usageEvent.count({ where: { userId } }),
+          auditLogs: await prisma.auditLog.count({ where: { userId } })
+        };
 
         await expect(prisma.$transaction(async (tx) => {
           expect(await deletePrismaUserAccount(tx, userId)).toBe(true);
@@ -122,8 +126,8 @@ if (!databaseUrl) {
         })).rejects.toThrow("injected rollback");
 
         expect(await prisma.user.findUnique({ where: { id: userId } })).not.toBeNull();
-        expect(await prisma.usageEvent.count({ where: { userId } })).toBe(1);
-        expect(await prisma.auditLog.count({ where: { userId } })).toBe(1);
+        expect(await prisma.usageEvent.count({ where: { userId } })).toBe(before.usageEvents);
+        expect(await prisma.auditLog.count({ where: { userId } })).toBe(before.auditLogs);
       } finally {
         await app.close();
         if (userId) {

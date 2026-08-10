@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "8985fb14ea184cf571a7c79a15999b7fb9f2e97e6c2a31b3618103ab52af4186",
+  "sourceTreeDigest": "55803f49fe0fecc6857b83a38009bf8c27aa75774d1fa940e3564403379bf038",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "de6dc750d8fa18ad811b56a4b78eca0c480902bcd83cdf560b50fa0ad3a38bcc",
@@ -62,7 +62,7 @@
     "apps/api/src/swap/constants.ts": "247b7f723b0de9448fa3ba7632291d6035562f341a503fda24bd7cee542d058f",
     "apps/api/src/swap/service.ts": "64f0691bfa035a54ca36bc5cd9f89554b6febbd5d1e83b6e9b7a3b36e04b06a5",
     "apps/api/src/usage/service.ts": "96c2d9056a9e6abc50ea76d471b22ab472e612025b22231f7becae6d5faf1d1e",
-    "apps/api/test/account.integration.test.ts": "5cc0f618f5bd993a16ad980ee71f907f75ebd01acc1351e623d674e96788bc02",
+    "apps/api/test/account.integration.test.ts": "854cfd5b81ceb8ae8d50e0452fcfbf3f86a7ad0f6e7e66159e3589183e9419f1",
     "apps/api/test/account.test.ts": "b5e68d10cbed41081a6192c7a25b9475c481e0f66ee2dd373ed2252a3a44da03",
     "apps/api/test/admin.test.ts": "8560c9cf53e66f40da61747de57198a72605f232818c9d688f3ba45a53938e37",
     "apps/api/test/ai-service.test.ts": "c32d6e06ceaba4b5a85d74f5968669341985b1af213d4ed248c91985e74b825f",
@@ -87,7 +87,7 @@
     "apps/api/test/metrics.test.ts": "aadae6b490082be36b2ffcc04f6d20127d6a0c2a171f8d63b9b44cad27e73dae",
     "apps/api/test/normalize.test.ts": "c2f4b9a4c52685250b29dabe470357d1935f4697a7c00005aa0665825f39f4d8",
     "apps/api/test/ollama.integration.test.ts": "f04b505e4f444d55a07e487158528bf07ee8d264122002f00d4c643cd86ec165",
-    "apps/api/test/persistence.integration.test.ts": "bc63d4cfd19fa3252bef17249cef05683cc3f61b5fcbb0402ecb886ef0fbd9ae",
+    "apps/api/test/persistence.integration.test.ts": "a442f1efaafc40bd8d2c3c24fdda191b9d820f37ac78f5ba2bc1b25945a29a51",
     "apps/api/test/persistence.test.ts": "80222d5b2e3b93f5571006e14927f9623abb7729317b728014e2cdaac42e140b",
     "apps/api/test/privacy-static.test.ts": "14fec410116291d46feabaccf6cc068e31d1dfc2be166f1215a9ab72e6865646",
     "apps/api/test/privacy.test.ts": "cbbb802a0d040015dba38db2a8a884690c193cd4f9bdb882d912d8158ae24b62",
