@@ -4,6 +4,7 @@ import { isIP } from "node:net";
 import type { Env } from "../config/env.js";
 import { AppError } from "./errors.js";
 import { verifyAccessToken, type AccessClaims } from "../security/jwt.js";
+import { readAccessToken } from "../auth/cookies.js";
 
 declare module "fastify" {
   interface FastifyRequest {
@@ -14,9 +15,10 @@ declare module "fastify" {
 export function authenticate(env: Env) {
   return async function requireAuth(request: FastifyRequest, _reply: FastifyReply): Promise<void> {
     const auth = request.headers.authorization;
-    if (!auth?.startsWith("Bearer ")) throw new AppError("UNAUTHORIZED", 401, "Missing bearer token");
+    const token = auth?.startsWith("Bearer ") ? auth.slice("Bearer ".length) : readAccessToken(request, env);
+    if (!token) throw new AppError("UNAUTHORIZED", 401, "Authentication required");
     try {
-      request.user = verifyAccessToken(env, auth.slice("Bearer ".length));
+      request.user = verifyAccessToken(env, token);
     } catch {
       throw new AppError("UNAUTHORIZED", 401, "Invalid or expired bearer token");
     }
@@ -29,9 +31,10 @@ export async function requireAdmin(request: FastifyRequest, _reply: FastifyReply
 
 export function rateLimitKey(request: FastifyRequest, env: Env): string {
   const auth = request.headers.authorization;
-  if (auth?.startsWith("Bearer ")) {
+  const token = auth?.startsWith("Bearer ") ? auth.slice("Bearer ".length) : readAccessToken(request, env);
+  if (token) {
     try {
-      return privateRateLimitKey("user", verifyAccessToken(env, auth.slice("Bearer ".length)).sub, env);
+      return privateRateLimitKey("user", verifyAccessToken(env, token).sub, env);
     } catch {
       return privateRateLimitKey("ip", rateLimitClientAddress(request), env);
     }

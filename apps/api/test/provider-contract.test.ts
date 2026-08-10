@@ -25,8 +25,8 @@ class FixtureHttp implements ProviderHttp {
     if (url.endsWith("/logs")) return logsFixture;
     if (url.endsWith("/raw-trace")) return rawTraceFixture;
     if (url.includes("/state-changes")) return stateChangesFixture;
+    if (url.includes("/addresses/") && url.includes("/transactions")) return transactionsFixture;
     if (url.includes("/transactions/")) return transactionFixture;
-    if (url.includes("/transactions?")) return transactionsFixture;
     if (url.includes("/addresses/")) return addressFixture;
     const method = JSON.parse(String(init?.body)).method as string;
     return {
@@ -56,9 +56,28 @@ describe("provider fixture contracts", () => {
     expect(sources[4]?.responseJson).toEqual(balancesFixture);
     expect(http.requests.map((request) => request.url)).toEqual([
       `https://robinhoodchain.blockscout.com/api/v2/addresses/${address}`,
-      `https://robinhoodchain.blockscout.com/api/v2/addresses/${address}/transactions?filter=to%20%7C%20from`,
+      `https://robinhoodchain.blockscout.com/api/v2/addresses/${address}/transactions`,
       `https://robinhoodchain.blockscout.com/api/v2/addresses/${address}/token-transfers`,
       `https://robinhoodchain.blockscout.com/api/v2/addresses/${address}/internal-transactions`,
+      `https://robinhoodchain.blockscout.com/api/v2/addresses/${address}/token-balances`
+    ]);
+  });
+
+  it("uses a bounded parallel address snapshot for the privacy-first response", async () => {
+    const http = new FixtureHttp();
+    const provider = new BlockscoutProvider(loadEnv({ NODE_ENV: "test" }), http);
+    const address = addressFixture.hash;
+
+    const sources = await provider.getAddressSummary(address, { detail: "summary", limit: 25 });
+
+    expect(sources.map((source) => source.responseJson)).toEqual([
+      addressFixture,
+      transactionsFixture,
+      balancesFixture
+    ]);
+    expect(http.requests.map((request) => request.url)).toEqual([
+      `https://robinhoodchain.blockscout.com/api/v2/addresses/${address}`,
+      `https://robinhoodchain.blockscout.com/api/v2/addresses/${address}/transactions`,
       `https://robinhoodchain.blockscout.com/api/v2/addresses/${address}/token-balances`
     ]);
   });
@@ -119,7 +138,7 @@ describe("provider fixture contracts", () => {
         if (url.includes("/transactions?") && url.includes("items_count=1")) {
           return { items: [{ hash: "0xpage2" }], next_page_params: null };
         }
-        if (url.includes("/transactions?")) {
+        if (url.includes("/transactions")) {
           return { items: [{ hash: "0xpage1" }], next_page_params: { items_count: 1, index: 1 } };
         }
         if (url.includes("/token-balances")) return [];
@@ -132,7 +151,7 @@ describe("provider fixture contracts", () => {
     const provider = new BlockscoutProvider(loadEnv({ NODE_ENV: "test", BLOCKSCOUT_MAX_PAGES: "2" }), http);
 
     const sources = await provider.getAddressSummary(address);
-    const pages = sources.filter((source) => source.requestUrl?.includes("/transactions?"));
+    const pages = sources.filter((source) => source.requestUrl?.includes("/transactions"));
 
     expect(pages).toHaveLength(2);
     expect(pages.map((source) => (source.responseJson as { items: Array<{ hash: string }> }).items[0]?.hash)).toEqual([
@@ -141,6 +160,6 @@ describe("provider fixture contracts", () => {
     ]);
 
     const limitedSources = await provider.getAddressSummary(address, { limit: 25 });
-    expect(limitedSources.filter((source) => source.requestUrl?.includes("/transactions?"))).toHaveLength(1);
+    expect(limitedSources.filter((source) => source.requestUrl?.includes("/transactions"))).toHaveLength(1);
   });
 });

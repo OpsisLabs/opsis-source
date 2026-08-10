@@ -56,6 +56,11 @@ const envSchema = z.object({
   UNISWAP_QUOTE_CACHE_SECONDS: z.coerce.number().int().min(5).max(29).default(15),
   UNISWAP_QUOTE_BUDGET_PER_MINUTE: z.coerce.number().int().min(1).max(120).default(30),
   UNISWAP_QUOTE_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().min(1).max(120).default(20),
+  PRIVATE_MODE_ENABLED: envBoolean.default(true),
+  // The browser sends a custom header and exact Origin on state-changing
+  // account routes. Tests opt in explicitly so legacy bearer-token fixtures
+  // can keep exercising the underlying route behavior.
+  CSRF_PROTECTION_ENABLED: z.preprocess((v) => (v === "" ? undefined : v), envBoolean.optional()),
   GOLDRUSH_ENABLED: envBoolean.default(false),
   GOLDRUSH_API_KEY: optionalString,
   GOLDRUSH_API_BASE_URL: z.string().url().default("https://api.covalenthq.com/v1"),
@@ -125,6 +130,9 @@ const envSchema = z.object({
   }
   if (env.ENABLE_PUBLIC_RPC_FALLBACK) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: "Public RPC fallback must be disabled in production" });
+  }
+  if (env.CSRF_PROTECTION_ENABLED === false) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: "CSRF protection cannot be disabled in production" });
   }
 });
 

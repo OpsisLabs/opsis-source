@@ -47,7 +47,14 @@ export class MemoryStore {
   usersByEmail = new Map<string, MemoryUser>();
   usersByWallet = new Map<string, MemoryUser>();
   usernames = new Set<string>();
-  refreshTokens = new Map<string, { userId: string; expiresAt: Date; revokedAt?: Date }>();
+  refreshTokens = new Map<string, {
+    userId: string;
+    expiresAt: Date;
+    revokedAt?: Date;
+    createdAt: Date;
+    userAgent?: string;
+    ipHash?: string;
+  }>();
   authTokens = new Map<string, { userId: string; kind: "EMAIL_VERIFICATION" | "PASSWORD_RESET"; expiresAt: Date; usedAt?: Date }>();
   sessions = new Map<string, MemorySession>();
   messages = new Map<string, MemoryMessage[]>();

@@ -21,6 +21,7 @@ export type ChainProvider = {
 
 export type ProviderQueryOptions = {
   limit?: number;
+  detail?: "summary" | "full";
 };
 
 export type EntityResolver = {
@@ -36,4 +37,10 @@ export type ResolveOptions = {
   limit?: number;
   includeApprovals?: boolean;
   refresh?: boolean;
+  /**
+   * Private Mode must not create a durable or linkable server-side record.
+   * This bypasses both Redis/in-memory lookup caches and PostgreSQL response
+   * persistence, including stale-cache fallback.
+   */
+  privateMode?: boolean;
 };

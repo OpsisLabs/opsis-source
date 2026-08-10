@@ -121,7 +121,13 @@ export class AuthRepository {
   async storeRefreshToken(userId: string, token: string, expiresAt: Date, userAgent?: string, ip?: string): Promise<void> {
     const tokenHash = sha256(token);
     if (!this.prisma) {
-      memoryStore.refreshTokens.set(tokenHash, { userId, expiresAt });
+      memoryStore.refreshTokens.set(tokenHash, {
+        userId,
+        expiresAt,
+        createdAt: new Date(),
+        userAgent,
+        ipHash: hashIp(ip)
+      });
       return;
     }
     await this.prisma.refreshToken.create({
@@ -135,7 +141,13 @@ export class AuthRepository {
       const stored = memoryStore.refreshTokens.get(oldHash);
       if (!stored || stored.revokedAt || stored.expiresAt < new Date()) return null;
       stored.revokedAt = new Date();
-      memoryStore.refreshTokens.set(sha256(newToken), { userId: stored.userId, expiresAt });
+      memoryStore.refreshTokens.set(sha256(newToken), {
+        userId: stored.userId,
+        expiresAt,
+        createdAt: new Date(),
+        userAgent,
+        ipHash: hashIp(ip)
+      });
       return memoryStore.users.get(stored.userId) ?? null;
     }
     const stored = await this.prisma.refreshToken.findUnique({ where: { tokenHash: oldHash }, include: { user: true } });

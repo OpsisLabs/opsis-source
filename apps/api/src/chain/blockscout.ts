@@ -33,10 +33,22 @@ export class BlockscoutProvider implements ChainProvider {
   }
 
   async getAddressSummary(address: string, options: ProviderQueryOptions = {}): Promise<SourceDocumentInput[]> {
-    const wallet = await this.fetchDoc("wallet", address, `/addresses/${address}`);
     const maxPages = this.maxPagesFor(options);
+    // Private Mode's first answer needs identity, recent activity and balances,
+    // not every transfer/trace collection. Fetch the three useful sources in
+    // parallel so one broken optional endpoint cannot hold the whole card for
+    // multiple provider retry windows.
+    if (options.detail === "summary") {
+      const [wallet, transactions, tokenBalances] = await Promise.all([
+        this.fetchDoc("wallet", address, `/addresses/${address}`),
+        this.fetchPaginated("wallet", address, `/addresses/${address}/transactions`, true, maxPages),
+        this.fetchOptionalDoc("wallet", address, `/addresses/${address}/token-balances`)
+      ]);
+      return [wallet, ...transactions, ...(tokenBalances ? [tokenBalances] : [])];
+    }
+    const wallet = await this.fetchDoc("wallet", address, `/addresses/${address}`);
     const [transactions, tokenTransfers, internalTransactions, tokenBalances] = await Promise.all([
-      this.fetchPaginated("wallet", address, `/addresses/${address}/transactions?filter=to%20%7C%20from`, true, maxPages),
+      this.fetchPaginated("wallet", address, `/addresses/${address}/transactions`, true, maxPages),
       this.fetchPaginated("wallet", address, `/addresses/${address}/token-transfers`, true, maxPages),
       this.fetchPaginated("wallet", address, `/addresses/${address}/internal-transactions`, true, maxPages),
       this.fetchOptionalDoc("wallet", address, `/addresses/${address}/token-balances`)

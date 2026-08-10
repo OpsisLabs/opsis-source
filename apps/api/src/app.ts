@@ -1,4 +1,5 @@
 import cors from "@fastify/cors";
+import cookie from "@fastify/cookie";
 import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
 import swagger from "@fastify/swagger";
@@ -18,9 +19,16 @@ import { entityRoutes } from "./routes/entities.js";
 import { healthRoutes } from "./routes/health.js";
 import { usageRoutes } from "./routes/usage.js";
 import { swapRoutes } from "./routes/swaps.js";
+import { privateRoutes, type PrivateAnalysisDependencies } from "./routes/private.js";
+import { accountRoutes } from "./routes/account.js";
 import { rateLimitKey } from "./http/authenticate.js";
+import { installCsrfProtection } from "./http/csrf.js";
 
-export async function buildApp(env: Env, prisma?: PrismaClient) {
+export async function buildApp(
+  env: Env,
+  prisma?: PrismaClient,
+  dependencies?: { privateAnalysis?: PrivateAnalysisDependencies }
+) {
   const app = Fastify({
     logger: {
       level: env.LOG_LEVEL,
@@ -64,7 +72,9 @@ export async function buildApp(env: Env, prisma?: PrismaClient) {
     });
   }
   const cache = new JsonCache(redis, env.CHAIN_CACHE_TTL_SECONDS);
+  await app.register(cookie);
   await app.register(cors, { origin: env.NODE_ENV === "production" ? env.APP_ORIGIN : true, credentials: true });
+  installCsrfProtection(app, env);
   await app.register(helmet);
   await app.register(rateLimit, {
     max: (request, key) => key.startsWith("user:") ? env.RATE_LIMIT_LOOKUP_PER_HOUR : env.RATE_LIMIT_PUBLIC_PER_HOUR,
@@ -81,6 +91,8 @@ export async function buildApp(env: Env, prisma?: PrismaClient) {
         { name: "entities" },
         { name: "chat" },
         { name: "swaps" },
+        { name: "private" },
+        { name: "account" },
         { name: "usage" },
         { name: "admin" }
       ]
@@ -102,7 +114,9 @@ export async function buildApp(env: Env, prisma?: PrismaClient) {
   }
   if (env.ENABLE_METRICS) await installMetrics(app);
   await healthRoutes(app, env, prisma, redis);
+  await privateRoutes(app, env, prisma, cache, dependencies?.privateAnalysis);
   await authRoutes(app, env, prisma);
+  await accountRoutes(app, env, prisma);
   await entityRoutes(app, env, prisma, cache);
   await chatRoutes(app, env, prisma, cache);
   await usageRoutes(app, env, prisma);

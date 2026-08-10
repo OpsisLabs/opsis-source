@@ -12,6 +12,12 @@ import { sha256 } from "../security/hash.js";
 import type { PrismaClient } from "@prisma/client";
 import { UsageService } from "../usage/service.js";
 import { observeAuth } from "../observability/metrics.js";
+import {
+  clearSessionCookies,
+  publicAuthResponse,
+  readRefreshToken,
+  setSessionCookies
+} from "../auth/cookies.js";
 
 export async function authRoutes(app: FastifyInstance, env: Env, prisma?: PrismaClient): Promise<void> {
   const service = new AuthService(env, new AuthRepository(prisma), new AuthEmailService(env));
@@ -32,13 +38,14 @@ export async function authRoutes(app: FastifyInstance, env: Env, prisma?: Prisma
     }
   }
 
-  app.post("/v1/auth/register", authRateLimit, async (request) => {
+  app.post("/v1/auth/register", authRateLimit, async (request, reply) => {
     const body = authBodySchema.parse(request.body);
     try {
       const result = await service.register(body.email, body.password, request.headers["user-agent"], request.ip);
       observeAuth("signup");
       await recordAudit(request, "AUTH_REGISTER_SUCCEEDED", result.user.id);
-      return result;
+      setSessionCookies(reply, env, result);
+      return publicAuthResponse(env, result);
     } catch (error) {
       if ((error as Error).message === "EMAIL_ALREADY_REGISTERED") {
         await recordAudit(request, "AUTH_REGISTER_REJECTED", undefined, { emailHash: sha256(body.email.toLowerCase()) });
@@ -48,13 +55,14 @@ export async function authRoutes(app: FastifyInstance, env: Env, prisma?: Prisma
     }
   });
 
-  app.post("/v1/auth/login", authRateLimit, async (request) => {
+  app.post("/v1/auth/login", authRateLimit, async (request, reply) => {
     const body = authBodySchema.parse(request.body);
     try {
       const result = await service.login(body.email, body.password, request.headers["user-agent"], request.ip);
       observeAuth("login");
       await recordAudit(request, "AUTH_LOGIN_SUCCEEDED", result.user.id);
-      return result;
+      setSessionCookies(reply, env, result);
+      return publicAuthResponse(env, result);
     } catch (error) {
       if ((error as Error).message === "INVALID_CREDENTIALS") {
         await recordAudit(request, "AUTH_LOGIN_FAILED", undefined, { emailHash: sha256(body.email.toLowerCase()) });
@@ -67,12 +75,13 @@ export async function authRoutes(app: FastifyInstance, env: Env, prisma?: Prisma
     }
   });
 
-  app.post("/v1/auth/verify-email", authRateLimit, async (request) => {
+  app.post("/v1/auth/verify-email", authRateLimit, async (request, reply) => {
     const body = zToken.parse(request.body);
     try {
       const result = await service.verifyEmail(body.token, request.headers["user-agent"], request.ip);
       await recordAudit(request, "AUTH_EMAIL_VERIFIED", result.user.id);
-      return result;
+      setSessionCookies(reply, env, result);
+      return publicAuthResponse(env, result);
     } catch (error) {
       if ((error as Error).message === "INVALID_AUTH_TOKEN") {
         throw new AppError("INVALID_AUTH_TOKEN", 400, "Verification token is invalid or expired");
@@ -109,25 +118,31 @@ export async function authRoutes(app: FastifyInstance, env: Env, prisma?: Prisma
     }
   });
 
-  app.post("/v1/auth/refresh", authRateLimit, async (request) => {
-    const body = authBodySchema.pick({}).extend({ refreshToken: authBodySchema.shape.password.min(1) }).parse(request.body);
+  app.post("/v1/auth/refresh", authRateLimit, async (request, reply) => {
+    const body = z.object({ refreshToken: z.string().min(1).optional() }).strict().parse(request.body ?? {});
+    const refreshToken = readRefreshToken(request, env) ?? (env.NODE_ENV === "test" ? body.refreshToken : undefined);
+    if (!refreshToken) throw new AppError("UNAUTHORIZED", 401, "Refresh session is missing");
     try {
-      const result = await service.refresh(body.refreshToken, request.headers["user-agent"], request.ip);
+      const result = await service.refresh(refreshToken, request.headers["user-agent"], request.ip);
       await recordAudit(request, "AUTH_REFRESH_SUCCEEDED", result.user.id);
-      return result;
+      setSessionCookies(reply, env, result);
+      return publicAuthResponse(env, result);
     } catch (error) {
       if ((error as Error).message === "INVALID_REFRESH_TOKEN") {
         await recordAudit(request, "AUTH_REFRESH_FAILED");
+        clearSessionCookies(reply, env);
         throw new AppError("INVALID_REFRESH_TOKEN", 401, "Invalid refresh token");
       }
       throw error;
     }
   });
 
-  app.post("/v1/auth/logout", authRateLimit, async (request) => {
-    const body = authBodySchema.pick({}).extend({ refreshToken: authBodySchema.shape.password.min(1) }).parse(request.body);
-    const userId = await service.logout(body.refreshToken);
+  app.post("/v1/auth/logout", authRateLimit, async (request, reply) => {
+    const body = z.object({ refreshToken: z.string().min(1).optional() }).strict().parse(request.body ?? {});
+    const refreshToken = readRefreshToken(request, env) ?? (env.NODE_ENV === "test" ? body.refreshToken : undefined);
+    const userId = refreshToken ? await service.logout(refreshToken) : undefined;
     await recordAudit(request, "AUTH_LOGOUT", userId, { tokenFound: Boolean(userId) });
+    clearSessionCookies(reply, env);
     return { ok: true };
   });
 
@@ -141,7 +156,7 @@ export async function authRoutes(app: FastifyInstance, env: Env, prisma?: Prisma
     }
   });
 
-  app.post("/v1/auth/wallet/verify", authRateLimit, async (request) => {
+  app.post("/v1/auth/wallet/verify", authRateLimit, async (request, reply) => {
     const body = z.object({
       nonce: z.string().min(1).max(2000),
       signature: z.string().min(1).max(500),
@@ -157,7 +172,8 @@ export async function authRoutes(app: FastifyInstance, env: Env, prisma?: Prisma
       );
       observeAuth("login");
       await recordAudit(request, "AUTH_LOGIN_SUCCEEDED", result.user.id, { method: "wallet" });
-      return result;
+      setSessionCookies(reply, env, result);
+      return publicAuthResponse(env, result);
     } catch (error) {
       if (error instanceof WalletAuthError) {
         // A new wallet needing a username is a prompt, not a failure; a malformed

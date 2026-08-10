@@ -93,7 +93,6 @@ export async function chatRoutes(app: FastifyInstance, env: Env, prisma?: Prisma
         usage.record(request.user.sub, "AI_MESSAGE")
       ]);
       request.log.info({
-        userId: request.user.sub,
         providerNames: [...new Set(resolution.sources.map((source) => source.provider))],
         providerLatencyMs,
         aiLatencyMs,

@@ -5,6 +5,7 @@ import type { Env } from "../config/env.js";
 import { JsonCache } from "../cache/service.js";
 import { evmAddressSchema, identifyEntity, txHashSchema } from "../entities/identify.js";
 import { AlchemyProvider } from "./alchemy.js";
+import type { AllowanceTarget } from "./alchemy.js";
 import { BlockscoutProvider } from "./blockscout.js";
 import { GoldRushProvider } from "./goldrush.js";
 import { normalizeEntity } from "./normalize.js";
@@ -13,17 +14,32 @@ import { AppError } from "../http/errors.js";
 
 export class ChainEntityResolver {
   private readonly blockscout: ChainProvider;
-  private readonly alchemy: AlchemyProvider;
-  private readonly goldrush: GoldRushProvider;
+  private readonly alchemy: {
+    name: string;
+    getTransaction(hash: string): Promise<SourceDocumentInput[]>;
+    getAddressSummary(address: string): Promise<SourceDocumentInput[]>;
+    getAllowances(owner: string, targets: AllowanceTarget[]): Promise<SourceDocumentInput[]>;
+  };
+  private readonly goldrush: Pick<ChainProvider, "name" | "getAddressSummary">;
 
   constructor(
     private readonly env: Env,
     private readonly cache = new JsonCache(undefined, env.CHAIN_CACHE_TTL_SECONDS),
-    private readonly prisma?: PrismaClient
+    private readonly prisma?: PrismaClient,
+    providers?: {
+      blockscout: ChainProvider;
+      alchemy: {
+        name: string;
+        getTransaction(hash: string): Promise<SourceDocumentInput[]>;
+        getAddressSummary(address: string): Promise<SourceDocumentInput[]>;
+        getAllowances(owner: string, targets: AllowanceTarget[]): Promise<SourceDocumentInput[]>;
+      };
+      goldrush: Pick<ChainProvider, "name" | "getAddressSummary">;
+    }
   ) {
-    this.blockscout = new BlockscoutProvider(env);
-    this.alchemy = new AlchemyProvider(env);
-    this.goldrush = new GoldRushProvider(env);
+    this.blockscout = providers?.blockscout ?? new BlockscoutProvider(env);
+    this.alchemy = providers?.alchemy ?? new AlchemyProvider(env);
+    this.goldrush = providers?.goldrush ?? new GoldRushProvider(env);
   }
 
   async resolve(inputType: ChainEntityType, value: string): Promise<NormalizedEntity> {
@@ -34,14 +50,15 @@ export class ChainEntityResolver {
     const identified = validateEntityInput(inputType, value);
     const limit = options.limit ?? 25;
     const cacheKey = `${this.env.ROBINHOOD_CHAIN_ID}:${identified.type}:${identified.value}:${limit}:${options.includeApprovals ?? true}`;
-    const cached = options.refresh ? undefined : await this.cache.get<ResolvedEntity>(cacheKey);
+    const mayUseServerStorage = !options.privateMode;
+    const cached = options.refresh || !mayUseServerStorage ? undefined : await this.cache.get<ResolvedEntity>(cacheKey);
     if (cached) return cached;
-    const persisted = options.refresh ? undefined : await this.getPersisted(cacheKey);
+    const persisted = options.refresh || !mayUseServerStorage ? undefined : await this.getPersisted(cacheKey);
     if (persisted) {
       await this.cache.set(cacheKey, persisted, cacheTtlSeconds(identified.type));
       return persisted;
     }
-    const stale = options.refresh ? undefined : await this.getPersisted(cacheKey, true);
+    const stale = options.refresh || !mayUseServerStorage ? undefined : await this.getPersisted(cacheKey, true);
     let resolvedType = identified.type;
     let docs: SourceDocumentInput[] = [];
     if (identified.type === "transaction") {
@@ -56,7 +73,10 @@ export class ChainEntityResolver {
       }
     } else if (identified.type === "wallet") {
       const providerResults = await Promise.allSettled([
-        this.blockscout.getAddressSummary(identified.value, { limit }),
+        this.blockscout.getAddressSummary(identified.value, {
+          limit,
+          detail: options.privateMode ? "summary" : "full"
+        }),
         this.alchemy.getAddressSummary(identified.value),
         this.goldrush.getAddressSummary(identified.value)
       ]);
@@ -114,8 +134,10 @@ export class ChainEntityResolver {
     };
     if (resolvedType === "wallet") applyWalletOptions(resolution.entity, options);
     const ttlSeconds = cacheTtlSeconds(resolvedType);
-    await this.cache.set(cacheKey, resolution, ttlSeconds);
-    await this.setPersisted(cacheKey, resolution, ttlSeconds);
+    if (mayUseServerStorage) {
+      await this.cache.set(cacheKey, resolution, ttlSeconds);
+      await this.setPersisted(cacheKey, resolution, ttlSeconds);
+    }
     return resolution;
   }
 
