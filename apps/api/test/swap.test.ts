@@ -78,7 +78,13 @@ describe("Scout Swap quote route", () => {
       pair: "WETH/USDG",
       chain: { id: 4663, name: "Robinhood Chain" },
       input: { symbol: "WETH", amount: "0.01" },
-      output: { symbol: "USDG", address: SCOUT_SWAP_TOKENS.USDG.address, amount: "36.45", minimumReceived: "36.26775" },
+      output: {
+        symbol: "USDG",
+        address: SCOUT_SWAP_TOKENS.USDG.address,
+        amount: "36.45",
+        minimumReceived: "36.26775",
+        minimumSource: "provider"
+      },
       route: { routing: "CLASSIC", protocols: ["V4"] },
       priceImpactPercent: 0.04,
       simulation: { status: "passed", reasons: [] },
@@ -242,7 +248,7 @@ describe("Uniswap quote safety", () => {
       quotedAt
     )).toThrowError(SwapQuoteProviderError);
     expect(() => normalizeQuote(
-      classicQuote({ output: { amount: "1000000", token: SCOUT_SWAP_TOKENS.USDG.address } }),
+      { ...classicQuote({ output: { amount: "1000000", token: SCOUT_SWAP_TOKENS.USDG.address } }), routing: "DUTCH_V3" },
       { direction: "WETH_TO_USDG", amount: "0.01" },
       quotedAt
     )).toThrowError(SwapQuoteProviderError);
@@ -251,6 +257,15 @@ describe("Uniswap quote safety", () => {
       { direction: "WETH_TO_USDG", amount: "0.01" },
       quotedAt
     )).toThrowError(SwapQuoteProviderError);
+  });
+
+  it("derives and labels a CLASSIC preview floor when the optional provider minimum is absent", () => {
+    const quote = normalizeQuote(
+      classicQuote({ output: { amount: "1000000", token: SCOUT_SWAP_TOKENS.USDG.address } }),
+      { direction: "WETH_TO_USDG", amount: "0.01" },
+      quotedAt
+    );
+    expect(quote.output).toMatchObject({ minimumReceived: "0.995", minimumSource: "derived_tolerance" });
   });
 
   it("does not relabel a classic-route comparator as UniswapX user cost", () => {

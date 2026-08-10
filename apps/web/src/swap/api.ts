@@ -6,7 +6,13 @@ export type ScoutSwapQuote = {
   pair: "WETH/USDG";
   chain: { id: number; name: string };
   input: { symbol: "WETH" | "USDG"; address: string; amount: string };
-  output: { symbol: "WETH" | "USDG"; address: string; amount: string; minimumReceived: string };
+  output: {
+    symbol: "WETH" | "USDG";
+    address: string;
+    amount: string;
+    minimumReceived: string;
+    minimumSource: "provider" | "derived_tolerance";
+  };
   route: { routing: string; label: string; protocols: string[] };
   priceImpactPercent: number | null;
   slippageTolerancePercent: number;

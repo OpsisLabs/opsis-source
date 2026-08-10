@@ -113,7 +113,13 @@ function QuotePanel({ quote, elapsedMs }: { quote: ScoutSwapQuote; elapsedMs: nu
       <div className="clip-panel overflow-hidden border border-[#383838] bg-[#383838]">
         <div className="grid gap-px sm:grid-cols-2 lg:grid-cols-4">
           <Metric label="EXPECTED OUTPUT" value={`${quote.output.amount} ${quote.output.symbol}`} note={`1 ${quote.input.symbol} ≈ ${rate}`} tone="good" />
-          <Metric label="MINIMUM RECEIVED" value={`${quote.output.minimumReceived} ${quote.output.symbol}`} note={`${quote.slippageTolerancePercent}% preview tolerance`} />
+          <Metric
+            label="MINIMUM RECEIVED"
+            value={`${quote.output.minimumReceived} ${quote.output.symbol}`}
+            note={quote.output.minimumSource === "provider"
+              ? `Uniswap minimum · ${quote.slippageTolerancePercent}% tolerance`
+              : `Derived preview floor · ${quote.slippageTolerancePercent}% tolerance`}
+          />
           <Metric label="PRICE IMPACT" value={impact} note={quote.priceImpactPercent === null ? "Uniswap did not return this field" : "Estimated pool-price movement"} tone={(quote.priceImpactPercent ?? 0) >= 1 ? "warn" : "neutral"} />
           <Metric label="ESTIMATED ROUTE COST" value={gas} note={quote.estimatedGas.paidBy === "filler_or_user" ? "UniswapX cost responsibility varies; the official app confirms it" : "Selected-route estimate; approval gas may be additional"} />
         </div>
