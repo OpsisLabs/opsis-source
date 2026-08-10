@@ -18,6 +18,7 @@ ENV RAILWAY_PUBLIC_DOMAIN=$RAILWAY_PUBLIC_DOMAIN
 RUN pnpm --filter @rh-chain/web build
 
 FROM nginx:1.27-alpine
+RUN apk add --no-cache ca-certificates
 COPY --from=build /app/apps/web/dist /usr/share/nginx/html
 ENV API_UPSTREAM_SCHEME=http
 ENV API_UPSTREAM_HOST=api.railway.internal
