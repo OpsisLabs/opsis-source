@@ -10,7 +10,12 @@ function providerConfiguration(configured: boolean): ProviderConfiguration {
 }
 
 export async function healthRoutes(app: FastifyInstance, env: Env, prisma?: PrismaClient, redis?: RedisHealth): Promise<void> {
-  app.get("/healthz", { config: { rateLimit: false } }, async () => ({ ok: true }));
+  app.get("/healthz", { config: { rateLimit: false } }, async () => ({
+    ok: true,
+    // Public deployment identity contains no secret and lets release QA prove
+    // that the reviewed commit is the one actually serving traffic.
+    buildSha: env.BUILD_SHA ?? env.RAILWAY_GIT_COMMIT_SHA ?? null
+  }));
   app.get("/readyz", { config: { rateLimit: false } }, async (_request, reply) => {
     let database: "up" | "memory" | "unavailable" = prisma ? "up" : "memory";
     let redisStatus: "up" | "disabled" | "unavailable" = redis ? "up" : "disabled";

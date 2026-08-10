@@ -11,6 +11,27 @@ afterEach(async () => {
 });
 
 describe("readiness reporting", () => {
+  it("exposes the exact deployment commit without requiring privileged Railway access", async () => {
+    const app = Fastify({ logger: false });
+    apps.push(app);
+    const buildSha = "0123456789abcdef0123456789abcdef01234567";
+    await healthRoutes(app, loadEnv({ NODE_ENV: "test", BUILD_SHA: buildSha }));
+
+    const response = await app.inject({ method: "GET", url: "/healthz" });
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ ok: true, buildSha });
+  });
+
+  it("uses Railway's Git-triggered commit marker when no CLI candidate marker is set", async () => {
+    const app = Fastify({ logger: false });
+    apps.push(app);
+    const buildSha = "89abcdef0123456789abcdef0123456789abcdef";
+    await healthRoutes(app, loadEnv({ NODE_ENV: "test", RAILWAY_GIT_COMMIT_SHA: buildSha }));
+
+    const response = await app.inject({ method: "GET", url: "/healthz" });
+    expect(response.json()).toEqual({ ok: true, buildSha });
+  });
+
   it("reports provider configuration without claiming unchecked providers are healthy", async () => {
     const app = Fastify({ logger: false });
     apps.push(app);

@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">ChainScout social preview</title>
+  <desc id="desc">ChainScout explains Robinhood Chain in plain English with current, cited, read-only intelligence.</desc>
+  <defs>
+    <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8f4eb"/>
+      <stop offset="1" stop-color="#e9e2d5"/>
+    </linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#111" stroke-opacity=".055"/>
+    </pattern>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#111" flood-opacity=".13"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#paper)"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <circle cx="1115" cy="70" r="210" fill="#d9ff43" opacity=".92"/>
+  <circle cx="1120" cy="64" r="144" fill="none" stroke="#111" stroke-width="2"/>
+
+  <g transform="translate(70 52)">
+    <rect width="92" height="92" rx="24" fill="#111"/>
+    <g transform="translate(7 7) scale(.2644)" fill="#d9ff43">
+      <path fill-rule="evenodd" d="M18,118 L14,134 L13,150 L17,173 L25,191 L33,203 L50,219 L63,227 L86,235 L96,236 L120,235 L133,231 L146,224 L149,224 L162,231 L176,235 L186,236 L208,235 L223,231 L239,223 L246,218 L263,201 L275,180 L281,157 L281,136 L278,121 L270,102 L260,88 L249,77 L231,65 L219,60 L202,56 L177,57 L163,61 L149,68 L146,68 L141,64 L138,64 L131,60 L114,56 L93,56 L73,61 L51,73 L35,88 L26,101 Z M187,112 L202,113 L212,118 L220,126 L226,139 L226,155 L221,166 L215,173 L208,178 L195,182 L189,182 L186,180 L192,159 L192,134 L186,114 Z M98,112 L108,112 L109,113 L103,132 L103,142 L102,143 L103,163 L109,180 L108,181 L96,181 L87,178 L80,173 L71,162 L68,152 L68,142 L70,134 L74,127 L84,117 Z M183,76 L200,76 L210,78 L221,82 L234,90 L246,102 L253,112 L260,129 L262,143 L260,164 L257,173 L248,189 L235,202 L226,208 L215,213 L195,217 L180,216 L168,213 L157,208 L148,202 L135,189 L129,180 L125,171 L121,156 L121,137 L125,122 L127,121 L134,130 L136,135 L139,161 L144,173 L148,179 L157,188 L166,194 L183,200 L205,199 L221,192 L231,184 L235,179 L242,167 L246,151 L245,137 L239,120 L230,108 L212,96 L193,92 L176,95 L165,82 L170,79 Z M95,76 L112,76 L123,78 L128,81 L133,82 L144,89 L154,98 L163,110 L169,122 L173,137 L173,155 L170,168 L167,171 L159,160 L157,154 L156,135 L149,118 L141,108 L131,100 L121,95 L117,95 L113,93 L106,92 L93,93 L75,100 L61,112 L53,125 L49,138 L49,155 L52,166 L60,180 L68,188 L81,196 L94,200 L111,200 L119,198 L129,210 L122,214 L107,217 L91,216 L77,212 L67,207 L55,198 L42,182 L36,169 L33,156 L33,138 L35,127 L46,105 L57,93 L68,85 L81,79 Z"/>
+    </g>
+    <text x="116" y="63" fill="#111" font-family="Arial, Helvetica, sans-serif" font-size="39" font-weight="700" letter-spacing="-1.5">ChainScout</text>
+    <text x="118" y="88" fill="#111" opacity=".6" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" letter-spacing="2">ROBINHOOD CHAIN INTELLIGENCE</text>
+  </g>
+
+  <g transform="translate(70 207)">
+    <rect x="0" y="0" width="176" height="34" rx="17" fill="#111"/>
+    <circle cx="20" cy="17" r="5" fill="#d9ff43"/>
+    <text x="34" y="22" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="1.2">READ-ONLY • LIVE</text>
+    <text x="0" y="112" fill="#111" font-family="Georgia, 'Times New Roman', serif" font-size="76" font-weight="700" letter-spacing="-4">Crypto, without</text>
+    <text x="0" y="187" fill="#111" font-family="Georgia, 'Times New Roman', serif" font-size="76" font-style="italic" letter-spacing="-4">the headache.</text>
+    <text x="2" y="244" fill="#111" opacity=".7" font-family="Arial, Helvetica, sans-serif" font-size="22">Understand wallets, tokens, transactions and swaps</text>
+    <text x="2" y="275" fill="#111" opacity=".7" font-family="Arial, Helvetica, sans-serif" font-size="22">in plain English — with sources, not guesswork.</text>
+  </g>
+
+  <g transform="translate(829 257) rotate(-2)" filter="url(#shadow)">
+    <rect width="302" height="261" rx="26" fill="#111"/>
+    <text x="28" y="42" fill="#fff" opacity=".55" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="1.5">SCOUT SWAP PREVIEW</text>
+    <text x="28" y="92" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="700">WETH → USDG</text>
+    <rect x="26" y="113" width="250" height="1" fill="#fff" opacity=".18"/>
+    <text x="28" y="150" fill="#fff" opacity=".55" font-family="Arial, Helvetica, sans-serif" font-size="13">ROUTE</text>
+    <text x="274" y="150" text-anchor="end" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700">Uniswap V3</text>
+    <text x="28" y="185" fill="#fff" opacity=".55" font-family="Arial, Helvetica, sans-serif" font-size="13">SIMULATION</text>
+    <text x="274" y="185" text-anchor="end" fill="#d9ff43" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700">PASSED ✓</text>
+    <rect x="26" y="207" width="250" height="34" rx="17" fill="#d9ff43"/>
+    <text x="151" y="229" text-anchor="middle" fill="#111" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">OFFICIAL APP HANDOFF</text>
+  </g>
+
+  <text x="70" y="589" fill="#111" opacity=".48" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="1.5">CURRENT • CITED • PRIVATE BY DEFAULT</text>
+</svg>

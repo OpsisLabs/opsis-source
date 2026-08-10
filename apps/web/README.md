@@ -66,6 +66,8 @@ against a deployed API, or set `VITE_API_BASE_URL` to call one directly.
 | --- | --- | --- |
 | `API_PROXY_TARGET` | `http://127.0.0.1:4000` | Where the dev server proxies `/v1`. |
 | `VITE_API_BASE_URL` | *(empty — same origin)* | Absolute API base, bypassing the proxy. |
+| `VITE_BUILD_SHA` | Railway Git SHA or `local` | Full source commit exposed as a public, non-secret release-verification marker. |
+| `VITE_PUBLIC_SITE_URL` | Railway public domain | Canonical URL used by social-preview metadata; set this when a custom domain launches. |
 | `VITE_CHAIN_ID` | `4663` | Chain id shown in the UI. |
 | `VITE_EXPLORER_URL` | `https://robinhoodchain.blockscout.com` | Explorer used for entity links. |
 | `VITE_SAMPLE_WALLET` / `VITE_SAMPLE_TX` | sample values | Seed the SAMPLE WALLET / SAMPLE TX buttons. |

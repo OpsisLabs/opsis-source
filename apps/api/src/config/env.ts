@@ -9,9 +9,17 @@ const envBoolean = z.preprocess((value) => {
 const optionalString = z.preprocess((value) => (value === "" ? undefined : value), z.string().min(1).optional());
 const optionalEmail = z.preprocess((value) => (value === "" ? undefined : value), z.string().email().optional());
 const optionalUrl = z.preprocess((value) => (value === "" ? undefined : value), z.string().url().optional());
+const optionalSha = z.preprocess(
+  (value) => (value === "" ? undefined : value),
+  z.string().regex(/^[0-9a-f]{40}$/i, "deployment SHA must be a full Git commit SHA").optional()
+);
 
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  BUILD_SHA: optionalSha,
+  // Railway provides this automatically for Git-triggered deployments. CLI
+  // upload candidates set BUILD_SHA explicitly because they have no Git SHA.
+  RAILWAY_GIT_COMMIT_SHA: optionalSha,
   PORT: z.coerce.number().int().positive().default(4000),
   APP_ORIGIN: z.string().default("http://localhost:5173"),
   DATABASE_URL: z.string().optional(),
