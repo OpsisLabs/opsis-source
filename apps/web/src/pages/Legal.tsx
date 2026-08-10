@@ -147,8 +147,10 @@ export function PrivacyPage() {
       <Section n="07" title="Your choices">
         <p>
           The optional cloud workspace includes account privacy controls that download a versioned
-          JSON export and permanently delete the account, credentials, sessions, messages, linked
-          usage, and linked audit rows. Deletion cannot erase public blockchain history or shared,
+          JSON export with sessions, messages, citation references, token-usage metadata, usage
+          records, and audit events. Deletion permanently removes the account, credentials, sessions,
+          messages, linked usage, and linked audit rows; copied access tokens stop authorizing requests
+          as soon as the account is gone. Deletion cannot erase public blockchain history or shared,
           de-associated public source documents. Private Mode has no saved ChainScout history to delete.
         </p>
       </Section>

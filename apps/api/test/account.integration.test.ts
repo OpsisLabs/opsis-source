@@ -37,6 +37,9 @@ if (!databaseUrl) {
         userId = register.json().user.id as string;
         const accessToken = register.json().accessToken as string;
         await prisma.usageEvent.create({ data: { userId, eventType: "CHAIN_LOOKUP", quantity: 1 } });
+        await prisma.usageAggregate.create({
+          data: { userId, month: new Date("2026-08-01T00:00:00.000Z"), eventType: "CHAIN_LOOKUP", quantity: 3 }
+        });
         await prisma.auditLog.create({ data: { userId, action: "TEST_LINKED_AUDIT" } });
         await prisma.auditLog.create({
           data: { action: "TEST_LEGACY_EMAIL_AUDIT", metadata: { emailHash: sha256(email.toLowerCase()) } }
@@ -59,7 +62,8 @@ if (!databaseUrl) {
         expect(exported.json()).toMatchObject({
           schemaVersion: "chainscout.account-export.v1",
           profile: { id: userId, email },
-          usageEvents: [{ eventType: "CHAIN_LOOKUP", quantity: 1 }]
+          usageEvents: [{ eventType: "CHAIN_LOOKUP", quantity: 1 }],
+          usageAggregates: [{ eventType: "CHAIN_LOOKUP", quantity: 3 }]
         });
 
         const deleted = await app.inject({
@@ -76,6 +80,12 @@ if (!databaseUrl) {
           where: { metadata: { path: ["emailHash"], equals: sha256(email.toLowerCase()) } }
         })).toBe(0);
         expect(await prisma.cachedApiResponse.count({ where: { cacheKey: sharedCacheKey } })).toBe(1);
+        const copiedAccessToken = await app.inject({
+          method: "GET",
+          url: "/v1/auth/me",
+          headers: { authorization: `Bearer ${accessToken}` }
+        });
+        expect(copiedAccessToken.statusCode).toBe(401);
       } finally {
         await app.close();
         if (userId) {
@@ -122,6 +132,24 @@ if (!databaseUrl) {
           await prisma.user.deleteMany({ where: { id: userId } });
         }
       }
+    }, 20_000);
+
+    it("cascades linked usage and audit rows on direct user deletion", async () => {
+      const suffix = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      const user = await prisma.user.create({
+        data: { email: `account-cascade-${suffix}@example.com`, passwordHash: "test" }
+      });
+      const usage = await prisma.usageEvent.create({
+        data: { userId: user.id, eventType: "CHAIN_LOOKUP", quantity: 1 }
+      });
+      const audit = await prisma.auditLog.create({
+        data: { userId: user.id, action: "TEST_CASCADE_AUDIT" }
+      });
+
+      await prisma.user.delete({ where: { id: user.id } });
+
+      expect(await prisma.usageEvent.findUnique({ where: { id: usage.id } })).toBeNull();
+      expect(await prisma.auditLog.findUnique({ where: { id: audit.id } })).toBeNull();
     }, 20_000);
   });
 }

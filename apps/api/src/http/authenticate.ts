@@ -1,10 +1,12 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
+import type { PrismaClient } from "@prisma/client";
 import { createHmac } from "node:crypto";
 import { isIP } from "node:net";
 import type { Env } from "../config/env.js";
 import { AppError } from "./errors.js";
 import { verifyAccessToken, type AccessClaims } from "../security/jwt.js";
 import { readAccessToken } from "../auth/cookies.js";
+import { memoryStore } from "../db/memory.js";
 
 declare module "fastify" {
   interface FastifyRequest {
@@ -12,13 +14,18 @@ declare module "fastify" {
   }
 }
 
-export function authenticate(env: Env) {
+export function authenticate(env: Env, prisma?: PrismaClient) {
   return async function requireAuth(request: FastifyRequest, _reply: FastifyReply): Promise<void> {
     const auth = request.headers.authorization;
     const token = auth?.startsWith("Bearer ") ? auth.slice("Bearer ".length) : readAccessToken(request, env);
     if (!token) throw new AppError("UNAUTHORIZED", 401, "Authentication required");
     try {
-      request.user = verifyAccessToken(env, token);
+      const claims = verifyAccessToken(env, token);
+      const active = prisma
+        ? await prisma.user.findFirst({ where: { id: claims.sub, status: "ACTIVE" }, select: { id: true } })
+        : memoryStore.users.get(claims.sub)?.status === "ACTIVE";
+      if (!active) throw new Error("inactive account");
+      request.user = claims;
     } catch {
       throw new AppError("UNAUTHORIZED", 401, "Invalid or expired bearer token");
     }

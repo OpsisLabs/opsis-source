@@ -150,15 +150,29 @@ export class AuthRepository {
       });
       return memoryStore.users.get(stored.userId) ?? null;
     }
-    const stored = await this.prisma.refreshToken.findUnique({ where: { tokenHash: oldHash }, include: { user: true } });
-    if (!stored || stored.revokedAt || stored.expiresAt < new Date() || stored.user.status !== "ACTIVE") return null;
-    await this.prisma.$transaction([
-      this.prisma.refreshToken.update({ where: { id: stored.id }, data: { revokedAt: new Date() } }),
-      this.prisma.refreshToken.create({
+    const now = new Date();
+    return this.prisma.$transaction(async (tx) => {
+      const stored = await tx.refreshToken.findUnique({ where: { tokenHash: oldHash }, include: { user: true } });
+      if (!stored || stored.revokedAt || stored.expiresAt <= now || stored.user.status !== "ACTIVE") return null;
+
+      // Only one concurrent request may consume this single-use token. On
+      // PostgreSQL the conditional update re-checks revokedAt after waiting on
+      // the row lock, so a replay gets count=0 and cannot mint a successor.
+      const consumed = await tx.refreshToken.updateMany({
+        where: {
+          id: stored.id,
+          revokedAt: null,
+          expiresAt: { gt: now },
+          user: { status: "ACTIVE" }
+        },
+        data: { revokedAt: now }
+      });
+      if (consumed.count !== 1) return null;
+      await tx.refreshToken.create({
         data: { userId: stored.userId, tokenHash: sha256(newToken), expiresAt, userAgent, ipHash: hashIp(ip) }
-      })
-    ]);
-    return stored.user as AuthUser;
+      });
+      return stored.user as AuthUser;
+    });
   }
 
   async revokeRefreshToken(token: string): Promise<string | undefined> {

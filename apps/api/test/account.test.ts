@@ -24,6 +24,12 @@ describe("legacy cloud account portability", () => {
       payload: { title: "My saved research" }
     });
     expect(created.statusCode).toBe(200);
+    memoryStore.addMessage({
+      sessionId: created.json().session.id as string,
+      role: "ASSISTANT",
+      content: "Saved answer",
+      tokenUsageJson: { input_tokens: 12, output_tokens: 8, total_tokens: 20 }
+    });
 
     const response = await app.inject({
       method: "GET",
@@ -37,7 +43,11 @@ describe("legacy cloud account portability", () => {
     expect(response.json()).toMatchObject({
       schemaVersion: "chainscout.account-export.v1",
       profile: { id: first.user.id, email: "export-owner@example.com" },
-      sessions: [{ title: "My saved research", messages: [] }]
+      sessions: [{
+        title: "My saved research",
+        messages: [{ content: "Saved answer", tokenUsage: { total_tokens: 20 } }]
+      }],
+      usageAggregates: []
     });
     const serialized = response.body.toLowerCase();
     expect(serialized).not.toContain("passwordhash");
@@ -80,6 +90,13 @@ describe("legacy cloud account portability", () => {
     expect(JSON.stringify(memoryStore.auditLogs)).not.toContain(sha256("delete-owner@example.com"));
     expect(memoryStore.users.has(other.user.id)).toBe(true);
     expect(response.headers["set-cookie"]).toBeDefined();
+
+    const copiedAccessToken = await app.inject({
+      method: "GET",
+      url: "/v1/auth/me",
+      headers: { authorization: `Bearer ${owner.accessToken}` }
+    });
+    expect(copiedAccessToken.statusCode).toBe(401);
   });
 
   it("requires the exact destructive confirmation", async () => {

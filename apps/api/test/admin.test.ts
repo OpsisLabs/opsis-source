@@ -2,11 +2,14 @@ import { afterEach, describe, expect, it } from "vitest";
 import { buildApp } from "../src/app.js";
 import { loadEnv } from "../src/config/env.js";
 import { signAccessToken } from "../src/security/jwt.js";
+import { memoryStore } from "../src/db/memory.js";
 
 const apps: Array<Awaited<ReturnType<typeof buildApp>>> = [];
 
 afterEach(async () => {
   await Promise.all(apps.splice(0).map((app) => app.close()));
+  memoryStore.users.clear();
+  memoryStore.usersByEmail.clear();
 });
 
 describe("admin status", () => {
@@ -19,8 +22,11 @@ describe("admin status", () => {
     });
     const app = await buildApp(env);
     apps.push(app);
-    const userToken = signAccessToken(env, { sub: "user", email: "user@example.com", role: "USER" });
-    const adminToken = signAccessToken(env, { sub: "admin", email: "admin@example.com", role: "ADMIN" });
+    const user = memoryStore.createUser("user@example.com", "test");
+    const admin = memoryStore.createUser("admin@example.com", "test");
+    admin.role = "ADMIN";
+    const userToken = signAccessToken(env, { sub: user.id, email: "user@example.com", role: "USER" });
+    const adminToken = signAccessToken(env, { sub: admin.id, email: "admin@example.com", role: "ADMIN" });
 
     const denied = await app.inject({ method: "GET", url: "/v1/admin/status", headers: { authorization: `Bearer ${userToken}` } });
     const allowed = await app.inject({ method: "GET", url: "/v1/admin/status", headers: { authorization: `Bearer ${adminToken}` } });

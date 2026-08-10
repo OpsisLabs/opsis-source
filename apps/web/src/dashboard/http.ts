@@ -8,8 +8,9 @@ const AUTH_REFRESH_LOCK = "chainscout-cookie-refresh";
 let refreshPromise: Promise<boolean> | null = null;
 
 /** Remove the pre-cookie implementation's credential bundle without reading
- * or migrating it. Any matching server refresh rows are rotated/revoked by the
- * cookie session flow. */
+ * or migrating it. Production no longer accepts refresh credentials from JSON,
+ * so the removed legacy value cannot be replayed by this browser; its hashed
+ * server row expires under the existing retention policy. */
 export function clearLegacyBrowserCredentials(): void {
   if (typeof window === "undefined") return;
   window.localStorage.removeItem("rh_auth");
@@ -137,8 +138,17 @@ export async function privateApi<T>(path: string, body: unknown): Promise<T> {
 }
 
 export async function downloadAccountExport(): Promise<Blob> {
+  return downloadAccountExportAttempt(true);
+}
+
+async function downloadAccountExportAttempt(canRefresh: boolean): Promise<Blob> {
   const response = await raw("/v1/account/export");
-  if (response.status === 401 && (await refresh())) return downloadAccountExport();
+  if (response.status === 401 && canRefresh && (await refresh())) {
+    return downloadAccountExportAttempt(false);
+  }
+  if (response.status === 401) {
+    throw new ApiError("UNAUTHORIZED", "Your session expired. Sign in again.", 401);
+  }
   if (!response.ok) throw await toApiError(response);
   return response.blob();
 }

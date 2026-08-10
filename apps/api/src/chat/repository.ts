@@ -90,7 +90,13 @@ export class ChatRepository {
       const session = memoryStore.sessions.get(sessionId);
       if (!session || session.userId !== userId) return null;
       memoryStore.addMessage({ sessionId, role: "USER", content: question });
-      const message = memoryStore.addMessage({ sessionId, role: "ASSISTANT", content: answer.answer, aiResponseJson: answer });
+      const message = memoryStore.addMessage({
+        sessionId,
+        role: "ASSISTANT",
+        content: answer.answer,
+        aiResponseJson: answer,
+        tokenUsageJson: answer.tokenUsage
+      });
       session.updatedAt = new Date();
       session.activeEntity = { type: resolution.entity.type, value: resolution.entity.value };
       return message;

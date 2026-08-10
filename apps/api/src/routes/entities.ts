@@ -22,7 +22,7 @@ const walletQuery = z.object({
 export async function entityRoutes(app: FastifyInstance, env: Env, prisma?: PrismaClient, cache?: JsonCache): Promise<void> {
   const resolver = new ChainEntityResolver(env, cache, prisma);
   const usage = new UsageService(prisma);
-  const preHandler = authenticate(env);
+  const preHandler = authenticate(env, prisma);
   const quota = { aiMessages: env.QUOTA_AI_MESSAGES_PER_MONTH, chainLookups: env.QUOTA_CHAIN_LOOKUPS_PER_MONTH };
 
   async function resolve(type: Parameters<ChainEntityResolver["resolveWithSources"]>[0], value: string) {

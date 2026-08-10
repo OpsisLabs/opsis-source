@@ -29,6 +29,7 @@ export type MemoryMessage = {
   role: "USER" | "ASSISTANT";
   content: string;
   aiResponseJson?: AiExplorerAnswer;
+  tokenUsageJson?: Record<string, number>;
   createdAt: Date;
 };
 

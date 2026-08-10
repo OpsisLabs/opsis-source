@@ -484,3 +484,21 @@ test("a rejected refresh exits the stale authenticated shell", async ({ page }) 
   await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
   expect(refreshCalls).toBe(1);
 });
+
+test("account export stops after one recovery attempt", async ({ page }) => {
+  await mockApi(page);
+  let exportCalls = 0;
+  await page.route("**/v1/account/export", async (route) => {
+    exportCalls += 1;
+    await route.fulfill({
+      status: 401,
+      json: { error: { code: "UNAUTHORIZED", message: "Expired access token" } }
+    });
+  });
+
+  await page.goto("/cloud/privacy");
+  await page.getByRole("button", { name: /EXPORT JSON/i }).click();
+
+  await expect(page.getByRole("alert")).toContainText("session expired");
+  expect(exportCalls).toBe(2);
+});

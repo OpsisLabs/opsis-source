@@ -4,7 +4,7 @@ import type { Env } from "../config/env.js";
 import { authenticate, requireAdmin } from "../http/authenticate.js";
 
 export async function adminRoutes(app: FastifyInstance, env: Env, prisma?: PrismaClient): Promise<void> {
-  app.get("/v1/admin/status", { preHandler: [authenticate(env), requireAdmin] }, async () => ({
+  app.get("/v1/admin/status", { preHandler: [authenticate(env, prisma), requireAdmin] }, async () => ({
     storage: prisma ? "postgresql" : "memory",
     services: {
       redis: Boolean(env.REDIS_URL),

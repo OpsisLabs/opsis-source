@@ -7,7 +7,7 @@ import type { PrismaClient } from "@prisma/client";
 
 export async function usageRoutes(app: FastifyInstance, env: Env, prisma?: PrismaClient): Promise<void> {
   const usage = new UsageService(prisma);
-  app.get("/v1/usage/me", { preHandler: authenticate(env) }, async (request) => {
+  app.get("/v1/usage/me", { preHandler: authenticate(env, prisma) }, async (request) => {
     if (!request.user) throw new AppError("UNAUTHORIZED", 401, "Authentication required");
     const result = await usage.forUser(request.user.sub, {
       aiMessages: env.QUOTA_AI_MESSAGES_PER_MONTH,

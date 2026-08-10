@@ -189,10 +189,10 @@ function selectProvider(env: Env): AiProvider | undefined {
 }
 
 function deterministicAnswer(question: string, entity: NormalizedEntity, extraUncertainty: string[] = []): AiExplorerAnswer {
-  const riskText = entity.riskNotes.length > 0 ? ` I found ${entity.riskNotes.length} risk note(s) based on the available source data.` : " I did not find specific risk notes in the currently normalized data.";
+  const view = deterministicView(detectDeterministicIntent(question), entity);
   return {
-    answer: `This is a read-only explanation for the ${entity.type} ${entity.value}. The available facts are summarized from provider data and linked citations.${riskText} This is informational only and not financial advice.`,
-    summaryBullets: buildSummaryBullets(entity),
+    answer: view.answer,
+    summaryBullets: view.summaryBullets,
     confirmedFacts: buildConfirmedFacts(entity),
     inferences: [],
     facts: entity.facts,
@@ -213,6 +213,54 @@ function deterministicAnswer(question: string, entity: NormalizedEntity, extraUn
       entity.type === "transaction" ? "Why did this transaction fail or succeed?" : "Summarize recent activity for this address.",
       "Are there any evidence-based risk notes?"
     ]
+  };
+}
+
+type DeterministicIntent = "overview" | "risk" | "evidence" | "activity";
+
+function detectDeterministicIntent(question: string): DeterministicIntent {
+  const normalized = question.toLowerCase();
+  if (/\b(?:risk|warning|signal|safe|safety|scam|suspicious)\b/.test(normalized)) return "risk";
+  if (/\b(?:evidence|source|citation|proof|prove|verify|support)\b/.test(normalized)) return "evidence";
+  if (/\b(?:activity|transaction|transfer|movement|history|recent|happened)\b/.test(normalized)) return "activity";
+  return "overview";
+}
+
+function deterministicView(
+  intent: DeterministicIntent,
+  entity: NormalizedEntity
+): { answer: string; summaryBullets: string[] } {
+  if (intent === "risk") {
+    const count = entity.riskNotes.length;
+    return {
+      answer: `This read-only risk check found ${count} evidence-based signal${count === 1 ? "" : "s"} for this ${entity.type}. Signals are observations, not a safety or scam verdict; this is informational only, not financial advice.`,
+      summaryBullets: count > 0
+        ? entity.riskNotes.slice(0, 5).map((note) => `${note.severity.toUpperCase()}: ${note.title} — ${note.detail}`)
+        : ["No specific heuristic risk signal was identified in the available facts."]
+    };
+  }
+  if (intent === "evidence") {
+    const count = entity.citations.length;
+    return {
+      answer: `This read-only evidence view links ${count} citation${count === 1 ? "" : "s"} for the normalized ${entity.type} facts. Open the source panel to verify each cited field; this is informational only, not financial advice.`,
+      summaryBullets: count > 0
+        ? entity.citations.slice(0, 5).map((citation) => {
+          const fields = citation.fieldsUsed.slice(0, 3).join(", ");
+          return `${citation.provider}: ${citation.description}${fields ? ` — ${fields}` : ""}`;
+        })
+        : ["No citation was available for the current result."]
+    };
+  }
+  if (intent === "activity") {
+    return {
+      answer: `This read-only activity view summarizes the available Robinhood Chain history for this ${entity.type}. The bullets below use only cited facts; this is informational only, not financial advice.`,
+      summaryBullets: buildActivityBullets(entity)
+    };
+  }
+  const riskCount = entity.riskNotes.length;
+  return {
+    answer: `This read-only overview explains the available Robinhood Chain facts for this ${entity.type}. It includes ${riskCount} evidence-based risk signal${riskCount === 1 ? "" : "s"} and is informational only, not financial advice.`,
+    summaryBullets: buildSummaryBullets(entity)
   };
 }
 
@@ -256,10 +304,39 @@ function groundTransactionGas(text: string, entity: NormalizedEntity): string {
 
 function buildSummaryBullets(entity: NormalizedEntity): string[] {
   return [
-    `Resolved a Robinhood Chain ${entity.type}.`,
-    `${entity.citations.length} source record(s) support the normalized result.`,
-    `${entity.riskNotes.length} evidence-based risk note(s) were identified.`
-  ];
+    ...buildActivityBullets(entity).slice(0, 2),
+    `${entity.citations.length} linked citation${entity.citations.length === 1 ? "" : "s"} support the view.`,
+    `${entity.riskNotes.length} evidence-based risk signal${entity.riskNotes.length === 1 ? "" : "s"} identified.`
+  ].slice(0, 5);
+}
+
+function buildActivityBullets(entity: NormalizedEntity): string[] {
+  const facts = entity.facts;
+  const bullets: string[] = [];
+  const transactionCount = finiteNumber(facts.transactionsFetched)
+    ?? (Array.isArray(facts.recentTransactions) ? facts.recentTransactions.length : undefined);
+  if (transactionCount !== undefined) bullets.push(`${transactionCount} recent transaction${transactionCount === 1 ? "" : "s"} in the available activity window.`);
+  const nativeBalance = conciseFact(facts.nativeBalanceEth);
+  if (nativeBalance) bullets.push(`Native balance: ${nativeBalance} ETH.`);
+  if (Array.isArray(facts.tokenBalances)) bullets.push(`${facts.tokenBalances.length} token balance${facts.tokenBalances.length === 1 ? "" : "s"} returned.`);
+  const status = conciseFact(facts.status);
+  if (status) bullets.push(`Transaction status: ${status}.`);
+  const value = conciseFact(facts.valueEth ?? facts.value);
+  if (value) bullets.push(`Transferred value: ${value}${facts.valueEth !== undefined ? " ETH" : ""}.`);
+  if (Array.isArray(facts.recentTransfers)) bullets.push(`${facts.recentTransfers.length} recent token transfer${facts.recentTransfers.length === 1 ? "" : "s"} returned.`);
+  return bullets.length > 0 ? bullets.slice(0, 5) : ["No bounded activity count was available in the cited facts."];
+}
+
+function finiteNumber(value: unknown): number | undefined {
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) return undefined;
+  return Math.floor(value);
+}
+
+function conciseFact(value: unknown): string | undefined {
+  if (typeof value === "string" && value.trim()) return value.trim().slice(0, 80);
+  if (typeof value === "number" && Number.isFinite(value)) return String(value);
+  if (typeof value === "boolean") return value ? "yes" : "no";
+  return undefined;
 }
 
 function buildConfirmedFacts(entity: NormalizedEntity): AiExplorerAnswer["confirmedFacts"] {

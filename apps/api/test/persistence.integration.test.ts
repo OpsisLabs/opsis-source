@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { buildApp } from "../src/app.js";
 import { loadEnv } from "../src/config/env.js";
+import { AuthRepository } from "../src/auth/repository.js";
 
 const databaseUrl = process.env.TEST_DATABASE_URL;
 if (databaseUrl && !new URL(databaseUrl).pathname.endsWith("_test")) {
@@ -131,6 +132,27 @@ if (!databaseUrl) {
           });
         await prisma.cachedApiResponse.deleteMany({ where: { cacheKey: { contains: entityValue } } });
         await prisma.chainEntity.deleteMany({ where: { value: entityValue } });
+      }
+    }, 20_000);
+
+    it("allows only one concurrent refresh-token rotation", async () => {
+      const suffix = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      const user = await prisma.user.create({ data: { email: `refresh-race-${suffix}@example.com`, passwordHash: "test" } });
+      const auth = new AuthRepository(prisma);
+      const oldToken = `old-${suffix}`;
+      try {
+        await auth.storeRefreshToken(user.id, oldToken, new Date(Date.now() + 60_000));
+
+        const results = await Promise.all([
+          auth.rotateRefreshToken(oldToken, `next-a-${suffix}`, new Date(Date.now() + 120_000)),
+          auth.rotateRefreshToken(oldToken, `next-b-${suffix}`, new Date(Date.now() + 120_000))
+        ]);
+
+        expect(results.filter(Boolean)).toHaveLength(1);
+        expect(results.filter((result) => result === null)).toHaveLength(1);
+        expect(await prisma.refreshToken.count({ where: { userId: user.id, revokedAt: null } })).toBe(1);
+      } finally {
+        await prisma.user.deleteMany({ where: { id: user.id } });
       }
     }, 20_000);
   });

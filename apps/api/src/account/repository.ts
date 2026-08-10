@@ -33,11 +33,13 @@ export type AccountExportV1 = {
       role: string;
       content: string;
       aiResponse: unknown;
+      tokenUsage: unknown;
       createdAt: string;
       citationReferences: Array<{ sourceDocumentId: string; fieldsUsed: string[] }>;
     }>;
   }>;
   usageEvents: Array<{ eventType: string; quantity: number; metadata: unknown; createdAt: string }>;
+  usageAggregates: Array<{ month: string; eventType: string; quantity: number; updatedAt: string }>;
   auditEvents: Array<{
     action: string;
     ipHash: string | null;
@@ -79,6 +81,7 @@ export class AccountRepository {
                 role: true,
                 content: true,
                 aiResponseJson: true,
+                tokenUsageJson: true,
                 createdAt: true,
                 sources: { select: { sourceDocumentId: true, fieldsUsed: true } }
               }
@@ -92,6 +95,10 @@ export class AccountRepository {
         usageEvents: {
           orderBy: { createdAt: "asc" },
           select: { eventType: true, quantity: true, metadata: true, createdAt: true }
+        },
+        usageAggregates: {
+          orderBy: [{ month: "asc" }, { eventType: "asc" }],
+          select: { month: true, eventType: true, quantity: true, updatedAt: true }
         },
         auditLogs: {
           orderBy: { createdAt: "asc" },
@@ -133,6 +140,7 @@ export class AccountRepository {
           role: String(message.role),
           content: message.content,
           aiResponse: message.aiResponseJson,
+          tokenUsage: message.tokenUsageJson,
           createdAt: message.createdAt.toISOString(),
           citationReferences: message.sources
         }))
@@ -142,6 +150,12 @@ export class AccountRepository {
         quantity: event.quantity,
         metadata: event.metadata,
         createdAt: event.createdAt.toISOString()
+      })),
+      usageAggregates: user.usageAggregates.map((aggregate) => ({
+        month: aggregate.month.toISOString(),
+        eventType: String(aggregate.eventType),
+        quantity: aggregate.quantity,
+        updatedAt: aggregate.updatedAt.toISOString()
       })),
       auditEvents: user.auditLogs.map((event) => ({
         action: event.action,
@@ -204,6 +218,7 @@ function exportMemoryUser(userId: string): AccountExportV1 | null {
         role: message.role,
         content: message.content,
         aiResponse: message.aiResponseJson ?? null,
+        tokenUsage: message.tokenUsageJson ?? null,
         createdAt: message.createdAt.toISOString(),
         citationReferences: []
       }))
@@ -225,6 +240,7 @@ function exportMemoryUser(userId: string): AccountExportV1 | null {
     usageEvents: memoryStore.usage
       .filter((event) => event.userId === userId)
       .map((event) => ({ eventType: event.eventType, quantity: event.quantity, metadata: null, createdAt: event.createdAt.toISOString() })),
+    usageAggregates: [],
     auditEvents: memoryStore.auditLogs
       .filter((event) => event.userId === userId)
       .map((event) => ({

@@ -191,7 +191,7 @@ export async function authRoutes(app: FastifyInstance, env: Env, prisma?: Prisma
     }
   });
 
-  app.get("/v1/auth/me", { preHandler: authenticate(env) }, async (request) => {
+  app.get("/v1/auth/me", { preHandler: authenticate(env, prisma) }, async (request) => {
     if (!request.user) throw new AppError("UNAUTHORIZED", 401, "Authentication required");
     const quota = await usage.forUser(request.user.sub, {
       aiMessages: env.QUOTA_AI_MESSAGES_PER_MONTH,

@@ -22,6 +22,32 @@ const entity: NormalizedEntity = {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("AI answer boundary", () => {
+  it("maps supported private questions to distinct deterministic cited views", async () => {
+    const wallet: NormalizedEntity = {
+      ...entity,
+      type: "wallet",
+      value: "0x0000000000000000000000000000000000000042",
+      facts: { transactionsFetched: 9, nativeBalanceEth: "0.25", tokenBalances: [{ symbol: "TEST" }] },
+      riskNotes: [{ severity: "medium", title: "Concentrated activity", detail: "Most recent transfers involve one counterparty." }]
+    };
+    const service = new AiService(loadEnv({ NODE_ENV: "test", AI_PROVIDER: "fallback" }));
+
+    const [overview, risk, evidence, activity] = await Promise.all([
+      service.answer("What stands out to a beginner?", wallet),
+      service.answer("Show the evidence-based risk notes.", wallet),
+      service.answer("What source data supports this answer?", wallet),
+      service.answer("Explain the recent activity in plain English.", wallet)
+    ]);
+
+    expect(new Set([overview.answer, risk.answer, evidence.answer, activity.answer]).size).toBe(4);
+    expect(risk.answer).toContain("risk check");
+    expect(risk.summaryBullets.join(" ")).toContain("Concentrated activity");
+    expect(evidence.answer).toContain("evidence view");
+    expect(evidence.summaryBullets.join(" ")).toContain("blockscout");
+    expect(activity.answer).toContain("activity view");
+    expect(activity.summaryBullets).toContain("9 recent transactions in the available activity window.");
+  });
+
   it("keeps normalized facts and citations authoritative", async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
       output_text: JSON.stringify({

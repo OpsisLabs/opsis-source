@@ -11,7 +11,7 @@ const deleteBody = z.object({ confirmation: z.literal("DELETE MY CHAINSCOUT ACCO
 
 export async function accountRoutes(app: FastifyInstance, env: Env, prisma?: PrismaClient): Promise<void> {
   const accounts = new AccountRepository(prisma);
-  const preHandler = authenticate(env);
+  const preHandler = authenticate(env, prisma);
 
   app.get("/v1/account/export", { preHandler }, async (request, reply) => {
     if (!request.user) throw new AppError("UNAUTHORIZED", 401, "Authentication required");

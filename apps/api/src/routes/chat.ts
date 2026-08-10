@@ -27,7 +27,7 @@ export async function chatRoutes(app: FastifyInstance, env: Env, prisma?: Prisma
   const resolver = new ChainEntityResolver(env, cache, prisma);
   const chats = new ChatRepository(prisma);
   const usage = new UsageService(prisma);
-  const preHandler = authenticate(env);
+  const preHandler = authenticate(env, prisma);
   const quota = { aiMessages: env.QUOTA_AI_MESSAGES_PER_MONTH, chainLookups: env.QUOTA_CHAIN_LOOKUPS_PER_MONTH };
 
   app.post("/v1/chat/sessions", { preHandler }, async (request) => {
