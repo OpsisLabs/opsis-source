@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router";
-import { LogOut, Menu, MessageSquarePlus, Search, ShieldCheck, Unplug, Wallet, X } from "lucide-react";
+import { LogOut, Menu, MessageSquarePlus, Repeat2, Search, ShieldCheck, Unplug, Wallet, X } from "lucide-react";
 import { classify, createSession, getUsage, listSessions, SAMPLE_TX, SAMPLE_WALLET } from "./api";
 import { useAuth } from "./store";
 import { useWallet } from "./walletStore";
@@ -120,6 +120,14 @@ function RailBody({
           <MessageSquarePlus size={14} />
           {creating ? "CREATING…" : "NEW SESSION"}
         </button>
+        <Link
+          to="/swap"
+          onClick={onNavigate}
+          className="mt-2 flex w-full items-center justify-center gap-2 border border-[#fa6c34]/40 bg-[#fa6c34]/10 py-3 font-mono-d text-[10.5px] tracking-wide text-[#fa6c34] transition-colors hover:bg-[#fa6c34]/15"
+        >
+          <Repeat2 size={13} />
+          SCOUT SWAP
+        </Link>
       </div>
 
       <div className="px-5 pb-2 pt-1 font-mono-d text-[10.5px] tracking-wider text-[#635d5a]">SESSIONS</div>

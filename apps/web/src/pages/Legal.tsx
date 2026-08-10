@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 
 function LogoMark({ className = "w-7 h-7" }: { className?: string }) {
-  return <img src="/logo.svg" alt="RH Chain AI Explorer" className={className} />;
+  return <img src="/logo.svg" alt="ChainScout" className={className} />;
 }
 
 function Shell({ tag, title, updated, children }: { tag: string; title: string; updated: string; children: React.ReactNode }) {
@@ -13,9 +13,9 @@ function Shell({ tag, title, updated, children }: { tag: string; title: string; 
             <LogoMark />
           </span>
           <span className="font-mono-d text-[11px] leading-4 text-[#9a938a]">
-            RH CHAIN
+            CHAIN
             <br />
-            AI EXPLORER
+            SCOUT
           </span>
         </Link>
         <Link to="/" className="font-mono-d text-[11px] tracking-wider text-[#9a938a] transition-colors hover:text-[#e9e0d1]">
@@ -35,7 +35,7 @@ function Shell({ tag, title, updated, children }: { tag: string; title: string; 
       </main>
 
       <footer className="border-t border-[#2e2e2e] px-6 py-8 text-center font-mono-d text-[10.5px] tracking-wider text-[#635d5a] md:px-12">
-        © RH CHAIN AI EXPLORER, 2026 · INFORMATIONAL ONLY. NOT FINANCIAL ADVICE
+        © CHAINSCOUT, 2026 · INFORMATIONAL ONLY. NOT FINANCIAL ADVICE
       </footer>
     </div>
   );
@@ -57,10 +57,10 @@ function Section({ n, title, children }: { n: string; title: string; children: R
 
 export function PrivacyPage() {
   return (
-    <Shell tag="Legal" title="Privacy Policy" updated="LAST UPDATED · JULY 2026">
+    <Shell tag="Legal" title="Privacy Policy" updated="LAST UPDATED · AUGUST 2026">
       <Section n="01" title="What this product is">
         <p>
-          Robinhood Chain AI Explorer is a read-only analysis tool for public blockchain data. It
+          ChainScout is a read-only analysis tool for public blockchain data. It
           explains wallets, transactions, tokens, and contracts on Robinhood Chain (chain ID 4663)
           in plain English, with source citations. Signing in asks your wallet for a single
           message signature that proves you control the address; it authorizes nothing on-chain.
@@ -71,8 +71,10 @@ export function PrivacyPage() {
 
       <Section n="02" title="Data we collect">
         <p>
-          <span className="text-[#e9e0d1]">Account data.</span> When you register, we store your
-          email address and an Argon2id hash of your password. We never store plaintext passwords.
+          <span className="text-[#e9e0d1]">Account data.</span> Wallet sign-in accounts store the
+          public wallet address and username you choose. If email registration is enabled, we
+          store your email address and an Argon2id hash of your password. We never store plaintext
+          passwords.
         </p>
         <p>
           <span className="text-[#e9e0d1]">Usage data.</span> We record usage events such as AI
@@ -94,8 +96,9 @@ export function PrivacyPage() {
       <Section n="03" title="Data we never collect">
         <p>
           We do not collect or store private keys, seed phrases, recovery phrases, wallet
-          passwords, or signing credentials of any kind. There is no wallet connection in the
-          product, so this data can never reach our servers.
+          passwords, or signing credentials of any kind. Wallet sign-in requests only a plain-text
+          ownership message. Scout Swap does not request or transmit your wallet address: its
+          server sends Uniswap the selected pair, amount, and a fixed non-user preview address.
         </p>
       </Section>
 
@@ -112,8 +115,11 @@ export function PrivacyPage() {
         <p>
           To answer questions, our servers query Blockscout, Alchemy, and optionally GoldRush for
           public chain data, and an AI provider (OpenAI or a self-hosted model) to generate
-          explanations. Provider API keys stay server-side and are never exposed to the frontend.
-          Queries contain only public addresses and hashes, never your email or account details.
+          explanations. Scout Swap sends Uniswap only the pair, amount, chain, and fixed non-user
+          preview address needed for a quote. If you choose to continue, you leave ChainScout for
+          the official Uniswap app, where Uniswap's own terms and privacy policy apply. Provider
+          API keys stay server-side and are never exposed to the frontend. We do not attach your
+          email, username, or stored wallet address to provider requests.
         </p>
       </Section>
 
@@ -147,13 +153,12 @@ export function PrivacyPage() {
 
 export function TermsPage() {
   return (
-    <Shell tag="Legal" title="Terms of Use" updated="LAST UPDATED · JULY 2026">
+    <Shell tag="Legal" title="Terms of Use" updated="LAST UPDATED · AUGUST 2026">
       <Section n="01" title="The service">
         <p>
-          Robinhood Chain AI Explorer provides read-only, AI-generated explanations of public
-          Robinhood Chain activity. Answers are grounded in data retrieved from Blockscout,
-          Alchemy, and optional providers, and include citations so you can verify every claim
-          against the source.
+          ChainScout provides read-only explanations of public Robinhood Chain activity and
+          read-only quote previews for supported token pairs. Answers are grounded in public data
+          and include citations so you can verify important claims against the source.
         </p>
       </Section>
 
@@ -163,18 +168,21 @@ export function TermsPage() {
           trading advice, and nothing in an answer constitutes a recommendation to buy, sell, or
           hold any asset. Risk notes are evidence-based observations drawn from available on-chain
           data; they are not scam verdicts, safety guarantees, or proof of intent behind any
-          wallet or contract.
+          wallet or contract. Quote previews are time-limited estimates, not offers or guarantees.
+          A user who continues in Uniswap may pay network gas, liquidity-provider or protocol
+          fees, price impact, slippage, approval costs, and token-specific fees.
         </p>
       </Section>
 
       <Section n="03" title="Read-only boundary">
         <p>
-          The service does not execute, sign, or submit blockchain transactions, and does not
-          perform swaps, trades, transfers, approvals, or contract writes. Signing in asks for one
-          message signature to prove address ownership; that signature authorizes nothing on-chain
-          and cannot move funds. It never requests seed phrases, private keys, or wallet
-          credentials, and never asks you to sign a transaction. Anyone asking for these in the
-          product's name is not us.
+          ChainScout does not execute, sign, submit, or broadcast blockchain transactions. Scout
+          Swap explains a short-lived Uniswap quote and provides a link to the official Uniswap
+          app, which independently requotes and owns every approval, signature, and transaction.
+          Signing in to ChainScout asks for one plain-text message signature to prove address
+          ownership; that signature authorizes nothing on-chain and cannot move funds. ChainScout
+          never requests seed phrases, private keys, or wallet credentials, and never asks you to
+          sign a transaction. Anyone asking for these in the product's name is not us.
         </p>
       </Section>
 
@@ -198,7 +206,7 @@ export function TermsPage() {
 
       <Section n="06" title="Independence">
         <p>
-          Robinhood Chain AI Explorer is an independent tool built to help users understand public
+          ChainScout is an independent tool built to help users understand public
           Robinhood Chain data. Except where explicitly stated, it is not an official product of,
           or endorsed by, Robinhood.
         </p>

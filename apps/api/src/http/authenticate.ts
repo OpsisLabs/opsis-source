@@ -1,4 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
+import { createHmac } from "node:crypto";
 import type { Env } from "../config/env.js";
 import { AppError } from "./errors.js";
 import { verifyAccessToken, type AccessClaims } from "../security/jwt.js";
@@ -29,10 +30,17 @@ export function rateLimitKey(request: FastifyRequest, env: Env): string {
   const auth = request.headers.authorization;
   if (auth?.startsWith("Bearer ")) {
     try {
-      return `user:${verifyAccessToken(env, auth.slice("Bearer ".length)).sub}`;
+      return privateRateLimitKey("user", verifyAccessToken(env, auth.slice("Bearer ".length)).sub, env);
     } catch {
-      return `ip:${request.ip}`;
+      return privateRateLimitKey("ip", request.ip, env);
     }
   }
-  return `ip:${request.ip}`;
+  return privateRateLimitKey("ip", request.ip, env);
+}
+
+function privateRateLimitKey(kind: "ip" | "user", value: string, env: Env): string {
+  const digest = createHmac("sha256", env.JWT_ACCESS_SECRET)
+    .update(`chain-scout:rate-limit:${kind}:${value.trim().toLowerCase()}`)
+    .digest("hex");
+  return `${kind}:${digest}`;
 }

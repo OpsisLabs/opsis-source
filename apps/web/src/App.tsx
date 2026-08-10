@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate, useLocation, useParams } from "react-router";
 import Home from "./pages/Home";
 import Roadmap from "./pages/Roadmap";
+import ScoutSwap from "./pages/ScoutSwap";
 import { PrivacyPage, TermsPage } from "./pages/Legal";
 import { AuthProvider, useAuth } from "./dashboard/store";
 import { WalletProvider } from "./dashboard/walletStore";
@@ -53,6 +54,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/roadmap" element={<Roadmap />} />
+          <Route path="/swap" element={<ScoutSwap />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/login" element={<LoginPage />} />

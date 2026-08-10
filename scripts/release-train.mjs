@@ -111,6 +111,7 @@ function printStatus(manifest) {
 }
 
 const gateCommands = [
+  ["pnpm", ["audit", "--prod", "--audit-level", "high"]],
   ["pnpm", ["lint"]],
   ["pnpm", ["typecheck"]],
   ["pnpm", ["test"]],

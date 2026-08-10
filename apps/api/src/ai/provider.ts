@@ -61,6 +61,9 @@ export class OpenAiProvider implements AiProvider {
       },
       body: JSON.stringify({
         model,
+        // The Responses API otherwise retains application state for at least
+        // 30 days. Abuse-monitoring retention is disclosed separately.
+        store: false,
         input: [
           { role: "system", content: systemInstructions },
           { role: "user", content: JSON.stringify(input) }

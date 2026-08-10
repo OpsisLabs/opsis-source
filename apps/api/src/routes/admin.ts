@@ -9,6 +9,7 @@ export async function adminRoutes(app: FastifyInstance, env: Env, prisma?: Prism
     services: {
       redis: Boolean(env.REDIS_URL),
       alchemy: Boolean(env.ALCHEMY_ROBINHOOD_RPC_URL || env.ALCHEMY_API_KEY),
+      uniswap: env.UNISWAP_QUOTE_ENABLED && Boolean(env.UNISWAP_API_KEY),
       goldrush: env.GOLDRUSH_ENABLED && Boolean(env.GOLDRUSH_API_KEY),
       openai: Boolean(env.OPENAI_API_KEY),
       ollama: env.AI_PROVIDER === "ollama",

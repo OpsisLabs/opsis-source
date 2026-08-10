@@ -3,7 +3,7 @@ import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
-import Fastify from "fastify";
+import Fastify, { LogController } from "fastify";
 import Redis from "ioredis";
 import type { PrismaClient } from "@prisma/client";
 import { JsonCache } from "./cache/service.js";
@@ -17,17 +17,36 @@ import { chatRoutes } from "./routes/chat.js";
 import { entityRoutes } from "./routes/entities.js";
 import { healthRoutes } from "./routes/health.js";
 import { usageRoutes } from "./routes/usage.js";
+import { swapRoutes } from "./routes/swaps.js";
 import { rateLimitKey } from "./http/authenticate.js";
 
 export async function buildApp(env: Env, prisma?: PrismaClient) {
   const app = Fastify({
-    logger: { level: env.LOG_LEVEL },
-    requestIdHeader: "x-request-id",
+    logger: {
+      level: env.LOG_LEVEL,
+      redact: {
+        paths: [
+          "req.headers.authorization",
+          "req.headers.cookie",
+          "res.headers.set-cookie",
+          "authorization",
+          "cookie",
+          "refreshToken",
+          "accessToken"
+        ],
+        censor: "[REDACTED]"
+      }
+    },
+    // Fastify's default request logs include the raw URL and remote address.
+    // ChainScout emits the bounded route-template summary below instead.
+    logController: new LogController({ disableRequestLogging: true }),
+    // Railway terminates public HTTP at a private 100.0.0.0/8 edge proxy.
+    // Trust only that hop (plus local test/dev ranges) when deriving request.ip.
+    trustProxy: ["loopback", "linklocal", "uniquelocal", "100.0.0.0/8"],
     bodyLimit: 1_000_000
   });
   app.addHook("onResponse", async (request, reply) => {
     request.log.info({
-      userId: request.user?.sub,
       route: request.routeOptions.url ?? "unmatched",
       statusCode: reply.statusCode,
       latencyMs: reply.elapsedTime
@@ -60,6 +79,7 @@ export async function buildApp(env: Env, prisma?: PrismaClient) {
         { name: "auth" },
         { name: "entities" },
         { name: "chat" },
+        { name: "swaps" },
         { name: "usage" },
         { name: "admin" }
       ]
@@ -85,6 +105,7 @@ export async function buildApp(env: Env, prisma?: PrismaClient) {
   await entityRoutes(app, env, prisma, cache);
   await chatRoutes(app, env, prisma, cache);
   await usageRoutes(app, env, prisma);
+  await swapRoutes(app, env, cache);
   await adminRoutes(app, env, prisma);
   if (prisma && env.RETENTION_ENABLED) installRetention(app, prisma, env);
   return app;

@@ -41,6 +41,13 @@ const envSchema = z.object({
   ALCHEMY_API_KEY: z.string().optional(),
   ALCHEMY_ROBINHOOD_RPC_URL: optionalUrl,
   ALCHEMY_ROBINHOOD_WS_URL: optionalUrl,
+  UNISWAP_QUOTE_ENABLED: envBoolean.default(false),
+  UNISWAP_API_KEY: optionalString,
+  UNISWAP_API_BASE_URL: z.string().url().default("https://trade-api.gateway.uniswap.org/v1"),
+  UNISWAP_QUOTE_TIMEOUT_MS: z.coerce.number().int().positive().max(30_000).default(8_000),
+  UNISWAP_QUOTE_CACHE_SECONDS: z.coerce.number().int().min(5).max(29).default(15),
+  UNISWAP_QUOTE_BUDGET_PER_MINUTE: z.coerce.number().int().min(1).max(120).default(30),
+  UNISWAP_QUOTE_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().min(1).max(120).default(20),
   GOLDRUSH_ENABLED: envBoolean.default(false),
   GOLDRUSH_API_KEY: optionalString,
   GOLDRUSH_API_BASE_URL: z.string().url().default("https://api.covalenthq.com/v1"),
@@ -88,6 +95,9 @@ const envSchema = z.object({
   }
   if (env.GOLDRUSH_ENABLED && !env.GOLDRUSH_API_KEY) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: "GOLDRUSH_API_KEY is required when GoldRush is enabled" });
+  }
+  if (env.UNISWAP_QUOTE_ENABLED && !env.UNISWAP_API_KEY) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: "UNISWAP_API_KEY is required when Scout Swap quotes are enabled" });
   }
   if (env.NODE_ENV !== "production") return;
   if (env.AUTH_EMAIL_ENABLED && (!env.SMTP_HOST || !env.EMAIL_FROM)) {

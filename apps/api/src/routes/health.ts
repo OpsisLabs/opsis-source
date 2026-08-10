@@ -41,6 +41,7 @@ export async function healthRoutes(app: FastifyInstance, env: Env, prisma?: Pris
         // label configuration as health without performing a live probe.
         blockscout: providerConfiguration(Boolean(env.BLOCKSCOUT_API_BASE_URL)),
         alchemy: providerConfiguration(Boolean(env.ALCHEMY_ROBINHOOD_RPC_URL || env.ALCHEMY_API_KEY)),
+        uniswap: providerConfiguration(env.UNISWAP_QUOTE_ENABLED && Boolean(env.UNISWAP_API_KEY)),
         goldrush: providerConfiguration(env.GOLDRUSH_ENABLED && Boolean(env.GOLDRUSH_API_KEY))
       }
     };

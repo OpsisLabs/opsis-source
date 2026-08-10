@@ -33,4 +33,15 @@ describe("environment validation", () => {
     expect(() => loadEnv({ NODE_ENV: "test", AI_PROVIDER: "openai" })).toThrow(/OPENAI_API_KEY/);
     expect(loadEnv({ NODE_ENV: "test", AI_PROVIDER: "ollama" }).AI_PROVIDER).toBe("ollama");
   });
+
+  it("requires a server-side Uniswap key only when live Scout Swap quotes are enabled", () => {
+    expect(() => loadEnv({ NODE_ENV: "test", UNISWAP_QUOTE_ENABLED: "true" })).toThrow(/UNISWAP_API_KEY/);
+    const enabled = loadEnv({
+      NODE_ENV: "test",
+      UNISWAP_QUOTE_ENABLED: "true",
+      UNISWAP_API_KEY: "server-only-key"
+    });
+    expect(enabled.UNISWAP_QUOTE_ENABLED).toBe(true);
+    expect(loadEnv({ NODE_ENV: "test" }).UNISWAP_QUOTE_ENABLED).toBe(false);
+  });
 });

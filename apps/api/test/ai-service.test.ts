@@ -23,7 +23,7 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe("AI answer boundary", () => {
   it("keeps normalized facts and citations authoritative", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
       output_text: JSON.stringify({
         answer: "The source reports a successful transaction.",
         facts: { status: "invented", amount: "999" },
@@ -32,7 +32,8 @@ describe("AI answer boundary", () => {
         riskNotes: [{ severity: "high", title: "Invented", detail: "Invented" }],
         suggestedQuestions: ["What source supports this?"]
       })
-    }), { status: 200, headers: { "content-type": "application/json" } })));
+    }), { status: 200, headers: { "content-type": "application/json" } }));
+    vi.stubGlobal("fetch", fetchMock);
 
     const answer = await new AiService(loadEnv({ NODE_ENV: "test", OPENAI_API_KEY: "test-key" })).answer("Explain", entity);
 
@@ -40,6 +41,7 @@ describe("AI answer boundary", () => {
     expect(answer.citations).toEqual(entity.citations);
     expect(answer.riskNotes).toEqual(entity.riskNotes);
     expect(answer.answer).toBe("The source reports a successful transaction.");
+    expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toMatchObject({ store: false });
   });
 
   it("grounds transaction gas figures in the normalized receipt", async () => {
