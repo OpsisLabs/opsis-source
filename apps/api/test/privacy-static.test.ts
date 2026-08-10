@@ -30,10 +30,12 @@ describe("browser privacy static boundary", () => {
     const nginx = readFileSync(resolve(repositoryRoot, "apps/web/nginx.conf"), "utf8");
     const dockerfile = readFileSync(resolve(repositoryRoot, "apps/web/Dockerfile"), "utf8");
     const server = readFileSync(resolve(repositoryRoot, "apps/api/src/server.ts"), "utf8");
-    expect(nginx).toContain("proxy_pass http://${API_PRIVATE_HOST}:${API_PRIVATE_PORT}");
-    expect(dockerfile).toContain("ENV API_PRIVATE_HOST=api.railway.internal");
-    expect(dockerfile).toContain("ENV API_PRIVATE_PORT=4000");
-    expect(dockerfile).toContain("ENV NGINX_ENVSUBST_FILTER=API_PRIVATE_HOST|API_PRIVATE_PORT");
+    expect(nginx).toContain("proxy_pass ${API_UPSTREAM_SCHEME}://${API_UPSTREAM_HOST}:${API_UPSTREAM_PORT}");
+    expect(nginx).toContain("proxy_ssl_name ${API_UPSTREAM_HOST}");
+    expect(dockerfile).toContain("ENV API_UPSTREAM_SCHEME=http");
+    expect(dockerfile).toContain("ENV API_UPSTREAM_HOST=api.railway.internal");
+    expect(dockerfile).toContain("ENV API_UPSTREAM_PORT=4000");
+    expect(dockerfile).toContain("ENV NGINX_ENVSUBST_FILTER=API_UPSTREAM_SCHEME|API_UPSTREAM_HOST|API_UPSTREAM_PORT");
     expect(server).toContain('host: "::"');
   });
 
