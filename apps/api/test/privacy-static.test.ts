@@ -29,10 +29,12 @@ describe("browser privacy static boundary", () => {
   it("keeps the same-origin API proxy host and port runtime-configurable", () => {
     const nginx = readFileSync(resolve(repositoryRoot, "apps/web/nginx.conf"), "utf8");
     const dockerfile = readFileSync(resolve(repositoryRoot, "apps/web/Dockerfile"), "utf8");
+    const server = readFileSync(resolve(repositoryRoot, "apps/api/src/server.ts"), "utf8");
     expect(nginx).toContain("proxy_pass http://${API_PRIVATE_HOST}:${API_PRIVATE_PORT}");
     expect(dockerfile).toContain("ENV API_PRIVATE_HOST=api.railway.internal");
     expect(dockerfile).toContain("ENV API_PRIVATE_PORT=4000");
     expect(dockerfile).toContain("ENV NGINX_ENVSUBST_FILTER=API_PRIVATE_HOST|API_PRIVATE_PORT");
+    expect(server).toContain('host: "::"');
   });
 
   it("keeps the default private route outside auth and wallet providers", () => {
