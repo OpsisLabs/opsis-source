@@ -20,6 +20,7 @@ RUN pnpm --filter @rh-chain/web build
 FROM nginx:1.27-alpine
 COPY --from=build /app/apps/web/dist /usr/share/nginx/html
 ENV API_PRIVATE_HOST=api.railway.internal
-ENV NGINX_ENVSUBST_FILTER=API_PRIVATE_HOST
+ENV API_PRIVATE_PORT=4000
+ENV NGINX_ENVSUBST_FILTER=API_PRIVATE_HOST|API_PRIVATE_PORT
 COPY apps/web/nginx.conf /etc/nginx/templates/default.conf.template
 EXPOSE 80

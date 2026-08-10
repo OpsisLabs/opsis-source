@@ -26,6 +26,15 @@ describe("browser privacy static boundary", () => {
     expect(nginx).not.toContain("https://*.up.railway.app");
   });
 
+  it("keeps the same-origin API proxy host and port runtime-configurable", () => {
+    const nginx = readFileSync(resolve(repositoryRoot, "apps/web/nginx.conf"), "utf8");
+    const dockerfile = readFileSync(resolve(repositoryRoot, "apps/web/Dockerfile"), "utf8");
+    expect(nginx).toContain("proxy_pass http://${API_PRIVATE_HOST}:${API_PRIVATE_PORT}");
+    expect(dockerfile).toContain("ENV API_PRIVATE_HOST=api.railway.internal");
+    expect(dockerfile).toContain("ENV API_PRIVATE_PORT=4000");
+    expect(dockerfile).toContain("ENV NGINX_ENVSUBST_FILTER=API_PRIVATE_HOST|API_PRIVATE_PORT");
+  });
+
   it("keeps the default private route outside auth and wallet providers", () => {
     const app = readFileSync(resolve(repositoryRoot, "apps/web/src/App.tsx"), "utf8");
     expect(app).toContain('<Route path="/app" element={<PrivateExplorer />} />');
