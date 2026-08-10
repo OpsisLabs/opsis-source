@@ -23,6 +23,10 @@ export class AlchemyProvider implements Pick<ChainProvider, "name" | "getTransac
       (env.ENABLE_PUBLIC_RPC_FALLBACK ? env.ROBINHOOD_PUBLIC_RPC_URL : undefined);
   }
 
+  isConfigured(): boolean {
+    return Boolean(this.rpcUrl);
+  }
+
   async getTransaction(hash: string): Promise<SourceDocumentInput[]> {
     if (!this.rpcUrl) return [];
     const [tx, receipt] = await Promise.all([

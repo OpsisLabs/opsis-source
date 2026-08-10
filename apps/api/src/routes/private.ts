@@ -81,7 +81,7 @@ export async function privateRoutes(
           browserStorage: "memory_only" as const,
           clearsOnReload: true,
           modelProvider: "none" as const,
-          providerDestinations: [...new Set(resolution.sources.map((source) => source.provider))],
+          providerDestinations: resolution.providerDestinations,
           disclosure: "Only the public chain identifier is sent to the listed data providers. Your question is not sent to them or to a model provider."
         }
       };

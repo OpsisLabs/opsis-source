@@ -16,11 +16,12 @@ export class ChainEntityResolver {
   private readonly blockscout: ChainProvider;
   private readonly alchemy: {
     name: string;
+    isConfigured?(): boolean;
     getTransaction(hash: string): Promise<SourceDocumentInput[]>;
     getAddressSummary(address: string): Promise<SourceDocumentInput[]>;
     getAllowances(owner: string, targets: AllowanceTarget[]): Promise<SourceDocumentInput[]>;
   };
-  private readonly goldrush: Pick<ChainProvider, "name" | "getAddressSummary">;
+  private readonly goldrush: Pick<ChainProvider, "name" | "isConfigured" | "getAddressSummary">;
 
   constructor(
     private readonly env: Env,
@@ -30,11 +31,12 @@ export class ChainEntityResolver {
       blockscout: ChainProvider;
       alchemy: {
         name: string;
+        isConfigured?(): boolean;
         getTransaction(hash: string): Promise<SourceDocumentInput[]>;
         getAddressSummary(address: string): Promise<SourceDocumentInput[]>;
         getAllowances(owner: string, targets: AllowanceTarget[]): Promise<SourceDocumentInput[]>;
       };
-      goldrush: Pick<ChainProvider, "name" | "getAddressSummary">;
+      goldrush: Pick<ChainProvider, "name" | "isConfigured" | "getAddressSummary">;
     }
   ) {
     this.blockscout = providers?.blockscout ?? new BlockscoutProvider(env);
@@ -61,34 +63,41 @@ export class ChainEntityResolver {
     const stale = options.refresh || !mayUseServerStorage ? undefined : await this.getPersisted(cacheKey, true);
     let resolvedType = identified.type;
     let docs: SourceDocumentInput[] = [];
+    const providerDestinations = new Set<string>();
     if (identified.type === "transaction") {
-      const providerResults = await Promise.allSettled([
-        this.blockscout.getTransaction(identified.value),
-        this.alchemy.getTransaction(identified.value)
-      ]);
+      const providerResults = await Promise.allSettled(compactProviderRequests([
+        providerRequest(this.blockscout, providerDestinations, () => this.blockscout.getTransaction(identified.value)),
+        providerRequest(this.alchemy, providerDestinations, () => this.alchemy.getTransaction(identified.value))
+      ]));
       docs = providerResults.flatMap((result) => result.status === "fulfilled" ? result.value : []);
       if (docs.length === 0) {
-        if (stale) return markStale(stale);
+        if (stale) return markStale(stale, providerDestinations);
         throwProviderFailure(providerResults);
       }
     } else if (identified.type === "wallet") {
-      const providerResults = await Promise.allSettled([
-        this.blockscout.getAddressSummary(identified.value, {
+      const providerResults = await Promise.allSettled(compactProviderRequests([
+        providerRequest(this.blockscout, providerDestinations, () => this.blockscout.getAddressSummary(identified.value, {
           limit,
           detail: options.privateMode ? "summary" : "full"
-        }),
-        this.alchemy.getAddressSummary(identified.value),
-        this.goldrush.getAddressSummary(identified.value)
-      ]);
+        })),
+        providerRequest(this.alchemy, providerDestinations, () => this.alchemy.getAddressSummary(identified.value)),
+        providerRequest(this.goldrush, providerDestinations, () => this.goldrush.getAddressSummary(identified.value))
+      ]));
       docs = providerResults.flatMap((result) => result.status === "fulfilled" ? result.value : []);
       if (docs.length === 0) {
-        if (stale) return markStale(stale);
+        if (stale) return markStale(stale, providerDestinations);
         throwProviderFailure(providerResults);
       }
       if (inputType === "unknown") {
         resolvedType = classifyAddressSources(docs);
-        if (resolvedType === "token") docs.push(...(await this.blockscout.getToken(identified.value, { limit })));
-        if (resolvedType === "contract") docs.push(...(await this.blockscout.getContract(identified.value, { limit })));
+        if (resolvedType === "token") {
+          providerDestinations.add(this.blockscout.name);
+          docs.push(...(await this.blockscout.getToken(identified.value, { limit })));
+        }
+        if (resolvedType === "contract") {
+          providerDestinations.add(this.blockscout.name);
+          docs.push(...(await this.blockscout.getContract(identified.value, { limit })));
+        }
       }
       if (resolvedType === "wallet") {
         const provisional = normalizeEntity(this.env.ROBINHOOD_CHAIN_ID, resolvedType, identified.value, docs);
@@ -103,17 +112,19 @@ export class ChainEntityResolver {
         docs.push(...(await this.alchemy.getAllowances(identified.value, targets)));
       }
     } else if (identified.type === "token") {
+      providerDestinations.add(this.blockscout.name);
       try {
         docs = await this.blockscout.getToken(identified.value, { limit });
       } catch (error) {
-        if (stale) return markStale(stale);
+        if (stale) return markStale(stale, providerDestinations);
         throw error;
       }
     } else if (identified.type === "contract") {
+      providerDestinations.add(this.blockscout.name);
       try {
         docs = await this.blockscout.getContract(identified.value, { limit });
       } catch (error) {
-        if (stale) return markStale(stale);
+        if (stale) return markStale(stale, providerDestinations);
         throw error;
       }
     }
@@ -128,9 +139,10 @@ export class ChainEntityResolver {
         fetchedAt: new Date().toISOString()
       }];
     }
-    const resolution = {
+    const resolution: ResolvedEntity = {
       entity: normalizeEntity(this.env.ROBINHOOD_CHAIN_ID, resolvedType, identified.value, docs, this.env.ROBINHOOD_EXPLORER_URL),
-      sources: docs
+      sources: docs,
+      providerDestinations: [...providerDestinations]
     };
     if (resolvedType === "wallet") applyWalletOptions(resolution.entity, options);
     const ttlSeconds = cacheTtlSeconds(resolvedType);
@@ -198,9 +210,10 @@ export function validateEntityInput(inputType: ChainEntityType, input: string): 
   );
 }
 
-function markStale(resolution: ResolvedEntity): ResolvedEntity {
+function markStale(resolution: ResolvedEntity, providerDestinations: Set<string>): ResolvedEntity {
   return {
     ...resolution,
+    providerDestinations: [...providerDestinations],
     entity: {
       ...resolution.entity,
       facts: { ...resolution.entity.facts, cacheStatus: "stale" },
@@ -215,6 +228,22 @@ function markStale(resolution: ResolvedEntity): ResolvedEntity {
       ]
     }
   };
+}
+
+type ProviderDestination = { name: string; isConfigured?(): boolean };
+
+function providerRequest<T>(
+  provider: ProviderDestination,
+  destinations: Set<string>,
+  request: () => Promise<T>
+): Promise<T> | undefined {
+  if (provider.isConfigured && !provider.isConfigured()) return undefined;
+  destinations.add(provider.name);
+  return Promise.resolve().then(request);
+}
+
+function compactProviderRequests<T>(requests: Array<Promise<T> | undefined>): Promise<T>[] {
+  return requests.filter((request): request is Promise<T> => request !== undefined);
 }
 
 function cacheTtlSeconds(type: ChainEntityType): number {

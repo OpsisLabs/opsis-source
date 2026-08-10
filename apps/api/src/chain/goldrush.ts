@@ -8,6 +8,10 @@ export class GoldRushProvider {
 
   constructor(private readonly env: Env, private readonly http: ProviderHttp = createProviderHttp(env, "goldrush")) {}
 
+  isConfigured(): boolean {
+    return this.env.GOLDRUSH_ENABLED && Boolean(this.env.GOLDRUSH_API_KEY);
+  }
+
   async getAddressSummary(address: string): Promise<SourceDocumentInput[]> {
     if (!this.env.GOLDRUSH_ENABLED || !this.env.GOLDRUSH_API_KEY) return [];
     const paths = [

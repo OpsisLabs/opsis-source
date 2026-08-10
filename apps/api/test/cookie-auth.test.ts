@@ -115,7 +115,8 @@ describe("HttpOnly browser sessions", () => {
   it("enforces exact Origin, JSON, Fetch Metadata, and the custom header when enabled", async () => {
     const resolve = vi.fn(async () => ({
       entity: { chainId: 4663, type: "wallet" as const, value: "0x0000000000000000000000000000000000000042", facts: {}, citations: [], riskNotes: [] },
-      sources: []
+      sources: [],
+      providerDestinations: []
     }));
     const answer = vi.fn(async () => ({
       answer: "safe",

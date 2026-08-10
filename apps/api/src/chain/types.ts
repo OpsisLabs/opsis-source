@@ -13,6 +13,8 @@ export type SourceDocumentInput = {
 
 export type ChainProvider = {
   name: string;
+  /** Whether calling this provider can make an external network request. */
+  isConfigured?(): boolean;
   getTransaction(hash: string): Promise<SourceDocumentInput[]>;
   getAddressSummary(address: string, options?: ProviderQueryOptions): Promise<SourceDocumentInput[]>;
   getToken(address: string, options?: ProviderQueryOptions): Promise<SourceDocumentInput[]>;
@@ -31,6 +33,8 @@ export type EntityResolver = {
 export type ResolvedEntity = {
   entity: NormalizedEntity;
   sources: SourceDocumentInput[];
+  /** External providers that received the entity, including failed attempts. */
+  providerDestinations: string[];
 };
 
 export type ResolveOptions = {

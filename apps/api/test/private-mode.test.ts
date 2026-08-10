@@ -56,6 +56,7 @@ describe("no-account Private Mode", () => {
   it("returns an ephemeral deterministic analysis without auth or server records", async () => {
     const resolve = vi.fn(async () => ({
       entity,
+      providerDestinations: ["blockscout"],
       sources: [{
         id: "source-1",
         provider: "blockscout",
@@ -190,6 +191,57 @@ describe("no-account Private Mode", () => {
     expect(persistedUpsert).not.toHaveBeenCalled();
   });
 
+  it("discloses a configured provider that received the identifier and then failed", async () => {
+    const source: SourceDocumentInput = {
+      id: "blockscout-source",
+      provider: "blockscout",
+      chainId: 4663,
+      entityType: "wallet",
+      entityValue: identifier,
+      responseJson: { hash: identifier, is_contract: false, coin_balance: "0" },
+      fetchedAt: "2026-08-10T00:00:00.000Z"
+    };
+    const failingAlchemy = {
+      name: "alchemy",
+      isConfigured: () => true,
+      getTransaction: vi.fn(async () => []),
+      getAddressSummary: vi.fn(async () => { throw new Error("provider failed after receiving identifier"); }),
+      getAllowances: vi.fn(async () => [])
+    };
+    const disabledGoldrush = {
+      name: "goldrush",
+      isConfigured: () => false,
+      getAddressSummary: vi.fn(async () => [])
+    };
+    const resolver = new ChainEntityResolver(loadEnv({ NODE_ENV: "test" }), new JsonCache(undefined, 60), undefined, {
+      blockscout: { ...provider({ address: [source] }), name: "blockscout" },
+      alchemy: failingAlchemy,
+      goldrush: disabledGoldrush
+    });
+
+    const resolution = await resolver.resolveWithSources("wallet", identifier, { privateMode: true });
+
+    expect(failingAlchemy.getAddressSummary).toHaveBeenCalledWith(identifier);
+    expect(disabledGoldrush.getAddressSummary).not.toHaveBeenCalled();
+    expect(resolution.providerDestinations).toEqual(["blockscout", "alchemy"]);
+
+    const app = await buildApp(loadEnv({ NODE_ENV: "test", LOG_LEVEL: "silent" }), undefined, {
+      privateAnalysis: {
+        resolve: vi.fn(async () => resolution),
+        answer: vi.fn(async () => answer)
+      }
+    });
+    apps.push(app);
+    const response = await app.inject({
+      method: "POST",
+      url: "/v1/private/analyze",
+      payload: { entity: identifier }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().privacy.providerDestinations).toEqual(["blockscout", "alchemy"]);
+  });
+
   it("keeps private canaries out of request logs and aggregate metrics", async () => {
     const marker = "question-canary-7f4e-never-log";
     const written: string[] = [];
@@ -200,7 +252,7 @@ describe("no-account Private Mode", () => {
     try {
       const app = await buildApp(loadEnv({ NODE_ENV: "test", LOG_LEVEL: "info", ENABLE_METRICS: "true" }), undefined, {
         privateAnalysis: {
-          resolve: vi.fn(async () => ({ entity, sources: [] })),
+          resolve: vi.fn(async () => ({ entity, sources: [], providerDestinations: [] })),
           answer: vi.fn(async () => answer)
         }
       });
