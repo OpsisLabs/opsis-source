@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "47bd715c3632d897f18c08bf9c0715e2a10e5f676c7ea499740f4b3e574d8bac",
+  "sourceTreeDigest": "376f9e965062d529d413b67fa0b907e87dda5967c9b601ddb609569bf20bba16",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "6de483a40bab54c0cacb843f84ef5bd540a3f1e62356cd4592aeff6f31ddc79a",
@@ -96,7 +96,7 @@
     "apps/api/test/persistence.test.ts": "80222d5b2e3b93f5571006e14927f9623abb7729317b728014e2cdaac42e140b",
     "apps/api/test/portfolio-budget.test.ts": "941fc9aa762128964216df8cffa95075dd31c07d01c8e36f9324a0138a8bc720",
     "apps/api/test/portfolio.test.ts": "9ad4de5cc4eb0eecd8c8a3b6efa1b9a39275726b8986793fcb7e64ce1f22c1dc",
-    "apps/api/test/privacy-static.test.ts": "567b63f4de16c59ac1420e457a36cac729c953bab4cc8af87de80129c716adcc",
+    "apps/api/test/privacy-static.test.ts": "7411fc28d4374f6e2b213d398f8ac35a7129e82d6cfd757fafbda8153b3dfb13",
     "apps/api/test/privacy.test.ts": "cbbb802a0d040015dba38db2a8a884690c193cd4f9bdb882d912d8158ae24b62",
     "apps/api/test/private-mode.test.ts": "3da60853389b29af2c6f5b14bc85c4e3b1d53249bc6c9d62d4244ee445439a15",
     "apps/api/test/provider-contract.test.ts": "cbeba14eea0ea217588b4369f245b3e1365086e0df0d3e36100cae113f0b0fab",
@@ -109,7 +109,7 @@
     "apps/api/test/swap.test.ts": "0ea959d2894adaaeeedc1c7907ba31dcaffbdcb5436db0ee22b8f81ecdd0b76b",
     "apps/api/tsconfig.json": "e2e050a63981f688ed3acb17a9c499859508e91701c50411e44a8345dbfb355b",
     "apps/web/.gitignore": "fe718e7babb14f3cbad2d97f08889b9ce5215ed3fe0e43b2b8cfbfb3b9b844e8",
-    "apps/web/Dockerfile": "e198874936ba881db6aae63f7c9d42bca68faf83e1e28e4d62b48f37882fad1f",
+    "apps/web/Dockerfile": "d34d9f87f59f2d62dfc2015685d3f12e0bf5c1843698e32d2c001065633ffd98",
     "apps/web/eslint.config.js": "4efe97b16d1200fac0eaf07aa00930a8668b1f96a0be1891ace8c1e712ff0ccb",
     "apps/web/index.html": "7b0437bc71e5ca2a5e4655ea0c93ea6b071978b731a865db3730c82e1860c553",
     "apps/web/nginx.conf": "846351e44bedf306f5009190d5f188466437828ec9536546f9f7d5b918af18e3",

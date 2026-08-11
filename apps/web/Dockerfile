@@ -3,8 +3,10 @@ WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@8.15.9 --activate
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
 COPY apps/web/package.json apps/web/package.json
+COPY packages/shared/package.json packages/shared/package.json
 RUN pnpm install --frozen-lockfile
 COPY apps/web apps/web
+COPY packages/shared packages/shared
 ARG VITE_API_BASE_URL=
 ARG VITE_BUILD_SHA
 ARG VITE_PUBLIC_SITE_URL
@@ -15,7 +17,7 @@ ENV VITE_BUILD_SHA=$VITE_BUILD_SHA
 ENV VITE_PUBLIC_SITE_URL=$VITE_PUBLIC_SITE_URL
 ENV RAILWAY_GIT_COMMIT_SHA=$RAILWAY_GIT_COMMIT_SHA
 ENV RAILWAY_PUBLIC_DOMAIN=$RAILWAY_PUBLIC_DOMAIN
-RUN pnpm --filter @rh-chain/web build
+RUN pnpm --filter @rh-chain/shared build && pnpm --filter @rh-chain/web build
 
 FROM nginx:1.27-alpine
 RUN apk add --no-cache ca-certificates

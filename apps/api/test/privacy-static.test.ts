@@ -41,6 +41,9 @@ describe("browser privacy static boundary", () => {
     expect(dockerfile).toContain("ENV API_UPSTREAM_PORT=4000");
     expect(dockerfile).toContain("ENV NGINX_ENVSUBST_FILTER=API_UPSTREAM_SCHEME|API_UPSTREAM_HOST|API_UPSTREAM_PORT");
     expect(dockerfile).toContain("RUN apk add --no-cache ca-certificates");
+    expect(dockerfile).toContain("COPY packages/shared/package.json packages/shared/package.json");
+    expect(dockerfile).toContain("COPY packages/shared packages/shared");
+    expect(dockerfile).toContain("RUN pnpm --filter @rh-chain/shared build && pnpm --filter @rh-chain/web build");
     expect(server).toContain('host: "::"');
   });
 
