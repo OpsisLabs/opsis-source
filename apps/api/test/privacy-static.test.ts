@@ -103,8 +103,10 @@ describe("browser privacy static boundary", () => {
     expect(marketing).not.toMatch(/finalized block/i);
     expect(marketing).not.toMatch(/\balchemy\b|\bgoldrush\b/i);
     expect(marketing).not.toMatch(/12,408|98\.4%|99\.95%|3\.2s|86%|14%/);
+    expect(marketing).not.toContain("Provider failure leaves the prior local snapshot unchanged");
     expect(marketing).toContain("Robinhood Public RPC");
     expect(marketing).toContain("captured current block");
+    expect(marketing).toContain("partial provider results are visibly marked");
   });
 
   it("discloses every class of public identifier derived for direct portfolio verification", () => {

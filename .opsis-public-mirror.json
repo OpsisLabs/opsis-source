@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "d8e200668872eb6440dfc6226c667762eea7400366d2d1c134536de39016246f",
+  "sourceTreeDigest": "7f07bd93ad53b1210e95608ad4221f5c06591656b527846e101c5dc6f086601a",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "6de483a40bab54c0cacb843f84ef5bd540a3f1e62356cd4592aeff6f31ddc79a",
@@ -96,7 +96,7 @@
     "apps/api/test/persistence.test.ts": "80222d5b2e3b93f5571006e14927f9623abb7729317b728014e2cdaac42e140b",
     "apps/api/test/portfolio-budget.test.ts": "941fc9aa762128964216df8cffa95075dd31c07d01c8e36f9324a0138a8bc720",
     "apps/api/test/portfolio.test.ts": "620a6aa69848d3108e22ce9a7ec0ea8aa7ca90d8d3776f5465a8455bf79e73ab",
-    "apps/api/test/privacy-static.test.ts": "84c086d0580f038b7ac26df0530277c808a26d1fd9f9873aa66c08ee311e10f3",
+    "apps/api/test/privacy-static.test.ts": "27e46730f8be6498242d9ac5feac43f3380c31b8400787013190bad5a6875857",
     "apps/api/test/privacy.test.ts": "cbbb802a0d040015dba38db2a8a884690c193cd4f9bdb882d912d8158ae24b62",
     "apps/api/test/private-mode.test.ts": "3da60853389b29af2c6f5b14bc85c4e3b1d53249bc6c9d62d4244ee445439a15",
     "apps/api/test/provider-contract.test.ts": "cbeba14eea0ea217588b4369f245b3e1365086e0df0d3e36100cae113f0b0fab",
@@ -157,7 +157,7 @@
     "apps/web/src/sections/FooterCta.tsx": "833d298d2d74c67f0a64eccd534f7cd7394d2f924605a76988b4ba0189c996af",
     "apps/web/src/sections/Hero.tsx": "8a26de7e9ce78b93fe32b46a7143641d77dfb0caa7fe9175fd3b3a1aae786e96",
     "apps/web/src/sections/Integrations.tsx": "2be5e6ef0b4a4079d8a8b01b44e6f77df3b242c0b98bc6fa1bd38e5559a1fcae",
-    "apps/web/src/sections/Numbers.tsx": "55e98081d6b979802ccfa85c172e968b314212ca9d052da0e2b1309dc767bc2a",
+    "apps/web/src/sections/Numbers.tsx": "a51b4ce70624bc5ae394244cb6c87c9a7dd0fa42ca7fb9218ec2fe9028843725",
     "apps/web/src/sections/Overview.tsx": "205cc6e42933a6da1f6d9208d7b1d513421d5b2e966b423796c358528c0b0cbc",
     "apps/web/src/sections/Safety.tsx": "85157d2164f761b2df8799aad27bc0998c74eaaa920b1639d0bbc2a60fcd497b",
     "apps/web/src/sections/Sidebar.tsx": "70aabec6d67aef81e4746c0aabb89d0207f2827c7effa3a13cfa142f5259e5db",

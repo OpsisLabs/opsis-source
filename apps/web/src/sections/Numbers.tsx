@@ -112,7 +112,7 @@ export default function Numbers() {
             <Card title="SERVER PORTFOLIO COPY" sub="Queries and snapshot responses" className="flex-1">
               <p className="font-num mt-4 text-[40px] leading-none">NONE</p>
               <p className="mt-5 text-[13.5px] leading-relaxed text-[#1d1d1d]/65">
-                The useful ownership context is encrypted in the browser Vault. Provider failure leaves the prior local snapshot unchanged.
+                The useful ownership context is encrypted in the browser Vault. A failed refresh leaves the prior snapshot unchanged; partial provider results are visibly marked.
               </p>
             </Card>
           </div>
