@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "06-collectible-catalog",
+  "activeRelease": "07-market-inventory",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement",
@@ -61,7 +61,7 @@
       "id": "06-collectible-catalog",
       "branch": "release/06-collectible-catalog",
       "tagPrefix": "rc/06-collectible-catalog/",
-      "status": "active",
+      "status": "released",
       "outcome": "Add cards and collectibles without a spreadsheet",
       "shipGate": "A field-selective TCGdex GraphQL request resolves English card ID, set, collector number, category, rarity, and illustrator without requesting artwork, marketplace pricing, or printing metadata. Owner-supplied printing or variant, condition, grade, certificate, locally sanitized photo, and dated manual value source are explicitly labeled and encrypted locally; none is treated as provider-verified authenticity, current market data, or inventory. Manual assets remain usable without a match or provider."
     },
@@ -70,7 +70,7 @@
       "id": "07-market-inventory",
       "branch": "release/07-market-inventory",
       "tagPrefix": "rc/07-market-inventory/",
-      "status": "queued",
+      "status": "active",
       "outcome": "Compare fresh liquidity, prices, stock, and trust",
       "shipGate": "Exact-match confidence, source freshness, landed-cost inputs, inventory state, and provider-reported reputation are visible; unsupported venues use precise search handoffs instead of scraping."
     },
