@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "97f9c9c262d87577ac0509bd32e4ad99511caf53ba65220b26b8c74ac856d286",
+  "sourceTreeDigest": "3e8b236471d2e2b28ed677344e62664970b6978ecab4d25a52d90aed0f4b72bb",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "3aac7de446fbc3b32cb079aab2a5f8caaf2987d0bcd8d8ef3dac2471b05a3cd8",
@@ -38,7 +38,7 @@
     "apps/api/src/chain/types.ts": "532f5721c792810071e45ee2152466209a463c12a0862e1b1e91f92b11cbba98",
     "apps/api/src/chat/repository.ts": "b6ddecec7c8b54c9cb4c34952b713fea3b5e6d7f172dc60c2e903c029f027285",
     "apps/api/src/collectibles/budget.ts": "9263fcb9787f2da008e4933042664125ff578718758dc5f88ed66fe81e7e964f",
-    "apps/api/src/collectibles/service.ts": "0e95aec22bc1b2b56d504be26f28a3434012da11cfd03fae304c4688f209c4f5",
+    "apps/api/src/collectibles/service.ts": "6d0ea3422c057f89db2dc9eec0ed980417d43427de42bf2dce2ab895fdb8b661",
     "apps/api/src/config/env.ts": "75763e96784ce256c4065482671223f9498b8b078b29fc9b646d2807ea06d956",
     "apps/api/src/db/memory.ts": "0408df707a6a5b973bf1f185baf2c1b96b8a924f6392e2b3f71f1b123441f979",
     "apps/api/src/db/prisma.ts": "c83df9960efdc4f84b13126cfe325e278c4ac0afebfc996a928f57addaf20733",
@@ -81,7 +81,7 @@
     "apps/api/test/cache.test.ts": "14c23b408b9865bb25dbf16b01fc044c7c6d7e4b01d51e3c5730f203dbbab068",
     "apps/api/test/chat-ownership.test.ts": "cdb796feb849f134aa66fdb8acfc6d0e721e621b3a31a00b5157a55bc4e3f120",
     "apps/api/test/collectible-budget.test.ts": "fd38ccb9519e37b3651194d4123c0b32e76d3c9512d17efe2abc898ad6c4e5be",
-    "apps/api/test/collectibles.test.ts": "10795ba230d3ef03b5d3bc3d60012929f381ac707c726c27ab86b8c760fdf85c",
+    "apps/api/test/collectibles.test.ts": "d76715c99b93f9602c655dd00f0d82e51423fa0c79bcfd3b5c7a69d6c2d2710c",
     "apps/api/test/config.test.ts": "7289bbfe4adab0f48b7dcc992f1942942262452adf423372d296ae4556eeec77",
     "apps/api/test/cookie-auth.test.ts": "0602ff4353048c2ad0a3d9fc87b4473905022bb2ef86e17e8d0c45f879cda2b0",
     "apps/api/test/fixtures/alchemy-transaction.json": "ada19ddb8e07de842978574237d5b3826ffce36ad604695ffeec6ad26fac6319",

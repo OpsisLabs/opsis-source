@@ -60,7 +60,7 @@ export class CollectibleCatalogService implements CollectibleCatalogSource {
     const query = normalizeSearch(input);
     const body = graphqlField(await this.request(SEARCH_QUERY, {
       name: query.name,
-      localId: query.number ?? null
+      ...(query.number ? { localId: query.number } : {})
     }), "cards");
     if (!Array.isArray(body) || body.length > MAX_PROVIDER_RESULTS) {
       throw malformed("TCGdex returned an invalid or unbounded search document");

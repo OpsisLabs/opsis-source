@@ -51,8 +51,10 @@ describe("collectible catalog", () => {
   });
 
   it("distinguishes a valid empty search from a bounded truncated result set", async () => {
-    const empty = await service({ requestJson: vi.fn(async () => searchGraphql([])) }).search({ language: "en", name: "Missing Card" });
+    const emptyRequest = vi.fn(async () => searchGraphql([]));
+    const empty = await service({ requestJson: emptyRequest }).search({ language: "en", name: "Missing Card" });
     expect(empty).toMatchObject({ results: [], matchesShown: 0, truncated: false });
+    expect(JSON.parse(String(emptyRequest.mock.calls[0][1].body)).variables).toEqual({ name: "Missing Card" });
 
     const body = Array.from({ length: 25 }, (_, index) => ({ id: `set-${index + 1}`, localId: String(index + 1), name: "Pikachu" }));
     const bounded = await service({ requestJson: vi.fn(async () => searchGraphql(body)) }).search({ language: "en", name: "Pikachu" });
