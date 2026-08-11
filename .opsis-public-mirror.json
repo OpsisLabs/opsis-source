@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "65263bb77f7e5613dec940837aec739f60d0c664dbbede6cfdd6ecdbd1e67371",
+  "sourceTreeDigest": "64213d5fbc34fcefe9a2f9ac7e9a5cd84ff406b0463a06f1b30b7cbc3952128d",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "de6dc750d8fa18ad811b56a4b78eca0c480902bcd83cdf560b50fa0ad3a38bcc",
@@ -16,7 +16,7 @@
     "apps/api/prisma/migrations/20260810223000_account_privacy_cascades/migration.sql": "df1e1366e32575233fcccea7294eb3d71a8eea381854c705cd612f3c0e8694fa",
     "apps/api/prisma/migrations/migration_lock.toml": "693566b52c49db47a2b0901d12400aa3d710d13a49f4a2a154b80c0505ed737c",
     "apps/api/prisma/schema.prisma": "a45880a7506fcf7ace76b8e9e547f6f1f433b9c207d2bbb65b8a9a5b971b4586",
-    "apps/api/railway.json": "427f5e9b0002e84c1dd30479db6160df466ca5948884966ce2d0d193a0ccf748",
+    "apps/api/railway.json": "87779036df5750b35d2380ab8f3a865eb8d375e858855075acba9c8a022be798",
     "apps/api/src/account/repository.ts": "c4374f14a4c1caa3680b7f41955e983e9d21970e24f8b1d1bc09ee3c42332700",
     "apps/api/src/ai/provider.ts": "174da159571bb2e73b9c34ef5274d1d51e72e944dca6172664682a254d8aea1a",
     "apps/api/src/ai/service.ts": "15f874b73c8a598d768171c552072ebdd570ae20fa27eb56fc0c5df1807dbca9",
@@ -91,7 +91,7 @@
     "apps/api/test/ollama.integration.test.ts": "f04b505e4f444d55a07e487158528bf07ee8d264122002f00d4c643cd86ec165",
     "apps/api/test/persistence.integration.test.ts": "a442f1efaafc40bd8d2c3c24fdda191b9d820f37ac78f5ba2bc1b25945a29a51",
     "apps/api/test/persistence.test.ts": "80222d5b2e3b93f5571006e14927f9623abb7729317b728014e2cdaac42e140b",
-    "apps/api/test/privacy-static.test.ts": "32a99ee481a7760d05a1cc022c1152ca03382422ab7aa1ffcc7c85440f8f4335",
+    "apps/api/test/privacy-static.test.ts": "db1d25ed02e7125267c0e6c1e3360ba5f31e66afcda01cda58bdd83ce8737009",
     "apps/api/test/privacy.test.ts": "cbbb802a0d040015dba38db2a8a884690c193cd4f9bdb882d912d8158ae24b62",
     "apps/api/test/private-mode.test.ts": "3da60853389b29af2c6f5b14bc85c4e3b1d53249bc6c9d62d4244ee445439a15",
     "apps/api/test/provider-contract.test.ts": "cbeba14eea0ea217588b4369f245b3e1365086e0df0d3e36100cae113f0b0fab",

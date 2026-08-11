@@ -48,7 +48,9 @@ describe("browser privacy static boundary", () => {
     const railway = readFileSync(resolve(repositoryRoot, "apps/api/railway.json"), "utf8");
     const dockerfile = readFileSync(resolve(repositoryRoot, "apps/api/Dockerfile"), "utf8");
     const envExample = readFileSync(resolve(repositoryRoot, ".env.example"), "utf8");
-    expect(railway).toContain("node /app/apps/api/dist/ops/verify-deployment-schema.js");
+    expect(JSON.parse(railway).deploy.preDeployCommand).toBe(
+      "node /app/apps/api/dist/ops/verify-deployment-schema.js"
+    );
     expect(railway).not.toContain("migrate deploy");
     expect(railway).not.toContain("DIRECT_URL");
     expect(dockerfile).toContain("COPY --from=build /app/apps/api/dist apps/api/dist");
