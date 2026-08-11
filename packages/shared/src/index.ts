@@ -158,3 +158,51 @@ export type PortfolioSnapshot = {
     disclosure: string;
   };
 };
+
+export type CollectibleLanguage = "en" | "fr" | "es" | "de" | "it" | "pt" | "ja";
+
+export type CollectibleCardBrief = {
+  catalogId: string;
+  name: string;
+  number: string;
+};
+
+export type CollectibleCardDetail = {
+  provider: "tcgdex";
+  catalogId: string;
+  language: CollectibleLanguage;
+  name: string;
+  number: string;
+  category: string;
+  set: { id: string; name: string; officialCount: number; totalCount: number };
+  rarity: string | null;
+  illustrator: string | null;
+  catalogUpdatedAt: string | null;
+  fetchedAt: string;
+  sourceUrl: string;
+  licenseUrl: string;
+};
+
+export type CollectiblePrivacyReceipt = {
+  accountRequired: false;
+  walletConnectionRequired: false;
+  serverStorage: "none";
+  modelProvider: "none";
+  providerDestinations: ["TCGdex"];
+  disclosure: string;
+};
+
+export type CollectibleSearchResponse = {
+  query: { language: CollectibleLanguage; name: string; number: string | null; setId: string | null };
+  results: CollectibleCardBrief[];
+  matchesShown: number;
+  truncated: boolean;
+  fetchedAt: string;
+  source: { provider: "tcgdex"; url: string; licenseUrl: string };
+  privacy: CollectiblePrivacyReceipt;
+};
+
+export type CollectibleDetailResponse = {
+  card: CollectibleCardDetail;
+  privacy: CollectiblePrivacyReceipt;
+};

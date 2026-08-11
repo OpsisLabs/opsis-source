@@ -117,6 +117,18 @@ export function PrivacyPage() {
           connect a wallet, or prepare a transaction.
         </p>
         <p>
+          <span className="text-[#e9e0d1]">Collectible Catalog.</span> After an on-screen confirmation,
+          ChainScout receives the English card name, optional set, and optional collector
+          number; TCGdex receives only the name and optional collector number. A selected
+          public card ID is sent to both for detail lookup. An encrypted permission-attempt
+          receipt is saved locally first.
+          ChainScout uses field-selective GraphQL requests and does not request artwork, logos,
+          marketplace prices, inventory, third-party fields, or printing metadata. It does not
+          cache the query or result or send it to a model. Owner-entered printing, condition,
+          grade, certificate, sanitized photo, purchase data, notes, and dated manual value sources
+          remain in the encrypted local Vault and are not included in catalog requests.
+        </p>
+        <p>
           <span className="text-[#e9e0d1]">Saved cloud queries.</span> Only queries submitted inside
           the optional saved cloud workspace are stored with chat sessions so you can revisit them. All
           queried chain data is already public on Robinhood Chain.
@@ -181,6 +193,13 @@ export function PrivacyPage() {
           unless direct evidence proves a narrower fact. An onchain token, image, serial number,
           certificate, or provider listing does not prove a physical object exists or is authentic.
         </p>
+        <p>
+          Collectible Catalog names TCGdex before each lookup. TCGdex applies its own terms and
+          policies to public catalog searches. A catalog match identifies English card and set
+          metadata; printing or variant remains owner-entered. It does not authenticate the object you own, verify an owner-entered grade or
+          certificate, provide a current appraisal, or establish that marketplace inventory exists.
+          External catalog/license/source links open only after your explicit click.
+        </p>
       </Section>
 
       <Section n="06" title="Security">
@@ -197,7 +216,8 @@ export function PrivacyPage() {
           from the Vault passphrase wraps that master key with authenticated encryption. Each
           encrypted record receives a fresh authenticated-encryption nonce bound to its vault,
           record identity, and record version. This includes local Portfolio Intelligence snapshots,
-          labels, permission receipts, and reference valuations. The unlocked key is non-exportable and held only in page memory; reload,
+          catalog-backed collectible identities, owner claims, labels, permission receipts, and
+          reference valuations. The unlocked key is non-exportable and held only in page memory; reload,
           manual lock, and inactivity lock remove the app's reference to it. Browser JavaScript
           cannot guarantee erasure from the device's memory, and an unlocked Vault cannot protect
           against a compromised device, malicious browser extension, or hostile code running on

@@ -116,4 +116,17 @@ describe("environment validation", () => {
       ROBINHOOD_CHAIN_ID: "1"
     })).toThrow(/chain ID 4663/);
   });
+
+  it("pins enabled Collectible Catalog to the official TCGdex v2 endpoint", () => {
+    expect(loadEnv({ NODE_ENV: "development", COLLECTIBLE_CATALOG_ENABLED: "true" }).COLLECTIBLE_CATALOG_ENABLED).toBe(true);
+    expect(() => loadEnv({
+      NODE_ENV: "development", COLLECTIBLE_CATALOG_ENABLED: "true", TCGDEX_API_BASE_URL: "https://api.tcgdex.net.evil.example/v2"
+    })).toThrow(/official TCGdex v2 endpoint/);
+    expect(() => loadEnv({
+      NODE_ENV: "development", COLLECTIBLE_CATALOG_ENABLED: "true", TCGDEX_API_BASE_URL: "https://api.tcgdex.net/v2?redirect=evil"
+    })).toThrow(/official TCGdex v2 endpoint/);
+    expect(loadEnv({
+      NODE_ENV: "test", COLLECTIBLE_CATALOG_ENABLED: "true", TCGDEX_API_BASE_URL: "http://127.0.0.1:9090/v2"
+    }).TCGDEX_API_BASE_URL).toBe("http://127.0.0.1:9090/v2");
+  });
 });

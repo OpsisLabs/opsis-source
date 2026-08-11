@@ -88,4 +88,18 @@ describe("provider HTTP resilience", () => {
 
     expect(peak).toBe(2);
   });
+
+  it("fails closed before parsing oversized or malformed provider documents", async () => {
+    const oversized = new ProviderHttpClient(
+      { ...options, maxRetries: 0, maxResponseBytes: 16 },
+      { fetch: vi.fn(async () => new Response(JSON.stringify({ payload: "A".repeat(64) }))), now: () => 0, sleep: async () => undefined }
+    );
+    await expect(oversized.requestJson("https://provider.test/oversized")).rejects.toMatchObject({ code: "PROVIDER_RESPONSE_TOO_LARGE" });
+
+    const malformed = new ProviderHttpClient(
+      { ...options, maxRetries: 0, maxResponseBytes: 1_024 },
+      { fetch: vi.fn(async () => new Response("not-json")), now: () => 0, sleep: async () => undefined }
+    );
+    await expect(malformed.requestJson("https://provider.test/malformed")).rejects.toMatchObject({ code: "PROVIDER_MALFORMED_RESPONSE" });
+  });
 });

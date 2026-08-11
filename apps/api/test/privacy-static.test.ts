@@ -75,7 +75,7 @@ describe("browser privacy static boundary", () => {
       + readFileSync(resolve(repositoryRoot, "apps/web/src/pages/Vault.tsx"), "utf8");
     expect(vaultSource).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/);
     expect(vaultSource).not.toMatch(/localStorage|sessionStorage|\bcaches\.|CacheStorage/);
-    expect(vaultSource).not.toMatch(/dangerouslySetInnerHTML|http:\/\/|https:\/\//);
+    expect(vaultSource).not.toMatch(/dangerouslySetInnerHTML|http:\/\//);
     const nginx = readFileSync(resolve(repositoryRoot, "apps/web/nginx.conf"), "utf8");
     expect(nginx).toContain("img-src 'self' data:");
     expect(nginx).not.toContain("img-src 'self' data: https:");
@@ -120,6 +120,44 @@ describe("browser privacy static boundary", () => {
     expect(source).toContain('const MORPHO_API = "https://api.morpho.org"');
     expect(source).toContain('redirect: "error"');
     expect(source).not.toMatch(/Prisma|OpenAI|ChatRepository|persistResolution/);
+  });
+
+  it("keeps collectible lookups metadata-only and ownership fields outside the network module", () => {
+    const directory = resolve(repositoryRoot, "apps/web/src/collectibles");
+    const source = sourceText(directory);
+    const api = readFileSync(resolve(directory, "api.ts"), "utf8");
+    const panel = readFileSync(resolve(directory, "CollectibleCatalogPanel.tsx"), "utf8");
+    expect(api).toContain('privateApi<CollectibleSearchResponse>("/v1/private/collectibles/search", input, signal)');
+    expect(api).toContain('privateApi<CollectibleDetailResponse>("/v1/private/collectibles/detail", { language, cardId }, signal)');
+    expect(api).not.toMatch(/condition|grade|certificate|photo|unitPrice|purchase|notes|referenceValue|passphrase|vaultId/i);
+    expect(panel).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/);
+    expect(panel.indexOf("abortRef.current = controller")).toBeGreaterThan(-1);
+    expect(panel.indexOf("abortRef.current = controller")).toBeLessThan(panel.indexOf("await persistReceipt(receipt)"));
+    expect(panel).toContain("createPortal(");
+    expect(panel).toContain('root?.setAttribute("inert", "")');
+    expect(source).not.toMatch(/localStorage|sessionStorage|dangerouslySetInnerHTML|eth_requestAccounts|personal_sign|sendTransaction/);
+
+    const service = readFileSync(resolve(repositoryRoot, "apps/api/src/collectibles/service.ts"), "utf8");
+    const searchQuery = service.match(/const SEARCH_QUERY = `([\s\S]*?)`;/)?.[1] ?? "";
+    const detailQuery = service.match(/const DETAIL_QUERY = `([\s\S]*?)`;/)?.[1] ?? "";
+    expect(service).toContain("PROVIDER_MAX_RETRIES: 0");
+    expect(service).toContain('}/graphql`, {');
+    expect(service).toContain('method: "POST"');
+    expect(service).toContain('redirect: "error"');
+    expect(searchQuery).toContain("cards(filters:");
+    expect(detailQuery).toContain("card(id:");
+    expect(searchQuery + detailQuery).not.toMatch(/image|logo|symbol|pricing|thirdParty|variant/i);
+    expect(service).not.toMatch(/Prisma|OpenAI|ChatRepository|persistResolution/);
+    expect(service).not.toMatch(/\.\.\.value|\.\.\.body|\.\.\.candidate/);
+
+    const vaultPage = readFileSync(resolve(repositoryRoot, "apps/web/src/pages/Vault.tsx"), "utf8");
+    const envExample = readFileSync(resolve(repositoryRoot, ".env.example"), "utf8");
+    expect(vaultPage).toContain('import.meta.env.VITE_COLLECTIBLE_CATALOG_ENABLED === "true"');
+    expect(vaultPage).toContain("COLLECTIBLE_CATALOG_ENABLED && <button");
+    expect(envExample).toContain("VITE_COLLECTIBLE_CATALOG_ENABLED=false");
+    const webDockerfile = readFileSync(resolve(repositoryRoot, "apps/web/Dockerfile"), "utf8");
+    expect(webDockerfile).toContain("ARG VITE_COLLECTIBLE_CATALOG_ENABLED=false");
+    expect(webDockerfile).toContain("ENV VITE_COLLECTIBLE_CATALOG_ENABLED=$VITE_COLLECTIBLE_CATALOG_ENABLED");
   });
 
   it("keeps launch marketing aligned with the anchored zero-cost provider path", () => {

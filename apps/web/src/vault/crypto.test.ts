@@ -3,12 +3,15 @@ import {
   changeVaultPassphrase,
   createAsset,
   createBackup,
+  createCollectibleContext,
   createPortfolioContext,
   createVault,
   decryptAsset,
+  decryptCollectibleRecord,
   decryptPortfolioContext,
   estimateVaultBackupBytes,
   encryptAsset,
+  encryptCollectibleContext,
   encryptPortfolioContext,
   parseBackup,
   recoverVault,
@@ -18,7 +21,7 @@ import {
   assertVaultCapacity,
   VaultError
 } from "./crypto";
-import { VAULT_FORMAT, VAULT_KDF_ITERATIONS, type VaultAsset, type VaultPortfolioContext } from "./types";
+import { VAULT_COLLECTIBLE_RECORD_VERSION, VAULT_FORMAT, VAULT_KDF_ITERATIONS, type EncryptedVaultRecord, type VaultAsset, type VaultCollectibleContext, type VaultPortfolioContext } from "./types";
 
 const passphrase = "correct horse battery staple";
 
@@ -114,6 +117,62 @@ describe("encrypted vault cryptography", () => {
     await expect(verifyBackup(backup, passphrase)).resolves.toMatchObject({ extractable: false });
   });
 
+  it("encrypts catalog assets and permission receipts as v3 alongside legacy and portfolio records", async () => {
+    const created = await createVault(passphrase);
+    const legacy = await encryptAsset(created.meta, created.key, fixtureAsset());
+    const portfolio = await encryptPortfolioContext(created.meta, created.key, fixturePortfolio());
+    const catalogAsset = fixtureCatalogAsset();
+    const catalog = await encryptAsset(created.meta, created.key, catalogAsset);
+    const context = fixtureCollectibleContext();
+    const catalogContext = await encryptCollectibleContext(created.meta, created.key, context);
+
+    expect([legacy.version, portfolio.version, catalog.version, catalogContext.version]).toEqual([1, 2, 3, 3]);
+    const raw = JSON.stringify([catalog, catalogContext]);
+    expect(raw).not.toContain("OWNER-CERT-PRIVATE");
+    expect(raw).not.toContain("OWNER-SEARCH-PRIVATE");
+    expect(raw).not.toContain("321.99");
+    expect(await decryptAsset(created.meta, created.key, catalog)).toEqual(catalogAsset);
+    expect(await decryptCollectibleRecord(created.meta, created.key, catalogContext)).toEqual(context);
+
+    const backup = await createBackup(created.meta, created.key, [legacy, portfolio, catalog, catalogContext]);
+    await expect(verifyBackup(backup, passphrase)).resolves.toMatchObject({ extractable: false });
+    await expect(decryptCollectibleRecord(created.meta, created.key, { ...catalog, version: 1 })).rejects.toMatchObject({ code: "CORRUPT_RECORD" });
+
+    const unknownKind = await encryptAuthenticatedV3(created.meta.vaultId, created.key, { ...catalogAsset, kind: "unknown-context" });
+    await expect(decryptCollectibleRecord(created.meta, created.key, unknownKind)).rejects.toMatchObject({ code: "CORRUPT_RECORD" });
+  });
+
+  it("keeps owner certificates single-copy and manual values fully sourced", () => {
+    const catalog = fixtureCatalogAsset();
+    expect(() => createAsset({
+      name: catalog.name,
+      assetType: catalog.assetType,
+      identifier: catalog.identifier,
+      lots: [{ quantity: "2", unitPrice: "250", currency: "USD", acquiredAt: "2026-08-10" }],
+      notes: catalog.notes,
+      collectible: catalog.collectible
+    })).toThrowError(VaultError);
+    expect(() => createAsset({
+      name: catalog.name,
+      assetType: catalog.assetType,
+      identifier: catalog.identifier,
+      lots: [{ quantity: "1", unitPrice: "250", currency: "USD", acquiredAt: "2026-08-10" }],
+      notes: catalog.notes,
+      collectible: catalog.collectible && {
+        ...catalog.collectible,
+        references: [{ ...catalog.collectible.references[0], observedAt: "" }]
+      }
+    })).toThrowError(VaultError);
+    expect(() => createAsset({
+      name: catalog.name,
+      assetType: catalog.assetType,
+      identifier: "tcgdex:en:other-set-99",
+      lots: [{ quantity: "1", unitPrice: "250", currency: "USD", acquiredAt: "2026-08-10" }],
+      notes: catalog.notes,
+      collectible: catalog.collectible
+    })).toThrowError(VaultError);
+  });
+
   it("preserves exact decimal strings without Number conversion", () => {
     const created = createAsset({
       name: "Exact-value card",
@@ -157,6 +216,26 @@ describe("encrypted vault cryptography", () => {
     expect(() => assertVaultCapacity(created.meta, new Array(2_001).fill(record))).toThrowError(VaultError);
   });
 });
+
+async function encryptAuthenticatedV3(vaultId: string, key: CryptoKey, payload: VaultAsset & { kind: string }): Promise<EncryptedVaultRecord> {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const additionalData = new TextEncoder().encode(`chainscout:vault-record:v3:${vaultId}:${payload.id}`);
+  const ciphertext = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv, additionalData, tagLength: 128 },
+    key,
+    new TextEncoder().encode(JSON.stringify(payload))
+  );
+  return {
+    id: payload.id,
+    version: VAULT_COLLECTIBLE_RECORD_VERSION,
+    iv: bytesToTestBase64(iv),
+    ciphertext: bytesToTestBase64(new Uint8Array(ciphertext))
+  };
+}
+
+function bytesToTestBase64(bytes: Uint8Array): string {
+  return btoa(Array.from(bytes, (byte) => String.fromCharCode(byte)).join(""));
+}
 
 function fixtureAsset(): VaultAsset {
   return {
@@ -203,6 +282,67 @@ function fixturePortfolio(): VaultPortfolioContext {
       approvedAt: "2026-08-10T12:00:00.000Z",
       outcome: "completed",
       resolvedAt: "2026-08-10T12:00:01.000Z"
+    }]
+  });
+}
+
+function fixtureCatalogAsset(): VaultAsset {
+  return {
+    id: "db813477-f336-4283-b6ec-5ca130e1c156",
+    name: "Charizard · Base Set #4",
+    assetType: "collectible",
+    identifier: "tcgdex:en:base1-4",
+    lots: [{ id: "22b5c3a0-d502-49f7-a8b4-226e685ff2c8", quantity: "1", unitPrice: "250", currency: "USD", acquiredAt: "2026-08-10" }],
+    notes: "OWNER-NOTE-PRIVATE",
+    collectible: {
+      catalog: {
+        provider: "tcgdex",
+        catalogId: "base1-4",
+        language: "en",
+        name: "Charizard",
+        number: "4",
+        category: "Pokemon",
+        set: { id: "base1", name: "Base Set", officialCount: 102, totalCount: 102 },
+        rarity: "Rare",
+        illustrator: "Mitsuhiro Arita",
+        catalogUpdatedAt: null,
+        fetchedAt: "2026-08-11T12:00:00.000Z",
+        sourceUrl: "https://api.tcgdex.net/v2/graphql",
+        licenseUrl: "https://github.com/tcgdex/cards-database/blob/master/LICENSE"
+      },
+      ownerPrinting: "Holo · Shadowless · 1st Edition",
+      condition: "near-mint",
+      grader: "psa",
+      grade: "10",
+      certificate: "OWNER-CERT-PRIVATE",
+      photoSource: null,
+      photoAddedAt: null,
+      references: [{
+        id: "16e5b700-07d1-4237-9970-39578183a1aa",
+        value: "321.99",
+        currency: "USD",
+        observedAt: "2026-08-11",
+        sourceUrl: "https://example.com/manual-reference",
+        label: "OWNER-SOURCE-PRIVATE"
+      }]
+    },
+    createdAt: "2026-08-11T12:00:00.000Z",
+    updatedAt: "2026-08-11T12:00:00.000Z"
+  };
+}
+
+function fixtureCollectibleContext(): VaultCollectibleContext {
+  return createCollectibleContext({
+    receipts: [{
+      id: "da882893-9587-4de0-b153-8169c4186d14",
+      operation: "search",
+      language: "en",
+      query: "OWNER-SEARCH-PRIVATE",
+      providerDestinations: ["TCGdex"],
+      disclosure: "Only approved catalog identifiers are sent.",
+      approvedAt: "2026-08-11T12:00:00.000Z",
+      outcome: "completed",
+      resolvedAt: "2026-08-11T12:00:01.000Z"
     }]
   });
 }

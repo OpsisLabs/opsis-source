@@ -63,7 +63,7 @@
       "tagPrefix": "rc/06-collectible-catalog/",
       "status": "active",
       "outcome": "Add cards and collectibles without a spreadsheet",
-      "shipGate": "Pokémon identity resolves by set, number, variant, condition, grade, and certificate; images and price dates are sourced; manual assets remain usable when no catalog match exists."
+      "shipGate": "A field-selective TCGdex GraphQL request resolves English card ID, set, collector number, category, rarity, and illustrator without requesting artwork, marketplace pricing, or printing metadata. Owner-supplied printing or variant, condition, grade, certificate, locally sanitized photo, and dated manual value source are explicitly labeled and encrypted locally; none is treated as provider-verified authenticity, current market data, or inventory. Manual assets remain usable without a match or provider."
     },
     {
       "order": 7,

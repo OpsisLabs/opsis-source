@@ -37,34 +37,36 @@ import {
   recoverLocalVault,
   recoverVaultBackup,
   saveVaultAsset,
+  saveVaultCollectibleContext,
   saveVaultPortfolio,
   unlockLocalVault,
   updateVaultPassphrase,
   type UnlockedVault
 } from "../vault/service";
 import { readStorageStatus, requestPersistentStorage } from "../vault/db";
-import { readImageDimensions } from "../vault/photo";
+import { fileToVaultPhoto, MAX_SOURCE_PHOTO_BYTES } from "../vault/photo";
 import {
   VAULT_MAX_BACKUP_BYTES,
-  VAULT_MAX_PHOTO_BYTES,
   type VaultAsset,
   type VaultAssetDraft,
   type VaultAssetType,
+  type VaultCollectibleContext,
+  type VaultCollectibleContextDraft,
   type VaultLotDraft,
   type VaultMeta,
-  type VaultPhoto,
   type VaultPortfolioContext,
   type VaultPortfolioContextDraft,
   type VaultStorageStatus
 } from "../vault/types";
 import { PortfolioPanel } from "../portfolio/PortfolioPanel";
+import { CollectibleCatalogPanel } from "../collectibles/CollectibleCatalogPanel";
 
 type Phase = "loading" | "empty" | "locked" | "unlocked" | "deleting" | "unsupported";
 const DELETE_PHRASE = "DELETE MY LOCAL VAULT";
 const REPLACE_PHRASE = "REPLACE MY LOCAL VAULT";
 const AUTO_LOCK_MS = 10 * 60 * 1000;
-const MAX_SOURCE_PHOTO_BYTES = 12 * 1024 * 1024;
-const MAX_SOURCE_PIXELS = 24_000_000;
+const COLLECTIBLE_CATALOG_ENABLED = import.meta.env.VITE_COLLECTIBLE_CATALOG_ENABLED === "true"
+  || (import.meta.env.DEV && import.meta.env.VITE_COLLECTIBLE_CATALOG_ENABLED !== "false");
 
 const EMPTY_DRAFT: VaultAssetDraft = {
   name: "",
@@ -80,7 +82,8 @@ export default function VaultPage() {
   const [meta, setMeta] = useState<VaultMeta | null>(null);
   const [assets, setAssets] = useState<VaultAsset[]>([]);
   const [portfolios, setPortfolios] = useState<UnlockedVault["portfolios"]>([]);
-  const [workspace, setWorkspace] = useState<"assets" | "portfolio">("assets");
+  const [collectibles, setCollectibles] = useState<UnlockedVault["collectibles"]>([]);
+  const [workspace, setWorkspace] = useState<"assets" | "portfolio" | "collectibles">("assets");
   const [storage, setStorage] = useState<VaultStorageStatus>({ supported: platformSupported, persistent: null, usage: null, quota: null });
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -93,11 +96,11 @@ export default function VaultPage() {
   const deletionPendingRef = useRef(false);
   const sessionGenerationRef = useRef(0);
   const tabIdRef = useRef("");
-  const unlockedStateRef = useRef({ meta, sessionKey, assets, portfolios, phase });
+  const unlockedStateRef = useRef({ meta, sessionKey, assets, portfolios, collectibles, phase });
 
   useEffect(() => {
-    unlockedStateRef.current = { meta, sessionKey, assets, portfolios, phase };
-  }, [assets, meta, phase, portfolios, sessionKey]);
+    unlockedStateRef.current = { meta, sessionKey, assets, portfolios, collectibles, phase };
+  }, [assets, collectibles, meta, phase, portfolios, sessionKey]);
 
   const bumpSession = useCallback(() => {
     const next = sessionGenerationRef.current + 1;
@@ -141,6 +144,7 @@ export default function VaultPage() {
     setSessionKey(null);
     setAssets([]);
     setPortfolios([]);
+    setCollectibles([]);
     setEditor(null);
     setSettingsOpen(false);
     setRecoverySecret("");
@@ -169,6 +173,7 @@ export default function VaultPage() {
         setMeta(savedMeta);
         setAssets([]);
         setPortfolios([]);
+        setCollectibles([]);
         setEditor(null);
         setSettingsOpen(false);
         setRecoverySecret("");
@@ -188,6 +193,7 @@ export default function VaultPage() {
         setSessionKey(null);
         setAssets([]);
         setPortfolios([]);
+        setCollectibles([]);
         setEditor(null);
         setSettingsOpen(false);
         setRecoverySecret("");
@@ -211,6 +217,7 @@ export default function VaultPage() {
         setMeta(null);
         setAssets([]);
         setPortfolios([]);
+        setCollectibles([]);
         setEditor(null);
         setSettingsOpen(false);
         setRecoverySecret("");
@@ -271,6 +278,7 @@ export default function VaultPage() {
     setMeta(unlocked.meta);
     setAssets(unlocked.assets);
     setPortfolios(unlocked.portfolios);
+    setCollectibles(unlocked.collectibles);
     setWorkspace("assets");
     setEditor(null);
     setSettingsOpen(false);
@@ -282,15 +290,34 @@ export default function VaultPage() {
 
   const unlockedContext = (): UnlockedVault => {
     if (!meta || !sessionKey || phase !== "unlocked") throw new Error("Vault is locked");
-    return { meta, key: sessionKey, assets, portfolios };
+    return { meta, key: sessionKey, assets, portfolios, collectibles };
   };
 
-  const saveAsset = async (draft: VaultAssetDraft, existing?: VaultAsset) => {
+  const saveAsset = async (
+    draft: VaultAssetDraft,
+    existing?: VaultAsset,
+    expectedSession = sessionGenerationRef.current
+  ) => {
     try {
-      const saved = await saveVaultAsset(unlockedContext(), draft, existing);
+      const assertActive = () => {
+        if (sessionGenerationRef.current !== expectedSession) throw new Error("Vault session changed");
+      };
+      assertActive();
+      const current = unlockedStateRef.current;
+      if (!current.meta || !current.sessionKey || current.phase !== "unlocked") throw new Error("Vault is locked");
+      const saved = await saveVaultAsset({
+        meta: current.meta,
+        key: current.sessionKey,
+        assets: current.assets,
+        portfolios: current.portfolios,
+        collectibles: current.collectibles
+      }, draft, existing, assertActive);
+      assertActive();
+      const nextAssets = [saved.asset, ...current.assets.filter((asset) => asset.id !== saved.asset.id)];
+      unlockedStateRef.current = { ...current, meta: saved.meta, assets: nextAssets };
       setMeta(saved.meta);
       broadcast("changed", saved.meta);
-      setAssets((current) => [saved.asset, ...current.filter((asset) => asset.id !== saved.asset.id)]);
+      setAssets(nextAssets);
       setEditor(null);
       setError("");
       setNotice(existing ? "Encrypted asset updated locally." : "Asset encrypted and saved locally.");
@@ -328,7 +355,8 @@ export default function VaultPage() {
       meta: current.meta,
       key: current.sessionKey,
       assets: current.assets,
-      portfolios: current.portfolios
+      portfolios: current.portfolios,
+      collectibles: current.collectibles
     }, draft, existing, assertActive);
     assertActive();
     const nextPortfolios = [saved.portfolio, ...current.portfolios.filter((portfolio) => portfolio.id !== saved.portfolio.id)];
@@ -340,6 +368,64 @@ export default function VaultPage() {
     return saved.portfolio;
   };
 
+  const saveCatalogAsset = async (draft: VaultAssetDraft, expectedSession: number): Promise<void> => {
+    const assertActive = () => {
+      if (sessionGenerationRef.current !== expectedSession) throw new Error("Vault session changed");
+    };
+    try {
+      assertActive();
+      const current = unlockedStateRef.current;
+      if (!current.meta || !current.sessionKey || current.phase !== "unlocked") throw new Error("Vault is locked");
+      const saved = await saveVaultAsset({
+        meta: current.meta,
+        key: current.sessionKey,
+        assets: current.assets,
+        portfolios: current.portfolios,
+        collectibles: current.collectibles
+      }, draft, undefined, assertActive);
+      assertActive();
+      const nextAssets = [saved.asset, ...current.assets];
+      unlockedStateRef.current = { ...current, meta: saved.meta, assets: nextAssets };
+      setMeta(saved.meta);
+      setAssets(nextAssets);
+      broadcast("changed", saved.meta);
+      setNotice("Catalog identity and owner-entered fields were encrypted and saved locally.");
+      setError("");
+      setStorage(await readStorageStatus());
+    } catch (saveError) {
+      setError(vaultErrorMessage(saveError));
+      throw saveError;
+    }
+  };
+
+  const saveCollectibleContext = async (
+    draft: VaultCollectibleContextDraft,
+    existing?: VaultCollectibleContext,
+    expectedSession = sessionGenerationRef.current
+  ): Promise<VaultCollectibleContext> => {
+    const assertActive = () => {
+      if (sessionGenerationRef.current !== expectedSession) throw new Error("Vault session changed");
+    };
+    assertActive();
+    const current = unlockedStateRef.current;
+    if (!current.meta || !current.sessionKey || current.phase !== "unlocked") throw new Error("Vault is locked");
+    const saved = await saveVaultCollectibleContext({
+      meta: current.meta,
+      key: current.sessionKey,
+      assets: current.assets,
+      portfolios: current.portfolios,
+      collectibles: current.collectibles
+    }, draft, existing, assertActive);
+    assertActive();
+    const nextCollectibles = [saved.collectible, ...current.collectibles.filter((item) => item.id !== saved.collectible.id)];
+    unlockedStateRef.current = { ...current, meta: saved.meta, collectibles: nextCollectibles };
+    setMeta(saved.meta);
+    setCollectibles(nextCollectibles);
+    broadcast("changed", saved.meta);
+    setStorage(await readStorageStatus());
+    return saved.collectible;
+  };
+
   const destroy = async () => {
     try {
       bumpSession();
@@ -348,6 +434,7 @@ export default function VaultPage() {
       setSessionKey(null);
       setAssets([]);
       setPortfolios([]);
+      setCollectibles([]);
       setEditor(null);
       setSettingsOpen(false);
       setRecoverySecret("");
@@ -423,8 +510,9 @@ export default function VaultPage() {
         {phase === "unlocked" && meta && (
           <>
             {recoverySecret && <RecoverySecretPanel secret={recoverySecret} onDone={() => setRecoverySecret("")} />}
-            <div className="mt-8 grid grid-cols-2 gap-px border border-[#383838] bg-[#383838]">
+            <div className={`mt-8 grid ${COLLECTIBLE_CATALOG_ENABLED ? "grid-cols-3" : "grid-cols-2"} gap-px border border-[#383838] bg-[#383838]`}>
               <button type="button" onClick={() => { setWorkspace("portfolio"); setEditor(null); }} className={`min-h-[48px] bg-[#202020] font-mono-d text-[10px] tracking-[0.14em] ${workspace === "portfolio" ? "text-[#fa6c34] shadow-[inset_0_-2px_0_#fa6c34]" : "text-[#7f7972] hover:text-[#d6ccba]"}`}>PORTFOLIO INTELLIGENCE</button>
+              {COLLECTIBLE_CATALOG_ENABLED && <button type="button" onClick={() => { setWorkspace("collectibles"); setEditor(null); }} className={`min-h-[48px] bg-[#202020] font-mono-d text-[10px] tracking-[0.14em] ${workspace === "collectibles" ? "text-[#fa6c34] shadow-[inset_0_-2px_0_#fa6c34]" : "text-[#7f7972] hover:text-[#d6ccba]"}`}>COLLECTIBLE CATALOG</button>}
               <button type="button" onClick={() => setWorkspace("assets")} className={`min-h-[48px] bg-[#202020] font-mono-d text-[10px] tracking-[0.14em] ${workspace === "assets" ? "text-[#fa6c34] shadow-[inset_0_-2px_0_#fa6c34]" : "text-[#7f7972] hover:text-[#d6ccba]"}`}>MANUAL ASSET RECORDS</button>
             </div>
             {workspace === "portfolio" ? (
@@ -434,6 +522,15 @@ export default function VaultPage() {
                 context={portfolios[0]}
                 sessionId={sessionGeneration}
                 onSave={savePortfolio}
+              />
+            ) : workspace === "collectibles" && COLLECTIBLE_CATALOG_ENABLED ? (
+              <CollectibleCatalogPanel
+                key={`${meta.vaultId}:${sessionGeneration}:collectibles`}
+                context={collectibles[0]}
+                sessionId={sessionGeneration}
+                onSaveContext={saveCollectibleContext}
+                onSaveAsset={saveCatalogAsset}
+                onManual={() => { setWorkspace("assets"); setEditor("new"); }}
               />
             ) : (
               <>
@@ -605,10 +702,22 @@ function AssetEditor({ asset, onCancel, onSave }: {
   const [busy, setBusy] = useState(false);
   const [photoBusy, setPhotoBusy] = useState(false);
   const [photoError, setPhotoError] = useState("");
+  const [editorError, setEditorError] = useState("");
   const photoRequestRef = useRef(0);
+  const certificateLocked = Boolean(draft.collectible && draft.collectible.grader !== "ungraded");
   const set = <K extends keyof VaultAssetDraft>(key: K, value: VaultAssetDraft[K]) => setDraft((current) => ({ ...current, [key]: value }));
   const updateLot = (index: number, key: keyof VaultLotDraft, value: string) => {
     set("lots", draft.lots.map((lot, lotIndex) => lotIndex === index ? { ...lot, [key]: value } : lot));
+  };
+  const updateCollectible = <K extends keyof NonNullable<VaultAssetDraft["collectible"]>>(key: K, value: NonNullable<VaultAssetDraft["collectible"]>[K]) => {
+    setDraft((current) => current.collectible ? { ...current, collectible: { ...current.collectible, [key]: value } } : current);
+  };
+  const updateCollectibleReference = (key: "value" | "currency" | "observedAt" | "sourceUrl" | "label", value: string) => {
+    setDraft((current) => {
+      if (!current.collectible) return current;
+      const existing = current.collectible.references[0] ?? { id: crypto.randomUUID(), value: "", currency: "USD", observedAt: "", sourceUrl: "", label: "" };
+      return { ...current, collectible: { ...current.collectible, references: [{ ...existing, [key]: value }] } };
+    });
   };
   const onPhoto = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -623,8 +732,16 @@ function AssetEditor({ asset, onCancel, onSave }: {
     setPhotoBusy(true);
     setPhotoError("");
     try {
-      const photo = await fileToPhoto(file);
-      if (photoRequestRef.current === requestId) set("photo", photo);
+      const photo = await fileToVaultPhoto(file);
+      if (photoRequestRef.current === requestId) {
+        setDraft((current) => ({
+          ...current,
+          photo,
+          ...(current.collectible ? {
+            collectible: { ...current.collectible, photoSource: "owner_supplied", photoAddedAt: new Date().toISOString() }
+          } : {})
+        }));
+      }
     } catch {
       if (photoRequestRef.current === requestId) setPhotoError("That image could not be read locally.");
     } finally {
@@ -635,8 +752,14 @@ function AssetEditor({ asset, onCancel, onSave }: {
     event.preventDefault();
     if (busy || photoBusy) return;
     setBusy(true);
-    await onSave(draft, asset);
-    setBusy(false);
+    setEditorError("");
+    try {
+      await onSave(draft, asset);
+    } catch (saveError) {
+      setEditorError(saveError instanceof Error ? saveError.message : "This encrypted record could not be saved.");
+    } finally {
+      setBusy(false);
+    }
   };
   return (
     <form onSubmit={submit} className="clip-panel mt-5 border border-[#fa6c34]/45 bg-[#242424] p-5 sm:p-7" data-testid="vault-asset-editor">
@@ -646,28 +769,63 @@ function AssetEditor({ asset, onCancel, onSave }: {
       </div>
       <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Field label="ASSET NAME" value={draft.name} onChange={(value) => set("name", value)} maxLength={120} required placeholder="e.g. PSA 10 Charizard" />
-        <SelectField label="TYPE" value={draft.assetType} onChange={(value) => set("assetType", value as VaultAssetType)} options={[
+        <SelectField label="TYPE" value={draft.assetType} onChange={(value) => set("assetType", value as VaultAssetType)} disabled={Boolean(draft.collectible)} options={[
           ["collectible", "Collectible"], ["crypto", "Crypto"], ["rwa", "Real-world asset"], ["nft", "NFT"], ["other", "Other"]
         ]} />
-        <Field label="IDENTIFIER / CONTRACT / SKU" value={draft.identifier} onChange={(value) => set("identifier", value)} maxLength={200} placeholder="Optional" />
+        <Field label="IDENTIFIER / CONTRACT / SKU" value={draft.identifier} onChange={(value) => set("identifier", value)} maxLength={200} placeholder="Optional" disabled={Boolean(draft.collectible)} />
         <label className="md:col-span-2 lg:col-span-3">
           <span className="font-mono-d text-[9px] tracking-[0.13em] text-[#635d5a]">PRIVATE NOTES</span>
           <textarea value={draft.notes} onChange={(event) => set("notes", event.target.value)} maxLength={5_000} rows={4} placeholder="Condition, provenance, thesis, storage location…" className="mt-2 w-full resize-y border border-[#383838] bg-[#1d1d1d] px-4 py-3 text-[12.5px] leading-relaxed text-[#e9e0d1] outline-none focus:border-[#fa6c34]" />
         </label>
       </div>
+      {draft.collectible && (
+        <div className="mt-5 border border-[#7fb069]/35 bg-[#20251f] p-4 sm:p-5">
+          <p className="font-mono-d text-[9px] tracking-[0.14em] text-[#7fb069]">CATALOG IDENTITY + OWNER-REPORTED DETAILS</p>
+          <p className="mt-2 text-[10.5px] leading-relaxed text-[#7f7972]">TCGdex metadata is source-linked. Condition, grade, certificate, photo, and value source below are your private claims—not authentication or an appraisal.</p>
+          <div className="mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+            <Field label="OWNER PRINTING / VARIANT" value={draft.collectible.ownerPrinting} onChange={(value) => updateCollectible("ownerPrinting", value)} maxLength={120} placeholder="Optional · owner reported" flush />
+            <SelectField label="OWNER CONDITION" value={draft.collectible.condition} onChange={(value) => updateCollectible("condition", value as NonNullable<VaultAssetDraft["collectible"]>["condition"])} options={[["unknown", "Not entered"], ["poor", "Poor"], ["played", "Played"], ["good", "Good"], ["excellent", "Excellent"], ["near-mint", "Near mint"], ["mint", "Mint"]]} />
+            <SelectField label="OWNER GRADER" value={draft.collectible.grader} onChange={(value) => {
+              const grader = value as NonNullable<VaultAssetDraft["collectible"]>["grader"];
+              if (grader !== "ungraded" && (draft.lots.length !== 1 || draft.lots[0]?.quantity !== "1")) {
+                setEditorError("A graded certificate can describe only one copy. Split this item into a separate single-copy record before adding a grader.");
+                return;
+              }
+              setEditorError("");
+              setDraft((current) => current.collectible ? {
+                ...current,
+                collectible: { ...current.collectible, grader, ...(grader === "ungraded" ? { grade: "", certificate: "" } : {}) }
+              } : current);
+            }} options={[["ungraded", "Ungraded"], ["psa", "PSA"], ["cgc", "CGC"], ["bgs", "BGS"], ["other", "Other"]]} />
+            {draft.collectible.grader !== "ungraded" && <Field label="OWNER GRADE" value={draft.collectible.grade} onChange={(value) => updateCollectible("grade", value)} maxLength={40} required flush />}
+            {draft.collectible.grader !== "ungraded" && <Field label="OWNER CERTIFICATE" value={draft.collectible.certificate} onChange={(value) => updateCollectible("certificate", value)} maxLength={80} required flush />}
+          </div>
+          <div className="mt-4 border-t border-[#383838] pt-4">
+            <div className="flex items-center justify-between gap-3"><p className="font-mono-d text-[8px] tracking-wider text-[#fa6c34]">DATED MANUAL VALUE SOURCE · OPTIONAL</p>{draft.collectible.references.length > 0 && <button type="button" onClick={() => updateCollectible("references", [])} className="font-mono-d text-[8px] text-[#e0738a]">REMOVE REFERENCE</button>}</div>
+            <div className="mt-3 grid gap-3 md:grid-cols-2 lg:grid-cols-5">
+              <Field label="VALUE" value={draft.collectible.references[0]?.value ?? ""} onChange={(value) => updateCollectibleReference("value", value)} maxLength={157} flush />
+              <Field label="CURRENCY" value={draft.collectible.references[0]?.currency ?? "USD"} onChange={(value) => updateCollectibleReference("currency", value)} maxLength={12} flush />
+              <Field label="OBSERVED DATE" value={draft.collectible.references[0]?.observedAt ?? ""} onChange={(value) => updateCollectibleReference("observedAt", value)} type="date" flush />
+              <Field label="HTTPS SOURCE URL" value={draft.collectible.references[0]?.sourceUrl ?? ""} onChange={(value) => updateCollectibleReference("sourceUrl", value)} maxLength={1_000} flush />
+              <Field label="SOURCE LABEL" value={draft.collectible.references[0]?.label ?? ""} onChange={(value) => updateCollectibleReference("label", value)} maxLength={120} flush />
+            </div>
+          </div>
+        </div>
+      )}
       <div className="mt-5 border border-[#383838] bg-[#202020] p-4 sm:p-5">
         <div className="flex items-center justify-between gap-3">
           <div><p className="font-mono-d text-[9px] tracking-[0.14em] text-[#fa6c34]">PURCHASE LOTS</p><p className="mt-2 text-[11.5px] text-[#7f7972]">Exact decimal strings; ChainScout does not round money or quantities.</p></div>
-          <button type="button" onClick={() => set("lots", [...draft.lots, { quantity: "1", unitPrice: "", currency: "USD", acquiredAt: "" }])} disabled={draft.lots.length >= 100} className="border border-[#383838] px-3 py-2 font-mono-d text-[9px] text-[#d6ccba]">+ ADD LOT</button>
+          <button type="button" onClick={() => set("lots", [...draft.lots, { quantity: "1", unitPrice: "", currency: "USD", acquiredAt: "" }])} disabled={certificateLocked || draft.lots.length >= 100} className="border border-[#383838] px-3 py-2 font-mono-d text-[9px] text-[#d6ccba] disabled:opacity-30">+ ADD LOT</button>
         </div>
+        {certificateLocked && <p className="mt-3 text-[10.5px] text-[#e0a96d]">This owner-entered certificate describes one copy, so its quantity and lot count stay fixed at one.</p>}
         <div className="mt-4 space-y-3">
           {draft.lots.map((lot, index) => (
             <div key={lot.id ?? `new-${index}`} className="grid gap-3 border border-[#343434] bg-[#1d1d1d] p-4 md:grid-cols-[0.8fr_1fr_0.7fr_1fr_auto] md:items-end">
-              <Field label={`LOT ${index + 1} QUANTITY`} value={lot.quantity} onChange={(value) => updateLot(index, "quantity", value)} inputMode="decimal" pattern="\d{1,78}(\.\d{1,78})?" maxLength={157} placeholder="1" required flush />
+              <Field label={`LOT ${index + 1} QUANTITY`} value={lot.quantity} onChange={(value) => updateLot(index, "quantity", value)} inputMode="decimal" pattern="\d{1,78}(\.\d{1,78})?" maxLength={157} placeholder="1" required disabled={certificateLocked} flush />
               <Field label="PRICE PER UNIT" value={lot.unitPrice} onChange={(value) => updateLot(index, "unitPrice", value)} inputMode="decimal" pattern="\d{1,78}(\.\d{1,78})?" maxLength={157} placeholder="Optional" flush />
               <Field label="CURRENCY" value={lot.currency} onChange={(value) => updateLot(index, "currency", value)} maxLength={12} required placeholder="USD" flush />
               <Field label="ACQUIRED DATE" value={lot.acquiredAt} onChange={(value) => updateLot(index, "acquiredAt", value)} type="date" flush />
-              <button type="button" aria-label={`Remove lot ${index + 1}`} disabled={draft.lots.length === 1} onClick={() => set("lots", draft.lots.filter((_, lotIndex) => lotIndex !== index))} className="mb-1 p-3 text-[#635d5a] hover:text-[#e0738a] disabled:opacity-25"><Trash2 size={13} /></button>
+              <button type="button" aria-label={`Remove lot ${index + 1}`} disabled={certificateLocked || draft.lots.length === 1} onClick={() => set("lots", draft.lots.filter((_, lotIndex) => lotIndex !== index))} className="mb-1 p-3 text-[#635d5a] hover:text-[#e0738a] disabled:opacity-25"><Trash2 size={13} /></button>
             </div>
           ))}
         </div>
@@ -678,7 +836,15 @@ function AssetEditor({ asset, onCancel, onSave }: {
             <ImagePlus size={13} /> {photoBusy ? "PROCESSING PHOTO…" : draft.photo ? "REPLACE PHOTO" : "ADD PRIVATE PHOTO"}
             <input type="file" accept="image/jpeg,image/png,image/webp" onChange={onPhoto} disabled={busy || photoBusy} className="sr-only" aria-label="Private asset photo" />
           </label>
-          {draft.photo && <button type="button" onClick={() => { photoRequestRef.current += 1; setPhotoBusy(false); set("photo", undefined); }} className="font-mono-d text-[9px] text-[#e0738a]">REMOVE PHOTO</button>}
+          {draft.photo && <button type="button" onClick={() => {
+            photoRequestRef.current += 1;
+            setPhotoBusy(false);
+            setDraft((current) => ({
+              ...current,
+              photo: undefined,
+              ...(current.collectible ? { collectible: { ...current.collectible, photoSource: null, photoAddedAt: null } } : {})
+            }));
+          }} className="font-mono-d text-[9px] text-[#e0738a]">REMOVE PHOTO</button>}
           {photoBusy && <span role="status" className="text-[11px] text-[#e0a96d]">Sanitizing locally before save…</span>}
           {photoError && <span className="text-[11px] text-[#e0738a]">{photoError}</span>}
         </div>
@@ -686,6 +852,7 @@ function AssetEditor({ asset, onCancel, onSave }: {
           <LockKeyhole size={13} /> {photoBusy ? "PROCESSING PHOTO…" : busy ? "ENCRYPTING…" : "ENCRYPT & SAVE"}
         </button>
       </div>
+      {editorError && <p role="alert" className="mt-3 text-[11px] text-[#e0738a]">{editorError}</p>}
     </form>
   );
 }
@@ -711,14 +878,14 @@ function AssetCard({ asset, onEdit, onDelete }: { asset: VaultAsset; onEdit: () 
   return (
     <article className="clip-panel overflow-hidden border border-[#383838] bg-[#242424]">
       {asset.photo ? (
-        <div className="h-44 border-b border-[#383838] bg-[#191919]"><img src={asset.photo.dataUrl} alt="" className="h-full w-full object-cover" /></div>
+        <div className="border-b border-[#383838] bg-[#191919]"><img src={asset.photo.dataUrl} alt="" className="h-44 w-full object-cover" />{asset.collectible && <p className="px-3 py-2 font-mono-d text-[7.5px] tracking-wider text-[#635d5a]">OWNER-SUPPLIED LOCAL PHOTO · ADDED {asset.collectible.photoAddedAt?.slice(0, 10)}</p>}</div>
       ) : (
         <div className="dots flex h-28 items-center justify-center border-b border-[#383838] text-[#4f4a46]"><FileKey2 size={24} /></div>
       )}
       <div className="p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="font-mono-d text-[8.5px] tracking-[0.15em] text-[#7fb069]">{asset.assetType.toUpperCase()} · ENCRYPTED</p>
+            <p className="font-mono-d text-[8.5px] tracking-[0.15em] text-[#7fb069]">{asset.collectible ? "TCGDEX METADATA + OWNER CLAIMS" : asset.assetType.toUpperCase()} · ENCRYPTED</p>
             <h3 className="mt-2 text-[18px] font-medium tracking-[-0.02em] text-[#f0e8da]">{asset.name}</h3>
           </div>
           <button type="button" onClick={onEdit} aria-label={`Edit ${asset.name}`} className="p-2 text-[#635d5a] hover:text-[#e9e0d1]"><Pencil size={14} /></button>
@@ -727,8 +894,17 @@ function AssetCard({ asset, onEdit, onDelete }: { asset: VaultAsset; onEdit: () 
           <SmallMetric label="LOTS" value={String(asset.lots.length)} />
           <SmallMetric label="FIRST UNIT PRICE" value={firstLot?.unitPrice ? `${firstLot.unitPrice} ${firstLot.currency}` : "—"} />
         </div>
+        {asset.collectible && (
+          <div className="mt-px grid grid-cols-2 gap-px bg-[#383838]">
+            <SmallMetric label="OWNER PRINTING / VARIANT" value={asset.collectible.ownerPrinting || "Not entered"} />
+            <SmallMetric label="OWNER CONDITION" value={asset.collectible.condition === "unknown" ? "NOT ENTERED" : asset.collectible.condition.toUpperCase()} />
+            <SmallMetric label="OWNER GRADE / CERT" value={asset.collectible.grader === "ungraded" ? "UNGRADED" : `${asset.collectible.grader.toUpperCase()} ${asset.collectible.grade} · CERT ${asset.collectible.certificate}`} />
+            <SmallMetric label="MANUAL VALUE SOURCE" value={asset.collectible.references[0] ? `${asset.collectible.references[0].value} ${asset.collectible.references[0].currency} · ${asset.collectible.references[0].observedAt}` : "NOT ENTERED"} />
+          </div>
+        )}
         {asset.identifier && <p className="mt-4 truncate font-mono-d text-[9px] text-[#635d5a]" title={asset.identifier}>{asset.identifier}</p>}
         {asset.notes && <p className="mt-3 line-clamp-3 text-[12px] leading-relaxed text-[#9a938a]">{asset.notes}</p>}
+        {asset.collectible && <p className="mt-3 text-[9px] leading-relaxed text-[#635d5a]">Catalog metadata is not authentication, appraisal, or inventory. <a href={asset.collectible.catalog.sourceUrl} target="_blank" rel="noreferrer" className="text-[#9a938a] underline">Open catalog source</a>{asset.collectible.references[0] && <> · <a href={asset.collectible.references[0].sourceUrl} target="_blank" rel="noreferrer" className="text-[#9a938a] underline">Open owner-entered value source</a></>}</p>}
         <div className="mt-5 border-t border-[#383838] pt-4">
           {!confirm ? (
             <button type="button" onClick={() => setConfirm(true)} className="flex items-center gap-2 font-mono-d text-[8.5px] tracking-wider text-[#635d5a] hover:text-[#e0738a]"><Trash2 size={11} /> REMOVE LOCAL RECORD</button>
@@ -1038,7 +1214,7 @@ function PasswordField({ label, value, onChange, autoFocus = false }: { label: s
   return <Field label={label} value={value} onChange={onChange} type="password" autoComplete="off" maxLength={256} autoFocus={autoFocus} />;
 }
 
-function Field({ label, value, onChange, type = "text", placeholder, maxLength, required, inputMode, pattern, autoComplete, autoFocus, flush = false }: {
+function Field({ label, value, onChange, type = "text", placeholder, maxLength, required, inputMode, pattern, autoComplete, autoFocus, disabled, flush = false }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
@@ -1050,21 +1226,22 @@ function Field({ label, value, onChange, type = "text", placeholder, maxLength, 
   pattern?: string;
   autoComplete?: string;
   autoFocus?: boolean;
+  disabled?: boolean;
   flush?: boolean;
 }) {
   return (
     <label className={flush ? "block" : "mt-4 block"}>
       <span className="font-mono-d text-[9px] tracking-[0.13em] text-[#635d5a]">{label}</span>
-      <input aria-label={label} type={type} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} maxLength={maxLength} required={required} inputMode={inputMode} pattern={pattern} autoComplete={autoComplete} autoFocus={autoFocus} className="mt-2 min-h-[44px] w-full border border-[#383838] bg-[#1d1d1d] px-4 font-mono-d text-[11px] text-[#e9e0d1] outline-none placeholder:text-[#4f4a46] focus:border-[#fa6c34]" />
+      <input aria-label={label} type={type} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} maxLength={maxLength} required={required} inputMode={inputMode} pattern={pattern} autoComplete={autoComplete} autoFocus={autoFocus} disabled={disabled} className="mt-2 min-h-[44px] w-full border border-[#383838] bg-[#1d1d1d] px-4 font-mono-d text-[11px] text-[#e9e0d1] outline-none placeholder:text-[#4f4a46] focus:border-[#fa6c34] disabled:opacity-50" />
     </label>
   );
 }
 
-function SelectField({ label, value, onChange, options }: { label: string; value: string; onChange: (value: string) => void; options: Array<[string, string]> }) {
+function SelectField({ label, value, onChange, options, disabled }: { label: string; value: string; onChange: (value: string) => void; options: Array<[string, string]>; disabled?: boolean }) {
   return (
     <label>
       <span className="font-mono-d text-[9px] tracking-[0.13em] text-[#635d5a]">{label}</span>
-      <select aria-label={label} value={value} onChange={(event) => onChange(event.target.value)} className="mt-2 min-h-[44px] w-full border border-[#383838] bg-[#1d1d1d] px-4 font-mono-d text-[11px] text-[#e9e0d1] outline-none focus:border-[#fa6c34]">
+      <select aria-label={label} value={value} onChange={(event) => onChange(event.target.value)} disabled={disabled} className="mt-2 min-h-[44px] w-full border border-[#383838] bg-[#1d1d1d] px-4 font-mono-d text-[11px] text-[#e9e0d1] outline-none focus:border-[#fa6c34] disabled:opacity-50">
         {options.map(([optionValue, optionLabel]) => <option key={optionValue} value={optionValue}>{optionLabel}</option>)}
       </select>
     </label>
@@ -1083,48 +1260,6 @@ function SmallMetric({ label, value }: { label: string; value: string }) {
   return <div className="bg-[#202020] p-3"><p className="font-mono-d text-[7.5px] tracking-wider text-[#635d5a]">{label}</p><p title={value} className="mt-2 truncate font-mono-d text-[10px] text-[#d6ccba]">{value}</p></div>;
 }
 
-async function fileToPhoto(file: File): Promise<VaultPhoto> {
-  const dimensions = readImageDimensions(new Uint8Array(await file.arrayBuffer()), file.type);
-  if (!dimensions || dimensions.width > MAX_SOURCE_PIXELS / dimensions.height) {
-    throw new Error("Image dimensions are invalid or too large");
-  }
-  const bitmap = await createImageBitmap(file);
-  if (bitmap.width * bitmap.height > MAX_SOURCE_PIXELS) {
-    bitmap.close();
-    throw new Error("Image dimensions are too large");
-  }
-  const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.max(1, Math.round(bitmap.width * scale));
-  canvas.height = Math.max(1, Math.round(bitmap.height * scale));
-  const context = canvas.getContext("2d", { alpha: true });
-  if (!context) {
-    bitmap.close();
-    throw new Error("Canvas is unavailable");
-  }
-  context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  bitmap.close();
-  let processed = await canvasBlob(canvas, "image/webp", 0.84);
-  if (!processed || processed.size > VAULT_MAX_PHOTO_BYTES) processed = await canvasBlob(canvas, "image/jpeg", 0.76);
-  if (!processed || processed.size > VAULT_MAX_PHOTO_BYTES) throw new Error("Processed image is too large");
-  const dataUrl = await new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => typeof reader.result === "string" ? resolve(reader.result) : reject(new Error("Invalid photo"));
-    reader.onerror = () => reject(reader.error ?? new Error("Photo read failed"));
-    reader.readAsDataURL(processed);
-  });
-  return {
-    name: file.name.replace(/\.[^.]+$/, "") + (processed.type === "image/webp" ? ".webp" : ".jpg"),
-    mimeType: processed.type as VaultPhoto["mimeType"],
-    size: processed.size,
-    dataUrl
-  };
-}
-
-function canvasBlob(canvas: HTMLCanvasElement, type: "image/webp" | "image/jpeg", quality: number): Promise<Blob | null> {
-  return new Promise((resolve) => canvas.toBlob(resolve, type, quality));
-}
-
 function assetToDraft(asset: VaultAsset): VaultAssetDraft {
   return {
     name: asset.name,
@@ -1132,7 +1267,8 @@ function assetToDraft(asset: VaultAsset): VaultAssetDraft {
     identifier: asset.identifier,
     lots: asset.lots.map((lot) => ({ ...lot })),
     notes: asset.notes,
-    ...(asset.photo ? { photo: asset.photo } : {})
+    ...(asset.photo ? { photo: asset.photo } : {}),
+    ...(asset.collectible ? { collectible: asset.collectible } : {})
   };
 }
 

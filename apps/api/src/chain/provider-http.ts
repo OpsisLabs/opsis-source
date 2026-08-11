@@ -14,6 +14,7 @@ export type ProviderHttpOptions = {
   requestBudgetPerMinute: number;
   maxConcurrency?: number;
   providerName?: string;
+  maxResponseBytes?: number;
 };
 
 type Dependencies = {
@@ -91,7 +92,7 @@ export class ProviderHttpClient implements ProviderHttp {
         if (!response.ok) {
           throw new ProviderRequestError(`PROVIDER_HTTP_${response.status}`, response.status === 429 || response.status >= 500);
         }
-        const json = await response.json();
+        const json = await readBoundedJson(response, this.options.maxResponseBytes ?? 5 * 1024 * 1024);
         this.failures = 0;
         this.circuitOpenedAt = undefined;
         return json;
@@ -134,7 +135,7 @@ export class ProviderHttpClient implements ProviderHttp {
   }
 }
 
-export function createProviderHttp(env: Env, providerName?: string): ProviderHttpClient {
+export function createProviderHttp(env: Env, providerName?: string, maxResponseBytes?: number): ProviderHttpClient {
   return new ProviderHttpClient({
     maxRetries: env.PROVIDER_MAX_RETRIES,
     backoffMs: env.PROVIDER_BACKOFF_MS,
@@ -143,8 +144,42 @@ export function createProviderHttp(env: Env, providerName?: string): ProviderHtt
     circuitResetMs: env.PROVIDER_CIRCUIT_RESET_MS,
     requestBudgetPerMinute: env.PROVIDER_REQUEST_BUDGET_PER_MINUTE,
     maxConcurrency: env.PROVIDER_MAX_CONCURRENCY,
-    providerName
+    providerName,
+    maxResponseBytes
   });
+}
+
+async function readBoundedJson(response: Response, maxBytes: number): Promise<unknown> {
+  const declared = Number(response.headers.get("content-length"));
+  if (Number.isFinite(declared) && declared > maxBytes) {
+    throw new ProviderRequestError("PROVIDER_RESPONSE_TOO_LARGE", false);
+  }
+  if (!response.body) throw new ProviderRequestError("PROVIDER_MALFORMED_RESPONSE", false);
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let length = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      length += value.byteLength;
+      if (length > maxBytes) {
+        await reader.cancel();
+        throw new ProviderRequestError("PROVIDER_RESPONSE_TOO_LARGE", false);
+      }
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+  const bytes = new Uint8Array(length);
+  let offset = 0;
+  for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+  try {
+    return JSON.parse(new TextDecoder(undefined, { fatal: true }).decode(bytes)) as unknown;
+  } catch {
+    throw new ProviderRequestError("PROVIDER_MALFORMED_RESPONSE", false);
+  }
 }
 
 function normalizeError(error: unknown): ProviderRequestError {

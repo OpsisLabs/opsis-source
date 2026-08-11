@@ -151,15 +151,15 @@ const RELEASES: Release[] = [
     branch: "release/06-collectible-catalog",
     title: "Collectible Catalog",
     eyebrow: "FROM CARD TO TRACKED ASSET",
-    summary: "Find the exact Pokémon card, add its condition or grade, pull its image, and keep the private ownership details local.",
+    summary: "Match supported trading-card metadata, then add owner-reported details and a private local photo without uploading ownership data.",
     outcome: "Add collectibles without a spreadsheet",
     icon: ScanSearch,
     capabilities: [
-      { kicker: "EXACT MATCH", title: "Resolve set, number, printing, variant, condition, grade, and certificate", signal: "CONFIDENCE SHOWN", bars: [32, 48, 64, 58, 76, 92] },
-      { kicker: "IMAGE + VALUE", title: "Show sourced card art and dated market references without pretending they are live offers", signal: "DATE LABELED", bars: [88, 72, 62, 54, 42, 34] },
+      { kicker: "CATALOG MATCH", title: "Resolve English card ID, set, collector number, rarity, and illustrator", signal: "SOURCE LINKED", bars: [32, 48, 64, 58, 76, 92] },
+      { kicker: "OWNER LAYER", title: "Encrypt a sanitized local photo, condition, grade, certificate, and dated manual reference", signal: "CLEARLY LABELED", bars: [88, 72, 62, 54, 42, 34] },
       { kicker: "MANUAL PATH", title: "Track any unsupported card or physical collectible immediately", signal: "NEVER BLOCKED", bars: [24, 36, 50, 64, 78, 94] },
     ],
-    gate: "Catalog and manual paths work; identity, image, price date, condition, grade, and source remain distinct.",
+    gate: "Catalog facts and owner claims remain distinct; no artwork, marketplace pricing, authenticity, or inventory is implied.",
     snapshot: "collectible-catalog-rc1",
   },
   {
@@ -265,7 +265,7 @@ const HORIZON_IDEAS: HorizonIdea[] = [
     icon: PackageSearch,
     features: [
       "Crypto pools and quotes matched by chain and contract—not ticker or token name",
-      "Cards and collectibles matched by set, number, variant, grade, condition, and certification",
+      "Cards matched by English catalog set and number, then paired with owner-reported printing, condition, grade, and certificate",
       "Official marketplace APIs, Shopify/WooCommerce storefronts, merchant feeds, and permitted public offers",
     ],
     signals: ["LAST CHECKED", "EXACT MATCH", "STOCK CONFIDENCE"],

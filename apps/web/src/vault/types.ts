@@ -1,9 +1,10 @@
-import type { PortfolioSnapshot } from "@rh-chain/shared";
+import type { CollectibleCardDetail, CollectibleLanguage, PortfolioSnapshot } from "@rh-chain/shared";
 
 export const VAULT_FORMAT = "chainscout.encrypted-vault" as const;
 export const VAULT_SCHEMA_VERSION = 1 as const;
 export const VAULT_RECORD_VERSION = 1 as const;
 export const VAULT_PORTFOLIO_RECORD_VERSION = 2 as const;
+export const VAULT_COLLECTIBLE_RECORD_VERSION = 3 as const;
 export const VAULT_KDF_ITERATIONS = 600_000;
 export const VAULT_MAX_PHOTO_BYTES = 3 * 1024 * 1024;
 export const VAULT_MAX_BACKUP_BYTES = 32 * 1024 * 1024;
@@ -42,8 +43,57 @@ export interface VaultAsset {
   lots: VaultLot[];
   notes: string;
   photo?: VaultPhoto;
+  collectible?: VaultCollectibleDetails;
   createdAt: string;
   updatedAt: string;
+}
+
+export type VaultCollectibleCondition = "unknown" | "poor" | "played" | "good" | "excellent" | "near-mint" | "mint";
+export type VaultCollectibleGrader = "ungraded" | "psa" | "cgc" | "bgs" | "other";
+
+export interface VaultCollectibleReference {
+  id: string;
+  value: string;
+  currency: string;
+  observedAt: string;
+  sourceUrl: string;
+  label: string;
+}
+
+export interface VaultCollectibleDetails {
+  catalog: CollectibleCardDetail;
+  ownerPrinting: string;
+  condition: VaultCollectibleCondition;
+  grader: VaultCollectibleGrader;
+  grade: string;
+  certificate: string;
+  photoSource: "owner_supplied" | null;
+  photoAddedAt: string | null;
+  references: VaultCollectibleReference[];
+}
+
+export interface VaultCollectibleReceipt {
+  id: string;
+  operation: "search" | "detail";
+  language: CollectibleLanguage;
+  query: string;
+  providerDestinations: ["TCGdex"];
+  disclosure: string;
+  approvedAt: string;
+  outcome: "approved" | "completed" | "failed";
+  resolvedAt?: string;
+}
+
+export interface VaultCollectibleContext {
+  id: string;
+  kind: "collectible-context";
+  receipts: VaultCollectibleReceipt[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface VaultCollectibleContextDraft {
+  receipts: VaultCollectibleReceipt[];
 }
 
 export interface VaultPortfolioValuation {
@@ -114,7 +164,7 @@ export interface VaultMeta {
 
 export interface EncryptedVaultRecord {
   id: string;
-  version: typeof VAULT_RECORD_VERSION | typeof VAULT_PORTFOLIO_RECORD_VERSION;
+  version: typeof VAULT_RECORD_VERSION | typeof VAULT_PORTFOLIO_RECORD_VERSION | typeof VAULT_COLLECTIBLE_RECORD_VERSION;
   iv: string;
   ciphertext: string;
 }
@@ -148,4 +198,5 @@ export interface VaultAssetDraft {
   lots: VaultLotDraft[];
   notes: string;
   photo?: VaultPhoto;
+  collectible?: VaultCollectibleDetails;
 }

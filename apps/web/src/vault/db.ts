@@ -90,13 +90,24 @@ export async function listEncryptedRecords(): Promise<EncryptedVaultRecord[]> {
   }
 }
 
-export async function writeEncryptedRecord(record: EncryptedVaultRecord, meta: VaultMeta, expectedRevision: number): Promise<void> {
+export async function writeEncryptedRecord(
+  record: EncryptedVaultRecord,
+  meta: VaultMeta,
+  expectedRevision: number,
+  assertActive: () => void = () => undefined
+): Promise<void> {
   const db = await openVaultDatabase();
   try {
     const transaction = db.transaction([META_STORE, RECORD_STORE], "readwrite", { durability: "strict" });
     await assertRevision(transaction.objectStore(META_STORE), expectedRevision, transaction);
     const recordStore = transaction.objectStore(RECORD_STORE);
     const records = await requestResult<EncryptedVaultRecord[]>(recordStore.getAll());
+    try {
+      assertActive();
+    } catch (error) {
+      transaction.abort();
+      throw error;
+    }
     const nextRecords = [record, ...records.filter((existing) => existing.id !== record.id)];
     assertVaultCapacity(meta, nextRecords);
     recordStore.put(record);

@@ -10,6 +10,48 @@ export function readImageDimensions(bytes: Uint8Array, mimeType: string): ImageD
   return null;
 }
 
+export async function fileToVaultPhoto(file: File): Promise<VaultPhoto> {
+  const dimensions = readImageDimensions(new Uint8Array(await file.arrayBuffer()), file.type);
+  if (!dimensions || dimensions.width > MAX_SOURCE_PIXELS / dimensions.height) {
+    throw new Error("Image dimensions are invalid or too large");
+  }
+  const bitmap = await createImageBitmap(file);
+  if (bitmap.width * bitmap.height > MAX_SOURCE_PIXELS) {
+    bitmap.close();
+    throw new Error("Image dimensions are too large");
+  }
+  const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+  canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+  const context = canvas.getContext("2d", { alpha: true });
+  if (!context) {
+    bitmap.close();
+    throw new Error("Canvas is unavailable");
+  }
+  context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+  let processed = await canvasBlob(canvas, "image/webp", 0.84);
+  if (!processed || processed.size > VAULT_MAX_PHOTO_BYTES) processed = await canvasBlob(canvas, "image/jpeg", 0.76);
+  if (!processed || processed.size > VAULT_MAX_PHOTO_BYTES) throw new Error("Processed image is too large");
+  const dataUrl = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => typeof reader.result === "string" ? resolve(reader.result) : reject(new Error("Invalid photo"));
+    reader.onerror = () => reject(reader.error ?? new Error("Photo read failed"));
+    reader.readAsDataURL(processed);
+  });
+  return {
+    name: file.name.replace(/\.[^.]+$/, "") + (processed.type === "image/webp" ? ".webp" : ".jpg"),
+    mimeType: processed.type as VaultPhoto["mimeType"],
+    size: processed.size,
+    dataUrl
+  };
+}
+
+function canvasBlob(canvas: HTMLCanvasElement, type: "image/webp" | "image/jpeg", quality: number): Promise<Blob | null> {
+  return new Promise((resolve) => canvas.toBlob(resolve, type, quality));
+}
+
 function readPngDimensions(bytes: Uint8Array): ImageDimensions | null {
   if (bytes.length < 24
     || bytes[0] !== 0x89
@@ -87,3 +129,7 @@ function readUint24Le(bytes: Uint8Array, offset: number): number {
 function ascii(bytes: Uint8Array, start: number, end: number): string {
   return String.fromCharCode(...bytes.subarray(start, end));
 }
+import { VAULT_MAX_PHOTO_BYTES, type VaultPhoto } from "./types";
+
+export const MAX_SOURCE_PHOTO_BYTES = 12 * 1024 * 1024;
+export const MAX_SOURCE_PIXELS = 24_000_000;

@@ -2,10 +2,12 @@ import {
   changeVaultPassphrase,
   createAsset,
   createBackup,
+  createCollectibleContext,
   createPortfolioContext,
   createVault,
   decryptVaultRecord,
   encryptAsset,
+  encryptCollectibleContext,
   encryptPortfolioContext,
   parseBackup,
   recoverVault,
@@ -30,6 +32,8 @@ import {
   type VaultAsset,
   type VaultAssetDraft,
   type VaultBackup,
+  type VaultCollectibleContext,
+  type VaultCollectibleContextDraft,
   type VaultMeta,
   type VaultPortfolioContext,
   type VaultPortfolioContextDraft
@@ -40,6 +44,7 @@ export interface UnlockedVault {
   key: CryptoKey;
   assets: VaultAsset[];
   portfolios: VaultPortfolioContext[];
+  collectibles: VaultCollectibleContext[];
 }
 
 export interface CreatedVault extends UnlockedVault {
@@ -53,7 +58,7 @@ export async function bootstrapVault(): Promise<VaultMeta | null> {
 export async function createLocalVault(passphrase: string): Promise<CreatedVault> {
   const created = await createVault(passphrase);
   await initializeVault(created.meta);
-  return { ...created, assets: [], portfolios: [] };
+  return { ...created, assets: [], portfolios: [], collectibles: [] };
 }
 
 export async function unlockLocalVault(meta: VaultMeta, passphrase: string): Promise<UnlockedVault> {
@@ -76,19 +81,37 @@ export async function saveVaultPortfolio(
   await writeEncryptedRecord(
     encrypted,
     meta,
-    unlocked.meta.revision
+    unlocked.meta.revision,
+    assertActive
   );
   return { portfolio, meta };
+}
+
+export async function saveVaultCollectibleContext(
+  unlocked: UnlockedVault,
+  draft: VaultCollectibleContextDraft,
+  existing?: VaultCollectibleContext,
+  assertActive: () => void = () => undefined
+): Promise<{ collectible: VaultCollectibleContext; meta: VaultMeta }> {
+  const collectible = createCollectibleContext(draft, existing);
+  const meta = nextMeta(unlocked.meta);
+  const encrypted = await encryptCollectibleContext(unlocked.meta, unlocked.key, collectible);
+  assertActive();
+  await writeEncryptedRecord(encrypted, meta, unlocked.meta.revision, assertActive);
+  return { collectible, meta };
 }
 
 export async function saveVaultAsset(
   unlocked: UnlockedVault,
   draft: VaultAssetDraft,
-  existing?: VaultAsset
+  existing?: VaultAsset,
+  assertActive: () => void = () => undefined
 ): Promise<{ asset: VaultAsset; meta: VaultMeta }> {
   const asset = createAsset(draft, existing);
   const meta = nextMeta(unlocked.meta);
-  await writeEncryptedRecord(await encryptAsset(unlocked.meta, unlocked.key, asset), meta, unlocked.meta.revision);
+  const encrypted = await encryptAsset(unlocked.meta, unlocked.key, asset);
+  assertActive();
+  await writeEncryptedRecord(encrypted, meta, unlocked.meta.revision, assertActive);
   return { asset, meta };
 }
 
@@ -184,11 +207,13 @@ async function decryptRecords(
   meta: VaultMeta,
   key: CryptoKey,
   encrypted: EncryptedVaultRecord[]
-): Promise<{ assets: VaultAsset[]; portfolios: VaultPortfolioContext[] }> {
+): Promise<{ assets: VaultAsset[]; portfolios: VaultPortfolioContext[]; collectibles: VaultCollectibleContext[] }> {
   const records = await Promise.all(encrypted.map((record) => decryptVaultRecord(meta, key, record)));
   const assets = records.filter((record): record is VaultAsset => !("kind" in record));
   const portfolios = records.filter((record): record is VaultPortfolioContext => "kind" in record && record.kind === "portfolio-context");
+  const collectibles = records.filter((record): record is VaultCollectibleContext => "kind" in record && record.kind === "collectible-context");
   assets.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
   portfolios.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
-  return { assets, portfolios };
+  collectibles.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
+  return { assets, portfolios, collectibles };
 }

@@ -44,6 +44,17 @@ describe("encrypted vault IndexedDB", () => {
     expect(await readVaultMeta()).toMatchObject({ vaultId: created.meta.vaultId, revision: 1 });
   });
 
+  it("aborts an encrypted write when the Vault session expires inside the transaction", async () => {
+    const created = await createVault("correct horse battery staple");
+    await initializeVault(created.meta);
+    const record = await encryptAsset(created.meta, created.key, fixtureAsset());
+    await expect(writeEncryptedRecord(record, { ...created.meta, revision: 1 }, 0, () => {
+      throw new Error("vault session expired");
+    })).rejects.toThrow("vault session expired");
+    expect(await listEncryptedRecords()).toEqual([]);
+    expect(await readVaultMeta()).toMatchObject({ revision: 0 });
+  });
+
   it("replaces a verified backup atomically and deletes only the vault database", async () => {
     const first = await createVault("correct horse battery staple");
     await initializeVault(first.meta);

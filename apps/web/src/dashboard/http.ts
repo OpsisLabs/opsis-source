@@ -34,7 +34,7 @@ interface ApiErrorBody {
   message?: string;
 }
 
-function humanize(code: string, message: string, status: number): string {
+export function humanize(code: string, message: string, status: number): string {
   switch (code) {
     case "INVALID_CREDENTIALS":
       return "Invalid credentials. Check your email and password.";
@@ -66,6 +66,22 @@ function humanize(code: string, message: string, status: number): string {
       return "The current block changed during verification. Nothing was saved; try again.";
     case "RWA_DIRECT_VERIFICATION_FAILED":
       return "The direct contract evidence could not be confirmed at one block. No conclusion was returned.";
+    case "COLLECTIBLE_CATALOG_DISABLED":
+      return "Catalog matching is paused. You can still add the collectible manually to your encrypted Vault.";
+    case "COLLECTIBLE_DAILY_BUDGET_EXCEEDED":
+      return "Today's free catalog lookup budget has been reached. You can still add the collectible manually.";
+    case "COLLECTIBLE_BUDGET_UNAVAILABLE":
+      return "The free catalog safety guard is unavailable, so the lookup failed closed. You can still add the collectible manually.";
+    case "COLLECTIBLE_REQUEST_LIMIT_EXCEEDED":
+      return "This lookup exceeded ChainScout's catalog request limit. Refine it or add the collectible manually.";
+    case "COLLECTIBLE_PROVIDER_RATE_LIMITED":
+      return "The free catalog provider is rate-limited. Try again later or add the collectible manually.";
+    case "COLLECTIBLE_PROVIDER_UNAVAILABLE":
+      return "The collectible catalog is temporarily unavailable. Your encrypted Vault is unchanged, and manual entry still works.";
+    case "COLLECTIBLE_PROVIDER_MALFORMED":
+      return "The catalog returned data ChainScout could not verify safely. Nothing was saved; use manual entry instead.";
+    case "COLLECTIBLE_NOT_FOUND":
+      return "That exact catalog card was not found. Adjust the match or add the collectible manually.";
     case "SNAPSHOT_REORGED":
       return "The current block anchor changed during verification. Nothing was saved; refresh again.";
     case "VALIDATION_ERROR":

@@ -67,6 +67,9 @@ const envSchema = z.object({
   RWA_VERIFY_ENABLED: envBoolean.default(false),
   RWA_DAILY_RPC_UNIT_BUDGET: z.coerce.number().int().min(100).max(100_000).default(3_000),
   RWA_MAX_RPC_SUBCALLS: z.coerce.number().int().min(8).max(50).default(24),
+  COLLECTIBLE_CATALOG_ENABLED: envBoolean.default(false),
+  TCGDEX_API_BASE_URL: z.string().url().default("https://api.tcgdex.net/v2"),
+  COLLECTIBLE_DAILY_REQUEST_BUDGET: z.coerce.number().int().min(50).max(10_000).default(500),
   // The browser sends a custom header and exact Origin on state-changing
   // account routes. Tests opt in explicitly so legacy bearer-token fixtures
   // can keep exercising the underlying route behavior.
@@ -89,6 +92,7 @@ const envSchema = z.object({
   RATE_LIMIT_PUBLIC_PER_HOUR: z.coerce.number().int().positive().default(20),
   RATE_LIMIT_PORTFOLIO_PER_HOUR: z.coerce.number().int().min(1).max(60).default(10),
   RATE_LIMIT_RWA_PER_HOUR: z.coerce.number().int().min(1).max(60).default(10),
+  RATE_LIMIT_COLLECTIBLE_PER_HOUR: z.coerce.number().int().min(1).max(60).default(10),
   QUOTA_AI_MESSAGES_PER_MONTH: z.coerce.number().int().positive().default(500),
   QUOTA_CHAIN_LOOKUPS_PER_MONTH: z.coerce.number().int().positive().default(5000),
   // Wallet sign-in needs no email. Turn this on only if email/password signup
@@ -183,6 +187,24 @@ const envSchema = z.object({
         code: z.ZodIssueCode.custom,
         path: ["ROBINHOOD_PUBLIC_RPC_URL"],
         message: "Enabled RWA Verify requires the official Robinhood Chain public RPC and chain ID 4663"
+      });
+    }
+  }
+  if (env.COLLECTIBLE_CATALOG_ENABLED && env.NODE_ENV !== "test") {
+    const tcgdex = new URL(env.TCGDEX_API_BASE_URL);
+    const isOfficialTcgdex = tcgdex.protocol === "https:"
+      && tcgdex.hostname === "api.tcgdex.net"
+      && tcgdex.port === ""
+      && tcgdex.username === ""
+      && tcgdex.password === ""
+      && ["/v2", "/v2/"].includes(tcgdex.pathname)
+      && tcgdex.search === ""
+      && tcgdex.hash === "";
+    if (!isOfficialTcgdex) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["TCGDEX_API_BASE_URL"],
+        message: "Enabled Collectible Catalog requires the official TCGdex v2 endpoint"
       });
     }
   }

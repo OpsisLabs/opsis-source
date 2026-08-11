@@ -29,6 +29,9 @@ import { createPortfolioBudget } from "./portfolio/budget.js";
 import { rwaRoutes } from "./routes/rwa.js";
 import { RwaService, type RwaVerificationSource } from "./rwa/service.js";
 import { createRwaBudget } from "./rwa/budget.js";
+import { collectibleRoutes } from "./routes/collectibles.js";
+import { CollectibleCatalogService, type CollectibleCatalogSource } from "./collectibles/service.js";
+import { createCollectibleBudget } from "./collectibles/budget.js";
 
 export async function buildApp(
   env: Env,
@@ -37,6 +40,7 @@ export async function buildApp(
     privateAnalysis?: PrivateAnalysisDependencies;
     portfolioSnapshot?: PortfolioSnapshotSource;
     rwaVerification?: RwaVerificationSource;
+    collectibleCatalog?: CollectibleCatalogSource;
   }
 ) {
   const app = Fastify({
@@ -104,6 +108,7 @@ export async function buildApp(
         { name: "private" },
         { name: "portfolio" },
         { name: "rwa" },
+        { name: "collectibles" },
         { name: "account" },
         { name: "usage" },
         { name: "admin" }
@@ -136,6 +141,11 @@ export async function buildApp(
     app,
     env,
     dependencies?.rwaVerification ?? new RwaService(env, { budget: createRwaBudget(env, redis) })
+  );
+  await collectibleRoutes(
+    app,
+    env,
+    dependencies?.collectibleCatalog ?? new CollectibleCatalogService(env, { budget: createCollectibleBudget(env, redis) })
   );
   await authRoutes(app, env, prisma);
   await accountRoutes(app, env, prisma);

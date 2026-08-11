@@ -5,6 +5,7 @@ import { JsonCache } from "../src/cache/service.js";
 import { loadEnv } from "../src/config/env.js";
 import { createPortfolioBudget } from "../src/portfolio/budget.js";
 import { createRwaBudget } from "../src/rwa/budget.js";
+import { createCollectibleBudget } from "../src/collectibles/budget.js";
 
 const redisUrl = process.env.TEST_REDIS_URL;
 const redisDatabase = redisUrl ? Number(new URL(redisUrl).pathname.slice(1)) : 0;
@@ -72,6 +73,18 @@ if (!redisUrl) {
       const keys = await redis.keys("rh:rwa-budget:*");
       expect(keys).toEqual(["rh:rwa-budget:2026-08-11"]);
       expect(await redis.get(keys[0])).toBe("100");
+    });
+
+    it("atomically shares the query-free daily collectible budget", async () => {
+      const env = loadEnv({ NODE_ENV: "test", COLLECTIBLE_DAILY_REQUEST_BUDGET: "50" });
+      const now = () => new Date("2026-08-11T12:00:00.000Z");
+      const first = createCollectibleBudget(env, redis, now);
+      const second = createCollectibleBudget(env, redis, now);
+      await Promise.all(Array.from({ length: 50 }, (_, index) => (index % 2 ? first : second).consume(1)));
+      await expect(first.consume(1)).rejects.toMatchObject({ code: "COLLECTIBLE_DAILY_BUDGET_EXCEEDED" });
+      const keys = await redis.keys("rh:collectible-budget:*");
+      expect(keys).toEqual(["rh:collectible-budget:2026-08-11"]);
+      expect(await redis.get(keys[0])).toBe("50");
     });
   });
 }

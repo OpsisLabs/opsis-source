@@ -4,6 +4,7 @@ import {
   VAULT_MAX_BACKUP_BYTES,
   VAULT_MAX_PHOTO_BYTES,
   VAULT_MAX_RECORDS,
+  VAULT_COLLECTIBLE_RECORD_VERSION,
   VAULT_PORTFOLIO_RECORD_VERSION,
   VAULT_RECORD_VERSION,
   VAULT_SCHEMA_VERSION,
@@ -12,6 +13,8 @@ import {
   type VaultAssetDraft,
   type VaultBackup,
   type VaultBackupIntegrity,
+  type VaultCollectibleContext,
+  type VaultCollectibleContextDraft,
   type VaultMeta,
   type VaultPortfolioContext,
   type VaultPortfolioContextDraft,
@@ -174,14 +177,15 @@ export async function encryptAsset(
   validateAsset(asset);
   const iv = randomBytes(12);
   const plaintext = encoder.encode(JSON.stringify(asset));
+  const version = asset.collectible ? VAULT_COLLECTIBLE_RECORD_VERSION : VAULT_RECORD_VERSION;
   const encrypted = await crypto.subtle.encrypt(
-    aesParams(iv, recordAad(meta.vaultId, asset.id, VAULT_RECORD_VERSION)),
+    aesParams(iv, recordAad(meta.vaultId, asset.id, version)),
     key,
     plaintext
   );
   return {
     id: asset.id,
-    version: VAULT_RECORD_VERSION,
+    version,
     iv: bytesToBase64(iv),
     ciphertext: bytesToBase64(new Uint8Array(encrypted))
   };
@@ -193,7 +197,7 @@ export async function decryptAsset(
   record: EncryptedVaultRecord
 ): Promise<VaultAsset> {
   validateEncryptedRecord(record);
-  if (record.version !== VAULT_RECORD_VERSION) {
+  if (record.version !== VAULT_RECORD_VERSION && record.version !== VAULT_COLLECTIBLE_RECORD_VERSION) {
     throw new VaultError("CORRUPT_RECORD", "This encrypted record is not an asset record.");
   }
   try {
@@ -204,11 +208,63 @@ export async function decryptAsset(
     );
     const parsed = JSON.parse(decoder.decode(plaintext)) as unknown;
     validateAsset(parsed);
+    if (record.version === VAULT_RECORD_VERSION && parsed.collectible !== undefined) throw new Error("legacy asset contains catalog fields");
+    if (record.version === VAULT_COLLECTIBLE_RECORD_VERSION && parsed.collectible === undefined) throw new Error("catalog asset is missing catalog fields");
     if (parsed.id !== record.id) throw new Error("record identity mismatch");
     return parsed;
   } catch (error) {
     if (error instanceof VaultError) throw error;
     throw new VaultError("CORRUPT_RECORD", "An encrypted vault record is damaged or belongs to another vault.");
+  }
+}
+
+export async function encryptCollectibleContext(
+  meta: VaultMeta,
+  key: CryptoKey,
+  context: VaultCollectibleContext
+): Promise<EncryptedVaultRecord> {
+  validateVaultMeta(meta);
+  validateCollectibleContext(context);
+  const iv = randomBytes(12);
+  const encrypted = await crypto.subtle.encrypt(
+    aesParams(iv, recordAad(meta.vaultId, context.id, VAULT_COLLECTIBLE_RECORD_VERSION)),
+    key,
+    encoder.encode(JSON.stringify(context))
+  );
+  return {
+    id: context.id,
+    version: VAULT_COLLECTIBLE_RECORD_VERSION,
+    iv: bytesToBase64(iv),
+    ciphertext: bytesToBase64(new Uint8Array(encrypted))
+  };
+}
+
+export async function decryptCollectibleRecord(
+  meta: VaultMeta,
+  key: CryptoKey,
+  record: EncryptedVaultRecord
+): Promise<VaultAsset | VaultCollectibleContext> {
+  validateEncryptedRecord(record);
+  if (record.version !== VAULT_COLLECTIBLE_RECORD_VERSION) {
+    throw new VaultError("CORRUPT_RECORD", "This encrypted record is not a collectible record.");
+  }
+  try {
+    const plaintext = await crypto.subtle.decrypt(
+      aesParams(base64ToBytes(record.iv), recordAad(meta.vaultId, record.id, record.version)),
+      key,
+      base64ToBytes(record.ciphertext)
+    );
+    const parsed = JSON.parse(decoder.decode(plaintext)) as unknown;
+    if (!isRecord(parsed)) throw new Error("collectible record is not an object");
+    if (parsed.kind === "collectible-context") validateCollectibleContext(parsed);
+    else if (!("kind" in parsed)) validateAsset(parsed);
+    else throw new Error("unknown collectible record kind");
+    if (parsed.id !== record.id) throw new Error("record identity mismatch");
+    if (!("kind" in parsed) && parsed.collectible === undefined) throw new Error("catalog asset is missing catalog fields");
+    return parsed;
+  } catch (error) {
+    if (error instanceof VaultError) throw error;
+    throw new VaultError("CORRUPT_RECORD", "An encrypted collectible record is damaged or belongs to another vault.");
   }
 }
 
@@ -262,9 +318,10 @@ export async function decryptVaultRecord(
   meta: VaultMeta,
   key: CryptoKey,
   record: EncryptedVaultRecord
-): Promise<VaultAsset | VaultPortfolioContext> {
+): Promise<VaultAsset | VaultPortfolioContext | VaultCollectibleContext> {
   if (record.version === VAULT_RECORD_VERSION) return decryptAsset(meta, key, record);
   if (record.version === VAULT_PORTFOLIO_RECORD_VERSION) return decryptPortfolioContext(meta, key, record);
+  if (record.version === VAULT_COLLECTIBLE_RECORD_VERSION) return decryptCollectibleRecord(meta, key, record);
   throw new VaultError("INVALID_BACKUP", "The encrypted-vault backup contains an unsupported record version.");
 }
 
@@ -284,11 +341,32 @@ export function createAsset(draft: VaultAssetDraft, existing?: VaultAsset): Vaul
     })),
     notes: draft.notes.trim(),
     ...(draft.photo ? { photo: draft.photo } : {}),
+    ...(draft.collectible ? { collectible: normalizeCollectibleDetails(draft.collectible) } : {}),
     createdAt: existing?.createdAt ?? now,
     updatedAt: now
   };
   validateAsset(asset);
   return asset;
+}
+
+export function createCollectibleContext(
+  draft: VaultCollectibleContextDraft,
+  existing?: VaultCollectibleContext
+): VaultCollectibleContext {
+  const now = new Date().toISOString();
+  const context: VaultCollectibleContext = {
+    id: existing?.id ?? crypto.randomUUID(),
+    kind: "collectible-context",
+    receipts: draft.receipts.slice(-50).map((receipt) => ({
+      ...receipt,
+      query: receipt.query.trim(),
+      providerDestinations: ["TCGdex"]
+    })),
+    createdAt: existing?.createdAt ?? now,
+    updatedAt: now
+  };
+  validateCollectibleContext(context);
+  return context;
 }
 
 export function createPortfolioContext(
@@ -472,7 +550,9 @@ function validateEncryptedRecord(value: unknown): asserts value is EncryptedVaul
   if (!isRecord(value)
     || typeof value.id !== "string"
     || !UUID.test(value.id)
-    || (value.version !== VAULT_RECORD_VERSION && value.version !== VAULT_PORTFOLIO_RECORD_VERSION)
+    || (value.version !== VAULT_RECORD_VERSION
+      && value.version !== VAULT_PORTFOLIO_RECORD_VERSION
+      && value.version !== VAULT_COLLECTIBLE_RECORD_VERSION)
     || typeof value.iv !== "string"
     || base64ToBytes(value.iv).byteLength !== 12
     || typeof value.ciphertext !== "string"
@@ -769,6 +849,176 @@ function validateAsset(value: unknown): asserts value is VaultAsset {
       throw new VaultError("INVALID_PHOTO", "Use one locally processed JPEG, PNG, or WebP image up to 3 MB.");
     }
   }
+  if (value.collectible !== undefined) validateCollectibleDetails(value.collectible, value as unknown as VaultAsset);
+}
+
+function validateCollectibleContext(value: unknown): asserts value is VaultCollectibleContext {
+  if (!isRecord(value)
+    || typeof value.id !== "string"
+    || !UUID.test(value.id)
+    || value.kind !== "collectible-context"
+    || !Array.isArray(value.receipts)
+    || value.receipts.length > 50
+    || typeof value.createdAt !== "string"
+    || !ISO_DATE_TIME.test(value.createdAt)
+    || typeof value.updatedAt !== "string"
+    || !ISO_DATE_TIME.test(value.updatedAt)) {
+    throw new VaultError("INVALID_COLLECTIBLE", "The encrypted collectible lookup context is invalid.");
+  }
+  const ids = new Set<string>();
+  for (const receipt of value.receipts) {
+    if (!isRecord(receipt)
+      || typeof receipt.id !== "string"
+      || !UUID.test(receipt.id)
+      || ids.has(receipt.id)
+      || !["search", "detail"].includes(String(receipt.operation))
+      || receipt.language !== "en"
+      || typeof receipt.query !== "string"
+      || receipt.query.length < 1
+      || receipt.query.length > 200
+      || !Array.isArray(receipt.providerDestinations)
+      || receipt.providerDestinations.length !== 1
+      || receipt.providerDestinations[0] !== "TCGdex"
+      || typeof receipt.disclosure !== "string"
+      || receipt.disclosure.length < 1
+      || receipt.disclosure.length > 1_000
+      || typeof receipt.approvedAt !== "string"
+      || !ISO_DATE_TIME.test(receipt.approvedAt)
+      || !["approved", "completed", "failed"].includes(String(receipt.outcome))
+      || !(receipt.resolvedAt === undefined || typeof receipt.resolvedAt === "string" && ISO_DATE_TIME.test(receipt.resolvedAt))
+      || (receipt.outcome === "approved" && receipt.resolvedAt !== undefined)
+      || (receipt.outcome !== "approved" && receipt.resolvedAt === undefined)) {
+      throw new VaultError("INVALID_COLLECTIBLE", "An encrypted collectible permission receipt is invalid.");
+    }
+    ids.add(receipt.id);
+  }
+}
+
+function validateCollectibleDetails(value: unknown, asset: VaultAsset): void {
+  if (asset.assetType !== "collectible"
+    || !isRecord(value)
+    || !isRecord(value.catalog)
+    || typeof value.ownerPrinting !== "string"
+    || value.ownerPrinting.length > 120
+    || !["unknown", "poor", "played", "good", "excellent", "near-mint", "mint"].includes(String(value.condition))
+    || !["ungraded", "psa", "cgc", "bgs", "other"].includes(String(value.grader))
+    || typeof value.grade !== "string"
+    || value.grade.length > 40
+    || typeof value.certificate !== "string"
+    || value.certificate.length > 80
+    || !(value.photoSource === null || value.photoSource === "owner_supplied")
+    || !(value.photoAddedAt === null || typeof value.photoAddedAt === "string" && ISO_DATE_TIME.test(value.photoAddedAt))
+    || !Array.isArray(value.references)
+    || value.references.length > 20) {
+    throw new VaultError("INVALID_COLLECTIBLE", "The encrypted collectible details are invalid.");
+  }
+  validateCatalogCard(value.catalog);
+  if (asset.identifier !== `tcgdex:${String(value.catalog.language)}:${String(value.catalog.catalogId)}`) {
+    throw new VaultError("INVALID_COLLECTIBLE", "The encrypted collectible identifier does not match its catalog identity.");
+  }
+  if ((asset.photo === undefined) !== (value.photoSource === null) || (asset.photo === undefined) !== (value.photoAddedAt === null)) {
+    throw new VaultError("INVALID_COLLECTIBLE", "The owner-supplied photo metadata does not match the encrypted photo.");
+  }
+  const graded = value.grader !== "ungraded";
+  if ((!graded && (value.grade !== "" || value.certificate !== ""))
+    || (graded && (value.grade.trim().length < 1 || value.certificate.trim().length < 1))
+    || (graded && (asset.lots.length !== 1 || asset.lots[0]?.quantity !== "1"))) {
+    throw new VaultError("INVALID_COLLECTIBLE", "A graded certificate must describe exactly one copy and include both grade and certificate number.");
+  }
+  const referenceIds = new Set<string>();
+  for (const reference of value.references) {
+    if (!isRecord(reference)
+      || typeof reference.id !== "string"
+      || !UUID.test(reference.id)
+      || referenceIds.has(reference.id)
+      || typeof reference.value !== "string"
+      || !DECIMAL.test(reference.value)
+      || typeof reference.currency !== "string"
+      || !CURRENCY.test(reference.currency)
+      || typeof reference.observedAt !== "string"
+      || !isValidOptionalDate(reference.observedAt)
+      || reference.observedAt.length === 0
+      || typeof reference.sourceUrl !== "string"
+      || !validHttpsUrl(reference.sourceUrl, 1_000)
+      || typeof reference.label !== "string"
+      || reference.label.trim().length < 1
+      || reference.label.length > 120) {
+      throw new VaultError("INVALID_COLLECTIBLE", "One or more manual collectible references are invalid.");
+    }
+    referenceIds.add(reference.id);
+  }
+}
+
+function validateCatalogCard(value: Record<string, unknown>): void {
+  if (value.provider !== "tcgdex"
+    || typeof value.catalogId !== "string"
+    || !/^[a-zA-Z0-9][a-zA-Z0-9.-]{0,79}$/.test(value.catalogId)
+    || value.language !== "en"
+    || typeof value.name !== "string"
+    || value.name.trim().length < 1
+    || value.name.length > 120
+    || typeof value.number !== "string"
+    || value.number.length < 1
+    || value.number.length > 24
+    || typeof value.category !== "string"
+    || value.category.length < 1
+    || value.category.length > 40
+    || !isRecord(value.set)
+    || typeof value.set.id !== "string"
+    || !/^[a-zA-Z0-9][a-zA-Z0-9.-]{0,79}$/.test(value.set.id)
+    || typeof value.set.name !== "string"
+    || value.set.name.length < 1
+    || value.set.name.length > 120
+    || !validCatalogCount(value.set.officialCount)
+    || !validCatalogCount(value.set.totalCount)
+    || Number(value.set.totalCount) < Number(value.set.officialCount)
+    || value.catalogId !== `${value.set.id}-${value.number}`
+    || !(value.rarity === null || typeof value.rarity === "string" && value.rarity.length <= 80)
+    || !(value.illustrator === null || typeof value.illustrator === "string" && value.illustrator.length <= 120)
+    || !(value.catalogUpdatedAt === null || typeof value.catalogUpdatedAt === "string" && ISO_DATE_TIME.test(value.catalogUpdatedAt))
+    || typeof value.fetchedAt !== "string"
+    || !ISO_DATE_TIME.test(value.fetchedAt)
+    || typeof value.sourceUrl !== "string"
+    || value.sourceUrl !== "https://api.tcgdex.net/v2/graphql"
+    || !validHttpsUrl(value.sourceUrl, 1_000)
+    || value.licenseUrl !== "https://github.com/tcgdex/cards-database/blob/master/LICENSE") {
+    throw new VaultError("INVALID_COLLECTIBLE", "The encrypted TCGdex catalog identity is invalid.");
+  }
+}
+
+function normalizeCollectibleDetails(value: VaultAsset["collectible"]): NonNullable<VaultAsset["collectible"]> {
+  if (!value) throw new VaultError("INVALID_COLLECTIBLE", "Collectible details are required.");
+  return {
+    catalog: structuredClone(value.catalog),
+    ownerPrinting: value.ownerPrinting.trim(),
+    condition: value.condition,
+    grader: value.grader,
+    grade: value.grade.trim(),
+    certificate: value.certificate.trim(),
+    photoSource: value.photoSource,
+    photoAddedAt: value.photoAddedAt,
+    references: value.references.map((reference) => ({
+      ...reference,
+      value: reference.value.trim(),
+      currency: reference.currency.trim().toUpperCase(),
+      sourceUrl: reference.sourceUrl.trim(),
+      label: reference.label.trim()
+    }))
+  };
+}
+
+function validCatalogCount(value: unknown): boolean {
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0 && value <= 100_000;
+}
+
+function validHttpsUrl(value: string, maxLength: number): boolean {
+  if (value.length < 1 || value.length > maxLength) return false;
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === "https:" && parsed.username === "" && parsed.password === "";
+  } catch {
+    return false;
+  }
 }
 
 function isPositiveDecimal(value: string): boolean {
@@ -892,7 +1142,7 @@ function keyAad(vaultId: string): Uint8Array<ArrayBuffer> {
   return encoder.encode(`chainscout:vault-key:v1:${vaultId}`);
 }
 
-function recordAad(vaultId: string, recordId: string, version: 1 | 2): Uint8Array<ArrayBuffer> {
+function recordAad(vaultId: string, recordId: string, version: 1 | 2 | 3): Uint8Array<ArrayBuffer> {
   return encoder.encode(`chainscout:vault-record:v${version}:${vaultId}:${recordId}`);
 }
 
