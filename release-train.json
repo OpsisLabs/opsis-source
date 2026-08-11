@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "04-portfolio-intelligence",
+  "activeRelease": "05-rwa-phygital-verify",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement",
@@ -43,16 +43,16 @@
       "id": "04-portfolio-intelligence",
       "branch": "release/04-portfolio-intelligence",
       "tagPrefix": "rc/04-portfolio-intelligence/",
-      "status": "active",
+      "status": "released",
       "outcome": "See holdings, performance, activity, and risk together",
-      "shipGate": "Balances, NFTs, transactions, approvals, and decoded movements reconcile at a finalized block; manual lot math is deterministic; saved ownership context remains encrypted and browser-local."
+      "shipGate": "Balances, NFTs, transactions, approvals, and decoded movements reconcile against one captured current block whose hash is rechecked; the non-final anchor and bounded coverage are explicit; manual lot math is deterministic; saved ownership context remains encrypted and browser-local."
     },
     {
       "order": 5,
       "id": "05-rwa-phygital-verify",
       "branch": "release/05-rwa-phygital-verify",
       "tagPrefix": "rc/05-rwa-phygital-verify/",
-      "status": "queued",
+      "status": "active",
       "outcome": "Understand tokenized assets, yield, and physical claims",
       "shipGate": "Stock Token identity, multipliers, corporate actions, oracle freshness, Morpho vault state, custody claims, and redemption limits are source-linked; unsupported authenticity is never inferred."
     },
