@@ -62,5 +62,20 @@ describe("environment validation", () => {
       PORTFOLIO_MODE_ENABLED: "true",
       ROBINHOOD_PUBLIC_RPC_URL: "https://rpc.mainnet.chain.robinhood.com"
     }).ROBINHOOD_PUBLIC_RPC_URL).toBe("https://rpc.mainnet.chain.robinhood.com");
+    expect(() => loadEnv({
+      NODE_ENV: "development",
+      PORTFOLIO_MODE_ENABLED: "true",
+      ROBINHOOD_PUBLIC_RPC_URL: "https://rpc.example.com"
+    })).toThrow(/official Robinhood Public RPC/);
+    expect(() => loadEnv({
+      NODE_ENV: "development",
+      PORTFOLIO_MODE_ENABLED: "true",
+      ROBINHOOD_PUBLIC_RPC_URL: "https://rpc.mainnet.chain.robinhood.com.evil.example"
+    })).toThrow(/official Robinhood Public RPC/);
+    expect(loadEnv({
+      NODE_ENV: "test",
+      PORTFOLIO_MODE_ENABLED: "true",
+      ROBINHOOD_PUBLIC_RPC_URL: "http://127.0.0.1:8545"
+    }).ROBINHOOD_PUBLIC_RPC_URL).toBe("http://127.0.0.1:8545");
   });
 });

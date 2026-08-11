@@ -120,6 +120,24 @@ const envSchema = z.object({
   if (env.UNISWAP_QUOTE_ENABLED && !env.UNISWAP_API_KEY) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: "UNISWAP_API_KEY is required when Scout Swap quotes are enabled" });
   }
+  if (env.PORTFOLIO_MODE_ENABLED && env.NODE_ENV !== "test") {
+    const publicRpc = new URL(env.ROBINHOOD_PUBLIC_RPC_URL);
+    const isOfficialRobinhoodRpc = publicRpc.protocol === "https:"
+      && publicRpc.hostname === "rpc.mainnet.chain.robinhood.com"
+      && publicRpc.port === ""
+      && publicRpc.username === ""
+      && publicRpc.password === ""
+      && (publicRpc.pathname === "" || publicRpc.pathname === "/")
+      && publicRpc.search === ""
+      && publicRpc.hash === "";
+    if (!isOfficialRobinhoodRpc) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["ROBINHOOD_PUBLIC_RPC_URL"],
+        message: "Enabled Portfolio Intelligence requires the official Robinhood Public RPC endpoint"
+      });
+    }
+  }
   if (env.NODE_ENV !== "production") return;
   if (env.AUTH_EMAIL_ENABLED && (!env.SMTP_HOST || !env.EMAIL_FROM)) {
     context.addIssue({

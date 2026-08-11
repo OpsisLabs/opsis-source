@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "458dd68212e690c7bb46efc7ad94edf51c622c07f65f507f17f7eb4693c802e2",
+  "sourceTreeDigest": "c1c5c1380784d5137eefc49f11e077d6ba08511694f275a66199b19b893376ff",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "6de483a40bab54c0cacb843f84ef5bd540a3f1e62356cd4592aeff6f31ddc79a",
@@ -37,7 +37,7 @@
     "apps/api/src/chain/resolver.ts": "162691d87eed59c56d244daf1cfcd5bcb52f67e5e3e9353d19916d966d2efe8d",
     "apps/api/src/chain/types.ts": "532f5721c792810071e45ee2152466209a463c12a0862e1b1e91f92b11cbba98",
     "apps/api/src/chat/repository.ts": "b6ddecec7c8b54c9cb4c34952b713fea3b5e6d7f172dc60c2e903c029f027285",
-    "apps/api/src/config/env.ts": "5f85d1e5e1376c140b1bf012975b8a7551593ef2a08d08d927fdffd0c78110a4",
+    "apps/api/src/config/env.ts": "4c8ffcfb7c5fe26e462f141677278b7674fb6243211a0f7cef2678b1f1c5b2ef",
     "apps/api/src/db/memory.ts": "0408df707a6a5b973bf1f185baf2c1b96b8a924f6392e2b3f71f1b123441f979",
     "apps/api/src/db/prisma.ts": "c83df9960efdc4f84b13126cfe325e278c4ac0afebfc996a928f57addaf20733",
     "apps/api/src/entities/identify.ts": "317c49a602d062e5a1d05dad28de6aaa287e67277734bf6ab7bef1d9f2ed055b",
@@ -74,7 +74,7 @@
     "apps/api/test/auth.test.ts": "2d1a323abd92aa1432d2c34321f8c6719ac22f3100527786195f215691b67285",
     "apps/api/test/cache.test.ts": "14c23b408b9865bb25dbf16b01fc044c7c6d7e4b01d51e3c5730f203dbbab068",
     "apps/api/test/chat-ownership.test.ts": "cdb796feb849f134aa66fdb8acfc6d0e721e621b3a31a00b5157a55bc4e3f120",
-    "apps/api/test/config.test.ts": "62b2a70a6af78ce9330460f9b7f3b688eec6ce3b0c85c01b9b236c6b1be0e2e5",
+    "apps/api/test/config.test.ts": "1e18c0ec9dbbcdc788b90cee5f9498034b6da3439ed6889400c453cf2de5a9c6",
     "apps/api/test/cookie-auth.test.ts": "0602ff4353048c2ad0a3d9fc87b4473905022bb2ef86e17e8d0c45f879cda2b0",
     "apps/api/test/fixtures/alchemy-transaction.json": "ada19ddb8e07de842978574237d5b3826ffce36ad604695ffeec6ad26fac6319",
     "apps/api/test/fixtures/blockscout-address.json": "8ebab0d3c7e4a5bcde0ed406245d8bec6991ae71fb42fdf920c3be5d32e6c67f",
