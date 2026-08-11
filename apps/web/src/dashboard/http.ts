@@ -56,6 +56,16 @@ function humanize(code: string, message: string, status: number): string {
       return "Today's free portfolio refresh budget has been reached. Your prior encrypted snapshot is unchanged.";
     case "PORTFOLIO_BUDGET_UNAVAILABLE":
       return "The free-tier portfolio safety guard is unavailable, so refresh failed closed. Try again shortly.";
+    case "RWA_VERIFY_DISABLED":
+      return "RWA Verify is paused. No contract data was sent or saved.";
+    case "RWA_DAILY_BUDGET_EXCEEDED":
+      return "Today's free RWA verification budget has been reached. Try again tomorrow.";
+    case "RWA_BUDGET_UNAVAILABLE":
+      return "The free-tier RWA safety guard is unavailable, so verification failed closed.";
+    case "RWA_ANCHOR_CHANGED":
+      return "The current block changed during verification. Nothing was saved; try again.";
+    case "RWA_DIRECT_VERIFICATION_FAILED":
+      return "The direct contract evidence could not be confirmed at one block. No conclusion was returned.";
     case "SNAPSHOT_REORGED":
       return "The current block anchor changed during verification. Nothing was saved; refresh again.";
     case "VALIDATION_ERROR":

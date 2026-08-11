@@ -11,6 +11,7 @@ import ChatPage from "./dashboard/ChatPage";
 import PrivateExplorer from "./pages/PrivateExplorer";
 import AccountPrivacyPage from "./dashboard/AccountPrivacyPage";
 import VaultPage from "./pages/Vault";
+import RwaVerify from "./pages/RwaVerify";
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -68,6 +69,7 @@ export default function App() {
       <Route path="/swap" element={<ScoutSwap />} />
       <Route path="/app" element={<PrivateExplorer />} />
       <Route path="/vault" element={<VaultPage />} />
+      <Route path="/rwa" element={<RwaVerify />} />
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/terms" element={<TermsPage />} />
       <Route element={<CloudProviders />}>

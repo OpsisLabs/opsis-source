@@ -26,6 +26,9 @@ import { installCsrfProtection } from "./http/csrf.js";
 import { portfolioRoutes } from "./routes/portfolio.js";
 import { PortfolioService, type PortfolioSnapshotSource } from "./portfolio/service.js";
 import { createPortfolioBudget } from "./portfolio/budget.js";
+import { rwaRoutes } from "./routes/rwa.js";
+import { RwaService, type RwaVerificationSource } from "./rwa/service.js";
+import { createRwaBudget } from "./rwa/budget.js";
 
 export async function buildApp(
   env: Env,
@@ -33,6 +36,7 @@ export async function buildApp(
   dependencies?: {
     privateAnalysis?: PrivateAnalysisDependencies;
     portfolioSnapshot?: PortfolioSnapshotSource;
+    rwaVerification?: RwaVerificationSource;
   }
 ) {
   const app = Fastify({
@@ -99,6 +103,7 @@ export async function buildApp(
         { name: "swaps" },
         { name: "private" },
         { name: "portfolio" },
+        { name: "rwa" },
         { name: "account" },
         { name: "usage" },
         { name: "admin" }
@@ -126,6 +131,11 @@ export async function buildApp(
     app,
     env,
     dependencies?.portfolioSnapshot ?? new PortfolioService(env, { budget: createPortfolioBudget(env, redis) })
+  );
+  await rwaRoutes(
+    app,
+    env,
+    dependencies?.rwaVerification ?? new RwaService(env, { budget: createRwaBudget(env, redis) })
   );
   await authRoutes(app, env, prisma);
   await accountRoutes(app, env, prisma);

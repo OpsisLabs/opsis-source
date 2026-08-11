@@ -6,6 +6,7 @@ const LINKS = [
   { label: "Product", href: "#capabilities" },
   { label: "Scout Swap", href: "/swap" },
   { label: "Portfolio Vault", href: "/vault" },
+  { label: "RWA Verify", href: "/rwa" },
   { label: "Providers", href: "#integrations" },
   { label: "Roadmap", href: "/roadmap" },
   { label: "Comparison", href: "#comparison" },
@@ -30,7 +31,7 @@ export default function TopNav() {
 
         <div className="flex-1" />
 
-        <nav className="hidden items-center gap-10 pr-10 text-[13px] text-[#9a938a] md:flex">
+        <nav className="hidden items-center gap-5 pr-5 text-[12px] text-[#9a938a] md:flex xl:gap-8 xl:pr-8 xl:text-[13px]">
           {LINKS.map((l) => (
             <a key={l.label} href={l.href} className="transition-colors hover:text-[#e9e0d1]">
               {l.label}

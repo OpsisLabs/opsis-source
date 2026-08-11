@@ -64,8 +64,10 @@ describe("browser privacy static boundary", () => {
     const app = readFileSync(resolve(repositoryRoot, "apps/web/src/App.tsx"), "utf8");
     expect(app).toContain('<Route path="/app" element={<PrivateExplorer />} />');
     expect(app).toContain('<Route path="/vault" element={<VaultPage />} />');
+    expect(app).toContain('<Route path="/rwa" element={<RwaVerify />} />');
     expect(app.indexOf('<Route path="/app" element={<PrivateExplorer />} />')).toBeLessThan(app.indexOf('<Route element={<CloudProviders />}>'));
     expect(app.indexOf('<Route path="/vault" element={<VaultPage />} />')).toBeLessThan(app.indexOf('<Route element={<CloudProviders />}>'));
+    expect(app.indexOf('<Route path="/rwa" element={<RwaVerify />} />')).toBeLessThan(app.indexOf('<Route element={<CloudProviders />}>'));
   });
 
   it("keeps vault plaintext and local cryptography outside every network and weak-storage API", () => {
@@ -96,6 +98,28 @@ describe("browser privacy static boundary", () => {
     expect(source).toContain("PROVIDER_MAX_RETRIES: 0");
     expect(source).toContain('createProviderHttp(oneAttemptEnv, "robinhood-public-rpc")');
     expect(source).toContain('createProviderHttp(oneAttemptEnv, "blockscout")');
+  });
+
+  it("limits RWA networking to one public address with no weak storage or wallet path", () => {
+    const directory = resolve(repositoryRoot, "apps/web/src/rwa");
+    const source = sourceText(directory);
+    const api = readFileSync(resolve(directory, "api.ts"), "utf8");
+    const page = readFileSync(resolve(repositoryRoot, "apps/web/src/pages/RwaVerify.tsx"), "utf8");
+    expect(api).toContain('privateApi("/v1/private/rwa/verify", { address }, signal)');
+    expect(source + page).not.toMatch(/localStorage|sessionStorage|IndexedDB|indexedDB|dangerouslySetInnerHTML/);
+    expect(source + page).not.toMatch(/eth_requestAccounts|eth_accounts|personal_sign|sendTransaction/);
+    expect(page).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/);
+    expect(api.slice(api.indexOf("export function verifyRwa"))).not.toMatch(/label|valuation|purchase|lots|notes|photo|vaultId|passphrase/i);
+  });
+
+  it("disables provider retries and uses fixed official evidence hosts for RWA verification", () => {
+    const source = readFileSync(resolve(repositoryRoot, "apps/api/src/rwa/service.ts"), "utf8");
+    expect(source).toContain("PROVIDER_MAX_RETRIES: 0");
+    expect(source).toContain('const RHJ_API = "https://api.robinhood.com/rhj"');
+    expect(source).toContain('const CHAINLINK_RDD = "https://reference-data-directory.vercel.app/feeds-robinhood-mainnet.json"');
+    expect(source).toContain('const MORPHO_API = "https://api.morpho.org"');
+    expect(source).toContain('redirect: "error"');
+    expect(source).not.toMatch(/Prisma|OpenAI|ChatRepository|persistResolution/);
   });
 
   it("keeps launch marketing aligned with the anchored zero-cost provider path", () => {

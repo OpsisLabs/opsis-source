@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Download, type Page } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 
 const passphrase = "correct horse battery staple";
@@ -9,6 +9,17 @@ const identifier = "PSA-CHAINSCOUT-42";
 const portfolioAddress = "0x1111111111111111111111111111111111111111";
 const secondPortfolioAddress = "0x2222222222222222222222222222222222222222";
 const portfolioToken = "0x3333333333333333333333333333333333333333";
+
+async function downloadBuffer(download: Download): Promise<Buffer> {
+  const stream = await download.createReadStream();
+  const chunks: Buffer[] = [];
+  for await (const chunk of stream) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  return Buffer.concat(chunks);
+}
+
+function backupFile(buffer: Buffer) {
+  return { name: "chainscout-vault.encrypted.json", mimeType: "application/json", buffer };
+}
 
 function portfolioSnapshot(address = portfolioAddress) {
   return {
@@ -94,9 +105,8 @@ test("encrypted Vault creates, stores ciphertext, locks, exports, deletes, and r
   const downloadPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: "EXPORT ENCRYPTED JSON" }).click();
   const download = await downloadPromise;
-  const downloadPath = await download.path();
-  expect(downloadPath).toBeTruthy();
-  const backupText = await readFile(downloadPath!, "utf8");
+  const backupBuffer = await downloadBuffer(download);
+  const backupText = backupBuffer.toString("utf8");
   expect(JSON.parse(backupText)).toMatchObject({ format: "chainscout.encrypted-vault", schemaVersion: 1 });
   for (const canary of [assetName, privateNote, identifier, recoveryCode ?? "CSV1-"]) expect(backupText).not.toContain(canary);
 
@@ -105,7 +115,7 @@ test("encrypted Vault creates, stores ciphertext, locks, exports, deletes, and r
   await expect(page.getByRole("heading", { name: "Create your encryption key" })).toBeVisible();
   expect((await readRawVault(page)).records).toEqual([]);
 
-  await page.getByLabel("Encrypted vault backup", { exact: true }).setInputFiles(downloadPath!);
+  await page.getByLabel("Encrypted vault backup", { exact: true }).setInputFiles(backupFile(backupBuffer));
   await page.getByLabel("BACKUP PASSPHRASE", { exact: true }).fill(passphrase);
   await page.getByRole("button", { name: "VERIFY & RESTORE LOCALLY" }).click();
   await expect(page.getByRole("heading", { name: assetName })).toBeVisible();
@@ -208,11 +218,10 @@ test("Portfolio Intelligence sends only one approved public address and encrypts
   await page.getByRole("button", { name: /BACKUP · RECOVERY/i }).click();
   const mixedDownload = page.waitForEvent("download");
   await page.getByRole("button", { name: "EXPORT ENCRYPTED JSON" }).click();
-  const mixedBackupPath = await (await mixedDownload).path();
-  expect(mixedBackupPath).toBeTruthy();
+  const mixedBackup = await downloadBuffer(await mixedDownload);
   await page.getByLabel("TYPE DELETE MY LOCAL VAULT").fill("DELETE MY LOCAL VAULT");
   await page.getByRole("button", { name: "DELETE LOCAL VAULT" }).click();
-  await page.getByLabel("Encrypted vault backup", { exact: true }).setInputFiles(mixedBackupPath!);
+  await page.getByLabel("Encrypted vault backup", { exact: true }).setInputFiles(backupFile(mixedBackup));
   await page.getByLabel("BACKUP PASSPHRASE", { exact: true }).fill(passphrase);
   await page.getByRole("button", { name: "VERIFY & RESTORE LOCALLY" }).click();
   await page.getByRole("button", { name: "MANUAL ASSET RECORDS" }).click();
@@ -495,12 +504,11 @@ test("an encrypted backup and matching recovery code restore after local loss", 
   await page.getByRole("button", { name: /BACKUP · RECOVERY/i }).click();
   const downloadPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: "EXPORT ENCRYPTED JSON" }).click();
-  const backupPath = await (await downloadPromise).path();
-  expect(backupPath).toBeTruthy();
+  const backup = await downloadBuffer(await downloadPromise);
 
   await page.getByLabel("TYPE DELETE MY LOCAL VAULT").fill("DELETE MY LOCAL VAULT");
   await page.getByRole("button", { name: "DELETE LOCAL VAULT" }).click();
-  await page.getByLabel("Encrypted vault backup for recovery").setInputFiles(backupPath!);
+  await page.getByLabel("Encrypted vault backup for recovery").setInputFiles(backupFile(backup));
   await page.getByLabel("BACKUP RECOVERY CODE").fill(originalRecovery ?? "");
   await page.getByLabel("NEW BACKUP PASSPHRASE", { exact: true }).fill(nextPassphrase);
   await page.getByLabel("CONFIRM NEW BACKUP PASSPHRASE").fill(nextPassphrase);
@@ -560,7 +568,7 @@ test("replacing a Vault broadcasts the new identity and revision to other tabs",
   await page.getByRole("button", { name: /BACKUP · RECOVERY/i }).click();
   const downloadPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: "EXPORT ENCRYPTED JSON" }).click();
-  const firstVaultBackup = await (await downloadPromise).path();
+  const firstVaultBackup = await downloadBuffer(await downloadPromise);
 
   await page.getByLabel("TYPE DELETE MY LOCAL VAULT").fill("DELETE MY LOCAL VAULT");
   await page.getByRole("button", { name: "DELETE LOCAL VAULT" }).click();
@@ -591,7 +599,7 @@ test("replacing a Vault broadcasts the new identity and revision to other tabs",
     await page.getByRole("button", { name: "UNLOCK LOCALLY" }).click();
   }
   await page.getByRole("button", { name: /BACKUP · RECOVERY/i }).click();
-  await page.getByLabel("Encrypted vault backup", { exact: true }).setInputFiles(firstVaultBackup!);
+  await page.getByLabel("Encrypted vault backup", { exact: true }).setInputFiles(backupFile(firstVaultBackup));
   await page.getByLabel("BACKUP PASSPHRASE", { exact: true }).fill(passphrase);
   await page.getByLabel("TYPE REPLACE MY LOCAL VAULT").fill("REPLACE MY LOCAL VAULT");
   await page.getByRole("button", { name: "VERIFY & REPLACE LOCAL VAULT" }).click();

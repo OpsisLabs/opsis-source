@@ -108,6 +108,15 @@ export function PrivacyPage() {
           account for quota enforcement and abuse prevention.
         </p>
         <p>
+          <span className="text-[#e9e0d1]">RWA Verify.</span> After an on-screen confirmation,
+          the browser sends one public contract address to ChainScout. Robinhood's public Stock
+          Token API and public RPC are used for canonical identity and direct contract evidence.
+          Contracts not found in that registry can be checked by exact address against Morpho's
+          public Vault API; a matching Stock Token can cause its derived public Chainlink feed
+          address to be read. ChainScout does not save the query or result, send it to a model,
+          connect a wallet, or prepare a transaction.
+        </p>
+        <p>
           <span className="text-[#e9e0d1]">Saved cloud queries.</span> Only queries submitted inside
           the optional saved cloud workspace are stored with chat sessions so you can revisit them. All
           queried chain data is already public on Robinhood Chain.
@@ -164,6 +173,13 @@ export function PrivacyPage() {
           lag or omit data, so direct read-only RPC calls at that one block confirm displayed holdings and
           activity. The feature is bounded and does not claim to discover every token, NFT, internal
           movement, or approval. No model provider receives Portfolio Intelligence context.
+        </p>
+        <p>
+          RWA Verify names the attempted public providers before a lookup. Robinhood, Chainlink,
+          and Morpho apply their own policies to public contract and derived feed requests.
+          ChainScout treats backing, custody, insurance, and redemption statements as issuer claims
+          unless direct evidence proves a narrower fact. An onchain token, image, serial number,
+          certificate, or provider listing does not prove a physical object exists or is authentic.
         </p>
       </Section>
 
@@ -233,6 +249,8 @@ export function TermsPage() {
           encrypted asset Vault that does not synchronize portfolio data to ChainScout servers.
           Portfolio Intelligence can fetch one user-approved public address at one captured current block;
           private labels, purchase records, reference prices, and the combined portfolio remain local.
+          RWA Verify can inspect one user-approved public contract against supported primary-source
+          registries and direct read-only chain evidence without saving the lookup.
           Answers are grounded in public data
           and include citations so you can verify important claims against the source.
         </p>
@@ -247,6 +265,12 @@ export function TermsPage() {
           wallet or contract. Quote previews are time-limited estimates, not offers or guarantees.
           A user who continues in Uniswap may pay network gas, liquidity-provider or protocol
           fees, price impact, slippage, approval costs, and token-specific fees.
+          Stock Token availability, rights, and redemption eligibility vary by jurisdiction and may
+          involve identity checks outside ChainScout. Robinhood's published materials describe
+          restrictions including U.S. persons, Canada, the United Kingdom, and Switzerland; users
+          must check the current issuer terms. Morpho listing and trailing APY are provider
+          data, not endorsements or guaranteed yield. ChainScout does not mint, redeem, deposit,
+          withdraw, sign, or broadcast an RWA transaction.
         </p>
       </Section>
 

@@ -98,4 +98,22 @@ describe("environment validation", () => {
       BLOCKSCOUT_API_BASE_URL: "http://127.0.0.1:4000/api/v2"
     });
   });
+
+  it("pins enabled RWA Verify to the official Robinhood endpoint and chain", () => {
+    expect(loadEnv({
+      NODE_ENV: "development",
+      RWA_VERIFY_ENABLED: "true",
+      ROBINHOOD_PUBLIC_RPC_URL: "https://rpc.mainnet.chain.robinhood.com"
+    }).RWA_VERIFY_ENABLED).toBe(true);
+    expect(() => loadEnv({
+      NODE_ENV: "development",
+      RWA_VERIFY_ENABLED: "true",
+      ROBINHOOD_PUBLIC_RPC_URL: "https://rpc.mainnet.chain.robinhood.com.evil.example"
+    })).toThrow(/official Robinhood Chain public RPC/);
+    expect(() => loadEnv({
+      NODE_ENV: "development",
+      RWA_VERIFY_ENABLED: "true",
+      ROBINHOOD_CHAIN_ID: "1"
+    })).toThrow(/chain ID 4663/);
+  });
 });

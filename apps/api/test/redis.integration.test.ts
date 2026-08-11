@@ -4,6 +4,7 @@ import { buildApp } from "../src/app.js";
 import { JsonCache } from "../src/cache/service.js";
 import { loadEnv } from "../src/config/env.js";
 import { createPortfolioBudget } from "../src/portfolio/budget.js";
+import { createRwaBudget } from "../src/rwa/budget.js";
 
 const redisUrl = process.env.TEST_REDIS_URL;
 const redisDatabase = redisUrl ? Number(new URL(redisUrl).pathname.slice(1)) : 0;
@@ -59,6 +60,18 @@ if (!redisUrl) {
       expect(keys).toEqual(["rh:portfolio-budget:2026-08-10"]);
       expect(await redis.get(keys[0])).toBe("100");
       expect(await redis.ttl(keys[0])).toBeGreaterThan(0);
+    });
+
+    it("atomically shares the address-free daily RWA budget", async () => {
+      const env = loadEnv({ NODE_ENV: "test", RWA_DAILY_RPC_UNIT_BUDGET: "100" });
+      const now = () => new Date("2026-08-11T12:00:00.000Z");
+      const first = createRwaBudget(env, redis, now);
+      const second = createRwaBudget(env, redis, now);
+      await Promise.all([first.consume(40), second.consume(60)]);
+      await expect(first.consume(1)).rejects.toMatchObject({ code: "RWA_DAILY_BUDGET_EXCEEDED" });
+      const keys = await redis.keys("rh:rwa-budget:*");
+      expect(keys).toEqual(["rh:rwa-budget:2026-08-11"]);
+      expect(await redis.get(keys[0])).toBe("100");
     });
   });
 }

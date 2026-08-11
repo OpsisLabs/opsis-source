@@ -64,6 +64,9 @@ const envSchema = z.object({
   PORTFOLIO_MODE_ENABLED: envBoolean.default(false),
   PORTFOLIO_DAILY_RPC_UNIT_BUDGET: z.coerce.number().int().min(100).max(100_000).default(5_000),
   PORTFOLIO_MAX_RPC_SUBCALLS: z.coerce.number().int().min(10).max(100).default(64),
+  RWA_VERIFY_ENABLED: envBoolean.default(false),
+  RWA_DAILY_RPC_UNIT_BUDGET: z.coerce.number().int().min(100).max(100_000).default(3_000),
+  RWA_MAX_RPC_SUBCALLS: z.coerce.number().int().min(8).max(50).default(24),
   // The browser sends a custom header and exact Origin on state-changing
   // account routes. Tests opt in explicitly so legacy bearer-token fixtures
   // can keep exercising the underlying route behavior.
@@ -85,6 +88,7 @@ const envSchema = z.object({
   RATE_LIMIT_WALLET_PER_HOUR: z.coerce.number().int().positive().default(20),
   RATE_LIMIT_PUBLIC_PER_HOUR: z.coerce.number().int().positive().default(20),
   RATE_LIMIT_PORTFOLIO_PER_HOUR: z.coerce.number().int().min(1).max(60).default(10),
+  RATE_LIMIT_RWA_PER_HOUR: z.coerce.number().int().min(1).max(60).default(10),
   QUOTA_AI_MESSAGES_PER_MONTH: z.coerce.number().int().positive().default(500),
   QUOTA_CHAIN_LOOKUPS_PER_MONTH: z.coerce.number().int().positive().default(5000),
   // Wallet sign-in needs no email. Turn this on only if email/password signup
@@ -162,6 +166,23 @@ const envSchema = z.object({
       context.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Enabled Portfolio Intelligence requires Robinhood Chain ID 4663"
+      });
+    }
+  }
+  if (env.RWA_VERIFY_ENABLED && env.NODE_ENV !== "test") {
+    const publicRpc = new URL(env.ROBINHOOD_PUBLIC_RPC_URL);
+    const isOfficialRobinhoodRpc = publicRpc.protocol === "https:"
+      && publicRpc.origin === "https://rpc.mainnet.chain.robinhood.com"
+      && (publicRpc.pathname === "" || publicRpc.pathname === "/")
+      && publicRpc.search === ""
+      && publicRpc.hash === ""
+      && publicRpc.username === ""
+      && publicRpc.password === "";
+    if (!isOfficialRobinhoodRpc || env.ROBINHOOD_CHAIN_ID !== 4663) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["ROBINHOOD_PUBLIC_RPC_URL"],
+        message: "Enabled RWA Verify requires the official Robinhood Chain public RPC and chain ID 4663"
       });
     }
   }
