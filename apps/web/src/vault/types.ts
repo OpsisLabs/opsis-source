@@ -1,6 +1,9 @@
+import type { PortfolioSnapshot } from "@rh-chain/shared";
+
 export const VAULT_FORMAT = "chainscout.encrypted-vault" as const;
 export const VAULT_SCHEMA_VERSION = 1 as const;
 export const VAULT_RECORD_VERSION = 1 as const;
+export const VAULT_PORTFOLIO_RECORD_VERSION = 2 as const;
 export const VAULT_KDF_ITERATIONS = 600_000;
 export const VAULT_MAX_PHOTO_BYTES = 3 * 1024 * 1024;
 export const VAULT_MAX_BACKUP_BYTES = 32 * 1024 * 1024;
@@ -43,6 +46,44 @@ export interface VaultAsset {
   updatedAt: string;
 }
 
+export interface VaultPortfolioValuation {
+  id: string;
+  assetKey: string;
+  unitPrice: string;
+  currency: string;
+  updatedAt: string;
+}
+
+export interface VaultPortfolioReceipt {
+  id: string;
+  address: string;
+  providerDestinations: string[];
+  disclosure: string;
+  approvedAt: string;
+  outcome: "approved" | "completed" | "failed";
+  resolvedAt?: string;
+}
+
+export interface VaultPortfolioContext {
+  id: string;
+  kind: "portfolio-context";
+  address: string;
+  label: string;
+  valuations: VaultPortfolioValuation[];
+  latestSnapshot: PortfolioSnapshot | null;
+  receipts: VaultPortfolioReceipt[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface VaultPortfolioContextDraft {
+  address: string;
+  label: string;
+  valuations: VaultPortfolioValuation[];
+  latestSnapshot: PortfolioSnapshot | null;
+  receipts: VaultPortfolioReceipt[];
+}
+
 export interface VaultKdf {
   name: "PBKDF2";
   hash: "SHA-256";
@@ -73,7 +114,7 @@ export interface VaultMeta {
 
 export interface EncryptedVaultRecord {
   id: string;
-  version: typeof VAULT_RECORD_VERSION;
+  version: typeof VAULT_RECORD_VERSION | typeof VAULT_PORTFOLIO_RECORD_VERSION;
   iv: string;
   ciphertext: string;
 }

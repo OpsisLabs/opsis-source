@@ -20,7 +20,7 @@ const LAYERS = [
   {
     n: "04",
     title: "Approval Review",
-    items: ["Every ERC-20 approval a wallet has granted.", "Spenders, allowances, and source txs.", "Large or unlimited allowances highlighted."],
+    items: ["Approval targets found in the fetched activity window.", "Current allowances and NFT access checked at a finalized block.", "Large or unlimited access highlighted without claiming complete coverage."],
   },
 ];
 
@@ -94,16 +94,24 @@ export default function Hero() {
         </h1>
 
         <p className="mt-7 max-w-[480px] text-[15px] leading-relaxed text-[#9a938a]">
-          Paste a wallet, transaction, token, or contract. Ask what happened. Get a clear AI
-          explanation backed by on-chain sources.
+          Paste a wallet, transaction, token, or contract for a sourced explanation—or build one
+          encrypted local view of your holdings, purchase lots, activity, and reference value.
         </p>
 
-        <Link
-          to="/app"
-          className="clip-btn mt-10 flex h-[58px] w-full max-w-[480px] items-center justify-center bg-[#e9e0d1] font-mono-d text-[13px] font-medium tracking-wide text-[#1d1d1d] transition-colors hover:bg-[#f0e8da]"
-        >
-          TRY THE EXPLORER
-        </Link>
+        <div className="mt-10 grid w-full max-w-[480px] gap-3 sm:grid-cols-2">
+          <Link
+            to="/vault"
+            className="clip-btn flex h-[58px] items-center justify-center bg-[#e9e0d1] font-mono-d text-[12px] font-medium tracking-wide text-[#1d1d1d] transition-colors hover:bg-[#f0e8da]"
+          >
+            OPEN MY PORTFOLIO
+          </Link>
+          <Link
+            to="/app"
+            className="clip-btn flex h-[58px] items-center justify-center border border-[#4a4642] font-mono-d text-[12px] font-medium tracking-wide text-[#d6ccba] transition-colors hover:border-[#7f7972]"
+          >
+            TRY THE EXPLORER
+          </Link>
+        </div>
 
         {/* use-case accordion */}
         <div className="mt-16 max-w-[480px]">

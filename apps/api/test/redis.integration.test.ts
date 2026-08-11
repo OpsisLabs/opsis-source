@@ -3,6 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { buildApp } from "../src/app.js";
 import { JsonCache } from "../src/cache/service.js";
 import { loadEnv } from "../src/config/env.js";
+import { createPortfolioBudget } from "../src/portfolio/budget.js";
 
 const redisUrl = process.env.TEST_REDIS_URL;
 const redisDatabase = redisUrl ? Number(new URL(redisUrl).pathname.slice(1)) : 0;
@@ -44,6 +45,20 @@ if (!redisUrl) {
       } finally {
         await app.close();
       }
+    });
+
+    it("atomically shares the address-free daily portfolio budget", async () => {
+      const env = loadEnv({ NODE_ENV: "test", PORTFOLIO_DAILY_RPC_UNIT_BUDGET: "100" });
+      const now = () => new Date("2026-08-10T12:00:00.000Z");
+      const first = createPortfolioBudget(env, redis, now);
+      const second = createPortfolioBudget(env, redis, now);
+      await first.consume(60);
+      await second.consume(40);
+      await expect(first.consume(1)).rejects.toMatchObject({ code: "PORTFOLIO_DAILY_BUDGET_EXCEEDED" });
+      const keys = await redis.keys("rh:portfolio-budget:*");
+      expect(keys).toEqual(["rh:portfolio-budget:2026-08-10"]);
+      expect(await redis.get(keys[0])).toBe("100");
+      expect(await redis.ttl(keys[0])).toBeGreaterThan(0);
     });
   });
 }

@@ -86,10 +86,19 @@ export function PrivacyPage() {
         <p>
           <span className="text-[#e9e0d1]">Encrypted local Vault.</span> Asset names, purchase lots,
           exact price and quantity strings, notes, identifiers, and locally processed photos are
-          encrypted in this browser before they enter IndexedDB. The Vault does not call a
+          encrypted in this browser before they enter IndexedDB. Manual Vault records do not call a
           ChainScout API, wallet provider, analytics service, or asset-data provider. ChainScout's
           servers do not receive the Vault passphrase, recovery code, master key, plaintext
           portfolio, or encrypted records.
+        </p>
+        <p>
+          <span className="text-[#e9e0d1]">Portfolio Intelligence.</span> The browser sends one public
+          Robinhood Chain address only after you review and confirm an on-screen permission receipt.
+          ChainScout and the listed providers use it transiently to produce one finalized snapshot.
+          We do not save the query or response. Wallet labels, other addresses, purchase lots, costs,
+          notes, photos, manual reference prices, Vault identifiers, and the resulting ownership
+          association stay inside encrypted local records and are not included in that request.
+          Portfolio refresh never runs automatically or in the background.
         </p>
         <p>
           <span className="text-[#e9e0d1]">Cloud-account usage data.</span> We record usage events such as AI
@@ -144,6 +153,14 @@ export function PrivacyPage() {
           API keys stay server-side and are never exposed to the frontend. We do not attach your
           email, username, or stored wallet address to provider requests.
         </p>
+        <p>
+          A confirmed Portfolio Intelligence refresh sends the one address named in the receipt to
+          ChainScout and Blockscout. Alchemy receives that address plus derived public contract and
+          transaction identifiers needed for direct finalized verification. Blockscout discovery can
+          lag or omit data, so direct read-only RPC calls at one finalized block confirm displayed holdings and
+          activity. The feature is bounded and does not claim to discover every token, NFT, internal
+          movement, or approval. No model provider receives Portfolio Intelligence context.
+        </p>
       </Section>
 
       <Section n="06" title="Security">
@@ -158,8 +175,9 @@ export function PrivacyPage() {
         <p>
           The local Vault uses a random AES-256-GCM master key. A PBKDF2-HMAC-SHA-256 key derived
           from the Vault passphrase wraps that master key with authenticated encryption. Each
-          asset record receives a fresh authenticated-encryption nonce bound to its vault and
-          record identity. The unlocked key is non-exportable and held only in page memory; reload,
+          encrypted record receives a fresh authenticated-encryption nonce bound to its vault,
+          record identity, and record version. This includes local Portfolio Intelligence snapshots,
+          labels, permission receipts, and reference valuations. The unlocked key is non-exportable and held only in page memory; reload,
           manual lock, and inactivity lock remove the app's reference to it. Browser JavaScript
           cannot guarantee erasure from the device's memory, and an unlocked Vault cannot protect
           against a compromised device, malicious browser extension, or hostile code running on
@@ -209,6 +227,8 @@ export function TermsPage() {
           ChainScout provides read-only explanations of public Robinhood Chain activity and
           read-only quote previews for supported token pairs. It also provides an optional local,
           encrypted asset Vault that does not synchronize portfolio data to ChainScout servers.
+          Portfolio Intelligence can fetch one user-approved public address at a finalized block;
+          private labels, purchase records, reference prices, and the combined portfolio remain local.
           Answers are grounded in public data
           and include citations so you can verify important claims against the source.
         </p>

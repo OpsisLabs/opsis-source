@@ -61,6 +61,9 @@ const envSchema = z.object({
   UNISWAP_QUOTE_BUDGET_PER_MINUTE: z.coerce.number().int().min(1).max(120).default(30),
   UNISWAP_QUOTE_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().min(1).max(120).default(20),
   PRIVATE_MODE_ENABLED: envBoolean.default(true),
+  PORTFOLIO_MODE_ENABLED: envBoolean.default(false),
+  PORTFOLIO_DAILY_RPC_UNIT_BUDGET: z.coerce.number().int().min(100).max(100_000).default(5_000),
+  PORTFOLIO_MAX_RPC_SUBCALLS: z.coerce.number().int().min(10).max(100).default(64),
   // The browser sends a custom header and exact Origin on state-changing
   // account routes. Tests opt in explicitly so legacy bearer-token fixtures
   // can keep exercising the underlying route behavior.
@@ -81,6 +84,7 @@ const envSchema = z.object({
   RATE_LIMIT_LOOKUP_PER_HOUR: z.coerce.number().int().positive().default(120),
   RATE_LIMIT_WALLET_PER_HOUR: z.coerce.number().int().positive().default(20),
   RATE_LIMIT_PUBLIC_PER_HOUR: z.coerce.number().int().positive().default(20),
+  RATE_LIMIT_PORTFOLIO_PER_HOUR: z.coerce.number().int().min(1).max(60).default(10),
   QUOTA_AI_MESSAGES_PER_MONTH: z.coerce.number().int().positive().default(500),
   QUOTA_CHAIN_LOOKUPS_PER_MONTH: z.coerce.number().int().positive().default(5000),
   // Wallet sign-in needs no email. Turn this on only if email/password signup
@@ -115,6 +119,15 @@ const envSchema = z.object({
   }
   if (env.UNISWAP_QUOTE_ENABLED && !env.UNISWAP_API_KEY) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: "UNISWAP_API_KEY is required when Scout Swap quotes are enabled" });
+  }
+  if (env.NODE_ENV !== "test" && env.PORTFOLIO_MODE_ENABLED && env.ALCHEMY_ROBINHOOD_RPC_URL) {
+    const hostname = new URL(env.ALCHEMY_ROBINHOOD_RPC_URL).hostname.toLowerCase();
+    if (!hostname.endsWith(".g.alchemy.com")) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Portfolio Intelligence requires an Alchemy g.alchemy.com RPC endpoint so its permission receipt names the real provider"
+      });
+    }
   }
   if (env.NODE_ENV !== "production") return;
   if (env.AUTH_EMAIL_ENABLED && (!env.SMTP_HOST || !env.EMAIL_FROM)) {

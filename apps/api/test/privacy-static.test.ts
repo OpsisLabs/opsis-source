@@ -75,6 +75,25 @@ describe("browser privacy static boundary", () => {
     expect(nginx).toContain("img-src 'self' data:");
     expect(nginx).not.toContain("img-src 'self' data: https:");
   });
+
+  it("limits portfolio networking to one public address and keeps Vault context out of the API module", () => {
+    const portfolioDirectory = resolve(repositoryRoot, "apps/web/src/portfolio");
+    const portfolioSource = sourceText(portfolioDirectory);
+    const apiSource = readFileSync(resolve(portfolioDirectory, "api.ts"), "utf8");
+    const panelSource = readFileSync(resolve(portfolioDirectory, "PortfolioPanel.tsx"), "utf8");
+    expect(apiSource).toContain('privateApi<PortfolioSnapshot>("/v1/private/portfolio/snapshot", { address }, signal)');
+    expect(panelSource).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/);
+    expect(portfolioSource).not.toMatch(/localStorage|sessionStorage|IndexedDB|indexedDB|dangerouslySetInnerHTML/);
+    expect(apiSource).not.toMatch(/label|valuation|unitPrice|purchase|lots|notes|photo|vaultId|passphrase/i);
+    expect(portfolioSource).not.toMatch(/eth_requestAccounts|eth_accounts|personal_sign|sendTransaction/);
+  });
+
+  it("disables automatic provider retries for budgeted portfolio fan-out", () => {
+    const source = readFileSync(resolve(repositoryRoot, "apps/api/src/portfolio/service.ts"), "utf8");
+    expect(source).toContain("PROVIDER_MAX_RETRIES: 0");
+    expect(source).toContain('createProviderHttp(oneAttemptEnv, "alchemy")');
+    expect(source).toContain('createProviderHttp(oneAttemptEnv, "blockscout")');
+  });
 });
 
 function sourceText(directory: string): string {

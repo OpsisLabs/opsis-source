@@ -50,6 +50,14 @@ function humanize(code: string, message: string, status: number): string {
       return "Enter a complete Robinhood Chain address or transaction hash.";
     case "PRIVATE_MODE_DISABLED":
       return "Private Mode is paused right now. Try again shortly.";
+    case "PORTFOLIO_MODE_DISABLED":
+      return "Portfolio refresh is paused. Your encrypted local snapshot is still available.";
+    case "PORTFOLIO_DAILY_BUDGET_EXCEEDED":
+      return "Today's free portfolio refresh budget has been reached. Your prior encrypted snapshot is unchanged.";
+    case "PORTFOLIO_BUDGET_UNAVAILABLE":
+      return "The free-tier portfolio safety guard is unavailable, so refresh failed closed. Try again shortly.";
+    case "SNAPSHOT_REORGED":
+      return "The finalized anchor changed during verification. Nothing was saved; refresh again.";
     case "VALIDATION_ERROR":
       return /password/i.test(message)
         ? "Password must be at least 10 characters."
@@ -133,8 +141,21 @@ export async function publicApi<T>(path: string, body: unknown): Promise<T> {
 }
 
 /** Anonymous, same-origin request that never enters the cookie refresh path. */
-export async function privateApi<T>(path: string, body: unknown): Promise<T> {
-  return publicApi<T>(path, body);
+export async function privateApi<T>(path: string, body: unknown, signal?: AbortSignal): Promise<T> {
+  const headers = new Headers({
+    "content-type": "application/json",
+    "x-chainscout-csrf": "1"
+  });
+  const response = await fetch(`${BASE}${path}`, {
+    method: "POST",
+    body: JSON.stringify(body),
+    headers,
+    credentials: "omit",
+    signal
+  });
+  if (!response.ok) throw await toApiError(response);
+  if (response.status === 204) return undefined as T;
+  return (await response.json()) as T;
 }
 
 export async function downloadAccountExport(): Promise<Blob> {

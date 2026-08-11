@@ -3,10 +3,13 @@ import {
   changeVaultPassphrase,
   createAsset,
   createBackup,
+  createPortfolioContext,
   createVault,
   decryptAsset,
+  decryptPortfolioContext,
   estimateVaultBackupBytes,
   encryptAsset,
+  encryptPortfolioContext,
   parseBackup,
   recoverVault,
   unlockVault,
@@ -15,7 +18,7 @@ import {
   assertVaultCapacity,
   VaultError
 } from "./crypto";
-import { VAULT_FORMAT, VAULT_KDF_ITERATIONS, type VaultAsset } from "./types";
+import { VAULT_FORMAT, VAULT_KDF_ITERATIONS, type VaultAsset, type VaultPortfolioContext } from "./types";
 
 const passphrase = "correct horse battery staple";
 
@@ -93,6 +96,24 @@ describe("encrypted vault cryptography", () => {
     await expect(verifyBackup({ ...backup, vault: { ...backup.vault, revision: backup.vault.revision + 1 } }, passphrase)).rejects.toMatchObject({ code: "INVALID_BACKUP" });
   });
 
+  it("keeps legacy asset records compatible while binding portfolio v2 records to their version", async () => {
+    const created = await createVault(passphrase);
+    const assetRecord = await encryptAsset(created.meta, created.key, fixtureAsset());
+    const portfolio = fixturePortfolio();
+    const portfolioRecord = await encryptPortfolioContext(created.meta, created.key, portfolio);
+
+    expect(assetRecord.version).toBe(1);
+    expect(portfolioRecord.version).toBe(2);
+    expect(JSON.stringify(portfolioRecord)).not.toContain("PRIVATE-PORTFOLIO-LABEL");
+    expect(JSON.stringify(portfolioRecord)).not.toContain("123.456789");
+    expect(await decryptAsset(created.meta, created.key, assetRecord)).toEqual(fixtureAsset());
+    expect(await decryptPortfolioContext(created.meta, created.key, portfolioRecord)).toEqual(portfolio);
+    await expect(decryptPortfolioContext(created.meta, created.key, { ...portfolioRecord, version: 1 })).rejects.toMatchObject({ code: "CORRUPT_RECORD" });
+
+    const backup = await createBackup(created.meta, created.key, [assetRecord, portfolioRecord]);
+    await expect(verifyBackup(backup, passphrase)).resolves.toMatchObject({ extractable: false });
+  });
+
   it("preserves exact decimal strings without Number conversion", () => {
     const created = createAsset({
       name: "Exact-value card",
@@ -160,4 +181,28 @@ function fixtureAsset(): VaultAsset {
     createdAt: "2026-08-10T12:00:00.000Z",
     updatedAt: "2026-08-10T12:00:00.000Z"
   };
+}
+
+function fixturePortfolio(): VaultPortfolioContext {
+  return createPortfolioContext({
+    address: "0x1111111111111111111111111111111111111111",
+    label: "PRIVATE-PORTFOLIO-LABEL",
+    valuations: [{
+      id: "6d35fd63-cf71-4e6c-9e85-2b31303070f0",
+      assetKey: "token:0x3333333333333333333333333333333333333333",
+      unitPrice: "123.456789",
+      currency: "USD",
+      updatedAt: "2026-08-10T12:00:00.000Z"
+    }],
+    latestSnapshot: null,
+    receipts: [{
+      id: "e3b28dc2-d696-4649-b87e-6005b044f67d",
+      address: "0x1111111111111111111111111111111111111111",
+      providerDestinations: ["alchemy", "blockscout"],
+      disclosure: "Public address sent transiently; private context stays local.",
+      approvedAt: "2026-08-10T12:00:00.000Z",
+      outcome: "completed",
+      resolvedAt: "2026-08-10T12:00:01.000Z"
+    }]
+  });
 }

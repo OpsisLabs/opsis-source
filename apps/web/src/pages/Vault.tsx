@@ -37,6 +37,7 @@ import {
   recoverLocalVault,
   recoverVaultBackup,
   saveVaultAsset,
+  saveVaultPortfolio,
   unlockLocalVault,
   updateVaultPassphrase,
   type UnlockedVault
@@ -52,8 +53,11 @@ import {
   type VaultLotDraft,
   type VaultMeta,
   type VaultPhoto,
+  type VaultPortfolioContext,
+  type VaultPortfolioContextDraft,
   type VaultStorageStatus
 } from "../vault/types";
+import { PortfolioPanel } from "../portfolio/PortfolioPanel";
 
 type Phase = "loading" | "empty" | "locked" | "unlocked" | "deleting" | "unsupported";
 const DELETE_PHRASE = "DELETE MY LOCAL VAULT";
@@ -75,6 +79,8 @@ export default function VaultPage() {
   const [phase, setPhase] = useState<Phase>(platformSupported ? "loading" : "unsupported");
   const [meta, setMeta] = useState<VaultMeta | null>(null);
   const [assets, setAssets] = useState<VaultAsset[]>([]);
+  const [portfolios, setPortfolios] = useState<UnlockedVault["portfolios"]>([]);
+  const [workspace, setWorkspace] = useState<"assets" | "portfolio">("assets");
   const [storage, setStorage] = useState<VaultStorageStatus>({ supported: platformSupported, persistent: null, usage: null, quota: null });
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -82,9 +88,22 @@ export default function VaultPage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [recoverySecret, setRecoverySecret] = useState("");
   const [sessionKey, setSessionKey] = useState<CryptoKey | null>(null);
+  const [sessionGeneration, setSessionGeneration] = useState(0);
   const channelRef = useRef<BroadcastChannel | null>(null);
   const deletionPendingRef = useRef(false);
+  const sessionGenerationRef = useRef(0);
   const tabIdRef = useRef("");
+  const unlockedStateRef = useRef({ meta, sessionKey, assets, portfolios, phase });
+
+  useEffect(() => {
+    unlockedStateRef.current = { meta, sessionKey, assets, portfolios, phase };
+  }, [assets, meta, phase, portfolios, sessionKey]);
+
+  const bumpSession = useCallback(() => {
+    const next = sessionGenerationRef.current + 1;
+    sessionGenerationRef.current = next;
+    setSessionGeneration(next);
+  }, []);
 
   const broadcast = useCallback((event: "lock" | "changed" | "deleting" | "delete-cancelled" | "deleted", targetMeta = meta) => {
     if (!targetMeta) return;
@@ -117,16 +136,18 @@ export default function VaultPage() {
   }, []);
 
   const lock = useCallback((message = "Vault locked. The decryption key was removed from page memory.", notify = true) => {
+    bumpSession();
     if (notify) broadcast("lock");
     setSessionKey(null);
     setAssets([]);
+    setPortfolios([]);
     setEditor(null);
     setSettingsOpen(false);
     setRecoverySecret("");
     setPhase(meta ? "locked" : "empty");
     setNotice(message);
     setError("");
-  }, [broadcast, meta]);
+  }, [broadcast, bumpSession, meta]);
 
   useEffect(() => {
     if (!isVaultPlatformSupported() || typeof BroadcastChannel === "undefined") return;
@@ -143,9 +164,11 @@ export default function VaultPage() {
       if (event.event === "changed") {
         const savedMeta = await bootstrapVault().catch(() => null);
         if (!active || !savedMeta || savedMeta.vaultId !== event.vaultId) return;
+        bumpSession();
         setSessionKey(null);
         setMeta(savedMeta);
         setAssets([]);
+        setPortfolios([]);
         setEditor(null);
         setSettingsOpen(false);
         setRecoverySecret("");
@@ -159,10 +182,12 @@ export default function VaultPage() {
       if (event.event === "deleting") {
         const savedMeta = await bootstrapVault().catch(() => null);
         if (!active || !savedMeta || savedMeta.vaultId !== event.vaultId) return;
+        bumpSession();
         deletionPendingRef.current = true;
         setMeta(savedMeta);
         setSessionKey(null);
         setAssets([]);
+        setPortfolios([]);
         setEditor(null);
         setSettingsOpen(false);
         setRecoverySecret("");
@@ -180,10 +205,12 @@ export default function VaultPage() {
       } else if (event.event === "deleted") {
         const savedMeta = await bootstrapVault().catch(() => null);
         if (!active || savedMeta) return;
+        bumpSession();
         deletionPendingRef.current = false;
         setSessionKey(null);
         setMeta(null);
         setAssets([]);
+        setPortfolios([]);
         setEditor(null);
         setSettingsOpen(false);
         setRecoverySecret("");
@@ -199,7 +226,7 @@ export default function VaultPage() {
       channel.close();
       if (channelRef.current === channel) channelRef.current = null;
     };
-  }, [lock, meta]);
+  }, [bumpSession, lock, meta]);
 
   useEffect(() => {
     if (phase !== "unlocked") return;
@@ -239,9 +266,14 @@ export default function VaultPage() {
   }, [lock, phase]);
 
   const acceptUnlocked = (unlocked: UnlockedVault & { recoverySecret?: string }, message: string) => {
+    bumpSession();
     setSessionKey(unlocked.key);
     setMeta(unlocked.meta);
     setAssets(unlocked.assets);
+    setPortfolios(unlocked.portfolios);
+    setWorkspace("assets");
+    setEditor(null);
+    setSettingsOpen(false);
     setPhase("unlocked");
     setRecoverySecret(unlocked.recoverySecret ?? "");
     setError("");
@@ -250,7 +282,7 @@ export default function VaultPage() {
 
   const unlockedContext = (): UnlockedVault => {
     if (!meta || !sessionKey || phase !== "unlocked") throw new Error("Vault is locked");
-    return { meta, key: sessionKey, assets };
+    return { meta, key: sessionKey, assets, portfolios };
   };
 
   const saveAsset = async (draft: VaultAssetDraft, existing?: VaultAsset) => {
@@ -281,12 +313,41 @@ export default function VaultPage() {
     }
   };
 
+  const savePortfolio = async (
+    draft: VaultPortfolioContextDraft,
+    existing?: VaultPortfolioContext,
+    expectedSession = sessionGenerationRef.current
+  ): Promise<VaultPortfolioContext> => {
+    const assertActive = () => {
+      if (sessionGenerationRef.current !== expectedSession) throw new Error("Vault session changed");
+    };
+    assertActive();
+    const current = unlockedStateRef.current;
+    if (!current.meta || !current.sessionKey || current.phase !== "unlocked") throw new Error("Vault is locked");
+    const saved = await saveVaultPortfolio({
+      meta: current.meta,
+      key: current.sessionKey,
+      assets: current.assets,
+      portfolios: current.portfolios
+    }, draft, existing, assertActive);
+    assertActive();
+    const nextPortfolios = [saved.portfolio, ...current.portfolios.filter((portfolio) => portfolio.id !== saved.portfolio.id)];
+    unlockedStateRef.current = { ...current, meta: saved.meta, portfolios: nextPortfolios };
+    setMeta(saved.meta);
+    setPortfolios(nextPortfolios);
+    broadcast("changed", saved.meta);
+    setStorage(await readStorageStatus());
+    return saved.portfolio;
+  };
+
   const destroy = async () => {
     try {
+      bumpSession();
       deletionPendingRef.current = true;
       broadcast("deleting");
       setSessionKey(null);
       setAssets([]);
+      setPortfolios([]);
       setEditor(null);
       setSettingsOpen(false);
       setRecoverySecret("");
@@ -362,16 +423,32 @@ export default function VaultPage() {
         {phase === "unlocked" && meta && (
           <>
             {recoverySecret && <RecoverySecretPanel secret={recoverySecret} onDone={() => setRecoverySecret("")} />}
-            <VaultDashboard assets={assets} onAdd={() => setEditor("new")} />
-            {editor && (
-              <AssetEditor
-                key={editor === "new" ? "new" : editor.id}
-                asset={editor === "new" ? undefined : editor}
-                onCancel={() => setEditor(null)}
-                onSave={saveAsset}
+            <div className="mt-8 grid grid-cols-2 gap-px border border-[#383838] bg-[#383838]">
+              <button type="button" onClick={() => { setWorkspace("portfolio"); setEditor(null); }} className={`min-h-[48px] bg-[#202020] font-mono-d text-[10px] tracking-[0.14em] ${workspace === "portfolio" ? "text-[#fa6c34] shadow-[inset_0_-2px_0_#fa6c34]" : "text-[#7f7972] hover:text-[#d6ccba]"}`}>PORTFOLIO INTELLIGENCE</button>
+              <button type="button" onClick={() => setWorkspace("assets")} className={`min-h-[48px] bg-[#202020] font-mono-d text-[10px] tracking-[0.14em] ${workspace === "assets" ? "text-[#fa6c34] shadow-[inset_0_-2px_0_#fa6c34]" : "text-[#7f7972] hover:text-[#d6ccba]"}`}>MANUAL ASSET RECORDS</button>
+            </div>
+            {workspace === "portfolio" ? (
+              <PortfolioPanel
+                key={`${meta.vaultId}:${sessionGeneration}:portfolio`}
+                assets={assets}
+                context={portfolios[0]}
+                sessionId={sessionGeneration}
+                onSave={savePortfolio}
               />
+            ) : (
+              <>
+                <VaultDashboard assets={assets} onAdd={() => setEditor("new")} />
+                {editor && (
+                  <AssetEditor
+                    key={editor === "new" ? "new" : editor.id}
+                    asset={editor === "new" ? undefined : editor}
+                    onCancel={() => setEditor(null)}
+                    onSave={saveAsset}
+                  />
+                )}
+                <AssetGrid assets={assets} onEdit={setEditor} onDelete={removeAsset} />
+              </>
             )}
-            <AssetGrid assets={assets} onEdit={setEditor} onDelete={removeAsset} />
             <button
               type="button"
               onClick={() => setSettingsOpen((current) => !current)}
@@ -835,7 +912,7 @@ function RecoverySecretPanel({ secret, onDone }: { secret: string; onDone: () =>
     anchor.href = url;
     anchor.download = `chainscout-vault-recovery-${new Date().toISOString().slice(0, 10)}.txt`;
     anchor.click();
-    URL.revokeObjectURL(url);
+    window.setTimeout(() => URL.revokeObjectURL(url), 1_000);
   };
   return (
     <section className="clip-panel mt-8 border border-[#e0a96d]/55 bg-[#e0a96d]/8 p-6 sm:p-8" data-testid="vault-recovery-secret">
@@ -1062,7 +1139,9 @@ async function downloadEncryptedBackup(unlocked: UnlockedVault): Promise<void> {
   anchor.href = url;
   anchor.download = `chainscout-encrypted-vault-${new Date().toISOString().slice(0, 10)}.json`;
   anchor.click();
-  URL.revokeObjectURL(url);
+  // Revoking synchronously can race the browser's download reader and produce
+  // an empty file. Keep the object URL alive just long enough for that reader.
+  window.setTimeout(() => URL.revokeObjectURL(url), 1_000);
 }
 
 function formatStorage(storage: VaultStorageStatus): string {

@@ -4,6 +4,7 @@ import {
   VAULT_MAX_BACKUP_BYTES,
   VAULT_MAX_PHOTO_BYTES,
   VAULT_MAX_RECORDS,
+  VAULT_PORTFOLIO_RECORD_VERSION,
   VAULT_RECORD_VERSION,
   VAULT_SCHEMA_VERSION,
   type EncryptedVaultRecord,
@@ -12,6 +13,8 @@ import {
   type VaultBackup,
   type VaultBackupIntegrity,
   type VaultMeta,
+  type VaultPortfolioContext,
+  type VaultPortfolioContextDraft,
   type VaultRecoveryWrapper,
   type VaultWrappedKey
 } from "./types";
@@ -172,7 +175,7 @@ export async function encryptAsset(
   const iv = randomBytes(12);
   const plaintext = encoder.encode(JSON.stringify(asset));
   const encrypted = await crypto.subtle.encrypt(
-    aesParams(iv, recordAad(meta.vaultId, asset.id)),
+    aesParams(iv, recordAad(meta.vaultId, asset.id, VAULT_RECORD_VERSION)),
     key,
     plaintext
   );
@@ -190,9 +193,12 @@ export async function decryptAsset(
   record: EncryptedVaultRecord
 ): Promise<VaultAsset> {
   validateEncryptedRecord(record);
+  if (record.version !== VAULT_RECORD_VERSION) {
+    throw new VaultError("CORRUPT_RECORD", "This encrypted record is not an asset record.");
+  }
   try {
     const plaintext = await crypto.subtle.decrypt(
-      aesParams(base64ToBytes(record.iv), recordAad(meta.vaultId, record.id)),
+      aesParams(base64ToBytes(record.iv), recordAad(meta.vaultId, record.id, record.version)),
       key,
       base64ToBytes(record.ciphertext)
     );
@@ -204,6 +210,62 @@ export async function decryptAsset(
     if (error instanceof VaultError) throw error;
     throw new VaultError("CORRUPT_RECORD", "An encrypted vault record is damaged or belongs to another vault.");
   }
+}
+
+export async function encryptPortfolioContext(
+  meta: VaultMeta,
+  key: CryptoKey,
+  context: VaultPortfolioContext
+): Promise<EncryptedVaultRecord> {
+  validateVaultMeta(meta);
+  validatePortfolioContext(context);
+  const iv = randomBytes(12);
+  const encrypted = await crypto.subtle.encrypt(
+    aesParams(iv, recordAad(meta.vaultId, context.id, VAULT_PORTFOLIO_RECORD_VERSION)),
+    key,
+    encoder.encode(JSON.stringify(context))
+  );
+  return {
+    id: context.id,
+    version: VAULT_PORTFOLIO_RECORD_VERSION,
+    iv: bytesToBase64(iv),
+    ciphertext: bytesToBase64(new Uint8Array(encrypted))
+  };
+}
+
+export async function decryptPortfolioContext(
+  meta: VaultMeta,
+  key: CryptoKey,
+  record: EncryptedVaultRecord
+): Promise<VaultPortfolioContext> {
+  validateEncryptedRecord(record);
+  if (record.version !== VAULT_PORTFOLIO_RECORD_VERSION) {
+    throw new VaultError("CORRUPT_RECORD", "This encrypted record is not a portfolio record.");
+  }
+  try {
+    const plaintext = await crypto.subtle.decrypt(
+      aesParams(base64ToBytes(record.iv), recordAad(meta.vaultId, record.id, record.version)),
+      key,
+      base64ToBytes(record.ciphertext)
+    );
+    const parsed = JSON.parse(decoder.decode(plaintext)) as unknown;
+    validatePortfolioContext(parsed);
+    if (parsed.id !== record.id) throw new Error("record identity mismatch");
+    return parsed;
+  } catch (error) {
+    if (error instanceof VaultError) throw error;
+    throw new VaultError("CORRUPT_RECORD", "An encrypted portfolio record is damaged or belongs to another vault.");
+  }
+}
+
+export async function decryptVaultRecord(
+  meta: VaultMeta,
+  key: CryptoKey,
+  record: EncryptedVaultRecord
+): Promise<VaultAsset | VaultPortfolioContext> {
+  if (record.version === VAULT_RECORD_VERSION) return decryptAsset(meta, key, record);
+  if (record.version === VAULT_PORTFOLIO_RECORD_VERSION) return decryptPortfolioContext(meta, key, record);
+  throw new VaultError("INVALID_BACKUP", "The encrypted-vault backup contains an unsupported record version.");
 }
 
 export function createAsset(draft: VaultAssetDraft, existing?: VaultAsset): VaultAsset {
@@ -227,6 +289,35 @@ export function createAsset(draft: VaultAssetDraft, existing?: VaultAsset): Vaul
   };
   validateAsset(asset);
   return asset;
+}
+
+export function createPortfolioContext(
+  draft: VaultPortfolioContextDraft,
+  existing?: VaultPortfolioContext
+): VaultPortfolioContext {
+  const now = new Date().toISOString();
+  const context: VaultPortfolioContext = {
+    id: existing?.id ?? crypto.randomUUID(),
+    kind: "portfolio-context",
+    address: draft.address.trim().toLowerCase(),
+    label: draft.label.trim(),
+    valuations: draft.valuations.map((valuation) => ({
+      ...valuation,
+      assetKey: valuation.assetKey.trim().toLowerCase(),
+      unitPrice: valuation.unitPrice.trim(),
+      currency: valuation.currency.trim().toUpperCase()
+    })),
+    latestSnapshot: draft.latestSnapshot,
+    receipts: draft.receipts.map((receipt) => ({
+      ...receipt,
+      address: receipt.address.toLowerCase(),
+      providerDestinations: [...new Set(receipt.providerDestinations.map((provider) => provider.trim().toLowerCase()))]
+    })),
+    createdAt: existing?.createdAt ?? now,
+    updatedAt: now
+  };
+  validatePortfolioContext(context);
+  return context;
 }
 
 export async function createBackup(meta: VaultMeta, key: CryptoKey, records: EncryptedVaultRecord[]): Promise<VaultBackup> {
@@ -271,7 +362,7 @@ export async function verifyBackup(backup: VaultBackup, passphrase: string): Pro
 
 export async function verifyBackupWithKey(backup: VaultBackup, key: CryptoKey): Promise<void> {
   await verifyBackupManifest(backup, key);
-  await Promise.all(backup.records.map((record) => decryptAsset(backup.vault, key, record)));
+  await Promise.all(backup.records.map((record) => decryptVaultRecord(backup.vault, key, record)));
 }
 
 export function estimateVaultBackupBytes(meta: VaultMeta, records: EncryptedVaultRecord[]): number {
@@ -307,7 +398,7 @@ export function assertVaultCapacity(
   maxRecords = VAULT_MAX_RECORDS
 ): void {
   if (records.length > maxRecords) {
-    throw new VaultError("VAULT_CAPACITY", `This Vault supports up to ${maxRecords.toLocaleString("en-US")} encrypted assets.`);
+    throw new VaultError("VAULT_CAPACITY", `This Vault supports up to ${maxRecords.toLocaleString("en-US")} encrypted records.`);
   }
   if (estimateVaultBackupBytes(meta, records) > maxBytes) {
     throw new VaultError(
@@ -381,13 +472,234 @@ function validateEncryptedRecord(value: unknown): asserts value is EncryptedVaul
   if (!isRecord(value)
     || typeof value.id !== "string"
     || !UUID.test(value.id)
-    || value.version !== VAULT_RECORD_VERSION
+    || (value.version !== VAULT_RECORD_VERSION && value.version !== VAULT_PORTFOLIO_RECORD_VERSION)
     || typeof value.iv !== "string"
     || base64ToBytes(value.iv).byteLength !== 12
     || typeof value.ciphertext !== "string"
     || value.ciphertext.length < 20
     || value.ciphertext.length > 8 * 1024 * 1024) {
     throw new VaultError("INVALID_BACKUP", "The encrypted-vault backup contains an invalid record.");
+  }
+}
+
+function validatePortfolioContext(value: unknown): asserts value is VaultPortfolioContext {
+  if (!isRecord(value)
+    || typeof value.id !== "string"
+    || !UUID.test(value.id)
+    || value.kind !== "portfolio-context"
+    || typeof value.address !== "string"
+    || !/^0x[0-9a-f]{40}$/.test(value.address)
+    || typeof value.label !== "string"
+    || value.label.length > 120
+    || !Array.isArray(value.valuations)
+    || value.valuations.length > 200
+    || !Array.isArray(value.receipts)
+    || value.receipts.length > 50
+    || typeof value.createdAt !== "string"
+    || !ISO_DATE_TIME.test(value.createdAt)
+    || typeof value.updatedAt !== "string"
+    || !ISO_DATE_TIME.test(value.updatedAt)) {
+    throw new VaultError("INVALID_PORTFOLIO", "The encrypted portfolio context is invalid.");
+  }
+  const valuationIds = new Set<string>();
+  for (const valuation of value.valuations) {
+    if (!isRecord(valuation)
+      || typeof valuation.id !== "string"
+      || !UUID.test(valuation.id)
+      || valuationIds.has(valuation.id)
+      || typeof valuation.assetKey !== "string"
+      || valuation.assetKey.length < 1
+      || valuation.assetKey.length > 200
+      || typeof valuation.unitPrice !== "string"
+      || !DECIMAL.test(valuation.unitPrice)
+      || typeof valuation.currency !== "string"
+      || !CURRENCY.test(valuation.currency)
+      || typeof valuation.updatedAt !== "string"
+      || !ISO_DATE_TIME.test(valuation.updatedAt)) {
+      throw new VaultError("INVALID_PORTFOLIO", "One or more encrypted reference valuations are invalid.");
+    }
+    valuationIds.add(valuation.id);
+  }
+  const receiptIds = new Set<string>();
+  for (const receipt of value.receipts) {
+    if (!isRecord(receipt)
+      || typeof receipt.id !== "string"
+      || !UUID.test(receipt.id)
+      || receiptIds.has(receipt.id)
+      || typeof receipt.address !== "string"
+      || !/^0x[0-9a-f]{40}$/.test(receipt.address)
+      || !Array.isArray(receipt.providerDestinations)
+      || receipt.providerDestinations.length < 1
+      || receipt.providerDestinations.length > 10
+      || receipt.providerDestinations.some((provider) => typeof provider !== "string" || provider.length < 1 || provider.length > 60)
+      || typeof receipt.disclosure !== "string"
+      || receipt.disclosure.length < 1
+      || receipt.disclosure.length > 1_000
+      || typeof receipt.approvedAt !== "string"
+      || !ISO_DATE_TIME.test(receipt.approvedAt)
+      || !["approved", "completed", "failed"].includes(String(receipt.outcome))
+      || !(receipt.resolvedAt === undefined || typeof receipt.resolvedAt === "string" && ISO_DATE_TIME.test(receipt.resolvedAt))
+      || (receipt.outcome === "approved" && receipt.resolvedAt !== undefined)
+      || (receipt.outcome !== "approved" && receipt.resolvedAt === undefined)) {
+      throw new VaultError("INVALID_PORTFOLIO", "One or more encrypted privacy receipts are invalid.");
+    }
+    receiptIds.add(receipt.id);
+  }
+  if (value.latestSnapshot !== null) validatePortfolioSnapshot(value.latestSnapshot, value.address);
+}
+
+function validatePortfolioSnapshot(value: unknown, address: string): void {
+  if (!isRecord(value)
+    || value.schemaVersion !== 1
+    || value.address !== address
+    || !isRecord(value.chain)
+    || value.chain.id !== 4663
+    || !isRecord(value.finality)
+    || value.finality.tag !== "finalized"
+    || typeof value.finality.blockNumber !== "number"
+    || !Number.isSafeInteger(value.finality.blockNumber)
+    || typeof value.finality.blockHash !== "string"
+    || !/^0x[0-9a-f]{64}$/.test(value.finality.blockHash)
+    || typeof value.finality.timestamp !== "string"
+    || !ISO_DATE_TIME.test(value.finality.timestamp)
+    || typeof value.finality.fetchedAt !== "string"
+    || !ISO_DATE_TIME.test(value.finality.fetchedAt)
+    || typeof value.nativeBalanceEth !== "string"
+    || !DECIMAL.test(value.nativeBalanceEth)
+    || !Array.isArray(value.tokens)
+    || value.tokens.length > 10
+    || !Array.isArray(value.nfts)
+    || value.nfts.length > 10
+    || !Array.isArray(value.transactions)
+    || value.transactions.length > 10
+    || !Array.isArray(value.movements)
+    || value.movements.length > 40
+    || !Array.isArray(value.approvals)
+    || value.approvals.length > 10
+    || !Array.isArray(value.attention)
+    || value.attention.length > 20
+    || !Array.isArray(value.citations)
+    || value.citations.length > 10
+    || !isRecord(value.reconciliation)
+    || !isRecord(value.privacy)
+    || value.privacy.serverStorage !== "none"
+    || value.privacy.browserStorage !== "client_encrypted_vault"
+    || JSON.stringify(value).length > 1_000_000) {
+    throw new VaultError("INVALID_PORTFOLIO", "The encrypted portfolio snapshot is invalid or exceeds its supported bounds.");
+  }
+  const validAddress = (candidate: unknown) => typeof candidate === "string" && /^0x[0-9a-f]{40}$/.test(candidate);
+  const validNullableAddress = (candidate: unknown) => candidate === null || validAddress(candidate);
+  const validHash = (candidate: unknown) => typeof candidate === "string" && /^0x[0-9a-f]{64}$/.test(candidate);
+  const validDecimal = (candidate: unknown) => typeof candidate === "string" && DECIMAL.test(candidate);
+  const validInteger = (candidate: unknown) => typeof candidate === "number" && Number.isSafeInteger(candidate) && candidate >= 0;
+  const validNullableTimestamp = (candidate: unknown) => candidate === null || typeof candidate === "string" && ISO_DATE_TIME.test(candidate);
+  const validSources = (candidate: unknown) => Array.isArray(candidate)
+    && candidate.length <= 12
+    && candidate.every((source) => typeof source === "string" && source.length >= 1 && source.length <= 120);
+  const validBoundedText = (candidate: unknown, max = 160) => typeof candidate === "string" && candidate.length <= max;
+  const reconciliation = value.reconciliation as Record<string, unknown>;
+  const privacy = value.privacy as Record<string, unknown>;
+  const invalidToken = value.tokens.some((candidate) => {
+    const token = isRecord(candidate) ? candidate : {};
+    return token.kind !== "erc20"
+      || !validAddress(token.contract)
+      || !validBoundedText(token.name, 120)
+      || !validBoundedText(token.symbol, 120)
+      || !validInteger(token.decimals)
+      || Number(token.decimals) > 255
+      || !validDecimal(token.quantity)
+      || typeof token.rawBalance !== "string"
+      || !/^\d{1,78}$/.test(token.rawBalance)
+      || !validSources(token.sourceIds);
+  });
+  const invalidNft = value.nfts.some((candidate) => {
+    const nft = isRecord(candidate) ? candidate : {};
+    return !["erc721", "erc1155"].includes(String(nft.kind))
+      || !validAddress(nft.contract)
+      || typeof nft.tokenId !== "string"
+      || !/^\d{1,78}$/.test(nft.tokenId)
+      || !validBoundedText(nft.name, 120)
+      || !validBoundedText(nft.symbol, 120)
+      || !validDecimal(nft.quantity)
+      || !validSources(nft.sourceIds);
+  });
+  const invalidTransaction = value.transactions.some((candidate) => {
+    const transaction = isRecord(candidate) ? candidate : {};
+    return !validHash(transaction.hash)
+      || !validInteger(transaction.blockNumber)
+      || !validNullableTimestamp(transaction.timestamp)
+      || !["success", "failed"].includes(String(transaction.status))
+      || !(transaction.method === null || validBoundedText(transaction.method, 120))
+      || !["in", "out", "self", "mixed"].includes(String(transaction.direction))
+      || !validNullableAddress(transaction.counterparty)
+      || !validDecimal(transaction.nativeValueEth)
+      || !validInteger(transaction.movementCount)
+      || !["complete", "partial"].includes(String(transaction.movementCoverage))
+      || !validSources(transaction.sourceIds);
+  });
+  const invalidMovement = value.movements.some((candidate) => {
+    const movement = isRecord(candidate) ? candidate : {};
+    return !validHash(movement.transactionHash)
+      || !validInteger(movement.blockNumber)
+      || !validNullableTimestamp(movement.timestamp)
+      || !["in", "out", "self"].includes(String(movement.direction))
+      || !["native", "erc20", "erc721", "erc1155"].includes(String(movement.kind))
+      || !validBoundedText(movement.symbol, 120)
+      || !validDecimal(movement.quantity)
+      || !validNullableAddress(movement.contract)
+      || !(movement.tokenId === null || typeof movement.tokenId === "string" && /^\d{1,78}$/.test(movement.tokenId))
+      || !validNullableAddress(movement.counterparty)
+      || !validSources(movement.sourceIds);
+  });
+  const invalidApproval = value.approvals.some((candidate) => {
+    const approval = isRecord(candidate) ? candidate : {};
+    return !validHash(approval.transactionHash)
+      || !validAddress(approval.contract)
+      || !validAddress(approval.spender)
+      || !["erc20", "erc721-token", "operator"].includes(String(approval.kind))
+      || !validBoundedText(approval.symbol, 120)
+      || typeof approval.active !== "boolean"
+      || typeof approval.unlimited !== "boolean"
+      || typeof approval.currentAmount !== "string"
+      || approval.currentAmount.length > 120
+      || !validSources(approval.sourceIds);
+  });
+  const invalidAttention = value.attention.some((candidate) => {
+    const attention = isRecord(candidate) ? candidate : {};
+    return !["info", "medium", "high"].includes(String(attention.severity))
+      || !validBoundedText(attention.title, 160)
+      || !validBoundedText(attention.detail, 1_000)
+      || !validSources(attention.sourceIds);
+  });
+  const reconciliationCounts = [
+    "tokenCandidates", "tokenConfirmed", "nftCandidates", "nftConfirmed",
+    "activityCandidates", "activityConfirmed", "approvalCandidates", "approvalConfirmed"
+  ];
+  const invalidReconciliation = reconciliationCounts.some((key) => !validInteger(reconciliation[key]))
+    || !Array.isArray(reconciliation.degradedSources)
+    || reconciliation.degradedSources.length > 10
+    || reconciliation.degradedSources.some((source: unknown) => typeof source !== "string" || source.length > 120)
+    || !Array.isArray(reconciliation.truncatedSections)
+    || reconciliation.truncatedSections.length > 10
+    || reconciliation.truncatedSections.some((section: unknown) => typeof section !== "string" || section.length > 200);
+  const invalidCitation = value.citations.some((candidate) => {
+    const citation = isRecord(candidate) ? candidate : {};
+    return !validBoundedText(citation.id, 120)
+      || !["alchemy", "blockscout"].includes(String(citation.provider))
+      || !validBoundedText(citation.url, 1_000)
+      || !validBoundedText(citation.description, 500)
+      || typeof citation.fetchedAt !== "string"
+      || !ISO_DATE_TIME.test(citation.fetchedAt);
+  });
+  const invalidPrivacy = privacy.accountRequired !== false
+    || privacy.walletConnectionRequired !== false
+    || !Array.isArray(privacy.providerDestinations)
+    || privacy.providerDestinations.length < 1
+    || privacy.providerDestinations.length > 10
+    || privacy.providerDestinations.some((provider: unknown) => typeof provider !== "string" || provider.length > 60)
+    || !validBoundedText(privacy.disclosure, 1_000);
+  if (invalidToken || invalidNft || invalidTransaction || invalidMovement || invalidApproval || invalidAttention || invalidReconciliation || invalidCitation || invalidPrivacy) {
+    throw new VaultError("INVALID_PORTFOLIO", "The encrypted portfolio snapshot contains malformed or unsupported fields.");
   }
 }
 
@@ -580,8 +892,8 @@ function keyAad(vaultId: string): Uint8Array<ArrayBuffer> {
   return encoder.encode(`chainscout:vault-key:v1:${vaultId}`);
 }
 
-function recordAad(vaultId: string, recordId: string): Uint8Array<ArrayBuffer> {
-  return encoder.encode(`chainscout:vault-record:v1:${vaultId}:${recordId}`);
+function recordAad(vaultId: string, recordId: string, version: 1 | 2): Uint8Array<ArrayBuffer> {
+  return encoder.encode(`chainscout:vault-record:v${version}:${vaultId}:${recordId}`);
 }
 
 function recoveryAad(vaultId: string): Uint8Array<ArrayBuffer> {

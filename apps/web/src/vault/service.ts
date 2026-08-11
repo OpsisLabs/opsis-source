@@ -2,9 +2,11 @@ import {
   changeVaultPassphrase,
   createAsset,
   createBackup,
+  createPortfolioContext,
   createVault,
-  decryptAsset,
+  decryptVaultRecord,
   encryptAsset,
+  encryptPortfolioContext,
   parseBackup,
   recoverVault,
   unlockVault,
@@ -24,16 +26,20 @@ import {
 } from "./db";
 import {
   VAULT_MAX_BACKUP_BYTES,
+  type EncryptedVaultRecord,
   type VaultAsset,
   type VaultAssetDraft,
   type VaultBackup,
-  type VaultMeta
+  type VaultMeta,
+  type VaultPortfolioContext,
+  type VaultPortfolioContextDraft
 } from "./types";
 
 export interface UnlockedVault {
   meta: VaultMeta;
   key: CryptoKey;
   assets: VaultAsset[];
+  portfolios: VaultPortfolioContext[];
 }
 
 export interface CreatedVault extends UnlockedVault {
@@ -47,15 +53,32 @@ export async function bootstrapVault(): Promise<VaultMeta | null> {
 export async function createLocalVault(passphrase: string): Promise<CreatedVault> {
   const created = await createVault(passphrase);
   await initializeVault(created.meta);
-  return { ...created, assets: [] };
+  return { ...created, assets: [], portfolios: [] };
 }
 
 export async function unlockLocalVault(meta: VaultMeta, passphrase: string): Promise<UnlockedVault> {
   const snapshot = await readVaultSnapshot(meta.vaultId, meta.revision);
   const key = await unlockVault(snapshot.meta, passphrase);
-  const assets = await Promise.all(snapshot.records.map((record) => decryptAsset(snapshot.meta, key, record)));
-  assets.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
-  return { meta: snapshot.meta, key, assets };
+  const records = await decryptRecords(snapshot.meta, key, snapshot.records);
+  return { meta: snapshot.meta, key, ...records };
+}
+
+export async function saveVaultPortfolio(
+  unlocked: UnlockedVault,
+  draft: VaultPortfolioContextDraft,
+  existing?: VaultPortfolioContext,
+  assertActive: () => void = () => undefined
+): Promise<{ portfolio: VaultPortfolioContext; meta: VaultMeta }> {
+  const portfolio = createPortfolioContext(draft, existing);
+  const meta = nextMeta(unlocked.meta);
+  const encrypted = await encryptPortfolioContext(unlocked.meta, unlocked.key, portfolio);
+  assertActive();
+  await writeEncryptedRecord(
+    encrypted,
+    meta,
+    unlocked.meta.revision
+  );
+  return { portfolio, meta };
 }
 
 export async function saveVaultAsset(
@@ -92,10 +115,9 @@ export async function recoverLocalVault(
 ): Promise<CreatedVault> {
   const snapshot = await readVaultSnapshot(meta.vaultId, meta.revision);
   const recovered = await recoverVault(snapshot.meta, recoverySecret, nextPassphrase);
-  const assets = await Promise.all(snapshot.records.map((record) => decryptAsset(recovered.meta, recovered.key, record)));
-  assets.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
+  const records = await decryptRecords(recovered.meta, recovered.key, snapshot.records);
   await writeVaultMeta(recovered.meta, snapshot.meta.revision);
-  return { ...recovered, assets };
+  return { ...recovered, ...records };
 }
 
 export async function recoverVaultBackup(
@@ -111,14 +133,13 @@ export async function recoverVaultBackup(
     vaultId: expectedCurrent.vaultId,
     revision: expectedCurrent.revision
   });
-  const assets = await Promise.all(backup.records.map((record) => decryptAsset(meta, recovered.key, record)));
-  assets.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
-  return { meta, key: recovered.key, assets, recoverySecret: recovered.recoverySecret };
+  const records = await decryptRecords(meta, recovered.key, backup.records);
+  return { meta, key: recovered.key, ...records, recoverySecret: recovered.recoverySecret };
 }
 
 export async function exportVault(unlocked: UnlockedVault): Promise<VaultBackup> {
   const snapshot = await readVaultSnapshot(unlocked.meta.vaultId, unlocked.meta.revision);
-  await Promise.all(snapshot.records.map((record) => decryptAsset(snapshot.meta, unlocked.key, record)));
+  await Promise.all(snapshot.records.map((record) => decryptVaultRecord(snapshot.meta, unlocked.key, record)));
   return createBackup(snapshot.meta, unlocked.key, snapshot.records);
 }
 
@@ -143,9 +164,8 @@ export async function importVaultBackup(
     vaultId: expectedCurrent.vaultId,
     revision: expectedCurrent.revision
   });
-  const assets = await Promise.all(backup.records.map((record) => decryptAsset(backup.vault, key, record)));
-  assets.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
-  return { meta, key, assets };
+  const records = await decryptRecords(backup.vault, key, backup.records);
+  return { meta, key, ...records };
 }
 
 export async function destroyLocalVault(onBlocked?: () => void): Promise<void> {
@@ -158,4 +178,17 @@ function backupError(message: string): VaultError {
 
 function nextMeta(meta: VaultMeta): VaultMeta {
   return { ...meta, revision: meta.revision + 1 };
+}
+
+async function decryptRecords(
+  meta: VaultMeta,
+  key: CryptoKey,
+  encrypted: EncryptedVaultRecord[]
+): Promise<{ assets: VaultAsset[]; portfolios: VaultPortfolioContext[] }> {
+  const records = await Promise.all(encrypted.map((record) => decryptVaultRecord(meta, key, record)));
+  const assets = records.filter((record): record is VaultAsset => !("kind" in record));
+  const portfolios = records.filter((record): record is VaultPortfolioContext => "kind" in record && record.kind === "portfolio-context");
+  assets.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
+  portfolios.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
+  return { assets, portfolios };
 }

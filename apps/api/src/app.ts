@@ -23,11 +23,17 @@ import { privateRoutes, type PrivateAnalysisDependencies } from "./routes/privat
 import { accountRoutes } from "./routes/account.js";
 import { rateLimitKey } from "./http/authenticate.js";
 import { installCsrfProtection } from "./http/csrf.js";
+import { portfolioRoutes } from "./routes/portfolio.js";
+import { PortfolioService, type PortfolioSnapshotSource } from "./portfolio/service.js";
+import { createPortfolioBudget } from "./portfolio/budget.js";
 
 export async function buildApp(
   env: Env,
   prisma?: PrismaClient,
-  dependencies?: { privateAnalysis?: PrivateAnalysisDependencies }
+  dependencies?: {
+    privateAnalysis?: PrivateAnalysisDependencies;
+    portfolioSnapshot?: PortfolioSnapshotSource;
+  }
 ) {
   const app = Fastify({
     logger: {
@@ -92,6 +98,7 @@ export async function buildApp(
         { name: "chat" },
         { name: "swaps" },
         { name: "private" },
+        { name: "portfolio" },
         { name: "account" },
         { name: "usage" },
         { name: "admin" }
@@ -115,6 +122,11 @@ export async function buildApp(
   if (env.ENABLE_METRICS) await installMetrics(app);
   await healthRoutes(app, env, prisma, redis);
   await privateRoutes(app, env, prisma, cache, dependencies?.privateAnalysis);
+  await portfolioRoutes(
+    app,
+    env,
+    dependencies?.portfolioSnapshot ?? new PortfolioService(env, { budget: createPortfolioBudget(env, redis) })
+  );
   await authRoutes(app, env, prisma);
   await accountRoutes(app, env, prisma);
   await entityRoutes(app, env, prisma, cache);
