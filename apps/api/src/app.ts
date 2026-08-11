@@ -32,6 +32,9 @@ import { createRwaBudget } from "./rwa/budget.js";
 import { collectibleRoutes } from "./routes/collectibles.js";
 import { CollectibleCatalogService, type CollectibleCatalogSource } from "./collectibles/service.js";
 import { createCollectibleBudget } from "./collectibles/budget.js";
+import { marketRoutes } from "./routes/market.js";
+import { MarketInventoryService, type MarketInventorySource } from "./market/service.js";
+import { createMarketBudget } from "./market/budget.js";
 
 export async function buildApp(
   env: Env,
@@ -41,6 +44,7 @@ export async function buildApp(
     portfolioSnapshot?: PortfolioSnapshotSource;
     rwaVerification?: RwaVerificationSource;
     collectibleCatalog?: CollectibleCatalogSource;
+    marketInventory?: MarketInventorySource;
   }
 ) {
   const app = Fastify({
@@ -109,6 +113,7 @@ export async function buildApp(
         { name: "portfolio" },
         { name: "rwa" },
         { name: "collectibles" },
+        { name: "market" },
         { name: "account" },
         { name: "usage" },
         { name: "admin" }
@@ -146,6 +151,11 @@ export async function buildApp(
     app,
     env,
     dependencies?.collectibleCatalog ?? new CollectibleCatalogService(env, { budget: createCollectibleBudget(env, redis) })
+  );
+  await marketRoutes(
+    app,
+    env,
+    dependencies?.marketInventory ?? new MarketInventoryService(env, { budget: createMarketBudget(env, redis) })
   );
   await authRoutes(app, env, prisma);
   await accountRoutes(app, env, prisma);

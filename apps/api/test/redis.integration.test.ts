@@ -6,6 +6,7 @@ import { loadEnv } from "../src/config/env.js";
 import { createPortfolioBudget } from "../src/portfolio/budget.js";
 import { createRwaBudget } from "../src/rwa/budget.js";
 import { createCollectibleBudget } from "../src/collectibles/budget.js";
+import { createMarketBudget } from "../src/market/budget.js";
 
 const redisUrl = process.env.TEST_REDIS_URL;
 const redisDatabase = redisUrl ? Number(new URL(redisUrl).pathname.slice(1)) : 0;
@@ -84,6 +85,18 @@ if (!redisUrl) {
       await expect(first.consume(1)).rejects.toMatchObject({ code: "COLLECTIBLE_DAILY_BUDGET_EXCEEDED" });
       const keys = await redis.keys("rh:collectible-budget:*");
       expect(keys).toEqual(["rh:collectible-budget:2026-08-11"]);
+      expect(await redis.get(keys[0])).toBe("50");
+    });
+
+    it("atomically shares the identifier-free daily market budget", async () => {
+      const env = loadEnv({ NODE_ENV: "test", MARKET_DAILY_REQUEST_BUDGET: "50" });
+      const now = () => new Date("2026-08-11T12:00:00.000Z");
+      const first = createMarketBudget(env, redis, now);
+      const second = createMarketBudget(env, redis, now);
+      await Promise.all(Array.from({ length: 50 }, (_, index) => (index % 2 ? first : second).consume(1)));
+      await expect(second.consume(1)).rejects.toMatchObject({ code: "MARKET_DAILY_BUDGET_EXCEEDED" });
+      const keys = await redis.keys("rh:market-budget:*");
+      expect(keys).toEqual(["rh:market-budget:2026-08-11"]);
       expect(await redis.get(keys[0])).toBe("50");
     });
   });

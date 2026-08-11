@@ -129,4 +129,15 @@ describe("environment validation", () => {
       NODE_ENV: "test", COLLECTIBLE_CATALOG_ENABLED: "true", TCGDEX_API_BASE_URL: "http://127.0.0.1:9090/v2"
     }).TCGDEX_API_BASE_URL).toBe("http://127.0.0.1:9090/v2");
   });
+
+  it("keeps Market & Inventory disabled by default with bounded free-tier controls", () => {
+    const defaults = loadEnv({ NODE_ENV: "test" });
+    expect(defaults.MARKET_INVENTORY_ENABLED).toBe(false);
+    expect(defaults.MARKET_DAILY_REQUEST_BUDGET).toBe(1_000);
+    expect(defaults.RATE_LIMIT_MARKET_PER_HOUR).toBe(12);
+    expect(loadEnv({ NODE_ENV: "test", MARKET_INVENTORY_ENABLED: "true", MARKET_DAILY_REQUEST_BUDGET: "50", RATE_LIMIT_MARKET_PER_HOUR: "1" }))
+      .toMatchObject({ MARKET_INVENTORY_ENABLED: true, MARKET_DAILY_REQUEST_BUDGET: 50, RATE_LIMIT_MARKET_PER_HOUR: 1 });
+    expect(() => loadEnv({ NODE_ENV: "test", MARKET_DAILY_REQUEST_BUDGET: "49" })).toThrow();
+    expect(() => loadEnv({ NODE_ENV: "test", RATE_LIMIT_MARKET_PER_HOUR: "61" })).toThrow();
+  });
 });

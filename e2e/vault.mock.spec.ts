@@ -190,7 +190,9 @@ test("Portfolio Intelligence sends only one approved public address and encrypts
   expect(calls[0].body).not.toContain("10");
 
   await expect(page.getByRole("heading", { name: "TST", exact: true })).toBeVisible();
-  await expect(page.getByText("Private linked token")).toBeVisible();
+  await expect(
+    page.getByTestId("vault-portfolio-panel").getByText("Private linked token"),
+  ).toBeVisible();
   await expect(page.getByText("VERIFIED MOVEMENTS · RECEIPT-DECODED")).toBeVisible();
   await expect(page.getByText(`CONTRACT ${portfolioToken}`, { exact: false })).toBeVisible();
   const holding = page.getByRole("article").filter({ has: page.getByRole("heading", { name: "TST", exact: true }) });

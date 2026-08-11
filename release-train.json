@@ -71,8 +71,8 @@
       "branch": "release/07-market-inventory",
       "tagPrefix": "rc/07-market-inventory/",
       "status": "active",
-      "outcome": "Compare fresh liquidity, prices, stock, and trust",
-      "shipGate": "Exact-match confidence, source freshness, landed-cost inputs, inventory state, and provider-reported reputation are visible; unsupported venues use precise search handoffs instead of scraping."
+      "outcome": "Compare fresh liquidity, prices, stock, and available product/source signals",
+      "shipGate": "Exact-match confidence, source freshness, landed-cost inputs, inventory state, and provider-reported product signals are visible; missing seller reputation is explicit and unsupported venues use precise search handoffs instead of scraping."
     },
     {
       "order": 8,

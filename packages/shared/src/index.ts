@@ -1,9 +1,10 @@
 export const CHAIN_IDS = {
   robinhoodMainnet: 4663,
-  robinhoodTestnet: 46630
+  robinhoodTestnet: 46630,
 } as const;
 
-export type ChainEntityType = "wallet" | "transaction" | "token" | "contract" | "block" | "unknown";
+export type ChainEntityType =
+  "wallet" | "transaction" | "token" | "contract" | "block" | "unknown";
 
 export type Citation = {
   id: string;
@@ -37,7 +38,11 @@ export type AiExplorerAnswer = {
   answer: string;
   summaryBullets: string[];
   confirmedFacts: Array<{ fact: string; sourceIds: string[] }>;
-  inferences: Array<{ inference: string; confidence: "low" | "medium" | "high"; sourceIds: string[] }>;
+  inferences: Array<{
+    inference: string;
+    confidence: "low" | "medium" | "high";
+    sourceIds: string[];
+  }>;
   facts: Record<string, unknown>;
   uncertainty: string[];
   riskNotes: RiskNote[];
@@ -135,7 +140,12 @@ export type PortfolioSnapshot = {
   transactions: PortfolioTransaction[];
   movements: PortfolioMovement[];
   approvals: PortfolioApproval[];
-  attention: Array<{ severity: "info" | "medium" | "high"; title: string; detail: string; sourceIds: string[] }>;
+  attention: Array<{
+    severity: "info" | "medium" | "high";
+    title: string;
+    detail: string;
+    sourceIds: string[];
+  }>;
   reconciliation: {
     tokenCandidates: number;
     tokenConfirmed: number;
@@ -159,7 +169,8 @@ export type PortfolioSnapshot = {
   };
 };
 
-export type CollectibleLanguage = "en" | "fr" | "es" | "de" | "it" | "pt" | "ja";
+export type CollectibleLanguage =
+  "en" | "fr" | "es" | "de" | "it" | "pt" | "ja";
 
 export type CollectibleCardBrief = {
   catalogId: string;
@@ -193,7 +204,12 @@ export type CollectiblePrivacyReceipt = {
 };
 
 export type CollectibleSearchResponse = {
-  query: { language: CollectibleLanguage; name: string; number: string | null; setId: string | null };
+  query: {
+    language: CollectibleLanguage;
+    name: string;
+    number: string | null;
+    setId: string | null;
+  };
   results: CollectibleCardBrief[];
   matchesShown: number;
   truncated: boolean;
@@ -205,4 +221,127 @@ export type CollectibleSearchResponse = {
 export type CollectibleDetailResponse = {
   card: CollectibleCardDetail;
   privacy: CollectiblePrivacyReceipt;
+};
+
+export type MarketPrivacyReceipt = {
+  accountRequired: false;
+  walletConnectionRequired: false;
+  serverStorage: "none";
+  modelProvider: "none";
+  providerDestinations: string[];
+  disclosure: string;
+};
+
+export type MarketToken = {
+  address: string;
+  name: string;
+  symbol: string;
+};
+
+export type DexMarketPair = {
+  pairAddress: string;
+  dexId: string;
+  url: string;
+  labels: string[];
+  baseToken: MarketToken;
+  quoteToken: MarketToken;
+  pricedTokenAddress: string;
+  baseTokenPriceUsd: string | null;
+  baseTokenPriceInQuote: string | null;
+  liquidityUsd: string | null;
+  volume24hUsd: string | null;
+  priceChange24hPercent: string | null;
+  pairCreatedAt: string | null;
+};
+
+export type CryptoMarketResponse = {
+  schemaVersion: 1;
+  chain: { id: 4663; slug: "robinhood"; name: "Robinhood Chain" };
+  contract: string;
+  canonicalAssetId: string;
+  identityConfidence: "exact_contract";
+  pairs: DexMarketPair[];
+  pairsShown: number;
+  truncated: boolean;
+  fetchedAt: string;
+  freshForMs: number;
+  source: { provider: "dexscreener"; url: string };
+  limitations: string[];
+  privacy: MarketPrivacyReceipt;
+};
+
+export type MerchantInventoryState =
+  | "provider_available"
+  | "provider_low_stock"
+  | "provider_unavailable"
+  | "unknown";
+
+export type MerchantOffer = {
+  provider: "woocommerce";
+  merchantId: string;
+  merchantName: string;
+  canonicalAssetId: string;
+  identityConfidence: "reviewed_simple_product_mapping";
+  productId: string;
+  sku: string;
+  title: string;
+  variantLabel: string;
+  condition: string;
+  mappingReviewedAt: string;
+  mappingEvidenceUrl: string;
+  url: string;
+  currency: string;
+  unitPrice: string;
+  inventoryState: MerchantInventoryState;
+  exactQuantity: null;
+  productRating: null | {
+    average: string;
+    count: number;
+    sourceLabel: "merchant_reported_product_rating";
+  };
+  fetchedAt: string;
+  freshForMs: number;
+};
+
+export type MerchantInventoryResponse = {
+  schemaVersion: 1;
+  merchant: { id: string; name: string; provider: "woocommerce" };
+  canonicalAssetId: string;
+  mapping: {
+    sku: string;
+    productId: string;
+    reviewedAt: string;
+    evidenceUrl: string;
+  };
+  offer: MerchantOffer | null;
+  state: "exact_match" | "valid_empty";
+  fetchedAt: string;
+  freshForMs: number;
+  source: { provider: "woocommerce"; url: string };
+  limitations: string[];
+  privacy: MarketPrivacyReceipt;
+};
+
+export type ApprovedMerchantDirectoryEntry = {
+  id: string;
+  name: string;
+  permissionReviewedAt: string;
+  permissionEvidenceUrl: string;
+  mappings: Array<{
+    canonicalAssetId: string;
+    sku: string;
+    productId: string;
+    variantLabel: string;
+    condition: string;
+    reviewedAt: string;
+    evidenceUrl: string;
+  }>;
+};
+
+export type ApprovedMerchantDirectoryResponse = {
+  schemaVersion: 1;
+  merchants: ApprovedMerchantDirectoryEntry[];
+  loadedAt: string;
+  source: "chainscout_reviewed_registry";
+  limitations: string[];
 };

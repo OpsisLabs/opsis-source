@@ -168,13 +168,13 @@ const RELEASES: Release[] = [
     branch: "release/07-market-inventory",
     title: "Market & Inventory",
     eyebrow: "FIND THE REAL AVAILABLE OPTION",
-    summary: "Compare exact-match crypto liquidity, opt-in retailer stock, landed costs, and available reputation signals.",
-    outcome: "Compare price, stock, and trust",
+    summary: "Compare exact-match crypto liquidity, opt-in retailer stock, landed costs, and available product/source signals.",
+    outcome: "Compare price, stock, and source facts",
     icon: PackageSearch,
     capabilities: [
-      { kicker: "CRYPTO LIQUIDITY", title: "Match pools by chain and contract, with volume, liquidity, impact, and freshness", signal: "NOT BY TICKER", bars: [31, 54, 43, 68, 61, 91] },
-      { kicker: "MERCHANT STOCK", title: "Read approved Shopify, WooCommerce, and merchant feeds without broad scraping", signal: "OPT-IN SOURCES", bars: [76, 61, 70, 53, 44, 32] },
-      { kicker: "REAL OUTCOME", title: "Compare fees, shipping, tax inputs, condition, returns, and reported reputation", signal: "MISSING INPUTS SHOWN", bars: [28, 43, 57, 63, 81, 94] },
+      { kicker: "CRYPTO LIQUIDITY", title: "Match indexed pools by chain and contract, with base-price orientation, volume, liquidity, and freshness", signal: "NOT BY TICKER", bars: [31, 54, 43, 68, 61, 91] },
+      { kicker: "MERCHANT STOCK", title: "Read exact reviewed products from opted-in WooCommerce feeds; keep unapproved Shopify paths off", signal: "PERMISSIONED SOURCES", bars: [76, 61, 70, 53, 44, 32] },
+      { kicker: "REAL OUTCOME", title: "Compare fees, shipping, tax inputs, condition, returns, and disclosed product signals", signal: "MISSING INPUTS SHOWN", bars: [28, 43, 57, 63, 81, 94] },
     ],
     gate: "Only fresh comparable exact matches are ranked; unsupported venues receive precise search handoffs.",
     snapshot: "market-inventory-rc1",
@@ -266,7 +266,7 @@ const HORIZON_IDEAS: HorizonIdea[] = [
     features: [
       "Crypto pools and quotes matched by chain and contract—not ticker or token name",
       "Cards matched by English catalog set and number, then paired with owner-reported printing, condition, grade, and certificate",
-      "Official marketplace APIs, Shopify/WooCommerce storefronts, merchant feeds, and permitted public offers",
+      "Opted-in WooCommerce feeds, reviewed merchant sources, and click-only searches for supported public venues",
     ],
     signals: ["LAST CHECKED", "EXACT MATCH", "STOCK CONFIDENCE"],
     boundary: "Unsupported stores get a searchable deep link; ChainScout never bypasses logins, CAPTCHA, robots, or marketplace terms.",
@@ -905,7 +905,7 @@ export default function Roadmap() {
             <div className="px-7 py-10 sm:px-10 md:px-12">
               <p className="max-w-[820px] text-[13px] leading-7 text-[#1d1d1d]/65">
                 Start with onchain state and official APIs. Add approved marketplace integrations,
-                public Shopify and WooCommerce storefront data, merchant-submitted feeds, and permitted
+                opted-in WooCommerce product data, merchant-submitted feeds, and permitted
                 Product/Offer metadata. Every adapter reports freshness and can fail independently without
                 taking down the rest of ChainScout.
               </p>

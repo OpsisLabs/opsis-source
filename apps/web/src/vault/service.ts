@@ -3,11 +3,13 @@ import {
   createAsset,
   createBackup,
   createCollectibleContext,
+  createMarketContext,
   createPortfolioContext,
   createVault,
   decryptVaultRecord,
   encryptAsset,
   encryptCollectibleContext,
+  encryptMarketContext,
   encryptPortfolioContext,
   parseBackup,
   recoverVault,
@@ -35,6 +37,8 @@ import {
   type VaultCollectibleContext,
   type VaultCollectibleContextDraft,
   type VaultMeta,
+  type VaultMarketContext,
+  type VaultMarketContextDraft,
   type VaultPortfolioContext,
   type VaultPortfolioContextDraft
 } from "./types";
@@ -45,6 +49,7 @@ export interface UnlockedVault {
   assets: VaultAsset[];
   portfolios: VaultPortfolioContext[];
   collectibles: VaultCollectibleContext[];
+  markets: VaultMarketContext[];
 }
 
 export interface CreatedVault extends UnlockedVault {
@@ -58,7 +63,7 @@ export async function bootstrapVault(): Promise<VaultMeta | null> {
 export async function createLocalVault(passphrase: string): Promise<CreatedVault> {
   const created = await createVault(passphrase);
   await initializeVault(created.meta);
-  return { ...created, assets: [], portfolios: [], collectibles: [] };
+  return { ...created, assets: [], portfolios: [], collectibles: [], markets: [] };
 }
 
 export async function unlockLocalVault(meta: VaultMeta, passphrase: string): Promise<UnlockedVault> {
@@ -99,6 +104,20 @@ export async function saveVaultCollectibleContext(
   assertActive();
   await writeEncryptedRecord(encrypted, meta, unlocked.meta.revision, assertActive);
   return { collectible, meta };
+}
+
+export async function saveVaultMarketContext(
+  unlocked: UnlockedVault,
+  draft: VaultMarketContextDraft,
+  existing?: VaultMarketContext,
+  assertActive: () => void = () => undefined
+): Promise<{ market: VaultMarketContext; meta: VaultMeta }> {
+  const market = createMarketContext(draft, existing);
+  const meta = nextMeta(unlocked.meta);
+  const encrypted = await encryptMarketContext(unlocked.meta, unlocked.key, market);
+  assertActive();
+  await writeEncryptedRecord(encrypted, meta, unlocked.meta.revision, assertActive);
+  return { market, meta };
 }
 
 export async function saveVaultAsset(
@@ -207,13 +226,15 @@ async function decryptRecords(
   meta: VaultMeta,
   key: CryptoKey,
   encrypted: EncryptedVaultRecord[]
-): Promise<{ assets: VaultAsset[]; portfolios: VaultPortfolioContext[]; collectibles: VaultCollectibleContext[] }> {
+): Promise<{ assets: VaultAsset[]; portfolios: VaultPortfolioContext[]; collectibles: VaultCollectibleContext[]; markets: VaultMarketContext[] }> {
   const records = await Promise.all(encrypted.map((record) => decryptVaultRecord(meta, key, record)));
   const assets = records.filter((record): record is VaultAsset => !("kind" in record));
   const portfolios = records.filter((record): record is VaultPortfolioContext => "kind" in record && record.kind === "portfolio-context");
   const collectibles = records.filter((record): record is VaultCollectibleContext => "kind" in record && record.kind === "collectible-context");
+  const markets = records.filter((record): record is VaultMarketContext => "kind" in record && record.kind === "market-context");
   assets.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
   portfolios.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
   collectibles.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
-  return { assets, portfolios, collectibles };
+  markets.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
+  return { assets, portfolios, collectibles, markets };
 }
