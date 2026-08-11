@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "03-encrypted-vault",
+  "activeRelease": "04-portfolio-intelligence",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement",
@@ -34,7 +34,7 @@
       "id": "03-encrypted-vault",
       "branch": "release/03-encrypted-vault",
       "tagPrefix": "rc/03-encrypted-vault/",
-      "status": "active",
+      "status": "released",
       "outcome": "Track every asset privately",
       "shipGate": "Lots, notes, photos, and purchase prices are encrypted in IndexedDB with tested export, import, lock, recovery, deletion, and storage-eviction states; plaintext never crosses the network."
     },
@@ -43,7 +43,7 @@
       "id": "04-portfolio-intelligence",
       "branch": "release/04-portfolio-intelligence",
       "tagPrefix": "rc/04-portfolio-intelligence/",
-      "status": "queued",
+      "status": "active",
       "outcome": "See holdings, performance, activity, and risk together",
       "shipGate": "Balances, NFTs, transactions, approvals, and decoded movements reconcile at a finalized block; manual lot math is deterministic; saved ownership context remains encrypted and browser-local."
     },
