@@ -59,15 +59,15 @@ export default function Sidebar() {
           <div className="px-6 pb-6 font-mono-d text-[12px] leading-5 text-[#9a938a]">
             Powered by<br />chain data:
           </div>
-          {["blockscout", "alchemy", "goldrush"].map((k) => (
+          {["blockscout", "robinhood", "local-vault"].map((k) => (
             <div key={k} className="flex h-[120px] items-center justify-center border-t border-[#2e2e2e]">
               {k === "blockscout" && (
                 <svg width="46" height="26" viewBox="0 0 46 26"><g fill="#635d5a"><path d="M0 26 8 0h8L8 26Z"/><path d="M15 26 23 0h8l-8 26Z"/><path d="M30 26 38 0h8l-8 26Z"/></g></svg>
               )}
-              {k === "alchemy" && (
+              {k === "robinhood" && (
                 <svg width="40" height="34" viewBox="0 0 40 34" stroke="#635d5a" fill="none" strokeWidth="2"><path d="M20 2 38 11 20 20 2 11Z"/><path d="M2 18 20 27 38 18"/><path d="M6 25l14 7 14-7"/></svg>
               )}
-              {k === "goldrush" && (
+              {k === "local-vault" && (
                 <svg width="42" height="30" viewBox="0 0 42 30" stroke="#635d5a" fill="none" strokeWidth="2"><ellipse cx="21" cy="15" rx="18" ry="8"/><ellipse cx="21" cy="15" rx="18" ry="8" transform="rotate(60 21 15)"/><ellipse cx="21" cy="15" rx="18" ry="8" transform="rotate(-60 21 15)"/></svg>
               )}
             </div>

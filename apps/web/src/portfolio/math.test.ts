@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { PortfolioSnapshot } from "@rh-chain/shared";
 import type { VaultAsset, VaultPortfolioValuation } from "../vault/types";
-import { allocationPercent, buildPortfolioMath, formatDisplayDecimal, valueTotals } from "./math";
+import { allocationPercent, buildPortfolioMath, formatDisplayDecimal, valueTotals, verifiedHoldingCount } from "./math";
 
 const TOKEN = "0x3333333333333333333333333333333333333333";
 const NFT = "0x4444444444444444444444444444444444444444";
@@ -51,6 +51,16 @@ describe("exact local portfolio math", () => {
 
     expect(rows.find((row) => row.assetKey === `nft:${NFT}:7`)?.linkedAsset?.id).toBe(exactToken.id);
     expect(rows.find((row) => row.assetKey === `nft:${NFT}:8`)?.linkedAsset).toBeNull();
+  });
+
+  it("does not count a verified zero native balance as an owned holding", () => {
+    const empty = snapshot("0");
+    empty.tokens = [];
+    expect(verifiedHoldingCount(empty)).toBe(0);
+    empty.nativeBalanceEth = "0.000000000000000001";
+    expect(verifiedHoldingCount(empty)).toBe(1);
+    empty.tokens = [{ kind: "erc20", contract: TOKEN, name: "Token", symbol: "TKN", decimals: 18, quantity: "1", rawBalance: "1", sourceIds: [] }];
+    expect(verifiedHoldingCount(empty)).toBe(2);
   });
 });
 

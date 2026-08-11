@@ -57,7 +57,7 @@ function humanize(code: string, message: string, status: number): string {
     case "PORTFOLIO_BUDGET_UNAVAILABLE":
       return "The free-tier portfolio safety guard is unavailable, so refresh failed closed. Try again shortly.";
     case "SNAPSHOT_REORGED":
-      return "The finalized anchor changed during verification. Nothing was saved; refresh again.";
+      return "The current block anchor changed during verification. Nothing was saved; refresh again.";
     case "VALIDATION_ERROR":
       return /password/i.test(message)
         ? "Password must be at least 10 characters."

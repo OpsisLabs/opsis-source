@@ -107,6 +107,11 @@ export function valueTotals(rows: PortfolioMathRow[]): Array<{ currency: string;
     .sort((left, right) => left.currency.localeCompare(right.currency));
 }
 
+export function verifiedHoldingCount(snapshot: PortfolioSnapshot): number {
+  const nativeHolding = parseDecimal(snapshot.nativeBalanceEth).coefficient === 0n ? 0 : 1;
+  return nativeHolding + snapshot.tokens.length + snapshot.nfts.length;
+}
+
 export function allocationPercent(value: string, total: string): string | null {
   const part = parseDecimal(value);
   const whole = parseDecimal(total);

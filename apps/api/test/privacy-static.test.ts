@@ -97,6 +97,27 @@ describe("browser privacy static boundary", () => {
     expect(source).toContain('createProviderHttp(oneAttemptEnv, "robinhood-public-rpc")');
     expect(source).toContain('createProviderHttp(oneAttemptEnv, "blockscout")');
   });
+
+  it("keeps launch marketing aligned with the anchored zero-cost provider path", () => {
+    const marketing = sourceText(resolve(repositoryRoot, "apps/web/src/sections"));
+    expect(marketing).not.toMatch(/finalized block/i);
+    expect(marketing).not.toMatch(/\balchemy\b|\bgoldrush\b/i);
+    expect(marketing).not.toMatch(/12,408|98\.4%|99\.95%|3\.2s|86%|14%/);
+    expect(marketing).toContain("Robinhood Public RPC");
+    expect(marketing).toContain("captured current block");
+  });
+
+  it("discloses every class of public identifier derived for direct portfolio verification", () => {
+    const disclosure = [
+      readFileSync(resolve(repositoryRoot, "apps/api/src/portfolio/service.ts"), "utf8"),
+      readFileSync(resolve(repositoryRoot, "apps/web/src/portfolio/PortfolioPanel.tsx"), "utf8"),
+      readFileSync(resolve(repositoryRoot, "apps/web/src/pages/Legal.tsx"), "utf8")
+    ].join("\n");
+    for (const identifier of ["contract", "transaction", "token ID", "spender", "operator"]) {
+      expect(disclosure).toContain(identifier);
+    }
+    expect(disclosure).not.toContain("contract and transaction identifiers needed");
+  });
 });
 
 function sourceText(directory: string): string {

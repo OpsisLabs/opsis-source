@@ -72,10 +72,30 @@ describe("environment validation", () => {
       PORTFOLIO_MODE_ENABLED: "true",
       ROBINHOOD_PUBLIC_RPC_URL: "https://rpc.mainnet.chain.robinhood.com.evil.example"
     })).toThrow(/official Robinhood Public RPC/);
+    expect(() => loadEnv({
+      NODE_ENV: "development",
+      PORTFOLIO_MODE_ENABLED: "true",
+      BLOCKSCOUT_API_BASE_URL: "https://indexer.example.com/api/v2"
+    })).toThrow(/official Blockscout endpoint/);
+    expect(() => loadEnv({
+      NODE_ENV: "development",
+      PORTFOLIO_MODE_ENABLED: "true",
+      BLOCKSCOUT_PRO_API_KEY: "server-only-key",
+      BLOCKSCOUT_PRO_API_BASE_URL: "https://api.blockscout.com"
+    })).not.toThrow();
+    expect(() => loadEnv({
+      NODE_ENV: "development",
+      PORTFOLIO_MODE_ENABLED: "true",
+      BLOCKSCOUT_CHAIN_ID: "1"
+    })).toThrow(/Chain ID 4663/);
     expect(loadEnv({
       NODE_ENV: "test",
       PORTFOLIO_MODE_ENABLED: "true",
-      ROBINHOOD_PUBLIC_RPC_URL: "http://127.0.0.1:8545"
-    }).ROBINHOOD_PUBLIC_RPC_URL).toBe("http://127.0.0.1:8545");
+      ROBINHOOD_PUBLIC_RPC_URL: "http://127.0.0.1:8545",
+      BLOCKSCOUT_API_BASE_URL: "http://127.0.0.1:4000/api/v2"
+    })).toMatchObject({
+      ROBINHOOD_PUBLIC_RPC_URL: "http://127.0.0.1:8545",
+      BLOCKSCOUT_API_BASE_URL: "http://127.0.0.1:4000/api/v2"
+    });
   });
 });

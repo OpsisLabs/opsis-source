@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const TABS = ["EXPLORER DATA", "RPC & ARCHIVE", "ENRICHED DATA", "AI MODELS"];
+const TABS = ["EXPLORER DATA", "RPC & ANCHORS", "LOCAL INTELLIGENCE", "AI MODES"];
 
 const SETS: Record<string, { name: string; d: string; mark: React.ReactNode }[]> = {
   "EXPLORER DATA": [
@@ -11,24 +11,24 @@ const SETS: Record<string, { name: string; d: string; mark: React.ReactNode }[]>
     { name: "CONTRACT META", d: "Verification status and ABI availability", mark: <LodoMark /> },
     { name: "TOKEN INDEX", d: "Metadata, holders, and transfer activity", mark: <BarsMark /> },
   ],
-  "RPC & ARCHIVE": [
-    { name: "ALCHEMY RPC", d: "Production node reads for chain 4663", mark: <DotsMark /> },
-    { name: "ARCHIVE READS", d: "Historical state and receipt backfill", mark: <GlobeMark /> },
-    { name: "TRANSFER API", d: "Asset transfer queries across blocks", mark: <LoopMark /> },
-    { name: "ETH_CALL", d: "ERC-20 metadata and allowance checks", mark: <BarsMark /> },
-    { name: "WEBSOCKETS", d: "Live hydration and activity streams", mark: <SlantMark /> },
-    { name: "PUBLIC RPC", d: "Local-dev fallback, disabled in production", mark: <LodoMark /> },
+  "RPC & ANCHORS": [
+    { name: "ROBINHOOD PUBLIC RPC", d: "Read-only mainnet calls for chain 4663", mark: <DotsMark /> },
+    { name: "CAPTURED BLOCK", d: "Every snapshot starts from one current block", mark: <GlobeMark /> },
+    { name: "EXACT STATE", d: "Balances and approvals use that block number", mark: <LoopMark /> },
+    { name: "DIRECT RECEIPTS", d: "Transactions and logs are verified directly", mark: <BarsMark /> },
+    { name: "HASH RECHECK", d: "A changed anchor discards the response", mark: <SlantMark /> },
+    { name: "FAIL-CLOSED", d: "Rate limits or outages preserve the prior Vault snapshot", mark: <LodoMark /> },
   ],
-  "ENRICHED DATA": [
-    { name: "GOLDRUSH", d: "Balances and security APIs, feature-flagged", mark: <GlobeMark /> },
-    { name: "APPROVALS API", d: "Active allowances per owner and spender", mark: <DotsMark /> },
-    { name: "WALLET HISTORY", d: "Long-range activity and portfolio views", mark: <LoopMark /> },
-    { name: "TOKEN PRICES", d: "Market context where available", mark: <BarsMark /> },
-    { name: "REDIS CACHE", d: "Hot responses with per-entity TTLs", mark: <SlantMark /> },
-    { name: "SOURCE STORE", d: "Persisted raw responses for auditability", mark: <LodoMark /> },
+  "LOCAL INTELLIGENCE": [
+    { name: "ENCRYPTED VAULT", d: "Ownership context stays encrypted in the browser", mark: <GlobeMark /> },
+    { name: "APPROVAL WINDOW", d: "Only discovered approval targets are checked", mark: <DotsMark /> },
+    { name: "RECEIPT MOVEMENTS", d: "Owner-involving movements are decoded and bounded", mark: <LoopMark /> },
+    { name: "MANUAL VALUE", d: "Reference prices and lot math stay local", mark: <BarsMark /> },
+    { name: "SHARED BUDGET", d: "Redis enforces the zero-cost daily RPC ceiling", mark: <SlantMark /> },
+    { name: "SOURCE RECEIPTS", d: "Every displayed result names its public sources", mark: <LodoMark /> },
   ],
-  "AI MODELS": [
-    { name: "OPENAI", d: "Default answer generation via Responses API", mark: <GlobeMark /> },
+  "AI MODES": [
+    { name: "OPTIONAL OPENAI", d: "Server-configured cited explanations when enabled", mark: <GlobeMark /> },
     { name: "OLLAMA LOCAL", d: "Self-hosted compact models for dev", mark: <DotsMark /> },
     { name: "MODEL REGISTRY", d: "Env-driven model selection, no hard-coding", mark: <LoopMark /> },
     { name: "SCHEMA VALIDATION", d: "Zod-checked answers, one corrective retry", mark: <BarsMark /> },
@@ -109,8 +109,8 @@ export default function Integrations() {
             no vendor lock-in
           </h2>
           <p className="max-w-[420px] self-end text-[14.5px] leading-relaxed text-[#1d1d1d]/70 xl:justify-self-end">
-            Chain data and AI sit behind internal interfaces, so the platform can switch between
-            Blockscout, Alchemy, GoldRush, and future sources.
+            Chain data and explanation modes sit behind internal interfaces. The launch path uses
+            Blockscout discovery, Robinhood Public RPC verification, and encrypted local context.
           </p>
         </div>
 
@@ -158,7 +158,7 @@ export default function Integrations() {
         </div>
 
         <div className="mt-4 flex gap-2 lg:hidden">
-          {["Server-side keys", "Circuit breakers", "Cached fallbacks"].map((b) => (
+          {["Server-side keys", "Circuit breakers", "Shared budgets"].map((b) => (
             <span key={b} className="border border-[#1d1d1d]/20 px-3 py-1.5 font-mono-d text-[10px] text-[#1d1d1d]/60">
               {b}
             </span>

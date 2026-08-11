@@ -468,7 +468,7 @@ export class PortfolioService implements PortfolioSnapshotSource {
         serverStorage: "none",
         browserStorage: "client_encrypted_vault",
         providerDestinations: ["robinhood_public_rpc", "blockscout"],
-        disclosure: "Blockscout receives this public address for discovery. Robinhood Public RPC receives the address plus derived public contract and transaction identifiers needed for exact reads at one captured current block. This anchor is not final and can be reorganized after the response; ChainScout rechecks its block hash before returning. The public RPC is rate-limited and may be unavailable, so ChainScout fails closed and keeps the last encrypted local snapshot. ChainScout does not save the query or response; optional ownership labels and lot context can be stored only inside the encrypted browser Vault."
+        disclosure: "Blockscout receives this public address for discovery. Robinhood Public RPC receives the address plus derived public contract, transaction, token ID, spender, and operator identifiers needed for exact reads at one captured current block. This anchor is not final and can be reorganized after the response; ChainScout rechecks its block hash before returning. The public RPC is rate-limited and may be unavailable, so ChainScout fails closed and keeps the last encrypted local snapshot. ChainScout does not save the query or response; optional ownership labels and lot context can be stored only inside the encrypted browser Vault."
       }
     };
   }

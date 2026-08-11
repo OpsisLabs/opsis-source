@@ -137,6 +137,33 @@ const envSchema = z.object({
         message: "Enabled Portfolio Intelligence requires the official Robinhood Public RPC endpoint"
       });
     }
+    const blockscoutBase = new URL(env.BLOCKSCOUT_PRO_API_KEY
+      ? env.BLOCKSCOUT_PRO_API_BASE_URL
+      : env.BLOCKSCOUT_API_BASE_URL);
+    const usesOfficialBlockscout = blockscoutBase.protocol === "https:"
+      && blockscoutBase.port === ""
+      && blockscoutBase.username === ""
+      && blockscoutBase.password === ""
+      && blockscoutBase.search === ""
+      && blockscoutBase.hash === ""
+      && (env.BLOCKSCOUT_PRO_API_KEY
+        ? blockscoutBase.hostname === "api.blockscout.com"
+          && (blockscoutBase.pathname === "" || blockscoutBase.pathname === "/")
+        : blockscoutBase.hostname === "robinhoodchain.blockscout.com"
+          && ["/api/v2", "/api/v2/"].includes(blockscoutBase.pathname));
+    if (!usesOfficialBlockscout) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: [env.BLOCKSCOUT_PRO_API_KEY ? "BLOCKSCOUT_PRO_API_BASE_URL" : "BLOCKSCOUT_API_BASE_URL"],
+        message: "Enabled Portfolio Intelligence requires the official Blockscout endpoint"
+      });
+    }
+    if (env.ROBINHOOD_CHAIN_ID !== 4663 || env.BLOCKSCOUT_CHAIN_ID !== 4663) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Enabled Portfolio Intelligence requires Robinhood Chain ID 4663"
+      });
+    }
   }
   if (env.NODE_ENV !== "production") return;
   if (env.AUTH_EMAIL_ENABLED && (!env.SMTP_HOST || !env.EMAIL_FROM)) {

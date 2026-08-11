@@ -19,7 +19,7 @@ import type {
   VaultPortfolioValuation
 } from "../vault/types";
 import { requestPortfolioSnapshot } from "./api";
-import { allocationPercent, buildPortfolioMath, formatDisplayDecimal, valueTotals, type PortfolioMathRow } from "./math";
+import { allocationPercent, buildPortfolioMath, formatDisplayDecimal, valueTotals, verifiedHoldingCount, type PortfolioMathRow } from "./math";
 
 const ADDRESS = /^0x[0-9a-fA-F]{40}$/;
 
@@ -62,6 +62,12 @@ export function PortfolioPanel({
     };
   }, []);
 
+  useEffect(() => {
+    const current = savedRef.current;
+    if (!current || !ADDRESS.test(normalizedAddress)) return;
+    setLabel(normalizedAddress === current.address ? current.label : "");
+  }, [normalizedAddress]);
+
   const persistDraft = async (draft: VaultPortfolioContextDraft) => {
     const next = await onSave(draft, savedRef.current, sessionId);
     savedRef.current = next;
@@ -97,7 +103,7 @@ export function PortfolioPanel({
       id: crypto.randomUUID(),
       address: normalizedAddress,
       providerDestinations: ["robinhood_public_rpc", "blockscout"],
-      disclosure: "Blockscout receives this public address for discovery. Robinhood Public RPC receives the address plus derived public contract and transaction identifiers needed for exact reads at one captured current block. This anchor is not final; ChainScout rechecks its hash before returning. The public RPC is rate-limited and may be unavailable, so ChainScout keeps the last encrypted local snapshot.",
+      disclosure: "Blockscout receives this public address for discovery. Robinhood Public RPC receives the address plus derived public contract, transaction, token ID, spender, and operator identifiers needed for exact reads at one captured current block. This anchor is not final; ChainScout rechecks its hash before returning. The public RPC is rate-limited and may be unavailable, so ChainScout keeps the last encrypted local snapshot.",
       approvedAt,
       outcome: "approved" as const
     };
@@ -246,10 +252,10 @@ export function PortfolioPanel({
         <div role="dialog" aria-label="Portfolio refresh permission" className="clip-panel border border-[#e0a96d]/50 bg-[#29251f] p-5 sm:p-7">
           <p className="flex items-center gap-2 font-mono-d text-[9.5px] tracking-[0.15em] text-[#e0a96d]"><Eye size={14} /> EXACT NETWORK RECEIPT · CONFIRM BEFORE SENDING</p>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <ReceiptBlock title="SENT FOR THIS REFRESH" lines={[normalizedAddress, "Derived public contract + transaction identifiers needed to verify this address", "ChainScout API", "Robinhood Public RPC", "Blockscout discovery"]} />
+            <ReceiptBlock title="SENT FOR THIS REFRESH" lines={[normalizedAddress, "Derived public contract, transaction, token ID, spender + operator identifiers", "ChainScout API", "Robinhood Public RPC", "Blockscout discovery"]} />
             <ReceiptBlock title="STAYS ENCRYPTED IN THIS BROWSER" lines={[label || "Your local label", "Other saved addresses", "Lots and purchase prices", "Notes, photos, Vault ID and passphrase"]} />
           </div>
-          <p className="mt-5 text-[11.5px] leading-relaxed text-[#9a938a]">The address is public chain data, but its association with you can be sensitive. Blockscout receives the address for discovery; Robinhood Public RPC receives the address plus derived public contract and transaction identifiers needed for exact reads at one captured current block. This anchor is not final and can reorganize after the response; ChainScout rechecks its hash before returning. The public endpoint is rate-limited, so ChainScout fails closed and keeps your last encrypted local snapshot when it is unavailable. ChainScout does not save the query or response, and no AI model receives the portfolio.</p>
+          <p className="mt-5 text-[11.5px] leading-relaxed text-[#9a938a]">The address is public chain data, but its association with you can be sensitive. Blockscout receives the address for discovery; Robinhood Public RPC receives the address plus derived public contract, transaction, token ID, spender, and operator identifiers needed for exact reads at one captured current block. This anchor is not final and can reorganize after the response; ChainScout rechecks its hash before returning. The public endpoint is rate-limited, so ChainScout fails closed and keeps your last encrypted local snapshot when it is unavailable. ChainScout does not save the query or response, and no AI model receives the portfolio.</p>
           <div className="mt-5 flex flex-wrap gap-3">
             <button type="button" onClick={refresh} disabled={busy} className="clip-btn-sm flex min-h-[44px] items-center gap-2 bg-[#e0a96d] px-5 font-mono-d text-[9.5px] font-medium tracking-wider text-[#211d18] disabled:opacity-40"><ShieldCheck size={13} /> {busy ? "VERIFYING ONE BLOCK…" : "CONFIRM ONE-TIME REFRESH"}</button>
             <button type="button" onClick={() => setPermissionOpen(false)} disabled={busy} className="min-h-[44px] border border-[#4a4642] px-5 font-mono-d text-[9.5px] text-[#9a938a]">CANCEL · SEND NOTHING</button>
@@ -294,7 +300,7 @@ function SnapshotHeader({ snapshot, totals, label }: {
         <SnapshotMetric label="PROFILE" value={label || shortAddress(snapshot.address)} />
         <SnapshotMetric label="CAPTURED BLOCK" value={snapshot.anchor.blockNumber.toLocaleString("en-US")} />
         <SnapshotMetric label="SNAPSHOT AGE" value={age(snapshot.anchor.timestamp)} />
-        <SnapshotMetric label="VERIFIED HOLDINGS" value={String(1 + snapshot.tokens.length + snapshot.nfts.length)} />
+        <SnapshotMetric label="VERIFIED HOLDINGS" value={String(verifiedHoldingCount(snapshot))} />
         <SnapshotMetric label="LOCAL REFERENCE VALUE" value={totals.length ? totals.map((total) => `${formatDisplayDecimal(total.value, 2)} ${total.currency}`).join(" · ") : "NOT ENTERED"} />
       </div>
       <div className="flex flex-col gap-2 border-t border-[#383838] px-5 py-4 font-mono-d text-[8.5px] leading-relaxed tracking-wider text-[#635d5a] sm:flex-row sm:items-center sm:justify-between">

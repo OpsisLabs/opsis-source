@@ -20,7 +20,7 @@ const LAYERS = [
   {
     n: "04",
     title: "Approval Review",
-    items: ["Approval targets found in the fetched activity window.", "Current allowances and NFT access checked at a finalized block.", "Large or unlimited access highlighted without claiming complete coverage."],
+    items: ["Approval targets found in the fetched activity window.", "Current allowances and NFT access checked at the captured current block.", "Large or unlimited access highlighted without claiming complete coverage or finality."],
   },
 ];
 

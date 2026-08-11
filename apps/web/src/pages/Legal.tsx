@@ -157,8 +157,8 @@ export function PrivacyPage() {
         </p>
         <p>
           A confirmed Portfolio Intelligence refresh sends the one address named in the receipt to
-          ChainScout and Blockscout. Robinhood Public RPC receives that address plus derived public contract and
-          transaction identifiers needed for exact reads at one captured current block. That anchor is not final.
+          ChainScout and Blockscout. Robinhood Public RPC receives that address plus derived public contract,
+          transaction, token ID, spender, and operator identifiers needed for exact reads at one captured current block. That anchor is not final.
           The free public endpoint is rate-limited
           and may be unavailable; ChainScout fails closed and keeps the prior encrypted local snapshot. Blockscout discovery can
           lag or omit data, so direct read-only RPC calls at that one block confirm displayed holdings and

@@ -308,7 +308,7 @@ test("a failed provider refresh keeps an encrypted attempt receipt and warns tha
   expect(JSON.stringify(raw)).not.toContain(portfolioAddress);
 });
 
-test("switching portfolio addresses clears the prior wallet's local valuation editor", async ({ page }) => {
+test("switching portfolio addresses clears the prior wallet's private label and valuation editor", async ({ page }) => {
   await page.route("**/v1/private/portfolio/snapshot", async (route) => {
     const body = route.request().postDataJSON() as { address: string };
     await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(portfolioSnapshot(body.address)) });
@@ -323,12 +323,19 @@ test("switching portfolio addresses clears the prior wallet's local valuation ed
   await page.getByLabel("ROBINHOOD ADDRESS").fill(portfolioAddress);
   await page.getByRole("button", { name: "REVIEW REFRESH" }).click();
   await page.getByRole("button", { name: "CONFIRM ONE-TIME REFRESH" }).click();
+  await page.getByLabel("PRIVATE LOCAL LABEL").fill("MAIN-WALLET-A");
+  await page.getByRole("button", { name: "SAVE LABEL" }).click();
+  await page.getByLabel("ROBINHOOD ADDRESS").fill(portfolioAddress.slice(0, -1));
+  await expect(page.getByLabel("PRIVATE LOCAL LABEL")).toHaveValue("MAIN-WALLET-A");
+  await page.getByLabel("ROBINHOOD ADDRESS").fill(portfolioAddress);
+  await expect(page.getByLabel("PRIVATE LOCAL LABEL")).toHaveValue("MAIN-WALLET-A");
   const firstHolding = page.getByRole("article").filter({ hasText: "TST" });
   await firstHolding.getByLabel("LOCAL UNIT VALUE").fill("123.456");
   await firstHolding.getByRole("button", { name: "SAVE LOCALLY" }).click();
   await expect(firstHolding.getByLabel("LOCAL UNIT VALUE")).toHaveValue("123.456");
 
   await page.getByLabel("ROBINHOOD ADDRESS").fill(secondPortfolioAddress);
+  await expect(page.getByLabel("PRIVATE LOCAL LABEL")).toHaveValue("");
   await page.getByRole("button", { name: "REVIEW REFRESH" }).click();
   await page.getByRole("button", { name: "CONFIRM ONE-TIME REFRESH" }).click();
   const secondHolding = page.getByRole("article").filter({ hasText: "TST" });

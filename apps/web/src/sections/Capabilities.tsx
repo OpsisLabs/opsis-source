@@ -1,7 +1,7 @@
 import { CheckCircle2, Clock, ExternalLink } from "lucide-react";
 
 const COLS = [
-  { t: "RETRIEVE", d: "Pull real data from Blockscout, Alchemy, and cache layers." },
+  { t: "RETRIEVE", d: "Discover with Blockscout and verify anchored state through Robinhood Public RPC." },
   { t: "NORMALIZE", d: "Standardize transactions, transfers, logs, and approvals." },
   { t: "EXPLAIN", d: "Convert technical records into plain-English answers." },
   { t: "CITE", d: "Attach source links and evidence IDs to every claim." },
@@ -15,9 +15,9 @@ const BULLETS = [
 
 const SOURCES = [
   { id: "src_1", t: "Blockscout address transactions", s: "blockscout", c: "#7cc4f8" },
-  { id: "src_2", t: "Alchemy transaction receipts", s: "alchemy", c: "#7fb069" },
+  { id: "src_2", t: "Robinhood RPC transaction receipt", s: "robinhood", c: "#7fb069" },
   { id: "src_3", t: "Blockscout token transfers", s: "blockscout", c: "#7cc4f8" },
-  { id: "src_7", t: "ERC-20 approval event logs", s: "alchemy", c: "#e0738a" },
+  { id: "src_7", t: "Anchored ERC-20 allowance state", s: "robinhood", c: "#e0738a" },
   { id: "src_9", t: "Contract verification status", s: "blockscout", c: "#7cc4f8" },
 ];
 
@@ -81,7 +81,7 @@ export default function Capabilities() {
                 <div className="border border-[#2e2e2e] bg-[#1c1c1c] p-5 font-mono-d text-[11px] leading-relaxed">
                   <span className="text-[#e0738a]">export const</span> <span className="text-[#9a938a]">answer = {"{"}</span>
                   <br />
-                  <span className="text-[#7fb069]">&nbsp;&nbsp;"explain --entity 0x7f3a…9c2e --window today --cite blockscout,alchemy",</span>
+                  <span className="text-[#7fb069]">&nbsp;&nbsp;"explain --entity 0x7f3a…9c2e --window today --cite blockscout,robinhood-rpc",</span>
                   <br />
                   <span className="text-[#7fb069]">&nbsp;&nbsp;"risk-notes --heuristics on --language plain --no-verdicts",</span>
                   <br />
@@ -112,8 +112,8 @@ export default function Capabilities() {
                 </div>
                 <div className="flex items-center gap-3 border border-[#2e2e2e] bg-[#242424] px-5 py-4">
                   <Clock size={15} className="text-[#635d5a]" />
-                  <span className="flex-1 text-[13px] text-[#9a938a]">Median answer time</span>
-                  <span className="font-num text-[15px] text-[#e9e0d1]">3.2s</span>
+                  <span className="flex-1 text-[13px] text-[#9a938a]">Portfolio refresh mode</span>
+                  <span className="font-mono-d text-[11px] text-[#e9e0d1]">ON DEMAND</span>
                 </div>
               </div>
             </div>
