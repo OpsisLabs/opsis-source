@@ -84,6 +84,14 @@ export function PrivacyPage() {
           passwords.
         </p>
         <p>
+          <span className="text-[#e9e0d1]">Encrypted local Vault.</span> Asset names, purchase lots,
+          exact price and quantity strings, notes, identifiers, and locally processed photos are
+          encrypted in this browser before they enter IndexedDB. The Vault does not call a
+          ChainScout API, wallet provider, analytics service, or asset-data provider. ChainScout's
+          servers do not receive the Vault passphrase, recovery code, master key, plaintext
+          portfolio, or encrypted records.
+        </p>
+        <p>
           <span className="text-[#e9e0d1]">Cloud-account usage data.</span> We record usage events such as AI
           messages sent, chain lookups performed, provider calls, and cache hits, tied to your
           account for quota enforcement and abuse prevention.
@@ -118,6 +126,11 @@ export function PrivacyPage() {
           account or an admin retention policy clears them. Raw usage events are retained for 90
           days; aggregated usage metrics for up to 12 months.
         </p>
+        <p>
+          Local Vault ciphertext remains in this browser until you delete the Vault or the browser
+          clears the site's storage. ChainScout has no server copy and cannot set or enforce a
+          retention period for data kept only on your device.
+        </p>
       </Section>
 
       <Section n="05" title="Third-party providers">
@@ -142,6 +155,16 @@ export function PrivacyPage() {
           production, and all database access is parameterized. Chain-data calls are read-only;
           write RPC methods are disabled in our provider layer.
         </p>
+        <p>
+          The local Vault uses a random AES-256-GCM master key. A PBKDF2-HMAC-SHA-256 key derived
+          from the Vault passphrase wraps that master key with authenticated encryption. Each
+          asset record receives a fresh authenticated-encryption nonce bound to its vault and
+          record identity. The unlocked key is non-exportable and held only in page memory; reload,
+          manual lock, and inactivity lock remove the app's reference to it. Browser JavaScript
+          cannot guarantee erasure from the device's memory, and an unlocked Vault cannot protect
+          against a compromised device, malicious browser extension, or hostile code running on
+          the same site origin.
+        </p>
       </Section>
 
       <Section n="07" title="Your choices">
@@ -152,6 +175,18 @@ export function PrivacyPage() {
           messages, linked usage, and linked audit rows; copied access tokens stop authorizing requests
           as soon as the account is gone. Deletion cannot erase public blockchain history or shared,
           de-associated public source documents. Private Mode has no saved ChainScout history to delete.
+        </p>
+        <p>
+          The local Vault can export a versioned encrypted backup and request browser storage
+          persistence. Persistence lowers automatic-eviction risk but is not a backup. Clearing
+          site data, using private browsing, losing the device, or moving to a different site
+          origin can remove access to the Vault. An exported backup can be restored with the
+          passphrase that existed when it was exported, or recovered with that backup's matching
+          one-time recovery code and a new passphrase. Changing a live Vault passphrase or using
+          recovery does not update older downloaded files. The code rotates after use and is never stored by
+          ChainScout. Losing the passphrase, recovery code, and usable backup is irreversible.
+          Local deletion removes only the Vault IndexedDB database after the browser confirms it;
+          it does not delete unrelated ChainScout browser state.
         </p>
       </Section>
 
@@ -172,7 +207,9 @@ export function TermsPage() {
       <Section n="01" title="The service">
         <p>
           ChainScout provides read-only explanations of public Robinhood Chain activity and
-          read-only quote previews for supported token pairs. Answers are grounded in public data
+          read-only quote previews for supported token pairs. It also provides an optional local,
+          encrypted asset Vault that does not synchronize portfolio data to ChainScout servers.
+          Answers are grounded in public data
           and include citations so you can verify important claims against the source.
         </p>
       </Section>
@@ -198,6 +235,11 @@ export function TermsPage() {
           ownership; that signature authorizes nothing on-chain and cannot move funds. ChainScout
           never requests seed phrases, private keys, or wallet credentials, and never asks you to
           sign a transaction. Anyone asking for these in the product's name is not us.
+        </p>
+        <p>
+          A Vault recovery code is an application recovery secret, not a wallet seed phrase and
+          cannot move blockchain assets. Anyone with that code plus access to the encrypted Vault
+          can reset its passphrase, so you are responsible for keeping it separate and private.
         </p>
       </Section>
 
@@ -241,7 +283,10 @@ export function TermsPage() {
         <p>
           To the maximum extent permitted by law, we are not liable for decisions made based on
           the service's output, for provider outages or data gaps, or for any indirect or
-          consequential losses. The service is provided "as is" during the beta period.
+          consequential losses. Browser storage can be cleared or evicted, and a forgotten Vault
+          passphrase cannot be reset without the matching recovery code. You are responsible for
+          keeping current encrypted backups and recovery material. The service is provided "as is"
+          during the beta period.
         </p>
       </Section>
     </Shell>

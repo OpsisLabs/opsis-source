@@ -60,7 +60,20 @@ describe("browser privacy static boundary", () => {
   it("keeps the default private route outside auth and wallet providers", () => {
     const app = readFileSync(resolve(repositoryRoot, "apps/web/src/App.tsx"), "utf8");
     expect(app).toContain('<Route path="/app" element={<PrivateExplorer />} />');
+    expect(app).toContain('<Route path="/vault" element={<VaultPage />} />');
     expect(app.indexOf('<Route path="/app" element={<PrivateExplorer />} />')).toBeLessThan(app.indexOf('<Route element={<CloudProviders />}>'));
+    expect(app.indexOf('<Route path="/vault" element={<VaultPage />} />')).toBeLessThan(app.indexOf('<Route element={<CloudProviders />}>'));
+  });
+
+  it("keeps vault plaintext and local cryptography outside every network and weak-storage API", () => {
+    const vaultSource = sourceText(resolve(repositoryRoot, "apps/web/src/vault"))
+      + readFileSync(resolve(repositoryRoot, "apps/web/src/pages/Vault.tsx"), "utf8");
+    expect(vaultSource).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/);
+    expect(vaultSource).not.toMatch(/localStorage|sessionStorage|\bcaches\.|CacheStorage/);
+    expect(vaultSource).not.toMatch(/dangerouslySetInnerHTML|http:\/\/|https:\/\//);
+    const nginx = readFileSync(resolve(repositoryRoot, "apps/web/nginx.conf"), "utf8");
+    expect(nginx).toContain("img-src 'self' data:");
+    expect(nginx).not.toContain("img-src 'self' data: https:");
   });
 });
 

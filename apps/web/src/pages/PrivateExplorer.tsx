@@ -89,9 +89,12 @@ export default function PrivateExplorer() {
         <div className="mx-auto flex items-center gap-2 font-mono-d text-[9.5px] tracking-[0.14em] text-[#7fb069] sm:text-[10.5px]">
           <ShieldCheck size={13} /> PRIVATE MODE
         </div>
-        <Link to="/login" className="font-mono-d text-[9.5px] tracking-wider text-[#7f7972] transition-colors hover:text-[#e9e0d1] sm:text-[10px]">
-          SAVED CLOUD →
-        </Link>
+        <div className="flex items-center gap-3 sm:gap-5">
+          <Link to="/vault" className="font-mono-d text-[9px] tracking-wider text-[#d6ccba] transition-colors hover:text-[#fa6c34] sm:text-[10px]">LOCAL VAULT</Link>
+          <Link to="/login" className="hidden font-mono-d text-[9.5px] tracking-wider text-[#7f7972] transition-colors hover:text-[#e9e0d1] sm:block sm:text-[10px]">
+            SAVED CLOUD →
+          </Link>
+        </div>
       </header>
 
       <main className="mx-auto w-full max-w-[1180px] px-4 pb-20 pt-10 sm:px-6 lg:pt-14">
