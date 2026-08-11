@@ -24,8 +24,7 @@ describe("environment validation", () => {
       SMTP_HOST: "smtp.example.com",
       EMAIL_FROM: "noreply@example.com",
       DATABASE_URL: "postgresql://user:password@db.example.com/app",
-      REDIS_URL: "rediss://cache.example.com",
-      ALCHEMY_API_KEY: "alchemy-key"
+      REDIS_URL: "rediss://cache.example.com"
     })).not.toThrow();
   });
 
@@ -45,7 +44,7 @@ describe("environment validation", () => {
     expect(loadEnv({ NODE_ENV: "test" }).UNISWAP_QUOTE_ENABLED).toBe(false);
   });
 
-  it("fails production Portfolio Intelligence closed when the configured RPC is not Alchemy", () => {
+  it("uses the configured Robinhood public RPC for zero-cost Portfolio Intelligence", () => {
     const production = {
       NODE_ENV: "production",
       JWT_ACCESS_SECRET: "configured-access-secret",
@@ -56,16 +55,12 @@ describe("environment validation", () => {
     };
     expect(() => loadEnv({
       ...production,
-      ALCHEMY_ROBINHOOD_RPC_URL: "https://rpc.mainnet.chain.robinhood.com"
-    })).toThrow(/requires an Alchemy/);
-    expect(() => loadEnv({
-      ...production,
-      ALCHEMY_ROBINHOOD_RPC_URL: "https://robinhood-mainnet.g.alchemy.com/v2/server-key"
+      ROBINHOOD_PUBLIC_RPC_URL: "https://rpc.mainnet.chain.robinhood.com"
     })).not.toThrow();
-    expect(() => loadEnv({
+    expect(loadEnv({
       NODE_ENV: "development",
       PORTFOLIO_MODE_ENABLED: "true",
-      ALCHEMY_ROBINHOOD_RPC_URL: "https://rpc.mainnet.chain.robinhood.com"
-    })).toThrow(/requires an Alchemy/);
+      ROBINHOOD_PUBLIC_RPC_URL: "https://rpc.mainnet.chain.robinhood.com"
+    }).ROBINHOOD_PUBLIC_RPC_URL).toBe("https://rpc.mainnet.chain.robinhood.com");
   });
 });

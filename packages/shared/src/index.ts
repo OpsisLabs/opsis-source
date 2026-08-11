@@ -49,14 +49,14 @@ export type AiExplorerAnswer = {
 
 export type PortfolioCitation = {
   id: string;
-  provider: "alchemy" | "blockscout";
+  provider: "robinhood" | "blockscout";
   url: string;
   fetchedAt: string;
   description: string;
 };
 
-export type PortfolioFinality = {
-  tag: "finalized";
+export type PortfolioAnchor = {
+  tag: "latest";
   blockNumber: number;
   blockHash: string;
   timestamp: string;
@@ -128,7 +128,7 @@ export type PortfolioSnapshot = {
   schemaVersion: 1;
   chain: { id: 4663; name: "Robinhood Chain"; nativeSymbol: "ETH" };
   address: string;
-  finality: PortfolioFinality;
+  anchor: PortfolioAnchor;
   nativeBalanceEth: string;
   tokens: PortfolioTokenHolding[];
   nfts: PortfolioNftHolding[];

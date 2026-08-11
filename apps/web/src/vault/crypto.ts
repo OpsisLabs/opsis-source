@@ -554,16 +554,16 @@ function validatePortfolioSnapshot(value: unknown, address: string): void {
     || value.address !== address
     || !isRecord(value.chain)
     || value.chain.id !== 4663
-    || !isRecord(value.finality)
-    || value.finality.tag !== "finalized"
-    || typeof value.finality.blockNumber !== "number"
-    || !Number.isSafeInteger(value.finality.blockNumber)
-    || typeof value.finality.blockHash !== "string"
-    || !/^0x[0-9a-f]{64}$/.test(value.finality.blockHash)
-    || typeof value.finality.timestamp !== "string"
-    || !ISO_DATE_TIME.test(value.finality.timestamp)
-    || typeof value.finality.fetchedAt !== "string"
-    || !ISO_DATE_TIME.test(value.finality.fetchedAt)
+    || !isRecord(value.anchor)
+    || value.anchor.tag !== "latest"
+    || typeof value.anchor.blockNumber !== "number"
+    || !Number.isSafeInteger(value.anchor.blockNumber)
+    || typeof value.anchor.blockHash !== "string"
+    || !/^0x[0-9a-f]{64}$/.test(value.anchor.blockHash)
+    || typeof value.anchor.timestamp !== "string"
+    || !ISO_DATE_TIME.test(value.anchor.timestamp)
+    || typeof value.anchor.fetchedAt !== "string"
+    || !ISO_DATE_TIME.test(value.anchor.fetchedAt)
     || typeof value.nativeBalanceEth !== "string"
     || !DECIMAL.test(value.nativeBalanceEth)
     || !Array.isArray(value.tokens)
@@ -685,7 +685,7 @@ function validatePortfolioSnapshot(value: unknown, address: string): void {
   const invalidCitation = value.citations.some((candidate) => {
     const citation = isRecord(candidate) ? candidate : {};
     return !validBoundedText(citation.id, 120)
-      || !["alchemy", "blockscout"].includes(String(citation.provider))
+      || !["robinhood", "blockscout"].includes(String(citation.provider))
       || !validBoundedText(citation.url, 1_000)
       || !validBoundedText(citation.description, 500)
       || typeof citation.fetchedAt !== "string"

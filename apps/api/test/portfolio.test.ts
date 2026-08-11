@@ -32,7 +32,7 @@ function portfolioEnv(enabled = true) {
     NODE_ENV: "test",
     LOG_LEVEL: "silent",
     PORTFOLIO_MODE_ENABLED: String(enabled),
-    ALCHEMY_ROBINHOOD_RPC_URL: "https://alchemy.example/v2/private-key",
+    ROBINHOOD_PUBLIC_RPC_URL: "https://rpc.mainnet.chain.robinhood.com",
     BLOCKSCOUT_API_BASE_URL: "https://explorer.example/api/v2",
     PORTFOLIO_MAX_RPC_SUBCALLS: "64"
   });
@@ -225,30 +225,30 @@ function indexedTokenAddress(index: number): string {
 }
 
 function makeService(options: RpcFixtureOptions = {}) {
-  const alchemy = rpcFixture(options);
+  const rpc = rpcFixture(options);
   const blockscout: ProviderHttp = { requestJson: vi.fn(async (url) => blockscoutFixture(url, options)) };
   const budget: PortfolioBudget = { consume: vi.fn().mockResolvedValue(undefined) };
   const service = new PortfolioService(portfolioEnv(), {
-    alchemy,
+    rpc,
     blockscout,
     budget,
     now: () => new Date("2026-08-10T12:05:00.000Z")
   });
-  return { service, alchemy, blockscout, budget };
+  return { service, rpc, blockscout, budget };
 }
 
 afterEach(async () => {
   await Promise.all(apps.splice(0).map((app) => app.close()));
 });
 
-describe("finalized portfolio snapshot", () => {
-  it("reconciles holdings, activity and fetched-window approvals at one finalized anchor", async () => {
-    const { service, alchemy, budget } = makeService();
+describe("anchored portfolio snapshot", () => {
+  it("reconciles holdings, activity and fetched-window approvals at one captured current block", async () => {
+    const { service, rpc, budget } = makeService();
     const snapshot = await service.snapshot(OWNER.toUpperCase().replace("0X", "0x"));
 
     expect(snapshot).toMatchObject({
       address: OWNER,
-      finality: { tag: "finalized", blockNumber: BLOCK_NUMBER, blockHash: BLOCK_HASH },
+      anchor: { tag: "latest", blockNumber: BLOCK_NUMBER, blockHash: BLOCK_HASH },
       nativeBalanceEth: "1",
       tokens: [{ contract: TOKEN, quantity: "1", symbol: "TST" }],
       nfts: [
@@ -262,7 +262,7 @@ describe("finalized portfolio snapshot", () => {
       ],
       privacy: {
         serverStorage: "none",
-        providerDestinations: ["alchemy", "blockscout"]
+        providerDestinations: ["robinhood_public_rpc", "blockscout"]
       }
     });
     expect(snapshot.movements).toContainEqual(expect.objectContaining({
@@ -294,7 +294,13 @@ describe("finalized portfolio snapshot", () => {
     expect(budget.consume).toHaveBeenNthCalledWith(3, 2);
     expect(budget.consume).toHaveBeenNthCalledWith(4, 1);
 
-    const calls = vi.mocked(alchemy.requestJson).mock.calls;
+    const calls = vi.mocked(rpc.requestJson).mock.calls;
+    expect(calls.every(([url]) => url === "https://rpc.mainnet.chain.robinhood.com")).toBe(true);
+    const anchorRequest = JSON.parse(String(calls[0]?.[1]?.body)) as { method: string; params: unknown[] };
+    expect(anchorRequest).toEqual(expect.objectContaining({
+      method: "eth_getBlockByNumber",
+      params: ["latest", false]
+    }));
     const firstBatch = JSON.parse(String(calls[1]?.[1]?.body)) as Array<{ method: string; params: unknown[] }>;
     for (const request of firstBatch) {
       if (request.method === "eth_getBalance") expect(request.params[1]).toBe(BLOCK_HEX);
@@ -453,7 +459,7 @@ describe("finalized portfolio snapshot", () => {
   });
 
   it("keeps failed discovery providers in the privacy receipt and degrades bounded sections", async () => {
-    const alchemy = rpcFixture();
+    const rpc = rpcFixture();
     const blockscout: ProviderHttp = {
       requestJson: vi.fn(async (url) => {
         if (url.endsWith("/nft")) throw new Error("nft index unavailable");
@@ -461,7 +467,7 @@ describe("finalized portfolio snapshot", () => {
       })
     };
     const service = new PortfolioService(portfolioEnv(), {
-      alchemy,
+      rpc,
       blockscout,
       budget: { consume: vi.fn().mockResolvedValue(undefined) },
       now: () => new Date("2026-08-10T12:05:00.000Z")

@@ -120,15 +120,6 @@ const envSchema = z.object({
   if (env.UNISWAP_QUOTE_ENABLED && !env.UNISWAP_API_KEY) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: "UNISWAP_API_KEY is required when Scout Swap quotes are enabled" });
   }
-  if (env.NODE_ENV !== "test" && env.PORTFOLIO_MODE_ENABLED && env.ALCHEMY_ROBINHOOD_RPC_URL) {
-    const hostname = new URL(env.ALCHEMY_ROBINHOOD_RPC_URL).hostname.toLowerCase();
-    if (!hostname.endsWith(".g.alchemy.com")) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Portfolio Intelligence requires an Alchemy g.alchemy.com RPC endpoint so its permission receipt names the real provider"
-      });
-    }
-  }
   if (env.NODE_ENV !== "production") return;
   if (env.AUTH_EMAIL_ENABLED && (!env.SMTP_HOST || !env.EMAIL_FROM)) {
     context.addIssue({
@@ -141,9 +132,6 @@ const envSchema = z.object({
   }
   if (!env.DATABASE_URL || !env.REDIS_URL) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: "DATABASE_URL and REDIS_URL are required in production" });
-  }
-  if (!env.ALCHEMY_ROBINHOOD_RPC_URL && !env.ALCHEMY_API_KEY) {
-    context.addIssue({ code: z.ZodIssueCode.custom, message: "A production Alchemy RPC endpoint or API key is required" });
   }
   if (env.ENABLE_PUBLIC_RPC_FALLBACK) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: "Public RPC fallback must be disabled in production" });

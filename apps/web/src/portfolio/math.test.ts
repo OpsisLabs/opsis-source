@@ -59,7 +59,7 @@ function snapshot(quantity: string): PortfolioSnapshot {
     schemaVersion: 1,
     chain: { id: 4663, name: "Robinhood Chain", nativeSymbol: "ETH" },
     address: "0x1111111111111111111111111111111111111111",
-    finality: { tag: "finalized", blockNumber: 1, blockHash: `0x${"a".repeat(64)}`, timestamp: "2026-08-10T12:00:00.000Z", fetchedAt: "2026-08-10T12:01:00.000Z" },
+    anchor: { tag: "latest", blockNumber: 1, blockHash: `0x${"a".repeat(64)}`, timestamp: "2026-08-10T12:00:00.000Z", fetchedAt: "2026-08-10T12:01:00.000Z" },
     nativeBalanceEth: "0",
     tokens: [{ kind: "erc20", contract: TOKEN, name: "Token", symbol: "TKN", decimals: 18, quantity, rawBalance: "1", sourceIds: [] }],
     nfts: [],
@@ -69,7 +69,7 @@ function snapshot(quantity: string): PortfolioSnapshot {
     attention: [],
     reconciliation: { tokenCandidates: 1, tokenConfirmed: 1, nftCandidates: 0, nftConfirmed: 0, activityCandidates: 0, activityConfirmed: 0, approvalCandidates: 0, approvalConfirmed: 0, degradedSources: [], truncatedSections: [] },
     citations: [],
-    privacy: { accountRequired: false, walletConnectionRequired: false, serverStorage: "none", browserStorage: "client_encrypted_vault", providerDestinations: ["alchemy"], disclosure: "test" }
+    privacy: { accountRequired: false, walletConnectionRequired: false, serverStorage: "none", browserStorage: "client_encrypted_vault", providerDestinations: ["robinhood_public_rpc"], disclosure: "test" }
   };
 }
 

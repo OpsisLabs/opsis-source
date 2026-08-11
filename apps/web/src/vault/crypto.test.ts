@@ -198,7 +198,7 @@ function fixturePortfolio(): VaultPortfolioContext {
     receipts: [{
       id: "e3b28dc2-d696-4649-b87e-6005b044f67d",
       address: "0x1111111111111111111111111111111111111111",
-      providerDestinations: ["alchemy", "blockscout"],
+      providerDestinations: ["robinhood_public_rpc", "blockscout"],
       disclosure: "Public address sent transiently; private context stays local.",
       approvedAt: "2026-08-10T12:00:00.000Z",
       outcome: "completed",

@@ -26,7 +26,7 @@ const TRANSFER_SINGLE_TOPIC = keccak256(stringToHex("TransferSingle(address,addr
 const TRANSFER_BATCH_TOPIC = keccak256(stringToHex("TransferBatch(address,address,address,uint256[],uint256[])"));
 
 type Dependencies = {
-  alchemy: ProviderHttp;
+  rpc: ProviderHttp;
   blockscout: ProviderHttp;
   budget: PortfolioBudget;
   now: () => Date;
@@ -70,20 +70,18 @@ export class PortfolioService implements PortfolioSnapshotSource {
   constructor(private readonly env: Env, dependencies?: Partial<Dependencies>) {
     const oneAttemptEnv: Env = { ...env, PROVIDER_MAX_RETRIES: 0 };
     this.dependencies = {
-      alchemy: dependencies?.alchemy ?? createProviderHttp(oneAttemptEnv, "alchemy"),
+      rpc: dependencies?.rpc ?? createProviderHttp(oneAttemptEnv, "robinhood-public-rpc"),
       blockscout: dependencies?.blockscout ?? createProviderHttp(oneAttemptEnv, "blockscout"),
       budget: dependencies?.budget ?? createPortfolioBudget(env),
       now: dependencies?.now ?? (() => new Date())
     };
-    this.rpcUrl =
-      env.ALCHEMY_ROBINHOOD_RPC_URL
-      || (env.ALCHEMY_API_KEY ? `https://robinhood-mainnet.g.alchemy.com/v2/${env.ALCHEMY_API_KEY}` : undefined);
+    this.rpcUrl = env.ROBINHOOD_PUBLIC_RPC_URL;
   }
 
   async snapshot(inputAddress: string): Promise<PortfolioSnapshot> {
     const address = inputAddress.toLowerCase();
     if (!ADDRESS_PATTERN.test(address)) throw new AppError("INVALID_PORTFOLIO_ADDRESS", 400, "Provide a complete Robinhood Chain address");
-    if (!this.rpcUrl) throw new AppError("PORTFOLIO_PROVIDER_UNAVAILABLE", 503, "Finalized chain reads are unavailable");
+    if (!this.rpcUrl) throw new AppError("PORTFOLIO_PROVIDER_UNAVAILABLE", 503, "Anchored chain reads are unavailable");
 
     let rpcUnits = 0;
     const consumeRpc = async (units: number): Promise<void> => {
@@ -93,7 +91,7 @@ export class PortfolioService implements PortfolioSnapshotSource {
       rpcUnits += units;
       await this.dependencies.budget.consume(units);
     };
-    const finality = await this.finalizedBlock(consumeRpc);
+    const anchor = await this.latestBlock(consumeRpc);
     const discoveries = await this.discover(address);
     const degradedSources = discoveries.degraded;
     const byPath = new Map(discoveries.documents.map((document) => [document.path, document]));
@@ -108,32 +106,32 @@ export class PortfolioService implements PortfolioSnapshotSource {
     const indexedTransactions = items(byPath.get("transactions")?.body)
       .map(parseTransactionCandidate)
       .filter((value): value is ReturnType<typeof parseTransactionCandidate> & {} => value !== undefined)
-      .filter((transaction) => transaction.blockNumber <= finality.blockNumber);
+      .filter((transaction) => transaction.blockNumber <= anchor.blockNumber);
     const indexedTokenTransfers = items(byPath.get("token-transfers")?.body)
       .map(parseTransferTransactionCandidate)
       .filter((value): value is ReturnType<typeof parseTransferTransactionCandidate> & {} => value !== undefined)
-      .filter((transaction) => transaction.blockNumber <= finality.blockNumber);
+      .filter((transaction) => transaction.blockNumber <= anchor.blockNumber);
     const discoveredTransactionCandidates = [...indexedTransactions, ...indexedTokenTransfers]
       .sort((left, right) => right.blockNumber - left.blockNumber)
       .filter((transaction, index, candidates) => candidates.findIndex((candidate) => candidate.hash === transaction.hash) === index);
     const transactionCandidates = discoveredTransactionCandidates.slice(0, MAX_TRANSACTIONS);
-    const rpcRequests: RpcRequest[] = [rpc("native", "eth_getBalance", [address, finality.blockHex])];
+    const rpcRequests: RpcRequest[] = [rpc("native", "eth_getBalance", [address, anchor.blockHex])];
     tokenCandidates.forEach((token, index) => rpcRequests.push(
       rpc(`token:${index}`, "eth_call", [{
         to: token.contract,
         data: `0x70a08231${encodeAddress(address)}`
-      }, finality.blockHex]),
+      }, anchor.blockHex]),
       rpc(`token-decimals:${index}`, "eth_call", [{
         to: token.contract,
         data: "0x313ce567"
-      }, finality.blockHex])
+      }, anchor.blockHex])
     ));
     nftCandidates.forEach((nft, index) => rpcRequests.push(rpc(`nft:${index}`, "eth_call", [{
       to: nft.contract,
       data: nft.kind === "erc721"
         ? `0x6352211e${encodeUint(nft.tokenId)}`
         : `0x00fdd58e${encodeAddress(address)}${encodeUint(nft.tokenId)}`
-    }, finality.blockHex])));
+    }, anchor.blockHex])));
     transactionCandidates.forEach((transaction, index) => rpcRequests.push(
       rpc(`transaction:${index}`, "eth_getTransactionByHash", [transaction.hash]),
       rpc(`receipt:${index}`, "eth_getTransactionReceipt", [transaction.hash])
@@ -141,16 +139,16 @@ export class PortfolioService implements PortfolioSnapshotSource {
 
     const reconciled = await this.rpcBatch(rpcRequests, consumeRpc);
     const nativeRaw = rpcHex(reconciled.get("native"));
-    if (nativeRaw === undefined) throw new AppError("PORTFOLIO_PROVIDER_UNAVAILABLE", 503, "The finalized native balance could not be confirmed");
+    if (nativeRaw === undefined) throw new AppError("PORTFOLIO_PROVIDER_UNAVAILABLE", 503, "The anchored native balance could not be confirmed");
 
-    const alchemyCitation: PortfolioCitation = {
-      id: "alchemy-finalized",
-      provider: "alchemy",
+    const rpcCitation: PortfolioCitation = {
+      id: "robinhood-public-rpc-anchor",
+      provider: "robinhood",
       url: new URL(this.rpcUrl).origin,
-      fetchedAt: finality.fetchedAt,
-      description: `Direct read-only reconciliation at finalized block ${finality.blockNumber}`
+      fetchedAt: anchor.fetchedAt,
+      description: `Robinhood Public RPC read-only reconciliation at captured current block ${anchor.blockNumber}`
     };
-    const citations = [...discoveries.documents.map(citationForDiscovery), alchemyCitation];
+    const citations = [...discoveries.documents.map(citationForDiscovery), rpcCitation];
     const tokens = tokenCandidates.flatMap((token, index): PortfolioTokenHolding[] => {
       const rawBalance = rpcHex(reconciled.get(`token:${index}`));
       const decimalsRaw = rpcHex(reconciled.get(`token-decimals:${index}`));
@@ -166,7 +164,7 @@ export class PortfolioService implements PortfolioSnapshotSource {
         decimals,
         quantity,
         rawBalance,
-        sourceIds: [token.sourceId, alchemyCitation.id]
+        sourceIds: [token.sourceId, rpcCitation.id]
       }];
     });
     const nfts = nftCandidates.flatMap((nft, index): PortfolioNftHolding[] => {
@@ -175,11 +173,11 @@ export class PortfolioService implements PortfolioSnapshotSource {
       if (nft.kind === "erc721") {
         const owner = decodedAddress(raw.result);
         if (!owner || owner !== address) return [];
-        return [{ ...nft, quantity: "1", sourceIds: [nft.sourceId, alchemyCitation.id] }];
+        return [{ ...nft, quantity: "1", sourceIds: [nft.sourceId, rpcCitation.id] }];
       }
       const quantityRaw = hexQuantity(raw.result);
       if (quantityRaw === undefined || quantityRaw === "0") return [];
-      return [{ ...nft, quantity: quantityRaw, sourceIds: [nft.sourceId, alchemyCitation.id] }];
+      return [{ ...nft, quantity: quantityRaw, sourceIds: [nft.sourceId, rpcCitation.id] }];
     });
 
     const confirmedTransactions = transactionCandidates.flatMap((transaction, index) => {
@@ -206,7 +204,7 @@ export class PortfolioService implements PortfolioSnapshotSource {
         || receiptBlockHash !== directBlockHash
         || directBlock !== transaction.blockNumber
         || receiptBlock !== directBlock
-        || directBlock > finality.blockNumber
+        || directBlock > anchor.blockNumber
         || !from
         || valueRaw === undefined
         || !Array.isArray(receipt.logs)
@@ -258,7 +256,7 @@ export class PortfolioService implements PortfolioSnapshotSource {
           contract: null,
           tokenId: null,
           counterparty: counterparty(address, transaction.from, transaction.to),
-          sourceIds: [transaction.sourceId, alchemyCitation.id]
+          sourceIds: [transaction.sourceId, rpcCitation.id]
         }];
       }),
       ...confirmedTransactions.flatMap(({ transaction, receipt }) => receipt.status === "0x1"
@@ -269,7 +267,7 @@ export class PortfolioService implements PortfolioSnapshotSource {
             transaction.timestamp,
             address,
             transferMetadata,
-            [transaction.sourceId, alchemyCitation.id]
+            [transaction.sourceId, rpcCitation.id]
           )
         : [])
     ];
@@ -312,11 +310,11 @@ export class PortfolioService implements PortfolioSnapshotSource {
         : approval.kind === "erc721-token"
           ? `0x081812fc${encodeUint(approval.tokenId!)}`
         : `0xdd62ed3e${encodeAddress(address)}${encodeAddress(approval.spender)}`
-    }, finality.blockHex]));
+    }, anchor.blockHex]));
     const approvalResponses = approvalRequests.length > 0
       ? await this.rpcBatch(approvalRequests, consumeRpc)
       : new Map<string, RpcResponse>();
-    await this.assertAnchorUnchanged(finality, consumeRpc);
+    await this.assertAnchorUnchanged(anchor, consumeRpc);
 
     const movements = verifiedMovements
       .sort((left, right) => right.blockNumber - left.blockNumber)
@@ -344,7 +342,7 @@ export class PortfolioService implements PortfolioSnapshotSource {
         nativeValueEth: transaction.nativeValueEth,
         movementCount: transactionMovements.length,
         movementCoverage: movementDecodePartial.has(transaction.hash) || truncatedMovementTransactions.has(transaction.hash) ? "partial" : "complete",
-        sourceIds: [transaction.sourceId, alchemyCitation.id]
+        sourceIds: [transaction.sourceId, rpcCitation.id]
       };
     });
     const approvals = approvalCandidates.flatMap((approval, index): PortfolioApproval[] => {
@@ -361,7 +359,7 @@ export class PortfolioService implements PortfolioSnapshotSource {
           active,
           unlimited: false,
           currentAmount: approved,
-          sourceIds: [approval.sourceId, alchemyCitation.id]
+          sourceIds: [approval.sourceId, rpcCitation.id]
         }];
       }
       const currentRaw = rpcHex(approvalResponses.get(`approval:${index}`));
@@ -376,7 +374,7 @@ export class PortfolioService implements PortfolioSnapshotSource {
         active,
         unlimited: approval.kind === "operator" ? active : currentRaw === MAX_UINT256,
         currentAmount: approval.kind === "operator" ? String(active) : currentRaw,
-        sourceIds: [approval.sourceId, alchemyCitation.id]
+        sourceIds: [approval.sourceId, rpcCitation.id]
       }];
     });
 
@@ -399,50 +397,50 @@ export class PortfolioService implements PortfolioSnapshotSource {
     if (unlimitedApprovals.length > 0) attention.push({
       severity: "high",
       title: "Active broad approval detected",
-      detail: `${unlimitedApprovals.length} approval(s) in the fetched finalized activity window still allow unlimited ERC-20 spending or operator-wide NFT access.`,
+      detail: `${unlimitedApprovals.length} approval(s) in the fetched anchored activity window still allow unlimited ERC-20 spending or operator-wide NFT access.`,
       sourceIds: [...new Set(unlimitedApprovals.flatMap((approval) => approval.sourceIds))]
     });
     else if (activeApprovals.length > 0) attention.push({
       severity: "medium",
       title: "Active token approval detected",
-      detail: `${activeApprovals.length} approval(s) discovered in the fetched activity window remain active at the finalized block.`,
+      detail: `${activeApprovals.length} approval(s) discovered in the fetched activity window remain active at the captured block.`,
       sourceIds: [...new Set(activeApprovals.flatMap((approval) => approval.sourceIds))]
     });
     if (failedTransactions.length >= 3) attention.push({
       severity: "medium",
       title: "Repeated failed activity",
-      detail: `${failedTransactions.length} finalized transactions in the fetched window failed. This can reflect contract errors, insufficient gas, or repeated attempts.`,
+      detail: `${failedTransactions.length} confirmed transactions in the fetched window failed. This can reflect contract errors, insufficient gas, or repeated attempts.`,
       sourceIds: [...new Set(failedTransactions.flatMap((transaction) => transaction.sourceIds))]
     });
     if (movementDecodePartial.size > 0) attention.push({
       severity: "info",
       title: "Some token movement details were not normalized",
       detail: `${movementDecodePartial.size} confirmed transaction(s) contained an owner transfer that could not be decoded with directly verified token metadata. The activity row is marked partial rather than reporting zero movements as complete.`,
-      sourceIds: [alchemyCitation.id]
+      sourceIds: [rpcCitation.id]
     });
     if (truncatedSections.length > 0) attention.push({
       severity: "info",
       title: "This bounded snapshot was truncated",
       detail: `${truncatedSections.join("; ")}. Refresh results never claim that omitted candidates were checked or absent.`,
-      sourceIds: [alchemyCitation.id]
+      sourceIds: [rpcCitation.id]
     });
     if (Object.values(unreconciled).some((count) => count > 0) || degradedSources.length > 0) attention.push({
       severity: "info",
       title: "Some indexed candidates were not shown",
-      detail: "ChainScout only shows holdings and activity that reconciled against the finalized RPC snapshot. Provider gaps and newer or mismatched indexer rows are omitted.",
-      sourceIds: [alchemyCitation.id]
+      detail: "ChainScout only shows holdings and activity that reconciled against the captured RPC snapshot. Provider gaps and newer or mismatched indexer rows are omitted.",
+      sourceIds: [rpcCitation.id]
     });
 
     return {
       schemaVersion: 1,
       chain: { id: 4663, name: "Robinhood Chain", nativeSymbol: "ETH" },
       address,
-      finality: {
-        tag: "finalized",
-        blockNumber: finality.blockNumber,
-        blockHash: finality.blockHash,
-        timestamp: finality.timestamp,
-        fetchedAt: finality.fetchedAt
+      anchor: {
+        tag: "latest",
+        blockNumber: anchor.blockNumber,
+        blockHash: anchor.blockHash,
+        timestamp: anchor.timestamp,
+        fetchedAt: anchor.fetchedAt
       },
       nativeBalanceEth: formatUnits(nativeRaw, 18) ?? "0",
       tokens,
@@ -469,26 +467,26 @@ export class PortfolioService implements PortfolioSnapshotSource {
         walletConnectionRequired: false,
         serverStorage: "none",
         browserStorage: "client_encrypted_vault",
-        providerDestinations: ["alchemy", "blockscout"],
-        disclosure: "Blockscout receives this public address for discovery. Alchemy receives the address plus derived public contract and transaction identifiers needed for direct finalized verification. ChainScout does not save the query or response; optional ownership labels and lot context can be stored only inside the encrypted browser Vault."
+        providerDestinations: ["robinhood_public_rpc", "blockscout"],
+        disclosure: "Blockscout receives this public address for discovery. Robinhood Public RPC receives the address plus derived public contract and transaction identifiers needed for exact reads at one captured current block. This anchor is not final and can be reorganized after the response; ChainScout rechecks its block hash before returning. The public RPC is rate-limited and may be unavailable, so ChainScout fails closed and keeps the last encrypted local snapshot. ChainScout does not save the query or response; optional ownership labels and lot context can be stored only inside the encrypted browser Vault."
       }
     };
   }
 
-  private async finalizedBlock(
+  private async latestBlock(
     consumeRpc: (units: number) => Promise<void>
   ): Promise<{ blockNumber: number; blockHash: string; blockHex: string; timestamp: string; fetchedAt: string }> {
     await consumeRpc(1);
-    const response = await this.dependencies.alchemy.requestJson(this.rpcUrl!, {
+    const response = await this.dependencies.rpc.requestJson(this.rpcUrl!, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify(rpc("finality", "eth_getBlockByNumber", ["finalized", false]))
+      body: JSON.stringify(rpc("anchor", "eth_getBlockByNumber", ["latest", false]))
     }) as RpcResponse;
     const block = response.result as Record<string, unknown> | undefined;
     const blockNumber = hexNumber(block?.number);
     const timestampSeconds = hexNumber(block?.timestamp);
     if (response.error || blockNumber === undefined || timestampSeconds === undefined || !HASH_PATTERN.test(String(block?.hash))) {
-      throw new AppError("PORTFOLIO_FINALITY_UNAVAILABLE", 503, "Robinhood Chain did not return a usable finalized block");
+      throw new AppError("PORTFOLIO_ANCHOR_UNAVAILABLE", 503, "Robinhood Chain did not return a usable current block anchor");
     }
     return {
       blockNumber,
@@ -500,19 +498,19 @@ export class PortfolioService implements PortfolioSnapshotSource {
   }
 
   private async assertAnchorUnchanged(
-    finality: { blockHash: string; blockHex: string },
+    anchor: { blockHash: string; blockHex: string },
     consumeRpc: (units: number) => Promise<void>
   ): Promise<void> {
     await consumeRpc(1);
-    const response = await this.dependencies.alchemy.requestJson(this.rpcUrl!, {
+    const response = await this.dependencies.rpc.requestJson(this.rpcUrl!, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify(rpc("finality-check", "eth_getBlockByNumber", [finality.blockHex, false]))
+      body: JSON.stringify(rpc("anchor-check", "eth_getBlockByNumber", [anchor.blockHex, false]))
     }) as RpcResponse;
     const block = asRecord(response.result);
     const hash = typeof block.hash === "string" && HASH_PATTERN.test(block.hash) ? block.hash.toLowerCase() : undefined;
-    if (response.error || hash !== finality.blockHash) {
-      throw new AppError("SNAPSHOT_REORGED", 503, "The finalized snapshot changed while it was being verified; refresh again");
+    if (response.error || hash !== anchor.blockHash) {
+      throw new AppError("SNAPSHOT_REORGED", 503, "The current block anchor changed while it was being verified; refresh again");
     }
   }
 
@@ -542,7 +540,7 @@ export class PortfolioService implements PortfolioSnapshotSource {
   ): Promise<Map<string, RpcResponse>> {
     if (requests.length === 0) return new Map();
     await consumeRpc(requests.length);
-    const body = await this.dependencies.alchemy.requestJson(this.rpcUrl!, {
+    const body = await this.dependencies.rpc.requestJson(this.rpcUrl!, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(requests)

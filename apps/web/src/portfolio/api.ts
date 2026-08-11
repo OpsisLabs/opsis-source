@@ -13,9 +13,9 @@ function assertPortfolioSnapshot(value: PortfolioSnapshot, requestedAddress: str
     || value.schemaVersion !== 1
     || value.chain?.id !== 4663
     || value.address !== address
-    || value.finality?.tag !== "finalized"
-    || !Number.isSafeInteger(value.finality.blockNumber)
-    || !/^0x[0-9a-f]{64}$/.test(value.finality.blockHash)
+    || value.anchor?.tag !== "latest"
+    || !Number.isSafeInteger(value.anchor.blockNumber)
+    || !/^0x[0-9a-f]{64}$/.test(value.anchor.blockHash)
     || !Array.isArray(value.tokens)
     || !Array.isArray(value.nfts)
     || !Array.isArray(value.transactions)

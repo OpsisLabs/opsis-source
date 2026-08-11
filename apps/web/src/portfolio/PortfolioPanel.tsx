@@ -96,8 +96,8 @@ export function PortfolioPanel({
     const receipt = {
       id: crypto.randomUUID(),
       address: normalizedAddress,
-      providerDestinations: ["alchemy", "blockscout"],
-      disclosure: "Blockscout receives this public address for discovery. Alchemy receives the address plus derived public contract and transaction identifiers needed for direct finalized verification.",
+      providerDestinations: ["robinhood_public_rpc", "blockscout"],
+      disclosure: "Blockscout receives this public address for discovery. Robinhood Public RPC receives the address plus derived public contract and transaction identifiers needed for exact reads at one captured current block. This anchor is not final; ChainScout rechecks its hash before returning. The public RPC is rate-limited and may be unavailable, so ChainScout keeps the last encrypted local snapshot.",
       approvedAt,
       outcome: "approved" as const
     };
@@ -142,7 +142,7 @@ export function PortfolioPanel({
       setValuations(nextValuations);
       setReceipts(nextReceipts);
       setPermissionOpen(false);
-      setNotice("Finalized snapshot verified and encrypted inside this local Vault.");
+      setNotice("Anchored current snapshot verified and encrypted inside this local Vault.");
     } catch (refreshError) {
       if (!activeRef.current || controller.signal.aborted) return;
       if (!receiptSaved) {
@@ -164,10 +164,10 @@ export function PortfolioPanel({
           }).then(() => setReceipts(failedReceipts)).catch(() => undefined);
         }
         setError(networkCompleted
-          ? "The address was sent and the finalized refresh completed, but the encrypted snapshot save failed. Your prior snapshot remains unchanged; the encrypted attempt receipt was kept."
-          : `${refreshError instanceof ApiError ? refreshError.message : "The finalized portfolio snapshot could not be verified."} Your confirmed address may already have reached the named providers; the encrypted attempt receipt was kept.`);
+          ? "The address was sent and the anchored refresh completed, but the encrypted snapshot save failed. Your prior snapshot remains unchanged; the encrypted attempt receipt was kept."
+          : `${refreshError instanceof ApiError ? refreshError.message : "The anchored portfolio snapshot could not be verified."} Your confirmed address may already have reached the named providers; the encrypted attempt receipt was kept.`);
       } else {
-        setError("The finalized portfolio snapshot could not start. Nothing was sent.");
+        setError("The anchored portfolio snapshot could not start. Nothing was sent.");
       }
     } finally {
       if (activeRef.current) setBusy(false);
@@ -223,9 +223,9 @@ export function PortfolioPanel({
       <div className="clip-panel border border-[#fa6c34]/35 bg-[#242424] p-5 sm:p-7">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="flex items-center gap-2 font-mono-d text-[9.5px] tracking-[0.16em] text-[#fa6c34]"><WalletCards size={14} /> FINALIZED PORTFOLIO LENS</p>
+            <p className="flex items-center gap-2 font-mono-d text-[9.5px] tracking-[0.16em] text-[#fa6c34]"><WalletCards size={14} /> ANCHORED PORTFOLIO LENS</p>
             <h2 className="mt-3 text-[28px] font-medium tracking-[-0.03em] text-[#f0e8da]">One local view of what you own.</h2>
-            <p className="mt-3 max-w-[720px] text-[12.5px] leading-relaxed text-[#9a938a]">Refresh one public Robinhood Chain address on demand. ChainScout verifies indexed candidates at one finalized block, then encrypts the snapshot, your label, and your reference prices only inside this Vault.</p>
+            <p className="mt-3 max-w-[720px] text-[12.5px] leading-relaxed text-[#9a938a]">Refresh one public Robinhood Chain address on demand. ChainScout captures one current block, verifies every direct read against that exact anchor, rechecks its hash, then encrypts the snapshot, your label, and your reference prices only inside this Vault. The anchor is current, not final.</p>
           </div>
           <div className="flex items-center gap-2 border border-[#7fb069]/30 bg-[#7fb069]/5 px-4 py-3 font-mono-d text-[9px] tracking-wider text-[#9fc68f]"><LockKeyhole size={12} /> NO AUTO-REFRESH · NO WALLET CONNECTION</div>
         </div>
@@ -246,12 +246,12 @@ export function PortfolioPanel({
         <div role="dialog" aria-label="Portfolio refresh permission" className="clip-panel border border-[#e0a96d]/50 bg-[#29251f] p-5 sm:p-7">
           <p className="flex items-center gap-2 font-mono-d text-[9.5px] tracking-[0.15em] text-[#e0a96d]"><Eye size={14} /> EXACT NETWORK RECEIPT · CONFIRM BEFORE SENDING</p>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <ReceiptBlock title="SENT FOR THIS REFRESH" lines={[normalizedAddress, "Derived public contract + transaction identifiers needed to verify this address", "ChainScout API", "Alchemy finalized RPC", "Blockscout discovery"]} />
+            <ReceiptBlock title="SENT FOR THIS REFRESH" lines={[normalizedAddress, "Derived public contract + transaction identifiers needed to verify this address", "ChainScout API", "Robinhood Public RPC", "Blockscout discovery"]} />
             <ReceiptBlock title="STAYS ENCRYPTED IN THIS BROWSER" lines={[label || "Your local label", "Other saved addresses", "Lots and purchase prices", "Notes, photos, Vault ID and passphrase"]} />
           </div>
-          <p className="mt-5 text-[11.5px] leading-relaxed text-[#9a938a]">The address is public chain data, but its association with you can be sensitive. Blockscout receives the address for discovery; Alchemy receives the address plus derived public contract and transaction identifiers needed for direct finalized verification. ChainScout does not save the query or response, and no AI model receives the portfolio.</p>
+          <p className="mt-5 text-[11.5px] leading-relaxed text-[#9a938a]">The address is public chain data, but its association with you can be sensitive. Blockscout receives the address for discovery; Robinhood Public RPC receives the address plus derived public contract and transaction identifiers needed for exact reads at one captured current block. This anchor is not final and can reorganize after the response; ChainScout rechecks its hash before returning. The public endpoint is rate-limited, so ChainScout fails closed and keeps your last encrypted local snapshot when it is unavailable. ChainScout does not save the query or response, and no AI model receives the portfolio.</p>
           <div className="mt-5 flex flex-wrap gap-3">
-            <button type="button" onClick={refresh} disabled={busy} className="clip-btn-sm flex min-h-[44px] items-center gap-2 bg-[#e0a96d] px-5 font-mono-d text-[9.5px] font-medium tracking-wider text-[#211d18] disabled:opacity-40"><ShieldCheck size={13} /> {busy ? "VERIFYING FINALIZED STATE…" : "CONFIRM ONE-TIME REFRESH"}</button>
+            <button type="button" onClick={refresh} disabled={busy} className="clip-btn-sm flex min-h-[44px] items-center gap-2 bg-[#e0a96d] px-5 font-mono-d text-[9.5px] font-medium tracking-wider text-[#211d18] disabled:opacity-40"><ShieldCheck size={13} /> {busy ? "VERIFYING ONE BLOCK…" : "CONFIRM ONE-TIME REFRESH"}</button>
             <button type="button" onClick={() => setPermissionOpen(false)} disabled={busy} className="min-h-[44px] border border-[#4a4642] px-5 font-mono-d text-[9.5px] text-[#9a938a]">CANCEL · SEND NOTHING</button>
           </div>
         </div>
@@ -292,14 +292,14 @@ function SnapshotHeader({ snapshot, totals, label }: {
     <div className="clip-panel border border-[#383838] bg-[#242424]">
       <div className="grid gap-px bg-[#383838] sm:grid-cols-2 lg:grid-cols-5">
         <SnapshotMetric label="PROFILE" value={label || shortAddress(snapshot.address)} />
-        <SnapshotMetric label="FINALIZED BLOCK" value={snapshot.finality.blockNumber.toLocaleString("en-US")} />
-        <SnapshotMetric label="FINALITY LAG" value={age(snapshot.finality.timestamp)} />
+        <SnapshotMetric label="CAPTURED BLOCK" value={snapshot.anchor.blockNumber.toLocaleString("en-US")} />
+        <SnapshotMetric label="SNAPSHOT AGE" value={age(snapshot.anchor.timestamp)} />
         <SnapshotMetric label="VERIFIED HOLDINGS" value={String(1 + snapshot.tokens.length + snapshot.nfts.length)} />
         <SnapshotMetric label="LOCAL REFERENCE VALUE" value={totals.length ? totals.map((total) => `${formatDisplayDecimal(total.value, 2)} ${total.currency}`).join(" · ") : "NOT ENTERED"} />
       </div>
       <div className="flex flex-col gap-2 border-t border-[#383838] px-5 py-4 font-mono-d text-[8.5px] leading-relaxed tracking-wider text-[#635d5a] sm:flex-row sm:items-center sm:justify-between">
-        <span>ANCHOR {snapshot.finality.blockHash.slice(0, 14)}… · REFRESHED {new Date(snapshot.finality.fetchedAt).toLocaleString()}</span>
-        <span>{snapshot.reconciliation.degradedSources.length ? `PARTIAL · ${snapshot.reconciliation.degradedSources.join(", ")}` : "ALCHEMY DIRECT READS + BLOCKSCOUT DISCOVERY"}</span>
+        <span>NON-FINAL ANCHOR {snapshot.anchor.blockHash.slice(0, 14)}… · REFRESHED {new Date(snapshot.anchor.fetchedAt).toLocaleString()}</span>
+        <span>{snapshot.reconciliation.degradedSources.length ? `PARTIAL · ${snapshot.reconciliation.degradedSources.join(", ")}` : "ROBINHOOD PUBLIC RPC + BLOCKSCOUT DISCOVERY"}</span>
       </div>
     </div>
   );
@@ -346,7 +346,7 @@ function ActivityPanel({ snapshot }: { snapshot: PortfolioSnapshot }) {
   return (
     <div className="grid gap-5 lg:grid-cols-[1.25fr_0.75fr]">
       <section className="clip-panel border border-[#383838] bg-[#242424] p-5">
-        <p className="flex items-center gap-2 font-mono-d text-[9px] tracking-[0.14em] text-[#fa6c34]"><Activity size={13} /> FINALIZED ACTIVITY · BOUNDED WINDOW</p>
+        <p className="flex items-center gap-2 font-mono-d text-[9px] tracking-[0.14em] text-[#fa6c34]"><Activity size={13} /> ANCHORED ACTIVITY · BOUNDED WINDOW</p>
         <div className="mt-4 space-y-2">
           {snapshot.transactions.length === 0 && <EmptyLine>No confirmed activity in the fetched window.</EmptyLine>}
           {snapshot.transactions.map((transaction) => (
@@ -360,7 +360,7 @@ function ActivityPanel({ snapshot }: { snapshot: PortfolioSnapshot }) {
       </section>
       <section className="clip-panel border border-[#383838] bg-[#242424] p-5">
         <p className="flex items-center gap-2 font-mono-d text-[9px] tracking-[0.14em] text-[#e0a96d]"><DatabaseZap size={13} /> APPROVALS FOUND IN THIS WINDOW</p>
-        <p className="mt-3 text-[10.5px] leading-relaxed text-[#7f7972]">This is not a complete approval inventory. ChainScout checks only approval targets discovered in the bounded fetched activity, then reads their current state at the finalized block.</p>
+        <p className="mt-3 text-[10.5px] leading-relaxed text-[#7f7972]">This is not a complete approval inventory. ChainScout checks only approval targets discovered in the bounded fetched activity, then reads their state at the same captured current block.</p>
         <div className="mt-4 space-y-2">
           {snapshot.approvals.length === 0 && <EmptyLine>No approval target was confirmed in this window.</EmptyLine>}
           {snapshot.approvals.map((approval) => (

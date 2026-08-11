@@ -94,7 +94,7 @@ describe("browser privacy static boundary", () => {
   it("disables automatic provider retries for budgeted portfolio fan-out", () => {
     const source = readFileSync(resolve(repositoryRoot, "apps/api/src/portfolio/service.ts"), "utf8");
     expect(source).toContain("PROVIDER_MAX_RETRIES: 0");
-    expect(source).toContain('createProviderHttp(oneAttemptEnv, "alchemy")');
+    expect(source).toContain('createProviderHttp(oneAttemptEnv, "robinhood-public-rpc")');
     expect(source).toContain('createProviderHttp(oneAttemptEnv, "blockscout")');
   });
 });

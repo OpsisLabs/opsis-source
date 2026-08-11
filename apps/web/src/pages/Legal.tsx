@@ -94,7 +94,9 @@ export function PrivacyPage() {
         <p>
           <span className="text-[#e9e0d1]">Portfolio Intelligence.</span> The browser sends one public
           Robinhood Chain address only after you review and confirm an on-screen permission receipt.
-          ChainScout and the listed providers use it transiently to produce one finalized snapshot.
+          ChainScout and the listed providers use it transiently to produce one exact snapshot at a
+          captured current block. That block is not final and can reorganize after the response;
+          ChainScout rechecks its hash before returning the result.
           We do not save the query or response. Wallet labels, other addresses, purchase lots, costs,
           notes, photos, manual reference prices, Vault identifiers, and the resulting ownership
           association stay inside encrypted local records and are not included in that request.
@@ -144,7 +146,7 @@ export function PrivacyPage() {
 
       <Section n="05" title="Third-party providers">
         <p>
-          Private Mode queries Blockscout, Alchemy, and optionally GoldRush for public chain data;
+          Private Mode queries Blockscout and may query an explicitly configured Alchemy or GoldRush integration for public chain data;
           the on-screen receipt names the providers actually used, and your question is not sent to
           a model provider. The optional saved cloud workspace may use OpenAI or a self-hosted model
           to word an explanation. Scout Swap sends Uniswap only the pair, amount, chain, and fixed non-user
@@ -155,9 +157,11 @@ export function PrivacyPage() {
         </p>
         <p>
           A confirmed Portfolio Intelligence refresh sends the one address named in the receipt to
-          ChainScout and Blockscout. Alchemy receives that address plus derived public contract and
-          transaction identifiers needed for direct finalized verification. Blockscout discovery can
-          lag or omit data, so direct read-only RPC calls at one finalized block confirm displayed holdings and
+          ChainScout and Blockscout. Robinhood Public RPC receives that address plus derived public contract and
+          transaction identifiers needed for exact reads at one captured current block. That anchor is not final.
+          The free public endpoint is rate-limited
+          and may be unavailable; ChainScout fails closed and keeps the prior encrypted local snapshot. Blockscout discovery can
+          lag or omit data, so direct read-only RPC calls at that one block confirm displayed holdings and
           activity. The feature is bounded and does not claim to discover every token, NFT, internal
           movement, or approval. No model provider receives Portfolio Intelligence context.
         </p>
@@ -227,7 +231,7 @@ export function TermsPage() {
           ChainScout provides read-only explanations of public Robinhood Chain activity and
           read-only quote previews for supported token pairs. It also provides an optional local,
           encrypted asset Vault that does not synchronize portfolio data to ChainScout servers.
-          Portfolio Intelligence can fetch one user-approved public address at a finalized block;
+          Portfolio Intelligence can fetch one user-approved public address at one captured current block;
           private labels, purchase records, reference prices, and the combined portfolio remain local.
           Answers are grounded in public data
           and include citations so you can verify important claims against the source.

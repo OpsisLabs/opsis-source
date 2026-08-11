@@ -15,23 +15,23 @@ function portfolioSnapshot(address = portfolioAddress) {
     schemaVersion: 1,
     chain: { id: 4663, name: "Robinhood Chain", nativeSymbol: "ETH" },
     address,
-    finality: {
-      tag: "finalized",
+    anchor: {
+      tag: "latest",
       blockNumber: 33_300_000,
       blockHash: `0x${"a".repeat(64)}`,
       timestamp: "2026-08-10T21:00:00.000Z",
       fetchedAt: "2026-08-10T21:02:00.000Z"
     },
     nativeBalanceEth: "0.5",
-    tokens: [{ kind: "erc20", contract: portfolioToken, name: "Test Token", symbol: "TST", decimals: 18, quantity: "2", rawBalance: "2000000000000000000", sourceIds: ["alchemy-finalized"] }],
+    tokens: [{ kind: "erc20", contract: portfolioToken, name: "Test Token", symbol: "TST", decimals: 18, quantity: "2", rawBalance: "2000000000000000000", sourceIds: ["robinhood-public-rpc-anchor"] }],
     nfts: [],
-    transactions: [{ hash: `0x${"b".repeat(64)}`, blockNumber: 33_299_990, timestamp: "2026-08-10T20:59:00.000Z", status: "success", method: "transfer", direction: "in", counterparty: "0x2222222222222222222222222222222222222222", nativeValueEth: "0", movementCount: 1, movementCoverage: "complete", sourceIds: ["alchemy-finalized"] }],
-    movements: [{ transactionHash: `0x${"b".repeat(64)}`, blockNumber: 33_299_990, timestamp: "2026-08-10T20:59:00.000Z", direction: "in", kind: "erc20", symbol: "TST", quantity: "2", contract: portfolioToken, tokenId: null, counterparty: "0x2222222222222222222222222222222222222222", sourceIds: ["alchemy-finalized"] }],
+    transactions: [{ hash: `0x${"b".repeat(64)}`, blockNumber: 33_299_990, timestamp: "2026-08-10T20:59:00.000Z", status: "success", method: "transfer", direction: "in", counterparty: "0x2222222222222222222222222222222222222222", nativeValueEth: "0", movementCount: 1, movementCoverage: "complete", sourceIds: ["robinhood-public-rpc-anchor"] }],
+    movements: [{ transactionHash: `0x${"b".repeat(64)}`, blockNumber: 33_299_990, timestamp: "2026-08-10T20:59:00.000Z", direction: "in", kind: "erc20", symbol: "TST", quantity: "2", contract: portfolioToken, tokenId: null, counterparty: "0x2222222222222222222222222222222222222222", sourceIds: ["robinhood-public-rpc-anchor"] }],
     approvals: [],
     attention: [],
     reconciliation: { tokenCandidates: 1, tokenConfirmed: 1, nftCandidates: 0, nftConfirmed: 0, activityCandidates: 1, activityConfirmed: 1, approvalCandidates: 0, approvalConfirmed: 0, degradedSources: [], truncatedSections: [] },
-    citations: [{ id: "alchemy-finalized", provider: "alchemy", url: "https://alchemy.example", fetchedAt: "2026-08-10T21:02:00.000Z", description: "Direct finalized read" }],
-    privacy: { accountRequired: false, walletConnectionRequired: false, serverStorage: "none", browserStorage: "client_encrypted_vault", providerDestinations: ["alchemy", "blockscout"], disclosure: "This public address was sent transiently to Alchemy and Blockscout. Private Vault context stayed local." }
+    citations: [{ id: "robinhood-public-rpc-anchor", provider: "robinhood", url: "https://rpc.mainnet.chain.robinhood.com", fetchedAt: "2026-08-10T21:02:00.000Z", description: "Robinhood Public RPC direct read at one captured current block" }],
+    privacy: { accountRequired: false, walletConnectionRequired: false, serverStorage: "none", browserStorage: "client_encrypted_vault", providerDestinations: ["robinhood_public_rpc", "blockscout"], disclosure: "This public address was sent transiently to Robinhood Public RPC and Blockscout. Private Vault context stayed local." }
   };
 }
 
@@ -169,7 +169,7 @@ test("Portfolio Intelligence sends only one approved public address and encrypts
   expect(calls).toHaveLength(0);
   await expect(page.getByRole("dialog", { name: "Portfolio refresh permission" })).toContainText("Lots and purchase prices");
   await page.getByRole("button", { name: "CONFIRM ONE-TIME REFRESH" }).click();
-  await expect(page.getByText("Finalized snapshot verified and encrypted")).toBeVisible();
+  await expect(page.getByText("Anchored current snapshot verified and encrypted")).toBeVisible();
 
   expect(calls).toHaveLength(1);
   expect(JSON.parse(calls[0].body)).toEqual({ address: portfolioAddress });
@@ -253,7 +253,7 @@ test("locking during a delayed portfolio refresh aborts it before encrypted pers
   expect(afterPermission).not.toEqual(before);
   expect(afterPermission.records).toHaveLength(1);
   expect(JSON.stringify(afterPermission)).not.toContain(portfolioAddress);
-  await page.getByRole("button", { name: "LOCK" }).click();
+  await page.getByRole("button", { name: "LOCK", exact: true }).click();
   releaseResponse();
   await expect(page.getByRole("heading", { name: "Unlock on this device" })).toBeVisible();
   await page.waitForTimeout(150);
@@ -277,7 +277,7 @@ test("a completed network refresh reports an honest encrypted-save failure", asy
   await page.getByRole("button", { name: "REVIEW REFRESH" }).click();
   await page.getByRole("button", { name: "CONFIRM ONE-TIME REFRESH" }).click();
 
-  await expect(page.getByRole("alert")).toContainText("The address was sent and the finalized refresh completed, but the encrypted snapshot save failed");
+  await expect(page.getByRole("alert")).toContainText("The address was sent and the anchored refresh completed, but the encrypted snapshot save failed");
   expect(requestCount).toBe(1);
 });
 
@@ -567,7 +567,7 @@ test("replacing a Vault broadcasts the new identity and revision to other tabs",
   await page.getByLabel("PRIVATE LOCAL LABEL").fill("SECOND-VAULT-PRIVATE-LABEL");
   await page.getByRole("button", { name: "REVIEW REFRESH" }).click();
   await page.getByRole("button", { name: "CONFIRM ONE-TIME REFRESH" }).click();
-  await expect(page.getByText("Finalized snapshot verified and encrypted")).toBeVisible();
+  await expect(page.getByText("Anchored current snapshot verified and encrypted")).toBeVisible();
   await page.getByRole("button", { name: "MANUAL ASSET RECORDS" }).click();
   await page.getByRole("button", { name: "ADD ASSET" }).click();
   await page.getByLabel("ASSET NAME").fill("UNSAVED-SECOND-VAULT-DRAFT");
