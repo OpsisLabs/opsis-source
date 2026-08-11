@@ -5,7 +5,7 @@
     "dockerfilePath": "apps/api/Dockerfile"
   },
   "deploy": {
-    "preDeployCommand": "if [ -n \"$DATABASE_URL\" ]; then node apps/api/dist/ops/verify-deployment-schema.js; fi",
+    "preDeployCommand": "if [ -n \"$DATABASE_URL\" ]; then node /app/apps/api/dist/ops/verify-deployment-schema.js; fi",
     "startCommand": "node apps/api/dist/server.js",
     "healthcheckPath": "/healthz",
     "healthcheckTimeout": 60,
