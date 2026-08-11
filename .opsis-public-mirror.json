@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "6f59aa92e24b5ac5d182def1911a291843aea2a15c13d24208d708c1c8945fed",
+  "sourceTreeDigest": "47bd715c3632d897f18c08bf9c0715e2a10e5f676c7ea499740f4b3e574d8bac",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "6de483a40bab54c0cacb843f84ef5bd540a3f1e62356cd4592aeff6f31ddc79a",
@@ -141,7 +141,7 @@
     "apps/web/src/pages/PrivateExplorer.tsx": "198a6591f00487cb32fa93f65ca7d3d94b9c8fe17a8d50e578794c84f27d7b30",
     "apps/web/src/pages/Roadmap.tsx": "a611740f07ec3a0c4f951a69f2e48857c0110b13b40ce9a7e3f779b52aedde57",
     "apps/web/src/pages/ScoutSwap.tsx": "2e9d70714bdd7f8728db02e813921162171f989e9f5a97e27c29fa70eeda3c83",
-    "apps/web/src/pages/Vault.tsx": "138c365558a1685d66b89ff3ba069193f29392bc2f99eff7bea5cd6494be9126",
+    "apps/web/src/pages/Vault.tsx": "d858a55e679c4d43225e6941bf3af780879c64759d61255f88aeae949c52b5b6",
     "apps/web/src/portfolio/api.ts": "facc14e6a3f7b5d725f144e5eb65a0e2e8169bd63cb5bfbeb6709fdddb177d39",
     "apps/web/src/portfolio/math.test.ts": "5307341a3f3a8e3f819791a7b904d9ba074a42200cd3e2c2e71c75c03afee9f5",
     "apps/web/src/portfolio/math.ts": "b7b99c106d92d5f960c51297a8aa20a3c9c1e0350b0c01a0e9a6ea9fdf2db781",

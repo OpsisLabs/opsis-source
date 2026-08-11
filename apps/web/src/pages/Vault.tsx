@@ -603,7 +603,9 @@ function AssetEditor({ asset, onCancel, onSave }: {
 }) {
   const [draft, setDraft] = useState<VaultAssetDraft>(asset ? assetToDraft(asset) : EMPTY_DRAFT);
   const [busy, setBusy] = useState(false);
+  const [photoBusy, setPhotoBusy] = useState(false);
   const [photoError, setPhotoError] = useState("");
+  const photoRequestRef = useRef(0);
   const set = <K extends keyof VaultAssetDraft>(key: K, value: VaultAssetDraft[K]) => setDraft((current) => ({ ...current, [key]: value }));
   const updateLot = (index: number, key: keyof VaultLotDraft, value: string) => {
     set("lots", draft.lots.map((lot, lotIndex) => lotIndex === index ? { ...lot, [key]: value } : lot));
@@ -612,20 +614,26 @@ function AssetEditor({ asset, onCancel, onSave }: {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
+    const requestId = ++photoRequestRef.current;
     if (file.size > MAX_SOURCE_PHOTO_BYTES || !["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setPhotoBusy(false);
       setPhotoError("Use one JPEG, PNG, or WebP source up to 12 MB.");
       return;
     }
+    setPhotoBusy(true);
+    setPhotoError("");
     try {
-      set("photo", await fileToPhoto(file));
-      setPhotoError("");
+      const photo = await fileToPhoto(file);
+      if (photoRequestRef.current === requestId) set("photo", photo);
     } catch {
-      setPhotoError("That image could not be read locally.");
+      if (photoRequestRef.current === requestId) setPhotoError("That image could not be read locally.");
+    } finally {
+      if (photoRequestRef.current === requestId) setPhotoBusy(false);
     }
   };
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (busy) return;
+    if (busy || photoBusy) return;
     setBusy(true);
     await onSave(draft, asset);
     setBusy(false);
@@ -667,14 +675,15 @@ function AssetEditor({ asset, onCancel, onSave }: {
       <div className="mt-5 flex flex-col gap-4 border-t border-[#383838] pt-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <label className="flex cursor-pointer items-center gap-2 border border-[#383838] px-4 py-3 font-mono-d text-[9.5px] text-[#9a938a] hover:text-[#e9e0d1]">
-            <ImagePlus size={13} /> {draft.photo ? "REPLACE PHOTO" : "ADD PRIVATE PHOTO"}
-            <input type="file" accept="image/jpeg,image/png,image/webp" onChange={onPhoto} className="sr-only" aria-label="Private asset photo" />
+            <ImagePlus size={13} /> {photoBusy ? "PROCESSING PHOTO…" : draft.photo ? "REPLACE PHOTO" : "ADD PRIVATE PHOTO"}
+            <input type="file" accept="image/jpeg,image/png,image/webp" onChange={onPhoto} disabled={busy || photoBusy} className="sr-only" aria-label="Private asset photo" />
           </label>
-          {draft.photo && <button type="button" onClick={() => set("photo", undefined)} className="font-mono-d text-[9px] text-[#e0738a]">REMOVE PHOTO</button>}
+          {draft.photo && <button type="button" onClick={() => { photoRequestRef.current += 1; setPhotoBusy(false); set("photo", undefined); }} className="font-mono-d text-[9px] text-[#e0738a]">REMOVE PHOTO</button>}
+          {photoBusy && <span role="status" className="text-[11px] text-[#e0a96d]">Sanitizing locally before save…</span>}
           {photoError && <span className="text-[11px] text-[#e0738a]">{photoError}</span>}
         </div>
-        <button type="submit" disabled={busy || !draft.name.trim()} className="clip-btn-sm flex min-h-[44px] items-center justify-center gap-2 bg-[#fa6c34] px-6 font-mono-d text-[10px] font-medium tracking-wider text-[#1d1d1d] disabled:opacity-40">
-          <LockKeyhole size={13} /> {busy ? "ENCRYPTING…" : "ENCRYPT & SAVE"}
+        <button type="submit" disabled={busy || photoBusy || !draft.name.trim()} className="clip-btn-sm flex min-h-[44px] items-center justify-center gap-2 bg-[#fa6c34] px-6 font-mono-d text-[10px] font-medium tracking-wider text-[#1d1d1d] disabled:opacity-40">
+          <LockKeyhole size={13} /> {photoBusy ? "PROCESSING PHOTO…" : busy ? "ENCRYPTING…" : "ENCRYPT & SAVE"}
         </button>
       </div>
     </form>
