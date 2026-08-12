@@ -71,6 +71,12 @@ test("desktop product rail explains and switches between every live workspace", 
     page.getByRole("heading", { name: "Compare what is actually comparable." }),
   ).toBeVisible();
 
+  await rail.getByRole("link", { name: /Replay Actions/i }).click();
+  await expect(page).toHaveURL(/view=replay/);
+  await expect(
+    page.getByRole("heading", { name: /Repeat the idea/i }),
+  ).toBeVisible();
+
   await rail.getByRole("link", { name: /Manual Asset Records/i }).click();
   await expect(page).toHaveURL(/view=assets/);
   await expect(page.getByText("NO ENCRYPTED ASSETS YET")).toBeVisible();

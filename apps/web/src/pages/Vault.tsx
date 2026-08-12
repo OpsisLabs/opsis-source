@@ -64,27 +64,31 @@ import {
 import { PortfolioPanel } from "../portfolio/PortfolioPanel";
 import { CollectibleCatalogPanel } from "../collectibles/CollectibleCatalogPanel";
 import { MarketInventoryPanel } from "../market/MarketInventoryPanel";
+import { ReplayActionsPanel } from "../replay/ReplayActionsPanel";
 import {
   isCollectibleCatalogEnabled,
   isMarketInventoryEnabled,
+  isReplayActionsEnabled,
+  vaultWorkspaceFromSearch,
+  type VaultWorkspace,
 } from "../product/availability";
 
 type Phase =
   "loading" | "empty" | "locked" | "unlocked" | "deleting" | "unsupported";
-type Workspace = "assets" | "portfolio" | "collectibles" | "market";
+type Workspace = VaultWorkspace;
 const DELETE_PHRASE = "DELETE MY LOCAL VAULT";
 const REPLACE_PHRASE = "REPLACE MY LOCAL VAULT";
 const AUTO_LOCK_MS = 10 * 60 * 1000;
 const COLLECTIBLE_CATALOG_ENABLED = isCollectibleCatalogEnabled();
 const MARKET_INVENTORY_ENABLED = isMarketInventoryEnabled();
+const REPLAY_ACTIONS_ENABLED = isReplayActionsEnabled();
 
 function workspaceFromSearch(searchParams: URLSearchParams): Workspace {
-  const requested = searchParams.get("view");
-  if (requested === "portfolio") return requested;
-  if (requested === "collectibles" && COLLECTIBLE_CATALOG_ENABLED)
-    return requested;
-  if (requested === "market" && MARKET_INVENTORY_ENABLED) return requested;
-  return "assets";
+  return vaultWorkspaceFromSearch(searchParams, {
+    collectibleCatalog: COLLECTIBLE_CATALOG_ENABLED,
+    marketInventory: MARKET_INVENTORY_ENABLED,
+    replayActions: REPLAY_ACTIONS_ENABLED,
+  });
 }
 
 const EMPTY_DRAFT: VaultAssetDraft = {
@@ -817,7 +821,7 @@ export default function VaultPage() {
               />
             )}
             <div
-              className={`mt-8 grid ${COLLECTIBLE_CATALOG_ENABLED && MARKET_INVENTORY_ENABLED ? "grid-cols-4" : COLLECTIBLE_CATALOG_ENABLED || MARKET_INVENTORY_ENABLED ? "grid-cols-3" : "grid-cols-2"} gap-px border border-[#383838] bg-[#383838]`}
+              className="mt-8 grid grid-cols-2 gap-px border border-[#383838] bg-[#383838] md:grid-cols-3 xl:grid-cols-5"
             >
               <button
                 type="button"
@@ -842,6 +846,15 @@ export default function VaultPage() {
                   className={`min-h-[48px] bg-[#202020] font-mono-d text-[10px] tracking-[0.14em] ${workspace === "market" ? "text-[#fa6c34] shadow-[inset_0_-2px_0_#fa6c34]" : "text-[#7f7972] hover:text-[#d6ccba]"}`}
                 >
                   MARKET & INVENTORY
+                </button>
+              )}
+              {REPLAY_ACTIONS_ENABLED && (
+                <button
+                  type="button"
+                  onClick={() => selectWorkspace("replay")}
+                  className={`min-h-[48px] bg-[#202020] font-mono-d text-[10px] tracking-[0.14em] ${workspace === "replay" ? "text-[#fa6c34] shadow-[inset_0_-2px_0_#fa6c34]" : "text-[#7f7972] hover:text-[#d6ccba]"}`}
+                >
+                  REPLAY ACTIONS
                 </button>
               )}
               <button
@@ -871,6 +884,15 @@ export default function VaultPage() {
                 context={portfolios[0]}
                 sessionId={sessionGeneration}
                 onSave={savePortfolio}
+              />
+            ) : workspace === "replay" && REPLAY_ACTIONS_ENABLED ? (
+              <ReplayActionsPanel
+                key={`${meta.vaultId}:${sessionGeneration}:replay`}
+                assets={assets}
+                portfolios={portfolios}
+                markets={markets}
+                sessionId={sessionGeneration}
+                onSaveContext={saveMarketContext}
               />
             ) : workspace === "collectibles" && COLLECTIBLE_CATALOG_ENABLED ? (
               <CollectibleCatalogPanel

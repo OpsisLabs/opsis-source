@@ -47,6 +47,7 @@ const SPECIALIST_IDS = new Set([
   "rwa-verify",
   "collectible-catalog",
   "market-inventory",
+  "replay-actions",
 ]);
 
 export default function FeatureGuide() {
@@ -108,7 +109,7 @@ export default function FeatureGuide() {
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
             <div>
               <p className="font-mono-d text-[9px] tracking-[0.18em] text-[#fa6c34]">WHEN YOU NEED SOMETHING SPECIFIC</p>
-              <h2 className="mt-3 text-[30px] font-medium tracking-[-0.035em] text-[#f0e8da]">Four specialist tools</h2>
+              <h2 className="mt-3 text-[30px] font-medium tracking-[-0.035em] text-[#f0e8da]">Specialist tools</h2>
             </div>
             <p className="max-w-[420px] text-[12.5px] leading-relaxed text-[#7f7972]">These solve narrower jobs. You can ignore them until the job comes up.</p>
           </div>

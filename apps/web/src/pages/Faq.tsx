@@ -122,6 +122,10 @@ const FAQ_GROUPS: Array<{ id: string; title: string; intro: string; items: FaqIt
         answer: "No. Scout Swap explains a short-lived read-only Uniswap preview. If you continue, the official Uniswap interface owns the wallet connection, fresh quote, approval, signature, fees, and execution.",
       },
       {
+        question: "What does Replay Actions actually replay?",
+        answer: "Nothing is replayed. One complete supported WETH/USDG movement pattern is shown as local context, but it does not prove historical intent: the direction is yours to confirm and the amount starts blank. The quote request contains no old hash, wallet, calldata, approval, or amount. A purchase rebuild likewise needs a newly refreshed reviewed offer and opens a merchant product page—not an old cart or checkout.",
+      },
+      {
         question: "Why not scrape every store and marketplace?",
         answer: "Because technical access is not the same as permission, accuracy, or stable rights. ChainScout only queries a merchant after explicit opt-in and a reviewed exact mapping. Unsupported venues get a user-clicked search handoff, not a hidden scraper.",
       },

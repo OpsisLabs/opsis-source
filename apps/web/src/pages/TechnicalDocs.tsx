@@ -76,6 +76,13 @@ const ADAPTERS = [
     output: "Freshness, identity, source, availability, local landed cost",
     limit: "No execution, scraping, complete inventory, or seller score",
   },
+  {
+    name: "REPLAY ACTIONS",
+    input: "One complete local movement pattern or freshly reviewed offer",
+    process: "Strict local pattern check + mandatory new direction/amount or current offer",
+    output: "Fresh quote or official product-page handoff",
+    limit: "No old calldata, approval, amount, cart, order, or checkout reuse",
+  },
 ];
 
 const TOKEN_CANDIDATES = [

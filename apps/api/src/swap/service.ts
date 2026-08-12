@@ -170,7 +170,12 @@ export class ScoutSwapService {
     const { input } = tokensForDirection(request.direction);
     parseSwapAmount(request.amount, input.decimals);
 
-    const key = `scout-swap:${request.direction}:${request.amount}`;
+    const canonicalRequest = {
+      ...request,
+      amount: canonicalSwapAmount(request.amount)
+    };
+
+    const key = `scout-swap:${canonicalRequest.direction}:${canonicalRequest.amount}`;
     const cached = await this.cache.get<ScoutSwapQuote>(key);
     if (cached && Date.parse(cached.expiresAt) > this.now()) {
       return {
@@ -183,7 +188,7 @@ export class ScoutSwapService {
     const pending = this.inflight.get(key);
     if (pending) return pending;
 
-    const operation = this.fetchAndNormalize(request)
+    const operation = this.fetchAndNormalize(canonicalRequest)
       .then(async (quote) => {
         await this.cache.set(key, quote, this.env.UNISWAP_QUOTE_CACHE_SECONDS);
         return quote;
@@ -205,15 +210,21 @@ export function parseSwapAmount(value: string, decimals: number): bigint {
   }
   const fraction = value.split(".")[1];
   if (fraction && fraction.length > decimals) throw new SwapQuoteProviderError("invalid_request");
-  const numeric = Number(value);
-  if (!Number.isFinite(numeric) || numeric <= 0 || numeric > 1_000_000_000) {
-    throw new SwapQuoteProviderError("invalid_request");
-  }
   try {
-    return parseUnits(value, decimals);
+    const parsed = parseUnits(value, decimals);
+    if (parsed <= 0n || parsed > parseUnits("1000000000", decimals)) {
+      throw new SwapQuoteProviderError("invalid_request");
+    }
+    return parsed;
   } catch {
     throw new SwapQuoteProviderError("invalid_request");
   }
+}
+
+export function canonicalSwapAmount(value: string): string {
+  const [whole, fraction = ""] = value.split(".");
+  const trimmed = fraction.replace(/0+$/, "");
+  return trimmed ? `${whole}.${trimmed}` : whole!;
 }
 
 export function normalizeQuote(raw: unknown, request: ScoutSwapRequest, now: number): ScoutSwapQuote {
@@ -260,7 +271,7 @@ export function normalizeQuote(raw: unknown, request: ScoutSwapRequest, now: num
   // For UniswapX, classicGasUseEstimateUSD is a comparator for the classic
   // route—not the selected route's user cost—so it must never be relabeled.
   const gasUsd = quote.gasFeeUSD ?? null;
-  const amount = trimAmount(formatUnits(BigInt(quote.input.amount), input.decimals), input.decimals);
+  const amount = request.amount;
   const outputAmount = trimAmount(formatUnits(BigInt(quote.output.amount), output.decimals), output.decimals);
   const minimumReceived = trimAmount(formatUnits(BigInt(minimumRaw), output.decimals), output.decimals);
 
@@ -306,6 +317,7 @@ export function normalizeQuote(raw: unknown, request: ScoutSwapRequest, now: num
       "Uniswap fetches a new quote before execution; this preview is not a guaranteed price.",
       "You may pay network gas, liquidity-provider or protocol fees, price impact, slippage, and token-specific fees.",
       "Your wallet address is not sent for this preview; Uniswap receives the pair, amount, and a fixed non-user preview address.",
+      "ChainScout may hold this pair and amount in a short quote cache for less than 30 seconds; no historical transaction or account is linked to it.",
       "ChainScout cannot sign, approve, submit, or broadcast this transaction."
     ]
   };
@@ -313,7 +325,7 @@ export function normalizeQuote(raw: unknown, request: ScoutSwapRequest, now: num
 
 function trimAmount(value: string, maxDecimals: number): string {
   const [whole, fraction = ""] = value.split(".");
-  const trimmed = fraction.slice(0, Math.min(maxDecimals, 8)).replace(/0+$/, "");
+  const trimmed = fraction.slice(0, maxDecimals).replace(/0+$/, "");
   return trimmed ? `${whole}.${trimmed}` : whole!;
 }
 

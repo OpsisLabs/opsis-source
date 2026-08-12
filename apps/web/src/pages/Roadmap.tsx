@@ -189,8 +189,8 @@ const RELEASES: Release[] = [
     outcome: "Rebuild a trade or purchase safely",
     icon: Copy,
     capabilities: [
-      { kicker: "INTENT PARSER", title: "Explain the historical action without reusing calldata, approvals, or checkout data", signal: "HISTORY ONLY", bars: [36, 51, 62, 55, 73, 90] },
-      { kicker: "NEW CHOICE", title: "Require a new amount or current offer and show every changed assumption", signal: "USER DEFINED", bars: [87, 74, 63, 50, 41, 33] },
+      { kicker: "PATTERN CHECK", title: "Recognize one complete WETH/USDG movement pattern without claiming its historical intent", signal: "LOCAL CONTEXT", bars: [36, 51, 62, 55, 73, 90] },
+      { kicker: "NEW CHOICE", title: "Require a wholly new direction and amount or a freshly reviewed current offer", signal: "USER DEFINED", bars: [87, 74, 63, 50, 41, 33] },
       { kicker: "OFFICIAL HANDOFF", title: "Let Uniswap or the merchant requote, sign, charge, fulfill, and support", signal: "CHAINSCOUT NEVER EXECUTES", bars: [23, 38, 49, 66, 80, 95] },
     ],
     gate: "No historic execution payload survives; every action starts fresh and leaves ChainScout before signing or payment.",

@@ -148,6 +148,28 @@ export const PRODUCT_FEATURES: ProductFeature[] = [
     ],
   },
   {
+    id: "replay-actions",
+    group: "vault",
+    label: "Replay Actions",
+    shortLabel: "Replay",
+    helpLabel: "About rebuilding an action safely",
+    path: "/vault?view=replay",
+    eyebrow: "HISTORY AS CONTEXT · FRESH ACTION",
+    navHint: "Rebuild a trade or purchase",
+    summary:
+      "Use a complete historical WETH/USDG movement pattern or a newly refreshed merchant offer as context, then make a fresh choice.",
+    bestFor: "Starting a wholly new action from one narrow historical pattern without claiming the old intent or replaying transaction or checkout data.",
+    privacy:
+      "Historical hashes, wallet addresses, lots, labels, and costs stay inside the unlocked Vault. A new swap sends only direction and amount; a purchase lookup sends the exact reviewed merchant mapping after an encrypted local receipt is saved.",
+    boundary:
+      "ChainScout never reuses calldata, approvals, carts, coupons, quantities, or orders. Uniswap or the merchant owns the new action.",
+    steps: [
+      "Choose a supported historical movement pattern or a current reviewed offer.",
+      "Enter a new swap amount or explicitly select the new offer.",
+      "Review the current information, then continue only on the official destination.",
+    ],
+  },
+  {
     id: "manual-assets",
     group: "vault",
     label: "Manual Asset Records",

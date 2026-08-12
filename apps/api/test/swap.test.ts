@@ -103,6 +103,19 @@ describe("Scout Swap quote route", () => {
     expect(first.body).not.toContain("sendTransaction");
   });
 
+  it("canonicalizes equivalent input for one cache entry without truncating token precision", async () => {
+    const source = { requestQuote: vi.fn().mockResolvedValue(classicQuote()) };
+    const app = await quoteApp(source);
+    const padded = await app.inject({ method: "POST", url: "/v1/swaps/quote", payload: { direction: "WETH_TO_USDG", amount: "0.0100" } });
+    const canonical = await app.inject({ method: "POST", url: "/v1/swaps/quote", payload: { direction: "WETH_TO_USDG", amount: "0.01" } });
+    expect(padded.statusCode).toBe(200);
+    expect(padded.json().input.amount).toBe("0.01");
+    expect(padded.json().handoffUrl).toContain("value=0.01");
+    expect(canonical.json().provider.cached).toBe(true);
+    expect(source.requestQuote).toHaveBeenCalledTimes(1);
+    expect(source.requestQuote).toHaveBeenCalledWith({ direction: "WETH_TO_USDG", amount: "0.01" });
+  });
+
   it("fails closed when disabled and maps no-route and malformed provider responses", async () => {
     const disabled = await quoteApp({ requestQuote: vi.fn() }, false);
     const off = await disabled.inject({
@@ -170,6 +183,26 @@ describe("Scout Swap quote route", () => {
     expect(source.requestQuote).not.toHaveBeenCalled();
   });
 
+  it.each([
+    "transactionHash",
+    "calldata",
+    "decodedInput",
+    "checkout",
+    "orderId",
+    "historicalAmount",
+    "walletAddress"
+  ])("rejects historical or execution field %s at the strict quote boundary", async (field) => {
+    const source = { requestQuote: vi.fn().mockResolvedValue(classicQuote()) };
+    const app = await quoteApp(source);
+    const response = await app.inject({
+      method: "POST",
+      url: "/v1/swaps/quote",
+      payload: { direction: "WETH_TO_USDG", amount: "0.01", [field]: "must-not-pass" }
+    });
+    expect(response.statusCode).toBe(400);
+    expect(source.requestQuote).not.toHaveBeenCalled();
+  });
+
   it("normalizes the reverse USDG to WETH direction", async () => {
     const source = { requestQuote: vi.fn().mockResolvedValue({
       requestId: "reverse-quote",
@@ -198,6 +231,25 @@ describe("Scout Swap quote route", () => {
       output: { symbol: "WETH", amount: "0.000532", minimumReceived: "0.00052934" }
     });
     expect(response.json().handoffUrl).toContain(`inputCurrency=${SCOUT_SWAP_TOKENS.USDG.address}`);
+  });
+
+  it("preserves an exact eighteen-decimal WETH output instead of rounding it to zero", async () => {
+    const source = { requestQuote: vi.fn().mockResolvedValue({
+      requestId: "small-reverse-quote",
+      routing: "CLASSIC",
+      quote: {
+        input: { amount: "1000000", token: SCOUT_SWAP_TOKENS.USDG.address },
+        output: { amount: "1", minimumAmount: "1", token: SCOUT_SWAP_TOKENS.WETH.address },
+        route: [[{ type: "v4-pool" }]],
+      },
+    }) };
+    const app = await quoteApp(source);
+    const response = await app.inject({ method: "POST", url: "/v1/swaps/quote", payload: { direction: "USDG_TO_WETH", amount: "1" } });
+    expect(response.statusCode).toBe(200);
+    expect(response.json().output).toMatchObject({
+      amount: "0.000000000000000001",
+      minimumReceived: "0.000000000000000001",
+    });
   });
 });
 

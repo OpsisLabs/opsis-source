@@ -416,6 +416,37 @@ describe("browser privacy static boundary", () => {
     expect(marketing).toContain("partial provider results are visibly marked");
   });
 
+  it("keeps replay browser-local, dormant by default, and free of execution payloads", () => {
+    const replay = ["model.ts", "ReplayActionsPanel.tsx"]
+      .map((file) =>
+        readFileSync(resolve(repositoryRoot, "apps/web/src/replay", file), "utf8"),
+      )
+      .join("\n");
+    const availability = readFileSync(resolve(repositoryRoot, "apps/web/src/product/availability.ts"), "utf8");
+    const vaultPage = readFileSync(resolve(repositoryRoot, "apps/web/src/pages/Vault.tsx"), "utf8");
+    const swapApi = readFileSync(resolve(repositoryRoot, "apps/web/src/swap/api.ts"), "utf8");
+    const dockerfile = readFileSync(resolve(repositoryRoot, "apps/web/Dockerfile"), "utf8");
+    const envExample = readFileSync(resolve(repositoryRoot, ".env.example"), "utf8");
+    const roadmap = readFileSync(resolve(repositoryRoot, "apps/web/src/pages/Roadmap.tsx"), "utf8");
+    const sourcebook = readFileSync(resolve(repositoryRoot, "docs/marketing-sourcebook.md"), "utf8");
+    expect(replay).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/);
+    expect(replay).not.toMatch(/localStorage|sessionStorage|indexedDB|dangerouslySetInnerHTML/);
+    expect(replay).not.toMatch(
+      /raw_input|decodedInput|checkout-link|add-to-cart|orderId|personal_sign|sendTransaction|eth_requestAccounts/,
+    );
+    expect(replay).not.toMatch(/Prisma|OpenAI|ChatRepository|JsonCache/);
+    expect(swapApi).toContain('privateApi<ScoutSwapQuote>("/v1/swaps/quote", canonicalRequest, signal)');
+    expect(availability).toContain("import.meta.env.VITE_REPLAY_ACTIONS_ENABLED");
+    expect(availability).toContain('flags.replayActions === "true"');
+    expect(vaultPage).toContain("isReplayActionsEnabled");
+    expect(vaultPage).toMatch(/REPLAY_ACTIONS_ENABLED && \(\s*<button/);
+    expect(dockerfile).toContain("ARG VITE_REPLAY_ACTIONS_ENABLED=false");
+    expect(dockerfile).toContain("ENV VITE_REPLAY_ACTIONS_ENABLED=$VITE_REPLAY_ACTIONS_ENABLED");
+    expect(envExample).toContain("VITE_REPLAY_ACTIONS_ENABLED=false");
+    expect(`${roadmap}\n${sourcebook}`).not.toMatch(/replay reuses the \*?intent|rebuild a supported historical intent|INTENT PARSER|show every changed assumption|replay[^\n]{0,80}alerts/i);
+    expect(sourcebook).toContain("does not infer or reuse historical intent");
+  });
+
   it("discloses every class of public identifier derived for direct portfolio verification", () => {
     const disclosure = [
       readFileSync(

@@ -1,6 +1,7 @@
 export type ProductBuildFlags = {
   collectibleCatalog: string | undefined;
   marketInventory: string | undefined;
+  replayActions: string | undefined;
   development: boolean;
 };
 
@@ -12,6 +13,9 @@ export function productAvailability(flags: ProductBuildFlags) {
     marketInventory:
       flags.marketInventory === "true" ||
       (flags.development && flags.marketInventory !== "false"),
+    replayActions:
+      flags.replayActions === "true" ||
+      (flags.development && flags.replayActions !== "false"),
   };
 }
 
@@ -19,6 +23,7 @@ function currentAvailability() {
   return productAvailability({
     collectibleCatalog: import.meta.env.VITE_COLLECTIBLE_CATALOG_ENABLED,
     marketInventory: import.meta.env.VITE_MARKET_INVENTORY_ENABLED,
+    replayActions: import.meta.env.VITE_REPLAY_ACTIONS_ENABLED,
     development: import.meta.env.DEV,
   });
 }
@@ -31,8 +36,28 @@ export function isMarketInventoryEnabled() {
   return currentAvailability().marketInventory;
 }
 
+export function isReplayActionsEnabled() {
+  return currentAvailability().replayActions;
+}
+
 export function isProductFeatureEnabled(id: string) {
   if (id === "collectible-catalog") return isCollectibleCatalogEnabled();
   if (id === "market-inventory") return isMarketInventoryEnabled();
+  if (id === "replay-actions") return isReplayActionsEnabled();
   return true;
+}
+
+export type VaultWorkspace = "assets" | "portfolio" | "collectibles" | "market" | "replay";
+
+export function vaultWorkspaceFromSearch(
+  searchParams: URLSearchParams,
+  availability = currentAvailability(),
+): VaultWorkspace {
+  const requested = searchParams.get("view");
+  if (requested === "portfolio") return requested;
+  if (requested === "collectibles" && availability.collectibleCatalog)
+    return requested;
+  if (requested === "market" && availability.marketInventory) return requested;
+  if (requested === "replay" && availability.replayActions) return requested;
+  return "assets";
 }

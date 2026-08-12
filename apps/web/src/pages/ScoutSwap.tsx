@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { Link } from "react-router";
 import {
   AlertTriangle,
@@ -56,7 +56,7 @@ function LoadingQuote() {
             <p className="font-mono-d text-[9px] tracking-[0.14em] text-[#635d5a]">{label}</p>
             <div className="mt-5 flex items-end gap-1.5 font-mono-d text-[22px] text-[#706a64]" aria-hidden="true">
               {Array.from({ length: index === 1 ? 4 : 6 }, (_, digit) => (
-                <span key={digit} className="swap-digit" style={{ animationDelay: `${-(digit + index) * 91}ms` }}>
+                <span key={`${digit}-${index}`} className="swap-digit" style={{ animationDelay: `${-(digit + index) * 91}ms` }}>
                   {String((digit * 3 + index) % 10)}
                 </span>
               ))}
@@ -92,7 +92,7 @@ function formatUsdCost(value: string): string {
   });
 }
 
-function QuotePanel({ quote, elapsedMs }: { quote: ScoutSwapQuote; elapsedMs: number }) {
+export function QuotePanel({ quote, elapsedMs }: { quote: ScoutSwapQuote; elapsedMs: number }) {
   const stale = elapsedMs >= quote.freshForMs;
   const seconds = Math.max(0, Math.ceil((quote.freshForMs - elapsedMs) / 1000));
   const simulationOkay = quote.simulation.status === "passed";
@@ -218,6 +218,7 @@ export default function ScoutSwap() {
   const [error, setError] = useState<{ code: string; message: string } | null>(null);
   const [quoteReceivedAtMs, setQuoteReceivedAtMs] = useState<number | null>(null);
   const [elapsedMs, setElapsedMs] = useState(0);
+  const controllerRef = useRef<AbortController | null>(null);
   const input = direction === "WETH_TO_USDG" ? SWAP_TOKENS.WETH : SWAP_TOKENS.USDG;
   const output = direction === "WETH_TO_USDG" ? SWAP_TOKENS.USDG : SWAP_TOKENS.WETH;
   const directUrl = useMemo(() => officialUniswapUrl(direction, amount), [direction, amount]);
@@ -231,7 +232,10 @@ export default function ScoutSwap() {
     return () => window.clearInterval(timer);
   }, [quote, quoteReceivedAtMs]);
 
+  useEffect(() => () => controllerRef.current?.abort(), []);
+
   const changeDirection = () => {
+    controllerRef.current?.abort();
     setDirection((current) => current === "WETH_TO_USDG" ? "USDG_TO_WETH" : "WETH_TO_USDG");
     setQuote(null);
     setError(null);
@@ -243,12 +247,16 @@ export default function ScoutSwap() {
     setLoading(true);
     setError(null);
     setQuote(null);
+    const controller = new AbortController();
+    controllerRef.current?.abort();
+    controllerRef.current = controller;
     try {
-      const next = await getScoutSwapQuote({ direction, amount });
+      const next = await getScoutSwapQuote({ direction, amount }, controller.signal);
       setQuoteReceivedAtMs(performance.now());
       setElapsedMs(0);
       setQuote(next);
     } catch (requestError) {
+      if (controller.signal.aborted) return;
       const code = requestError instanceof ApiError ? requestError.code : "SWAP_PROVIDER_UNAVAILABLE";
       const message = code === "SCOUT_SWAP_DISABLED"
         ? "Live previews are paused right now. You can still open the official Uniswap app safely."
@@ -259,7 +267,10 @@ export default function ScoutSwap() {
             : requestError instanceof Error ? requestError.message : "Live Uniswap previews are temporarily unavailable.";
       setError({ code, message });
     } finally {
-      setLoading(false);
+      if (controllerRef.current === controller) {
+        controllerRef.current = null;
+        setLoading(false);
+      }
     }
   };
 
@@ -315,7 +326,7 @@ export default function ScoutSwap() {
               <TokenMark symbol={input.symbol} />
               <div className="min-w-0 flex-1">
                 <label htmlFor="swap-amount" className="font-mono-d text-[10px] text-[#635d5a]">{input.name}</label>
-                <input id="swap-amount" inputMode="decimal" autoComplete="off" value={amount} onChange={(event) => { setAmount(event.target.value); setQuote(null); setError(null); }} className="mt-1 w-full bg-transparent font-mono-d text-[28px] tracking-[-0.04em] text-[#e9e0d1] outline-none placeholder:text-[#4c4844]" placeholder="0.0" aria-describedby={!amountValid && amount ? "swap-amount-error" : undefined} />
+                <input id="swap-amount" inputMode="decimal" autoComplete="off" value={amount} onChange={(event) => { controllerRef.current?.abort(); setLoading(false); setAmount(event.target.value); setQuote(null); setError(null); }} className="mt-1 w-full bg-transparent font-mono-d text-[28px] tracking-[-0.04em] text-[#e9e0d1] outline-none placeholder:text-[#4c4844]" placeholder="0.0" aria-describedby={!amountValid && amount ? "swap-amount-error" : undefined} />
               </div>
               <span className="font-mono-d text-[12px] text-[#9a938a]">{input.symbol}</span>
             </div>

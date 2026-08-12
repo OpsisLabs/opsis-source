@@ -20,6 +20,7 @@ import {
   Menu,
   MessageCircleQuestion,
   PackageSearch,
+  Repeat2,
   Search,
   ShieldCheck,
   Sparkles,
@@ -51,6 +52,7 @@ const ICONS: Record<string, ComponentType<{ size?: number; className?: string }>
   "portfolio-intelligence": ChartNoAxesCombined,
   "collectible-catalog": PackageSearch,
   "market-inventory": Boxes,
+  "replay-actions": Repeat2,
   "manual-assets": FilePenLine,
 };
 

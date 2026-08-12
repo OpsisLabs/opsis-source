@@ -415,7 +415,16 @@ export function TermsPage() {
           ChainScout does not execute, sign, submit, or broadcast blockchain
           transactions. Scout Swap explains a short-lived Uniswap quote and
           provides a link to the official Uniswap app, which independently
-          requotes and owns every approval, signature, and transaction. Signing
+          requotes and owns every approval, signature, and transaction. A
+          read-only replay tool may use a supported historical movement pattern
+          already decrypted inside the local Vault as context, but it never sends
+          or reuses the old hash, calldata, amount, approval, wallet, cart, coupon,
+          order, or checkout state. A newly entered WETH/USDG amount is sent
+          transiently to ChainScout and Uniswap and may be held in a quote cache
+          for less than 30 seconds without a historical or account association.
+          Merchant handoffs require a newly refreshed reviewed offer and open only
+          the merchant's product page; the merchant owns any later cart, checkout,
+          tax, shipping, payment, and purchase confirmation. Signing
           in to ChainScout asks for one plain-text message signature to prove
           address ownership; that signature authorizes nothing on-chain and
           cannot move funds. ChainScout never requests seed phrases, private
