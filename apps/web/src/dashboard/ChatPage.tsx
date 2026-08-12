@@ -147,9 +147,11 @@ function useStreamedText(text: string, enabled: boolean): { visible: string; com
 
   useEffect(() => {
     if (!shouldStream) return;
-    const tickMs = 32;
-    const duration = Math.min(2_200, Math.max(420, tokens.length * 34));
-    const perTick = Math.max(1, Math.ceil(tokens.length / (duration / tickMs)));
+    const duration = Math.min(2_200, Math.max(1_200, tokens.length * 34));
+    const targetTicks = Math.max(1, Math.ceil(duration / 32));
+    const perTick = Math.max(1, Math.ceil(tokens.length / targetTicks));
+    const actualTicks = Math.max(1, Math.ceil(tokens.length / perTick));
+    const tickMs = Math.max(32, Math.floor(duration / actualTicks));
     const timer = window.setInterval(() => {
       setVisibleCount((current) => {
         const next = Math.min(tokens.length, current + perTick);

@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "14e1baf2c137c7397c9338fcce1e43088e1638f6225b22c342e3b7a6c4ce008c",
+  "sourceTreeDigest": "026ef15500b24a1db5624544736615fcf9b6263d22967d6b6c3a2eef41b8dcbf",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "3ed81a31edfccc4dcb3d5df59034ae587275a331dace4b036d95ae3a5bf782d9",
@@ -149,7 +149,7 @@
     "apps/web/src/dashboard/api.ts": "344e51e075b90d478c1c7b24538e21c4f8181e94e3e78ac2065c24f7fa8f17c0",
     "apps/web/src/dashboard/AppShell.tsx": "9e9ee6265a1e4a3ea91ae1456ebf24506778e66decf929dcbfff91fdfdd8c380",
     "apps/web/src/dashboard/AuthPages.tsx": "a898b582d4ad51d9ba6ac439cb6540164fa4f7c095d8379bfd7b24aa44dcff2f",
-    "apps/web/src/dashboard/ChatPage.tsx": "13432405dd90d7c0920973486f9ebc9ff20f797d886553a24e6790492c10ae9a",
+    "apps/web/src/dashboard/ChatPage.tsx": "128447b1905dcce5820cd5ccf5b3eece93e93e81af22146fac85a3b67dcf113a",
     "apps/web/src/dashboard/http.test.ts": "1f88e8774fe53aabbbdc6c0769da9d88f18816413df5b6b5eccf883f645e25a7",
     "apps/web/src/dashboard/http.ts": "30adceb949e2a713d8237bebadaca44fbc486698a70d403fd71190b4af6ec2e7",
     "apps/web/src/dashboard/store.tsx": "ba6bd067118465ff3fce8e0be6787347551094ada3bd3f0379d1fd15e30382c5",
