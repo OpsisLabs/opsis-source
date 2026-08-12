@@ -11,12 +11,14 @@ import {
   ArrowLeftRight,
   ArrowRight,
   BadgeCheck,
+  BookOpenText,
   Boxes,
   ChartNoAxesCombined,
   CircleHelp,
   FilePenLine,
   House,
   Menu,
+  MessageCircleQuestion,
   PackageSearch,
   Search,
   ShieldCheck,
@@ -25,6 +27,7 @@ import {
 } from "lucide-react";
 import { PRODUCT_FEATURES, type ProductFeature } from "./features";
 import ProductTour from "./ProductTour";
+import { isProductFeatureEnabled } from "./availability";
 
 gsap.registerPlugin(useGSAP);
 
@@ -73,6 +76,7 @@ function FeatureLink({
   onNavigate?: () => void;
 }) {
   const Icon = ICONS[feature.id] ?? ShieldCheck;
+  const enabled = isProductFeatureEnabled(feature.id);
   return (
     <div
       data-feature={feature.id}
@@ -87,7 +91,7 @@ function FeatureLink({
       }`}
     >
       <div className="flex min-h-[52px] items-stretch">
-        <Link
+        {enabled ? <Link
           to={feature.path}
           onClick={onNavigate}
           aria-current={active ? "page" : undefined}
@@ -104,7 +108,18 @@ function FeatureLink({
               {feature.navHint}
             </span>
           </span>
-        </Link>
+        </Link> : <div
+          aria-label={`${feature.label} is not enabled in this build`}
+          className="flex min-w-0 flex-1 items-center gap-3 px-3 py-3 text-left opacity-65"
+        >
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center border border-[#6b625d] bg-[#262321] text-[#81756f]">
+            <Icon size={13} />
+          </span>
+          <span className="min-w-0">
+            <span className="block truncate text-[12px] text-[#9b9088]">{feature.label}</span>
+            <span className="mt-0.5 block truncate font-mono-d text-[8px] tracking-[0.1em] text-[#79675f]">NOT ENABLED IN THIS BUILD</span>
+          </span>
+        </div>}
         <button
           type="button"
           onClick={onExpand}
@@ -202,6 +217,12 @@ function ProductRail({
       </div>
 
       <nav className="shrink-0 space-y-1 border-t border-[#303030] bg-[#202020] p-3" aria-label="Product resources">
+        <Link to="/docs" onClick={onNavigate} aria-current={location.pathname === "/docs" ? "page" : undefined} className={`flex items-center gap-3 border px-3 py-2.5 font-mono-d text-[10px] tracking-[0.08em] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#fa6c34] ${location.pathname === "/docs" ? "border-[#fa6c34] bg-[#fa6c34] font-semibold text-[#1d1d1d]" : "border-[#fa6c34]/25 text-[#c0b6aa] hover:border-[#fa6c34]/65 hover:bg-[#fa6c34]/10 hover:text-[#fff7ec]"}`}>
+          <BookOpenText size={14} /> TECH DOCS
+        </Link>
+        <Link to="/faq" onClick={onNavigate} aria-current={location.pathname === "/faq" ? "page" : undefined} className={`flex items-center gap-3 border px-3 py-2.5 font-mono-d text-[10px] tracking-[0.08em] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#fa6c34] ${location.pathname === "/faq" ? "border-[#fa6c34] bg-[#fa6c34] font-semibold text-[#1d1d1d]" : "border-[#fa6c34]/25 text-[#c0b6aa] hover:border-[#fa6c34]/65 hover:bg-[#fa6c34]/10 hover:text-[#fff7ec]"}`}>
+          <MessageCircleQuestion size={14} /> FAQ
+        </Link>
         <Link to="/roadmap" onClick={onNavigate} className="flex items-center gap-3 border border-[#fa6c34]/25 px-3 py-2.5 font-mono-d text-[10px] tracking-[0.08em] text-[#c0b6aa] outline-none transition-colors hover:border-[#fa6c34]/65 hover:bg-[#fa6c34]/10 hover:text-[#fff7ec] focus-visible:ring-2 focus-visible:ring-[#fa6c34]">
           <Boxes size={14} /> ROADMAP
         </Link>

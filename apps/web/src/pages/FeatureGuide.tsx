@@ -1,6 +1,5 @@
 import {
   ArrowRight,
-  BookOpenText,
   Boxes,
   ChartNoAxesCombined,
   Check,
@@ -13,6 +12,8 @@ import {
 import { useEffect } from "react";
 import { Link, useLocation } from "react-router";
 import { PRODUCT_FEATURES } from "../product/features";
+import { isProductFeatureEnabled } from "../product/availability";
+import KnowledgeHeader from "./KnowledgeHeader";
 
 const STARTING_PATHS = [
   {
@@ -63,16 +64,7 @@ export default function FeatureGuide() {
 
   return (
     <div className="min-h-screen bg-[#1d1d1d] text-[#e9e0d1]">
-      <header className="sticky top-0 z-30 flex h-[64px] items-center justify-between border-b border-[#2e2e2e] bg-[#1d1d1d]/95 px-4 backdrop-blur sm:px-6">
-        <Link to="/" className="flex items-center gap-3" aria-label="ChainScout home">
-          <span className="flex h-9 w-9 items-center justify-center bg-[#fa6c34]" style={{ clipPath: "polygon(0 0,100% 0,100% 72%,72% 100%,0 100%)" }}>
-            <img src="/logo.svg" alt="" className="h-5 w-5" />
-          </span>
-          <span className="hidden font-mono-d text-[11px] tracking-[0.14em] text-[#d6ccba] sm:block">CHAINSCOUT</span>
-        </Link>
-        <div className="flex items-center gap-2 font-mono-d text-[10px] tracking-[0.14em] text-[#fa6c34]"><BookOpenText size={14} /> START HERE</div>
-        <Link to="/roadmap" className="font-mono-d text-[9px] tracking-wider text-[#7f7972] hover:text-[#e9e0d1] sm:text-[10px]">ROADMAP →</Link>
-      </header>
+      <KnowledgeHeader active="guide" />
 
       <main className="mx-auto w-full max-w-[1180px] px-4 pb-24 pt-12 sm:px-6 sm:pt-16">
         <section className="max-w-[820px]">
@@ -123,14 +115,20 @@ export default function FeatureGuide() {
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             {specialistTools.map((feature) => (
-              <Link key={feature.id} to={feature.path} className="group flex items-center gap-4 border border-[#383838] bg-[#222222] p-5 outline-none transition-colors hover:border-[#fa6c34]/70 hover:bg-[#272321] focus-visible:ring-2 focus-visible:ring-[#fa6c34]">
+              isProductFeatureEnabled(feature.id) ? <Link key={feature.id} to={feature.path} className="group flex items-center gap-4 border border-[#383838] bg-[#222222] p-5 outline-none transition-colors hover:border-[#fa6c34]/70 hover:bg-[#272321] focus-visible:ring-2 focus-visible:ring-[#fa6c34]">
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center border border-[#fa6c34]/35 text-[#fa6c34]"><Boxes size={15} /></span>
                 <span className="min-w-0">
                   <span className="block text-[16px] font-medium text-[#e9e0d1]">{feature.label}</span>
                   <span className="mt-1 block text-[11.5px] text-[#9a938a]">{feature.navHint}</span>
                 </span>
                 <ArrowRight size={14} className="ml-auto shrink-0 text-[#635d5a] transition-all group-hover:translate-x-1 group-hover:text-[#fa6c34]" />
-              </Link>
+              </Link> : <article key={feature.id} className="flex items-center gap-4 border border-[#383838] bg-[#202020] p-5 opacity-70">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center border border-[#4a4541] text-[#756d68]"><Boxes size={15} /></span>
+                <span className="min-w-0">
+                  <span className="block text-[16px] font-medium text-[#aaa097]">{feature.label}</span>
+                  <span className="mt-1 block font-mono-d text-[8px] tracking-[0.1em] text-[#756d68]">BUILT · NOT ENABLED IN THIS BUILD</span>
+                </span>
+              </article>
             ))}
           </div>
         </section>
@@ -175,9 +173,13 @@ export default function FeatureGuide() {
                       </li>
                     ))}
                   </ol>
-                  <Link to={feature.path} className="clip-btn-sm mt-6 inline-flex items-center gap-2 bg-[#fa6c34] px-5 py-3 font-mono-d text-[9px] font-semibold tracking-[0.1em] text-[#1d1d1d] hover:bg-[#ff7038]">
-                    OPEN {feature.shortLabel.toUpperCase()} <ArrowRight size={12} />
-                  </Link>
+                  {isProductFeatureEnabled(feature.id) ? (
+                    <Link to={feature.path} className="clip-btn-sm mt-6 inline-flex items-center gap-2 bg-[#fa6c34] px-5 py-3 font-mono-d text-[9px] font-semibold tracking-[0.1em] text-[#1d1d1d] hover:bg-[#ff7038]">
+                      OPEN {feature.shortLabel.toUpperCase()} <ArrowRight size={12} />
+                    </Link>
+                  ) : (
+                    <p className="mt-6 inline-flex border border-[#4a4541] bg-[#202020] px-5 py-3 font-mono-d text-[9px] tracking-[0.1em] text-[#817872]">BUILT · NOT ENABLED IN THIS BUILD</p>
+                  )}
                 </div>
               </details>
             ))}

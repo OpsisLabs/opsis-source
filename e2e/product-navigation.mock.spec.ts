@@ -138,6 +138,55 @@ test("context help opens the matching optional guide detail", async ({ page }) =
   await expect(detail.getByText(/minimum received, price impact/i)).toBeVisible();
 });
 
+test("technical docs and FAQ expose the implementation without presenting token ideas as live", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 950 });
+  await page.goto("/docs");
+
+  await expect(
+    page.getByRole("heading", { name: /How ChainScout actually works/i }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "TECH DOCS" }).last(),
+  ).toHaveAttribute("aria-current", "page");
+  await expect(page.getByText("EPHEMERAL LOOKUP")).toBeVisible();
+  await expect(page.getByText("LOCAL VAULT")).toBeVisible();
+  await expect(page.getByText("PBKDF2-HMAC-SHA-256")).toBeVisible();
+  await expect(
+    page.getByText("PROPOSAL, NOT SHIPPED TOKENOMICS"),
+  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Optional partner perks" })).toBeVisible();
+  await expect(page.getByText(/contributor bounties/i)).toHaveCount(0);
+  await expect(page.getByText("DO NOT BUILD")).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: /VIEW SOURCE/i }),
+  ).toHaveAttribute("href", "https://github.com/ChainScoutAi/ChainScout");
+
+  const rail = page.getByRole("complementary", {
+    name: "ChainScout features",
+  });
+  await rail.getByRole("link", { name: "FAQ" }).click();
+  await expect(page).toHaveURL(/\/faq$/);
+  await expect(
+    page.getByRole("heading", { name: /Questions people ask/i }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "FAQ" }).last(),
+  ).toHaveAttribute("aria-current", "page");
+
+  await page.getByText("How is the Vault encrypted?", { exact: true }).click();
+  await expect(page.getByText(/random AES-256-GCM data key/i)).toBeVisible();
+  await page.getByText("What would the token actually do?", { exact: true }).click();
+  await expect(page.getByText(/No product utility is approved as live today/i)).toBeVisible();
+  await expect(page.getByText(/optional partner-funded perks/i)).toBeVisible();
+  await page.getByText("What happens during a pons v2 launch?", { exact: true }).click();
+  await expect(
+    page.getByRole("link", { name: "official pons v2 documentation" }),
+  ).toHaveAttribute("href", "https://docs.ponsfamily.com/v2");
+
+  await page.getByRole("link", { name: "START GUIDE" }).click();
+  await expect(page).toHaveURL(/\/guide$/);
+});
+
 test("reduced motion keeps route changes immediate and readable", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/app");
@@ -187,6 +236,8 @@ test("mobile feature drawer traps focus, explains tools, and preserves navigatio
   ).toBeVisible();
 
   await trigger.click();
+  await expect(drawer.getByRole("link", { name: "TECH DOCS" })).toBeVisible();
+  await expect(drawer.getByRole("link", { name: "FAQ" })).toBeVisible();
   await drawer.getByRole("button", { name: /Open the ChainScout 60-second tour/i }).click();
   const tour = page.getByRole("dialog", { name: "ChainScout product tour" });
   await expect(tour).toBeVisible();

@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate, Outlet, useLocation, useParams } from "react-router";
 import Home from "./pages/Home";
 import Roadmap from "./pages/Roadmap";
@@ -14,6 +15,21 @@ import VaultPage from "./pages/Vault";
 import RwaVerify from "./pages/RwaVerify";
 import FeatureGuide from "./pages/FeatureGuide";
 import ProductShell from "./product/ProductShell";
+
+const TechnicalDocs = lazy(() => import("./pages/TechnicalDocs"));
+const Faq = lazy(() => import("./pages/Faq"));
+
+function KnowledgePageFallback() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-[#1d1d1d]">
+      <span className="h-2 w-2 animate-ping rounded-full bg-[#fa6c34]" aria-label="Loading page" />
+    </div>
+  );
+}
+
+function DeferredPage({ children }: { children: React.ReactNode }) {
+  return <Suspense fallback={<KnowledgePageFallback />}>{children}</Suspense>;
+}
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -74,6 +90,8 @@ export default function App() {
         <Route path="/vault" element={<VaultPage />} />
         <Route path="/rwa" element={<RwaVerify />} />
         <Route path="/guide" element={<FeatureGuide />} />
+        <Route path="/docs" element={<DeferredPage><TechnicalDocs /></DeferredPage>} />
+        <Route path="/faq" element={<DeferredPage><Faq /></DeferredPage>} />
       </Route>
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/terms" element={<TermsPage />} />

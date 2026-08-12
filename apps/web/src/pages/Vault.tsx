@@ -64,6 +64,10 @@ import {
 import { PortfolioPanel } from "../portfolio/PortfolioPanel";
 import { CollectibleCatalogPanel } from "../collectibles/CollectibleCatalogPanel";
 import { MarketInventoryPanel } from "../market/MarketInventoryPanel";
+import {
+  isCollectibleCatalogEnabled,
+  isMarketInventoryEnabled,
+} from "../product/availability";
 
 type Phase =
   "loading" | "empty" | "locked" | "unlocked" | "deleting" | "unsupported";
@@ -71,14 +75,8 @@ type Workspace = "assets" | "portfolio" | "collectibles" | "market";
 const DELETE_PHRASE = "DELETE MY LOCAL VAULT";
 const REPLACE_PHRASE = "REPLACE MY LOCAL VAULT";
 const AUTO_LOCK_MS = 10 * 60 * 1000;
-const COLLECTIBLE_CATALOG_ENABLED =
-  import.meta.env.VITE_COLLECTIBLE_CATALOG_ENABLED === "true" ||
-  (import.meta.env.DEV &&
-    import.meta.env.VITE_COLLECTIBLE_CATALOG_ENABLED !== "false");
-const MARKET_INVENTORY_ENABLED =
-  import.meta.env.VITE_MARKET_INVENTORY_ENABLED === "true" ||
-  (import.meta.env.DEV &&
-    import.meta.env.VITE_MARKET_INVENTORY_ENABLED !== "false");
+const COLLECTIBLE_CATALOG_ENABLED = isCollectibleCatalogEnabled();
+const MARKET_INVENTORY_ENABLED = isMarketInventoryEnabled();
 
 function workspaceFromSearch(searchParams: URLSearchParams): Workspace {
   const requested = searchParams.get("view");
