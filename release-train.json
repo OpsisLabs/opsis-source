@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "08-replay-actions",
+  "activeRelease": "09-open-data-api",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement",
@@ -79,7 +79,7 @@
       "id": "08-replay-actions",
       "branch": "release/08-replay-actions",
       "tagPrefix": "rc/08-replay-actions/",
-      "status": "active",
+      "status": "released",
       "outcome": "Rebuild a trade or purchase safely",
       "shipGate": "Historical calldata and checkout data are never reused; users choose a new amount or offer; official Uniswap or merchant checkout independently requotes and owns execution."
     },
@@ -88,7 +88,7 @@
       "id": "09-open-data-api",
       "branch": "release/09-open-data-api",
       "tagPrefix": "rc/09-open-data-api/",
-      "status": "queued",
+      "status": "active",
       "outcome": "Reuse ChainScout's sourced public intelligence",
       "shipGate": "The capped API exposes independently derived public facts and citations only; it contains no Vault data or restricted upstream payloads and cannot create paid overage."
     },
