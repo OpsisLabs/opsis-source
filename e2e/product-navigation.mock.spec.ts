@@ -75,7 +75,17 @@ test("desktop product rail explains and switches between every live workspace", 
   await expect(page).toHaveURL(/view=assets/);
   await expect(page.getByText("NO ENCRYPTED ASSETS YET")).toBeVisible();
 
-  await rail.getByRole("link", { name: /NEW HERE\? START HERE/i }).click();
+  const tourButton = rail.getByRole("button", { name: /60-second tour/i });
+  await expect(tourButton).toHaveCSS("background-color", "rgb(250, 108, 52)");
+  await expect(tourButton.getByText(/See how it fits together/i)).toHaveCSS("color", "rgb(75, 40, 27)");
+  await tourButton.click();
+  const tour = page.getByRole("dialog", { name: "ChainScout product tour" });
+  await expect(tour).toBeVisible();
+  await expect(tour.getByText(/One clear workspace/i)).toBeVisible();
+  await tour.getByRole("button", { name: "SHOW ME AROUND" }).click();
+  await expect(tour.getByRole("heading", { name: /Use ChainScout in two ways/i })).toBeVisible();
+  await tour.getByRole("button", { name: "CHOOSE A START" }).click();
+  await tour.getByRole("link", { name: /OPEN START PAGE/i }).click();
   await expect(page).toHaveURL(/\/guide$/);
   await expect(
     page.getByRole("heading", { name: /What do you want/i }),
@@ -94,6 +104,28 @@ test("desktop product rail explains and switches between every live workspace", 
     };
   });
   expect(scrollbarTheme).toEqual({ thumb: "#b64f29", track: "#202020" });
+});
+
+test("first production-style visit introduces the product and remembers dismissal", async ({ page }) => {
+  await page.context().clearCookies();
+  await page.goto("/app?tour=1");
+
+  const tour = page.getByRole("dialog", { name: "ChainScout product tour" });
+  await expect(tour).toBeVisible();
+  await expect(tour.getByText("NO WALLET REQUIRED")).toBeVisible();
+  await expect(tour.getByText("READ-ONLY BY DESIGN")).toBeVisible();
+  await expect(tour.getByText("LOCAL ENCRYPTED VAULT")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(tour).toBeHidden();
+  await expect.poll(async () => (await page.context().cookies()).find((cookie) => cookie.name === "chainscout_product_tour_seen_v1")?.value).toBe("1");
+
+  await page.goto("/app");
+  await expect(tour).toBeHidden();
+  await page.getByRole("button", { name: /Open the ChainScout 60-second tour/i }).click();
+  await expect(tour).toBeVisible();
+  await expect(page.getByRole("button", { name: /Skip and close ChainScout tour/i })).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("button", { name: /Open the ChainScout 60-second tour/i })).toBeFocused();
 });
 
 test("context help opens the matching optional guide detail", async ({ page }) => {
@@ -153,6 +185,15 @@ test("mobile feature drawer traps focus, explains tools, and preserves navigatio
   await expect(
     page.getByRole("heading", { name: /Understand the chain/i }),
   ).toBeVisible();
+
+  await trigger.click();
+  await drawer.getByRole("button", { name: /Open the ChainScout 60-second tour/i }).click();
+  const tour = page.getByRole("dialog", { name: "ChainScout product tour" });
+  await expect(tour).toBeVisible();
+  await expect(drawer).toBeHidden();
+  await page.keyboard.press("Escape");
+  await expect(tour).toBeHidden();
+  await expect(trigger).toBeFocused();
 });
 
 test("saved research uses current ChainScout branding", async ({ page }) => {

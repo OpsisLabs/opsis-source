@@ -20,11 +20,26 @@ import {
   PackageSearch,
   Search,
   ShieldCheck,
+  Sparkles,
   X,
 } from "lucide-react";
 import { PRODUCT_FEATURES, type ProductFeature } from "./features";
+import ProductTour from "./ProductTour";
 
 gsap.registerPlugin(useGSAP);
+
+const TOUR_COOKIE = "chainscout_product_tour_seen_v1";
+
+function tourWasSeen() {
+  return document.cookie
+    .split(";")
+    .some((entry) => entry.trim() === `${TOUR_COOKIE}=1`);
+}
+
+function rememberTourSeen() {
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `${TOUR_COOKIE}=1; Max-Age=31536000; Path=/; SameSite=Strict${secure}`;
+}
 
 const ICONS: Record<string, ComponentType<{ size?: number; className?: string }>> = {
   "private-explorer": Search,
@@ -122,7 +137,13 @@ function FeatureLink({
   );
 }
 
-function ProductRail({ onNavigate }: { onNavigate?: () => void }) {
+function ProductRail({
+  onNavigate,
+  onOpenTour,
+}: {
+  onNavigate?: () => void;
+  onOpenTour: (trigger: HTMLButtonElement) => void;
+}) {
   const location = useLocation();
   const [expanded, setExpanded] = useState<string | null>(null);
 
@@ -142,22 +163,25 @@ function ProductRail({ onNavigate }: { onNavigate?: () => void }) {
       </Link>
 
       <div className="product-rail-scroll flex-1 overflow-y-auto pb-5 pt-3">
-        <Link
-          to="/guide"
-          onClick={onNavigate}
-          aria-current={location.pathname === "/guide" ? "page" : undefined}
-          className={`mx-2 mb-4 flex items-center justify-between border px-3 py-3 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#fa6c34] ${
-            location.pathname === "/guide"
-              ? "border-[#fa6c34] bg-[#fa6c34] text-[#1d1d1d]"
-              : "border-[#fa6c34]/55 bg-[#fa6c34]/10 text-[#fa6c34] hover:border-[#fa6c34] hover:bg-[#fa6c34]/15"
-          }`}
+        <button
+          type="button"
+          onClick={(event) => {
+            onNavigate?.();
+            onOpenTour(event.currentTarget);
+          }}
+          data-tour-trigger
+          className="group mx-2 mb-4 flex w-[calc(100%-1rem)] items-center gap-3 border border-[#fa6c34] bg-[#fa6c34] px-3 py-3 text-left text-[#1d1d1d] outline-none transition-colors hover:bg-[#ff7c48] focus-visible:ring-2 focus-visible:ring-[#ffd0bc]"
+          aria-label="Open the ChainScout 60-second tour"
         >
-          <span>
-            <span className="block font-mono-d text-[9px] font-semibold tracking-[0.12em]">NEW HERE? START HERE</span>
-            <span className="mt-1 block text-[10px] text-[#b7aea2]">Choose what you want to do</span>
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-[#1d1d1d]/30 bg-[#1d1d1d]/10">
+            <Sparkles size={14} />
           </span>
-          <ArrowRight size={14} />
-        </Link>
+          <span className="min-w-0 flex-1">
+            <span className="block font-mono-d text-[9px] font-semibold tracking-[0.12em]">NEW HERE? TAKE THE TOUR</span>
+            <span className="mt-1 block text-[10px] font-medium text-[#4b281b]">See how it fits together in 60 seconds</span>
+          </span>
+          <ArrowRight size={14} className="shrink-0 transition-transform group-hover:translate-x-1" />
+        </button>
         {(["explore", "vault"] as const).map((group) => (
           <section key={group} className="mt-2 first:mt-0" aria-label={group === "explore" ? "Explore tools" : "Private Vault tools"}>
             <p className="px-4 pb-2 font-mono-d text-[8px] tracking-[0.2em] text-[#5f5a55]">
@@ -192,10 +216,42 @@ function ProductRail({ onNavigate }: { onNavigate?: () => void }) {
 export default function ProductShell() {
   const location = useLocation();
   const [open, setOpen] = useState(false);
+  const [tourOpen, setTourOpen] = useState(() => {
+    const forced = new URLSearchParams(window.location.search).get("tour") === "1";
+    if (!import.meta.env.PROD && !forced) return false;
+    return forced || !tourWasSeen();
+  });
   const shell = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const drawer = useRef<HTMLDivElement>(null);
   const introduced = useRef(false);
+  const returnFocus = useRef<HTMLElement | null>(null);
+
+  const rememberTourDismissal = () => {
+    rememberTourSeen();
+  };
+
+  const openTour = (source?: HTMLElement) => {
+    returnFocus.current = source ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
+    setOpen(false);
+    setTourOpen(true);
+  };
+
+  const closeTour = () => {
+    rememberTourDismissal();
+    setTourOpen(false);
+    window.setTimeout(() => {
+      const destination = returnFocus.current;
+      if (destination?.isConnected) destination.focus();
+      else {
+        const visibleTrigger = Array.from(document.querySelectorAll<HTMLElement>("[data-tour-trigger]"))
+          .find((element) => element.getClientRects().length > 0);
+        if (visibleTrigger) visibleTrigger.focus();
+        else trigger.current?.focus();
+      }
+      returnFocus.current = null;
+    }, 0);
+  };
 
   const close = () => {
     setOpen(false);
@@ -309,7 +365,7 @@ export default function ProductShell() {
     <div ref={shell} className="min-h-screen bg-[#1d1d1d]">
       <div data-route-sweep aria-hidden="true" className="pointer-events-none fixed left-0 right-0 top-0 z-[65] h-[3px] origin-left bg-[#fa6c34] opacity-0 lg:left-[252px]" />
       <aside data-desktop-rail className="fixed inset-y-0 left-0 z-40 hidden w-[252px] border-r border-[#2e2e2e] lg:block" aria-label="ChainScout features">
-        <ProductRail />
+        <ProductRail onOpenTour={openTour} />
       </aside>
 
       <button
@@ -336,14 +392,15 @@ export default function ProductShell() {
             <button type="button" onClick={close} aria-label="Close feature menu" className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center border border-black/20 text-[#1d1d1d] hover:bg-black/10">
               <X size={17} />
             </button>
-            <ProductRail onNavigate={() => setOpen(false)} />
+            <ProductRail onNavigate={() => setOpen(false)} onOpenTour={openTour} />
           </div>
         </div>
       )}
 
-      <div data-route-content className="min-h-screen lg:pl-[252px]" aria-hidden={open ? true : undefined}>
+      <div data-route-content className="min-h-screen lg:pl-[252px]" aria-hidden={open || tourOpen ? true : undefined}>
         <Outlet />
       </div>
+      {tourOpen && <ProductTour onDismiss={closeTour} />}
     </div>
   );
 }

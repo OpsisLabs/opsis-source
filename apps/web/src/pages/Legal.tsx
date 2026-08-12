@@ -227,6 +227,13 @@ export function PrivacyPage() {
           server copy and cannot set or enforce a retention period for data kept
           only on your device.
         </p>
+        <p>
+          ChainScout may keep a non-sensitive, host-only, SameSite browser cookie
+          so the introductory product tour does not reopen on every visit. It
+          records only that the tour was dismissed—not an address,
+          account, query, asset, holding, price, note, or Vault field—and can be
+          recreated by opening the tour from the product sidebar.
+        </p>
       </Section>
 
       <Section n="05" title="Third-party providers">

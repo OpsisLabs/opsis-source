@@ -18,6 +18,15 @@ describe("browser privacy static boundary", () => {
     expect(
       webSource.match(/localStorage\.removeItem\("rh_auth"\)/g) ?? [],
     ).toHaveLength(1);
+    expect(webSource).toContain(
+      'const TOUR_COOKIE = "chainscout_product_tour_seen_v1"',
+    );
+    expect(webSource).toContain(
+      "Max-Age=31536000; Path=/; SameSite=Strict",
+    );
+    expect(webSource).not.toMatch(
+      /document\.cookie\s*=.*(?:address|wallet|asset|holding|price|note|vault)/i,
+    );
   });
 
   it("contains no passive Google font or tracker request", () => {
