@@ -5,6 +5,8 @@ import {
   type ComponentType,
 } from "react";
 import { Link, Outlet, useLocation } from "react-router";
+import { useGSAP } from "@gsap/react";
+import { gsap } from "gsap";
 import {
   ArrowLeftRight,
   BadgeCheck,
@@ -21,6 +23,8 @@ import {
   X,
 } from "lucide-react";
 import { PRODUCT_FEATURES, type ProductFeature } from "./features";
+
+gsap.registerPlugin(useGSAP);
 
 const ICONS: Record<string, ComponentType<{ size?: number; className?: string }>> = {
   "private-explorer": Search,
@@ -57,6 +61,7 @@ function FeatureLink({
   return (
     <div
       data-feature={feature.id}
+      data-feature-card
       data-active={active ? "true" : "false"}
       className={`mx-2 mb-1 overflow-hidden border transition-colors ${
         active
@@ -176,9 +181,12 @@ function ProductRail({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 export default function ProductShell() {
+  const location = useLocation();
   const [open, setOpen] = useState(false);
+  const shell = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const drawer = useRef<HTMLDivElement>(null);
+  const introduced = useRef(false);
 
   const close = () => {
     setOpen(false);
@@ -211,9 +219,87 @@ export default function ProductShell() {
     return () => document.removeEventListener("keydown", handleKey);
   }, [open]);
 
+  useGSAP(() => {
+    const media = gsap.matchMedia();
+
+    media.add("(prefers-reduced-motion: no-preference)", () => {
+      const routeContent = shell.current?.querySelector("[data-route-content]");
+      const routeSweep = shell.current?.querySelector("[data-route-sweep]");
+      const activeCard = shell.current?.querySelector('[data-feature-card][data-active="true"]');
+      const timeline = gsap.timeline({ defaults: { ease: "power2.out" } });
+
+      if (!introduced.current) {
+        timeline.fromTo(
+          "[data-desktop-rail] [data-feature-card]",
+          { autoAlpha: 0, x: -10 },
+          { autoAlpha: 1, x: 0, duration: 0.28, stagger: 0.035, clearProps: "opacity,visibility,transform" },
+          0,
+        );
+        introduced.current = true;
+      }
+
+      if (routeSweep) {
+        timeline
+          .fromTo(
+            routeSweep,
+            { autoAlpha: 0.85, scaleX: 0, transformOrigin: "left center" },
+            { autoAlpha: 0.85, scaleX: 1, duration: 0.2, ease: "power1.inOut" },
+            0,
+          )
+          .to(
+            routeSweep,
+            { autoAlpha: 0, scaleX: 0, transformOrigin: "right center", duration: 0.24, ease: "power1.inOut", clearProps: "transform,transformOrigin,visibility" },
+            0.2,
+          );
+      }
+
+      if (routeContent) {
+        timeline
+          .set(routeContent, { willChange: "transform,opacity" }, 0)
+          .fromTo(
+            routeContent,
+            { autoAlpha: 0, y: 12 },
+            { autoAlpha: 1, y: 0, duration: 0.42, clearProps: "opacity,visibility,transform,willChange" },
+            0.1,
+          );
+      }
+
+      if (activeCard) {
+        timeline.fromTo(
+          activeCard,
+          { x: -5, scale: 0.985 },
+          { x: 0, scale: 1, duration: 0.32, clearProps: "transform" },
+          0.08,
+        );
+      }
+    });
+
+    media.add("(prefers-reduced-motion: reduce)", () => {
+      gsap.set("[data-route-content], [data-route-sweep], [data-feature-card]", {
+        clearProps: "all",
+      });
+    });
+
+    return () => media.revert();
+  }, {
+    scope: shell,
+    dependencies: [location.pathname, location.search],
+    revertOnUpdate: true,
+  });
+
+  useGSAP(() => {
+    if (!open || !drawer.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    gsap.fromTo(
+      drawer.current,
+      { x: -20, autoAlpha: 0.7 },
+      { x: 0, autoAlpha: 1, duration: 0.28, ease: "power2.out", clearProps: "opacity,visibility,transform" },
+    );
+  }, { scope: shell, dependencies: [open] });
+
   return (
-    <div className="min-h-screen bg-[#1d1d1d]">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[252px] border-r border-[#2e2e2e] lg:block" aria-label="ChainScout features">
+    <div ref={shell} className="min-h-screen bg-[#1d1d1d]">
+      <div data-route-sweep aria-hidden="true" className="pointer-events-none fixed left-0 right-0 top-0 z-[65] h-[3px] origin-left bg-[#fa6c34] opacity-0 lg:left-[252px]" />
+      <aside data-desktop-rail className="fixed inset-y-0 left-0 z-40 hidden w-[252px] border-r border-[#2e2e2e] lg:block" aria-label="ChainScout features">
         <ProductRail />
       </aside>
 
@@ -246,7 +332,7 @@ export default function ProductShell() {
         </div>
       )}
 
-      <div className="min-h-screen lg:pl-[252px]" aria-hidden={open ? true : undefined}>
+      <div data-route-content className="min-h-screen lg:pl-[252px]" aria-hidden={open ? true : undefined}>
         <Outlet />
       </div>
     </div>

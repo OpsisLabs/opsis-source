@@ -34,6 +34,7 @@ test("desktop product rail explains and switches between every live workspace", 
   await expect(
     rail.getByRole("button", { name: "About live swap previews" }),
   ).toHaveCSS("color", "rgb(250, 108, 52)");
+  await expect(page.locator("[data-route-sweep]")).toHaveCount(1);
 
   await rail.getByRole("button", { name: "About live swap previews" }).click();
   await expect(
@@ -82,6 +83,18 @@ test("desktop product rail explains and switches between every live workspace", 
   await expect(page.getByRole("heading", { name: "Private Explorer" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Market & Inventory" })).toBeVisible();
   await expect(page.getByText("Saved research is separate.")).toBeVisible();
+});
+
+test("reduced motion keeps route changes immediate and readable", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/app");
+
+  const content = page.locator("[data-route-content]");
+  await expect(content).toBeVisible();
+  await page.getByRole("link", { name: /Scout Swap/i }).first().click();
+  await expect(page).toHaveURL(/\/swap$/);
+  await expect(content).toBeVisible();
+  await expect(content).not.toHaveAttribute("style", /opacity|transform|visibility/);
 });
 
 test("mobile feature drawer traps focus, explains tools, and preserves navigation", async ({
