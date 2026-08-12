@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "026ef15500b24a1db5624544736615fcf9b6263d22967d6b6c3a2eef41b8dcbf",
+  "sourceTreeDigest": "88f35f3bfa0f4360e0efb4b697546f290e4a928fddf1d3d8e645cb950531cf62",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "3ed81a31edfccc4dcb3d5df59034ae587275a331dace4b036d95ae3a5bf782d9",
@@ -246,7 +246,7 @@
     "pnpm-lock.yaml": "7a376c171f82adba06bfff0ba37d71914633b6593173d6e1885aa2d5dd57a873",
     "pnpm-workspace.yaml": "08d75840c97ab0e72d1d9b5b84a17e47a2e06cb159a5fbec5ee0a6a56682dad7",
     "README.md": "4fc91844b5e240d3f5bec7f18b0a09aaa7151f671458b203ce4a9e34dfef92ed",
-    "release-train.json": "9d2aa04ebf621b5aa8f4c464e56ec8f79f0b6402dc037241728fe99d01b6ebc6",
+    "release-train.json": "86dd13c99f0d7f13ff1bc6df1720a7efcb23d97f3e9acbf8812ae271d73b9227",
     "scripts/release-train.mjs": "713a688ec3e67703bfd9f649eb7e71395fcfdcc2ea628608a186db6200e3651e",
     "tsconfig.base.json": "106ea736491527813ed147545e145b13b677944c1533afaecf6a975c3c433d01"
   }

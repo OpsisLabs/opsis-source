@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "09-open-data-api",
+  "activeRelease": "10-launch-hardening",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement",
@@ -88,7 +88,7 @@
       "id": "09-open-data-api",
       "branch": "release/09-open-data-api",
       "tagPrefix": "rc/09-open-data-api/",
-      "status": "active",
+      "status": "released",
       "outcome": "Reuse ChainScout's sourced public intelligence",
       "shipGate": "The capped API exposes independently derived public facts and citations only; it contains no Vault data or restricted upstream payloads and cannot create paid overage."
     },
@@ -97,7 +97,7 @@
       "id": "10-launch-hardening",
       "branch": "release/10-launch-hardening",
       "tagPrefix": "rc/10-launch-hardening/",
-      "status": "queued",
+      "status": "active",
       "outcome": "Launch the complete private asset command center",
       "shipGate": "End-to-end launch journeys pass on desktop and mobile; dependency, privacy, accessibility, provider-failure, load, legal-copy, backup, deletion, monitoring, and rollback gates are complete."
     }
