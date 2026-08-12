@@ -295,14 +295,20 @@ describe("browser privacy static boundary", () => {
       resolve(repositoryRoot, "apps/web/src/pages/Vault.tsx"),
       "utf8",
     );
+    const availability = readFileSync(
+      resolve(repositoryRoot, "apps/web/src/product/availability.ts"),
+      "utf8",
+    );
     const envExample = readFileSync(
       resolve(repositoryRoot, ".env.example"),
       "utf8",
     );
-    expect(vaultPage).toContain(
-      'import.meta.env.VITE_COLLECTIBLE_CATALOG_ENABLED === "true"',
-    );
+    expect(vaultPage).toContain("isCollectibleCatalogEnabled");
     expect(vaultPage).toMatch(/COLLECTIBLE_CATALOG_ENABLED && \(\s*<button/);
+    expect(availability).toContain(
+      "import.meta.env.VITE_COLLECTIBLE_CATALOG_ENABLED",
+    );
+    expect(availability).toContain('flags.collectibleCatalog === "true"');
     expect(envExample).toContain("VITE_COLLECTIBLE_CATALOG_ENABLED=false");
     const webDockerfile = readFileSync(
       resolve(repositoryRoot, "apps/web/Dockerfile"),
@@ -334,6 +340,10 @@ describe("browser privacy static boundary", () => {
     );
     const vaultPage = readFileSync(
       resolve(repositoryRoot, "apps/web/src/pages/Vault.tsx"),
+      "utf8",
+    );
+    const availability = readFileSync(
+      resolve(repositoryRoot, "apps/web/src/product/availability.ts"),
       "utf8",
     );
     const webDockerfile = readFileSync(
@@ -377,10 +387,12 @@ describe("browser privacy static boundary", () => {
     );
     expect(merchants).toContain("APPROVED_MARKET_MERCHANTS");
     expect(merchants).not.toMatch(/process\.env|request|query|URLSearchParams/);
-    expect(vaultPage).toContain(
-      'import.meta.env.VITE_MARKET_INVENTORY_ENABLED === "true"',
-    );
+    expect(vaultPage).toContain("isMarketInventoryEnabled");
     expect(vaultPage).toMatch(/MARKET_INVENTORY_ENABLED && \(\s*<button/);
+    expect(availability).toContain(
+      "import.meta.env.VITE_MARKET_INVENTORY_ENABLED",
+    );
+    expect(availability).toContain('flags.marketInventory === "true"');
     expect(webDockerfile).toContain("ARG VITE_MARKET_INVENTORY_ENABLED=false");
     expect(webDockerfile).toContain(
       "ENV VITE_MARKET_INVENTORY_ENABLED=$VITE_MARKET_INVENTORY_ENABLED",

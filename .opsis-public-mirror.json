@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "2e4eb9ef1ceab9e16430327774a6e305c2d914b63a90acebf818b14d674c9d67",
+  "sourceTreeDigest": "a96dd9f62d5e0df350d2d2f1e29e81bc6205440c8518a47f1ead92deb2c0899c",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "e888a0ee532ed095004dd577ad701c56b17113e7b3b96397f47ab9a115afd0f4",
@@ -109,7 +109,7 @@
     "apps/api/test/persistence.test.ts": "80222d5b2e3b93f5571006e14927f9623abb7729317b728014e2cdaac42e140b",
     "apps/api/test/portfolio-budget.test.ts": "941fc9aa762128964216df8cffa95075dd31c07d01c8e36f9324a0138a8bc720",
     "apps/api/test/portfolio.test.ts": "620a6aa69848d3108e22ce9a7ec0ea8aa7ca90d8d3776f5465a8455bf79e73ab",
-    "apps/api/test/privacy-static.test.ts": "1dee472780a9913812ba7c6e350a756e90b84aebe328c305fad62a6b800aaf6d",
+    "apps/api/test/privacy-static.test.ts": "a1c2b62e0a7dbca55cd766420b08b541b85f30f57d103586021b1d9bd3a828d5",
     "apps/api/test/privacy.test.ts": "cbbb802a0d040015dba38db2a8a884690c193cd4f9bdb882d912d8158ae24b62",
     "apps/api/test/private-mode.test.ts": "3da60853389b29af2c6f5b14bc85c4e3b1d53249bc6c9d62d4244ee445439a15",
     "apps/api/test/provider-contract.test.ts": "cbeba14eea0ea217588b4369f245b3e1365086e0df0d3e36100cae113f0b0fab",
