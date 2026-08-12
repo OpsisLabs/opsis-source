@@ -75,14 +75,35 @@ test("desktop product rail explains and switches between every live workspace", 
   await expect(page).toHaveURL(/view=assets/);
   await expect(page.getByText("NO ENCRYPTED ASSETS YET")).toBeVisible();
 
-  await rail.getByRole("link", { name: "FEATURE GUIDE" }).click();
+  await rail.getByRole("link", { name: /NEW HERE\? START HERE/i }).click();
   await expect(page).toHaveURL(/\/guide$/);
   await expect(
-    page.getByRole("heading", { name: /Know where to go/i }),
+    page.getByRole("heading", { name: /What do you want/i }),
   ).toBeVisible();
+  await expect(page.getByRole("link", { name: /START A PRIVATE LOOKUP/i })).toBeVisible();
+  await expect(page.getByRole("link", { name: /OPEN PORTFOLIO/i })).toBeVisible();
+  await expect(page.getByRole("link", { name: /ADD AN ASSET/i })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Private Explorer" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Market & Inventory" })).toBeVisible();
   await expect(page.getByText("Saved research is separate.")).toBeVisible();
+  const scrollbarTheme = await page.locator("html").evaluate((element) => {
+    const styles = getComputedStyle(element);
+    return {
+      thumb: styles.getPropertyValue("--scrollbar-thumb").trim(),
+      track: styles.getPropertyValue("--scrollbar-track").trim(),
+    };
+  });
+  expect(scrollbarTheme).toEqual({ thumb: "#b64f29", track: "#202020" });
+});
+
+test("context help opens the matching optional guide detail", async ({ page }) => {
+  await page.goto("/app");
+  await page.getByRole("button", { name: "About live swap previews" }).click();
+  await page.getByRole("link", { name: "OPEN GUIDE →" }).click();
+  await expect(page).toHaveURL(/\/guide#scout-swap$/);
+  const detail = page.locator("details#scout-swap");
+  await expect(detail).toHaveAttribute("open", "");
+  await expect(detail.getByText(/minimum received, price impact/i)).toBeVisible();
 });
 
 test("reduced motion keeps route changes immediate and readable", async ({ page }) => {

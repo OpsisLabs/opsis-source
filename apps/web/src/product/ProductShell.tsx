@@ -9,8 +9,8 @@ import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
 import {
   ArrowLeftRight,
+  ArrowRight,
   BadgeCheck,
-  BookOpenText,
   Boxes,
   ChartNoAxesCombined,
   CircleHelp,
@@ -86,7 +86,7 @@ function FeatureLink({
               {feature.label}
             </span>
             <span className={`mt-0.5 block truncate font-mono-d text-[8px] tracking-[0.1em] ${active ? "text-[#522817]" : "text-[#79675f]"}`}>
-              {feature.eyebrow}
+              {feature.navHint}
             </span>
           </span>
         </Link>
@@ -141,11 +141,27 @@ function ProductRail({ onNavigate }: { onNavigate?: () => void }) {
         </span>
       </Link>
 
-      <div className="no-bar flex-1 overflow-y-auto pb-5 pt-4">
+      <div className="product-rail-scroll flex-1 overflow-y-auto pb-5 pt-3">
+        <Link
+          to="/guide"
+          onClick={onNavigate}
+          aria-current={location.pathname === "/guide" ? "page" : undefined}
+          className={`mx-2 mb-4 flex items-center justify-between border px-3 py-3 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#fa6c34] ${
+            location.pathname === "/guide"
+              ? "border-[#fa6c34] bg-[#fa6c34] text-[#1d1d1d]"
+              : "border-[#fa6c34]/55 bg-[#fa6c34]/10 text-[#fa6c34] hover:border-[#fa6c34] hover:bg-[#fa6c34]/15"
+          }`}
+        >
+          <span>
+            <span className="block font-mono-d text-[9px] font-semibold tracking-[0.12em]">NEW HERE? START HERE</span>
+            <span className="mt-1 block text-[10px] text-[#b7aea2]">Choose what you want to do</span>
+          </span>
+          <ArrowRight size={14} />
+        </Link>
         {(["explore", "vault"] as const).map((group) => (
           <section key={group} className="mt-2 first:mt-0" aria-label={group === "explore" ? "Explore tools" : "Private Vault tools"}>
             <p className="px-4 pb-2 font-mono-d text-[8px] tracking-[0.2em] text-[#5f5a55]">
-              {group === "explore" ? "EXPLORE · READ ONLY" : "LOCAL VAULT · ENCRYPTED"}
+              {group === "explore" ? "LOOK SOMETHING UP" : "SAVE & ORGANIZE PRIVATELY"}
             </p>
             {PRODUCT_FEATURES.filter((feature) => feature.group === group).map((feature) => (
               <FeatureLink
@@ -162,13 +178,6 @@ function ProductRail({ onNavigate }: { onNavigate?: () => void }) {
       </div>
 
       <nav className="shrink-0 space-y-1 border-t border-[#303030] bg-[#202020] p-3" aria-label="Product resources">
-        <Link
-          to="/guide"
-          onClick={onNavigate}
-          className={`flex items-center gap-3 border px-3 py-2.5 font-mono-d text-[10px] tracking-[0.08em] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#fa6c34] ${location.pathname === "/guide" ? "border-[#fa6c34] bg-[#fa6c34] text-[#1d1d1d]" : "border-[#fa6c34]/25 text-[#c0b6aa] hover:border-[#fa6c34]/65 hover:bg-[#fa6c34]/10 hover:text-[#fff7ec]"}`}
-        >
-          <BookOpenText size={14} /> FEATURE GUIDE
-        </Link>
         <Link to="/roadmap" onClick={onNavigate} className="flex items-center gap-3 border border-[#fa6c34]/25 px-3 py-2.5 font-mono-d text-[10px] tracking-[0.08em] text-[#c0b6aa] outline-none transition-colors hover:border-[#fa6c34]/65 hover:bg-[#fa6c34]/10 hover:text-[#fff7ec] focus-visible:ring-2 focus-visible:ring-[#fa6c34]">
           <Boxes size={14} /> ROADMAP
         </Link>

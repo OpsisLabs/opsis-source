@@ -6,6 +6,7 @@ export type ProductFeature = {
   helpLabel: string;
   path: string;
   eyebrow: string;
+  navHint: string;
   summary: string;
   bestFor: string;
   privacy: string;
@@ -22,6 +23,7 @@ export const PRODUCT_FEATURES: ProductFeature[] = [
     helpLabel: "About private lookup",
     path: "/app",
     eyebrow: "NO ACCOUNT · EPHEMERAL",
+    navHint: "Explain a wallet or transaction",
     summary:
       "Explain one public Robinhood Chain wallet, transaction, token, or contract with source-linked facts.",
     bestFor: "A fast answer when you do not want to create an account or save history.",
@@ -43,6 +45,7 @@ export const PRODUCT_FEATURES: ProductFeature[] = [
     helpLabel: "About live swap previews",
     path: "/swap",
     eyebrow: "READ-ONLY UNISWAP ROUTE",
+    navHint: "Preview a swap",
     summary:
       "Preview a current WETH/USDG route, minimum received, price impact, simulation, and estimated route cost.",
     bestFor: "Understanding a potential swap before opening the official Uniswap app.",
@@ -64,6 +67,7 @@ export const PRODUCT_FEATURES: ProductFeature[] = [
     helpLabel: "About tokenized-asset evidence",
     path: "/rwa",
     eyebrow: "CONTRACT FIRST · CITED",
+    navHint: "Check a token's claims",
     summary:
       "Inspect source-linked identity, oracle, corporate-action, vault, custody, and redemption evidence for supported tokenized assets.",
     bestFor: "Understanding what a token claims to represent and where that claim stops.",
@@ -85,6 +89,7 @@ export const PRODUCT_FEATURES: ProductFeature[] = [
     helpLabel: "About local portfolio snapshots",
     path: "/vault?view=portfolio",
     eyebrow: "ENCRYPTED · ON DEMAND",
+    navHint: "See a wallet in one view",
     summary:
       "Capture one address at one rechecked current block, then view holdings, activity, decoded movements, and local reference values together.",
     bestFor: "A private, local dashboard for a public Robinhood Chain address.",
@@ -106,6 +111,7 @@ export const PRODUCT_FEATURES: ProductFeature[] = [
     helpLabel: "About collectible identity",
     path: "/vault?view=collectibles",
     eyebrow: "CARD IDENTITY · LOCAL OWNERSHIP",
+    navHint: "Add and identify a card",
     summary:
       "Match English card and set identity, then privately add your own printing, condition, grade, photo, cost, and dated value source.",
     bestFor: "Replacing a collectible spreadsheet without uploading ownership details.",
@@ -127,6 +133,7 @@ export const PRODUCT_FEATURES: ProductFeature[] = [
     helpLabel: "About market and inventory tools",
     path: "/vault?view=market",
     eyebrow: "FRESH SOURCES · EXACT INPUTS",
+    navHint: "Compare markets and costs",
     summary:
       "Review exact-contract pool observations, opted-in merchant availability, and owner-entered landed-cost comparisons.",
     bestFor: "Comparing public market context and known costs without inventing missing fees or seller trust.",
@@ -148,6 +155,7 @@ export const PRODUCT_FEATURES: ProductFeature[] = [
     helpLabel: "About local manual records",
     path: "/vault?view=assets",
     eyebrow: "ANY ASSET · LOCAL ONLY",
+    navHint: "Add anything manually",
     summary:
       "Create encrypted records for crypto, collectibles, NFTs, real-world assets, or anything else you own.",
     bestFor: "Assets that have no supported provider, catalog match, or public identifier.",
