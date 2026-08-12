@@ -23,6 +23,17 @@ test("desktop product rail explains and switches between every live workspace", 
   await expect(
     rail.getByRole("link", { name: /Private Explorer/i }),
   ).toHaveAttribute("aria-current", "page");
+  await expect(rail.locator('[data-feature="private-explorer"]')).toHaveCSS(
+    "background-color",
+    "rgb(250, 108, 52)",
+  );
+  await expect(rail.locator('[data-feature="scout-swap"]')).toHaveCSS(
+    "border-top-color",
+    "rgba(250, 108, 52, 0.3)",
+  );
+  await expect(
+    rail.getByRole("button", { name: "About live swap previews" }),
+  ).toHaveCSS("color", "rgb(250, 108, 52)");
 
   await rail.getByRole("button", { name: "About live swap previews" }).click();
   await expect(

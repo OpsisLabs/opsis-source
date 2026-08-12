@@ -55,22 +55,32 @@ function FeatureLink({
 }) {
   const Icon = ICONS[feature.id] ?? ShieldCheck;
   return (
-    <div className={`border-t border-[#303030] ${active ? "bg-[#272523]" : "bg-transparent"}`}>
+    <div
+      data-feature={feature.id}
+      data-active={active ? "true" : "false"}
+      className={`mx-2 mb-1 overflow-hidden border transition-colors ${
+        active
+          ? "border-[#fa6c34] bg-[#fa6c34] shadow-[0_0_24px_rgba(250,108,52,0.12)]"
+          : expanded
+            ? "border-[#fa6c34]/65 bg-[#26211f]"
+            : "border-[#fa6c34]/30 bg-[#211f1e] hover:border-[#fa6c34]/70 hover:bg-[#29221f]"
+      }`}
+    >
       <div className="flex min-h-[52px] items-stretch">
         <Link
           to={feature.path}
           onClick={onNavigate}
           aria-current={active ? "page" : undefined}
-          className="group flex min-w-0 flex-1 items-center gap-3 px-4 py-3 text-left"
+          className="group flex min-w-0 flex-1 items-center gap-3 px-3 py-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#ffd0bc]"
         >
-          <span className={`flex h-7 w-7 shrink-0 items-center justify-center border ${active ? "border-[#fa6c34]/60 bg-[#fa6c34]/10 text-[#fa6c34]" : "border-[#383838] text-[#635d5a] group-hover:text-[#d6ccba]"}`}>
+          <span className={`flex h-7 w-7 shrink-0 items-center justify-center border transition-colors ${active ? "border-[#1d1d1d]/35 bg-[#1d1d1d]/10 text-[#1d1d1d]" : "border-[#fa6c34]/35 bg-[#fa6c34]/5 text-[#fa6c34] group-hover:bg-[#fa6c34]/12"}`}>
             <Icon size={13} />
           </span>
           <span className="min-w-0">
-            <span className={`block truncate text-[12px] ${active ? "text-[#f0e8da]" : "text-[#9a938a] group-hover:text-[#d6ccba]"}`}>
+            <span className={`block truncate text-[12px] transition-colors ${active ? "font-semibold text-[#1d1d1d]" : "text-[#d6ccba] group-hover:text-[#fff7ec]"}`}>
               {feature.label}
             </span>
-            <span className="mt-0.5 block truncate font-mono-d text-[8px] tracking-[0.1em] text-[#5f5a55]">
+            <span className={`mt-0.5 block truncate font-mono-d text-[8px] tracking-[0.1em] ${active ? "text-[#522817]" : "text-[#79675f]"}`}>
               {feature.eyebrow}
             </span>
           </span>
@@ -80,13 +90,19 @@ function FeatureLink({
           onClick={onExpand}
           aria-label={feature.helpLabel}
           aria-expanded={expanded}
-          className={`flex w-11 shrink-0 items-center justify-center border-l border-[#303030] transition-colors ${expanded ? "text-[#fa6c34]" : "text-[#5f5a55] hover:text-[#e9e0d1]"}`}
+          className={`flex w-11 shrink-0 items-center justify-center border-l outline-none transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#ffd0bc] ${
+            active
+              ? "border-[#1d1d1d]/20 bg-[#1d1d1d]/10 text-[#1d1d1d] hover:bg-[#1d1d1d]/20"
+              : expanded
+                ? "border-[#fa6c34]/45 bg-[#fa6c34]/15 text-[#ff8a5c]"
+                : "border-[#fa6c34]/25 bg-[#fa6c34]/5 text-[#fa6c34] hover:bg-[#fa6c34]/15 hover:text-[#ffb08f]"
+          }`}
         >
           <CircleHelp size={14} />
         </button>
       </div>
       {expanded && (
-        <div className="border-t border-[#303030] bg-[#202020] px-4 py-3" role="region" aria-label={`${feature.label} summary`}>
+        <div className="border-t border-[#fa6c34]/30 bg-[#1c1b1a] px-4 py-3" role="region" aria-label={`${feature.label} summary`}>
           <p className="text-[11px] leading-relaxed text-[#9a938a]">{feature.summary}</p>
           <Link
             to={`/guide#${feature.id}`}
@@ -140,18 +156,18 @@ function ProductRail({ onNavigate }: { onNavigate?: () => void }) {
         ))}
       </div>
 
-      <nav className="shrink-0 border-t border-[#303030] bg-[#202020] p-3" aria-label="Product resources">
+      <nav className="shrink-0 space-y-1 border-t border-[#303030] bg-[#202020] p-3" aria-label="Product resources">
         <Link
           to="/guide"
           onClick={onNavigate}
-          className={`flex items-center gap-3 px-3 py-2.5 font-mono-d text-[10px] tracking-[0.08em] ${location.pathname === "/guide" ? "text-[#fa6c34]" : "text-[#9a938a] hover:text-[#e9e0d1]"}`}
+          className={`flex items-center gap-3 border px-3 py-2.5 font-mono-d text-[10px] tracking-[0.08em] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#fa6c34] ${location.pathname === "/guide" ? "border-[#fa6c34] bg-[#fa6c34] text-[#1d1d1d]" : "border-[#fa6c34]/25 text-[#c0b6aa] hover:border-[#fa6c34]/65 hover:bg-[#fa6c34]/10 hover:text-[#fff7ec]"}`}
         >
           <BookOpenText size={14} /> FEATURE GUIDE
         </Link>
-        <Link to="/roadmap" onClick={onNavigate} className="flex items-center gap-3 px-3 py-2.5 font-mono-d text-[10px] tracking-[0.08em] text-[#9a938a] hover:text-[#e9e0d1]">
+        <Link to="/roadmap" onClick={onNavigate} className="flex items-center gap-3 border border-[#fa6c34]/25 px-3 py-2.5 font-mono-d text-[10px] tracking-[0.08em] text-[#c0b6aa] outline-none transition-colors hover:border-[#fa6c34]/65 hover:bg-[#fa6c34]/10 hover:text-[#fff7ec] focus-visible:ring-2 focus-visible:ring-[#fa6c34]">
           <Boxes size={14} /> ROADMAP
         </Link>
-        <Link to="/" onClick={onNavigate} className="flex items-center gap-3 px-3 py-2.5 font-mono-d text-[10px] tracking-[0.08em] text-[#9a938a] hover:text-[#e9e0d1]">
+        <Link to="/" onClick={onNavigate} className="flex items-center gap-3 border border-[#fa6c34]/25 px-3 py-2.5 font-mono-d text-[10px] tracking-[0.08em] text-[#c0b6aa] outline-none transition-colors hover:border-[#fa6c34]/65 hover:bg-[#fa6c34]/10 hover:text-[#fff7ec] focus-visible:ring-2 focus-visible:ring-[#fa6c34]">
           <House size={14} /> MARKETING HOME
         </Link>
       </nav>

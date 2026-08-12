@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "0bde19579cf95610c9bfece8897f690cfa8b73bcaa999d4b3db0d5e5dae34404",
+  "sourceTreeDigest": "4b01a6a3dc06b4a37f9fdaf616ffbb4ca422e0f14916efdb22a942342705acff",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "e888a0ee532ed095004dd577ad701c56b17113e7b3b96397f47ab9a115afd0f4",
@@ -172,7 +172,7 @@
     "apps/web/src/portfolio/PortfolioPanel.tsx": "a02e34d1020103ab6f1bd981d93d7e3e47c7dbc50742246fc7dc1e02b3183173",
     "apps/web/src/private/api.ts": "2e6bbc33d20e33cdb25ff8232d1790743fc6d3280929619b15e3900f765925af",
     "apps/web/src/product/features.ts": "7853e7eb032441c30a01ee22102389be6ba4415cd0ee5ee3b46bcabf3fd5cc02",
-    "apps/web/src/product/ProductShell.tsx": "f8b4f150e79e1766985738f28762bfeb7e01e5a83150f6ed722090d689a007ff",
+    "apps/web/src/product/ProductShell.tsx": "832ed6a8c880e8ee13ef412f623129611ee6f0726ea67ec21581254222cf7664",
     "apps/web/src/rwa/api.ts": "c3d4d6b5af4703979ddde574a8a91a93153ed6396a5e0bfafc4c87d9500eea68",
     "apps/web/src/sections/Blog.tsx": "c8dcd2ca2df62d2432d703e98a9d09b853842206ee9e3936bd9692880784c64f",
     "apps/web/src/sections/Capabilities.tsx": "b10061720e60b1ae808846b5be7a29b3b59986a7ce7189149fced3c60951229e",
@@ -208,7 +208,7 @@
     "e2e/collectibles.mock.spec.ts": "b61b96000bf8ed4a2e7cf0be7614192ce2fc5aa73c3058e5567693b9b8c2f0d4",
     "e2e/market.mock.spec.ts": "0f4443ea231cde23b11e66c472505a1c49fb89cb3a7f1166ec34022db497aac7",
     "e2e/private-mode.mock.spec.ts": "b1d93033e4b6c05905cf9311bae01d6c7ef902ca2d5f61af358e2cc3e5943435",
-    "e2e/product-navigation.mock.spec.ts": "3bdc1eb911237ce3ecf8360350e5d354a15a0c93d29a2ae2eacadf5d6cee129e",
+    "e2e/product-navigation.mock.spec.ts": "0e82b0ef27d04013c123532acb14cf6d9c6cdaee85b682c9c4f87e38f7788045",
     "e2e/rwa.mock.spec.ts": "86ffa1d613d44b510599a0b704e124e8c8dd7e49d155b915a151c55b1c02bc90",
     "e2e/scout-swap.mock.spec.ts": "f43a64a6b760e2f14f3e0ef49dddd4049c480706461e485e9a02742d34d12c0a",
     "e2e/vault.mock.spec.ts": "d3838c43684e0e84409a4164d89d89f4daf896b3f1ed7d0ae319c25b1f7331e9",
