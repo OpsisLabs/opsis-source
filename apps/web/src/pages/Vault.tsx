@@ -7,7 +7,7 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import {
   ArchiveRestore,
   ArrowLeft,
@@ -67,6 +67,7 @@ import { MarketInventoryPanel } from "../market/MarketInventoryPanel";
 
 type Phase =
   "loading" | "empty" | "locked" | "unlocked" | "deleting" | "unsupported";
+type Workspace = "assets" | "portfolio" | "collectibles" | "market";
 const DELETE_PHRASE = "DELETE MY LOCAL VAULT";
 const REPLACE_PHRASE = "REPLACE MY LOCAL VAULT";
 const AUTO_LOCK_MS = 10 * 60 * 1000;
@@ -79,6 +80,15 @@ const MARKET_INVENTORY_ENABLED =
   (import.meta.env.DEV &&
     import.meta.env.VITE_MARKET_INVENTORY_ENABLED !== "false");
 
+function workspaceFromSearch(searchParams: URLSearchParams): Workspace {
+  const requested = searchParams.get("view");
+  if (requested === "portfolio") return requested;
+  if (requested === "collectibles" && COLLECTIBLE_CATALOG_ENABLED)
+    return requested;
+  if (requested === "market" && MARKET_INVENTORY_ENABLED) return requested;
+  return "assets";
+}
+
 const EMPTY_DRAFT: VaultAssetDraft = {
   name: "",
   assetType: "collectible",
@@ -88,6 +98,7 @@ const EMPTY_DRAFT: VaultAssetDraft = {
 };
 
 export default function VaultPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const platformSupported = isVaultPlatformSupported();
   const [phase, setPhase] = useState<Phase>(
     platformSupported ? "loading" : "unsupported",
@@ -99,9 +110,7 @@ export default function VaultPage() {
     UnlockedVault["collectibles"]
   >([]);
   const [markets, setMarkets] = useState<UnlockedVault["markets"]>([]);
-  const [workspace, setWorkspace] = useState<
-    "assets" | "portfolio" | "collectibles" | "market"
-  >("assets");
+  const workspace = workspaceFromSearch(searchParams);
   const [storage, setStorage] = useState<VaultStorageStatus>({
     supported: platformSupported,
     persistent: null,
@@ -128,6 +137,19 @@ export default function VaultPage() {
     markets,
     phase,
   });
+
+  const selectWorkspace = useCallback(
+    (next: Workspace) => {
+      const allowed = workspaceFromSearch(
+        new URLSearchParams(next === "assets" ? "view=assets" : `view=${next}`),
+      );
+      setEditor(null);
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.set("view", allowed);
+      setSearchParams(nextParams);
+    },
+    [searchParams, setSearchParams],
+  );
 
   useEffect(() => {
     unlockedStateRef.current = {
@@ -373,7 +395,6 @@ export default function VaultPage() {
     setPortfolios(unlocked.portfolios);
     setCollectibles(unlocked.collectibles);
     setMarkets(unlocked.markets);
-    setWorkspace("assets");
     setEditor(null);
     setSettingsOpen(false);
     setPhase("unlocked");
@@ -802,10 +823,7 @@ export default function VaultPage() {
             >
               <button
                 type="button"
-                onClick={() => {
-                  setWorkspace("portfolio");
-                  setEditor(null);
-                }}
+                onClick={() => selectWorkspace("portfolio")}
                 className={`min-h-[48px] bg-[#202020] font-mono-d text-[10px] tracking-[0.14em] ${workspace === "portfolio" ? "text-[#fa6c34] shadow-[inset_0_-2px_0_#fa6c34]" : "text-[#7f7972] hover:text-[#d6ccba]"}`}
               >
                 PORTFOLIO INTELLIGENCE
@@ -813,10 +831,7 @@ export default function VaultPage() {
               {COLLECTIBLE_CATALOG_ENABLED && (
                 <button
                   type="button"
-                  onClick={() => {
-                    setWorkspace("collectibles");
-                    setEditor(null);
-                  }}
+                  onClick={() => selectWorkspace("collectibles")}
                   className={`min-h-[48px] bg-[#202020] font-mono-d text-[10px] tracking-[0.14em] ${workspace === "collectibles" ? "text-[#fa6c34] shadow-[inset_0_-2px_0_#fa6c34]" : "text-[#7f7972] hover:text-[#d6ccba]"}`}
                 >
                   COLLECTIBLE CATALOG
@@ -825,10 +840,7 @@ export default function VaultPage() {
               {MARKET_INVENTORY_ENABLED && (
                 <button
                   type="button"
-                  onClick={() => {
-                    setWorkspace("market");
-                    setEditor(null);
-                  }}
+                  onClick={() => selectWorkspace("market")}
                   className={`min-h-[48px] bg-[#202020] font-mono-d text-[10px] tracking-[0.14em] ${workspace === "market" ? "text-[#fa6c34] shadow-[inset_0_-2px_0_#fa6c34]" : "text-[#7f7972] hover:text-[#d6ccba]"}`}
                 >
                   MARKET & INVENTORY
@@ -836,7 +848,7 @@ export default function VaultPage() {
               )}
               <button
                 type="button"
-                onClick={() => setWorkspace("assets")}
+                onClick={() => selectWorkspace("assets")}
                 className={`min-h-[48px] bg-[#202020] font-mono-d text-[10px] tracking-[0.14em] ${workspace === "assets" ? "text-[#fa6c34] shadow-[inset_0_-2px_0_#fa6c34]" : "text-[#7f7972] hover:text-[#d6ccba]"}`}
               >
                 MANUAL ASSET RECORDS
@@ -870,7 +882,7 @@ export default function VaultPage() {
                 onSaveContext={saveCollectibleContext}
                 onSaveAsset={saveCatalogAsset}
                 onManual={() => {
-                  setWorkspace("assets");
+                  selectWorkspace("assets");
                   setEditor("new");
                 }}
               />

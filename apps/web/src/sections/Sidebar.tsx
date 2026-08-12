@@ -12,7 +12,7 @@ const INDEX = [
 ];
 
 function LogoMark({ className = "w-8 h-8" }: { className?: string }) {
-  return <img src="/logo.svg" alt="RH Chain AI Explorer" className={className} />;
+  return <img src="/logo.svg" alt="ChainScout" className={className} />;
 }
 
 export default function Sidebar() {

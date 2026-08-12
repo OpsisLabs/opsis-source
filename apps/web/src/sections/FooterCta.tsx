@@ -146,7 +146,7 @@ export default function FooterCta() {
         </div>
 
         <div className="flex flex-col items-center justify-between gap-3 border-t border-[#1d1d1d]/20 bg-[#1d1d1d] px-8 py-5 text-[12px] text-[#9a938a] md:flex-row md:px-12">
-          <span>© RH Chain AI Explorer, 2026</span>
+          <span>© ChainScout, 2026</span>
           <span className="font-mono-d tracking-widest text-[#635d5a]">····················</span>
           <span>Informational only. Not financial advice.</span>
           <span className="flex gap-8">

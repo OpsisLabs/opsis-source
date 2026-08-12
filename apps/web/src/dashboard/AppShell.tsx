@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router";
-import { LogOut, Menu, MessageSquarePlus, Repeat2, Search, ShieldCheck, Unplug, Wallet, X } from "lucide-react";
+import { BadgeCheck, BookOpenText, LockKeyhole, LogOut, Menu, MessageSquarePlus, Repeat2, Search, ShieldCheck, Unplug, Wallet, X } from "lucide-react";
 import { classify, createSession, getUsage, listSessions, SAMPLE_TX, SAMPLE_WALLET } from "./api";
 import { useAuth } from "./store";
 import { useWallet } from "./walletStore";
@@ -8,7 +8,7 @@ import { hasMetaMask, shortAddress } from "./wallet";
 import type { ChatSession, Usage, User } from "./types";
 
 function LogoMark({ className = "w-6 h-6" }: { className?: string }) {
-  return <img src="/logo.svg" alt="RH Chain AI Explorer" className={className} />;
+  return <img src="/logo.svg" alt="ChainScout" className={className} />;
 }
 
 function WalletButton() {
@@ -107,7 +107,7 @@ function RailBody({
       >
         <span className="absolute inset-0 flex items-center justify-center gap-2.5">
           <LogoMark />
-          <span className="font-mono-d text-[11px] font-medium tracking-wider text-[#1d1d1d]">RH AI EXPLORER</span>
+          <span className="font-mono-d text-[11px] font-medium tracking-wider text-[#1d1d1d]">CHAINSCOUT</span>
         </span>
       </Link>
 
@@ -128,6 +128,20 @@ function RailBody({
           <Repeat2 size={13} />
           SCOUT SWAP
         </Link>
+        <div className="mt-2 grid grid-cols-2 gap-1">
+          <Link to="/app" onClick={onNavigate} className="flex items-center gap-2 border border-[#2e2e2e] px-2.5 py-2.5 font-mono-d text-[9px] text-[#7f7972] hover:text-[#e9e0d1]">
+            <ShieldCheck size={11} /> PRIVATE
+          </Link>
+          <Link to="/vault?view=portfolio" onClick={onNavigate} className="flex items-center gap-2 border border-[#2e2e2e] px-2.5 py-2.5 font-mono-d text-[9px] text-[#7f7972] hover:text-[#e9e0d1]">
+            <LockKeyhole size={11} /> VAULT
+          </Link>
+          <Link to="/rwa" onClick={onNavigate} className="flex items-center gap-2 border border-[#2e2e2e] px-2.5 py-2.5 font-mono-d text-[9px] text-[#7f7972] hover:text-[#e9e0d1]">
+            <BadgeCheck size={11} /> RWA
+          </Link>
+          <Link to="/guide" onClick={onNavigate} className="flex items-center gap-2 border border-[#2e2e2e] px-2.5 py-2.5 font-mono-d text-[9px] text-[#7f7972] hover:text-[#e9e0d1]">
+            <BookOpenText size={11} /> GUIDE
+          </Link>
+        </div>
       </div>
 
       <div className="px-5 pb-2 pt-1 font-mono-d text-[10.5px] tracking-wider text-[#635d5a]">SESSIONS</div>

@@ -12,6 +12,8 @@ import PrivateExplorer from "./pages/PrivateExplorer";
 import AccountPrivacyPage from "./dashboard/AccountPrivacyPage";
 import VaultPage from "./pages/Vault";
 import RwaVerify from "./pages/RwaVerify";
+import FeatureGuide from "./pages/FeatureGuide";
+import ProductShell from "./product/ProductShell";
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -66,10 +68,13 @@ export default function App() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/roadmap" element={<Roadmap />} />
-      <Route path="/swap" element={<ScoutSwap />} />
-      <Route path="/app" element={<PrivateExplorer />} />
-      <Route path="/vault" element={<VaultPage />} />
-      <Route path="/rwa" element={<RwaVerify />} />
+      <Route element={<ProductShell />}>
+        <Route path="/swap" element={<ScoutSwap />} />
+        <Route path="/app" element={<PrivateExplorer />} />
+        <Route path="/vault" element={<VaultPage />} />
+        <Route path="/rwa" element={<RwaVerify />} />
+        <Route path="/guide" element={<FeatureGuide />} />
+      </Route>
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/terms" element={<TermsPage />} />
       <Route element={<CloudProviders />}>

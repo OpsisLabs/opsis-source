@@ -100,10 +100,10 @@ export default function Hero() {
 
         <div className="mt-10 grid w-full max-w-[480px] gap-3 sm:grid-cols-2">
           <Link
-            to="/vault"
+            to="/vault?view=portfolio"
             className="clip-btn flex h-[58px] items-center justify-center bg-[#e9e0d1] font-mono-d text-[12px] font-medium tracking-wide text-[#1d1d1d] transition-colors hover:bg-[#f0e8da]"
           >
-            OPEN MY PORTFOLIO
+            OPEN PRIVATE VAULT
           </Link>
           <Link
             to="/app"

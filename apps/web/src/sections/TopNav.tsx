@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import { Menu, X } from "lucide-react";
 
 const LINKS = [
-  { label: "Product", href: "#capabilities" },
+  { label: "Feature Guide", href: "/guide" },
   { label: "Scout Swap", href: "/swap" },
   { label: "Portfolio Vault", href: "/vault" },
   { label: "RWA Verify", href: "/rwa" },
@@ -26,7 +26,7 @@ export default function TopNav() {
           className="flex h-full w-[60px] shrink-0 items-center justify-center bg-[#fa6c34] lg:hidden"
           style={{ clipPath: "polygon(0 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%)" }}
         >
-          <img src="/logo.svg" alt="RH Chain AI Explorer" className="h-6 w-6" />
+          <img src="/logo.svg" alt="ChainScout" className="h-6 w-6" />
         </a>
 
         <div className="flex-1" />

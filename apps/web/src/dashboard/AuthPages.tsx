@@ -6,7 +6,7 @@ import { USERNAME_REQUIRED } from "./api";
 import { hasMetaMask } from "./wallet";
 
 function LogoMark({ className = "w-7 h-7" }: { className?: string }) {
-  return <img src="/logo.svg" alt="RH Chain AI Explorer" className={className} />;
+  return <img src="/logo.svg" alt="ChainScout" className={className} />;
 }
 
 function AuthLayout({
@@ -28,9 +28,9 @@ function AuthLayout({
             <LogoMark />
           </span>
           <span className="font-mono-d text-[12px] leading-4 text-[#9a938a]">
-            RH CHAIN
+            CHAINSCOUT
             <br />
-            AI EXPLORER
+            SAVED RESEARCH
           </span>
         </Link>
         <div className="clip-panel border border-[#2e2e2e] bg-[#242424] p-8">
