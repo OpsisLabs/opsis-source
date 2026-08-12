@@ -362,6 +362,28 @@ export function PrivacyPage() {
           product evolves; material changes will be noted on this page.
         </p>
       </Section>
+      <Section n="09" title="Credentialless Open Data API">
+        <p>
+          When enabled, Open Data v1 provides two capped public routes: a static
+          ChainScout-reviewed WETH/USDG support registry and syntax-only EVM
+          address normalization. The routes reject account cookies and bearer
+          credentials. A pseudonymous HMAC of the normalized client network
+          address is stored temporarily in Redis for an hourly limit, alongside
+          a global daily request count. The submitted public address is processed
+          in memory and is not written to the Vault, account database, API cache,
+          logs, analytics, or an upstream provider. Redis failure disables the
+          surface rather than bypassing its cap.
+        </p>
+        <p>
+          Open Data v1 does not expose wallets, transactions, balances, prices,
+          portfolios, inventory, Vault records, user history, provider payloads,
+          or a live-chain guarantee. Human-verification links navigate to the
+          named third-party source; they do not copy or sublicense that source's
+          response. ChainScout claims authorship only over its response schema,
+          deterministic normalization, support annotations, and limitations—not
+          third-party names, symbols, addresses, trademarks, or linked materials.
+        </p>
+      </Section>
     </Shell>
   );
 }
@@ -448,8 +470,25 @@ export function TermsPage() {
           links before acting on them.
         </p>
       </Section>
+      <Section n="05" title="Open Data API use">
+        <p>
+          Open Data v1, when enabled, is a small developer surface with two routes,
+          no cross-origin browser CORS, and no service-level or redistribution
+          guarantee. You may consume
+          the ChainScout-authored schema, deterministic normalization, support
+          annotations, and limitations subject to applicable product terms. You
+          receive no license from ChainScout to third-party names, symbols,
+          contract addresses, trademarks, or linked materials. You must keep
+          identity and limitation labels accurate, respect the published caps,
+          and may not evade them, imply official Robinhood or Blockscout status,
+          or present syntax normalization as proof that an address exists or is
+          safe. ChainScout may reduce the cap, disable the surface, or change a
+          future version. There is no API-key, paid-overage, bulk, live-data, or
+          guaranteed-availability entitlement in v1.
+        </p>
+      </Section>
 
-      <Section n="05" title="Accounts and acceptable use">
+      <Section n="06" title="Accounts and acceptable use">
         <p>
           Private Mode requires no account. If you choose the optional saved
           cloud workspace, you are responsible for activity under that account.
@@ -460,7 +499,7 @@ export function TermsPage() {
         </p>
       </Section>
 
-      <Section n="06" title="Independence">
+      <Section n="07" title="Independence">
         <p>
           ChainScout is an independent tool built to help users understand
           public Robinhood Chain data. Except where explicitly stated, it is not
@@ -468,7 +507,7 @@ export function TermsPage() {
         </p>
       </Section>
 
-      <Section n="07" title="Availability and changes">
+      <Section n="08" title="Availability and changes">
         <p>
           The service depends on third-party chain data and AI providers;
           degraded provider performance may affect answers, in which case the
@@ -478,7 +517,7 @@ export function TermsPage() {
         </p>
       </Section>
 
-      <Section n="08" title="Liability">
+      <Section n="09" title="Liability">
         <p>
           To the maximum extent permitted by law, we are not liable for
           decisions made based on the service's output, for provider outages or

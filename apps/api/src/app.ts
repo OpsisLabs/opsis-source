@@ -5,6 +5,7 @@ import rateLimit from "@fastify/rate-limit";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
 import Fastify, { LogController } from "fastify";
+import type { FastifyRequest } from "fastify";
 import Redis from "ioredis";
 import type { PrismaClient } from "@prisma/client";
 import { JsonCache } from "./cache/service.js";
@@ -35,6 +36,9 @@ import { createCollectibleBudget } from "./collectibles/budget.js";
 import { marketRoutes } from "./routes/market.js";
 import { MarketInventoryService, type MarketInventorySource } from "./market/service.js";
 import { createMarketBudget } from "./market/budget.js";
+import { openDataRoutes } from "./routes/open-data.js";
+import type { OpenDataLimiter } from "./open-data/limiter.js";
+import { corsOptionsForRequest } from "./http/cors.js";
 
 export async function buildApp(
   env: Env,
@@ -45,6 +49,7 @@ export async function buildApp(
     rwaVerification?: RwaVerificationSource;
     collectibleCatalog?: CollectibleCatalogSource;
     marketInventory?: MarketInventorySource;
+    openDataLimiter?: OpenDataLimiter;
   }
 ) {
   const app = Fastify({
@@ -91,7 +96,9 @@ export async function buildApp(
   }
   const cache = new JsonCache(redis, env.CHAIN_CACHE_TTL_SECONDS);
   await app.register(cookie);
-  await app.register(cors, { origin: env.NODE_ENV === "production" ? env.APP_ORIGIN : true, credentials: true });
+  await app.register(cors, {
+    delegator: async (request: FastifyRequest) => corsOptionsForRequest(request.url, env),
+  });
   installCsrfProtection(app, env);
   await app.register(helmet);
   await app.register(rateLimit, {
@@ -114,6 +121,7 @@ export async function buildApp(
         { name: "rwa" },
         { name: "collectibles" },
         { name: "market" },
+        { name: "open-data" },
         { name: "account" },
         { name: "usage" },
         { name: "admin" }
@@ -136,6 +144,7 @@ export async function buildApp(
   }
   if (env.ENABLE_METRICS) await installMetrics(app);
   await healthRoutes(app, env, prisma, redis);
+  await openDataRoutes(app, env, redis, dependencies?.openDataLimiter);
   await privateRoutes(app, env, prisma, cache, dependencies?.privateAnalysis);
   await portfolioRoutes(
     app,

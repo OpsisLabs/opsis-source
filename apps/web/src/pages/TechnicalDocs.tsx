@@ -77,6 +77,13 @@ const ADAPTERS = [
     limit: "No execution, scraping, complete inventory, or seller score",
   },
   {
+    name: "OPEN DATA V1",
+    input: "One reviewed support-registry read or one public EVM address",
+    process: "Static ChainScout tuple or deterministic syntax normalization",
+    output: "Versioned annotations, limitations, and human-verification links",
+    limit: "Two routes; no provider calls, search, live state, API keys, or bulk data",
+  },
+  {
     name: "REPLAY ACTIONS",
     input: "One complete local movement pattern or freshly reviewed offer",
     process: "Strict local pattern check + mandatory new direction/amount or current offer",
@@ -93,8 +100,8 @@ const TOKEN_CANDIDATES = [
   },
   {
     title: "Public API quota boosts",
-    copy: "When the planned public API exists, a holder could claim a bounded higher quota. Global $0 provider budgets and abuse limits would still override any entitlement.",
-    label: "AFTER PUBLIC API",
+    copy: "Open Data v1 has no keys or token entitlements. A later release could consider a bounded higher quota, but the global $0 spend ceiling and abuse limits would still override it.",
+    label: "NOT IN V1",
   },
   {
     title: "Optional partner perks",

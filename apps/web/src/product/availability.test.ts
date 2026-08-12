@@ -7,15 +7,17 @@ describe("product build availability", () => {
       collectibleCatalog: undefined,
       marketInventory: "false",
       replayActions: undefined,
+      openDataApi: undefined,
       development: false,
-    })).toEqual({ collectibleCatalog: false, marketInventory: false, replayActions: false });
+    })).toEqual({ collectibleCatalog: false, marketInventory: false, replayActions: false, openDataApi: false });
 
     expect(productAvailability({
       collectibleCatalog: "true",
       marketInventory: "true",
       replayActions: "true",
+      openDataApi: "true",
       development: false,
-    })).toEqual({ collectibleCatalog: true, marketInventory: true, replayActions: true });
+    })).toEqual({ collectibleCatalog: true, marketInventory: true, replayActions: true, openDataApi: true });
   });
 
   it("keeps local development enabled by default but honors an explicit false", () => {
@@ -23,8 +25,9 @@ describe("product build availability", () => {
       collectibleCatalog: undefined,
       marketInventory: "false",
       replayActions: undefined,
+      openDataApi: undefined,
       development: true,
-    })).toEqual({ collectibleCatalog: true, marketInventory: false, replayActions: true });
+    })).toEqual({ collectibleCatalog: true, marketInventory: false, replayActions: true, openDataApi: true });
   });
 
   it("fails a direct gated Vault link closed to manual assets", () => {
@@ -32,6 +35,7 @@ describe("product build availability", () => {
       collectibleCatalog: false,
       marketInventory: false,
       replayActions: false,
+      openDataApi: false,
     };
     expect(vaultWorkspaceFromSearch(new URLSearchParams("view=replay"), flags)).toBe("assets");
     expect(vaultWorkspaceFromSearch(new URLSearchParams("view=market"), flags)).toBe("assets");
@@ -40,5 +44,10 @@ describe("product build availability", () => {
       new URLSearchParams("view=replay"),
       { ...flags, replayActions: true },
     )).toBe("replay");
+  });
+
+  it("fails the developer API page closed unless the exact web flag is true", () => {
+    expect(productAvailability({ collectibleCatalog: "false", marketInventory: "false", replayActions: "false", openDataApi: undefined, development: false }).openDataApi).toBe(false);
+    expect(productAvailability({ collectibleCatalog: "false", marketInventory: "false", replayActions: "false", openDataApi: "true", development: false }).openDataApi).toBe(true);
   });
 });

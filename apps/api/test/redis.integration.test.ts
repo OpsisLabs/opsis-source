@@ -7,6 +7,7 @@ import { createPortfolioBudget } from "../src/portfolio/budget.js";
 import { createRwaBudget } from "../src/rwa/budget.js";
 import { createCollectibleBudget } from "../src/collectibles/budget.js";
 import { createMarketBudget } from "../src/market/budget.js";
+import { createOpenDataLimiter } from "../src/open-data/limiter.js";
 
 const redisUrl = process.env.TEST_REDIS_URL;
 const redisDatabase = redisUrl ? Number(new URL(redisUrl).pathname.slice(1)) : 0;
@@ -98,6 +99,43 @@ if (!redisUrl) {
       const keys = await redis.keys("rh:market-budget:*");
       expect(keys).toEqual(["rh:market-budget:2026-08-11"]);
       expect(await redis.get(keys[0])).toBe("50");
+    });
+
+    it("atomically shares Open Data identity and global caps without storing raw client addresses", async () => {
+      const env = loadEnv({
+        NODE_ENV: "test",
+        JWT_ACCESS_SECRET: "open_data_test_hmac_secret",
+        RATE_LIMIT_OPEN_DATA_PER_HOUR: "2",
+        OPEN_DATA_DAILY_REQUEST_BUDGET: "100",
+      });
+      const now = () => new Date("2026-08-12T12:00:00.000Z");
+      const first = createOpenDataLimiter(env, redis, now);
+      const second = createOpenDataLimiter(env, redis, now);
+      await Promise.all([first.consume("203.0.113.42"), second.consume("203.0.113.42")]);
+      await expect(first.consume("203.0.113.42")).rejects.toMatchObject({ code: "OPEN_DATA_RATE_LIMIT_EXCEEDED" });
+      const keys = await redis.keys("rh:open-data:*");
+      expect(keys).toHaveLength(2);
+      expect(keys.join("\n")).not.toContain("203.0.113.42");
+      expect(await redis.get("rh:open-data:global:2026-08-12")).toBe("2");
+      expect(await redis.ttl(keys.find((key) => key.includes(":identity:"))!)).toBeGreaterThan(0);
+      expect(await redis.ttl("rh:open-data:global:2026-08-12")).toBeGreaterThan(0);
+    });
+
+    it("atomically exhausts the Open Data global cap across different identities and fails closed on Redis outage", async () => {
+      const env = loadEnv({
+        NODE_ENV: "test",
+        JWT_ACCESS_SECRET: "open_data_global_test_secret",
+        RATE_LIMIT_OPEN_DATA_PER_HOUR: "100",
+        OPEN_DATA_DAILY_REQUEST_BUDGET: "100",
+      });
+      const now = () => new Date("2026-08-13T12:00:00.000Z");
+      const first = createOpenDataLimiter(env, redis, now);
+      const second = createOpenDataLimiter(env, redis, now);
+      await Promise.all(Array.from({ length: 100 }, (_, index) => (index % 2 ? first : second).consume(`198.51.100.${index + 1}`)));
+      await expect(second.consume("203.0.113.250")).rejects.toMatchObject({ code: "OPEN_DATA_DAILY_CAP_EXCEEDED" });
+      expect(await redis.get("rh:open-data:global:2026-08-13")).toBe("100");
+      const broken = createOpenDataLimiter(env, { eval: async () => { throw new Error("offline"); } } as unknown as Redis, now);
+      await expect(broken.consume("203.0.113.251")).rejects.toMatchObject({ code: "OPEN_DATA_CAP_UNAVAILABLE" });
     });
   });
 }

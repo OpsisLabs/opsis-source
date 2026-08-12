@@ -345,3 +345,134 @@ export type ApprovedMerchantDirectoryResponse = {
   source: "chainscout_reviewed_registry";
   limitations: string[];
 };
+
+export type OpenDataSource = {
+  id: string;
+  title: string;
+  url: string;
+  kind: "primary_reference" | "human_verification";
+  purpose: "human_verification_link_only";
+};
+
+export type OpenDataRegistryProvenance = {
+  derivation: "chainscout_static_review";
+  upstreamPayloadIncluded: false;
+  redistributionClass: "chainscout_reviewed_reference";
+  reviewedAt: string;
+};
+
+export type OpenDataNormalizationProvenance = {
+  derivation: "deterministic_syntax_normalization";
+  upstreamPayloadIncluded: false;
+  redistributionClass: "chainscout_derived_normalization";
+  reviewedAt: string;
+};
+
+export type OpenDataAsset = {
+  schemaVersion: 1;
+  canonicalId: string;
+  chain: { id: 4663; namespace: "eip155"; name: "Robinhood Chain" };
+  assetType: "erc20";
+  address: string;
+  name: string;
+  symbol: string;
+  decimals: number;
+  registryStatus: "chainscout_supported";
+  identityConfidence: "chainscout_reviewed_static_match";
+  provenance: OpenDataRegistryProvenance;
+  sources: OpenDataSource[];
+  limitations: string[];
+};
+
+export type OpenDataAssetListResponse = {
+  schemaVersion: 1;
+  registryVersion: string;
+  chainscoutSourceRevision: string | null;
+  chain: OpenDataAsset["chain"];
+  assets: OpenDataAsset[];
+  assetsShown: number;
+  completeFor: "chainscout_reviewed_launch_registry";
+  generatedAt: string;
+  provenance: {
+    upstreamPayloadIncluded: false;
+    redistributionClass: "chainscout_reviewed_reference";
+  };
+  rights: {
+    chainscoutAuthored: string[];
+    excludedFromLicenseClaim: string[];
+  };
+  limitations: string[];
+};
+
+export type OpenDataIdentityResponse = {
+  schemaVersion: 1;
+  chain: OpenDataAsset["chain"];
+  kind: "address" | "transaction" | "block";
+  normalizedValue: string;
+  canonicalKey: string;
+  syntaxValid: true;
+  existenceVerified: false;
+  registryMatch: null | {
+    canonicalId: string;
+    symbol: string;
+    registryStatus: "chainscout_supported";
+    identityConfidence: "chainscout_reviewed_static_match";
+  };
+  explorerUrl: string;
+  provenance: OpenDataNormalizationProvenance;
+  limitations: string[];
+};
+
+export type OpenDataManifestResponse = {
+  schemaVersion: 1;
+  apiVersion: "v1";
+  status: "available";
+  chain: OpenDataAsset["chain"];
+  endpoints: Array<{
+    method: "GET" | "POST";
+    path: string;
+    description: string;
+  }>;
+  cap: { anonymousRequestsPerHour: number; scope: "pseudonymous_network_client" };
+  privacy: {
+    accountRequired: false;
+    browserCredentialsUsed: false;
+    vaultDataAccepted: false;
+    providerCallsPerRequest: 0;
+    rawUpstreamPayloadsReturned: false;
+  };
+  generatedAt: string;
+  limitations: string[];
+};
+
+export type OpenDataNormalizeRequest = {
+  chainId: 4663;
+  kind: "evm_address";
+  value: string;
+};
+
+export const ROBINHOOD_CHAIN_4663 = {
+  id: 4663,
+  namespace: "eip155",
+  name: "Robinhood Chain",
+} as const;
+
+export const OPEN_DATA_REGISTRY_VERSION = "2026-08-12.1" as const;
+export const OPEN_DATA_REVIEWED_AT = "2026-08-12T21:31:50.000Z" as const;
+
+/** ChainScout's reviewed launch support tuple. The registry and Scout Swap
+ * consume the same object so address/decimal support cannot drift. */
+export const CHAINSCOUT_REVIEWED_ASSETS = {
+  WETH: {
+    symbol: "WETH",
+    name: "Wrapped Ether",
+    address: "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+    decimals: 18,
+  },
+  USDG: {
+    symbol: "USDG",
+    name: "Global Dollar",
+    address: "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168",
+    decimals: 6,
+  },
+} as const;

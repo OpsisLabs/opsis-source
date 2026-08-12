@@ -2,6 +2,12 @@ import type { FastifyInstance } from "fastify";
 import type { Env } from "../config/env.js";
 import { AppError } from "./errors.js";
 
+declare module "fastify" {
+  interface FastifyContextConfig {
+    credentiallessPublic?: boolean;
+  }
+}
+
 const MUTATING = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
 export function installCsrfProtection(app: FastifyInstance, env: Env): void {
@@ -11,6 +17,13 @@ export function installCsrfProtection(app: FastifyInstance, env: Env): void {
 
   app.addHook("onRequest", async (request) => {
     if (!MUTATING.has(request.method)) return;
+    if (request.routeOptions.config?.credentiallessPublic === true) {
+      // The exact route owns kill-switch, dedicated cap, credentials, and
+      // content-type ordering in its route-level onRequest guard. Keeping this
+      // exemption typed and exact prevents rejected traffic from bypassing the
+      // dedicated anonymous safety cap.
+      return;
+    }
     const origin = request.headers.origin;
     if (origin !== allowedOrigin) {
       throw new AppError("CSRF_ORIGIN_REJECTED", 403, "Request origin was not accepted");

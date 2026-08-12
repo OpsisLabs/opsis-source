@@ -1,12 +1,14 @@
-import { BookOpenText, CircleHelp, Compass } from "lucide-react";
+import { BookOpenText, Braces, CircleHelp, Compass } from "lucide-react";
 import { Link } from "react-router";
+import { isOpenDataApiEnabled } from "../product/availability";
 
-type KnowledgePage = "guide" | "docs" | "faq";
+type KnowledgePage = "guide" | "docs" | "faq" | "developers";
 
 const PAGES = [
   { id: "guide" as const, label: "START GUIDE", path: "/guide", icon: Compass },
   { id: "docs" as const, label: "TECH DOCS", path: "/docs", icon: BookOpenText },
   { id: "faq" as const, label: "FAQ", path: "/faq", icon: CircleHelp },
+  { id: "developers" as const, label: "DEVELOPERS", path: "/developers", icon: Braces },
 ];
 
 export default function KnowledgeHeader({ active }: { active: KnowledgePage }) {
@@ -29,7 +31,7 @@ export default function KnowledgeHeader({ active }: { active: KnowledgePage }) {
           className="ml-auto flex min-w-0 items-center gap-1 border border-[#383838] bg-[#222222] p-1"
           aria-label="Knowledge pages"
         >
-          {PAGES.map(({ id, label, path, icon: Icon }) => {
+          {PAGES.filter(({ id }) => id !== "developers" || isOpenDataApiEnabled()).map(({ id, label, path, icon: Icon }) => {
             const selected = active === id;
             return (
               <Link

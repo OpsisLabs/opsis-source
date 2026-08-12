@@ -140,4 +140,13 @@ describe("environment validation", () => {
     expect(() => loadEnv({ NODE_ENV: "test", MARKET_DAILY_REQUEST_BUDGET: "49" })).toThrow();
     expect(() => loadEnv({ NODE_ENV: "test", RATE_LIMIT_MARKET_PER_HOUR: "61" })).toThrow();
   });
+
+  it("keeps Open Data disabled with bounded anonymous and global ceilings", () => {
+    const defaults = loadEnv({ NODE_ENV: "test" });
+    expect(defaults).toMatchObject({ OPEN_DATA_API_ENABLED: false, RATE_LIMIT_OPEN_DATA_PER_HOUR: 60, OPEN_DATA_DAILY_REQUEST_BUDGET: 10_000 });
+    expect(loadEnv({ NODE_ENV: "test", OPEN_DATA_API_ENABLED: "true", RATE_LIMIT_OPEN_DATA_PER_HOUR: "1", OPEN_DATA_DAILY_REQUEST_BUDGET: "100" }))
+      .toMatchObject({ OPEN_DATA_API_ENABLED: true, RATE_LIMIT_OPEN_DATA_PER_HOUR: 1, OPEN_DATA_DAILY_REQUEST_BUDGET: 100 });
+    expect(() => loadEnv({ NODE_ENV: "test", RATE_LIMIT_OPEN_DATA_PER_HOUR: "1001" })).toThrow();
+    expect(() => loadEnv({ NODE_ENV: "test", OPEN_DATA_DAILY_REQUEST_BUDGET: "99" })).toThrow();
+  });
 });

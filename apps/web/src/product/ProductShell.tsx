@@ -15,6 +15,7 @@ import {
   Boxes,
   ChartNoAxesCombined,
   CircleHelp,
+  CodeXml,
   FilePenLine,
   House,
   Menu,
@@ -53,6 +54,7 @@ const ICONS: Record<string, ComponentType<{ size?: number; className?: string }>
   "collectible-catalog": PackageSearch,
   "market-inventory": Boxes,
   "replay-actions": Repeat2,
+  "open-data-api": CodeXml,
   "manual-assets": FilePenLine,
 };
 
@@ -199,10 +201,10 @@ function ProductRail({
           </span>
           <ArrowRight size={14} className="shrink-0 transition-transform group-hover:translate-x-1" />
         </button>
-        {(["explore", "vault"] as const).map((group) => (
-          <section key={group} className="mt-2 first:mt-0" aria-label={group === "explore" ? "Explore tools" : "Private Vault tools"}>
+        {(["explore", "vault", "build"] as const).map((group) => (
+          <section key={group} className="mt-2 first:mt-0" aria-label={group === "explore" ? "Explore tools" : group === "vault" ? "Private Vault tools" : "Developer tools"}>
             <p className="px-4 pb-2 font-mono-d text-[8px] tracking-[0.2em] text-[#5f5a55]">
-              {group === "explore" ? "LOOK SOMETHING UP" : "SAVE & ORGANIZE PRIVATELY"}
+              {group === "explore" ? "LOOK SOMETHING UP" : group === "vault" ? "SAVE & ORGANIZE PRIVATELY" : "BUILD WITH REVIEWED FACTS"}
             </p>
             {PRODUCT_FEATURES.filter((feature) => feature.group === group).map((feature) => (
               <FeatureLink
@@ -219,6 +221,9 @@ function ProductRail({
       </div>
 
       <nav className="shrink-0 space-y-1 border-t border-[#303030] bg-[#202020] p-3" aria-label="Product resources">
+        {isProductFeatureEnabled("open-data-api") && <Link to="/developers" onClick={onNavigate} aria-current={location.pathname === "/developers" ? "page" : undefined} className={`flex items-center gap-3 border px-3 py-2.5 font-mono-d text-[10px] tracking-[0.08em] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#fa6c34] ${location.pathname === "/developers" ? "border-[#fa6c34] bg-[#fa6c34] font-semibold text-[#1d1d1d]" : "border-[#fa6c34]/25 text-[#c0b6aa] hover:border-[#fa6c34]/65 hover:bg-[#fa6c34]/10 hover:text-[#fff7ec]"}`}>
+          <CodeXml size={14} /> DEVELOPERS
+        </Link>}
         <Link to="/docs" onClick={onNavigate} aria-current={location.pathname === "/docs" ? "page" : undefined} className={`flex items-center gap-3 border px-3 py-2.5 font-mono-d text-[10px] tracking-[0.08em] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#fa6c34] ${location.pathname === "/docs" ? "border-[#fa6c34] bg-[#fa6c34] font-semibold text-[#1d1d1d]" : "border-[#fa6c34]/25 text-[#c0b6aa] hover:border-[#fa6c34]/65 hover:bg-[#fa6c34]/10 hover:text-[#fff7ec]"}`}>
           <BookOpenText size={14} /> TECH DOCS
         </Link>

@@ -15,9 +15,11 @@ import VaultPage from "./pages/Vault";
 import RwaVerify from "./pages/RwaVerify";
 import FeatureGuide from "./pages/FeatureGuide";
 import ProductShell from "./product/ProductShell";
+import { isOpenDataApiEnabled } from "./product/availability";
 
 const TechnicalDocs = lazy(() => import("./pages/TechnicalDocs"));
 const Faq = lazy(() => import("./pages/Faq"));
+const Developers = lazy(() => import("./pages/Developers"));
 
 function KnowledgePageFallback() {
   return (
@@ -92,6 +94,7 @@ export default function App() {
         <Route path="/guide" element={<FeatureGuide />} />
         <Route path="/docs" element={<DeferredPage><TechnicalDocs /></DeferredPage>} />
         <Route path="/faq" element={<DeferredPage><Faq /></DeferredPage>} />
+        <Route path="/developers" element={isOpenDataApiEnabled() ? <DeferredPage><Developers /></DeferredPage> : <Navigate to="/guide#open-data-api" replace />} />
       </Route>
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/terms" element={<TermsPage />} />

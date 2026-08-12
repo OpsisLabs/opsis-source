@@ -1,0 +1,228 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ChainScout Open Data API",
+    "version": "1.0.0",
+    "description": "Two capped credentialless routes for a ChainScout-reviewed static support registry and ChainScout-derived syntax normalization. Intended for server-to-server or same-origin use; cross-origin browser CORS is deliberately disabled. No provider calls or Vault data."
+  },
+  "servers": [{ "url": "/", "description": "Current ChainScout origin" }],
+  "security": [],
+  "paths": {
+    "/v1/public/open-data/v1/registry": {
+      "get": {
+        "summary": "List exactly the reviewed WETH/USDG launch support registry",
+        "responses": {
+          "200": {
+            "description": "ChainScout-reviewed static support registry",
+            "headers": {
+              "Cache-Control": { "$ref": "#/components/headers/NoStore" },
+              "X-ChainScout-Data-Class": { "schema": { "const": "chainscout-reviewed-reference" } },
+              "RateLimit-Limit": { "$ref": "#/components/headers/RateLimitInteger" },
+              "RateLimit-Remaining": { "$ref": "#/components/headers/RateLimitInteger" },
+              "RateLimit-Reset": { "$ref": "#/components/headers/RateLimitInteger" }
+            },
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RegistryResponse" } } }
+          },
+          "400": { "$ref": "#/components/responses/PublicError" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/PublicError" }
+        }
+      }
+    },
+    "/v1/public/open-data/v1/normalize": {
+      "post": {
+        "summary": "Normalize EVM address syntax without verifying existence",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NormalizeRequest" } } }
+        },
+        "responses": {
+          "200": {
+            "description": "ChainScout-derived deterministic syntax normalization",
+            "headers": {
+              "Cache-Control": { "$ref": "#/components/headers/NoStore" },
+              "X-ChainScout-Data-Class": { "schema": { "const": "chainscout-derived-normalization" } },
+              "RateLimit-Limit": { "$ref": "#/components/headers/RateLimitInteger" },
+              "RateLimit-Remaining": { "$ref": "#/components/headers/RateLimitInteger" },
+              "RateLimit-Reset": { "$ref": "#/components/headers/RateLimitInteger" }
+            },
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/IdentityResponse" } } }
+          },
+          "400": { "$ref": "#/components/responses/PublicError" },
+          "413": { "$ref": "#/components/responses/PublicError" },
+          "415": { "$ref": "#/components/responses/PublicError" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/PublicError" }
+        }
+      }
+    }
+  },
+  "components": {
+    "headers": {
+      "NoStore": { "required": true, "schema": { "const": "private, no-store" } },
+      "RateLimitInteger": { "required": true, "schema": { "type": "integer", "minimum": 0 } }
+    },
+    "responses": {
+      "PublicError": {
+        "description": "Bounded public error; every response remains no-store",
+        "headers": { "Cache-Control": { "$ref": "#/components/headers/NoStore" } },
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+      },
+      "RateLimited": {
+        "description": "Anonymous hourly cap reached",
+        "headers": {
+          "Cache-Control": { "$ref": "#/components/headers/NoStore" },
+          "Retry-After": { "required": true, "schema": { "type": "integer", "minimum": 1 } }
+        },
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+      }
+    },
+    "schemas": {
+      "Chain": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "namespace", "name"],
+        "properties": { "id": { "const": 4663 }, "namespace": { "const": "eip155" }, "name": { "const": "Robinhood Chain" } }
+      },
+      "Source": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "url", "kind", "purpose"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1, "maxLength": 100 },
+          "title": { "type": "string", "minLength": 1, "maxLength": 120 },
+          "url": { "type": "string", "format": "uri", "maxLength": 240 },
+          "kind": { "enum": ["primary_reference", "human_verification"] },
+          "purpose": { "const": "human_verification_link_only" }
+        }
+      },
+      "RegistryProvenance": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["derivation", "upstreamPayloadIncluded", "redistributionClass", "reviewedAt"],
+        "properties": {
+          "derivation": { "const": "chainscout_static_review" },
+          "upstreamPayloadIncluded": { "const": false },
+          "redistributionClass": { "const": "chainscout_reviewed_reference" },
+          "reviewedAt": { "const": "2026-08-12T21:31:50.000Z" }
+        }
+      },
+      "Asset": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["schemaVersion", "canonicalId", "chain", "assetType", "address", "name", "symbol", "decimals", "registryStatus", "identityConfidence", "provenance", "sources", "limitations"],
+        "properties": {
+          "schemaVersion": { "const": 1 },
+          "canonicalId": { "type": "string", "pattern": "^eip155:4663/erc20:0x[0-9A-Fa-f]{40}$" },
+          "chain": { "$ref": "#/components/schemas/Chain" },
+          "assetType": { "const": "erc20" },
+          "address": { "type": "string", "pattern": "^0x[0-9A-Fa-f]{40}$" },
+          "name": { "enum": ["Wrapped Ether", "Global Dollar"] },
+          "symbol": { "enum": ["WETH", "USDG"] },
+          "decimals": { "enum": [18, 6] },
+          "registryStatus": { "const": "chainscout_supported" },
+          "identityConfidence": { "const": "chainscout_reviewed_static_match" },
+          "provenance": { "$ref": "#/components/schemas/RegistryProvenance" },
+          "sources": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "$ref": "#/components/schemas/Source" } },
+          "limitations": { "$ref": "#/components/schemas/Limitations" }
+        }
+      },
+      "RegistryResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["schemaVersion", "registryVersion", "chainscoutSourceRevision", "chain", "assets", "assetsShown", "completeFor", "generatedAt", "provenance", "rights", "limitations", "cap"],
+        "properties": {
+          "schemaVersion": { "const": 1 },
+          "registryVersion": { "const": "2026-08-12.1" },
+          "chainscoutSourceRevision": { "oneOf": [{ "type": "null" }, { "type": "string", "pattern": "^[0-9a-fA-F]{40}$" }] },
+          "chain": { "$ref": "#/components/schemas/Chain" },
+          "assets": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "$ref": "#/components/schemas/Asset" } },
+          "assetsShown": { "const": 2 },
+          "completeFor": { "const": "chainscout_reviewed_launch_registry" },
+          "generatedAt": { "const": "2026-08-12T21:31:50.000Z" },
+          "provenance": {
+            "type": "object", "additionalProperties": false,
+            "required": ["upstreamPayloadIncluded", "redistributionClass"],
+            "properties": { "upstreamPayloadIncluded": { "const": false }, "redistributionClass": { "const": "chainscout_reviewed_reference" } }
+          },
+          "rights": {
+            "type": "object", "additionalProperties": false,
+            "required": ["chainscoutAuthored", "excludedFromLicenseClaim"],
+            "properties": {
+              "chainscoutAuthored": { "type": "array", "minItems": 1, "maxItems": 8, "items": { "type": "string", "minLength": 1, "maxLength": 80 } },
+              "excludedFromLicenseClaim": { "type": "array", "minItems": 1, "maxItems": 8, "items": { "type": "string", "minLength": 1, "maxLength": 80 } }
+            }
+          },
+          "limitations": { "$ref": "#/components/schemas/Limitations" },
+          "cap": {
+            "type": "object", "additionalProperties": false,
+            "required": ["anonymousRequestsPerHour", "scope"],
+            "properties": { "anonymousRequestsPerHour": { "type": "integer", "minimum": 1, "maximum": 1000 }, "scope": { "const": "pseudonymous_network_client" } }
+          }
+        }
+      },
+      "NormalizeRequest": {
+        "type": "object", "additionalProperties": false,
+        "required": ["chainId", "kind", "value"],
+        "properties": { "chainId": { "const": 4663 }, "kind": { "const": "evm_address" }, "value": { "type": "string", "pattern": "^0x[0-9A-Fa-f]{40}$", "minLength": 42, "maxLength": 42 } }
+      },
+      "RegistryMatch": {
+        "type": "object", "additionalProperties": false,
+        "required": ["canonicalId", "symbol", "registryStatus", "identityConfidence"],
+        "properties": {
+          "canonicalId": { "type": "string", "pattern": "^eip155:4663/erc20:0x[0-9A-Fa-f]{40}$" },
+          "symbol": { "enum": ["WETH", "USDG"] },
+          "registryStatus": { "const": "chainscout_supported" },
+          "identityConfidence": { "const": "chainscout_reviewed_static_match" }
+        }
+      },
+      "IdentityResponse": {
+        "type": "object", "additionalProperties": false,
+        "required": ["schemaVersion", "chain", "kind", "normalizedValue", "canonicalKey", "syntaxValid", "existenceVerified", "registryMatch", "explorerUrl", "provenance", "limitations"],
+        "properties": {
+          "schemaVersion": { "const": 1 },
+          "chain": { "$ref": "#/components/schemas/Chain" },
+          "kind": { "const": "address" },
+          "normalizedValue": { "type": "string", "pattern": "^0x[0-9A-Fa-f]{40}$" },
+          "canonicalKey": { "type": "string", "pattern": "^eip155:4663/address:0x[0-9A-Fa-f]{40}$" },
+          "syntaxValid": { "const": true },
+          "existenceVerified": { "const": false },
+          "registryMatch": { "oneOf": [{ "type": "null" }, { "$ref": "#/components/schemas/RegistryMatch" }] },
+          "explorerUrl": { "type": "string", "pattern": "^https://robinhoodchain\\.blockscout\\.com/address/0x[0-9A-Fa-f]{40}$" },
+          "provenance": {
+            "type": "object", "additionalProperties": false,
+            "required": ["derivation", "upstreamPayloadIncluded", "redistributionClass", "reviewedAt"],
+            "properties": {
+              "derivation": { "const": "deterministic_syntax_normalization" },
+              "upstreamPayloadIncluded": { "const": false },
+              "redistributionClass": { "const": "chainscout_derived_normalization" },
+              "reviewedAt": { "const": "2026-08-12T21:31:50.000Z" }
+            }
+          },
+          "limitations": { "$ref": "#/components/schemas/Limitations" }
+        }
+      },
+      "Limitations": { "type": "array", "minItems": 1, "maxItems": 4, "items": { "type": "string", "minLength": 1, "maxLength": 240 } },
+      "ErrorResponse": {
+        "type": "object", "additionalProperties": false,
+        "required": ["error", "requestId"],
+        "properties": {
+          "error": {
+            "type": "object", "additionalProperties": false,
+            "required": ["code", "message"],
+            "properties": { "code": { "type": "string", "minLength": 1, "maxLength": 80 }, "message": { "type": "string", "minLength": 1, "maxLength": 240 }, "details": {} }
+          },
+          "requestId": { "type": "string", "minLength": 1, "maxLength": 100 }
+        }
+      }
+    }
+  },
+  "x-chainscout-boundary": {
+    "dataRouteCount": 2,
+    "providerCallsPerRequest": 0,
+    "vaultDataAccepted": false,
+    "rawUpstreamPayloadsReturned": false,
+    "browserCredentialsUsed": false,
+    "crossOriginBrowserCors": false
+  }
+}

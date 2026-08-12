@@ -475,6 +475,38 @@ describe("browser privacy static boundary", () => {
       "contract and transaction identifiers needed",
     );
   });
+
+  it("keeps Open Data provider-free, credentialless, bounded, and dormant by default", () => {
+    const directory = resolve(repositoryRoot, "apps/api/src/open-data");
+    const source = sourceText(directory);
+    const routes = readFileSync(resolve(repositoryRoot, "apps/api/src/routes/open-data.ts"), "utf8");
+    const nginx = readFileSync(resolve(repositoryRoot, "apps/web/nginx.conf"), "utf8");
+    const dockerfile = readFileSync(resolve(repositoryRoot, "apps/web/Dockerfile"), "utf8");
+    const env = readFileSync(resolve(repositoryRoot, ".env.example"), "utf8");
+    const spec = JSON.parse(readFileSync(resolve(repositoryRoot, "apps/web/public/open-data-v1.openapi.json"), "utf8"));
+    expect(source).not.toMatch(/\bfetch\s*\(|ProviderHttp|BlockscoutProvider|AlchemyProvider|JsonCache|Prisma|SourceDocument|OpenAI|DEX|Morpho|TCGdex|Woo|Uniswap/i);
+    expect(source).not.toMatch(/DATABASE_URL|ROBINHOOD_PUBLIC_RPC_URL|BLOCKSCOUT_API_BASE_URL/);
+    expect(routes).toContain("credentials");
+    expect(routes).toContain('cache-control", "private, no-store"');
+    expect(routes).toContain("rateLimit: false as const");
+    expect(routes).toContain("OPEN_DATA_API_DISABLED");
+    expect(nginx).toContain("location /v1/public/open-data/");
+    expect(nginx).toContain('proxy_set_header Cookie ""');
+    expect(nginx).toContain('proxy_set_header Authorization ""');
+    expect(dockerfile).toContain("ARG VITE_OPEN_DATA_API_ENABLED=false");
+    expect(env).toContain("OPEN_DATA_API_ENABLED=false");
+    expect(env).toContain("VITE_OPEN_DATA_API_ENABLED=false");
+    expect(Object.keys(spec.paths)).toEqual([
+      "/v1/public/open-data/v1/registry",
+      "/v1/public/open-data/v1/normalize",
+    ]);
+    expect(spec.components.schemas.RegistryResponse.required).toContain("rights");
+    expect(spec.components.schemas.IdentityResponse.required).toContain("registryMatch");
+    expect(spec.paths["/v1/public/open-data/v1/normalize"].post.responses).toHaveProperty("413");
+    expect(spec.paths["/v1/public/open-data/v1/normalize"].post.responses).toHaveProperty("415");
+    expect(spec["x-chainscout-boundary"].crossOriginBrowserCors).toBe(false);
+    expect(JSON.stringify(spec)).not.toMatch(/wallets|transactions|search|bulk|apiKey/i);
+  });
 });
 
 function sourceText(directory: string): string {

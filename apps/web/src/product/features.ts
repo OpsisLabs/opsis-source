@@ -1,6 +1,6 @@
 export type ProductFeature = {
   id: string;
-  group: "explore" | "vault";
+  group: "explore" | "vault" | "build";
   label: string;
   shortLabel: string;
   helpLabel: string;
@@ -167,6 +167,28 @@ export const PRODUCT_FEATURES: ProductFeature[] = [
       "Choose a supported historical movement pattern or a current reviewed offer.",
       "Enter a new swap amount or explicitly select the new offer.",
       "Review the current information, then continue only on the official destination.",
+    ],
+  },
+  {
+    id: "open-data-api",
+    group: "build",
+    label: "Open Data API",
+    shortLabel: "Developers",
+    helpLabel: "About the public data boundary",
+    path: "/developers",
+    eyebrow: "TWO ROUTES · ZERO PROVIDER CALLS",
+    navHint: "Reuse reviewed public facts",
+    summary:
+      "Read ChainScout's two-entry launch support registry or normalize EVM-address syntax through a tightly capped v1 API.",
+    bestFor: "Developers who need a reviewed two-asset support reference or ChainScout-derived syntax normalization without importing private Vault or upstream-provider data.",
+    privacy:
+      "No account or API key is used. The normalizer receives one public address in a POST body; routes reject browser credentials and never call a provider.",
+    boundary:
+      "This is not a wallet, transaction, price, portfolio, inventory, search, bulk-export, or live-chain API. Unknown addresses are syntax-only.",
+    steps: [
+      "Read the exact two-route contract and hard caps.",
+      "Use the reviewed WETH/USDG support registry or normalize one public EVM address.",
+      "Retain the limitations and human-verification links in your consumer UI.",
     ],
   },
   {

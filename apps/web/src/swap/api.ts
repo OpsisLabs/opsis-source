@@ -1,3 +1,4 @@
+import { CHAINSCOUT_REVIEWED_ASSETS } from "@rh-chain/shared";
 import { privateApi } from "../dashboard/http";
 
 export type SwapDirection = "WETH_TO_USDG" | "USDG_TO_WETH";
@@ -37,10 +38,7 @@ export type ScoutSwapQuote = {
   disclosures: string[];
 };
 
-export const SWAP_TOKENS = {
-  WETH: { symbol: "WETH", name: "Wrapped Ether", address: "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73", decimals: 18 },
-  USDG: { symbol: "USDG", name: "Global Dollar", address: "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168", decimals: 6 },
-} as const;
+export const SWAP_TOKENS = CHAINSCOUT_REVIEWED_ASSETS;
 const UNISWAP_ROUTER_2_1_1 = "0x8876789976decbfcbbbe364623c63652db8c0904";
 
 export async function getScoutSwapQuote(request: {

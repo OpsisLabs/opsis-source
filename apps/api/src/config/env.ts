@@ -72,6 +72,8 @@ const envSchema = z.object({
   COLLECTIBLE_DAILY_REQUEST_BUDGET: z.coerce.number().int().min(50).max(10_000).default(500),
   MARKET_INVENTORY_ENABLED: envBoolean.default(false),
   MARKET_DAILY_REQUEST_BUDGET: z.coerce.number().int().min(50).max(25_000).default(1_000),
+  OPEN_DATA_API_ENABLED: envBoolean.default(false),
+  OPEN_DATA_DAILY_REQUEST_BUDGET: z.coerce.number().int().min(100).max(100_000).default(10_000),
   // The browser sends a custom header and exact Origin on state-changing
   // account routes. Tests opt in explicitly so legacy bearer-token fixtures
   // can keep exercising the underlying route behavior.
@@ -96,6 +98,7 @@ const envSchema = z.object({
   RATE_LIMIT_RWA_PER_HOUR: z.coerce.number().int().min(1).max(60).default(10),
   RATE_LIMIT_COLLECTIBLE_PER_HOUR: z.coerce.number().int().min(1).max(60).default(10),
   RATE_LIMIT_MARKET_PER_HOUR: z.coerce.number().int().min(1).max(60).default(12),
+  RATE_LIMIT_OPEN_DATA_PER_HOUR: z.coerce.number().int().min(1).max(1_000).default(60),
   QUOTA_AI_MESSAGES_PER_MONTH: z.coerce.number().int().positive().default(500),
   QUOTA_CHAIN_LOOKUPS_PER_MONTH: z.coerce.number().int().positive().default(5000),
   // Wallet sign-in needs no email. Turn this on only if email/password signup

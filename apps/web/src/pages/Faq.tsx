@@ -187,7 +187,7 @@ const FAQ_GROUPS: Array<{ id: string; title: string; intro: string; items: FaqIt
       },
       {
         question: "Is there a public ChainScout API?",
-        answer: "Not as a supported launch product yet. The browser uses bounded app backends for its own features, but those are not a public redistribution API. A documented, key-managed public API is a separate planned release.",
+        answer: "A deliberately small Open Data v1 is built behind a release flag: one reviewed WETH/USDG support registry and one syntax-only EVM-address normalizer. It has no API keys, search, bulk export, wallet or transaction summaries, prices, Vault data, provider calls, or mirrored provider payloads. Public production enablement remains gated on final nominative trademark and API-terms review.",
       },
       {
         question: "Where can I see what is live versus planned?",
