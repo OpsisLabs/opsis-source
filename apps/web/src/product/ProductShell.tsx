@@ -324,8 +324,8 @@ export default function ProductShell() {
       if (!introduced.current) {
         timeline.fromTo(
           "[data-desktop-rail] [data-feature-card]",
-          { autoAlpha: 0, x: -10 },
-          { autoAlpha: 1, x: 0, duration: 0.28, stagger: 0.035, clearProps: "opacity,visibility,transform" },
+          { x: -10 },
+          { x: 0, duration: 0.28, stagger: 0.035, clearProps: "transform" },
           0,
         );
         introduced.current = true;
@@ -348,11 +348,11 @@ export default function ProductShell() {
 
       if (routeContent) {
         timeline
-          .set(routeContent, { willChange: "transform,opacity" }, 0)
+          .set(routeContent, { willChange: "transform" }, 0)
           .fromTo(
             routeContent,
-            { autoAlpha: 0, y: 12 },
-            { autoAlpha: 1, y: 0, duration: 0.42, clearProps: "opacity,visibility,transform,willChange" },
+            { y: 12 },
+            { y: 0, duration: 0.42, clearProps: "transform,willChange" },
             0.1,
           );
       }
@@ -384,8 +384,8 @@ export default function ProductShell() {
     if (!open || !drawer.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     gsap.fromTo(
       drawer.current,
-      { x: -20, autoAlpha: 0.7 },
-      { x: 0, autoAlpha: 1, duration: 0.28, ease: "power2.out", clearProps: "opacity,visibility,transform" },
+      { x: -20 },
+      { x: 0, duration: 0.28, ease: "power2.out", clearProps: "transform" },
     );
   }, { scope: shell, dependencies: [open] });
 

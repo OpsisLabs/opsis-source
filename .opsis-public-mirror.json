@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "239dce18c0558941d15dd394b02e65db437067abc134981fc338d769eadbf364",
+  "sourceTreeDigest": "600ec763b793ebbda00aa855cbf9afadcd2651220decba9c9342616ce97a1e66",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "4c7c8dcafeb4695578deb65db4b9a27a91402dc5915b38495e0b5ae0b9c79a14",
@@ -186,7 +186,7 @@
     "apps/web/src/product/availability.test.ts": "0ab96f6508ce877c3887b8203ecd78ee29ea929d74125407244a8b973fae86de",
     "apps/web/src/product/availability.ts": "81b9c00dbc678df4ceab7daed80bde48577aa71586a2a0fa720beeb48c1cfc7f",
     "apps/web/src/product/features.ts": "0a4bf11fbb9bc13dcd6bf3dc4f1305d870ce3a4692b0f27060b021c84bc49ee1",
-    "apps/web/src/product/ProductShell.tsx": "734f8a5f3ab5dae1a42fc7199ce8f71b642c08eec6f6ef9fac1c9a25c83199d2",
+    "apps/web/src/product/ProductShell.tsx": "d9d8629eefbd49ee51a2f8bbeae233aa36a2f4cd57ff6027bb42b56c46f3f347",
     "apps/web/src/product/ProductTour.tsx": "b2ec167182e07a340f7e897243832d87bb735f774094e7e36ff8c4ac90f652b6",
     "apps/web/src/replay/model.test.ts": "1b3835b2263e881ce258061814fd5ef469866bb3f9ad1c96c5d0532de02b8b21",
     "apps/web/src/replay/model.ts": "d7ea12a6deafbf0d6c0fc314c5efc8f054fe7fe386085519ccdbe73d32ea950f",
