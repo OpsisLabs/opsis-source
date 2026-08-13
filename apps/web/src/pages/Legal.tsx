@@ -17,6 +17,7 @@ function Shell({
 }) {
   return (
     <div className="min-h-screen bg-[#1d1d1d] text-[#e9e0d1]">
+      <a href="#legal-main" onClick={(event) => { event.preventDefault(); document.getElementById("legal-main")?.focus(); window.history.replaceState(null, "", "#legal-main"); }} className="fixed left-3 top-3 z-[120] -translate-y-24 bg-[#fa6c34] px-4 py-3 font-mono-d text-[10px] font-semibold text-[#1d1d1d] outline-none transition-transform focus:translate-y-0 focus-visible:ring-2 focus-visible:ring-white">SKIP TO MAIN CONTENT</a>
       <header className="flex h-[64px] items-center justify-between border-b border-[#2e2e2e] px-6 md:px-12">
         <Link to="/" className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center bg-[#fa6c34]">
@@ -36,7 +37,7 @@ function Shell({
         </Link>
       </header>
 
-      <main className="mx-auto max-w-[860px] px-6 py-16 md:px-12">
+      <main id="legal-main" tabIndex={-1} className="mx-auto max-w-[860px] px-6 py-16 outline-none md:px-12">
         <div className="mb-10 flex items-center gap-3 border-y border-[#2e2e2e] py-3">
           <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-[#e9e0d1]" />
           <span className="font-mono-d text-[12px] text-[#9a938a]">{tag}</span>
@@ -158,7 +159,8 @@ export function PrivacyPage() {
           prepare a transaction.
         </p>
         <p>
-          <span className="text-[#e9e0d1]">Collectible Catalog.</span> After an
+          <span className="text-[#e9e0d1]">Collectible Catalog.</span> This tool is
+          not enabled in the founder-beta production build. When separately enabled, after an
           on-screen confirmation, ChainScout receives the English card name,
           optional set, and optional collector number; TCGdex receives only the
           name and optional collector number. A selected public card ID is sent
@@ -172,7 +174,8 @@ export function PrivacyPage() {
           included in catalog requests.
         </p>
         <p>
-          <span className="text-[#e9e0d1]">Market & Inventory.</span> After an
+          <span className="text-[#e9e0d1]">Market & Inventory.</span> This tool is
+          not enabled in the founder-beta production build. When separately enabled, after an
           encrypted permission-attempt receipt is saved, an exact public
           Robinhood Chain contract can be sent transiently to ChainScout and DEX
           Screener for bounded indexed pool context. For an explicitly opted-in
@@ -274,7 +277,7 @@ export function PrivacyPage() {
           physical object exists or is authentic.
         </p>
         <p>
-          Collectible Catalog names TCGdex before each lookup. TCGdex applies
+          When separately enabled, Collectible Catalog names TCGdex before each lookup. TCGdex applies
           its own terms and policies to public catalog searches. A catalog match
           identifies English card and set metadata; printing or variant remains
           owner-entered. It does not authenticate the object you own, verify an
@@ -283,7 +286,7 @@ export function PrivacyPage() {
           catalog/license/source links open only after your explicit click.
         </p>
         <p>
-          Market & Inventory names DEX Screener or the opted-in merchant before
+          When separately enabled, Market & Inventory names DEX Screener or the opted-in merchant before
           a live lookup. DEX Screener's indexed price describes the pair's base
           token and is not an executable quote, route, market-wide inventory
           claim, or recommendation. WooCommerce availability can include
@@ -357,8 +360,12 @@ export function PrivacyPage() {
 
       <Section n="08" title="Contact">
         <p>
-          Questions about this policy or your data: reach the team through the
-          contact link on the homepage. This policy may be updated as the
+          ChainScout is currently operated as an independent open-source beta.
+          Questions about this policy, your data, or a security issue can be
+          submitted through the public project support tracker at{" "}
+          <a href="https://github.com/ChainScoutAi/ChainScout/issues" target="_blank" rel="noreferrer" className="text-[#fa6c34] underline underline-offset-4">github.com/ChainScoutAi/ChainScout/issues</a>.
+          Do not post a Vault passphrase, recovery code, wallet secret, account
+          credential, or other private data. This policy may be updated as the
           product evolves; material changes will be noted on this page.
         </p>
       </Section>
@@ -438,7 +445,7 @@ export function TermsPage() {
           transactions. Scout Swap explains a short-lived Uniswap quote and
           provides a link to the official Uniswap app, which independently
           requotes and owns every approval, signature, and transaction. A
-          read-only replay tool may use a supported historical movement pattern
+          separately enabled read-only Replay tool may use a supported historical movement pattern
           already decrypted inside the local Vault as context, but it never sends
           or reuses the old hash, calldata, amount, approval, wallet, cart, coupon,
           order, or checkout state. A newly entered WETH/USDG amount is sent

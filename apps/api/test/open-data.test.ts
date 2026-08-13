@@ -151,10 +151,12 @@ describe("Open Data v1", () => {
     const development = loadEnv({ NODE_ENV: "development" });
     const production = loadEnv({
       NODE_ENV: "production",
-      JWT_ACCESS_SECRET: "configured-access-secret",
-      JWT_REFRESH_SECRET: "configured-refresh-secret",
+      APP_ORIGIN: "https://chainscout.example",
+      JWT_ACCESS_SECRET: "configured-access-secret-at-least-32",
+      JWT_REFRESH_SECRET: "configured-refresh-secret-at-least-32",
       DATABASE_URL: "postgresql://user:password@db.example.com/app",
       REDIS_URL: "rediss://cache.example.com",
+      METRICS_TOKEN: "metrics-secret-at-least-32-characters",
     });
     expect(corsOptionsForRequest("/v1/public/open-data/v1/registry", development)).toMatchObject({ origin: false, credentials: false, preflight: false });
     expect(corsOptionsForRequest("/v1/public/open-data/v1/normalize", production)).toMatchObject({ origin: false, credentials: false, preflight: false });

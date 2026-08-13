@@ -24,10 +24,10 @@ export default function Overview() {
           <ChainVisual />
           <div className="pointer-events-none absolute inset-6 border border-[#ffffff08]" />
           <div className="absolute left-8 top-8 z-10 font-mono-d text-[10.5px] tracking-wider text-[#9a938a]">
-            LIVE · ROBINHOOD CHAIN · 4663
+            ILLUSTRATIVE CHAIN MODEL · 4663
           </div>
           <div className="absolute bottom-8 right-8 z-10 font-mono-d text-[10.5px] tracking-wider text-[#fa6c34]">
-            BLOCKS STREAMING
+            DECORATIVE · NOT LIVE DATA
           </div>
         </div>
       </div>

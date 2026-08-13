@@ -70,6 +70,7 @@ describe("browser privacy static boundary", () => {
     );
     expect(nginx).toContain("proxy_set_header Host ${API_UPSTREAM_HOST}");
     expect(nginx).toContain("proxy_set_header X-Forwarded-Host $host");
+    expect(nginx).toContain("location = /readyz");
     expect(dockerfile).toContain("ENV API_UPSTREAM_SCHEME=http");
     expect(dockerfile).toContain("ENV API_UPSTREAM_HOST=api.railway.internal");
     expect(dockerfile).toContain("ENV API_UPSTREAM_PORT=4000");
@@ -103,11 +104,17 @@ describe("browser privacy static boundary", () => {
     expect(JSON.parse(railway).deploy.preDeployCommand).toBe(
       "node /app/apps/api/dist/ops/verify-deployment-schema.js",
     );
+    expect(JSON.parse(railway).deploy.healthcheckPath).toBe("/readyz");
     expect(railway).not.toContain("migrate deploy");
     expect(railway).not.toContain("DIRECT_URL");
     expect(dockerfile).toContain(
       "COPY --from=build /app/apps/api/dist apps/api/dist",
     );
+    expect(dockerfile).toContain("pnpm --filter @rh-chain/api deploy --prod /prod/api");
+    expect(dockerfile).toContain("COPY --from=production-dependencies /prod/api/node_modules apps/api/node_modules");
+    expect(dockerfile).toContain("prisma generate --schema /prod/api/prisma/schema.prisma");
+    expect(dockerfile).toContain('const prisma = new PrismaClient(); await prisma.$disconnect()');
+    expect(dockerfile).not.toContain("COPY --from=build /app/node_modules node_modules");
     expect(envExample).not.toContain("DIRECT_URL=");
   });
 

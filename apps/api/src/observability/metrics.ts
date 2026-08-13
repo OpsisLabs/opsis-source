@@ -9,6 +9,10 @@ type RuntimeMetrics = {
   cacheOperations: Counter<"outcome">;
   rateLimitDenials: Counter<"route">;
   authEvents: Counter<"event">;
+  operationalFailures: Counter<"code" | "status_code">;
+  retentionRuns: Counter<"outcome">;
+  retentionLastAttempt: Gauge;
+  retentionLastSuccess: Gauge;
 };
 
 let activeMetrics: RuntimeMetrics | undefined;
@@ -70,6 +74,28 @@ export async function installMetrics(app: FastifyInstance): Promise<void> {
     labelNames: ["event"],
     registers: [registry]
   });
+  const operationalFailures = new Counter({
+    name: "rh_chain_operational_failures_total",
+    help: "Bounded application failures suitable for launch alerts",
+    labelNames: ["code", "status_code"],
+    registers: [registry]
+  });
+  const retentionRuns = new Counter({
+    name: "rh_chain_retention_runs_total",
+    help: "Retention cleanup attempts",
+    labelNames: ["outcome"],
+    registers: [registry]
+  });
+  const retentionLastAttempt = new Gauge({
+    name: "rh_chain_retention_last_attempt_timestamp_seconds",
+    help: "Unix timestamp of the latest retention cleanup attempt",
+    registers: [registry]
+  });
+  const retentionLastSuccess = new Gauge({
+    name: "rh_chain_retention_last_success_timestamp_seconds",
+    help: "Unix timestamp of the latest successful retention cleanup",
+    registers: [registry]
+  });
   const queueDepth = new Gauge({
     name: "rh_chain_queue_depth",
     help: "Background queue depth; zero while synchronous hydration is used",
@@ -77,7 +103,19 @@ export async function installMetrics(app: FastifyInstance): Promise<void> {
     registers: [registry]
   });
   queueDepth.set({ queue: "entity_hydration" }, 0);
-  activeMetrics = { providerCalls, providerDuration, aiCalls, aiDuration, cacheOperations, rateLimitDenials, authEvents };
+  activeMetrics = {
+    providerCalls,
+    providerDuration,
+    aiCalls,
+    aiDuration,
+    cacheOperations,
+    rateLimitDenials,
+    authEvents,
+    operationalFailures,
+    retentionRuns,
+    retentionLastAttempt,
+    retentionLastSuccess
+  };
   const startedAt = new WeakMap<FastifyRequest, bigint>();
 
   app.addHook("onRequest", async (request) => {
@@ -119,4 +157,15 @@ export function observeRateLimit(route: string): void {
 
 export function observeAuth(event: "signup" | "login"): void {
   activeMetrics?.authEvents.inc({ event });
+}
+
+export function observeOperationalFailure(code: string, statusCode: number): void {
+  activeMetrics?.operationalFailures.inc({ code, status_code: String(statusCode) });
+}
+
+export function observeRetention(outcome: "success" | "failure", at = new Date()): void {
+  const seconds = at.getTime() / 1_000;
+  activeMetrics?.retentionLastAttempt.set(seconds);
+  activeMetrics?.retentionRuns.inc({ outcome });
+  if (outcome === "success") activeMetrics?.retentionLastSuccess.set(seconds);
 }

@@ -3,6 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { buildApp } from "../src/app.js";
 import { loadEnv } from "../src/config/env.js";
 import { AuthRepository } from "../src/auth/repository.js";
+import { runRetention } from "../src/ops/retention.js";
 
 const databaseUrl = process.env.TEST_DATABASE_URL;
 if (databaseUrl && !new URL(databaseUrl).pathname.endsWith("_test")) {
@@ -151,6 +152,23 @@ if (!databaseUrl) {
         expect(results.filter(Boolean)).toHaveLength(1);
         expect(results.filter((result) => result === null)).toHaveLength(1);
         expect(await prisma.refreshToken.count({ where: { userId: user.id, revokedAt: null } })).toBe(1);
+      } finally {
+        await prisma.user.deleteMany({ where: { id: user.id } });
+      }
+    }, 20_000);
+
+    it("keeps retention cleanup idempotent across concurrent replicas", async () => {
+      const env = loadEnv({ NODE_ENV: "test", DATABASE_URL: databaseUrl });
+      const suffix = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      const user = await prisma.user.create({ data: { email: `retention-${suffix}@example.com`, passwordHash: "test" } });
+      const createdAt = new Date("2026-01-15T12:00:00.000Z");
+      const now = new Date("2026-08-12T12:00:00.000Z");
+      try {
+        await prisma.usageEvent.create({ data: { userId: user.id, eventType: "CHAIN_LOOKUP", quantity: 3, createdAt } });
+        const results = await Promise.all([runRetention(prisma, env, now), runRetention(prisma, env, now)]);
+        expect(results.reduce((total, result) => total + result.usageEvents, 0)).toBe(1);
+        expect(await prisma.usageEvent.count({ where: { userId: user.id } })).toBe(0);
+        expect(await prisma.usageAggregate.findUnique({ where: { userId_month_eventType: { userId: user.id, month: new Date("2026-01-01T00:00:00.000Z"), eventType: "CHAIN_LOOKUP" } } })).toMatchObject({ quantity: 3 });
       } finally {
         await prisma.user.deleteMany({ where: { id: user.id } });
       }

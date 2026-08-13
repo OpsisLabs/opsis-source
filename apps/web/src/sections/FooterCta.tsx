@@ -1,6 +1,4 @@
-import { useState } from "react";
 import { Link } from "react-router";
-import { X } from "lucide-react";
 
 function Arcs() {
   return (
@@ -17,42 +15,8 @@ function Arcs() {
 }
 
 export default function FooterCta() {
-  const [comingSoon, setComingSoon] = useState<string | null>(null);
   return (
     <>
-      {/* coming soon popup */}
-      {comingSoon && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[#1d1d1d]/80 px-4 backdrop-blur-sm"
-          onClick={() => setComingSoon(null)}
-        >
-          <div
-            className="clip-panel w-full max-w-[360px] border border-[#383838] bg-[#242424] p-8 text-center"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setComingSoon(null)}
-              className="ml-auto flex h-7 w-7 items-center justify-center text-[#635d5a] transition-colors hover:text-[#e9e0d1]"
-              aria-label="Close"
-            >
-              <X size={15} />
-            </button>
-            <div className="mx-auto my-5 h-px w-10 bg-[#fa6c34]" />
-            <p className="font-mono-d text-[11px] tracking-wider text-[#635d5a]">{comingSoon.toUpperCase()}</p>
-            <p className="mt-3 text-[24px] font-medium tracking-[-0.02em] text-[#e9e0d1]">Coming soon</p>
-            <p className="mt-2 text-[13px] leading-relaxed text-[#9a938a]">
-              This link is not live yet. Check back after the next release.
-            </p>
-            <button
-              onClick={() => setComingSoon(null)}
-              className="clip-btn-sm mt-6 w-full bg-[#e9e0d1] py-3 font-mono-d text-[11px] font-medium tracking-wide text-[#1d1d1d] transition-colors hover:bg-[#f0e8da]"
-            >
-              GOT IT
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* CTA */}
       <section className="grid grid-cols-1 border-b border-[#2e2e2e] xl:grid-cols-[1.2fr_1fr]">
         <div className="border-r border-[#2e2e2e] px-8 py-20 md:px-12">
@@ -95,15 +59,11 @@ export default function FooterCta() {
             </div>
             <div className="p-8">
               <p className="mb-4 font-mono-d text-[11px] tracking-wider text-[#635d5a]">RESOURCES</p>
-              {["Blockscout", "Documentation", "X", "Chain status"].map((l) => (
-                <button
-                  key={l}
-                  onClick={() => setComingSoon(l)}
-                  className="block w-full border-b border-[#2e2e2e] py-2.5 text-left text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]"
-                >
-                  {l}
-                </button>
-              ))}
+              <Link to="/docs" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">Technical docs</Link>
+              <Link to="/faq" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">Full FAQ</Link>
+              <a href="https://robinhoodchain.blockscout.com" target="_blank" rel="noreferrer" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">Robinhood Blockscout</a>
+              <a href="https://github.com/ChainScoutAi/ChainScout" target="_blank" rel="noreferrer" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">Source code</a>
+              <a href="https://github.com/ChainScoutAi/ChainScout/issues" target="_blank" rel="noreferrer" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">Support tracker</a>
             </div>
           </div>
         </div>
@@ -114,13 +74,13 @@ export default function FooterCta() {
         <div className="grid grid-cols-1 gap-8 border-b border-[#1d1d1d]/20 px-8 py-10 md:grid-cols-3 md:px-12">
           <div>
             <p className="font-mono-d text-[13px] font-semibold tracking-wide">READ-ONLY</p>
-            <p className="mt-1 text-[13px] text-[#1d1d1d]/70">Analysis mode</p>
+            <p className="mt-1 text-[13px] text-[#1d1d1d]">Analysis mode</p>
           </div>
           <div>
-            <p className="font-mono-d text-[13px] font-semibold tracking-wide">4,208,551</p>
-            <p className="mt-1 text-[13px] text-[#1d1d1d]/70">Answers cited</p>
+            <p className="font-mono-d text-[13px] font-semibold tracking-wide">SOURCE-LINKED</p>
+            <p className="mt-1 text-[13px] text-[#1d1d1d]">Evidence stays inspectable</p>
           </div>
-          <p className="max-w-[420px] font-mono-d text-[12px] leading-relaxed text-[#1d1d1d]/80 md:justify-self-end">
+          <p className="max-w-[420px] font-mono-d text-[12px] leading-relaxed text-[#1d1d1d] md:justify-self-end">
             ChainScout is a read-only AI assistant for Robinhood Chain. It
             explains wallets, transactions, tokens, and contracts in plain English, with
             citations. Informational only, not financial advice.

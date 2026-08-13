@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router";
 
 const QA = [
   {
@@ -12,7 +11,7 @@ const QA = [
   },
   {
     q: "Do I need to connect a wallet?",
-    a: "Yes, to sign in. Connecting asks for one signature that proves you control the address — it is not a transaction, moves no funds, and grants no approvals. Analysis itself only needs a public address or transaction hash pasted in. The product never asks for seed phrases or private keys.",
+    a: "No. Private Explorer, Scout Swap, RWA Verify, and the encrypted local Vault need no connected wallet or account. A wallet signature is used only if you deliberately open the optional saved cloud workspace; it proves address control, moves no funds, and grants no approvals.",
   },
   {
     q: "Can the AI be wrong?",
@@ -57,12 +56,14 @@ export default function Faq() {
                   Questions about providers, quotas, or self-hosting? Our team can walk you
                   through the setup.
                 </p>
-                <Link
-                  to="/app"
+                <a
+                  href="https://github.com/ChainScoutAi/ChainScout/issues"
+                  target="_blank"
+                  rel="noreferrer"
                   className="clip-btn-sm mt-6 inline-flex bg-[#e9e0d1] px-5 py-3 font-mono-d text-[11px] font-medium tracking-wide transition-colors hover:bg-[#d6ccba]"
                 >
-                  CONTACT US
-                </Link>
+                  OPEN SUPPORT TRACKER
+                </a>
               </div>
             </div>
           </div>

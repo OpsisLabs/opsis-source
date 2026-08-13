@@ -68,6 +68,7 @@ const ADAPTERS = [
     process: "Field-selective TCGdex GraphQL metadata match",
     output: "Card/set identity; owner printing and condition stay local",
     limit: "No provider artwork, pricing, grading, or authenticity claim",
+    gated: true,
   },
   {
     name: "MARKET & INVENTORY",
@@ -75,6 +76,7 @@ const ADAPTERS = [
     process: "Bounded DEX observations or opted-in merchant availability",
     output: "Freshness, identity, source, availability, local landed cost",
     limit: "No execution, scraping, complete inventory, or seller score",
+    gated: true,
   },
   {
     name: "OPEN DATA V1",
@@ -82,6 +84,7 @@ const ADAPTERS = [
     process: "Static ChainScout tuple or deterministic syntax normalization",
     output: "Versioned annotations, limitations, and human-verification links",
     limit: "Two routes; no provider calls, search, live state, API keys, or bulk data",
+    gated: true,
   },
   {
     name: "REPLAY ACTIONS",
@@ -89,6 +92,7 @@ const ADAPTERS = [
     process: "Strict local pattern check + mandatory new direction/amount or current offer",
     output: "Fresh quote or official product-page handoff",
     limit: "No old calldata, approval, amount, cart, order, or checkout reuse",
+    gated: true,
   },
 ];
 
@@ -180,7 +184,7 @@ export default function TechnicalDocs() {
             <div className="mt-7 grid gap-px border border-[#383838] bg-[#383838] md:grid-cols-3">
               {[
                 [ScanSearch, "EPHEMERAL LOOKUP", "Public identifier", "Same-origin API", "No ChainScout record", "The view clears on reload. Named providers receive only the disclosed public fields required for that lookup."],
-                [LockKeyhole, "LOCAL VAULT", "Ownership context", "Web Crypto + IndexedDB", "Encrypted browser record", "Labels, lots, photos, notes, valuations, and comparisons stay encrypted on this origin."],
+                [LockKeyhole, "LOCAL VAULT", "Ownership context", "Web Crypto + IndexedDB", "Encrypted browser record", "Labels, lots, photos, notes, and valuations stay encrypted on this origin. Dormant adapters remain unavailable."],
                 [ServerCog, "OPTIONAL CLOUD", "Saved research", "HttpOnly cookie session", "User-controlled server history", "Separate account workspace with export and deletion. It is not required for Private Explorer or Vault."],
               ].map(([Icon, name, input, path, storage, copy]) => {
                 const DataIcon = Icon as typeof ScanSearch;
@@ -285,12 +289,18 @@ export default function TechnicalDocs() {
           </DocSection>
 
           <DocSection id="adapters" eyebrow="04 · FEATURE CONTRACTS" title="Different assets need different proof.">
+            <p className="mt-4 max-w-[780px] text-[12px] leading-relaxed text-[#b7aea2]">
+              Current founder-beta build: Private Explorer, Scout Swap, Portfolio,
+              and RWA Verify are enabled. Collectibles, Market & Inventory, Open
+              Data, and Replay Actions are audited but visibly gated off.
+            </p>
             <div className="mt-7 overflow-hidden border border-[#383838]">
               {ADAPTERS.map((adapter) => (
                 <details key={adapter.name} className="group border-b border-[#383838] bg-[#222222] last:border-b-0 open:bg-[#252321]">
                   <summary className="flex cursor-pointer list-none items-center gap-4 px-5 py-5 outline-none marker:hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#fa6c34]">
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center border border-[#fa6c34]/45 font-mono-d text-[8px] text-[#fa6c34]">{adapter.name.slice(0, 2)}</span>
                     <span className="font-mono-d text-[9px] tracking-[0.12em] text-[#e2d9cc]">{adapter.name}</span>
+                    {adapter.gated && <span className="border border-[#766f68] px-2 py-1 font-mono-d text-[7px] tracking-[0.1em] text-[#c8beb4]">BUILT · NOT ENABLED</span>}
                     <span className="ml-auto text-[#fa6c34] transition-transform group-open:rotate-45">+</span>
                   </summary>
                   <dl className="grid gap-px border-t border-[#383838] bg-[#383838] sm:grid-cols-2">
@@ -327,7 +337,7 @@ export default function TechnicalDocs() {
           <DocSection id="token" eyebrow="06 · DESIGN LAB · NOT LIVE" title="Token utility without contaminating the product.">
             <div className="mt-5 border border-[#fa6c34] bg-[#fa6c34] p-5 text-[#1d1d1d] sm:p-6">
               <p className="flex items-center gap-2 font-mono-d text-[9px] font-semibold tracking-[0.14em]"><Sparkles size={13} /> PROPOSAL, NOT SHIPPED TOKENOMICS</p>
-              <p className="mt-3 max-w-[780px] text-[12px] font-medium leading-relaxed text-[#4d291c]">The ChainScout token is planned to launch through pons v2 on Robinhood Chain. Product utility, supply, allocation, vesting, quote asset, fees, creator tax, buyback setting, contract, and launch URL are not stated here as final until they exist and are publicly verified onchain.</p>
+              <p className="mt-3 max-w-[780px] text-[12px] font-medium leading-relaxed text-[#1d1d1d]">The ChainScout token is planned to launch through pons v2 on Robinhood Chain. Product utility, supply, allocation, vesting, quote asset, fees, creator tax, buyback setting, contract, and launch URL are not stated here as final until they exist and are publicly verified onchain.</p>
             </div>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
               {TOKEN_CANDIDATES.map((item) => (

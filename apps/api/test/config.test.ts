@@ -19,13 +19,40 @@ describe("environment validation", () => {
     expect(() => loadEnv({ NODE_ENV: "production" })).toThrow();
     expect(() => loadEnv({
       NODE_ENV: "production",
-      JWT_ACCESS_SECRET: "configured-access-secret",
-      JWT_REFRESH_SECRET: "configured-refresh-secret",
+      APP_ORIGIN: "https://chainscout.example",
+      JWT_ACCESS_SECRET: "configured-access-secret-at-least-32",
+      JWT_REFRESH_SECRET: "configured-refresh-secret-at-least-32",
       SMTP_HOST: "smtp.example.com",
       EMAIL_FROM: "noreply@example.com",
       DATABASE_URL: "postgresql://user:password@db.example.com/app",
-      REDIS_URL: "rediss://cache.example.com"
+      REDIS_URL: "rediss://cache.example.com",
+      METRICS_TOKEN: "metrics-secret-at-least-32-characters"
     })).not.toThrow();
+  });
+
+  it("fails production closed when retention or protected metrics are unavailable", () => {
+    const production = {
+      NODE_ENV: "production",
+      APP_ORIGIN: "https://chainscout.example",
+      JWT_ACCESS_SECRET: "configured-access-secret-at-least-32",
+      JWT_REFRESH_SECRET: "configured-refresh-secret-at-least-32",
+      DATABASE_URL: "postgresql://user:password@db.example.com/app",
+      REDIS_URL: "rediss://cache.example.com",
+      METRICS_TOKEN: "metrics-secret-at-least-32-characters"
+    };
+
+    expect(() => loadEnv({ ...production, RETENTION_ENABLED: "false" })).toThrow(/Retention cleanup/);
+    expect(() => loadEnv({ ...production, ENABLE_METRICS: "false" })).toThrow(/Protected metrics/);
+    expect(() => loadEnv({ ...production, METRICS_TOKEN: "" })).toThrow(/METRICS_TOKEN/);
+    expect(() => loadEnv({ ...production, METRICS_TOKEN: "too-short" })).toThrow(/at least 32/);
+    expect(() => loadEnv({ ...production, RETENTION_INTERVAL_HOURS: "25" })).toThrow();
+    expect(() => loadEnv({ ...production, RETENTION_SOURCE_DAYS: "91" })).toThrow();
+    expect(() => loadEnv({ ...production, RETENTION_USAGE_DAYS: "91" })).toThrow();
+    expect(() => loadEnv({ ...production, APP_ORIGIN: "http://chainscout.example" })).toThrow(/canonical HTTPS origin/);
+    expect(() => loadEnv({ ...production, APP_ORIGIN: "https://chainscout.example/path" })).toThrow(/canonical HTTPS origin/);
+    expect(() => loadEnv({ ...production, JWT_ACCESS_SECRET: "short-secret" })).toThrow(/at least 32/);
+    expect(() => loadEnv({ ...production, JWT_REFRESH_SECRET: production.JWT_ACCESS_SECRET })).toThrow(/must be distinct/);
+    expect(() => loadEnv({ ...production, METRICS_TOKEN: production.JWT_ACCESS_SECRET })).toThrow(/must be distinct/);
   });
 
   it("requires an API key only when OpenAI is explicitly selected", () => {
@@ -47,10 +74,12 @@ describe("environment validation", () => {
   it("uses the configured Robinhood public RPC for zero-cost Portfolio Intelligence", () => {
     const production = {
       NODE_ENV: "production",
-      JWT_ACCESS_SECRET: "configured-access-secret",
-      JWT_REFRESH_SECRET: "configured-refresh-secret",
+      APP_ORIGIN: "https://chainscout.example",
+      JWT_ACCESS_SECRET: "configured-access-secret-at-least-32",
+      JWT_REFRESH_SECRET: "configured-refresh-secret-at-least-32",
       DATABASE_URL: "postgresql://user:password@db.example.com/app",
       REDIS_URL: "rediss://cache.example.com",
+      METRICS_TOKEN: "metrics-secret-at-least-32-characters",
       PORTFOLIO_MODE_ENABLED: "true"
     };
     expect(() => loadEnv({

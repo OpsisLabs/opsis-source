@@ -1,11 +1,42 @@
 import type { PrismaClient } from "@prisma/client";
 import type { FastifyInstance } from "fastify";
 import type { Env } from "../config/env.js";
+import { observeRetention } from "../observability/metrics.js";
 
 export type RetentionResult = Record<
   "authTokens" | "refreshTokens" | "sourceDocuments" | "cachedResponses" | "rateLimitBuckets" | "auditLogs" | "usageEvents" | "usageAggregates" | "chatSessions",
   number
 >;
+
+type RetentionRuntimeStatus = {
+  enabled: boolean;
+  lastAttemptAt: Date | null;
+  lastSuccessAt: Date | null;
+  lastFailureAt: Date | null;
+};
+
+let runtimeStatus: RetentionRuntimeStatus = {
+  enabled: false,
+  lastAttemptAt: null,
+  lastSuccessAt: null,
+  lastFailureAt: null
+};
+
+export function retentionReadiness(enabled: boolean, intervalHours: number, now = new Date()) {
+  if (!enabled) return { status: "disabled" as const, lastSuccessAt: null };
+  const lastSuccessAt = runtimeStatus.lastSuccessAt?.toISOString() ?? null;
+  const overdueMs = intervalHours * 1.5 * 60 * 60 * 1_000;
+  const overdue = !runtimeStatus.lastSuccessAt || now.getTime() - runtimeStatus.lastSuccessAt.getTime() > overdueMs;
+  const failedSinceSuccess = Boolean(
+    runtimeStatus.lastFailureAt &&
+      (!runtimeStatus.lastSuccessAt || runtimeStatus.lastFailureAt > runtimeStatus.lastSuccessAt)
+  );
+  return {
+    status: overdue || failedSinceSuccess ? "unavailable" as const : "up" as const,
+    lastSuccessAt,
+    lastAttemptAt: runtimeStatus.lastAttemptAt?.toISOString() ?? null
+  };
+}
 
 export async function runRetention(prisma: PrismaClient, env: Env, now = new Date()): Promise<RetentionResult> {
   const authCutoff = daysBefore(now, env.RETENTION_AUTH_DAYS);
@@ -50,13 +81,36 @@ export async function runRetention(prisma: PrismaClient, env: Env, now = new Dat
   };
 }
 
-export function installRetention(app: FastifyInstance, prisma: PrismaClient, env: Env): void {
-  const run = () => {
-    void runRetention(prisma, env)
-      .then((result) => app.log.info({ result }, "retention cleanup completed"))
-      .catch((error) => app.log.error({ err: error }, "retention cleanup failed"));
+export function installRetention(
+  app: FastifyInstance,
+  prisma: PrismaClient,
+  env: Env,
+  cleanup: () => Promise<RetentionResult> = () => runRetention(prisma, env)
+): void {
+  let running = false;
+  runtimeStatus = { enabled: true, lastAttemptAt: null, lastSuccessAt: null, lastFailureAt: null };
+  const run = async () => {
+    if (running) return;
+    running = true;
+    runtimeStatus.lastAttemptAt = new Date();
+    try {
+      const result = await cleanup();
+      runtimeStatus.lastSuccessAt = new Date();
+      observeRetention("success");
+      app.log.info({ result }, "retention cleanup completed");
+    } catch (error) {
+      runtimeStatus.lastFailureAt = new Date();
+      observeRetention("failure");
+      app.log.error({ err: error }, "retention cleanup failed");
+    } finally {
+      running = false;
+    }
   };
-  const timer = setInterval(run, env.RETENTION_INTERVAL_HOURS * 60 * 60 * 1000);
+  // Run once at process readiness so routine redeploys cannot indefinitely
+  // postpone the legal retention windows. The interval is the subsequent
+  // cadence, and the running guard prevents overlap inside one replica.
+  app.addHook("onReady", run);
+  const timer = setInterval(() => void run(), env.RETENTION_INTERVAL_HOURS * 60 * 60 * 1000);
   timer.unref();
   app.addHook("onClose", async () => clearInterval(timer));
 }

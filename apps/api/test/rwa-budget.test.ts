@@ -6,10 +6,12 @@ describe("RWA public-RPC budget", () => {
   it("fails closed in production without a shared Redis guard", async () => {
     const env = loadEnv({
       NODE_ENV: "production",
-      JWT_ACCESS_SECRET: "configured-access-secret",
-      JWT_REFRESH_SECRET: "configured-refresh-secret",
+      APP_ORIGIN: "https://chainscout.example",
+      JWT_ACCESS_SECRET: "configured-access-secret-at-least-32",
+      JWT_REFRESH_SECRET: "configured-refresh-secret-at-least-32",
       DATABASE_URL: "postgresql://user:pass@db.example/app",
       REDIS_URL: "rediss://cache.example",
+      METRICS_TOKEN: "metrics-secret-at-least-32-characters",
       RWA_DAILY_RPC_UNIT_BUDGET: "100"
     });
     await expect(createRwaBudget(env).consume(1)).rejects.toMatchObject({ code: "RWA_BUDGET_UNAVAILABLE" });

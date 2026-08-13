@@ -23,8 +23,9 @@ describe("portfolio global provider budget", () => {
       APP_ORIGIN: "https://chainscout.example",
       DATABASE_URL: "postgresql://db.example/app",
       REDIS_URL: "rediss://redis.example/0",
-      JWT_ACCESS_SECRET: "production-access-secret",
-      JWT_REFRESH_SECRET: "production-refresh-secret",
+      JWT_ACCESS_SECRET: "production-access-secret-at-least-32",
+      JWT_REFRESH_SECRET: "production-refresh-secret-at-least-32",
+      METRICS_TOKEN: "metrics-secret-at-least-32-characters",
       ALCHEMY_API_KEY: "configured"
     });
     const budget = createPortfolioBudget(env);

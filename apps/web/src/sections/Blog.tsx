@@ -31,9 +31,9 @@ function ArtHex() {
 }
 
 const POSTS = [
-  { t: "How to Read a Robinhood Chain Transaction", c: "Guides", d: "Apr 8, 2026", art: <ArtCube /> },
-  { t: "What Token Approvals Mean and Why They Matter", c: "Guides", d: "Mar 15, 2026", art: <ArtTorus /> },
-  { t: "Why Blockchain Explorers Need AI", c: "Notes", d: "Feb 28, 2026", art: <ArtHex /> },
+  { t: "How to Read a Robinhood Chain Transaction", c: "Guide topic", art: <ArtCube /> },
+  { t: "What Token Approvals Mean and Why They Matter", c: "Guide topic", art: <ArtTorus /> },
+  { t: "How ChainScout Separates Facts from Inference", c: "Technical topic", art: <ArtHex /> },
 ];
 
 export default function Blog() {
@@ -47,32 +47,32 @@ export default function Blog() {
         </div>
         <div className="mb-14 grid grid-cols-1 gap-8 xl:grid-cols-2">
           <h2 className="text-[40px] font-medium leading-[1.06] tracking-[-0.03em] md:text-[54px]">
-            Guides, notes, and
+            Guides and notes,
             <br />
-            launch content
+            coming after launch
           </h2>
           <p className="max-w-[420px] self-end text-[14.5px] leading-relaxed text-[#1d1d1d]/70 xl:justify-self-end">
-            Practical writing on transactions, approvals, and making on-chain activity readable
-            for everyone.
+            These are planned editorial topics, not published articles. Until they are ready,
+            the live product guide and technical docs are the source of truth.
           </p>
         </div>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
           {POSTS.map((p) => (
-            <a key={p.t} href="#insights" className="group flex flex-col border border-[#1d1d1d]/15 bg-[#f0e8da]">
+            <article key={p.t} className="flex flex-col border border-[#1d1d1d]/15 bg-[#f0e8da]">
               <div className="hatch-dark relative h-[220px] border-b border-[#1d1d1d]/15 p-8 opacity-90">
                 {p.art}
               </div>
               <div className="flex flex-1 flex-col justify-between p-7">
-                <h3 className="text-[19px] font-medium leading-snug tracking-tight transition-colors group-hover:text-[#fa6c34]">
+                <h3 className="text-[19px] font-medium leading-snug tracking-tight">
                   {p.t}
                 </h3>
-                <div className="mt-8 flex items-center justify-between border-t border-[#1d1d1d]/15 pt-4 text-[12.5px] text-[#1d1d1d]/60">
+                <div className="mt-8 flex items-center justify-between border-t border-[#1d1d1d]/15 pt-4 text-[12.5px] text-[#1d1d1d]/75">
                   <span>{p.c}</span>
-                  <span className="font-mono-d">{p.d}</span>
+                  <span className="font-mono-d">PLANNED</span>
                 </div>
               </div>
-            </a>
+            </article>
           ))}
         </div>
       </div>

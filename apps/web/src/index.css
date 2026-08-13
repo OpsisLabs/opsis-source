@@ -20,6 +20,35 @@
   --scrollbar-thumb-hover: #fa6c34;
 }
 
+/* Launch readability floor. Earlier feature releases used #635d5a for both
+   decorative ticks and essential microcopy; on charcoal that text was below
+   WCAG AA. Keep decoration unchanged, but raise actual text to the audited
+   muted palette without altering the visual hierarchy. */
+[class~="text-[#635d5a]"] {
+  color: #9a938a;
+}
+
+/* Essential muted copy must remain readable on both product surfaces. */
+[class~="text-[#716b65]"],
+[class~="text-[#777069]"],
+[class~="text-[#7f7972]"],
+[class~="text-[#817b74]"],
+[class~="text-[#8f8880]"] {
+  color: #9a938a;
+}
+
+[class~="text-[#1d1d1d]/40"],
+[class~="text-[#1d1d1d]/45"],
+[class~="text-[#1d1d1d]/50"],
+[class~="text-[#1d1d1d]/55"],
+[class~="text-[#1d1d1d]/60"],
+[class~="text-[#1d1d1d]/65"],
+[class~="text-[#1d1d1d]/70"],
+[class~="text-[#1d1d1d]/75"],
+[class~="text-[#1d1d1d]/80"] {
+  color: #1d1d1d;
+}
+
 html {
   scroll-behavior: smooth;
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);

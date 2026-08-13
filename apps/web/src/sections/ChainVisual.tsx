@@ -1,8 +1,7 @@
 import { useEffect, useRef } from "react";
 
 /**
- * Live orange dot-matrix animation: a chain of blocks streaming left,
- * with transaction pulses traveling along the links and block "halos".
+ * Decorative orange dot-matrix chain model. It is not provider or live data.
  */
 export default function ChainVisual() {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -44,6 +43,8 @@ export default function ChainVisual() {
     }
 
     const start = performance.now();
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    canvas.dataset.animationMode = reducedMotion ? "static" : "animated";
 
     const draw = (now: number) => {
       const time = (now - start) / 1000;
@@ -142,9 +143,10 @@ export default function ChainVisual() {
       ctx.fillStyle = "rgba(250,108,52,0.5)";
       ctx.fillRect(sx, 0, 1, h);
 
-      raf = requestAnimationFrame(draw);
+      if (!reducedMotion) raf = requestAnimationFrame(draw);
     };
-    raf = requestAnimationFrame(draw);
+    if (reducedMotion) draw(start);
+    else raf = requestAnimationFrame(draw);
 
     return () => {
       cancelAnimationFrame(raf);
@@ -152,5 +154,5 @@ export default function ChainVisual() {
     };
   }, []);
 
-  return <canvas ref={ref} className="absolute inset-0 h-full w-full" />;
+  return <canvas ref={ref} aria-hidden="true" className="absolute inset-0 h-full w-full" />;
 }

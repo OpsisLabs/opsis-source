@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import type { PrismaClient } from "@prisma/client";
 import type { Env } from "../config/env.js";
+import { retentionReadiness } from "../ops/retention.js";
 
 type RedisHealth = { ping(): Promise<string> };
 type ProviderConfiguration = { configured: boolean; status: "not_checked" | "disabled" };
@@ -36,10 +37,13 @@ export async function healthRoutes(app: FastifyInstance, env: Env, prisma?: Pris
         ok = false;
       }
     }
+    const retention = retentionReadiness(Boolean(prisma && env.RETENTION_ENABLED), env.RETENTION_INTERVAL_HOURS);
+    if (retention.status === "unavailable") ok = false;
 
     const status = {
       database,
       redis: redisStatus,
+      retention,
       providers: {
         // Readiness is intentionally limited to dependencies owned by this
         // service. Provider availability is observed on real requests; do not

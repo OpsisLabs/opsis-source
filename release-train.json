@@ -89,8 +89,8 @@
       "branch": "release/09-open-data-api",
       "tagPrefix": "rc/09-open-data-api/",
       "status": "released",
-      "outcome": "Reuse ChainScout's sourced public intelligence",
-      "shipGate": "The capped API exposes independently derived public facts and citations only; it contains no Vault data or restricted upstream payloads and cannot create paid overage."
+      "outcome": "Reuse ChainScout's reviewed public support data",
+      "shipGate": "The capped API exposes a two-entry reviewed static support registry plus independently derived syntax normalization; it contains no Vault data or restricted upstream payloads and cannot create paid overage."
     },
     {
       "order": 10,
@@ -98,7 +98,7 @@
       "branch": "release/10-launch-hardening",
       "tagPrefix": "rc/10-launch-hardening/",
       "status": "active",
-      "outcome": "Launch the complete private asset command center",
+      "outcome": "Certify the enabled private asset command center for launch",
       "shipGate": "End-to-end launch journeys pass on desktop and mobile; dependency, privacy, accessibility, provider-failure, load, legal-copy, backup, deletion, monitoring, and rollback gates are complete."
     }
   ]

@@ -20,7 +20,7 @@ export default defineConfig({
     screenshot: "only-on-failure",
   },
   webServer: {
-    command: "VITE_OPEN_DATA_API_ENABLED=false pnpm --filter @rh-chain/web exec vite --host 127.0.0.1 --port 5174",
+    command: "VITE_COLLECTIBLE_CATALOG_ENABLED=false VITE_MARKET_INVENTORY_ENABLED=false VITE_REPLAY_ACTIONS_ENABLED=false VITE_OPEN_DATA_API_ENABLED=false pnpm --filter @rh-chain/web exec vite --host 127.0.0.1 --port 5174",
     url: "http://localhost:5174",
     reuseExistingServer: false,
     timeout: 120_000,

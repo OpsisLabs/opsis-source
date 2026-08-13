@@ -83,7 +83,7 @@ test("desktop product rail explains and switches between every live workspace", 
 
   const tourButton = rail.getByRole("button", { name: /60-second tour/i });
   await expect(tourButton).toHaveCSS("background-color", "rgb(250, 108, 52)");
-  await expect(tourButton.getByText(/See how it fits together/i)).toHaveCSS("color", "rgb(75, 40, 27)");
+  await expect(tourButton.getByText(/See how it fits together/i)).toHaveCSS("color", "rgb(50, 25, 16)");
   await tourButton.click();
   const tour = page.getByRole("dialog", { name: "ChainScout product tour" });
   await expect(tour).toBeVisible();

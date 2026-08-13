@@ -111,12 +111,12 @@ const envSchema = z.object({
   SMTP_PASS: optionalString,
   EMAIL_FROM: optionalEmail,
   RETENTION_ENABLED: envBoolean.default(true),
-  RETENTION_INTERVAL_HOURS: z.coerce.number().positive().default(24),
-  RETENTION_AUTH_DAYS: z.coerce.number().int().positive().default(30),
-  RETENTION_SOURCE_DAYS: z.coerce.number().int().positive().default(30),
-  RETENTION_AUDIT_DAYS: z.coerce.number().int().positive().default(90),
-  RETENTION_USAGE_DAYS: z.coerce.number().int().positive().default(90),
-  RETENTION_CHAT_DAYS: z.coerce.number().int().positive().default(365),
+  RETENTION_INTERVAL_HOURS: z.coerce.number().positive().max(24).default(24),
+  RETENTION_AUTH_DAYS: z.coerce.number().int().positive().max(30).default(30),
+  RETENTION_SOURCE_DAYS: z.coerce.number().int().positive().max(90).default(30),
+  RETENTION_AUDIT_DAYS: z.coerce.number().int().positive().max(90).default(90),
+  RETENTION_USAGE_DAYS: z.coerce.number().int().positive().max(90).default(90),
+  RETENTION_CHAT_DAYS: z.coerce.number().int().positive().max(365).default(365),
   LOG_LEVEL: z.string().default("info"),
   ENABLE_METRICS: envBoolean.default(true),
   // Swagger UI is useful in development but advertises the whole surface,
@@ -224,8 +224,37 @@ const envSchema = z.object({
   if (env.JWT_ACCESS_SECRET === "dev_access_secret_change_me" || env.JWT_REFRESH_SECRET === "dev_refresh_secret_change_me") {
     context.addIssue({ code: z.ZodIssueCode.custom, message: "Production JWT secrets must be configured" });
   }
+  if (env.JWT_ACCESS_SECRET.length < 32 || env.JWT_REFRESH_SECRET.length < 32) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: "Production JWT secrets must each contain at least 32 characters" });
+  }
+  if (new Set([env.JWT_ACCESS_SECRET, env.JWT_REFRESH_SECRET, env.METRICS_TOKEN]).size !== 3) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: "JWT access, JWT refresh, and metrics secrets must be distinct" });
+  }
+  try {
+    const appOrigin = new URL(env.APP_ORIGIN);
+    const canonical = appOrigin.protocol === "https:"
+      && appOrigin.origin === env.APP_ORIGIN
+      && appOrigin.username === ""
+      && appOrigin.password === ""
+      && (appOrigin.pathname === "" || appOrigin.pathname === "/")
+      && appOrigin.search === ""
+      && appOrigin.hash === ""
+      && !["localhost", "127.0.0.1", "::1"].includes(appOrigin.hostname);
+    if (!canonical) throw new Error("NON_CANONICAL_APP_ORIGIN");
+  } catch {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: "Production APP_ORIGIN must be an explicit canonical HTTPS origin" });
+  }
   if (!env.DATABASE_URL || !env.REDIS_URL) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: "DATABASE_URL and REDIS_URL are required in production" });
+  }
+  if (!env.RETENTION_ENABLED) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: "Retention cleanup cannot be disabled in production" });
+  }
+  if (!env.ENABLE_METRICS || !env.METRICS_TOKEN || env.METRICS_TOKEN.length < 32) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Protected metrics and a METRICS_TOKEN of at least 32 characters are required in production"
+    });
   }
   if (env.ENABLE_PUBLIC_RPC_FALLBACK) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: "Public RPC fallback must be disabled in production" });

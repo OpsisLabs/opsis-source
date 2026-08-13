@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { buildApp } from "../src/app.js";
 import { loadEnv } from "../src/config/env.js";
+import { AppError } from "../src/http/errors.js";
+import { observeRetention } from "../src/observability/metrics.js";
 
 const apps: Array<Awaited<ReturnType<typeof buildApp>>> = [];
 
@@ -28,5 +30,22 @@ describe("Prometheus metrics", () => {
     apps.push(app);
 
     expect((await app.inject({ method: "GET", url: "/metrics" })).statusCode).toBe(404);
+  });
+
+  it("exports bounded operational failure and retention signals", async () => {
+    const app = await buildApp(loadEnv({ NODE_ENV: "test", ENABLE_METRICS: "true", LOG_LEVEL: "silent" }));
+    apps.push(app);
+    app.get("/test-operational-failure", async () => {
+      throw new AppError("TEST_BUDGET_EXCEEDED", 503, "bounded test failure");
+    });
+    observeRetention("success", new Date("2026-08-12T12:00:00.000Z"));
+    observeRetention("failure", new Date("2026-08-12T13:00:00.000Z"));
+
+    expect((await app.inject({ method: "GET", url: "/test-operational-failure" })).statusCode).toBe(503);
+    const metrics = (await app.inject({ method: "GET", url: "/metrics" })).body;
+    expect(metrics).toContain('rh_chain_operational_failures_total{code="TEST_BUDGET_EXCEEDED",status_code="503"} 1');
+    expect(metrics).toContain('rh_chain_retention_runs_total{outcome="success"} 1');
+    expect(metrics).toContain('rh_chain_retention_runs_total{outcome="failure"} 1');
+    expect(metrics).toContain("rh_chain_retention_last_success_timestamp_seconds 1786536000");
   });
 });

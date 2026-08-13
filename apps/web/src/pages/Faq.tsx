@@ -57,7 +57,7 @@ const FAQ_GROUPS: Array<{ id: string; title: string; intro: string; items: FaqIt
       },
       {
         question: "What stays inside the local Vault?",
-        answer: "Asset names, ownership groupings, wallet labels, purchase lots, prices, notes, locally processed photos, reference values, comparisons, and permission receipts are encrypted before IndexedDB stores them in your browser.",
+        answer: "Asset names, ownership groupings, wallet labels, purchase lots, prices, notes, locally processed photos, reference values, and permission receipts are encrypted before IndexedDB stores them in your browser. Dormant adapters can add encrypted comparison records only after their separate enablement gates.",
       },
       {
         question: "Can ChainScout see a public wallet address I look up?",
@@ -84,7 +84,7 @@ const FAQ_GROUPS: Array<{ id: string; title: string; intro: string; items: FaqIt
     items: [
       {
         question: "Where do values and prices come from?",
-        answer: "It depends on the feature. Swap previews come from Uniswap; public pool observations come from DEX Screener; onchain balances and states come from the named chain providers; RWA quotes and catalog facts come from their named sources; manual and collectible values are owner-entered and dated. The UI labels which kind you are seeing.",
+        answer: "In the enabled founder beta, swap previews come from Uniswap; onchain balances and states come from the named chain providers; RWA facts come from their named sources; and manual values are owner-entered and dated. DEX Screener market observations and TCGdex catalog facts are built but not enabled in this production build.",
       },
       {
         question: "Does ChainScout calculate my portfolio profit?",
@@ -104,7 +104,7 @@ const FAQ_GROUPS: Array<{ id: string; title: string; intro: string; items: FaqIt
       },
       {
         question: "How fresh is the information?",
-        answer: "Network results include a fetched time and a bounded freshness duration. Once the duration expires, saved observations remain readable but are marked stale and cannot be treated as current or ranked as a fresh offer.",
+        answer: "Enabled network results expose their captured time, anchor, or expiry as applicable. The dormant Market adapter additionally has bounded saved-observation freshness; it cannot rank an expired offer if that adapter is later enabled.",
       },
       {
         question: "Does ChainScout use AI to invent the answer?",
@@ -123,11 +123,11 @@ const FAQ_GROUPS: Array<{ id: string; title: string; intro: string; items: FaqIt
       },
       {
         question: "What does Replay Actions actually replay?",
-        answer: "Nothing is replayed. One complete supported WETH/USDG movement pattern is shown as local context, but it does not prove historical intent: the direction is yours to confirm and the amount starts blank. The quote request contains no old hash, wallet, calldata, approval, or amount. A purchase rebuild likewise needs a newly refreshed reviewed offer and opens a merchant product page—not an old cart or checkout.",
+        answer: "Replay Actions is built but not enabled in the founder-beta production build. Its reviewed boundary never replays anything: one complete WETH/USDG movement pattern is only local context, direction is reconfirmed, and the new amount starts blank. Its dormant purchase branch requires a newly refreshed reviewed offer and opens a product page—not an old cart or checkout.",
       },
       {
         question: "Why not scrape every store and marketplace?",
-        answer: "Because technical access is not the same as permission, accuracy, or stable rights. ChainScout only queries a merchant after explicit opt-in and a reviewed exact mapping. Unsupported venues get a user-clicked search handoff, not a hidden scraper.",
+        answer: "Because technical access is not the same as permission, accuracy, or stable rights. The merchant adapter is dormant and its real registry is empty. If later enabled, ChainScout will query a merchant only after explicit opt-in and a reviewed exact mapping; unsupported venues never become hidden scrapers.",
       },
       {
         question: "Does a merchant result include seller reputation?",

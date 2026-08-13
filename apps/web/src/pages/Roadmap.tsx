@@ -218,12 +218,12 @@ const RELEASES: Release[] = [
     number: "10",
     branch: "release/10-launch-hardening",
     title: "Launch Hardening",
-    eyebrow: "THE COMPLETE PRODUCT, PROVEN",
-    summary: "Test the whole private asset journey under real devices, stale providers, corrupted data, quota pressure, and human confusion.",
-    outcome: "Launch the complete command center",
+    eyebrow: "THE ENABLED PRODUCT, PROVEN",
+    summary: "Certify the enabled launch journey under real devices, stale providers, corrupted data, quota pressure, and human confusion; keep gated adapters visibly dormant.",
+    outcome: "Certify the enabled command center",
     icon: BadgeCheck,
     capabilities: [
-      { kicker: "FULL JOURNEYS", title: "Private onboarding, Vault, portfolio, research, compare, handoff, backup, and deletion", signal: "DESKTOP + MOBILE", bars: [34, 48, 57, 69, 83, 97] },
+      { kicker: "FULL JOURNEYS", title: "Private onboarding, Vault, portfolio, evidence, handoff, backup, and deletion", signal: "DESKTOP + MOBILE", bars: [34, 48, 57, 69, 83, 97] },
       { kicker: "BREAK IT SAFELY", title: "Provider chaos, load, quota, security, privacy, migration, and rollback drills", signal: "FAIL CLOSED", bars: [90, 77, 66, 53, 44, 31] },
       { kicker: "HUMAN READY", title: "Accessibility, beginner comprehension, accurate legal copy, and independent review", signal: "GA GATE", bars: [25, 39, 51, 65, 79, 96] },
     ],
@@ -720,7 +720,7 @@ export default function Roadmap() {
                 <span className="roadmap-live-dot h-1.5 w-1.5 rounded-full bg-[#fa6c34]" />
                 <span className="font-mono-d text-[10px] tracking-[0.14em] text-[#9a938a] sm:text-[11px]">CHAINSCOUT PRODUCT ROADMAP</span>
                 <span className="hatch h-3 flex-1 opacity-50" />
-                <span className="font-mono-d text-[9px] text-[#635d5a]">R01-R10 / LAUNCH</span>
+                <span className="font-mono-d text-[9px] text-[#635d5a]">R01-R10 / ENGINEERING TRAIN</span>
               </div>
 
               <h1 className="roadmap-hero-in roadmap-delay-1 mt-10 max-w-[740px] text-[46px] font-medium leading-[0.98] tracking-[-0.045em] text-[#d6ccba] sm:text-[64px] md:text-[78px] xl:text-[82px]">
@@ -729,8 +729,8 @@ export default function Roadmap() {
                 <span className="font-serif-d font-normal italic text-[#f0e8da]">to informed action.</span>
               </h1>
               <p className="roadmap-hero-in roadmap-delay-2 mt-8 max-w-[560px] text-[15px] leading-7 text-[#9a938a]">
-                Ten cumulative releases turn the working explorer into a private asset command center:
-                one Vault, one portfolio, one research lens, and safe official handoffs.
+                Ten cumulative releases build and harden a private asset command center. The live
+                build labels each tool as enabled, gated, or future instead of implying every adapter is public.
               </p>
             </div>
 

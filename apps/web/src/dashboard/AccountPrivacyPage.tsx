@@ -36,8 +36,11 @@ export default function AccountPrivacyPage() {
     setError("");
     try {
       await deleteAccount();
-      await logout();
+      // Leave the authenticated route before clearing React session state;
+      // otherwise RequireAuth can win the render race and strand a successful
+      // deletion on the sign-in screen instead of the public completion path.
       navigate("/", { replace: true });
+      await logout();
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "Account deletion did not complete. Nothing was partially deleted.");
       setBusy(null);

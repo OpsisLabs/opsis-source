@@ -108,20 +108,20 @@ function FeatureLink({
             <span className={`block truncate text-[12px] transition-colors ${active ? "font-semibold text-[#1d1d1d]" : "text-[#d6ccba] group-hover:text-[#fff7ec]"}`}>
               {feature.label}
             </span>
-            <span className={`mt-0.5 block truncate font-mono-d text-[8px] tracking-[0.1em] ${active ? "text-[#522817]" : "text-[#79675f]"}`}>
+            <span className={`mt-0.5 block truncate font-mono-d text-[8px] tracking-[0.1em] ${active ? "text-[#35170d]" : "text-[#b9ada5]"}`}>
               {feature.navHint}
             </span>
           </span>
         </Link> : <div
           aria-label={`${feature.label} is not enabled in this build`}
-          className="flex min-w-0 flex-1 items-center gap-3 px-3 py-3 text-left opacity-65"
+          className="flex min-w-0 flex-1 items-center gap-3 px-3 py-3 text-left"
         >
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center border border-[#6b625d] bg-[#262321] text-[#81756f]">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center border border-[#837871] bg-[#262321] text-[#b9ada5]">
             <Icon size={13} />
           </span>
           <span className="min-w-0">
-            <span className="block truncate text-[12px] text-[#9b9088]">{feature.label}</span>
-            <span className="mt-0.5 block truncate font-mono-d text-[8px] tracking-[0.1em] text-[#79675f]">NOT ENABLED IN THIS BUILD</span>
+            <span className="block truncate text-[12px] text-[#b9ada5]">{feature.label}</span>
+            <span className="mt-0.5 block truncate font-mono-d text-[8px] tracking-[0.1em] text-[#b9ada5]">NOT ENABLED IN THIS BUILD</span>
           </span>
         </div>}
         <button
@@ -177,7 +177,7 @@ function ProductRail({
         <img src="/logo.svg" alt="" className="h-7 w-7" />
         <span>
           <span className="block font-mono-d text-[11px] font-semibold tracking-[0.14em]">CHAINSCOUT</span>
-          <span className="mt-0.5 block font-mono-d text-[8px] tracking-[0.16em] opacity-65">PRODUCT WORKSPACE</span>
+          <span className="mt-0.5 block font-mono-d text-[8px] font-medium tracking-[0.16em]">PRODUCT WORKSPACE</span>
         </span>
       </Link>
 
@@ -197,13 +197,13 @@ function ProductRail({
           </span>
           <span className="min-w-0 flex-1">
             <span className="block font-mono-d text-[9px] font-semibold tracking-[0.12em]">NEW HERE? TAKE THE TOUR</span>
-            <span className="mt-1 block text-[10px] font-medium text-[#4b281b]">See how it fits together in 60 seconds</span>
+            <span className="mt-1 block text-[10px] font-medium text-[#321910]">See how it fits together in 60 seconds</span>
           </span>
           <ArrowRight size={14} className="shrink-0 transition-transform group-hover:translate-x-1" />
         </button>
         {(["explore", "vault", "build"] as const).map((group) => (
           <section key={group} className="mt-2 first:mt-0" aria-label={group === "explore" ? "Explore tools" : group === "vault" ? "Private Vault tools" : "Developer tools"}>
-            <p className="px-4 pb-2 font-mono-d text-[8px] tracking-[0.2em] text-[#5f5a55]">
+            <p className="px-4 pb-2 font-mono-d text-[8px] tracking-[0.2em] text-[#ada39b]">
               {group === "explore" ? "LOOK SOMETHING UP" : group === "vault" ? "SAVE & ORGANIZE PRIVATELY" : "BUILD WITH REVIEWED FACTS"}
             </p>
             {PRODUCT_FEATURES.filter((feature) => feature.group === group).map((feature) => (
@@ -391,8 +391,19 @@ export default function ProductShell() {
 
   return (
     <div ref={shell} className="min-h-screen bg-[#1d1d1d]">
+      <a
+        href="#product-main"
+        onClick={(event) => {
+          event.preventDefault();
+          document.getElementById("product-main")?.focus();
+          window.history.replaceState(null, "", "#product-main");
+        }}
+        className="fixed left-3 top-3 z-[120] -translate-y-24 bg-[#fa6c34] px-4 py-3 font-mono-d text-[10px] font-semibold text-[#1d1d1d] outline-none transition-transform focus:translate-y-0 focus-visible:ring-2 focus-visible:ring-white"
+      >
+        SKIP TO MAIN CONTENT
+      </a>
       <div data-route-sweep aria-hidden="true" className="pointer-events-none fixed left-0 right-0 top-0 z-[65] h-[3px] origin-left bg-[#fa6c34] opacity-0 lg:left-[252px]" />
-      <aside data-desktop-rail className="fixed inset-y-0 left-0 z-40 hidden w-[252px] border-r border-[#2e2e2e] lg:block" aria-label="ChainScout features">
+      <aside data-desktop-rail inert={tourOpen ? true : undefined} className="fixed inset-y-0 left-0 z-40 hidden w-[252px] border-r border-[#2e2e2e] lg:block" aria-label="ChainScout features">
         <ProductRail onOpenTour={openTour} />
       </aside>
 
@@ -402,6 +413,7 @@ export default function ProductShell() {
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
         aria-expanded={open}
+        disabled={tourOpen}
         className="clip-btn-sm fixed bottom-4 right-4 z-50 flex min-h-[46px] items-center gap-2 border border-[#fa6c34]/50 bg-[#242424] px-4 font-mono-d text-[10px] tracking-[0.12em] text-[#fa6c34] shadow-[0_10px_40px_rgba(0,0,0,0.45)] lg:hidden"
       >
         <Menu size={15} /> FEATURES
@@ -425,7 +437,7 @@ export default function ProductShell() {
         </div>
       )}
 
-      <div data-route-content className="min-h-screen lg:pl-[252px]" aria-hidden={open || tourOpen ? true : undefined}>
+      <div id="product-main" tabIndex={-1} data-route-content inert={open || tourOpen ? true : undefined} className="min-h-screen outline-none lg:pl-[252px]" aria-hidden={open || tourOpen ? true : undefined}>
         <Outlet />
       </div>
       {tourOpen && <ProductTour onDismiss={closeTour} />}

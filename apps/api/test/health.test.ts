@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { PrismaClient } from "@prisma/client";
 import { loadEnv } from "../src/config/env.js";
 import { healthRoutes } from "../src/routes/health.js";
+import { installRetention } from "../src/ops/retention.js";
 
 const apps: Array<ReturnType<typeof Fastify>> = [];
 
@@ -65,5 +66,22 @@ describe("readiness reporting", () => {
     const response = await app.inject({ method: "GET", url: "/readyz" });
     expect(response.statusCode).toBe(503);
     expect(response.json()).toMatchObject({ ok: false, database: "unavailable", redis: "up" });
+  });
+
+  it("fails readiness when startup retention cleanup fails", async () => {
+    const app = Fastify({ logger: false });
+    apps.push(app);
+    const prisma = {
+      $queryRaw: vi.fn().mockResolvedValue([{ ok: 1 }])
+    } as unknown as PrismaClient;
+    const redis = { ping: vi.fn().mockResolvedValue("PONG") };
+    const env = loadEnv({ NODE_ENV: "test", RETENTION_ENABLED: "true" });
+    installRetention(app, prisma, env, vi.fn().mockRejectedValue(new Error("retention unavailable")));
+    await healthRoutes(app, env, prisma, redis);
+    await app.ready();
+
+    const response = await app.inject({ method: "GET", url: "/readyz" });
+    expect(response.statusCode).toBe(503);
+    expect(response.json()).toMatchObject({ ok: false, database: "up", redis: "up", retention: { status: "unavailable" } });
   });
 });

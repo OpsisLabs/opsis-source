@@ -1,6 +1,6 @@
 import type { FastifyError, FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { ZodError } from "zod";
-import { observeRateLimit } from "../observability/metrics.js";
+import { observeOperationalFailure, observeRateLimit } from "../observability/metrics.js";
 import { ProviderRequestError } from "../chain/provider-http.js";
 
 export class AppError extends Error {
@@ -23,6 +23,10 @@ export function installErrorHandler(app: FastifyInstance): void {
       });
     }
     if (error instanceof AppError) {
+      if (error.statusCode === 429) observeRateLimit(request.routeOptions.url ?? "unmatched");
+      if (error.statusCode === 429 || error.statusCode >= 500) {
+        observeOperationalFailure(error.code, error.statusCode);
+      }
       return reply.status(error.statusCode).send({
         error: { code: error.code, message: error.message, details: error.details },
         requestId: request.id
@@ -30,6 +34,7 @@ export function installErrorHandler(app: FastifyInstance): void {
     }
     if (error instanceof ProviderRequestError) {
       const statusCode = error.code === "PROVIDER_HTTP_404" ? 404 : 503;
+      if (statusCode >= 500) observeOperationalFailure(error.code, statusCode);
       return reply.status(statusCode).send({
         error: {
           code: statusCode === 404 ? "NOT_FOUND" : error.code,
@@ -49,6 +54,7 @@ export function installErrorHandler(app: FastifyInstance): void {
       });
     }
     request.log.error({ err: error }, "unhandled error");
+    observeOperationalFailure("INTERNAL_ERROR", 500);
     return reply.status(500).send({
       error: { code: "INTERNAL_ERROR", message: "Internal server error" },
       requestId: request.id

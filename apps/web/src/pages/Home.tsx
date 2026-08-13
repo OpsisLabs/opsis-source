@@ -15,9 +15,10 @@ import FooterCta from "../sections/FooterCta";
 export default function Home() {
   return (
     <div className="min-h-screen bg-[#1d1d1d]">
+      <a href="#marketing-main" onClick={(event) => { event.preventDefault(); document.getElementById("marketing-main")?.focus(); window.history.replaceState(null, "", "#marketing-main"); }} className="fixed left-3 top-3 z-[120] -translate-y-24 bg-[#fa6c34] px-4 py-3 font-mono-d text-[10px] font-semibold text-[#1d1d1d] outline-none transition-transform focus:translate-y-0 focus-visible:ring-2 focus-visible:ring-white">SKIP TO MAIN CONTENT</a>
       <Sidebar />
       <TopNav />
-      <main className="lg:pl-[220px]">
+      <main id="marketing-main" tabIndex={-1} className="outline-none lg:pl-[220px]">
         <div className="pt-[60px]">
           <Hero />
           <Overview />
