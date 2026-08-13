@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "dcf896590de6bf6bcd4feca5d2e0e589fd7add71225a82a66768eb319c3acc3c",
+  "sourceTreeDigest": "239dce18c0558941d15dd394b02e65db437067abc134981fc338d769eadbf364",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "4c7c8dcafeb4695578deb65db4b9a27a91402dc5915b38495e0b5ae0b9c79a14",
@@ -129,7 +129,7 @@
     "apps/api/test/swap.test.ts": "4a9305e48adc738271588070cdd5da144e4f6c596c46c41be9aafc9232a6c10d",
     "apps/api/tsconfig.json": "e2e050a63981f688ed3acb17a9c499859508e91701c50411e44a8345dbfb355b",
     "apps/web/.gitignore": "fe718e7babb14f3cbad2d97f08889b9ce5215ed3fe0e43b2b8cfbfb3b9b844e8",
-    "apps/web/Dockerfile": "82404bd53ca0eeb23dfed02361ded515980f7d7fb305ad8e23c8e48cc31fa5d9",
+    "apps/web/Dockerfile": "4b6bf1505c3c1c3e0f5bcb62e1a9531031509a30e083e5b99535ba45be91404c",
     "apps/web/eslint.config.js": "4efe97b16d1200fac0eaf07aa00930a8668b1f96a0be1891ace8c1e712ff0ccb",
     "apps/web/index.html": "7b0437bc71e5ca2a5e4655ea0c93ea6b071978b731a865db3730c82e1860c553",
     "apps/web/nginx.conf": "5cabcb25bf9bca487cb025c6f82125bf28d19c31f228ee2413e2b575bb4483c1",
