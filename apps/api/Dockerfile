@@ -22,7 +22,14 @@ RUN pnpm --filter @rh-chain/api deploy --prod /prod/api \
 FROM node:22-alpine@sha256:c610fcdfb1d5b4740dd70c284ed3cb16bb857e0f7166196e36a5501df7a3aa32 AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
-RUN apk add --no-cache openssl && addgroup -S app && adduser -S app -G app && corepack enable && corepack prepare pnpm@8.15.9 --activate
+# npm and Corepack are build tools, not API runtime dependencies. Removing
+# them from the final layer keeps their archive/config parsers—and their
+# unrelated vulnerability surface—out of the deployed service.
+RUN apk add --no-cache openssl \
+  && rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack \
+  && rm -f /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack /usr/local/bin/pnpm /usr/local/bin/pnpx \
+  && addgroup -S app \
+  && adduser -S app -G app
 COPY --from=build /app/package.json /app/pnpm-workspace.yaml ./
 COPY --from=production-dependencies /prod/api/package.json apps/api/package.json
 COPY --from=build /app/apps/api/dist apps/api/dist
