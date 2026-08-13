@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import type { PortfolioSnapshot } from "@rh-chain/shared";
 import {
   Activity,
@@ -20,6 +20,11 @@ import type {
 } from "../vault/types";
 import { requestPortfolioSnapshot } from "./api";
 import { allocationPercent, buildPortfolioMath, formatDisplayDecimal, valueTotals, verifiedHoldingCount, type PortfolioMathRow } from "./math";
+const PortfolioAllocationChart = lazy(() =>
+  import("../charts/VaultVisualizations").then((module) => ({
+    default: module.PortfolioAllocationChart,
+  })),
+);
 
 const ADDRESS = /^0x[0-9a-fA-F]{40}$/;
 
@@ -269,6 +274,9 @@ export function PortfolioPanel({
       {snapshot && (
         <>
           <SnapshotHeader snapshot={snapshot} totals={totals} label={saved?.label || label} />
+          <Suspense fallback={null}>
+            <PortfolioAllocationChart rows={rows} />
+          </Suspense>
           {snapshot.attention.length > 0 && (
             <div className="grid gap-3 md:grid-cols-2">
               {snapshot.attention.map((item, index) => (

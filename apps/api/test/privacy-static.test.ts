@@ -144,6 +144,7 @@ describe("browser privacy static boundary", () => {
   it("keeps vault plaintext and local cryptography outside every network and weak-storage API", () => {
     const vaultSource =
       sourceText(resolve(repositoryRoot, "apps/web/src/vault")) +
+      sourceText(resolve(repositoryRoot, "apps/web/src/charts")) +
       readFileSync(
         resolve(repositoryRoot, "apps/web/src/pages/Vault.tsx"),
         "utf8",

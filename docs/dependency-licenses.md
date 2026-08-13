@@ -5,7 +5,7 @@ Reviewed: August 12, 2026
 The production dependency inventory is enforced by `pnpm licenses:check`.
 The script consumes `pnpm licenses list --prod --json` and fails when an
 unreviewed license label appears. The reviewed labels are MIT, MIT-0,
-Apache-2.0, BSD-3-Clause, ISC, BlueOak-1.0.0, plus GSAP's current Standard
+Apache-2.0, BSD-3-Clause, 0BSD, ISC, BlueOak-1.0.0, plus GSAP's current Standard
 no-charge license labels.
 
 ## Direct production families
@@ -20,11 +20,18 @@ no-charge license labels.
 | prom-client | Apache-2.0 |
 | lucide-react | ISC |
 | GSAP and `@gsap/react` | GSAP Standard/no-charge license |
+| Apache ECharts | Apache-2.0 |
+| tslib (ECharts runtime helper) | 0BSD |
 
 GSAP is not described as an OSI permissive license. Its use needs to remain
 inside the Standard-license terms and is part of the external commercial/legal
 review before public launch. The app also honors reduced-motion preferences and
 does not depend on animation for core task completion.
+
+Apache ECharts renders the Vault's local record, collectible-history, and
+portfolio-reference visualizations as SVG. Exact values remain available in
+adjacent accessible tables; charts do not introduce a data provider or a live
+price feed.
 
 ## Automated release controls
 

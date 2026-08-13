@@ -6,6 +6,9 @@ const nextPassphrase = "new recovery passphrase 2026";
 const assetName = "Vault Canary Card";
 const privateNote = "PRIVATE-NOTE-CANARY";
 const identifier = "PSA-CHAINSCOUT-42";
+const collectiblePrinting = "1st Edition Holo";
+const firstReferenceLabel = "Collector show listing";
+const secondReferenceLabel = "Auction result";
 const portfolioAddress = "0x1111111111111111111111111111111111111111";
 const secondPortfolioAddress = "0x2222222222222222222222222222222222222222";
 const portfolioToken = "0x3333333333333333333333333333333333333333";
@@ -69,6 +72,20 @@ test("encrypted Vault creates, stores ciphertext, locks, exports, deletes, and r
   await page.getByLabel("PRICE PER UNIT").fill("1234.560000000000000001");
   await page.getByLabel("ACQUIRED DATE").fill("2026-08-10");
   await page.getByLabel("PRIVATE NOTES").fill(privateNote);
+  await page.getByLabel("OWNER PRINTING / VARIANT").fill(collectiblePrinting);
+  await page.getByLabel("OWNER CONDITION").selectOption("near-mint");
+  await page.getByRole("button", { name: "ADD FIRST DATED REFERENCE" }).click();
+  await page.getByLabel("REFERENCE 1 VALUE").fill("1300.25");
+  await page.getByLabel("REFERENCE 1 CURRENCY").fill("USD");
+  await page.getByLabel("REFERENCE 1 OBSERVED DATE").fill("2026-08-11");
+  await page.getByLabel("REFERENCE 1 HTTPS SOURCE URL").fill("https://example.com/collector-show");
+  await page.getByLabel("REFERENCE 1 SOURCE LABEL").fill(firstReferenceLabel);
+  await page.getByRole("button", { name: "+ ADD DATED REFERENCE" }).click();
+  await page.getByLabel("REFERENCE 2 VALUE").fill("1400.75");
+  await page.getByLabel("REFERENCE 2 CURRENCY").fill("USD");
+  await page.getByLabel("REFERENCE 2 OBSERVED DATE").fill("2026-08-12");
+  await page.getByLabel("REFERENCE 2 HTTPS SOURCE URL").fill("https://example.com/auction-result");
+  await page.getByLabel("REFERENCE 2 SOURCE LABEL").fill(secondReferenceLabel);
   const sourceMetadataCanary = "SOURCE-METADATA-CANARY";
   const sourcePhoto = Buffer.concat([await readFile("apps/web/public/og.png"), Buffer.from(sourceMetadataCanary)]);
   await page.getByLabel("Private asset photo").setInputFiles({ name: "secret-photo-canary.png", mimeType: "image/png", buffer: sourcePhoto });
@@ -76,6 +93,12 @@ test("encrypted Vault creates, stores ciphertext, locks, exports, deletes, and r
   await expect(page.getByRole("heading", { name: assetName })).toBeVisible();
   await expect(page.getByText(privateNote)).toBeVisible();
   await expect(page.locator("article img")).toBeVisible();
+  await expect(page.getByTestId("collectible-value-history")).toBeVisible();
+  await expect(page.locator("[data-chart-renderer=echarts-svg]").first()).toBeVisible();
+  await expect(page.getByText("2 dated references · latest 1400.75 USD")).toBeVisible();
+  await page.getByTestId("collectible-value-history").getByText("ACCESSIBLE EXACT DATA TABLE").click();
+  await expect(page.getByRole("cell", { name: "1300.25" })).toBeVisible();
+  await expect(page.getByRole("cell", { name: "1400.75" })).toBeVisible();
   const processedPhoto = await page.locator("article img").getAttribute("src");
   expect(Buffer.from(processedPhoto?.split(",")[1] ?? "", "base64").toString("latin1")).not.toContain(sourceMetadataCanary);
   if (process.env.QA_SCREENSHOTS === "1") {
@@ -85,7 +108,7 @@ test("encrypted Vault creates, stores ciphertext, locks, exports, deletes, and r
 
   const raw = await readRawVault(page);
   const rawText = JSON.stringify(raw);
-  for (const canary of [assetName, privateNote, identifier, "1234.560000000000000001", "secret-photo-canary", recoveryCode ?? "CSV1-"]) {
+  for (const canary of [assetName, privateNote, identifier, collectiblePrinting, firstReferenceLabel, secondReferenceLabel, "1300.25", "1400.75", "1234.560000000000000001", "secret-photo-canary", recoveryCode ?? "CSV1-"]) {
     expect(rawText).not.toContain(canary);
   }
   expect(raw.meta[0].wrappedKey.ciphertext).toBeTruthy();
@@ -128,6 +151,11 @@ test("encrypted Vault creates, stores ciphertext, locks, exports, deletes, and r
     assetName,
     privateNote,
     identifier,
+    collectiblePrinting,
+    firstReferenceLabel,
+    secondReferenceLabel,
+    "1300.25",
+    "1400.75",
     "1.000000000000000001",
     "1234.560000000000000001",
     "secret-photo-canary.png",

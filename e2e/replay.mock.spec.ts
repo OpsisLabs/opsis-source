@@ -206,7 +206,7 @@ test("a delayed merchant response is discarded after the Vault locks", async ({ 
   releaseMerchant?.();
   await expect(page.getByRole("heading", { name: "Unlock on this device" })).toBeVisible();
   await expect(page.getByRole("link", { name: "OPEN MERCHANT PRODUCT" })).toHaveCount(0);
-  expect((await readRawVault(page)).records.map((record) => record.version).sort()).toEqual([1, 4]);
+  expect((await readRawVault(page)).records.map((record) => record.version).sort()).toEqual([3, 4]);
 });
 
 test("an offer loses its product handoff when its received freshness window expires", async ({ page }) => {

@@ -1,4 +1,6 @@
 import {
+  lazy,
+  Suspense,
   useCallback,
   useEffect,
   useRef,
@@ -82,6 +84,16 @@ const AUTO_LOCK_MS = 10 * 60 * 1000;
 const COLLECTIBLE_CATALOG_ENABLED = isCollectibleCatalogEnabled();
 const MARKET_INVENTORY_ENABLED = isMarketInventoryEnabled();
 const REPLAY_ACTIONS_ENABLED = isReplayActionsEnabled();
+const CollectibleValueHistoryChart = lazy(() =>
+  import("../charts/VaultVisualizations").then((module) => ({
+    default: module.CollectibleValueHistoryChart,
+  })),
+);
+const VaultRecordMixChart = lazy(() =>
+  import("../charts/VaultVisualizations").then((module) => ({
+    default: module.VaultRecordMixChart,
+  })),
+);
 
 function workspaceFromSearch(searchParams: URLSearchParams): Workspace {
   return vaultWorkspaceFromSearch(searchParams, {
@@ -91,13 +103,32 @@ function workspaceFromSearch(searchParams: URLSearchParams): Workspace {
   });
 }
 
-const EMPTY_DRAFT: VaultAssetDraft = {
-  name: "",
-  assetType: "collectible",
-  identifier: "",
-  lots: [{ quantity: "1", unitPrice: "", currency: "USD", acquiredAt: "" }],
-  notes: "",
-};
+function manualCollectibleDetails(
+  photoAddedAt: string | null = null,
+): NonNullable<VaultAssetDraft["collectible"]> {
+  return {
+    catalog: null,
+    ownerPrinting: "",
+    condition: "unknown",
+    grader: "ungraded",
+    grade: "",
+    certificate: "",
+    photoSource: photoAddedAt ? "owner_supplied" : null,
+    photoAddedAt,
+    references: [],
+  };
+}
+
+function emptyAssetDraft(): VaultAssetDraft {
+  return {
+    name: "",
+    assetType: "collectible",
+    identifier: "",
+    lots: [{ quantity: "1", unitPrice: "", currency: "USD", acquiredAt: "" }],
+    notes: "",
+    collectible: manualCollectibleDetails(),
+  };
+}
 
 export default function VaultPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -1173,26 +1204,35 @@ function VaultDashboard({
     0,
   );
   return (
-    <section className="clip-panel mt-8 border border-[#383838] bg-[#242424]">
-      <div className="grid gap-px bg-[#383838] sm:grid-cols-[1fr_1fr_1fr_auto]">
-        <Metric label="ENCRYPTED ASSETS" value={String(assets.length)} />
-        <Metric label="PURCHASE LOTS" value={String(lots)} />
-        <Metric
-          label="PRICED LOTS"
-          value={String(pricedLots)}
-          note={`${types} asset type${types === 1 ? "" : "s"}`}
-        />
-        <div className="flex items-center bg-[#202020] p-4 sm:p-5">
-          <button
-            type="button"
-            onClick={onAdd}
-            className="clip-btn-sm flex min-h-[44px] w-full items-center justify-center gap-2 bg-[#fa6c34] px-5 font-mono-d text-[10px] font-medium tracking-wider text-[#1d1d1d] sm:w-auto"
-          >
-            <PackagePlus size={14} /> ADD ASSET
-          </button>
+    <div
+      className={`mt-8 grid gap-5 ${assets.length ? "xl:grid-cols-[0.72fr_1.28fr]" : ""}`}
+    >
+      {assets.length > 0 && (
+        <Suspense fallback={null}>
+          <VaultRecordMixChart assets={assets} />
+        </Suspense>
+      )}
+      <section className="clip-panel border border-[#383838] bg-[#242424]">
+        <div className="grid h-full gap-px bg-[#383838] sm:grid-cols-[1fr_1fr_1fr_auto] xl:grid-cols-2">
+          <Metric label="ENCRYPTED ASSETS" value={String(assets.length)} />
+          <Metric label="PURCHASE LOTS" value={String(lots)} />
+          <Metric
+            label="PRICED LOTS"
+            value={String(pricedLots)}
+            note={`${types} asset type${types === 1 ? "" : "s"}`}
+          />
+          <div className="flex items-center bg-[#202020] p-4 sm:p-5">
+            <button
+              type="button"
+              onClick={onAdd}
+              className="clip-btn-sm flex min-h-[44px] w-full items-center justify-center gap-2 bg-[#fa6c34] px-5 font-mono-d text-[10px] font-medium tracking-wider text-[#1d1d1d] sm:w-auto"
+            >
+              <PackagePlus size={14} /> ADD ASSET
+            </button>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 }
 
@@ -1206,7 +1246,7 @@ function AssetEditor({
   onSave: (draft: VaultAssetDraft, existing?: VaultAsset) => Promise<void>;
 }) {
   const [draft, setDraft] = useState<VaultAssetDraft>(
-    asset ? assetToDraft(asset) : EMPTY_DRAFT,
+    () => (asset ? assetToDraft(asset) : emptyAssetDraft()),
   );
   const [busy, setBusy] = useState(false);
   const [photoBusy, setPhotoBusy] = useState(false);
@@ -1245,27 +1285,60 @@ function AssetEditor({
     );
   };
   const updateCollectibleReference = (
+    index: number,
     key: "value" | "currency" | "observedAt" | "sourceUrl" | "label",
     value: string,
   ) => {
     setDraft((current) => {
       if (!current.collectible) return current;
-      const existing = current.collectible.references[0] ?? {
-        id: crypto.randomUUID(),
-        value: "",
-        currency: "USD",
-        observedAt: "",
-        sourceUrl: "",
-        label: "",
-      };
       return {
         ...current,
         collectible: {
           ...current.collectible,
-          references: [{ ...existing, [key]: value }],
+          references: current.collectible.references.map((reference, referenceIndex) =>
+            referenceIndex === index ? { ...reference, [key]: value } : reference,
+          ),
         },
       };
     });
+  };
+  const addCollectibleReference = () => {
+    setDraft((current) =>
+      current.collectible && current.collectible.references.length < 20
+        ? {
+            ...current,
+            collectible: {
+              ...current.collectible,
+              references: [
+                ...current.collectible.references,
+                {
+                  id: crypto.randomUUID(),
+                  value: "",
+                  currency: "USD",
+                  observedAt: "",
+                  sourceUrl: "",
+                  label: "",
+                },
+              ],
+            },
+          }
+        : current,
+    );
+  };
+  const removeCollectibleReference = (index: number) => {
+    setDraft((current) =>
+      current.collectible
+        ? {
+            ...current,
+            collectible: {
+              ...current.collectible,
+              references: current.collectible.references.filter(
+                (_reference, referenceIndex) => referenceIndex !== index,
+              ),
+            },
+          }
+        : current,
+    );
   };
   const onPhoto = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -1356,8 +1429,23 @@ function AssetEditor({
         <SelectField
           label="TYPE"
           value={draft.assetType}
-          onChange={(value) => set("assetType", value as VaultAssetType)}
-          disabled={Boolean(draft.collectible)}
+          onChange={(value) => {
+            const assetType = value as VaultAssetType;
+            setDraft((current) => ({
+              ...current,
+              assetType,
+              ...(assetType === "collectible"
+                ? {
+                    collectible:
+                      current.collectible ??
+                      manualCollectibleDetails(
+                        current.photo ? new Date().toISOString() : null,
+                      ),
+                  }
+                : { collectible: undefined }),
+            }));
+          }}
+          disabled={Boolean(draft.collectible?.catalog)}
           options={[
             ["collectible", "Collectible"],
             ["crypto", "Crypto"],
@@ -1372,7 +1460,7 @@ function AssetEditor({
           onChange={(value) => set("identifier", value)}
           maxLength={200}
           placeholder="Optional"
-          disabled={Boolean(draft.collectible)}
+          disabled={Boolean(draft.collectible?.catalog)}
         />
         <label className="md:col-span-2 lg:col-span-3">
           <span className="font-mono-d text-[9px] tracking-[0.13em] text-[#635d5a]">
@@ -1391,12 +1479,16 @@ function AssetEditor({
       {draft.collectible && (
         <div className="mt-5 border border-[#7fb069]/35 bg-[#20251f] p-4 sm:p-5">
           <p className="font-mono-d text-[9px] tracking-[0.14em] text-[#7fb069]">
-            CATALOG IDENTITY + OWNER-REPORTED DETAILS
+            {draft.collectible.catalog
+              ? "CATALOG IDENTITY + OWNER-REPORTED DETAILS"
+              : "OWNER-REPORTED COLLECTIBLE DETAILS"}
           </p>
           <p className="mt-2 text-[10.5px] leading-relaxed text-[#7f7972]">
-            TCGdex metadata is source-linked. Condition, grade, certificate,
-            photo, and value source below are your private claims—not
-            authentication or an appraisal.
+            {draft.collectible.catalog
+              ? "TCGdex card and set metadata is source-linked. "
+              : "This is a manual private record with no catalog verification. "}
+            Printing, condition, grade, certificate, photo, and dated values
+            below are your claims—not authentication or an appraisal.
           </p>
           <div className="mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
             <Field
@@ -1492,60 +1584,45 @@ function AssetEditor({
           <div className="mt-4 border-t border-[#383838] pt-4">
             <div className="flex items-center justify-between gap-3">
               <p className="font-mono-d text-[8px] tracking-wider text-[#fa6c34]">
-                DATED MANUAL VALUE SOURCE · OPTIONAL
+                DATED MANUAL VALUE HISTORY · OPTIONAL
               </p>
-              {draft.collectible.references.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => updateCollectible("references", [])}
-                  className="font-mono-d text-[8px] text-[#e0738a]"
-                >
-                  REMOVE REFERENCE
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={addCollectibleReference}
+                disabled={draft.collectible.references.length >= 20}
+                className="font-mono-d text-[8px] text-[#9fc68f] disabled:text-[#4f4a46]"
+              >
+                + ADD DATED REFERENCE
+              </button>
             </div>
-            <div className="mt-3 grid gap-3 md:grid-cols-2 lg:grid-cols-5">
-              <Field
-                label="VALUE"
-                value={draft.collectible.references[0]?.value ?? ""}
-                onChange={(value) => updateCollectibleReference("value", value)}
-                maxLength={157}
-                flush
-              />
-              <Field
-                label="CURRENCY"
-                value={draft.collectible.references[0]?.currency ?? "USD"}
-                onChange={(value) =>
-                  updateCollectibleReference("currency", value)
-                }
-                maxLength={12}
-                flush
-              />
-              <Field
-                label="OBSERVED DATE"
-                value={draft.collectible.references[0]?.observedAt ?? ""}
-                onChange={(value) =>
-                  updateCollectibleReference("observedAt", value)
-                }
-                type="date"
-                flush
-              />
-              <Field
-                label="HTTPS SOURCE URL"
-                value={draft.collectible.references[0]?.sourceUrl ?? ""}
-                onChange={(value) =>
-                  updateCollectibleReference("sourceUrl", value)
-                }
-                maxLength={1_000}
-                flush
-              />
-              <Field
-                label="SOURCE LABEL"
-                value={draft.collectible.references[0]?.label ?? ""}
-                onChange={(value) => updateCollectibleReference("label", value)}
-                maxLength={120}
-                flush
-              />
+            <p className="mt-2 text-[10px] leading-relaxed text-[#7f7972]">
+              Add up to 20 owner-entered, source-linked observations. They stay encrypted locally and power the history chart; none is treated as a live market price or appraisal.
+            </p>
+            {draft.collectible.references.length === 0 && (
+              <button
+                type="button"
+                onClick={addCollectibleReference}
+                className="mt-3 border border-dashed border-[#383838] px-4 py-3 font-mono-d text-[8px] text-[#9a938a]"
+              >
+                ADD FIRST DATED REFERENCE
+              </button>
+            )}
+            <div className="mt-3 space-y-3">
+              {draft.collectible.references.map((reference, index) => (
+                <div key={reference.id} className="border border-[#383838] bg-[#1d1d1d] p-3">
+                  <div className="mb-3 flex items-center justify-between">
+                    <span className="font-mono-d text-[8px] text-[#9a938a]">REFERENCE {index + 1}</span>
+                    <button type="button" onClick={() => removeCollectibleReference(index)} className="font-mono-d text-[8px] text-[#e0738a]">REMOVE</button>
+                  </div>
+                  <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-5">
+                    <Field label={`REFERENCE ${index + 1} VALUE`} value={reference.value} onChange={(value) => updateCollectibleReference(index, "value", value)} maxLength={157} flush />
+                    <Field label={`REFERENCE ${index + 1} CURRENCY`} value={reference.currency} onChange={(value) => updateCollectibleReference(index, "currency", value)} maxLength={12} flush />
+                    <Field label={`REFERENCE ${index + 1} OBSERVED DATE`} value={reference.observedAt} onChange={(value) => updateCollectibleReference(index, "observedAt", value)} type="date" flush />
+                    <Field label={`REFERENCE ${index + 1} HTTPS SOURCE URL`} value={reference.sourceUrl} onChange={(value) => updateCollectibleReference(index, "sourceUrl", value)} maxLength={1_000} flush />
+                    <Field label={`REFERENCE ${index + 1} SOURCE LABEL`} value={reference.label} onChange={(value) => updateCollectibleReference(index, "label", value)} maxLength={120} flush />
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -1794,7 +1871,9 @@ function AssetCard({
           <div>
             <p className="font-mono-d text-[8.5px] tracking-[0.15em] text-[#7fb069]">
               {asset.collectible
-                ? "TCGDEX METADATA + OWNER CLAIMS"
+                ? asset.collectible.catalog
+                  ? "TCGDEX METADATA + OWNER CLAIMS"
+                  : "OWNER COLLECTIBLE RECORD"
                 : asset.assetType.toUpperCase()}{" "}
               · ENCRYPTED
             </p>
@@ -1845,10 +1924,10 @@ function AssetCard({
               }
             />
             <SmallMetric
-              label="MANUAL VALUE SOURCE"
+              label="MANUAL VALUE HISTORY"
               value={
-                asset.collectible.references[0]
-                  ? `${asset.collectible.references[0].value} ${asset.collectible.references[0].currency} · ${asset.collectible.references[0].observedAt}`
+                asset.collectible.references.length
+                  ? `${asset.collectible.references.length} dated reference${asset.collectible.references.length === 1 ? "" : "s"} · latest ${asset.collectible.references.at(-1)?.value} ${asset.collectible.references.at(-1)?.currency}`
                   : "NOT ENTERED"
               }
             />
@@ -1869,21 +1948,27 @@ function AssetCard({
         )}
         {asset.collectible && (
           <p className="mt-3 text-[9px] leading-relaxed text-[#635d5a]">
-            Catalog metadata is not authentication, appraisal, or inventory.{" "}
-            <a
-              href={asset.collectible.catalog.sourceUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="text-[#9a938a] underline"
-            >
-              Open catalog source
-            </a>
-            {asset.collectible.references[0] && (
+            {asset.collectible.catalog ? (
+              <>
+                Catalog metadata is not authentication, appraisal, or inventory.{" "}
+                <a
+                  href={asset.collectible.catalog.sourceUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[#9a938a] underline"
+                >
+                  Open catalog source
+                </a>
+              </>
+            ) : (
+              <>Manual owner record. No catalog identity has been asserted.</>
+            )}
+            {asset.collectible.references.length > 0 && (
               <>
                 {" "}
                 ·{" "}
                 <a
-                  href={asset.collectible.references[0].sourceUrl}
+                  href={asset.collectible.references.at(-1)?.sourceUrl}
                   target="_blank"
                   rel="noreferrer"
                   className="text-[#9a938a] underline"
@@ -1894,6 +1979,9 @@ function AssetCard({
             )}
           </p>
         )}
+        <Suspense fallback={null}>
+          <CollectibleValueHistoryChart asset={asset} />
+        </Suspense>
         <div className="mt-5 border-t border-[#383838] pt-4">
           {!confirm ? (
             <button
@@ -2769,7 +2857,13 @@ function assetToDraft(asset: VaultAsset): VaultAssetDraft {
     lots: asset.lots.map((lot) => ({ ...lot })),
     notes: asset.notes,
     ...(asset.photo ? { photo: asset.photo } : {}),
-    ...(asset.collectible ? { collectible: asset.collectible } : {}),
+    ...(asset.assetType === "collectible"
+      ? {
+          collectible:
+            asset.collectible ??
+            manualCollectibleDetails(asset.photo ? asset.updatedAt : null),
+        }
+      : {}),
   };
 }
 

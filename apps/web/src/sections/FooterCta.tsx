@@ -22,23 +22,24 @@ export default function FooterCta() {
         <div className="border-r border-[#2e2e2e] px-8 py-20 md:px-12">
           <div className="mb-12 flex max-w-[480px] items-center gap-3 border-y border-[#2e2e2e] py-3">
             <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-[#e9e0d1]" />
-            <span className="font-mono-d text-[12px] text-[#9a938a]">From transaction hash to human answer</span>
+            <span className="font-mono-d text-[12px] text-[#9a938a]">From scattered assets to one private record</span>
             <span className="hatch h-3 flex-1 opacity-60" />
           </div>
           <h2 className="text-[38px] font-medium leading-[1.04] tracking-[-0.03em] sm:text-[52px] md:text-[68px]">
-            <span className="text-[#f0e8da]">Paste an address.</span>
+            <span className="text-[#f0e8da]">Track what matters.</span>
             <br />
-            <span className="text-[#d6ccba]">Ask anything.</span>
+            <span className="text-[#d6ccba]">Keep the context.</span>
           </h2>
           <p className="mt-7 max-w-[460px] text-[15px] leading-relaxed text-[#9a938a]">
-            No wallet connection. No signing. Just read-only Robinhood Chain analysis with
-            source-linked answers.
+            Start with an encrypted local record for crypto, an NFT, a tokenized
+            asset, a Pokémon card, or anything else you own. Add public evidence
+            only when you explicitly ask for it.
           </p>
           <Link
-            to="/app"
-            className="clip-btn mt-12 flex h-[58px] w-full max-w-[480px] items-center justify-center bg-[#e9e0d1] font-mono-d text-[13px] font-medium tracking-wide text-[#1d1d1d] transition-colors hover:bg-[#f0e8da]"
+            to="/vault?view=assets"
+            className="clip-btn mt-12 flex h-[58px] w-full max-w-[480px] items-center justify-center bg-[#fa6c34] font-mono-d text-[13px] font-medium tracking-wide text-[#1d1d1d] transition-colors hover:bg-[#ff7d48]"
           >
-            START EXPLORING
+            OPEN PRIVATE VAULT
           </Link>
         </div>
 
@@ -50,8 +51,9 @@ export default function FooterCta() {
             <div className="border-r border-[#2e2e2e] p-8">
               <p className="mb-4 font-mono-d text-[11px] tracking-wider text-[#635d5a]">PAGES</p>
               <a href="#hero" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">Homepage</a>
-              <a href="#capabilities" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">Product</a>
-              <a href="#comparison" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">Comparison</a>
+              <a href="#track" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">What to track</a>
+              <a href="#workflow" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">How it works</a>
+              <a href="#availability" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">Availability</a>
               <a href="#safety" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">Safety</a>
               <Link to="/roadmap" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">Roadmap</Link>
               <Link to="/login" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">Sign in</Link>
@@ -81,9 +83,9 @@ export default function FooterCta() {
             <p className="mt-1 text-[13px] text-[#1d1d1d]">Evidence stays inspectable</p>
           </div>
           <p className="max-w-[420px] font-mono-d text-[12px] leading-relaxed text-[#1d1d1d] md:justify-self-end">
-            ChainScout is a read-only AI assistant for Robinhood Chain. It
-            explains wallets, transactions, tokens, and contracts in plain English, with
-            citations. Informational only, not financial advice.
+            ChainScout combines an encrypted browser-local asset Vault with
+            read-only, source-linked Robinhood Chain tools. Informational only,
+            not financial advice or an appraisal.
           </p>
         </div>
 
@@ -100,7 +102,7 @@ export default function FooterCta() {
               fontWeight="600"
               fontSize="290"
             >
-              Explorer
+              Vault
             </text>
           </svg>
         </div>

@@ -1,89 +1,59 @@
+import { Check, Minus, ShieldCheck, X } from "lucide-react";
+import { SectionHeader } from "./AssetUniverse";
+
 const IS = [
-  "A blockchain explorer assistant for Robinhood Chain",
-  "A natural-language chat interface for on-chain data",
-  "Source-linked explanations with risk notes",
-  "A read-only intelligence product",
+  "An encrypted browser-local asset Vault",
+  "A read-only Robinhood Chain explorer assistant",
+  "A source-linked public evidence workspace",
+  "An exact-decimal lot and owner-context tracker",
 ];
 
 const IS_NOT = [
-  "A trading bot, wallet, or swap app",
-  "A financial, legal, or tax advisor",
-  "A scam detector making absolute claims",
+  "A custodian, wallet, exchange, or marketplace",
+  "A live price oracle or professional appraisal",
+  "A guarantee of authenticity, ownership, or completeness",
   "A tool that asks for seed phrases or private keys",
-  "Anything that signs or submits transactions",
-];
-
-const CHIPS = [
-  "Informational only",
-  "Read-only analysis",
-  "Source-linked explanations",
-  "Risk notes are evidence-based",
-  "No trading recommendations",
+  "Anything that signs or broadcasts transactions",
 ];
 
 export default function Safety() {
   return (
-    <section id="safety" className="px-4 pb-10 md:px-8">
-      <div className="clip-panel bg-[#e9e0d1] px-8 py-14 text-[#1d1d1d] md:px-14">
-        <div className="mb-10 flex items-center gap-3 border-y border-[#1d1d1d]/15 py-3">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#1d1d1d]" />
-          <span className="font-mono-d text-[12px] text-[#1d1d1d]/70">Safety</span>
-          <span className="hatch-dark h-3 flex-1" />
-        </div>
-        <div className="mb-14 grid grid-cols-1 gap-8 xl:grid-cols-2">
-          <h2 className="text-[40px] font-medium leading-[1.06] tracking-[-0.03em] md:text-[54px]">
-            Read-only by design.
-            <br />
-            Careful by default.
-          </h2>
-          <p className="max-w-[420px] self-end text-[14.5px] leading-relaxed text-[#1d1d1d]/70 xl:justify-self-end">
-            The assistant flags approvals, unknown contracts, and failed transactions, without
-            pretending to know more than the data supports.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {/* what it is */}
-          <div className="border border-[#1d1d1d]/15 bg-[#f0e8da] p-8">
-            <p className="mb-6 font-mono-d text-[12px] tracking-wider text-[#1d1d1d]/60">WHAT IT IS</p>
-            {IS.map((t) => (
-              <div key={t} className="flex items-start gap-3.5 border-t border-[#1d1d1d]/10 py-4 first:border-t-0 first:pt-0 last:pb-0">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#1d1d1d]">
-                  <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="#e9e0d1" strokeWidth="1.6">
-                    <path d="M1.5 5.5 4 8l4.5-6" />
-                  </svg>
-                </span>
-                <span className="text-[14px] leading-relaxed text-[#1d1d1d]/80">{t}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* what it is not */}
-          <div className="border border-[#1d1d1d]/15 bg-[#f0e8da] p-8">
-            <p className="mb-6 font-mono-d text-[12px] tracking-wider text-[#1d1d1d]/60">WHAT IT IS NOT</p>
-            {IS_NOT.map((t) => (
-              <div key={t} className="flex items-start gap-3.5 border-t border-[#1d1d1d]/10 py-4 first:border-t-0 first:pt-0 last:pb-0">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-[#1d1d1d]/30 text-[11px] text-[#1d1d1d]/60">
-                  ×
-                </span>
-                <span className="text-[14px] leading-relaxed text-[#1d1d1d]/80">{t}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* compliance chips */}
-        <div className="mt-6 flex flex-wrap gap-2 border border-[#1d1d1d]/15 bg-[#f0e8da] p-6">
-          {CHIPS.map((c) => (
-            <span key={c} className="border border-[#1d1d1d]/20 px-3.5 py-2 font-mono-d text-[10.5px] tracking-wide text-[#1d1d1d]/65">
-              {c}
-            </span>
-          ))}
-          <span className="ml-auto self-center font-mono-d text-[10.5px] tracking-wide text-[#1d1d1d]/45">
-            RISK LANGUAGE RULES ENFORCED IN EVERY ANSWER
-          </span>
-        </div>
+    <section id="safety" data-home-reveal className="border-b border-[#2e2e2e] bg-[#191919] px-5 py-20 sm:px-8 md:px-12 md:py-28">
+      <SectionHeader eyebrow="BUILT-IN BOUNDARIES" title={<>Useful context.<br /><span className="text-[#7fb069]">Honest limits.</span></>} copy="Public facts, provider observations, and owner-entered records are labeled separately. A chart never upgrades a manual value into a market price." />
+      <div className="mt-14 grid gap-px border border-[#383838] bg-[#383838] lg:grid-cols-2">
+        <BoundaryCard title="WHAT CHAINSCOUT IS" items={IS} icon="check" />
+        <BoundaryCard title="WHAT CHAINSCOUT IS NOT" items={IS_NOT} icon="x" />
+      </div>
+      <div className="mt-px grid gap-px border border-[#383838] bg-[#383838] md:grid-cols-3">
+        <SafetySignal icon={<ShieldCheck size={16} />} title="READ-ONLY" copy="ChainScout does not sign, submit, approve, buy, sell, or move funds." />
+        <SafetySignal icon={<Minus size={16} />} title="NO FALSE PRECISION" copy="Unknown, stale, partial, manual, and unavailable states remain visible." />
+        <SafetySignal icon={<Check size={16} />} title="INSPECTABLE" copy="Exact values, source links, coverage notes, and encrypted receipts stay reviewable." />
       </div>
     </section>
+  );
+}
+
+function BoundaryCard({ title, items, icon }: { title: string; items: string[]; icon: "check" | "x" }) {
+  return (
+    <article className="bg-[#202020] p-6 sm:p-8">
+      <p className={`font-mono-d text-[9px] tracking-[0.14em] ${icon === "check" ? "text-[#7fb069]" : "text-[#e0a96d]"}`}>{title}</p>
+      <div className="mt-6">
+        {items.map((item) => (
+          <div key={item} className="flex items-start gap-3 border-t border-[#333] py-4 first:border-t-0 first:pt-0">
+            <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center border ${icon === "check" ? "border-[#7fb069]/40 text-[#7fb069]" : "border-[#e0a96d]/40 text-[#e0a96d]"}`}>{icon === "check" ? <Check size={10} /> : <X size={10} />}</span>
+            <span className="text-[13px] leading-relaxed text-[#b7aea2]">{item}</span>
+          </div>
+        ))}
+      </div>
+    </article>
+  );
+}
+
+function SafetySignal({ icon, title, copy }: { icon: React.ReactNode; title: string; copy: string }) {
+  return (
+    <div className="bg-[#1d1d1d] p-5 sm:p-6">
+      <div className="flex items-center gap-3 font-mono-d text-[9px] tracking-[0.13em] text-[#fa6c34]">{icon}{title}</div>
+      <p className="mt-3 text-[11.5px] leading-relaxed text-[#9a938a]">{copy}</p>
+    </div>
   );
 }

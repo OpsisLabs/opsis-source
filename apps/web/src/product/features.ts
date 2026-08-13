@@ -201,15 +201,15 @@ export const PRODUCT_FEATURES: ProductFeature[] = [
     eyebrow: "ANY ASSET · LOCAL ONLY",
     navHint: "Add anything manually",
     summary:
-      "Create encrypted records for crypto, collectibles, NFTs, real-world assets, or anything else you own.",
+      "Create encrypted records for crypto, Pokémon and other collectibles, NFTs, real-world assets, or anything else you own.",
     bestFor: "Assets that have no supported provider, catalog match, or public identifier.",
     privacy:
-      "Names, identifiers, exact purchase lots, notes, and locally processed photos stay inside the encrypted browser Vault.",
+      "Names, identifiers, collectible condition and grade, exact purchase lots, dated value references, notes, and locally processed photos stay inside the encrypted browser Vault.",
     boundary:
-      "Manual entries are owner records, not provider verification, live pricing, tax accounting, or proof of ownership.",
+      "Manual entries and their charts are owner records, not provider verification, a live price feed, appraisal, tax accounting, or proof of ownership.",
     steps: [
       "Choose an asset type and give the record a useful name.",
-      "Add exact quantity, per-unit purchase price, currency, date, and optional notes.",
+      "For a collectible, add owner-reported printing, condition, grade, photo, and up to 20 dated source-linked reference values.",
       "Export an encrypted backup so browser storage is not your only copy.",
     ],
   },

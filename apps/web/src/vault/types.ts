@@ -70,7 +70,7 @@ export interface VaultCollectibleReference {
 }
 
 export interface VaultCollectibleDetails {
-  catalog: CollectibleCardDetail;
+  catalog: CollectibleCardDetail | null;
   ownerPrinting: string;
   condition: VaultCollectibleCondition;
   grader: VaultCollectibleGrader;

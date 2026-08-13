@@ -651,7 +651,7 @@ export function MarketInventoryPanel({
   const selectedHandoffAsset = assets.find(
     (asset) => asset.id === handoffAssetId,
   );
-  const handoffs = selectedHandoffAsset?.collectible
+  const handoffs = selectedHandoffAsset?.collectible?.catalog
     ? buildMarketHandoffs(
         selectedHandoffAsset.collectible.catalog.name,
         selectedHandoffAsset.collectible.catalog.set.name,

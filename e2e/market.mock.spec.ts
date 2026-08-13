@@ -159,7 +159,7 @@ test("market lookup and exact landed-cost inputs stay cookie-free and encrypted"
   await expect(page.getByText("#2", { exact: true })).toBeVisible();
 
   const raw = await readRawVault(page);
-  expect(raw.records.map((record) => record.version).sort()).toEqual([1, 4]);
+  expect(raw.records.map((record) => record.version).sort()).toEqual([3, 4]);
   const rawText = JSON.stringify(raw);
   for (const canary of [
     privateLabel,

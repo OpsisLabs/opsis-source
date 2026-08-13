@@ -3,15 +3,12 @@ import { Link } from "react-router";
 import { Menu, X } from "lucide-react";
 
 const LINKS = [
-  { label: "Feature Guide", href: "/guide" },
-  { label: "Scout Swap", href: "/swap" },
-  { label: "Portfolio Vault", href: "/vault" },
-  { label: "RWA Verify", href: "/rwa" },
-  { label: "Providers", href: "#integrations" },
-  { label: "Roadmap", href: "/roadmap" },
-  { label: "Comparison", href: "#comparison" },
+  { label: "Track", href: "#track" },
+  { label: "How it works", href: "#workflow" },
+  { label: "Availability", href: "#availability" },
   { label: "Safety", href: "#safety" },
   { label: "FAQ", href: "#faq" },
+  { label: "Guide", href: "/guide" },
 ];
 
 export default function TopNav() {
@@ -43,7 +40,7 @@ export default function TopNav() {
           to="/app"
           className="clip-btn-sm mr-3 hidden items-center bg-[#fa6c34] px-5 py-2.5 font-mono-d text-[11px] font-medium tracking-wide text-[#1d1d1d] transition-colors hover:bg-[#ff7038] sm:flex md:mr-0 md:h-full md:px-8 md:text-[12px]"
         >
-          TRY THE EXPLORER
+          OPEN EXPLORER
         </Link>
 
         {/* hamburger */}
@@ -76,7 +73,7 @@ export default function TopNav() {
               onClick={() => setOpen(false)}
               className="clip-btn-sm flex items-center justify-center bg-[#fa6c34] py-3.5 font-mono-d text-[12px] font-medium tracking-wide text-[#1d1d1d]"
             >
-              TRY THE EXPLORER
+              OPEN EXPLORER
             </Link>
           </div>
         </div>

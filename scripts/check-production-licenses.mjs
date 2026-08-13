@@ -5,6 +5,7 @@ const approved = new Set([
   "MIT-0",
   "Apache-2.0",
   "BSD-3-Clause",
+  "0BSD",
   "ISC",
   "BlueOak-1.0.0",
   "SEE LICENSE AT https://gsap.com/standard-license",
@@ -21,9 +22,9 @@ if (unapproved.length) {
   console.error(`Unreviewed production licenses: ${unapproved.join(", ")}`);
   process.exit(1);
 }
-for (const packageName of ["gsap", "@gsap/react"]) {
+for (const packageName of ["gsap", "@gsap/react", "echarts"]) {
   if (!licenses.some((license) => inventory[license]?.some((entry) => entry.name === packageName))) {
-    console.error(`Expected reviewed animation dependency is missing: ${packageName}`);
+    console.error(`Expected reviewed frontend dependency is missing: ${packageName}`);
     process.exit(1);
   }
 }

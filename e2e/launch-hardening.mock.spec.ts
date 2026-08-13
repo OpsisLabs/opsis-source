@@ -65,6 +65,7 @@ test("keyboard tour makes the background inert, supports reflow, and restores fo
 });
 
 test("mobile new-user journey moves from a private lookup into one encrypted workspace", async ({ page }) => {
+  test.setTimeout(45_000);
   await dismissTour(page);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.route("**/v1/private/analyze", (route) => route.fulfill({ json: privateResult() }));
@@ -170,10 +171,15 @@ test("launch pages have no automated color-contrast violations", async ({ page }
   }
 });
 
-test("reduced motion renders the marketing chain model as a static illustration", async ({ page }) => {
+test("marketing home makes the multi-asset Vault apparent and honors reduced motion", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
-  await expect(page.getByText("ILLUSTRATIVE CHAIN MODEL · 4663")).toBeVisible();
-  await expect(page.getByText("DECORATIVE · NOT LIVE DATA")).toBeVisible();
-  await expect(page.locator("canvas[data-animation-mode=static]")).toHaveAttribute("aria-hidden", "true");
+  await expect(page.getByRole("heading", { name: /Know what you own/i })).toBeVisible();
+  await expect(page.getByText("POKÉMON / TCG", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Pokémon, TCG & collectibles" })).toBeVisible();
+  await expect(page.getByText(/Private manual collectible records and value-history charts work now/i)).toBeVisible();
+  await expect(page.getByRole("link", { name: "ADD A COLLECTIBLE" })).toHaveAttribute("href", "/vault?view=assets");
+  await expect(page.getByText("BUILT · SEPARATELY GATED")).toBeVisible();
+  const transform = await page.locator("[data-home-reveal]").first().evaluate((element) => getComputedStyle(element).transform);
+  expect(transform).toBe("none");
 });

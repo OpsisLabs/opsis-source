@@ -1892,7 +1892,7 @@ function validateCollectibleDetails(value: unknown, asset: VaultAsset): void {
   if (
     asset.assetType !== "collectible" ||
     !isRecord(value) ||
-    !isRecord(value.catalog) ||
+    !(value.catalog === null || isRecord(value.catalog)) ||
     typeof value.ownerPrinting !== "string" ||
     value.ownerPrinting.length > 120 ||
     ![
@@ -1925,15 +1925,17 @@ function validateCollectibleDetails(value: unknown, asset: VaultAsset): void {
       "The encrypted collectible details are invalid.",
     );
   }
-  validateCatalogCard(value.catalog);
-  if (
-    asset.identifier !==
-    `tcgdex:${String(value.catalog.language)}:${String(value.catalog.catalogId)}`
-  ) {
-    throw new VaultError(
-      "INVALID_COLLECTIBLE",
-      "The encrypted collectible identifier does not match its catalog identity.",
-    );
+  if (isRecord(value.catalog)) {
+    validateCatalogCard(value.catalog);
+    if (
+      asset.identifier !==
+      `tcgdex:${String(value.catalog.language)}:${String(value.catalog.catalogId)}`
+    ) {
+      throw new VaultError(
+        "INVALID_COLLECTIBLE",
+        "The encrypted collectible identifier does not match its catalog identity.",
+      );
+    }
   }
   if (
     (asset.photo === undefined) !== (value.photoSource === null) ||
@@ -2047,7 +2049,7 @@ function normalizeCollectibleDetails(
       "Collectible details are required.",
     );
   return {
-    catalog: structuredClone(value.catalog),
+    catalog: value.catalog ? structuredClone(value.catalog) : null,
     ownerPrinting: value.ownerPrinting.trim(),
     condition: value.condition,
     grader: value.grader,

@@ -263,6 +263,12 @@ export default function TechnicalDocs() {
               <p className="flex items-center gap-2 font-mono-d text-[9px] tracking-[0.13em] text-[#ff9b72]"><CircleAlert size={13} /> WHAT THIS DOES NOT PROTECT</p>
               <p className="mt-3 text-[11.5px] leading-relaxed text-[#b7aea2]">A compromised browser, malicious extension, hostile same-origin code, screen capture, keylogger, or device attacker may see data while the Vault is unlocked. Browser storage can also be cleared or evicted. Keep an encrypted backup and its matching passphrase or recovery code somewhere separate.</p>
             </div>
+            <div className="mt-4 border border-[#383838] bg-[#222222] p-5 sm:p-6">
+              <p className="font-mono-d text-[9px] tracking-[0.13em] text-[#fa6c34]">LOCAL VISUALIZATION LAYER</p>
+              <p className="mt-3 max-w-[800px] text-[11.5px] leading-relaxed text-[#9a938a]">
+                Apache ECharts renders SVG inside the unlocked Vault. Record-mix charts use encrypted record counts; collectible history uses exact purchase lots plus up to 20 owner-entered dated references; portfolio allocation uses explicitly entered reference values and keeps currencies separate. JavaScript numbers are used only as plotting coordinates after exact-string math. The source values remain visible in an adjacent accessible table, and no chart library or chart API receives them over the network.
+              </p>
+            </div>
           </DocSection>
 
           <DocSection id="evidence" eyebrow="03 · NORMALIZATION" title="A source is not automatically a fact.">

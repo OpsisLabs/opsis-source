@@ -469,6 +469,48 @@ describe("encrypted vault cryptography", () => {
     ).toThrowError(VaultError);
   });
 
+  it("supports a manual collectible history without claiming a catalog match", async () => {
+    const asset = createAsset({
+      name: "Owner-reported card",
+      assetType: "collectible",
+      identifier: "owner:set-alpha:4",
+      lots: [
+        {
+          quantity: "1",
+          unitPrice: "125.50",
+          currency: "USD",
+          acquiredAt: "2026-08-01",
+        },
+      ],
+      notes: "Private owner notes",
+      collectible: {
+        catalog: null,
+        ownerPrinting: "1st Edition Holo",
+        condition: "near-mint",
+        grader: "ungraded",
+        grade: "",
+        certificate: "",
+        photoSource: null,
+        photoAddedAt: null,
+        references: [
+          {
+            id: "e08839c5-ef8c-48fe-a657-f1078a17a19c",
+            value: "145.75",
+            currency: "USD",
+            observedAt: "2026-08-12",
+            sourceUrl: "https://example.com/dated-reference",
+            label: "Owner-entered auction result",
+          },
+        ],
+      },
+    });
+    const created = await createVault("manual collectible passphrase");
+    const record = await encryptAsset(created.meta, created.key, asset);
+    expect(record.version).toBe(VAULT_COLLECTIBLE_RECORD_VERSION);
+    await expect(decryptAsset(created.meta, created.key, record)).resolves.toEqual(asset);
+    expect(asset.collectible?.catalog).toBeNull();
+  });
+
   it("preserves exact decimal strings without Number conversion", () => {
     const created = createAsset({
       name: "Exact-value card",

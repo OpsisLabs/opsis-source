@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react";
 
 const INDEX = [
-  { n: "01", label: "How it works", id: "capabilities" },
-  { n: "02", label: "Numbers", id: "numbers" },
-  { n: "03", label: "Features", id: "features" },
-  { n: "04", label: "Providers", id: "integrations" },
-  { n: "05", label: "Comparison", id: "comparison" },
-  { n: "06", label: "Safety", id: "safety" },
-  { n: "07", label: "Insights", id: "insights" },
-  { n: "08", label: "FAQ", id: "faq" },
+  { n: "01", label: "What to track", id: "track" },
+  { n: "02", label: "How it works", id: "workflow" },
+  { n: "03", label: "Availability", id: "availability" },
+  { n: "04", label: "Safety", id: "safety" },
+  { n: "05", label: "FAQ", id: "faq" },
 ];
 
 function LogoMark({ className = "w-8 h-8" }: { className?: string }) {
@@ -25,7 +22,7 @@ export default function Sidebar() {
       const doc = document.documentElement.scrollHeight - window.innerHeight;
       const hero = document.getElementById("hero");
       const heroBottom = hero ? hero.offsetTop + hero.offsetHeight : 900;
-      const cap = document.getElementById("capabilities");
+      const cap = document.getElementById("track");
       const capTop = cap ? cap.offsetTop : 2200;
 
       if (y > doc - 1400) setMode("end");
@@ -57,7 +54,7 @@ export default function Sidebar() {
       {mode === "hero" && (
         <div className="flex flex-1 flex-col justify-end">
           <div className="px-6 pb-6 font-mono-d text-[12px] leading-5 text-[#9a938a]">
-            Powered by<br />chain data:
+            One place for<br />assets + context:
           </div>
           {["blockscout", "robinhood", "local-vault"].map((k) => (
             <div key={k} className="flex h-[120px] items-center justify-center border-t border-[#2e2e2e]">

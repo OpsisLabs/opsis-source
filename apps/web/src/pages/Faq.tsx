@@ -84,7 +84,11 @@ const FAQ_GROUPS: Array<{ id: string; title: string; intro: string; items: FaqIt
     items: [
       {
         question: "Where do values and prices come from?",
-        answer: "In the enabled founder beta, swap previews come from Uniswap; onchain balances and states come from the named chain providers; RWA facts come from their named sources; and manual values are owner-entered and dated. DEX Screener market observations and TCGdex catalog facts are built but not enabled in this production build.",
+        answer: "In the enabled founder beta, swap previews come from Uniswap; onchain balances and states come from the named chain providers; RWA facts come from their named sources; and manual values are owner-entered and dated. Vault charts visualize those exact local inputs and expose an accessible data table; they do not create a live price feed or appraisal. DEX Screener market observations and TCGdex catalog facts are built but not enabled in this production build.",
+      },
+      {
+        question: "Can I track Pokémon cards before the catalog is enabled?",
+        answer: "Yes. Create a manual Collectible record in the local Vault. You can save an identifier, owner-reported printing and condition, one-copy grade and certificate details, exact purchase lots, a locally processed photo, and up to 20 dated source-linked reference values. The chart uses those encrypted inputs and never calls them catalog-verified or live market prices.",
       },
       {
         question: "Does ChainScout calculate my portfolio profit?",
