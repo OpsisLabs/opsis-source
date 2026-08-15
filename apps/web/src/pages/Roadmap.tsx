@@ -219,7 +219,7 @@ const RELEASES: Release[] = [
     branch: "release/10-launch-hardening",
     title: "Launch Hardening",
     eyebrow: "THE ENABLED PRODUCT, PROVEN",
-    summary: "Certify the enabled launch journey under real devices, stale providers, corrupted data, quota pressure, and human confusion; keep gated adapters visibly dormant.",
+    summary: "Certify the enabled launch journey under real devices, stale providers, corrupted data, quota pressure, and human confusion; keep upcoming tools clearly marked as coming soon.",
     outcome: "Certify the enabled command center",
     icon: BadgeCheck,
     capabilities: [
@@ -730,7 +730,7 @@ export default function Roadmap() {
               </h1>
               <p className="roadmap-hero-in roadmap-delay-2 mt-8 max-w-[560px] text-[15px] leading-7 text-[#9a938a]">
                 Ten cumulative releases build and harden a private asset command center. The live
-                build labels each tool as enabled, gated, or future instead of implying every adapter is public.
+                build labels each tool as available now or coming soon instead of implying every adapter is public.
               </p>
             </div>
 

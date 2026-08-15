@@ -4,7 +4,7 @@ import { Minus, Plus } from "lucide-react";
 import { SectionHeader } from "./AssetUniverse";
 
 const QA = [
-  { q: "Can I track Pokémon cards and physical collectibles?", a: "Yes. The founder build supports encrypted manual collectible records with identifiers, owner-reported printing and condition, graded-certificate details, exact purchase lots, locally processed photos, and dated source-linked reference values. Catalog-assisted matching is built but separately gated." },
+  { q: "Can I track Pokémon cards and physical collectibles?", a: "Yes. The founder build supports encrypted manual collectible records with identifiers, owner-reported printing and condition, graded-certificate details, exact purchase lots, locally processed photos, and dated source-linked reference values. Catalog-assisted matching is coming soon." },
   { q: "Where do the dashboard charts get their data?", a: "Vault charts use only your encrypted purchase lots, owner-entered dated references, or a public snapshot that you explicitly refreshed. They are not hidden live feeds, appraisals, or price predictions. Every chart includes an exact-value table." },
   { q: "Does my Vault sync to ChainScout servers?", a: "No. Vault records are encrypted in this browser with WebCrypto and stored in IndexedDB. Export an encrypted backup because browser storage can be cleared or evicted, and another origin or device cannot see this Vault automatically." },
   { q: "Do I need to connect a wallet?", a: "No. Private Explorer, Scout Swap, RWA Verify, and the local Vault need no wallet connection. The optional cloud workspace has a separate signature-based sign-in, but it is not required for the private tools." },

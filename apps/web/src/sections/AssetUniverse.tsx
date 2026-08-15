@@ -38,7 +38,7 @@ export default function AssetUniverse() {
       <div className="mt-5 grid gap-4 border border-[#e0a96d]/30 bg-[#e0a96d]/[0.04] p-5 md:grid-cols-[1fr_auto] md:items-center md:p-6">
         <div>
           <p className="font-mono-d text-[9px] tracking-[0.14em] text-[#e0a96d]">POKÉMON / TCG CLARITY</p>
-          <p className="mt-3 max-w-[850px] text-[12.5px] leading-relaxed text-[#b7aea2]">Private manual collectible records and value-history charts work now. Assisted TCGdex card/set matching is built but stays disabled in this founder build until its separate legal enablement review. We never call owner-entered data provider-verified.</p>
+          <p className="mt-3 max-w-[850px] text-[12.5px] leading-relaxed text-[#b7aea2]">Private manual collectible records and value-history charts work now. Assisted TCGdex card/set matching is coming soon after its separate legal review. We never call owner-entered data provider-verified.</p>
         </div>
         <Link to="/vault?view=assets" className="clip-btn-sm flex min-h-[46px] items-center justify-center bg-[#e0a96d] px-5 font-mono-d text-[9px] font-semibold tracking-wider text-[#211d18]">ADD A COLLECTIBLE</Link>
       </div>

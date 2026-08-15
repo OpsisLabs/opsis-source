@@ -56,7 +56,7 @@ async function publicError(response: Response): Promise<string> {
     // Keep the public failure bounded when a proxy returns something else.
   }
   return response.status === 503
-    ? "The Open Data API is not enabled in this build."
+    ? "The Open Data API is coming soon."
     : "The Open Data request was not accepted.";
 }
 

@@ -107,7 +107,7 @@ export default function Developers() {
 
         <section className="mt-14 border border-[#594439] bg-[#28211e] p-6">
           <div className="flex items-center gap-2 text-[#fa6c34]"><ShieldCheck size={16} /><p className="font-mono-d text-[9px] tracking-[0.14em]">RIGHTS + RELIABILITY BOUNDARY</p></div>
-          <p className="mt-4 max-w-[850px] text-[12.5px] leading-relaxed text-[#a99e94]">ChainScout authors the response schema, deterministic normalization, support annotations, and limitations. It does not claim ownership of third-party names, marks, addresses, or linked source materials, and it does not sublicense or mirror Robinhood or Blockscout payloads. Public enablement remains gated on final nominative trademark and API-terms review.</p>
+          <p className="mt-4 max-w-[850px] text-[12.5px] leading-relaxed text-[#a99e94]">ChainScout authors the response schema, deterministic normalization, support annotations, and limitations. It does not claim ownership of third-party names, marks, addresses, or linked source materials, and it does not sublicense or mirror Robinhood or Blockscout payloads. This API is coming soon; its public release still depends on final nominative trademark and API-terms review.</p>
           <a href="/open-data-v1.openapi.json" className="mt-5 inline-flex items-center gap-2 font-mono-d text-[9px] tracking-[0.12em] text-[#fa6c34] hover:text-[#ff9b72]">OPENAPI 3.1 JSON <ExternalLink size={11} /></a>
         </section>
       </main>

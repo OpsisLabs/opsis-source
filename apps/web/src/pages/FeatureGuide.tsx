@@ -127,7 +127,7 @@ export default function FeatureGuide() {
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center border border-[#4a4541] text-[#756d68]"><Boxes size={15} /></span>
                 <span className="min-w-0">
                   <span className="block text-[16px] font-medium text-[#aaa097]">{feature.label}</span>
-                  <span className="mt-1 block font-mono-d text-[8px] tracking-[0.1em] text-[#756d68]">BUILT · NOT ENABLED IN THIS BUILD</span>
+                  <span className="mt-1 block font-mono-d text-[8px] tracking-[0.1em] text-[#756d68]">COMING SOON</span>
                 </span>
               </article>
             ))}
@@ -179,7 +179,7 @@ export default function FeatureGuide() {
                       OPEN {feature.shortLabel.toUpperCase()} <ArrowRight size={12} />
                     </Link>
                   ) : (
-                    <p className="mt-6 inline-flex border border-[#4a4541] bg-[#202020] px-5 py-3 font-mono-d text-[9px] tracking-[0.1em] text-[#817872]">BUILT · NOT ENABLED IN THIS BUILD</p>
+                    <p className="mt-6 inline-flex border border-[#4a4541] bg-[#202020] px-5 py-3 font-mono-d text-[9px] tracking-[0.1em] text-[#817872]">COMING SOON</p>
                   )}
                 </div>
               </details>

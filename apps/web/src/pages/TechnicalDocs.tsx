@@ -184,7 +184,7 @@ export default function TechnicalDocs() {
             <div className="mt-7 grid gap-px border border-[#383838] bg-[#383838] md:grid-cols-3">
               {[
                 [ScanSearch, "EPHEMERAL LOOKUP", "Public identifier", "Same-origin API", "No ChainScout record", "The view clears on reload. Named providers receive only the disclosed public fields required for that lookup."],
-                [LockKeyhole, "LOCAL VAULT", "Ownership context", "Web Crypto + IndexedDB", "Encrypted browser record", "Labels, lots, photos, notes, and valuations stay encrypted on this origin. Dormant adapters remain unavailable."],
+                [LockKeyhole, "LOCAL VAULT", "Ownership context", "Web Crypto + IndexedDB", "Encrypted browser record", "Labels, lots, photos, notes, and valuations stay encrypted on this origin. Coming-soon tools cannot write to the Vault."],
                 [ServerCog, "OPTIONAL CLOUD", "Saved research", "HttpOnly cookie session", "User-controlled server history", "Separate account workspace with export and deletion. It is not required for Private Explorer or Vault."],
               ].map(([Icon, name, input, path, storage, copy]) => {
                 const DataIcon = Icon as typeof ScanSearch;
@@ -297,8 +297,8 @@ export default function TechnicalDocs() {
           <DocSection id="adapters" eyebrow="04 · FEATURE CONTRACTS" title="Different assets need different proof.">
             <p className="mt-4 max-w-[780px] text-[12px] leading-relaxed text-[#b7aea2]">
               Current founder-beta build: Private Explorer, Scout Swap, Portfolio,
-              and RWA Verify are enabled. Collectibles, Market & Inventory, Open
-              Data, and Replay Actions are audited but visibly gated off.
+              and RWA Verify are enabled. Collectible Catalog, Market & Inventory,
+              Open Data, and Replay Actions are coming soon.
             </p>
             <div className="mt-7 overflow-hidden border border-[#383838]">
               {ADAPTERS.map((adapter) => (
@@ -306,7 +306,7 @@ export default function TechnicalDocs() {
                   <summary className="flex cursor-pointer list-none items-center gap-4 px-5 py-5 outline-none marker:hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#fa6c34]">
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center border border-[#fa6c34]/45 font-mono-d text-[8px] text-[#fa6c34]">{adapter.name.slice(0, 2)}</span>
                     <span className="font-mono-d text-[9px] tracking-[0.12em] text-[#e2d9cc]">{adapter.name}</span>
-                    {adapter.gated && <span className="border border-[#766f68] px-2 py-1 font-mono-d text-[7px] tracking-[0.1em] text-[#c8beb4]">BUILT · NOT ENABLED</span>}
+                    {adapter.gated && <span className="border border-[#766f68] px-2 py-1 font-mono-d text-[7px] tracking-[0.1em] text-[#c8beb4]">COMING SOON</span>}
                     <span className="ml-auto text-[#fa6c34] transition-transform group-open:rotate-45">+</span>
                   </summary>
                   <dl className="grid gap-px border-t border-[#383838] bg-[#383838] sm:grid-cols-2">

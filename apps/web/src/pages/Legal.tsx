@@ -160,7 +160,7 @@ export function PrivacyPage() {
         </p>
         <p>
           <span className="text-[#e9e0d1]">Collectible Catalog.</span> This tool is
-          not enabled in the founder-beta production build. When separately enabled, after an
+          coming soon. If released, after an
           on-screen confirmation, ChainScout receives the English card name,
           optional set, and optional collector number; TCGdex receives only the
           name and optional collector number. A selected public card ID is sent
@@ -175,7 +175,7 @@ export function PrivacyPage() {
         </p>
         <p>
           <span className="text-[#e9e0d1]">Market & Inventory.</span> This tool is
-          not enabled in the founder-beta production build. When separately enabled, after an
+          coming soon. If released, after an
           encrypted permission-attempt receipt is saved, an exact public
           Robinhood Chain contract can be sent transiently to ChainScout and DEX
           Screener for bounded indexed pool context. For an explicitly opted-in

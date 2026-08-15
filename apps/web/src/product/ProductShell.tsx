@@ -113,7 +113,7 @@ function FeatureLink({
             </span>
           </span>
         </Link> : <div
-          aria-label={`${feature.label} is not enabled in this build`}
+          aria-label={`${feature.label} is coming soon`}
           className="flex min-w-0 flex-1 items-center gap-3 px-3 py-3 text-left"
         >
           <span className="flex h-7 w-7 shrink-0 items-center justify-center border border-[#837871] bg-[#262321] text-[#b9ada5]">
@@ -121,7 +121,7 @@ function FeatureLink({
           </span>
           <span className="min-w-0">
             <span className="block truncate text-[12px] text-[#b9ada5]">{feature.label}</span>
-            <span className="mt-0.5 block truncate font-mono-d text-[8px] tracking-[0.1em] text-[#b9ada5]">NOT ENABLED IN THIS BUILD</span>
+            <span className="mt-0.5 block truncate font-mono-d text-[8px] tracking-[0.1em] text-[#b9ada5]">COMING SOON</span>
           </span>
         </div>}
         <button

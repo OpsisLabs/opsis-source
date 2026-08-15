@@ -57,7 +57,7 @@ const FAQ_GROUPS: Array<{ id: string; title: string; intro: string; items: FaqIt
       },
       {
         question: "What stays inside the local Vault?",
-        answer: "Asset names, ownership groupings, wallet labels, purchase lots, prices, notes, locally processed photos, reference values, and permission receipts are encrypted before IndexedDB stores them in your browser. Dormant adapters can add encrypted comparison records only after their separate enablement gates.",
+        answer: "Asset names, ownership groupings, wallet labels, purchase lots, prices, notes, locally processed photos, reference values, and permission receipts are encrypted before IndexedDB stores them in your browser. Coming-soon tools cannot add records unless they are explicitly released later.",
       },
       {
         question: "Can ChainScout see a public wallet address I look up?",
@@ -84,7 +84,7 @@ const FAQ_GROUPS: Array<{ id: string; title: string; intro: string; items: FaqIt
     items: [
       {
         question: "Where do values and prices come from?",
-        answer: "In the enabled founder beta, swap previews come from Uniswap; onchain balances and states come from the named chain providers; RWA facts come from their named sources; and manual values are owner-entered and dated. Vault charts visualize those exact local inputs and expose an accessible data table; they do not create a live price feed or appraisal. DEX Screener market observations and TCGdex catalog facts are built but not enabled in this production build.",
+        answer: "In the enabled founder beta, swap previews come from Uniswap; onchain balances and states come from the named chain providers; RWA facts come from their named sources; and manual values are owner-entered and dated. Vault charts visualize those exact local inputs and expose an accessible data table; they do not create a live price feed or appraisal. DEX Screener market observations and TCGdex catalog assistance are coming soon.",
       },
       {
         question: "Can I track Pokémon cards before the catalog is enabled?",
@@ -108,7 +108,7 @@ const FAQ_GROUPS: Array<{ id: string; title: string; intro: string; items: FaqIt
       },
       {
         question: "How fresh is the information?",
-        answer: "Enabled network results expose their captured time, anchor, or expiry as applicable. The dormant Market adapter additionally has bounded saved-observation freshness; it cannot rank an expired offer if that adapter is later enabled.",
+        answer: "Enabled network results expose their captured time, anchor, or expiry as applicable. The coming-soon Market tool additionally has bounded saved-observation freshness; it cannot rank an expired offer if that tool is released later.",
       },
       {
         question: "Does ChainScout use AI to invent the answer?",
@@ -127,11 +127,11 @@ const FAQ_GROUPS: Array<{ id: string; title: string; intro: string; items: FaqIt
       },
       {
         question: "What does Replay Actions actually replay?",
-        answer: "Replay Actions is built but not enabled in the founder-beta production build. Its reviewed boundary never replays anything: one complete WETH/USDG movement pattern is only local context, direction is reconfirmed, and the new amount starts blank. Its dormant purchase branch requires a newly refreshed reviewed offer and opens a product page—not an old cart or checkout.",
+        answer: "Replay Actions is coming soon. Its reviewed boundary never replays anything: one complete WETH/USDG movement pattern is only local context, direction is reconfirmed, and the new amount starts blank. Its purchase branch requires a newly refreshed reviewed offer and opens a product page—not an old cart or checkout.",
       },
       {
         question: "Why not scrape every store and marketplace?",
-        answer: "Because technical access is not the same as permission, accuracy, or stable rights. The merchant adapter is dormant and its real registry is empty. If later enabled, ChainScout will query a merchant only after explicit opt-in and a reviewed exact mapping; unsupported venues never become hidden scrapers.",
+        answer: "Because technical access is not the same as permission, accuracy, or stable rights. Merchant inventory is coming soon and its real registry is currently empty. If released later, ChainScout will query a merchant only after explicit opt-in and a reviewed exact mapping; unsupported venues never become hidden scrapers.",
       },
       {
         question: "Does a merchant result include seller reputation?",
@@ -191,13 +191,13 @@ const FAQ_GROUPS: Array<{ id: string; title: string; intro: string; items: FaqIt
       },
       {
         question: "Is there a public ChainScout API?",
-        answer: "A deliberately small Open Data v1 is built behind a release flag: one reviewed WETH/USDG support registry and one syntax-only EVM-address normalizer. It has no API keys, search, bulk export, wallet or transaction summaries, prices, Vault data, provider calls, or mirrored provider payloads. Public production enablement remains gated on final nominative trademark and API-terms review.",
+        answer: "A deliberately small Open Data v1 is coming soon: one reviewed WETH/USDG support registry and one syntax-only EVM-address normalizer. It has no API keys, search, bulk export, wallet or transaction summaries, prices, Vault data, provider calls, or mirrored provider payloads. Its public release still depends on final nominative trademark and API-terms review.",
       },
       {
         question: "Where can I see what is live versus planned?",
         answer: (
           <>
-            Use the <Link to="/guide" className="text-[#fa6c34] underline decoration-[#fa6c34]/45 underline-offset-4">Start Guide</Link> for enabled flows and visibly labeled built-but-gated tools, the <Link to="/docs" className="text-[#fa6c34] underline decoration-[#fa6c34]/45 underline-offset-4">Technical Docs</Link> for implementation boundaries, and the <Link to="/roadmap" className="text-[#fa6c34] underline decoration-[#fa6c34]/45 underline-offset-4">Roadmap</Link> for future releases. Proposed token utility is not a shipped feature. Merchant inventory also remains unavailable until a real store explicitly opts in and its exact mapping is reviewed.
+            Use the <Link to="/guide" className="text-[#fa6c34] underline decoration-[#fa6c34]/45 underline-offset-4">Start Guide</Link> for available flows and clearly labeled coming-soon tools, the <Link to="/docs" className="text-[#fa6c34] underline decoration-[#fa6c34]/45 underline-offset-4">Technical Docs</Link> for implementation boundaries, and the <Link to="/roadmap" className="text-[#fa6c34] underline decoration-[#fa6c34]/45 underline-offset-4">Roadmap</Link> for future releases. Proposed token utility is not a shipped feature. Merchant inventory also remains unavailable until a real store explicitly opts in and its exact mapping is reviewed.
           </>
         ),
       },

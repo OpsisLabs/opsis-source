@@ -179,7 +179,7 @@ test("marketing home makes the multi-asset Vault apparent and honors reduced mot
   await expect(page.getByRole("heading", { name: "Pokémon, TCG & collectibles" })).toBeVisible();
   await expect(page.getByText(/Private manual collectible records and value-history charts work now/i)).toBeVisible();
   await expect(page.getByRole("link", { name: "ADD A COLLECTIBLE" })).toHaveAttribute("href", "/vault?view=assets");
-  await expect(page.getByText("BUILT · SEPARATELY GATED")).toBeVisible();
+  await expect(page.getByText("COMING SOON", { exact: true }).first()).toBeVisible();
   const transform = await page.locator("[data-home-reveal]").first().evaluate((element) => getComputedStyle(element).transform);
   expect(transform).toBe("none");
 });
