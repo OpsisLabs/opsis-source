@@ -18,7 +18,7 @@ function quoteFixture(stale = false, warning = false) {
       minimumReceived: "36.26775",
       minimumSource: "provider"
     },
-    route: { routing: "CLASSIC", label: "100% · WETH → USDG · v4 0.05%", protocols: ["V4"] },
+    route: { routing: "CLASSIC", label: "[v3] 100.00% = [0.01%] 0x52e65B17fB6E5BA00Ed806f37Afcd2DaA50271Ca", protocols: ["V4"] },
     priceImpactPercent: 0.04,
     slippageTolerancePercent: 0.5,
     estimatedGas: { nativeAmount: "0.000012", usdAmount: "0.004958764702551881", paidBy: "user" },
@@ -68,6 +68,7 @@ async function mockQuote(page: Page, options: { stale?: boolean; warning?: boole
 }
 
 test("Scout Swap explains a fresh quote and hands off only to official Uniswap", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
   const calls = await mockQuote(page, { delayMs: 300 });
   await page.goto("/swap");
 
@@ -93,6 +94,9 @@ test("Scout Swap explains a fresh quote and hands off only to official Uniswap",
   await expect(handoff).toHaveAttribute("href", /^https:\/\/app\.uniswap\.org\/swap\?chain=robinhood&/);
   await expect(handoff).toHaveAttribute("href", new RegExp(`inputCurrency=${WETH}`, "i"));
   await expect(handoff).toHaveAttribute("href", /value=0\.01/);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(
+    await page.evaluate(() => document.documentElement.clientWidth),
+  );
   if (process.env.QA_SCREENSHOTS === "1") {
     await page.waitForTimeout(700);
     await page.screenshot({ path: "output/qa/scout-swap-desktop.png", fullPage: true });

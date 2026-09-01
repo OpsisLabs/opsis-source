@@ -137,8 +137,8 @@ export function QuotePanel({ quote, elapsedMs }: { quote: ScoutSwapQuote; elapse
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-        <section className="clip-panel border border-[#383838] bg-[#242424] p-5 sm:p-6">
+      <div className="grid min-w-0 gap-4 2xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+        <section className="clip-panel min-w-0 border border-[#383838] bg-[#242424] p-5 sm:p-6">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2.5">
               <Route size={15} className="text-[#7cc4f8]" />
@@ -146,7 +146,7 @@ export function QuotePanel({ quote, elapsedMs }: { quote: ScoutSwapQuote; elapse
             </div>
             <span className="border border-[#7cc4f8]/30 bg-[#7cc4f8]/10 px-2.5 py-1 font-mono-d text-[9px] tracking-wider text-[#7cc4f8]">{quote.route.routing}</span>
           </div>
-          <p className="mt-5 text-[19px] leading-snug text-[#e9e0d1]">{quote.route.label}</p>
+          <p className="mt-5 break-all text-[19px] leading-snug text-[#e9e0d1]">{quote.route.label}</p>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <div className="border border-[#383838] bg-[#1d1d1d] p-4">
               <p className="font-mono-d text-[9px] tracking-wider text-[#635d5a]">SIMULATION</p>
@@ -168,7 +168,7 @@ export function QuotePanel({ quote, elapsedMs }: { quote: ScoutSwapQuote; elapse
           </div>
         </section>
 
-        <section className="clip-panel border border-[#383838] bg-[#242424] p-5 sm:p-6">
+        <section className="clip-panel min-w-0 border border-[#383838] bg-[#242424] p-5 sm:p-6">
           <div className="flex items-center gap-2.5">
             <LockKeyhole size={15} className="text-[#fa6c34]" />
             <h2 className="font-mono-d text-[10.5px] tracking-[0.15em] text-[#d6ccba]">UNSIGNED PLAN</h2>
@@ -311,7 +311,7 @@ export default function ScoutSwap() {
           </div>
         </div>
 
-        <div className="relative mt-12 grid gap-6 lg:grid-cols-[0.76fr_1.24fr]">
+        <div className="relative mt-12 grid min-w-0 gap-6 lg:grid-cols-[minmax(0,0.76fr)_minmax(0,1.24fr)]">
           <form onSubmit={fetchQuote} className="clip-panel h-fit border border-[#383838] bg-[#242424] p-5 sm:p-6 lg:sticky lg:top-[88px]">
             <div className="flex items-center justify-between">
               <div>
