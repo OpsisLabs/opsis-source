@@ -4,6 +4,7 @@ import { buildApp } from "../src/app.js";
 import { loadEnv } from "../src/config/env.js";
 import { memoryStore } from "../src/db/memory.js";
 import { ChainEntityResolver } from "../src/chain/resolver.js";
+import { applyPrivateProviderCoverage } from "../src/routes/private.js";
 import { JsonCache } from "../src/cache/service.js";
 import type { ChainProvider, SourceDocumentInput } from "../src/chain/types.js";
 import type { PrismaClient } from "@prisma/client";
@@ -53,6 +54,41 @@ afterEach(async () => {
 });
 
 describe("no-account Private Mode", () => {
+  it("never turns unavailable indexer activity into verified zero counts", () => {
+    const covered = applyPrivateProviderCoverage({
+      entity: {
+        ...entity,
+        facts: {
+          ...entity.facts,
+          transactionsFetched: 0,
+          recentTransactions: [],
+          tokenBalances: [],
+          hasTokens: false
+        }
+      },
+      providerDestinations: ["blockscout", "robinhood-public-rpc"],
+      sources: [{
+        id: "rpc-balance",
+        provider: "robinhood-public-rpc",
+        chainId: 4663,
+        entityType: "wallet",
+        entityValue: identifier,
+        requestUrl: "https://rpc.mainnet.chain.robinhood.com",
+        responseJson: { method: "eth_getBalance", result: "0x0" },
+        fetchedAt: "2026-09-01T00:00:00.000Z"
+      }]
+    });
+
+    expect(covered.entity.facts).toMatchObject({
+      activityCoverage: "unavailable",
+      tokenBalanceCoverage: "unavailable"
+    });
+    expect(covered.entity.facts.transactionsFetched).toBeUndefined();
+    expect(covered.entity.facts.recentTransactions).toBeUndefined();
+    expect(covered.entity.facts.tokenBalances).toBeUndefined();
+    expect(covered.entity.facts.hasTokens).toBeUndefined();
+  });
+
   it("keeps the official public RPC fallback scoped to the ephemeral resolver", async () => {
     const source = await import("../src/routes/private.js");
     expect(source.privateResolverEnvironment(loadEnv({ NODE_ENV: "test" }))).toMatchObject({
@@ -109,7 +145,14 @@ describe("no-account Private Mode", () => {
       includeApprovals: false,
       privateMode: true
     });
-    expect(answerQuestion).toHaveBeenCalledWith(privateQuestion, entity);
+    expect(answerQuestion).toHaveBeenCalledWith(privateQuestion, expect.objectContaining({
+      ...entity,
+      facts: expect.objectContaining({
+        ...entity.facts,
+        activityCoverage: "unavailable",
+        tokenBalanceCoverage: "unavailable"
+      })
+    }));
     expect(snapshotMemory()).toEqual(before);
     expect(JSON.stringify(memoryStore)).not.toContain(privateQuestion);
   });

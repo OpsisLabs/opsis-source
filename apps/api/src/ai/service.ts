@@ -330,12 +330,21 @@ function buildSummaryBullets(entity: NormalizedEntity): string[] {
 function buildActivityBullets(entity: NormalizedEntity): string[] {
   const facts = entity.facts;
   const bullets: string[] = [];
+  const activityUnavailable = facts.activityCoverage === "unavailable";
+  const tokenBalancesUnavailable = facts.tokenBalanceCoverage === "unavailable";
+  if (activityUnavailable && tokenBalancesUnavailable) {
+    bullets.push("Recent activity and token balances were unavailable from the public indexer; this is not a zero-count finding.");
+  } else if (activityUnavailable) {
+    bullets.push("Recent activity was unavailable from the public indexer; this is not a zero-transaction finding.");
+  } else if (tokenBalancesUnavailable) {
+    bullets.push("Token balances were unavailable from the public indexer; this is not a zero-balance finding.");
+  }
   const transactionCount = finiteNumber(facts.transactionsFetched)
     ?? (Array.isArray(facts.recentTransactions) ? facts.recentTransactions.length : undefined);
-  if (transactionCount !== undefined) bullets.push(`${transactionCount} recent transaction${transactionCount === 1 ? "" : "s"} in the available activity window.`);
+  if (!activityUnavailable && transactionCount !== undefined) bullets.push(`${transactionCount} recent transaction${transactionCount === 1 ? "" : "s"} in the available activity window.`);
   const nativeBalance = conciseFact(facts.nativeBalanceEth);
   if (nativeBalance) bullets.push(`Native balance: ${nativeBalance} ETH.`);
-  if (Array.isArray(facts.tokenBalances)) bullets.push(`${facts.tokenBalances.length} token balance${facts.tokenBalances.length === 1 ? "" : "s"} returned.`);
+  if (!tokenBalancesUnavailable && Array.isArray(facts.tokenBalances)) bullets.push(`${facts.tokenBalances.length} token balance${facts.tokenBalances.length === 1 ? "" : "s"} returned.`);
   const status = conciseFact(facts.status);
   if (status) bullets.push(`Transaction status: ${status}.`);
   const value = conciseFact(facts.valueEth ?? facts.value);

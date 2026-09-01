@@ -376,8 +376,8 @@ export function deriveCard(
   // wallet or contract
   const isContract = bool(facts.isContract) || kind === "contract";
   push("Balance", facts.nativeBalanceEth != null ? `${formatAmount(String(facts.nativeBalanceEth))} ETH` : undefined);
-  push("Tokens held", count(facts.tokenBalances) !== undefined ? String(count(facts.tokenBalances)) : undefined);
-  push("Transactions", count(facts.transactionsFetched) !== undefined ? String(count(facts.transactionsFetched)) : undefined);
+  push("Token balances", str(facts.tokenBalanceCoverage) === "unavailable" ? "Unavailable" : (count(facts.tokenBalances) !== undefined ? String(count(facts.tokenBalances)) : undefined), str(facts.tokenBalanceCoverage) === "unavailable" ? "warn" : undefined);
+  push("Activity", str(facts.activityCoverage) === "unavailable" ? "Unavailable" : (count(facts.transactionsFetched) !== undefined ? String(count(facts.transactionsFetched)) : undefined), str(facts.activityCoverage) === "unavailable" ? "warn" : undefined);
   const approvals = count(facts.approvalTransactions);
   if (approvals) push("Approvals", String(approvals), "warn");
   const failed = count(facts.failedTransactions);

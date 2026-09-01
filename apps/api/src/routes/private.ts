@@ -35,6 +35,45 @@ export function privateResolverEnvironment(env: Env): Env {
   };
 }
 
+export function applyPrivateProviderCoverage(resolution: ResolvedEntity): ResolvedEntity {
+  if (resolution.entity.type !== "wallet" || !resolution.providerDestinations.includes("blockscout")) {
+    return resolution;
+  }
+  const hasActivityWindow = resolution.sources.some((source) =>
+    source.provider === "blockscout" && source.requestUrl?.includes("/transactions")
+  );
+  const hasTokenBalances = resolution.sources.some((source) =>
+    source.provider === "blockscout"
+    && (source.requestUrl?.includes("/token-balances") || source.requestUrl?.includes("/balances_v2/"))
+  );
+  if (hasActivityWindow && hasTokenBalances) return resolution;
+
+  const facts = { ...resolution.entity.facts };
+  if (!hasActivityWindow) {
+    for (const key of [
+      "transactionsFetched",
+      "recentTransactions",
+      "todayActivity",
+      "activityTimeWindow",
+      "contractsInteractedWith",
+      "failedTransactions",
+      "highValueMovements",
+      "approvalTransactions",
+      "tokenTransfers",
+      "internalTransactions",
+      "unusualActivity"
+    ]) delete facts[key];
+    facts.activityCoverage = "unavailable";
+  }
+  if (!hasTokenBalances) {
+    delete facts.tokenBalances;
+    delete facts.hasTokenTransfers;
+    delete facts.hasTokens;
+    facts.tokenBalanceCoverage = "unavailable";
+  }
+  return { ...resolution, entity: { ...resolution.entity, facts } };
+}
+
 export async function privateRoutes(
   app: FastifyInstance,
   env: Env,
@@ -69,11 +108,11 @@ export async function privateRoutes(
       const body = analyzeBody.parse(request.body);
       let resolution: ResolvedEntity;
       try {
-        resolution = await privateAnalysis.resolve(body.entityType, body.entity, {
+        resolution = applyPrivateProviderCoverage(await privateAnalysis.resolve(body.entityType, body.entity, {
           limit: 25,
           includeApprovals: false,
           privateMode: true
-        });
+        }));
       } catch (error) {
         if (error instanceof AppError && (error.statusCode === 400 || error.statusCode === 404)) throw error;
         throw new AppError("PROVIDER_UNAVAILABLE", 503, "Public chain data providers are temporarily unavailable");

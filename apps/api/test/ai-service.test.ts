@@ -48,6 +48,22 @@ describe("AI answer boundary", () => {
     expect(activity.summaryBullets).toContain("9 recent transactions in the available activity window.");
   });
 
+  it("describes unavailable wallet coverage without manufacturing zero activity", async () => {
+    const service = new AiService(loadEnv({ NODE_ENV: "test", AI_PROVIDER: "fallback" }));
+    const answer = await service.answer("What stands out to a beginner?", {
+      ...entity,
+      type: "wallet",
+      facts: {
+        nativeBalanceEth: "0.25",
+        activityCoverage: "unavailable",
+        tokenBalanceCoverage: "unavailable"
+      }
+    });
+
+    expect(answer.summaryBullets).toContain("Recent activity and token balances were unavailable from the public indexer; this is not a zero-count finding.");
+    expect(answer.summaryBullets.join(" ")).not.toMatch(/0 recent transactions|0 token balances/);
+  });
+
   it("omits unavailable and internal fields from beginner-facing confirmed facts", async () => {
     const service = new AiService(loadEnv({ NODE_ENV: "test", AI_PROVIDER: "fallback" }));
     const answer = await service.answer("Show the evidence", {
