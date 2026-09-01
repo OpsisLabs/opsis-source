@@ -86,29 +86,29 @@ function FeatureLink({
       data-feature={feature.id}
       data-feature-card
       data-active={active ? "true" : "false"}
-      className={`mx-2 mb-1 overflow-hidden border transition-colors ${
+      className={`mx-3 mb-1 overflow-hidden rounded-[3px] border transition-colors ${
         active
-          ? "border-[#fa6c34] bg-[#fa6c34] shadow-[0_0_24px_rgba(250,108,52,0.12)]"
+          ? "border-[#fa6c34] bg-[#fa6c34]"
           : expanded
-            ? "border-[#fa6c34]/65 bg-[#26211f]"
-            : "border-[#fa6c34]/30 bg-[#211f1e] hover:border-[#fa6c34]/70 hover:bg-[#29221f]"
+            ? "border-[#5b4a42] bg-[#26211f]"
+            : "border-[#373330] bg-[#201e1c] hover:border-[#705044] hover:bg-[#26221f]"
       }`}
     >
-      <div className="flex min-h-[52px] items-stretch">
+      <div className="flex min-h-[54px] items-stretch">
         {enabled ? <Link
           to={feature.path}
           onClick={onNavigate}
           aria-current={active ? "page" : undefined}
           className="group flex min-w-0 flex-1 items-center gap-3 px-3 py-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#ffd0bc]"
         >
-          <span className={`flex h-7 w-7 shrink-0 items-center justify-center border transition-colors ${active ? "border-[#1d1d1d]/35 bg-[#1d1d1d]/10 text-[#1d1d1d]" : "border-[#fa6c34]/35 bg-[#fa6c34]/5 text-[#fa6c34] group-hover:bg-[#fa6c34]/12"}`}>
+          <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border transition-colors ${active ? "border-[#1d1d1d]/25 bg-[#1d1d1d]/10 text-[#1d1d1d]" : "border-[#4b403b] bg-[#27221f] text-[#fa6c34] group-hover:border-[#fa6c34]/55"}`}>
             <Icon size={13} />
           </span>
           <span className="min-w-0">
             <span className={`block truncate text-[12px] transition-colors ${active ? "font-semibold text-[#1d1d1d]" : "text-[#d6ccba] group-hover:text-[#fff7ec]"}`}>
               {feature.label}
             </span>
-            <span className={`mt-0.5 block truncate font-mono-d text-[8px] tracking-[0.1em] ${active ? "text-[#35170d]" : "text-[#b9ada5]"}`}>
+            <span className={`mt-0.5 block truncate text-[9px] ${active ? "text-[#4b2114]" : "text-[#91877f]"}`}>
               {feature.navHint}
             </span>
           </span>
@@ -116,12 +116,12 @@ function FeatureLink({
           aria-label={`${feature.label} is coming soon`}
           className="flex min-w-0 flex-1 items-center gap-3 px-3 py-3 text-left"
         >
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center border border-[#837871] bg-[#262321] text-[#b9ada5]">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-[#47413d] bg-[#24211f] text-[#a09790]">
             <Icon size={13} />
           </span>
           <span className="min-w-0">
-            <span className="block truncate text-[12px] text-[#b9ada5]">{feature.label}</span>
-            <span className="mt-0.5 block truncate font-mono-d text-[8px] tracking-[0.1em] text-[#b9ada5]">COMING SOON</span>
+            <span className="block truncate text-[12px] text-[#aaa19a]">{feature.label}</span>
+            <span className="mt-0.5 block truncate font-mono-d text-[7.5px] tracking-[0.12em] text-[#827972]">COMING SOON</span>
           </span>
         </div>}
         <button
@@ -129,19 +129,19 @@ function FeatureLink({
           onClick={onExpand}
           aria-label={feature.helpLabel}
           aria-expanded={expanded}
-          className={`flex w-11 shrink-0 items-center justify-center border-l outline-none transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#ffd0bc] ${
+          className={`flex w-9 shrink-0 items-center justify-center border-l outline-none transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#ffd0bc] ${
             active
               ? "border-[#1d1d1d]/20 bg-[#1d1d1d]/10 text-[#1d1d1d] hover:bg-[#1d1d1d]/20"
               : expanded
-                ? "border-[#fa6c34]/45 bg-[#fa6c34]/15 text-[#ff8a5c]"
-                : "border-[#fa6c34]/25 bg-[#fa6c34]/5 text-[#fa6c34] hover:bg-[#fa6c34]/15 hover:text-[#ffb08f]"
+                ? "border-[#4d413b] bg-[#2a2421] text-[#ff8a5c]"
+                : "border-[#383431] bg-transparent text-[#8f837b] hover:bg-[#2a2421] hover:text-[#fa6c34]"
           }`}
         >
           <CircleHelp size={14} />
         </button>
       </div>
       {expanded && (
-        <div className="border-t border-[#fa6c34]/30 bg-[#1c1b1a] px-4 py-3" role="region" aria-label={`${feature.label} summary`}>
+        <div className="border-t border-[#383431] bg-[#1b1a19] px-4 py-3" role="region" aria-label={`${feature.label} summary`}>
           <p className="text-[11px] leading-relaxed text-[#9a938a]">{feature.summary}</p>
           <Link
             to={`/guide#${feature.id}`}
@@ -167,21 +167,20 @@ function ProductRail({
   const [expanded, setExpanded] = useState<string | null>(null);
 
   return (
-    <div className="flex h-full flex-col bg-[#1d1d1d]">
+    <div className="flex h-full flex-col bg-[#1a1918]">
       <Link
         to="/"
         onClick={onNavigate}
-        className="relative flex h-[72px] shrink-0 items-center gap-3 border-b border-[#2e2e2e] bg-[#fa6c34] px-5 text-[#1d1d1d]"
-        style={{ clipPath: "polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%)" }}
+        className="relative flex h-[82px] shrink-0 items-center gap-3 border-b border-[#34312f] px-4 text-[#f4ece4]"
       >
-        <img src="/logo.svg" alt="" className="h-7 w-7" />
+        <span className="clip-btn-sm flex h-11 w-11 items-center justify-center bg-[#fa6c34]"><img src="/logo.svg" alt="" className="h-6 w-6" /></span>
         <span>
-          <span className="block font-mono-d text-[11px] font-semibold tracking-[0.14em]">CHAINSCOUT</span>
-          <span className="mt-0.5 block font-mono-d text-[8px] font-medium tracking-[0.16em]">PRODUCT WORKSPACE</span>
+          <span className="block text-[15px] font-semibold tracking-[-0.02em]">ChainScout</span>
+          <span className="mt-1 block font-mono-d text-[7.5px] tracking-[0.14em] text-[#9a938a]">PRODUCT WORKSPACE</span>
         </span>
       </Link>
 
-      <div className="product-rail-scroll flex-1 overflow-y-auto pb-5 pt-3">
+      <div className="product-rail-scroll flex-1 overflow-y-auto pb-5 pt-4">
         <button
           type="button"
           onClick={(event) => {
@@ -189,21 +188,21 @@ function ProductRail({
             onOpenTour(event.currentTarget);
           }}
           data-tour-trigger
-          className="group mx-2 mb-4 flex w-[calc(100%-1rem)] items-center gap-3 border border-[#fa6c34] bg-[#fa6c34] px-3 py-3 text-left text-[#1d1d1d] outline-none transition-colors hover:bg-[#ff7c48] focus-visible:ring-2 focus-visible:ring-[#ffd0bc]"
+          className="group mx-3 mb-5 flex w-[calc(100%-1.5rem)] items-center gap-3 rounded-[3px] border border-[#fa6c34] bg-[#fa6c34] px-3 py-3 text-left text-[#1d1d1d] outline-none transition-colors hover:bg-[#ff7c48] focus-visible:ring-2 focus-visible:ring-[#ffd0bc]"
           aria-label="Open the ChainScout 60-second tour"
         >
           <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-[#1d1d1d]/30 bg-[#1d1d1d]/10">
             <Sparkles size={14} />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block font-mono-d text-[9px] font-semibold tracking-[0.12em]">NEW HERE? TAKE THE TOUR</span>
-            <span className="mt-1 block text-[10px] font-medium text-[#321910]">See how it fits together in 60 seconds</span>
+            <span className="block text-[11px] font-semibold">New here? Take the tour</span>
+            <span className="mt-1 block text-[9.5px] font-medium text-[#482116]">A clear 60-second overview</span>
           </span>
           <ArrowRight size={14} className="shrink-0 transition-transform group-hover:translate-x-1" />
         </button>
         {(["explore", "vault", "build"] as const).map((group) => (
           <section key={group} className="mt-2 first:mt-0" aria-label={group === "explore" ? "Explore tools" : group === "vault" ? "Private Vault tools" : "Developer tools"}>
-            <p className="px-4 pb-2 font-mono-d text-[8px] tracking-[0.2em] text-[#ada39b]">
+            <p className="px-4 pb-2 font-mono-d text-[7.5px] tracking-[0.16em] text-[#9a938a]">
               {group === "explore" ? "LOOK SOMETHING UP" : group === "vault" ? "SAVE & ORGANIZE PRIVATELY" : "BUILD WITH REVIEWED FACTS"}
             </p>
             {PRODUCT_FEATURES.filter((feature) => feature.group === group).map((feature) => (
@@ -220,21 +219,26 @@ function ProductRail({
         ))}
       </div>
 
-      <nav className="shrink-0 space-y-1 border-t border-[#303030] bg-[#202020] p-3" aria-label="Product resources">
+      <nav className="shrink-0 border-t border-[#34312f] bg-[#1c1b1a] p-3" aria-label="Product resources">
+        <div className="grid grid-cols-2 gap-1.5">
         {isProductFeatureEnabled("open-data-api") && <Link to="/developers" onClick={onNavigate} aria-current={location.pathname === "/developers" ? "page" : undefined} className={`flex items-center gap-3 border px-3 py-2.5 font-mono-d text-[10px] tracking-[0.08em] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#fa6c34] ${location.pathname === "/developers" ? "border-[#fa6c34] bg-[#fa6c34] font-semibold text-[#1d1d1d]" : "border-[#fa6c34]/25 text-[#c0b6aa] hover:border-[#fa6c34]/65 hover:bg-[#fa6c34]/10 hover:text-[#fff7ec]"}`}>
           <CodeXml size={14} /> DEVELOPERS
         </Link>}
-        <Link to="/docs" onClick={onNavigate} aria-current={location.pathname === "/docs" ? "page" : undefined} className={`flex items-center gap-3 border px-3 py-2.5 font-mono-d text-[10px] tracking-[0.08em] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#fa6c34] ${location.pathname === "/docs" ? "border-[#fa6c34] bg-[#fa6c34] font-semibold text-[#1d1d1d]" : "border-[#fa6c34]/25 text-[#c0b6aa] hover:border-[#fa6c34]/65 hover:bg-[#fa6c34]/10 hover:text-[#fff7ec]"}`}>
-          <BookOpenText size={14} /> TECH DOCS
+        <Link to="/guide" onClick={onNavigate} className="flex min-h-[42px] items-center gap-2 rounded-sm border border-[#393532] px-3 text-[10px] text-[#bdb4ac] transition-colors hover:border-[#6b4a3e] hover:text-[#fff7ec]">
+          <BookOpenText size={13} /> Guide
         </Link>
-        <Link to="/faq" onClick={onNavigate} aria-current={location.pathname === "/faq" ? "page" : undefined} className={`flex items-center gap-3 border px-3 py-2.5 font-mono-d text-[10px] tracking-[0.08em] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#fa6c34] ${location.pathname === "/faq" ? "border-[#fa6c34] bg-[#fa6c34] font-semibold text-[#1d1d1d]" : "border-[#fa6c34]/25 text-[#c0b6aa] hover:border-[#fa6c34]/65 hover:bg-[#fa6c34]/10 hover:text-[#fff7ec]"}`}>
-          <MessageCircleQuestion size={14} /> FAQ
+        <Link to="/docs" onClick={onNavigate} aria-current={location.pathname === "/docs" ? "page" : undefined} className={`flex min-h-[42px] items-center gap-2 rounded-sm border px-3 text-[10px] transition-colors ${location.pathname === "/docs" ? "border-[#fa6c34] bg-[#fa6c34] font-semibold text-[#1d1d1d]" : "border-[#393532] text-[#bdb4ac] hover:border-[#6b4a3e] hover:text-[#fff7ec]"}`}>
+          <BookOpenText size={13} /> Docs
         </Link>
-        <Link to="/roadmap" onClick={onNavigate} className="flex items-center gap-3 border border-[#fa6c34]/25 px-3 py-2.5 font-mono-d text-[10px] tracking-[0.08em] text-[#c0b6aa] outline-none transition-colors hover:border-[#fa6c34]/65 hover:bg-[#fa6c34]/10 hover:text-[#fff7ec] focus-visible:ring-2 focus-visible:ring-[#fa6c34]">
-          <Boxes size={14} /> ROADMAP
+        <Link to="/faq" onClick={onNavigate} aria-current={location.pathname === "/faq" ? "page" : undefined} className={`flex min-h-[42px] items-center gap-2 rounded-sm border px-3 text-[10px] transition-colors ${location.pathname === "/faq" ? "border-[#fa6c34] bg-[#fa6c34] font-semibold text-[#1d1d1d]" : "border-[#393532] text-[#bdb4ac] hover:border-[#6b4a3e] hover:text-[#fff7ec]"}`}>
+          <MessageCircleQuestion size={13} /> FAQ
         </Link>
-        <Link to="/" onClick={onNavigate} className="flex items-center gap-3 border border-[#fa6c34]/25 px-3 py-2.5 font-mono-d text-[10px] tracking-[0.08em] text-[#c0b6aa] outline-none transition-colors hover:border-[#fa6c34]/65 hover:bg-[#fa6c34]/10 hover:text-[#fff7ec] focus-visible:ring-2 focus-visible:ring-[#fa6c34]">
-          <House size={14} /> MARKETING HOME
+        <Link to="/" onClick={onNavigate} className="flex min-h-[42px] items-center gap-2 rounded-sm border border-[#393532] px-3 text-[10px] text-[#bdb4ac] transition-colors hover:border-[#6b4a3e] hover:text-[#fff7ec]">
+          <House size={13} /> Home
+        </Link>
+        </div>
+        <Link to="/roadmap" onClick={onNavigate} className="mt-1.5 flex min-h-[38px] items-center justify-center gap-2 text-[9.5px] text-[#9a938a] transition-colors hover:text-[#d6ccc2]">
+          <Boxes size={12} /> Product roadmap
         </Link>
       </nav>
     </div>
@@ -317,8 +321,6 @@ export default function ProductShell() {
 
     media.add("(prefers-reduced-motion: no-preference)", () => {
       const routeContent = shell.current?.querySelector("[data-route-content]");
-      const routeSweep = shell.current?.querySelector("[data-route-sweep]");
-      const activeCard = shell.current?.querySelector('[data-feature-card][data-active="true"]');
       const timeline = gsap.timeline({ defaults: { ease: "power2.out" } });
 
       if (!introduced.current) {
@@ -331,44 +333,20 @@ export default function ProductShell() {
         introduced.current = true;
       }
 
-      if (routeSweep) {
-        timeline
-          .fromTo(
-            routeSweep,
-            { autoAlpha: 0.85, scaleX: 0, transformOrigin: "left center" },
-            { autoAlpha: 0.85, scaleX: 1, duration: 0.2, ease: "power1.inOut" },
-            0,
-          )
-          .to(
-            routeSweep,
-            { autoAlpha: 0, scaleX: 0, transformOrigin: "right center", duration: 0.24, ease: "power1.inOut", clearProps: "transform,transformOrigin,visibility" },
-            0.2,
-          );
-      }
-
       if (routeContent) {
         timeline
           .set(routeContent, { willChange: "transform" }, 0)
           .fromTo(
             routeContent,
-            { y: 12 },
-            { y: 0, duration: 0.42, clearProps: "transform,willChange" },
-            0.1,
+            { y: 7 },
+            { y: 0, duration: 0.34, clearProps: "transform,willChange" },
+            0,
           );
-      }
-
-      if (activeCard) {
-        timeline.fromTo(
-          activeCard,
-          { x: -5, scale: 0.985 },
-          { x: 0, scale: 1, duration: 0.32, clearProps: "transform" },
-          0.08,
-        );
       }
     });
 
     media.add("(prefers-reduced-motion: reduce)", () => {
-      gsap.set("[data-route-content], [data-route-sweep], [data-feature-card]", {
+      gsap.set("[data-route-content], [data-feature-card]", {
         clearProps: "all",
       });
     });
@@ -402,7 +380,6 @@ export default function ProductShell() {
       >
         SKIP TO MAIN CONTENT
       </a>
-      <div data-route-sweep aria-hidden="true" className="pointer-events-none fixed left-0 right-0 top-0 z-[65] h-[3px] origin-left bg-[#fa6c34] opacity-0 lg:left-[252px]" />
       <aside data-desktop-rail inert={tourOpen ? true : undefined} className="fixed inset-y-0 left-0 z-40 hidden w-[252px] border-r border-[#2e2e2e] lg:block" aria-label="ChainScout features">
         <ProductRail onOpenTour={openTour} />
       </aside>

@@ -16,6 +16,7 @@ const SOURCE_URL = "https://tcgdex.dev";
 const MAX_PROVIDER_RESULTS = 25;
 const MAX_RESULTS = 8;
 const CARD_ID = /^[a-zA-Z0-9][a-zA-Z0-9.-]{0,79}$/;
+const IMAGE_SEGMENT = /^[a-zA-Z0-9._-]{1,80}$/;
 const SEARCH_QUERY = `query ChainScoutCatalogSearch($name: String!, $localId: String) {
   cards(filters: { name: $name, localId: $localId }, pagination: { page: 1, itemsPerPage: 25 }) {
     id
@@ -31,6 +32,7 @@ const DETAIL_QUERY = `query ChainScoutCatalogDetail($id: ID!) {
     category
     illustrator
     rarity
+    image
     set { id name cardCount { official total } }
   }
 }`;
@@ -95,7 +97,7 @@ export class CollectibleCatalogService implements CollectibleCatalogSource {
     const card = parseDetail(body, language, cardId, sourceUrl, this.dependencies.now());
     return {
       card,
-      privacy: privacyReceipt("The selected public card ID was sent transiently to ChainScout. ChainScout requested only allowlisted card and set identity metadata from TCGdex GraphQL; no artwork, pricing, printing claim, ownership field, or AI model was requested.")
+      privacy: privacyReceipt("The selected public card ID was sent transiently to ChainScout. ChainScout requested allowlisted card and set identity metadata plus the catalog image base from TCGdex GraphQL. Marketplace pricing, printing claims, ownership fields, and AI models were not requested.")
     };
   }
 
@@ -176,6 +178,7 @@ function parseDetail(value: unknown, language: CollectibleLanguage, requestedId:
   }
   const rarity = optionalText(value.rarity, 80);
   const illustrator = optionalText(value.illustrator, 120);
+  const imageUrl = catalogImageUrl(value.image, value.set.id, number);
   return {
     provider: "tcgdex",
     catalogId: value.id,
@@ -191,11 +194,39 @@ function parseDetail(value: unknown, language: CollectibleLanguage, requestedId:
     },
     rarity,
     illustrator,
+    imageUrl,
     catalogUpdatedAt: null,
     fetchedAt: fetchedAt.toISOString(),
     sourceUrl,
     licenseUrl: LICENSE_URL
   };
+}
+
+function catalogImageUrl(value: unknown, setId: string, number: string): string | null {
+  if (value === undefined || value === null || value === "") return null;
+  if (typeof value !== "string" || value.length > 500) return null;
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    return null;
+  }
+  const segments = url.pathname.split("/").filter(Boolean);
+  if (url.protocol !== "https:"
+    || url.hostname !== "assets.tcgdex.net"
+    || url.port !== ""
+    || url.username !== ""
+    || url.password !== ""
+    || url.search !== ""
+    || url.hash !== ""
+    || segments.length !== 4
+    || segments[0] !== "en"
+    || !segments.every((segment) => IMAGE_SEGMENT.test(segment))
+    || segments[2] !== setId
+    || segments[3] !== number) {
+    return null;
+  }
+  return `${url.origin}${url.pathname}/low.png`;
 }
 
 function privacyReceipt(disclosure: string): CollectiblePrivacyReceipt {

@@ -65,9 +65,9 @@ const ADAPTERS = [
   {
     name: "COLLECTIBLES",
     input: "English card name, number, and optional set",
-    process: "Field-selective TCGdex GraphQL metadata match",
-    output: "Card/set identity; owner printing and condition stay local",
-    limit: "No provider artwork, pricing, grading, or authenticity claim",
+    process: "Field-selective TCGdex metadata + optional low-res asset-CDN image",
+    output: "Card/set identity and sanitized encrypted thumbnail; owner claims stay local",
+    limit: "No marketplace pricing, grading, authenticity, or inventory claim",
     gated: true,
   },
   {

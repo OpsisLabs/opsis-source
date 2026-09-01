@@ -296,7 +296,6 @@ export default function ScoutSwap() {
       </header>
 
       <main className="relative mx-auto w-full max-w-[1180px] px-4 pb-20 pt-12 sm:px-6 sm:pt-16">
-        <div className="pointer-events-none absolute right-0 top-0 h-[420px] w-[420px] rounded-full bg-[#fa6c34]/[0.045] blur-3xl" />
         <Link to="/" className="relative inline-flex items-center gap-2 font-mono-d text-[10px] tracking-wider text-[#635d5a] transition-colors hover:text-[#e9e0d1]"><ArrowLeft size={12} /> BACK HOME</Link>
 
         <div className="relative mt-10 grid items-end gap-8 lg:grid-cols-[1fr_0.72fr]">

@@ -76,7 +76,7 @@ export interface VaultCollectibleDetails {
   grader: VaultCollectibleGrader;
   grade: string;
   certificate: string;
-  photoSource: "owner_supplied" | null;
+  photoSource: "owner_supplied" | "tcgdex_catalog" | null;
   photoAddedAt: string | null;
   references: VaultCollectibleReference[];
 }

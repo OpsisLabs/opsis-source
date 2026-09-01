@@ -71,7 +71,7 @@ test("Scout Swap explains a fresh quote and hands off only to official Uniswap",
   const calls = await mockQuote(page, { delayMs: 300 });
   await page.goto("/swap");
 
-  await expect(page).toHaveTitle("ChainScout: Robinhood Chain Intelligence in Plain English");
+  await expect(page).toHaveTitle("ChainScout — Private Multi-Asset Command Center");
   await expect(page.getByRole("heading", { name: /See the trade/i })).toBeVisible();
   await expect(page.getByText("NO SIGNING")).toBeVisible();
   await expect(page.getByText("NO WALLET DATA")).toBeVisible();

@@ -151,15 +151,15 @@ const RELEASES: Release[] = [
     branch: "release/06-collectible-catalog",
     title: "Collectible Catalog",
     eyebrow: "FROM CARD TO TRACKED ASSET",
-    summary: "Match supported trading-card metadata, then add owner-reported details and a private local photo without uploading ownership data.",
+    summary: "Match supported trading-card metadata, sanitize an optional catalog thumbnail locally, then add owner-reported details without uploading ownership data.",
     outcome: "Add collectibles without a spreadsheet",
     icon: ScanSearch,
     capabilities: [
       { kicker: "CATALOG MATCH", title: "Resolve English card ID, set, collector number, rarity, and illustrator", signal: "SOURCE LINKED", bars: [32, 48, 64, 58, 76, 92] },
-      { kicker: "OWNER LAYER", title: "Encrypt a sanitized local photo, condition, grade, certificate, and dated manual reference", signal: "CLEARLY LABELED", bars: [88, 72, 62, 54, 42, 34] },
+      { kicker: "OWNER LAYER", title: "Encrypt a sanitized catalog or owner photo, condition, grade, certificate, and dated manual reference", signal: "CLEARLY LABELED", bars: [88, 72, 62, 54, 42, 34] },
       { kicker: "MANUAL PATH", title: "Track any unsupported card or physical collectible immediately", signal: "NEVER BLOCKED", bars: [24, 36, 50, 64, 78, 94] },
     ],
-    gate: "Catalog facts and owner claims remain distinct; no artwork, marketplace pricing, authenticity, or inventory is implied.",
+    gate: "Catalog facts and visual-reference thumbnails remain distinct from owner claims; no marketplace pricing, authenticity, or inventory is implied.",
     snapshot: "collectible-catalog-rc1",
   },
   {
@@ -460,7 +460,7 @@ function TrajectoryDiagram() {
       <div className="absolute inset-[19%] rounded-full border border-dashed border-[#383838]" />
       <div className="absolute inset-[31%] rounded-full border border-[#2e2e2e]" />
       <div className="roadmap-orbit-ring absolute inset-[8%] rounded-full">
-        <span className="absolute left-1/2 top-0 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#fa6c34] shadow-[0_0_24px_rgba(250,108,52,0.8)]" />
+        <span className="absolute left-1/2 top-0 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#fa6c34]" />
       </div>
       <div className="roadmap-orbit-ring-reverse absolute inset-[19%] rounded-full">
         <span className="absolute bottom-[8%] left-[8%] h-1.5 w-1.5 rounded-full bg-[#d6ccba]" />
@@ -476,7 +476,7 @@ function TrajectoryDiagram() {
         <circle cx="158" cy="381" r="4" fill="#e9e0d1" />
         <circle cx="402" cy="381" r="4" fill="#e9e0d1" />
       </svg>
-      <div className="absolute left-1/2 top-1/2 flex h-[116px] w-[116px] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-[#383838] bg-[#1d1d1d] text-center shadow-[0_0_60px_rgba(0,0,0,0.45)]">
+      <div className="absolute left-1/2 top-1/2 flex h-[116px] w-[116px] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-[#383838] bg-[#1d1d1d] text-center">
         <CircleDollarSign size={22} strokeWidth={1.2} className="text-[#fa6c34]" />
         <span className="mt-2 font-mono-d text-[9px] tracking-[0.18em] text-[#9a938a]">$0 NEW SPEND</span>
         <span className="font-mono-d text-[9px] tracking-[0.18em] text-[#9a938a]">UTILITY STACK</span>
@@ -761,7 +761,7 @@ export default function Roadmap() {
             <TrajectoryDiagram />
             <div className="absolute bottom-7 left-8 right-8 flex items-center justify-between font-mono-d text-[9px] tracking-[0.12em] text-[#635d5a]">
               <span>UNDERSTAND</span>
-              <span className="mx-4 h-px flex-1 bg-gradient-to-r from-[#383838] via-[#fa6c34] to-[#383838]" />
+              <span className="mx-4 h-px flex-1 bg-[#4a4541]" />
               <span>PREPARE</span>
             </div>
           </div>
@@ -785,7 +785,7 @@ export default function Roadmap() {
 
           <div className="relative">
             <div className="absolute bottom-0 left-[84px] top-0 hidden w-px bg-[#2e2e2e] xl:block" />
-            <div className="roadmap-timeline-signal absolute left-[82px] top-0 hidden h-14 w-[5px] rounded-full bg-[#fa6c34] shadow-[0_0_18px_rgba(250,108,52,0.55)] xl:block" />
+            <div className="roadmap-timeline-signal absolute left-[82px] top-0 hidden h-14 w-[5px] rounded-full bg-[#fa6c34] xl:block" />
             {RELEASES.map((release, index) => (
               <ReleaseCard key={release.id} release={release} index={index} />
             ))}
@@ -796,7 +796,7 @@ export default function Roadmap() {
           <div className="grid border-b border-[#2e2e2e] xl:grid-cols-[0.9fr_1.1fr]">
             <div className="roadmap-reveal border-b border-[#2e2e2e] px-7 py-14 sm:px-10 md:px-12 md:py-20 xl:border-b-0 xl:border-r">
               <div className="flex items-center gap-3">
-                <span className="h-2 w-2 rounded-full bg-[#fa6c34] shadow-[0_0_18px_rgba(250,108,52,0.75)]" />
+                <span className="h-2 w-2 rounded-full bg-[#fa6c34]" />
                 <p className="font-mono-d text-[10px] tracking-[0.18em] text-[#fa6c34]">THE LAUNCH UTILITY</p>
               </div>
               <h2 className="mt-7 max-w-[620px] text-[42px] font-medium leading-[0.98] tracking-[-0.04em] text-[#e9e0d1] sm:text-[58px]">
@@ -972,7 +972,7 @@ export default function Roadmap() {
                 ].map((row) => (
                   <div key={row.label} className="roadmap-privacy-row group relative border-b border-[#383838] p-5 last:border-b-0 sm:p-6">
                     <div className="flex items-center gap-3">
-                      <span className="h-2 w-2 rounded-full bg-[#fa6c34] shadow-[0_0_12px_rgba(250,108,52,0.45)]" />
+                      <span className="h-2 w-2 rounded-full bg-[#fa6c34]" />
                       <p className="font-mono-d text-[8px] tracking-[0.14em] text-[#fa6c34]">{row.label}</p>
                     </div>
                     <p className="mt-3 max-w-[570px] pl-5 text-[12.5px] leading-6 text-[#9a938a]">{row.body}</p>

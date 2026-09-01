@@ -406,7 +406,7 @@ function WidgetPanel({ w, onPivot, delay = 0 }: { w: AnswerWidget; onPivot: (v: 
               <div
                 key={b.label}
                 title={`${b.label}: ${b.count}`}
-                className="flex-1 bg-gradient-to-t from-[#fa6c34]/80 to-[#fa6c34]/30 transition-colors hover:from-[#fa6c34] hover:to-[#fa6c34]/60"
+                className="flex-1 bg-[#fa6c34] transition-colors hover:bg-[#ff7d48]"
                 style={{ height: `${Math.max(8, (b.count / max) * 100)}%` }}
               />
             ))}
@@ -485,12 +485,8 @@ export function AnswerCard({
 
       {ai.card && (
         <div className="deck-rise relative overflow-hidden border-b border-[#2e2e2e] px-6 py-6">
-          <div
-            className="pointer-events-none absolute -right-20 -top-24 h-[260px] w-[260px] rounded-full"
-            style={{ background: "radial-gradient(circle, rgba(250,108,52,0.14) 0%, rgba(250,108,52,0) 70%)" }}
-          />
           <div className="relative flex items-start gap-4">
-            <div className="clip-btn-sm flex h-14 w-14 shrink-0 items-center justify-center bg-gradient-to-br from-[#fa6c34] to-[#b8481a] font-mono-d text-[19px] font-bold text-[#1d1d1d]">
+            <div className="clip-btn-sm flex h-14 w-14 shrink-0 items-center justify-center bg-[#fa6c34] font-mono-d text-[19px] font-bold text-[#1d1d1d]">
               {monogram}
             </div>
             <div className="min-w-0 flex-1">

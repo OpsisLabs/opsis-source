@@ -1856,7 +1856,10 @@ function AssetCard({
           />
           {asset.collectible && (
             <p className="px-3 py-2 font-mono-d text-[7.5px] tracking-wider text-[#635d5a]">
-              OWNER-SUPPLIED LOCAL PHOTO · ADDED{" "}
+              {asset.collectible.photoSource === "tcgdex_catalog"
+                ? "CATALOG THUMBNAIL · SANITIZED + ENCRYPTED"
+                : "OWNER-SUPPLIED LOCAL PHOTO"}{" "}
+              · ADDED{" "}
               {asset.collectible.photoAddedAt?.slice(0, 10)}
             </p>
           )}

@@ -9,14 +9,14 @@ const GROUPS = [
 
 export default function AvailabilityMatrix() {
   return (
-    <section id="availability" data-home-reveal className="border-b border-[#2e2e2e] px-5 py-20 sm:px-8 md:px-12 md:py-28">
+    <section id="availability" data-home-reveal className="border-b border-[#34312f] px-5 py-20 sm:px-8 md:px-12 md:py-24 xl:px-16">
       <SectionHeader eyebrow="WHAT WORKS IN THIS BUILD?" title={<>No mystery.<br />No silent fallbacks.</>} copy="The interface separates what is available now from what is coming soon. Upcoming tools never pretend to be live or route you into a different workspace." />
-      <div className="mt-14 grid gap-px border border-[#383838] bg-[#383838] xl:grid-cols-3">
+      <div className="mt-12 grid gap-4 xl:grid-cols-3">
         {GROUPS.map((group) => (
-          <article key={group.label} className="bg-[#202020] p-6 sm:p-8">
-            <div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center border" style={{ borderColor: `${group.tone}66`, color: group.tone }}><group.icon size={15} /></span><p className="font-mono-d text-[8.5px] tracking-[0.12em]" style={{ color: group.tone }}>{group.label}</p></div>
+          <article key={group.label} className="rounded-[4px] border border-[#3a3633] bg-[#201e1c] p-6 sm:p-7">
+            <div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-sm border" style={{ borderColor: `${group.tone}55`, color: group.tone }}><group.icon size={15} /></span><p className="text-[9px] font-medium" style={{ color: group.tone }}>{group.label}</p></div>
             <ul className="mt-7 space-y-0">
-              {group.items.map((item) => <li key={item} className="border-t border-[#333] py-4 text-[12.5px] leading-relaxed text-[#b7aea2]">{item}</li>)}
+              {group.items.map((item) => <li key={item} className="border-t border-[#35312e] py-4 text-[12.5px] leading-relaxed text-[#aaa19a]">{item}</li>)}
             </ul>
           </article>
         ))}

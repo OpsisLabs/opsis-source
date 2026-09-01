@@ -218,6 +218,33 @@ body {
   animation: pulse-dot 2s ease-in-out infinite;
 }
 
+@keyframes hero-geo-hover-a {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes hero-geo-hover-b {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(7px); }
+}
+
+@keyframes hero-geo-orbit-dash {
+  to { stroke-dashoffset: -42; }
+}
+
+@keyframes hero-geo-node-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.42; }
+}
+
+.hero-geo-layer { transform-box: fill-box; transform-origin: center; }
+.hero-geo-layer-a { animation: hero-geo-hover-a 6.5s ease-in-out infinite; }
+.hero-geo-layer-b { animation: hero-geo-hover-b 7.2s ease-in-out infinite; }
+.hero-geo-layer-c { animation: hero-geo-hover-a 8s ease-in-out infinite reverse; }
+.hero-geo-layer-d { animation: hero-geo-hover-b 8.8s ease-in-out infinite reverse; }
+.hero-geo-orbit { stroke-dasharray: 6 8; animation: hero-geo-orbit-dash 3s linear infinite; }
+.hero-geo-node { animation: hero-geo-node-pulse 2.1s ease-in-out infinite; }
+
 @keyframes ticker-up {
   0% { transform: translateY(0); }
   100% { transform: translateY(-50%); }
@@ -377,7 +404,14 @@ body > [id*="kimi"] {
   .decode-reel-track,
   .binary-track,
   .stream-cursor,
-  .pulse-dot {
+  .pulse-dot,
+  .hero-geo-layer-a,
+  .hero-geo-layer-b,
+  .hero-geo-layer-c,
+  .hero-geo-layer-d,
+  .hero-geo-orbit,
+  .hero-geo-node,
+  [data-hero-shape] {
     animation: none !important;
   }
 }
@@ -435,8 +469,8 @@ body > [id*="kimi"] {
 }
 
 @keyframes roadmap-live-pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(250, 108, 52, 0.4); }
-  50% { opacity: 0.6; box-shadow: 0 0 0 5px rgba(250, 108, 52, 0); }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
 }
 .roadmap-live-dot {
   animation: roadmap-live-pulse 2s ease-in-out infinite;
@@ -528,8 +562,8 @@ body > [id*="kimi"] {
 .roadmap-capability:hover::after { right: 0; }
 
 @keyframes roadmap-beacon-ping {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(250, 108, 52, 0); }
-  50% { box-shadow: 0 0 0 4px rgba(250, 108, 52, 0.08); }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
 }
 .roadmap-capability:hover .roadmap-point-beacon {
   border-color: rgba(250, 108, 52, 0.45);
@@ -547,7 +581,6 @@ body > [id*="kimi"] {
 }
 .roadmap-microbar:nth-child(3n) {
   background-color: rgba(250, 108, 52, 0.78);
-  box-shadow: 0 0 8px rgba(250, 108, 52, 0.12);
 }
 
 .roadmap-readiness::before {

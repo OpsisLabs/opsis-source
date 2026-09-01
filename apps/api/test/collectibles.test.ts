@@ -34,20 +34,22 @@ describe("collectible catalog", () => {
     expect(requestBody.query).not.toMatch(/image|pricing|thirdParty|variants/i);
   });
 
-  it("returns field-selected catalog identity without requesting art, prices, or printing metadata", async () => {
+  it("returns field-selected catalog identity and a pinned low-resolution image without requesting prices or printing metadata", async () => {
     const http: ProviderHttp = { requestJson: vi.fn(async () => detailGraphql(detailFixture())) };
     const result = await service(http).detail({ language: "en", cardId: "base1-4" });
 
     expect(result.card).toMatchObject({
       provider: "tcgdex", catalogId: "base1-4", name: "Charizard", number: "4",
-      set: { id: "base1", name: "Base Set", officialCount: 102, totalCount: 102 }
+      set: { id: "base1", name: "Base Set", officialCount: 102, totalCount: 102 },
+      imageUrl: "https://assets.tcgdex.net/en/base/base1/4/low.png"
     });
     expect(result.card.catalogUpdatedAt).toBeNull();
-    expect(JSON.stringify(result)).not.toMatch(/assets\.tcgdex|marketPrice|999/);
+    expect(JSON.stringify(result)).not.toMatch(/marketPrice|999/);
     expect(result.card).not.toHaveProperty("image");
     expect(result.card).not.toHaveProperty("pricing");
     const requestBody = JSON.parse(String((http.requestJson as ReturnType<typeof vi.fn>).mock.calls[0][1].body));
-    expect(requestBody.query).not.toMatch(/image|pricing|thirdParty|variants/i);
+    expect(requestBody.query).toMatch(/\bimage\b/);
+    expect(requestBody.query).not.toMatch(/pricing|thirdParty|variants/i);
   });
 
   it("distinguishes a valid empty search from a bounded truncated result set", async () => {
@@ -81,6 +83,10 @@ describe("collectible catalog", () => {
     await expect(service({ requestJson: vi.fn(async () => detailGraphql(tupleMismatch)) }).detail({ language: "en", cardId: "base1-4" })).rejects.toMatchObject({ code: "COLLECTIBLE_PROVIDER_MALFORMED" });
     const impossibleCount = detailFixture(); impossibleCount.set.cardCount.total = 50;
     await expect(service({ requestJson: vi.fn(async () => detailGraphql(impossibleCount)) }).detail({ language: "en", cardId: "base1-4" })).rejects.toMatchObject({ code: "COLLECTIBLE_PROVIDER_MALFORMED" });
+    const wrongImageHost = detailFixture(); wrongImageHost.image = "https://example.com/en/base/base1/4";
+    await expect(service({ requestJson: vi.fn(async () => detailGraphql(wrongImageHost)) }).detail({ language: "en", cardId: "base1-4" })).resolves.toMatchObject({ card: { imageUrl: null } });
+    const wrongImageTuple = detailFixture(); wrongImageTuple.image = "https://assets.tcgdex.net/en/base/base2/4";
+    await expect(service({ requestJson: vi.fn(async () => detailGraphql(wrongImageTuple)) }).detail({ language: "en", cardId: "base1-4" })).resolves.toMatchObject({ card: { imageUrl: null } });
     await expect(service({ requestJson: vi.fn(async () => ({ data: { card: null } })) }).detail({ language: "en", cardId: "base1-4" })).rejects.toMatchObject({ code: "COLLECTIBLE_NOT_FOUND" });
   });
 

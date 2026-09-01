@@ -467,6 +467,45 @@ describe("encrypted vault cryptography", () => {
         collectible: catalog.collectible,
       }),
     ).toThrowError(VaultError);
+    const invalidCatalogImage = structuredClone(catalog.collectible!);
+    invalidCatalogImage.catalog!.imageUrl =
+      "https://example.com/en/base/base1/4/low.png";
+    expect(() =>
+      createAsset({
+        name: catalog.name,
+        assetType: catalog.assetType,
+        identifier: catalog.identifier,
+        lots: [
+          {
+            quantity: "1",
+            unitPrice: "250",
+            currency: "USD",
+            acquiredAt: "2026-08-10",
+          },
+        ],
+        notes: catalog.notes,
+        collectible: invalidCatalogImage,
+      }),
+    ).toThrowError(VaultError);
+    const catalogThumbnail = structuredClone(catalog.collectible!);
+    catalogThumbnail.photoSource = "tcgdex_catalog";
+    catalogThumbnail.photoAddedAt = "2026-08-11T12:00:00.000Z";
+    expect(() =>
+      createAsset({
+        name: catalog.name,
+        assetType: catalog.assetType,
+        identifier: catalog.identifier,
+        lots: [{ quantity: "1", unitPrice: "250", currency: "USD", acquiredAt: "2026-08-10" }],
+        notes: catalog.notes,
+        photo: {
+          name: "base1-4-catalog.png",
+          mimeType: "image/png",
+          size: 8,
+          dataUrl: "data:image/png;base64,iVBORw0KGgo=",
+        },
+        collectible: catalogThumbnail,
+      }),
+    ).not.toThrow();
   });
 
   it("supports a manual collectible history without claiming a catalog match", async () => {
@@ -723,6 +762,7 @@ function fixtureCatalogAsset(): VaultAsset {
         },
         rarity: "Rare",
         illustrator: "Mitsuhiro Arita",
+        imageUrl: "https://assets.tcgdex.net/en/base/base1/4/low.png",
         catalogUpdatedAt: null,
         fetchedAt: "2026-08-11T12:00:00.000Z",
         sourceUrl: "https://api.tcgdex.net/v2/graphql",

@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router";
+import { ArrowUpRight } from "lucide-react";
 
 const INDEX = [
   { n: "01", label: "What to track", id: "track" },
@@ -8,34 +10,19 @@ const INDEX = [
   { n: "05", label: "FAQ", id: "faq" },
 ];
 
-function LogoMark({ className = "w-8 h-8" }: { className?: string }) {
-  return <img src="/logo.svg" alt="ChainScout" className={className} />;
-}
-
 export default function Sidebar() {
-  const [mode, setMode] = useState<"hero" | "gap" | "index" | "end">("hero");
-  const [active, setActive] = useState("");
+  const [active, setActive] = useState("hero");
 
   useEffect(() => {
     const onScroll = () => {
-      const y = window.scrollY;
-      const doc = document.documentElement.scrollHeight - window.innerHeight;
-      const hero = document.getElementById("hero");
-      const heroBottom = hero ? hero.offsetTop + hero.offsetHeight : 900;
-      const cap = document.getElementById("track");
-      const capTop = cap ? cap.offsetTop : 2200;
-
-      if (y > doc - 1400) setMode("end");
-      else if (y > capTop - window.innerHeight * 0.6) setMode("index");
-      else if (y > heroBottom + 200) setMode("gap");
-      else setMode("hero");
-
-      let cur = "";
-      for (const s of INDEX) {
-        const el = document.getElementById(s.id);
-        if (el && el.getBoundingClientRect().top < window.innerHeight * 0.45) cur = s.id;
+      let current = "hero";
+      for (const item of INDEX) {
+        const element = document.getElementById(item.id);
+        if (element && element.getBoundingClientRect().top < window.innerHeight * 0.48) {
+          current = item.id;
+        }
       }
-      setActive(cur);
+      setActive(current);
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -43,70 +30,54 @@ export default function Sidebar() {
   }, []);
 
   return (
-    <aside className="fixed left-0 top-0 z-40 hidden h-screen w-[220px] flex-col border-r border-[#2e2e2e] bg-[#1d1d1d] lg:flex">
-      {/* logo block */}
-      <a href="#hero" className="relative block h-[74px] shrink-0 bg-[#fa6c34]" style={{ clipPath: "polygon(0 0,100% 0,100% calc(100% - 16px),calc(100% - 16px) 100%,0 100%)" }}>
-        <span className="absolute inset-0 flex items-center justify-center">
-          <LogoMark />
+    <aside className="fixed left-0 top-0 z-40 hidden h-screen w-[220px] flex-col border-r border-[#34312f] bg-[#1a1918] lg:flex">
+      <a href="#hero" className="flex h-[84px] shrink-0 items-center gap-3 border-b border-[#34312f] px-5">
+        <span className="clip-btn-sm flex h-11 w-11 items-center justify-center bg-[#fa6c34]">
+          <img src="/logo.svg" alt="" className="h-6 w-6" />
+        </span>
+        <span>
+          <span className="block text-[15px] font-semibold tracking-[-0.02em] text-[#f4ece4]">ChainScout</span>
+          <span className="mt-1 block font-mono-d text-[7.5px] tracking-[0.14em] text-[#9a938a]">PRIVATE ASSET WORKSPACE</span>
         </span>
       </a>
 
-      {mode === "hero" && (
-        <div className="flex flex-1 flex-col justify-end">
-          <div className="px-6 pb-6 font-mono-d text-[12px] leading-5 text-[#9a938a]">
-            One place for<br />assets + context:
-          </div>
-          {["blockscout", "robinhood", "local-vault"].map((k) => (
-            <div key={k} className="flex h-[120px] items-center justify-center border-t border-[#2e2e2e]">
-              {k === "blockscout" && (
-                <svg width="46" height="26" viewBox="0 0 46 26"><g fill="#635d5a"><path d="M0 26 8 0h8L8 26Z"/><path d="M15 26 23 0h8l-8 26Z"/><path d="M30 26 38 0h8l-8 26Z"/></g></svg>
-              )}
-              {k === "robinhood" && (
-                <svg width="40" height="34" viewBox="0 0 40 34" stroke="#635d5a" fill="none" strokeWidth="2"><path d="M20 2 38 11 20 20 2 11Z"/><path d="M2 18 20 27 38 18"/><path d="M6 25l14 7 14-7"/></svg>
-              )}
-              {k === "local-vault" && (
-                <svg width="42" height="30" viewBox="0 0 42 30" stroke="#635d5a" fill="none" strokeWidth="2"><ellipse cx="21" cy="15" rx="18" ry="8"/><ellipse cx="21" cy="15" rx="18" ry="8" transform="rotate(60 21 15)"/><ellipse cx="21" cy="15" rx="18" ry="8" transform="rotate(-60 21 15)"/></svg>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="px-5 pb-5 pt-7">
+        <p className="text-[12px] leading-[1.65] text-[#a9a098]">
+          Understand public activity. Keep ownership context encrypted on this device.
+        </p>
+      </div>
 
-      {mode === "gap" && <div className="flex-1" />}
-
-      {mode === "index" && (
-        <nav className="flex flex-1 flex-col justify-center">
-          {INDEX.map((s) => (
+      <nav className="border-y border-[#34312f]" aria-label="Homepage sections">
+        {INDEX.map((item) => {
+          const selected = active === item.id;
+          return (
             <a
-              key={s.id}
-              href={`#${s.id}`}
-              className={`group flex items-baseline gap-3 border-t border-[#2e2e2e] px-6 py-4 font-mono-d text-[13px] transition-colors last:border-b ${
-                active === s.id ? "text-[#e9e0d1]" : "text-[#635d5a] hover:text-[#9a938a]"
+              key={item.id}
+              href={`#${item.id}`}
+              aria-current={selected ? "location" : undefined}
+              className={`group flex min-h-[50px] items-center gap-3 border-b border-[#2d2b29] px-5 text-[12px] transition-colors last:border-b-0 ${
+                selected
+                  ? "bg-[#24211f] text-[#f4ece4]"
+                  : "text-[#99918a] hover:bg-[#211f1d] hover:text-[#e6ddd4]"
               }`}
             >
-              <span className="text-[11px]">{s.n}</span>
-              <span className="relative">
-                {s.label}
-                {active === s.id && <span className="absolute -bottom-1 left-0 h-px w-6 bg-[#e9e0d1]" />}
-              </span>
+              <span className={`font-mono-d text-[8px] ${selected ? "text-[#fa6c34]" : "text-[#9a938a]"}`}>{item.n}</span>
+              <span className="flex-1">{item.label}</span>
+              <span className={`h-1.5 w-1.5 rounded-full ${selected ? "bg-[#fa6c34]" : "bg-transparent"}`} />
             </a>
-          ))}
-        </nav>
-      )}
+          );
+        })}
+      </nav>
 
-      {mode === "end" && (
-        <div className="flex flex-1 flex-col items-center justify-center gap-7">
-          <a href="#hero" className="font-mono-d text-[12px] text-[#9a938a] hover:text-[#e9e0d1]">⌃ Back to top</a>
-          {["EVM L2", "4663", "V1"].map((b) => (
-            <div key={b} className="flex flex-col items-center gap-2">
-              <span className="flex h-12 w-12 items-center justify-center rounded-full border border-[#383838] text-[9px] font-mono-d text-[#635d5a]">
-                {b === "EVM L2" ? "ARB" : b === "4663" ? "CHAIN" : "BETA"}
-              </span>
-              <span className="font-mono-d text-[11px] text-[#9a938a]">{b}</span>
-            </div>
-          ))}
+      <div className="mt-auto space-y-3 border-t border-[#34312f] p-5">
+        <div className="rounded-sm border border-[#34312f] bg-[#201e1c] p-4">
+          <p className="font-mono-d text-[8px] tracking-[0.13em] text-[#fa6c34]">FOUNDER BETA</p>
+          <p className="mt-2 text-[11px] leading-relaxed text-[#9f9790]">Available tools are separated from coming-soon adapters.</p>
         </div>
-      )}
+        <Link to="/guide" className="flex min-h-[42px] items-center justify-between border border-[#4a4541] px-4 text-[11px] text-[#d6ccc2] transition-colors hover:border-[#fa6c34] hover:text-[#fff7ef]">
+          Start guide <ArrowUpRight size={13} />
+        </Link>
+      </div>
     </aside>
   );
 }

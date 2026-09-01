@@ -1,177 +1,197 @@
-import {
-  ArrowRight,
-  Boxes,
-  Coins,
-  GalleryVerticalEnd,
-  Gem,
-  Image,
-  Landmark,
-  LockKeyhole,
-  ShieldCheck,
-} from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, Boxes, LockKeyhole, Search, ShieldCheck } from "lucide-react";
 import { Link } from "react-router";
 
-const CATEGORIES = [
-  "CRYPTO",
-  "NFTS",
-  "TOKENIZED ASSETS",
-  "POKÉMON / TCG",
-  "COLLECTIBLES",
-  "ANY MANUAL ASSET",
+const CATEGORIES = ["CRYPTO", "NFTS", "TOKENIZED ASSETS", "POKÉMON / TCG", "COLLECTIBLES", "ANY MANUAL ASSET"];
+
+const LAYERS = [
+  {
+    n: "01",
+    title: "Track what you own",
+    icon: Boxes,
+    items: [
+      "Crypto, NFTs, tokenized assets, cards, and anything else.",
+      "Record exact purchase lots, notes, photos, and dated values.",
+      "Keep the private ownership context encrypted on this device.",
+    ],
+  },
+  {
+    n: "02",
+    title: "Understand public activity",
+    icon: Search,
+    items: [
+      "Paste a wallet, transaction, token, or contract.",
+      "Read source-linked explanations instead of raw explorer screens.",
+      "Public lookups remain read-only and never sign transactions.",
+    ],
+  },
+  {
+    n: "03",
+    title: "Build private context",
+    icon: LockKeyhole,
+    items: [
+      "Unlock the Vault only when you need it.",
+      "Your labels, lots, photos, and reference values stay local.",
+      "Export an encrypted backup for recovery and portability.",
+    ],
+  },
+  {
+    n: "04",
+    title: "Verify before you act",
+    icon: ShieldCheck,
+    items: [
+      "Separate owner-entered records from public provider facts.",
+      "Show limitations, timestamps, and source links beside results.",
+      "Use official external tools for any execution or checkout.",
+    ],
+  },
 ];
 
-const RECORDS = [
-  {
-    icon: Coins,
-    type: "CRYPTO · PUBLIC SNAPSHOT",
-    name: "WETH + USDG",
-    detail: "Anchored holdings · local lots",
-    color: "#fa6c34",
-  },
-  {
-    icon: Image,
-    type: "NFT · VERIFIED HOLDING",
-    name: "ERC-721 / ERC-1155",
-    detail: "Token IDs · encrypted notes",
-    color: "#7cc4f8",
-  },
-  {
-    icon: Landmark,
-    type: "TOKENIZED ASSET · CITED",
-    name: "AAPL Stock Token",
-    detail: "Oracle · claims · limits",
-    color: "#c9a6ff",
-  },
-  {
-    icon: Gem,
-    type: "POKÉMON / TCG · OWNER RECORD",
-    name: "Charizard · Base Set 4/102",
-    detail: "Condition · grade · dated values",
-    color: "#7fb069",
-  },
-];
+function AssetDiagram() {
+  const label = (x1: number, y1: number, x2: number, text: string, side: "left" | "right" = "right") => (
+    <g stroke="#d8cec5" strokeWidth="1" opacity="0.92">
+      <line x1={x1} y1={y1} x2={x2} y2={y1} />
+      <circle cx={x1} cy={y1} r="2.7" fill="#fa6c34" stroke="none" />
+      <circle cx={x2} cy={y1} r="2.4" fill="#d8cec5" stroke="none" />
+      <text
+        x={side === "right" ? x2 + 9 : x2 - 9}
+        y={y1 + 4}
+        fill="#d8cec5"
+        stroke="none"
+        textAnchor={side === "right" ? "start" : "end"}
+        fontSize="10"
+        fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace"
+        letterSpacing="1.2"
+      >
+        {text}
+      </text>
+    </g>
+  );
+
+  return (
+    <svg viewBox="0 0 620 720" className="h-full w-full" fill="none" role="img" aria-label="Illustrative stack linking crypto, NFTs, tokenized assets, and physical collectibles into one private local view">
+      <line x1="310" y1="25" x2="310" y2="688" stroke="#665f59" strokeWidth="1" strokeDasharray="2 6" />
+      <circle className="hero-geo-node" cx="310" cy="28" r="4" fill="#fa6c34" />
+
+      <g data-hero-shape className="hero-geo-layer hero-geo-layer-a">
+        <path d="M310 62 430 132 310 202 190 132Z" fill="#fa6c34" fillOpacity="0.08" stroke="#f0e8df" strokeWidth="1.2" />
+        <path d="M190 132 310 202 430 132M310 62V202" stroke="#8f8780" strokeWidth="1" opacity="0.7" />
+        <path d="M228 132 310 84 392 132 310 180Z" stroke="#fa6c34" strokeWidth="1" opacity="0.7" />
+        {label(430, 132, 492, "CRYPTO")}
+      </g>
+
+      <g data-hero-shape className="hero-geo-layer hero-geo-layer-b">
+        <path d="M310 216 488 320 310 424 132 320Z" stroke="#8f8780" strokeWidth="1" opacity="0.55" />
+        <circle cx="310" cy="320" r="104" fill="#201f1e" fillOpacity="0.72" stroke="#f0e8df" strokeWidth="1.2" />
+        <ellipse className="hero-geo-orbit" cx="310" cy="320" rx="104" ry="34" stroke="#fa6c34" strokeWidth="1.2" opacity="0.78" />
+        <ellipse cx="310" cy="320" rx="34" ry="104" stroke="#706860" strokeWidth="1" opacity="0.72" />
+        <circle cx="310" cy="320" r="18" fill="#fa6c34" fillOpacity="0.12" stroke="#fa6c34" />
+        {label(206, 320, 112, "NFTS", "left")}
+      </g>
+
+      <g data-hero-shape className="hero-geo-layer hero-geo-layer-c">
+        <path d="M216 460 310 404 404 460 404 544 310 600 216 544Z" fill="#fa6c34" fillOpacity="0.08" stroke="#f0e8df" strokeWidth="1.2" />
+        <path d="M216 460 310 516 404 460M310 516V600" stroke="#8f8780" strokeWidth="1" />
+        <ellipse cx="310" cy="458" rx="28" ry="11" stroke="#fa6c34" strokeWidth="1.2" />
+        <path d="M282 458V480C282 486 295 491 310 491S338 486 338 480V458" stroke="#fa6c34" opacity="0.72" />
+        {label(404, 460, 492, "TOKENIZED")}
+      </g>
+
+      <g data-hero-shape className="hero-geo-layer hero-geo-layer-d">
+        <path d="M218 628 310 576 402 628 310 680Z" fill="#252321" stroke="#f0e8df" strokeWidth="1.2" />
+        <path d="M246 643 310 607 374 643 310 679Z" stroke="#fa6c34" strokeWidth="1" opacity="0.82" />
+        <path d="M192 660 310 594 428 660" stroke="#706860" strokeWidth="1" opacity="0.72" />
+        {label(218, 628, 112, "POKÉMON CARDS", "left")}
+        {label(402, 628, 492, "COLLECTIBLES")}
+      </g>
+
+      <g className="font-mono-d">
+        <rect x="248" y="337" width="124" height="34" rx="17" fill="#181716" stroke="#4a443f" />
+        <text x="310" y="358" textAnchor="middle" fill="#f0e8df" fontSize="9" letterSpacing="1.3">ONE LOCAL VIEW</text>
+      </g>
+    </svg>
+  );
+}
 
 export default function Hero() {
+  const [open, setOpen] = useState(0);
+
   return (
-    <section
-      id="hero"
-      className="relative grid min-h-[calc(100vh-60px)] grid-cols-1 overflow-hidden border-b border-[#2e2e2e] xl:grid-cols-[0.98fr_1.02fr]"
-    >
-      <div className="relative border-r border-[#2e2e2e] px-6 pb-14 pt-20 sm:px-8 md:px-12 md:pt-28">
-        <div className="pointer-events-none absolute -left-36 top-24 h-80 w-80 rounded-full bg-[#fa6c34]/[0.08] blur-3xl" />
-        <div data-home-reveal className="relative mb-9 flex max-w-[650px] items-center gap-3 border-y border-[#2e2e2e] py-3">
+    <section id="hero" className="grid grid-cols-1 overflow-hidden border-b border-[#34312f] xl:grid-cols-[0.96fr_1.04fr]">
+      <div className="relative border-r border-[#34312f] px-6 pb-14 pt-20 sm:px-8 md:px-12 md:pt-24 xl:px-16">
+        <div data-hero-reveal className="relative mb-9 flex max-w-[680px] items-center gap-3 border-y border-[#34312f] py-3">
           <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-[#fa6c34]" />
-          <span className="font-mono-d text-[10px] tracking-[0.14em] text-[#b7aea2] sm:text-[11px]">
-            PRIVATE MULTI-ASSET COMMAND CENTER · ROBINHOOD CHAIN
-          </span>
-          <span className="hatch h-3 flex-1 opacity-60" />
+          <span className="font-mono-d text-[9px] tracking-[0.14em] text-[#b7aea2] sm:text-[10px]">PRIVATE MULTI-ASSET COMMAND CENTER</span>
+          <span className="hatch h-3 flex-1 opacity-45" />
         </div>
 
-        <h1 data-home-reveal className="max-w-[720px] text-[42px] font-medium leading-[0.98] tracking-[-0.045em] sm:text-[58px] md:text-[72px] xl:text-[76px]">
-          <span className="text-[#f0e8da]">Know what you own.</span>
-          <br />
-          <span className="text-[#d6ccba]">Understand what happened.</span>
-          <br />
-          <span className="text-[#fa6c34]">Keep the context yours.</span>
+        <h1 className="relative max-w-[720px] overflow-hidden text-[43px] font-medium leading-[1.02] tracking-[-0.045em] sm:text-[54px] md:text-[60px] xl:text-[56px] 2xl:text-[64px]">
+          <span data-hero-line className="block text-[#f4ece4]">Know what you own.</span>
+          <span data-hero-line className="block text-[#d8cec5]">Read what happened.</span>
+          <span data-hero-line className="block text-[#fa6c34]">Keep context yours.</span>
         </h1>
 
-        <p data-home-reveal className="mt-7 max-w-[620px] text-[15px] leading-[1.75] text-[#b7aea2]">
-          Track crypto, NFTs, tokenized assets, Pokémon cards, collectibles,
-          and anything else in one encrypted local Vault—then use source-linked
-          tools to understand public chain activity.
+        <p data-hero-reveal className="relative mt-7 max-w-[610px] text-[15px] leading-[1.75] text-[#aaa19a]">
+          One private place for crypto, NFTs, tokenized assets, Pokémon cards,
+          collectibles, and anything else you own—plus source-linked tools for
+          the public activity around them.
         </p>
 
-        <div data-home-reveal className="mt-7 flex max-w-[650px] flex-wrap gap-2">
+        <div data-hero-reveal className="relative mt-7 flex max-w-[680px] flex-wrap gap-2">
           {CATEGORIES.map((category) => (
-            <span key={category} className="border border-[#fa6c34]/25 bg-[#fa6c34]/[0.06] px-3 py-2 font-mono-d text-[8px] tracking-[0.12em] text-[#d6ccba] sm:text-[9px]">
+            <span key={category} className="border border-[#fa6c34]/25 bg-[#fa6c34]/[0.05] px-3 py-2 font-mono-d text-[8px] tracking-[0.1em] text-[#d8cec5]">
               {category}
             </span>
           ))}
         </div>
 
-        <div data-home-reveal className="mt-9 grid max-w-[650px] gap-3 sm:grid-cols-2">
-          <Link to="/vault?view=assets" className="clip-btn flex min-h-[58px] items-center justify-center gap-3 bg-[#fa6c34] px-5 font-mono-d text-[11px] font-semibold tracking-wide text-[#1d1d1d] transition-colors hover:bg-[#ff7d48]">
+        <div data-hero-reveal className="relative mt-8 grid max-w-[650px] gap-3 sm:grid-cols-2">
+          <Link to="/vault?view=assets" className="clip-btn flex min-h-[58px] items-center justify-center gap-3 bg-[#fa6c34] px-5 font-mono-d text-[10px] font-semibold tracking-wide text-[#1d1d1d] transition-colors hover:bg-[#ff7d48]">
             <LockKeyhole size={15} /> OPEN PRIVATE VAULT
           </Link>
-          <Link to="/app" className="clip-btn flex min-h-[58px] items-center justify-center gap-3 border border-[#fa6c34]/45 bg-[#fa6c34]/[0.04] px-5 font-mono-d text-[11px] font-medium tracking-wide text-[#f0e8da] transition-colors hover:border-[#fa6c34] hover:bg-[#fa6c34]/10">
-            EXPLAIN A WALLET OR TX <ArrowRight size={14} />
+          <Link to="/app" className="clip-btn flex min-h-[58px] items-center justify-center gap-3 border border-[#514a45] px-5 font-mono-d text-[10px] font-medium tracking-wide text-[#f0e8df] transition-colors hover:border-[#fa6c34] hover:bg-[#fa6c34]/5">
+            TRY THE EXPLORER <ArrowRight size={14} />
           </Link>
         </div>
 
-        <div data-home-reveal className="mt-8 flex max-w-[650px] flex-wrap gap-x-7 gap-y-3 border-t border-[#2e2e2e] pt-5 font-mono-d text-[8.5px] tracking-[0.1em] text-[#9a938a]">
-          <span className="flex items-center gap-2"><ShieldCheck size={12} className="text-[#7fb069]" /> READ-ONLY PUBLIC TOOLS</span>
-          <span className="flex items-center gap-2"><LockKeyhole size={12} className="text-[#7fb069]" /> LOCAL AES-256-GCM VAULT</span>
-          <span className="flex items-center gap-2"><Boxes size={12} className="text-[#7fb069]" /> EXPORTABLE ENCRYPTED BACKUP</span>
+        <div data-hero-reveal className="relative mt-12 max-w-[650px]">
+          {LAYERS.map((layer, index) => (
+            <div key={layer.n} className="border-t border-[#34312f] last:border-b">
+              <button
+                type="button"
+                aria-expanded={open === index}
+                onClick={() => setOpen(open === index ? -1 : index)}
+                className="flex min-h-[58px] w-full items-center gap-4 py-4 text-left"
+              >
+                <span className="font-mono-d text-[9px] text-[#9a938a]">{layer.n}</span>
+                <layer.icon size={14} className="text-[#fa6c34]" />
+                <span className="flex-1 text-[14px] text-[#e9e0d8]">{layer.title}</span>
+                <span className={`text-[15px] text-[#9a938a] transition-transform ${open === index ? "rotate-45" : ""}`}>+</span>
+              </button>
+              {open === index && (
+                <ul className="pb-5 pl-[72px] pr-4">
+                  {layer.items.map((item) => (
+                    <li key={item} className="flex items-start gap-3 py-1.5 text-[12px] leading-relaxed text-[#9a938a]">
+                      <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-[#fa6c34]" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))}
         </div>
       </div>
 
-      <div data-home-reveal className="dots relative flex min-h-[660px] items-center justify-center overflow-hidden bg-[#191919] p-5 sm:p-8 md:p-12">
-        <div className="pointer-events-none absolute right-[-20%] top-[-10%] h-[520px] w-[520px] rounded-full border border-[#fa6c34]/15" />
-        <div className="pointer-events-none absolute right-[-5%] top-[5%] h-[420px] w-[420px] rounded-full border border-[#c9a6ff]/10" />
-        <div className="clip-panel relative w-full max-w-[700px] border border-[#4a4642] bg-[#202020]/95 shadow-[0_30px_90px_rgba(0,0,0,0.35)]">
-          <div className="flex items-center justify-between border-b border-[#383838] px-4 py-4 sm:px-5">
-            <div>
-              <p className="font-mono-d text-[8px] tracking-[0.16em] text-[#fa6c34]">ENCRYPTED VAULT · LOCAL ONLY</p>
-              <p className="mt-1 text-[13px] font-medium text-[#f0e8da]">Your asset command center</p>
-            </div>
-            <span className="flex items-center gap-2 border border-[#7fb069]/30 bg-[#7fb069]/5 px-3 py-2 font-mono-d text-[8px] text-[#9fc68f]"><LockKeyhole size={11} /> UNLOCKED</span>
-          </div>
-          <div className="grid grid-cols-2 gap-px bg-[#383838] sm:grid-cols-4">
-            <MiniMetric label="RECORD TYPES" value="CRYPTO → TCG" />
-            <MiniMetric label="PURCHASE LOTS" value="EXACT DECIMALS" />
-            <MiniMetric label="VALUE SOURCES" value="DATED · MANUAL" />
-            <MiniMetric label="SERVER COPY" value="NONE" accent />
-          </div>
-          <div className="p-4 sm:p-5">
-            <div className="mb-4 flex items-center justify-between">
-              <p className="font-mono-d text-[8px] tracking-[0.14em] text-[#9a938a]">TRACKED RECORDS · EXAMPLE LAYOUT</p>
-              <GalleryVerticalEnd size={14} className="text-[#635d5a]" />
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {RECORDS.map((record, index) => (
-                <article key={record.name} className="group relative overflow-hidden border border-[#383838] bg-[#242424] p-4 transition-colors hover:border-[#5a534d]">
-                  <div className="absolute inset-y-0 left-0 w-[3px]" style={{ backgroundColor: record.color }} />
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="font-mono-d text-[7px] tracking-[0.12em] text-[#7f7972]">{record.type}</p>
-                      <h2 className="mt-2 text-[14px] font-medium text-[#f0e8da]">{record.name}</h2>
-                      <p className="mt-2 text-[9px] text-[#9a938a]">{record.detail}</p>
-                    </div>
-                    <record.icon size={17} style={{ color: record.color }} />
-                  </div>
-                  <div className="mt-4 flex items-center gap-2">
-                    {[0, 1, 2, 3, 4, 5].map((bar) => (
-                      <span key={bar} className="block h-[2px] flex-1" style={{ backgroundColor: `${record.color}${bar <= index + 1 ? "cc" : "25"}` }} />
-                    ))}
-                  </div>
-                </article>
-              ))}
-            </div>
-            <div className="mt-4 border border-[#fa6c34]/25 bg-[#fa6c34]/[0.04] p-4">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="font-mono-d text-[7.5px] tracking-[0.13em] text-[#fa6c34]">COLLECTIBLE VALUE HISTORY</p>
-                  <p className="mt-2 text-[9.5px] leading-relaxed text-[#9a938a]">Purchase lots + owner-entered dated references. Never presented as a live market feed.</p>
-                </div>
-                <div className="flex h-14 w-32 items-end gap-1.5 border-b border-l border-[#4a4642] px-2 pb-1">
-                  {[18, 30, 25, 42, 36, 51, 47].map((height, index) => (
-                    <span key={height} className="w-full bg-[#fa6c34]" style={{ height, opacity: 0.38 + index * 0.08 }} />
-                  ))}
-                </div>
-              </div>
-            </div>
+      <div data-hero-art className="dots relative hidden items-start justify-center overflow-hidden bg-[#181716] px-8 xl:flex">
+        <div className="sticky top-[60px] flex h-[calc(100vh-60px)] min-h-[660px] max-h-[820px] w-full items-center justify-center">
+          <div className="pointer-events-none absolute left-0 top-8 font-mono-d text-[8px] tracking-[0.16em] text-[#9a938a]">ILLUSTRATIVE ASSET STACK</div>
+          <div className="pointer-events-none absolute bottom-8 right-0 font-mono-d text-[8px] tracking-[0.16em] text-[#fa6c34]">PRIVATE CONTEXT · PUBLIC EVIDENCE</div>
+          <div className="relative h-full max-h-[740px] w-full max-w-[640px]">
+            <AssetDiagram />
           </div>
         </div>
       </div>
     </section>
-  );
-}
-
-function MiniMetric({ label, value, accent = false }: { label: string; value: string; accent?: boolean }) {
-  return (
-    <div className="bg-[#1d1d1d] px-3 py-4">
-      <p className="font-mono-d text-[6.5px] tracking-[0.12em] text-[#635d5a]">{label}</p>
-      <p className={`mt-2 font-mono-d text-[8px] ${accent ? "text-[#7fb069]" : "text-[#d6ccba]"}`}>{value}</p>
-    </div>
   );
 }

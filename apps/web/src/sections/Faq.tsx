@@ -15,10 +15,10 @@ const QA = [
 export default function Faq() {
   const [open, setOpen] = useState(0);
   return (
-    <section id="faq" data-home-reveal className="border-b border-[#2e2e2e] px-5 py-20 sm:px-8 md:px-12 md:py-28">
+    <section id="faq" data-home-reveal className="border-b border-[#34312f] px-5 py-20 sm:px-8 md:px-12 md:py-24 xl:px-16">
       <SectionHeader eyebrow="QUICK ANSWERS" title={<>The questions<br />people ask first.</>} copy="The short version is here. The full Guide explains workflows; Technical Docs covers architecture, privacy boundaries, providers, and exact API behavior." />
-      <div className="mt-14 grid gap-8 xl:grid-cols-[0.7fr_1.3fr]">
-        <aside className="clip-panel h-fit border border-[#383838] bg-[#202020] p-6 sm:p-8">
+      <div className="mt-12 grid gap-6 xl:grid-cols-[0.68fr_1.32fr]">
+        <aside className="h-fit rounded-[4px] border border-[#3a3633] bg-[#201e1c] p-6 sm:p-7">
           <p className="font-mono-d text-[9px] tracking-[0.14em] text-[#fa6c34]">GO DEEPER</p>
           <p className="mt-4 text-[13px] leading-relaxed text-[#9a938a]">See the current-build matrix, step-by-step workflows, technical internals, privacy constraints, and API contracts.</p>
           <div className="mt-6 grid gap-2">
@@ -31,7 +31,7 @@ export default function Faq() {
           {QA.map((item, index) => {
             const expanded = open === index;
             return (
-              <article key={item.q} className="border border-[#383838] bg-[#202020]">
+              <article key={item.q} className="rounded-[3px] border border-[#3a3633] bg-[#201e1c]">
                 <button type="button" aria-expanded={expanded} onClick={() => setOpen(expanded ? -1 : index)} className="flex min-h-[64px] w-full items-center justify-between gap-6 px-5 py-4 text-left sm:px-6">
                   <span className="text-[14px] font-medium text-[#e9e0d1]">{item.q}</span>
                   <span className={`flex h-8 w-8 shrink-0 items-center justify-center border ${expanded ? "border-[#fa6c34] bg-[#fa6c34] text-[#1d1d1d]" : "border-[#4a4642] text-[#9a938a]"}`}>{expanded ? <Minus size={13} /> : <Plus size={13} />}</span>

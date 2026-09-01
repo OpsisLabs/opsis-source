@@ -29,12 +29,15 @@ test("desktop product rail explains and switches between every live workspace", 
   );
   await expect(rail.locator('[data-feature="scout-swap"]')).toHaveCSS(
     "border-top-color",
-    "rgba(250, 108, 52, 0.3)",
+    "rgb(55, 51, 48)",
   );
   await expect(
-    rail.getByRole("button", { name: "About live swap previews" }),
+    rail.locator('[data-feature="scout-swap"] a > span').first(),
   ).toHaveCSS("color", "rgb(250, 108, 52)");
-  await expect(page.locator("[data-route-sweep]")).toHaveCount(1);
+  await expect(
+    rail.getByRole("button", { name: "About live swap previews" }),
+  ).toHaveCSS("color", "rgb(143, 131, 123)");
+  await expect(page.locator("[data-route-content]")).toBeVisible();
 
   await rail.getByRole("button", { name: "About live swap previews" }).click();
   await expect(
@@ -83,7 +86,7 @@ test("desktop product rail explains and switches between every live workspace", 
 
   const tourButton = rail.getByRole("button", { name: /60-second tour/i });
   await expect(tourButton).toHaveCSS("background-color", "rgb(250, 108, 52)");
-  await expect(tourButton.getByText(/See how it fits together/i)).toHaveCSS("color", "rgb(50, 25, 16)");
+  await expect(tourButton.getByText(/A clear 60-second overview/i)).toHaveCSS("color", "rgb(72, 33, 22)");
   await tourButton.click();
   const tour = page.getByRole("dialog", { name: "ChainScout product tour" });
   await expect(tour).toBeVisible();
@@ -242,7 +245,7 @@ test("mobile feature drawer traps focus, explains tools, and preserves navigatio
   ).toBeVisible();
 
   await trigger.click();
-  await expect(drawer.getByRole("link", { name: "TECH DOCS" })).toBeVisible();
+  await expect(drawer.getByRole("link", { name: "Docs" })).toBeVisible();
   await expect(drawer.getByRole("link", { name: "FAQ" })).toBeVisible();
   await drawer.getByRole("button", { name: /Open the ChainScout 60-second tour/i }).click();
   const tour = page.getByRole("dialog", { name: "ChainScout product tour" });

@@ -15,11 +15,17 @@ export default function Home() {
   const pageRef = useRef<HTMLDivElement>(null);
   useGSAP(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const heroTimeline = gsap.timeline({ defaults: { ease: "power3.out" } });
+    heroTimeline
+      .fromTo("[data-hero-reveal]", { y: 18, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.55, stagger: 0.08 })
+      .fromTo("[data-hero-line]", { yPercent: 115, rotate: 1.5 }, { yPercent: 0, rotate: 0, duration: 0.72, stagger: 0.09 }, "<0.04")
+      .fromTo("[data-hero-art]", { x: 26, autoAlpha: 0, scale: 0.975 }, { x: 0, autoAlpha: 1, scale: 1, duration: 0.82 }, "<0.1")
+      .fromTo("[data-hero-shape]", { scale: 0.84, autoAlpha: 0, transformOrigin: "50% 50%" }, { scale: 1, autoAlpha: 1, duration: 0.58, stagger: 0.09, clearProps: "transform,opacity,visibility" }, "<0.15");
     const elements = gsap.utils.toArray<HTMLElement>("[data-home-reveal]", pageRef.current);
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (!entry.isIntersecting) return;
-        gsap.fromTo(entry.target, { y: 24 }, { y: 0, duration: 0.65, ease: "power2.out", clearProps: "transform" });
+        gsap.fromTo(entry.target, { y: 16, autoAlpha: 0.72 }, { y: 0, autoAlpha: 1, duration: 0.5, ease: "power2.out", clearProps: "transform,opacity,visibility" });
         observer.unobserve(entry.target);
       });
     }, { threshold: 0.08 });

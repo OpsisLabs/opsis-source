@@ -8,6 +8,7 @@ import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type Key
 import { createPortal } from "react-dom";
 import { collectibleDetail, searchCollectibles, type CatalogSearch } from "./api";
 import { fileToVaultPhoto, MAX_SOURCE_PHOTO_BYTES } from "../vault/photo";
+import { catalogImageToVaultPhoto } from "./catalog-image";
 import type {
   VaultAssetDraft,
   VaultCollectibleCondition,
@@ -106,7 +107,7 @@ export function CollectibleCatalogPanel({ context, sessionId, onSaveContext, onS
       providerDestinations: ["TCGdex"],
       disclosure: request.operation === "search"
         ? "ChainScout receives the confirmed English card name, optional collector number, and optional set ID. TCGdex receives only the name and optional collector number. Ownership and other private fields remain encrypted in this browser."
-        : "ChainScout and TCGdex receive the selected public card ID. Ownership and other private fields remain encrypted in this browser.",
+        : "ChainScout and TCGdex receive the selected public card ID. TCGdex returns allowlisted identity metadata and a catalog image path; the browser fetches the low-resolution image directly without cookies or a referrer. Ownership and other private fields remain encrypted in this browser.",
       approvedAt: new Date().toISOString(),
       outcome: "approved"
     };
@@ -150,7 +151,7 @@ export function CollectibleCatalogPanel({ context, sessionId, onSaveContext, onS
           <div>
             <p className="flex items-center gap-2 font-mono-d text-[9.5px] tracking-[0.15em] text-[#fa6c34]"><BookOpenCheck size={14} /> COLLECTIBLE CATALOG</p>
             <h2 className="mt-3 text-[26px] font-medium tracking-[-0.025em] text-[#f0e8da]">Match the card. Keep ownership private.</h2>
-            <p className="mt-3 max-w-[760px] text-[12.5px] leading-relaxed text-[#9a938a]">TCGdex supplies English card and set identity only. Printing or variant, condition, grade, certificate, value, authenticity, and inventory remain owner claims. Artwork and marketplace prices are not requested.</p>
+            <p className="mt-3 max-w-[760px] text-[12.5px] leading-relaxed text-[#9a938a]">TCGdex supplies English card and set identity plus an optional low-resolution catalog thumbnail. ChainScout sanitizes that image locally before it enters the encrypted Vault. Printing or variant, condition, grade, certificate, value, authenticity, and inventory remain owner claims; marketplace prices are not requested.</p>
           </div>
           <button type="button" onClick={onManual} className="min-h-[42px] border border-[#4a4743] px-4 font-mono-d text-[9px] tracking-wider text-[#d6ccba] hover:border-[#fa6c34]">ADD WITHOUT CATALOG</button>
         </div>
@@ -245,9 +246,9 @@ function PermissionDialog({ pending, returnFocus, onCancel, onConfirm }: { pendi
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <PrivacyFact title="ENCRYPTED LOCALLY" text="Permission attempt, ownership fields, photos, costs, notes, grades, certificates, and manual values." />
-          <PrivacyFact title="NOT REQUESTED" text="No account, wallet, AI model, artwork, marketplace price, printing claim, or server-stored catalog result." />
+          <PrivacyFact title="NOT REQUESTED" text={pending.operation === "search" ? "No account, wallet, AI model, artwork, marketplace price, printing claim, or server-stored catalog result." : "No account, wallet, AI model, marketplace price, printing claim, ownership field, or server-stored catalog result."} />
         </div>
-        <p className="mt-4 text-[11px] leading-relaxed text-[#9a938a]">ChainScout uses a field-selective GraphQL request for identity metadata, so artwork and marketplace fields are never requested or received. The encrypted permission attempt is saved before the request. A catalog match is not proof that your physical card is authentic or currently worth any amount.</p>
+        <p className="mt-4 text-[11px] leading-relaxed text-[#9a938a]">{pending.operation === "search" ? "Search requests only card IDs, collector numbers, and names—no artwork or marketplace fields." : "The detail request adds only the catalog image base. If supplied, your browser fetches its low-resolution image from TCGdex without credentials or a referrer, then strips metadata and re-encodes it locally."} The encrypted permission attempt is saved before the request. A catalog match or thumbnail is not proof that your physical card is authentic or currently worth any amount.</p>
         <div className="mt-6 flex gap-3">
           <button type="button" onClick={onCancel} className="min-h-[44px] flex-1 border border-[#4a4743] font-mono-d text-[9px] text-[#9a938a]">CANCEL</button>
           <button type="button" onClick={onConfirm} className="clip-btn-sm flex min-h-[44px] flex-1 items-center justify-center gap-2 bg-[#fa6c34] font-mono-d text-[9px] font-medium text-[#1d1d1d]"><ShieldCheck size={13} /> SAVE RECEIPT + LOOK UP</button>
@@ -286,11 +287,63 @@ function CollectibleOwnerForm({ card, busy: parentBusy, sessionId, onSave, onBac
   const [referenceUrl, setReferenceUrl] = useState("");
   const [referenceLabel, setReferenceLabel] = useState("");
   const [photo, setPhoto] = useState<VaultPhoto>();
-  const [photoBusy, setPhotoBusy] = useState(false);
+  const [photoSource, setPhotoSource] = useState<"owner_supplied" | "tcgdex_catalog" | null>(null);
+  const [photoBusy, setPhotoBusy] = useState(Boolean(card.imageUrl));
+  const [photoNotice, setPhotoNotice] = useState(card.imageUrl ? "FETCHING + SANITIZING CATALOG THUMBNAIL…" : "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const photoRequestRef = useRef(0);
   const graded = grader !== "ungraded";
+
+  const loadCatalogThumbnail = async () => {
+    if (!card.imageUrl) return;
+    const requestId = ++photoRequestRef.current;
+    const controller = new AbortController();
+    setPhotoBusy(true);
+    setPhotoNotice("FETCHING + SANITIZING CATALOG THUMBNAIL…");
+    try {
+      const next = await catalogImageToVaultPhoto(card.imageUrl, card.catalogId, controller.signal);
+      if (photoRequestRef.current === requestId) {
+        setPhoto(next);
+        setPhotoSource("tcgdex_catalog");
+        setPhotoNotice("CATALOG THUMBNAIL READY · SANITIZED LOCALLY");
+      }
+    } catch (thumbnailError) {
+      if (photoRequestRef.current === requestId && !(thumbnailError instanceof DOMException && thumbnailError.name === "AbortError")) {
+        setPhotoNotice("Catalog thumbnail unavailable. You can still add an owner photo or save without one.");
+      }
+    } finally {
+      if (photoRequestRef.current === requestId) setPhotoBusy(false);
+    }
+    return () => controller.abort();
+  };
+
+  useEffect(() => {
+    if (!card.imageUrl) return;
+    const requestId = ++photoRequestRef.current;
+    const controller = new AbortController();
+    const start = window.setTimeout(() => {
+      void catalogImageToVaultPhoto(card.imageUrl!, card.catalogId, controller.signal)
+        .then((next) => {
+          if (photoRequestRef.current !== requestId) return;
+          setPhoto(next);
+          setPhotoSource("tcgdex_catalog");
+          setPhotoNotice("CATALOG THUMBNAIL READY · SANITIZED LOCALLY");
+        })
+        .catch((thumbnailError: unknown) => {
+          if (photoRequestRef.current !== requestId || (thumbnailError instanceof DOMException && thumbnailError.name === "AbortError")) return;
+          setPhotoNotice("Catalog thumbnail unavailable. You can still add an owner photo or save without one.");
+        })
+        .finally(() => {
+          if (photoRequestRef.current === requestId) setPhotoBusy(false);
+        });
+    }, 0);
+    return () => {
+      window.clearTimeout(start);
+      photoRequestRef.current += 1;
+      controller.abort();
+    };
+  }, [card.catalogId, card.imageUrl]);
 
   const onPhoto = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -305,7 +358,11 @@ function CollectibleOwnerForm({ card, busy: parentBusy, sessionId, onSave, onBac
     setError("");
     try {
       const next = await fileToVaultPhoto(file);
-      if (photoRequestRef.current === requestId) setPhoto(next);
+      if (photoRequestRef.current === requestId) {
+        setPhoto(next);
+        setPhotoSource("owner_supplied");
+        setPhotoNotice("OWNER PHOTO READY · SANITIZED LOCALLY");
+      }
     } catch {
       if (photoRequestRef.current === requestId) setError("That photo could not be sanitized locally.");
     } finally {
@@ -343,7 +400,7 @@ function CollectibleOwnerForm({ card, busy: parentBusy, sessionId, onSave, onBac
           grader,
           grade,
           certificate,
-          photoSource: photo ? "owner_supplied" : null,
+          photoSource: photo ? photoSource : null,
           photoAddedAt: photo ? now : null,
           references: hasReference ? [{
             id: crypto.randomUUID(),
@@ -397,14 +454,16 @@ function CollectibleOwnerForm({ card, busy: parentBusy, sessionId, onSave, onBac
       </div>
       <div className="mt-5 flex flex-col gap-4 border-t border-[#383838] pt-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-3">
-          <label className="flex min-h-[42px] cursor-pointer items-center gap-2 border border-[#383838] px-4 font-mono-d text-[9px] text-[#9a938a] hover:text-[#f0e8da]"><ImagePlus size={13} /> {photoBusy ? "SANITIZING…" : photo ? "REPLACE OWNER PHOTO" : "ADD OWNER PHOTO"}<input aria-label="OWNER-SUPPLIED COLLECTIBLE PHOTO" type="file" accept="image/jpeg,image/png,image/webp" onChange={onPhoto} disabled={busy || photoBusy} className="sr-only" /></label>
-          {photo && <button type="button" onClick={() => { photoRequestRef.current += 1; setPhoto(undefined); }} className="font-mono-d text-[8.5px] text-[#e0738a]">REMOVE PHOTO</button>}
-          <p className="max-w-[420px] text-[10px] leading-relaxed text-[#635d5a]">Processed locally to strip metadata; never fetched from the catalog and never uploaded.</p>
+          {photo && <img src={photo.dataUrl} alt={`${card.name} sanitized thumbnail preview`} className="h-24 w-20 rounded-sm border border-[#383838] object-cover" />}
+          <label className="flex min-h-[42px] cursor-pointer items-center gap-2 border border-[#383838] px-4 font-mono-d text-[9px] text-[#9a938a] hover:text-[#f0e8da]"><ImagePlus size={13} /> {photoBusy ? "SANITIZING…" : photo ? "REPLACE WITH OWNER PHOTO" : "ADD OWNER PHOTO"}<input aria-label="OWNER-SUPPLIED COLLECTIBLE PHOTO" type="file" accept="image/jpeg,image/png,image/webp" onChange={onPhoto} disabled={busy || photoBusy} className="sr-only" /></label>
+          {photo && <button type="button" onClick={() => { photoRequestRef.current += 1; setPhoto(undefined); setPhotoSource(null); setPhotoNotice("Photo removed from this draft."); }} className="font-mono-d text-[8.5px] text-[#e0738a]">REMOVE PHOTO</button>}
+          {!photo && card.imageUrl && <button type="button" onClick={() => { void loadCatalogThumbnail(); }} disabled={photoBusy} className="font-mono-d text-[8.5px] text-[#7fb069] disabled:opacity-40">RESTORE CATALOG THUMBNAIL</button>}
+          <div className="max-w-[440px]"><p role="status" className="font-mono-d text-[8.5px] text-[#7fb069]">{photoNotice}</p><p className="mt-1 text-[10px] leading-relaxed text-[#635d5a]">Catalog images are fetched directly from TCGdex without cookies or a referrer, then re-encoded locally. Only sanitized bytes are encrypted when you save; nothing is uploaded.</p></div>
         </div>
         <button type="submit" disabled={busy || parentBusy || photoBusy} className="clip-btn-sm flex min-h-[46px] items-center justify-center gap-2 bg-[#7fb069] px-6 font-mono-d text-[9.5px] font-medium tracking-wider text-[#172015] disabled:opacity-40"><LockKeyhole size={13} /> {busy ? "ENCRYPTING…" : "SAVE PRIVATE COLLECTIBLE"}</button>
       </div>
       {error && <p role="alert" className="mt-4 text-[11px] text-[#e0738a]">{error}</p>}
-      <p className="mt-4 text-[10px] leading-relaxed text-[#635d5a]">Catalog source: <a href={card.sourceUrl} target="_blank" rel="noreferrer" className="text-[#9a938a] underline">TCGdex GraphQL</a> · <a href={card.licenseUrl} target="_blank" rel="noreferrer" className="text-[#9a938a] underline">metadata license</a>. Printing, photo, condition, grade, certificate, value, and source are owner-entered claims.</p>
+      <p className="mt-4 text-[10px] leading-relaxed text-[#635d5a]">Catalog source: <a href={card.sourceUrl} target="_blank" rel="noreferrer" className="text-[#9a938a] underline">TCGdex GraphQL</a> · <a href={card.licenseUrl} target="_blank" rel="noreferrer" className="text-[#9a938a] underline">database license</a>. The catalog thumbnail is visual reference only. Printing, condition, grade, certificate, value, authenticity, and inventory remain owner-entered or unsupported claims.</p>
     </form>
   );
 }

@@ -1911,7 +1911,11 @@ function validateCollectibleDetails(value: unknown, asset: VaultAsset): void {
     value.grade.length > 40 ||
     typeof value.certificate !== "string" ||
     value.certificate.length > 80 ||
-    !(value.photoSource === null || value.photoSource === "owner_supplied") ||
+    !(
+      value.photoSource === null ||
+      value.photoSource === "owner_supplied" ||
+      value.photoSource === "tcgdex_catalog"
+    ) ||
     !(
       value.photoAddedAt === null ||
       (typeof value.photoAddedAt === "string" &&
@@ -1936,6 +1940,25 @@ function validateCollectibleDetails(value: unknown, asset: VaultAsset): void {
         "The encrypted collectible identifier does not match its catalog identity.",
       );
     }
+    if (
+      value.photoSource === "tcgdex_catalog" &&
+      !(typeof value.catalog.imageUrl === "string" &&
+        validTcgdexCatalogImageUrl(
+          value.catalog.imageUrl,
+          String(value.catalog.set && isRecord(value.catalog.set) ? value.catalog.set.id : ""),
+          String(value.catalog.number),
+        ))
+    ) {
+      throw new VaultError(
+        "INVALID_COLLECTIBLE",
+        "The encrypted catalog thumbnail provenance is invalid.",
+      );
+    }
+  } else if (value.photoSource === "tcgdex_catalog") {
+    throw new VaultError(
+      "INVALID_COLLECTIBLE",
+      "A catalog thumbnail requires a catalog identity.",
+    );
   }
   if (
     (asset.photo === undefined) !== (value.photoSource === null) ||
@@ -2021,6 +2044,11 @@ function validateCatalogCard(value: Record<string, unknown>): void {
       (typeof value.illustrator === "string" && value.illustrator.length <= 120)
     ) ||
     !(
+      value.imageUrl === undefined ||
+      value.imageUrl === null ||
+      validTcgdexCatalogImageUrl(value.imageUrl, value.set.id, value.number)
+    ) ||
+    !(
       value.catalogUpdatedAt === null ||
       (typeof value.catalogUpdatedAt === "string" &&
         ISO_DATE_TIME.test(value.catalogUpdatedAt))
@@ -2037,6 +2065,28 @@ function validateCatalogCard(value: Record<string, unknown>): void {
       "INVALID_COLLECTIBLE",
       "The encrypted TCGdex catalog identity is invalid.",
     );
+  }
+}
+
+function validTcgdexCatalogImageUrl(value: unknown, setId: unknown, number: unknown): boolean {
+  if (typeof value !== "string" || value.length > 540 || typeof setId !== "string" || typeof number !== "string") return false;
+  try {
+    const url = new URL(value);
+    const segments = url.pathname.split("/").filter(Boolean);
+    return url.protocol === "https:"
+      && url.hostname === "assets.tcgdex.net"
+      && url.port === ""
+      && url.username === ""
+      && url.password === ""
+      && url.search === ""
+      && url.hash === ""
+      && segments.length === 5
+      && segments[0] === "en"
+      && segments[2] === setId
+      && segments[3] === number
+      && segments[4] === "low.png";
+  } catch {
+    return false;
   }
 }
 

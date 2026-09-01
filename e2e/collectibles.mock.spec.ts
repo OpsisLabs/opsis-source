@@ -7,6 +7,7 @@ const privateCert = "PRIVATE-CERT-778899";
 const privateNote = "PRIVATE-COLLECTIBLE-NOTE";
 const privateReference = "https://example.test/private-value-source";
 const privatePhotoName = "PRIVATE-OWNER-PHOTO-CANARY.png";
+const catalogImageUrl = "https://assets.tcgdex.net/en/base/base1/4/low.png";
 
 function searchResponse() {
   return {
@@ -39,7 +40,7 @@ function detailResponse() {
       catalogId: "base1-4",
       language: "en",
       name: cardName,
-      image: "https://assets.tcgdex.net/PROVIDER-ART-CANARY",
+      imageUrl: catalogImageUrl,
       pricing: { marketPrice: "PROVIDER-PRICE-CANARY" },
       number: "4",
       category: "Pokemon",
@@ -70,6 +71,7 @@ test("catalog match saves only encrypted owner data and survives encrypted backu
     cookie: string | undefined;
   }> = [];
   const requests: string[] = [];
+  const catalogImageRequests: Array<Record<string, string>> = [];
   page.on("request", (request) => requests.push(request.url()));
   await page
     .context()
@@ -107,6 +109,14 @@ test("catalog match saves only encrypted owner data and survives encrypted backu
       body: JSON.stringify(detailResponse()),
     });
   });
+  await page.route(catalogImageUrl, async (route) => {
+    catalogImageRequests.push(route.request().headers());
+    await route.fulfill({
+      status: 200,
+      contentType: "image/png",
+      body: readFileSync("apps/web/public/og.png"),
+    });
+  });
 
   await createVault(page);
   await page.getByRole("button", { name: "COLLECTIBLE CATALOG" }).click();
@@ -141,7 +151,7 @@ test("catalog match saves only encrypted owner data and survives encrypted backu
   await expect(searchPermission).toContainText(
     "ownership fields, photos, costs, notes, grades, certificates, and manual values",
   );
-  await expect(searchPermission).toContainText("never requested or received");
+  await expect(searchPermission).toContainText("Search requests only card IDs");
   await searchPermission
     .getByRole("button", { name: "SAVE RECEIPT + LOOK UP" })
     .click();
@@ -154,6 +164,10 @@ test("catalog match saves only encrypted owner data and survives encrypted backu
     .click();
   await page
     .getByRole("dialog", { name: "Confirm this catalog lookup" })
+    .getByText("browser fetches its low-resolution image")
+    .waitFor();
+  await page
+    .getByRole("dialog", { name: "Confirm this catalog lookup" })
     .getByRole("button", { name: "SAVE RECEIPT + LOOK UP" })
     .click();
   await expect(page.getByTestId("collectible-owner-form")).toContainText(
@@ -162,6 +176,8 @@ test("catalog match saves only encrypted owner data and survives encrypted backu
   await expect(page.getByTestId("collectible-owner-form")).not.toContainText(
     "market price",
   );
+  await expect(page.getByText("CATALOG THUMBNAIL READY · SANITIZED LOCALLY")).toBeVisible();
+  await expect(page.getByAltText("Charizard sanitized thumbnail preview")).toBeVisible();
 
   await page
     .getByLabel("OWNER-REPORTED PRINTING / VARIANT")
@@ -173,12 +189,6 @@ test("catalog match saves only encrypted owner data and survives encrypted backu
   await page.getByLabel("PURCHASE PRICE / UNIT").fill("250.00");
   await page.getByLabel("ACQUIRED DATE").fill("2026-08-11");
   await page.getByLabel("PRIVATE NOTES").fill(privateNote);
-  await page.getByLabel("OWNER-SUPPLIED COLLECTIBLE PHOTO").setInputFiles({
-    name: privatePhotoName,
-    mimeType: "image/png",
-    buffer: readFileSync("apps/web/public/og.png"),
-  });
-  await expect(page.getByText("REPLACE OWNER PHOTO")).toBeVisible();
   await page.getByLabel("VALUE").fill("321.99");
   await page.getByLabel("OBSERVED DATE").fill("2026-08-11");
   await page.getByLabel("HTTPS SOURCE URL").fill(privateReference);
@@ -192,6 +202,7 @@ test("catalog match saves only encrypted owner data and survives encrypted backu
   await expect(
     page.getByText("OWNER GRADE / CERT").locator(".."),
   ).toContainText(privateCert);
+  await expect(page.getByText(/CATALOG THUMBNAIL · SANITIZED \+ ENCRYPTED/)).toBeVisible();
   await page
     .getByRole("button", { name: /Edit Charizard · Base Set #4/ })
     .click();
@@ -226,7 +237,7 @@ test("catalog match saves only encrypted owner data and survives encrypted backu
     "321.99",
     "250.00",
     cardName,
-    "PROVIDER-ART-CANARY",
+    catalogImageUrl,
     "PROVIDER-PRICE-CANARY",
     "NESTED-PRICE-CANARY",
   ])
@@ -245,9 +256,11 @@ test("catalog match saves only encrypted owner data and survives encrypted backu
   });
   expect(calls.every((call) => call.cookie === undefined)).toBe(true);
   const ownOrigin = new URL(page.url()).origin;
-  expect(requests.filter((url) => new URL(url).origin !== ownOrigin)).toEqual(
-    [],
-  );
+  expect(requests.filter((url) => new URL(url).origin !== ownOrigin)).toEqual([catalogImageUrl]);
+  expect(catalogImageRequests).toHaveLength(1);
+  expect(catalogImageRequests[0].cookie).toBeUndefined();
+  expect(catalogImageRequests[0].authorization).toBeUndefined();
+  expect(catalogImageRequests[0].referer).toBeUndefined();
   for (const call of calls)
     for (const canary of [
       privateCert,

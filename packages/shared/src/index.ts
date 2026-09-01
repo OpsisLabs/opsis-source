@@ -188,6 +188,8 @@ export type CollectibleCardDetail = {
   set: { id: string; name: string; officialCount: number; totalCount: number };
   rarity: string | null;
   illustrator: string | null;
+  /** Optional low-resolution TCGdex catalog image. Older Vault records omit it. */
+  imageUrl?: string | null;
   catalogUpdatedAt: string | null;
   fetchedAt: string;
   sourceUrl: string;

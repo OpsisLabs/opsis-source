@@ -76,6 +76,7 @@ export async function collectibleDetail(language: CollectibleLanguage, cardId: s
     || !validText(card.category, 40)
     || !(card.rarity === null || validText(card.rarity, 80))
     || !(card.illustrator === null || validText(card.illustrator, 120))
+    || !(card.imageUrl === undefined || card.imageUrl === null || validCatalogImageUrl(card.imageUrl, card.set?.id, card.number))
     || !card.set
     || !validText(card.set.id, 80)
     || !/^[a-zA-Z0-9][a-zA-Z0-9.-]{0,79}$/.test(card.set.id)
@@ -110,6 +111,7 @@ export async function collectibleDetail(language: CollectibleLanguage, cardId: s
       },
       rarity: card.rarity,
       illustrator: card.illustrator,
+      imageUrl: card.imageUrl ?? null,
       catalogUpdatedAt: card.catalogUpdatedAt,
       fetchedAt: card.fetchedAt,
       sourceUrl: card.sourceUrl,
@@ -117,6 +119,28 @@ export async function collectibleDetail(language: CollectibleLanguage, cardId: s
     },
     privacy: collectiblePrivacy(response.privacy.disclosure)
   };
+}
+
+export function validCatalogImageUrl(value: unknown, setId?: string, number?: string): value is string {
+  if (typeof value !== "string" || value.length > 540 || !setId || !number) return false;
+  try {
+    const url = new URL(value);
+    const segments = url.pathname.split("/").filter(Boolean);
+    return url.protocol === "https:"
+      && url.hostname === "assets.tcgdex.net"
+      && url.port === ""
+      && url.username === ""
+      && url.password === ""
+      && url.search === ""
+      && url.hash === ""
+      && segments.length === 5
+      && segments[0] === "en"
+      && segments[2] === setId
+      && segments[3] === number
+      && segments[4] === "low.png";
+  } catch {
+    return false;
+  }
 }
 
 function validText(value: unknown, max: number): value is string {

@@ -47,6 +47,29 @@ describe("browser privacy static boundary", () => {
     expect(nginx).not.toContain("https://*.up.railway.app");
   });
 
+  it("ships a current, versioned multi-asset social preview", () => {
+    const index = readFileSync(
+      resolve(repositoryRoot, "apps/web/index.html"),
+      "utf8",
+    );
+    const socialImage = readFileSync(
+      resolve(repositoryRoot, "apps/web/public/og-command-center-v2.png"),
+    );
+    expect(index).toContain(
+      "ChainScout — Private Multi-Asset Command Center",
+    );
+    expect(index).toContain(
+      "Track crypto, NFTs, tokenized assets, Pokémon cards, collectibles",
+    );
+    expect(index).toContain(
+      "__CHAINSCOUT_PUBLIC_SITE_URL__/og-command-center-v2.png",
+    );
+    expect(index).not.toContain("Crypto, without the headache");
+    expect(socialImage.subarray(1, 4).toString("ascii")).toBe("PNG");
+    expect(socialImage.readUInt32BE(16)).toBe(1200);
+    expect(socialImage.readUInt32BE(20)).toBe(630);
+  });
+
   it("keeps the same-origin API proxy host and port runtime-configurable", () => {
     const nginx = readFileSync(
       resolve(repositoryRoot, "apps/web/nginx.conf"),
@@ -249,7 +272,7 @@ describe("browser privacy static boundary", () => {
     );
   });
 
-  it("keeps collectible lookups metadata-only and ownership fields outside the network module", () => {
+  it("keeps collectible lookups allowlisted and ownership fields outside the network module", () => {
     const directory = resolve(repositoryRoot, "apps/web/src/collectibles");
     const source = sourceText(directory);
     const api = readFileSync(resolve(directory, "api.ts"), "utf8");
@@ -293,9 +316,17 @@ describe("browser privacy static boundary", () => {
     expect(service).toContain('redirect: "error"');
     expect(searchQuery).toContain("cards(filters:");
     expect(detailQuery).toContain("card(id:");
-    expect(searchQuery + detailQuery).not.toMatch(
-      /image|logo|symbol|pricing|thirdParty|variant/i,
+    expect(searchQuery).not.toMatch(/image|logo|symbol|pricing|thirdParty|variant/i);
+    expect(detailQuery).toMatch(/\bimage\b/);
+    expect(detailQuery).not.toMatch(/logo|symbol|pricing|thirdParty|variant/i);
+    const catalogImage = readFileSync(
+      resolve(directory, "catalog-image.ts"),
+      "utf8",
     );
+    expect(catalogImage).toContain('url.hostname !== "assets.tcgdex.net"');
+    expect(catalogImage).toContain('credentials: "omit"');
+    expect(catalogImage).toContain('referrerPolicy: "no-referrer"');
+    expect(catalogImage).toContain('redirect: "error"');
     expect(service).not.toMatch(
       /Prisma|OpenAI|ChatRepository|persistResolution/,
     );

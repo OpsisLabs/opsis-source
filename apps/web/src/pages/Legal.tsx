@@ -165,10 +165,14 @@ export function PrivacyPage() {
           optional set, and optional collector number; TCGdex receives only the
           name and optional collector number. A selected public card ID is sent
           to both for detail lookup. An encrypted permission-attempt receipt is
-          saved locally first. ChainScout uses field-selective GraphQL requests
-          and does not request artwork, logos, marketplace prices, inventory,
-          third-party fields, or printing metadata. It does not cache the query
-          or result or send it to a model. Owner-entered printing, condition,
+          saved locally first. Search requests only card IDs, numbers, and names.
+          A detail request may also retrieve TCGdex's catalog image base; the browser
+          then requests a low-resolution image directly from TCGdex's asset CDN
+          without account credentials or a referrer. ChainScout does not request
+          marketplace prices, inventory, third-party pricing fields, or printing
+          metadata. It does not cache the query or result or send it to a model.
+          The image is stripped of metadata and re-encoded locally before its
+          processed bytes can enter the encrypted Vault. Owner-entered printing, condition,
           grade, certificate, sanitized photo, purchase data, notes, and dated
           manual value sources remain in the encrypted local Vault and are not
           included in catalog requests.
@@ -283,7 +287,10 @@ export function PrivacyPage() {
           owner-entered. It does not authenticate the object you own, verify an
           owner-entered grade or certificate, provide a current appraisal, or
           establish that marketplace inventory exists. External
-          catalog/license/source links open only after your explicit click.
+          catalog/license/source links open only after your explicit click. A
+          low-resolution TCGdex catalog image may be retrieved automatically after
+          you approve an exact detail lookup; it is visual reference, not proof of
+          authenticity, condition, ownership, or value.
         </p>
         <p>
           When separately enabled, Market & Inventory names DEX Screener or the opted-in merchant before
