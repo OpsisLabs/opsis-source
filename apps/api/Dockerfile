@@ -25,7 +25,8 @@ ENV NODE_ENV=production
 # npm and Corepack are build tools, not API runtime dependencies. Removing
 # them from the final layer keeps their archive/config parsers—and their
 # unrelated vulnerability surface—out of the deployed service.
-RUN apk add --no-cache openssl \
+RUN apk upgrade --no-cache \
+  && apk add --no-cache openssl \
   && rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack \
   && rm -f /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack /usr/local/bin/pnpm /usr/local/bin/pnpx \
   && addgroup -S app \

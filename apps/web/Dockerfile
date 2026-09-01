@@ -28,7 +28,11 @@ ENV RAILWAY_PUBLIC_DOMAIN=$RAILWAY_PUBLIC_DOMAIN
 RUN pnpm --filter @rh-chain/shared build && pnpm --filter @rh-chain/web build
 
 FROM nginx:1.30.4-alpine3.24@sha256:97d490c12ba55b4946b01546d1c3ed324e8d41ab1c9fcb2a616aa470620e5b46
-RUN apk add --no-cache ca-certificates
+# The base digest is intentionally pinned for reproducibility, then upgraded
+# inside the same Alpine release so newly published security fixes are not
+# deferred until the next upstream image digest refresh.
+RUN apk upgrade --no-cache \
+  && apk add --no-cache ca-certificates
 COPY --from=build /app/apps/web/dist /usr/share/nginx/html
 ENV API_UPSTREAM_SCHEME=http
 ENV API_UPSTREAM_HOST=api.railway.internal

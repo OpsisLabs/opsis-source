@@ -100,7 +100,8 @@ describe("browser privacy static boundary", () => {
     expect(dockerfile).toContain(
       "ENV NGINX_ENVSUBST_FILTER=API_UPSTREAM_SCHEME|API_UPSTREAM_HOST|API_UPSTREAM_PORT",
     );
-    expect(dockerfile).toContain("RUN apk add --no-cache ca-certificates");
+    expect(dockerfile).toContain("RUN apk upgrade --no-cache");
+    expect(dockerfile).toContain("&& apk add --no-cache ca-certificates");
     expect(dockerfile).toContain(
       "COPY packages/shared/package.json packages/shared/package.json",
     );
@@ -137,6 +138,8 @@ describe("browser privacy static boundary", () => {
     expect(dockerfile).toContain("COPY --from=production-dependencies /prod/api/node_modules apps/api/node_modules");
     expect(dockerfile).toContain("prisma generate --schema /prod/api/prisma/schema.prisma");
     expect(dockerfile).toContain('const prisma = new PrismaClient(); await prisma.$disconnect()');
+    expect(dockerfile).toContain("RUN apk upgrade --no-cache");
+    expect(dockerfile).toContain("&& apk add --no-cache openssl");
     expect(dockerfile).toContain("rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack");
     expect(dockerfile).not.toMatch(/FROM node:[^\n]+ AS runtime[\s\S]*corepack prepare/);
     expect(dockerfile).not.toContain("COPY --from=build /app/node_modules node_modules");
