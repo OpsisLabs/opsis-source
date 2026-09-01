@@ -23,6 +23,9 @@ import {
 } from "lucide-react";
 import { Link } from "react-router";
 import KnowledgeHeader from "./KnowledgeHeader";
+import { isCollectibleCatalogEnabled } from "../product/availability";
+
+const COLLECTIBLE_CATALOG_ENABLED = isCollectibleCatalogEnabled();
 
 const SECTIONS = [
   ["architecture", "Architecture"],
@@ -68,7 +71,7 @@ const ADAPTERS = [
     process: "Field-selective TCGdex metadata + optional low-res asset-CDN image",
     output: "Card/set identity and sanitized encrypted thumbnail; owner claims stay local",
     limit: "No marketplace pricing, grading, authenticity, or inventory claim",
-    gated: true,
+    gated: !COLLECTIBLE_CATALOG_ENABLED,
   },
   {
     name: "MARKET & INVENTORY",
@@ -297,8 +300,7 @@ export default function TechnicalDocs() {
           <DocSection id="adapters" eyebrow="04 · FEATURE CONTRACTS" title="Different assets need different proof.">
             <p className="mt-4 max-w-[780px] text-[12px] leading-relaxed text-[#b7aea2]">
               Current founder-beta build: Private Explorer, Scout Swap, Portfolio,
-              and RWA Verify are enabled. Collectible Catalog, Market & Inventory,
-              Open Data, and Replay Actions are coming soon.
+              RWA Verify{COLLECTIBLE_CATALOG_ENABLED ? ", and Collectible Catalog" : ""} are enabled. {COLLECTIBLE_CATALOG_ENABLED ? "Market & Inventory, Open Data, and Replay Actions" : "Collectible Catalog, Market & Inventory, Open Data, and Replay Actions"} are coming soon.
             </p>
             <div className="mt-7 overflow-hidden border border-[#383838]">
               {ADAPTERS.map((adapter) => (

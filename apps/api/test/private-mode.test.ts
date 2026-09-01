@@ -53,6 +53,14 @@ afterEach(async () => {
 });
 
 describe("no-account Private Mode", () => {
+  it("keeps the official public RPC fallback scoped to the ephemeral resolver", async () => {
+    const source = await import("../src/routes/private.js");
+    expect(source.privateResolverEnvironment(loadEnv({ NODE_ENV: "test" }))).toMatchObject({
+      ENABLE_PUBLIC_RPC_FALLBACK: true,
+      PROVIDER_MAX_RETRIES: 0
+    });
+  });
+
   it("returns an ephemeral deterministic analysis without auth or server records", async () => {
     const resolve = vi.fn(async () => ({
       entity,

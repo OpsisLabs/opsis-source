@@ -94,6 +94,21 @@ describe("provider fixture contracts", () => {
       "eth_getTransactionByHash",
       "eth_getTransactionReceipt"
     ]);
+    expect(provider.name).toBe("alchemy");
+  });
+
+  it("truthfully identifies the official public RPC fallback used by Private Mode", async () => {
+    const http = new FixtureHttp();
+    const env = loadEnv({ NODE_ENV: "test", ENABLE_PUBLIC_RPC_FALLBACK: "true" });
+    const provider = new AlchemyProvider(env, http);
+
+    const sources = await provider.getAddressSummary(addressFixture.hash);
+
+    expect(provider.name).toBe("robinhood-public-rpc");
+    expect(sources).toHaveLength(2);
+    expect(sources.every((source) => source.provider === "robinhood-public-rpc")).toBe(true);
+    expect(http.requests).toHaveLength(2);
+    expect(http.requests.every((request) => request.url === env.ROBINHOOD_PUBLIC_RPC_URL)).toBe(true);
   });
 
   it("reads and documents current allowances without exposing RPC credentials", async () => {

@@ -2,17 +2,19 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { Minus, Plus } from "lucide-react";
 import { SectionHeader } from "./AssetUniverse";
+import { isCollectibleCatalogEnabled } from "../product/availability";
 
-const QA = [
-  { q: "Can I track Pokémon cards and physical collectibles?", a: "Yes. The founder build supports encrypted manual collectible records with identifiers, owner-reported printing and condition, graded-certificate details, exact purchase lots, locally processed photos, and dated source-linked reference values. Catalog-assisted matching is coming soon." },
+function questions(catalogEnabled: boolean) { return [
+  { q: "Can I track Pokémon cards and physical collectibles?", a: catalogEnabled ? "Yes. This build supports TCGdex-assisted English card and set identity, a locally sanitized catalog thumbnail, encrypted owner-reported printing and condition, graded-certificate details, exact purchase lots, local photos, and dated source-linked reference values." : "Yes. The founder build supports encrypted manual collectible records with identifiers, owner-reported printing and condition, graded-certificate details, exact purchase lots, locally processed photos, and dated source-linked reference values. Catalog-assisted matching is coming soon." },
   { q: "Where do the dashboard charts get their data?", a: "Vault charts use only your encrypted purchase lots, owner-entered dated references, or a public snapshot that you explicitly refreshed. They are not hidden live feeds, appraisals, or price predictions. Every chart includes an exact-value table." },
   { q: "Does my Vault sync to ChainScout servers?", a: "No. Vault records are encrypted in this browser with WebCrypto and stored in IndexedDB. Export an encrypted backup because browser storage can be cleared or evicted, and another origin or device cannot see this Vault automatically." },
   { q: "Do I need to connect a wallet?", a: "No. Private Explorer, Scout Swap, RWA Verify, and the local Vault need no wallet connection. The optional cloud workspace has a separate signature-based sign-in, but it is not required for the private tools." },
   { q: "Does ChainScout trade, buy cards, or move funds?", a: "No. ChainScout is read-only. It can explain public evidence and create an official external handoff where supported, but it never signs, broadcasts, checks out, or stores payment state." },
   { q: "Can AI or provider data be wrong?", a: "Yes. AI can be wrong, indexers can lag, providers can fail, and a manual reference can become stale. ChainScout preserves citations, privacy receipts, anchor details, and explicit incomplete or unavailable states so you can inspect the evidence." },
-];
+]; }
 
 export default function Faq() {
+  const qa = questions(isCollectibleCatalogEnabled());
   const [open, setOpen] = useState(0);
   return (
     <section id="faq" data-home-reveal className="border-b border-[#34312f] px-5 py-20 sm:px-8 md:px-12 md:py-24 xl:px-16">
@@ -28,7 +30,7 @@ export default function Faq() {
           </div>
         </aside>
         <div className="space-y-2">
-          {QA.map((item, index) => {
+          {qa.map((item, index) => {
             const expanded = open === index;
             return (
               <article key={item.q} className="rounded-[3px] border border-[#3a3633] bg-[#201e1c]">

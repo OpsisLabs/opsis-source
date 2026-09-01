@@ -21,6 +21,20 @@ export type PrivateAnalysisDependencies = {
   answer(question: string, entity: NormalizedEntity): Promise<AiExplorerAnswer>;
 };
 
+export function privateResolverEnvironment(env: Env): Env {
+  return {
+    ...env,
+    // Blockscout's public API can independently rate-limit or challenge a
+    // server request. Private Mode still needs a useful read-only answer in
+    // that case, so its bounded resolver may fall back to Robinhood's official
+    // public RPC for code and native-balance reads. This override is scoped to
+    // the ephemeral route and does not enable the legacy app-wide fallback.
+    ENABLE_PUBLIC_RPC_FALLBACK: true,
+    PROVIDER_MAX_RETRIES: 0,
+    PROVIDER_TIMEOUT_MS: Math.min(env.PROVIDER_TIMEOUT_MS, 8_000)
+  };
+}
+
 export async function privateRoutes(
   app: FastifyInstance,
   env: Env,
@@ -31,11 +45,7 @@ export async function privateRoutes(
   // The private first-look path is deliberately bounded: one attempt per
   // public provider call and an eight-second ceiling. A slow optional upstream
   // should degrade promptly instead of trapping a beginner behind retry loops.
-  const privateResolverEnv: Env = {
-    ...env,
-    PROVIDER_MAX_RETRIES: 0,
-    PROVIDER_TIMEOUT_MS: Math.min(env.PROVIDER_TIMEOUT_MS, 8_000)
-  };
+  const privateResolverEnv = privateResolverEnvironment(env);
   const resolver = new ChainEntityResolver(privateResolverEnv, cache, prisma);
   // Private Mode is deterministic by design. It never spends provider AI
   // budget and never sends the user's question to OpenAI or Ollama.

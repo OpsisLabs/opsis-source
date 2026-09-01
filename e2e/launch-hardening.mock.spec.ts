@@ -177,9 +177,15 @@ test("marketing home makes the multi-asset Vault apparent and honors reduced mot
   await expect(page.getByRole("heading", { name: /Know what you own/i })).toBeVisible();
   await expect(page.getByText("POKÉMON / TCG", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Pokémon, TCG & collectibles" })).toBeVisible();
-  await expect(page.getByText(/Private manual collectible records and value-history charts work now/i)).toBeVisible();
+  await expect(page.getByText(/Assisted TCGdex English card\/set matching.*work in this build/i)).toBeVisible();
+  await expect(page.getByText("TCGdex-assisted collectible identity", { exact: true })).toBeVisible();
+  await expect(page.getByText(/Assisted TCGdex card\/set matching is coming soon/i)).toHaveCount(0);
   await expect(page.getByRole("link", { name: "ADD A COLLECTIBLE" })).toHaveAttribute("href", "/vault?view=assets");
   await expect(page.getByText("COMING SOON", { exact: true }).first()).toBeVisible();
   const transform = await page.locator("[data-home-reveal]").first().evaluate((element) => getComputedStyle(element).transform);
   expect(transform).toBe("none");
+
+  await page.goto("/docs");
+  await expect(page.getByText(/RWA Verify, and Collectible Catalog are enabled/i)).toBeVisible();
+  await expect(page.locator("details").filter({ hasText: "COLLECTIBLES" }).getByText("COMING SOON")).toHaveCount(0);
 });

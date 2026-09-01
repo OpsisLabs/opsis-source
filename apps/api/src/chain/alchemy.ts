@@ -13,14 +13,16 @@ export type AllowanceTarget = {
 };
 
 export class AlchemyProvider implements Pick<ChainProvider, "name" | "getTransaction" | "getAddressSummary"> {
-  readonly name = "alchemy";
+  readonly name: "alchemy" | "robinhood-public-rpc";
   private readonly rpcUrl?: string;
+  private readonly http: ProviderHttp;
 
-  constructor(private readonly env: Env, private readonly http: ProviderHttp = createProviderHttp(env, "alchemy")) {
-    this.rpcUrl =
-      env.ALCHEMY_ROBINHOOD_RPC_URL ||
-      (env.ALCHEMY_API_KEY ? `https://robinhood-mainnet.g.alchemy.com/v2/${env.ALCHEMY_API_KEY}` : undefined) ||
-      (env.ENABLE_PUBLIC_RPC_FALLBACK ? env.ROBINHOOD_PUBLIC_RPC_URL : undefined);
+  constructor(private readonly env: Env, http?: ProviderHttp) {
+    const alchemyUrl = env.ALCHEMY_ROBINHOOD_RPC_URL
+      || (env.ALCHEMY_API_KEY ? `https://robinhood-mainnet.g.alchemy.com/v2/${env.ALCHEMY_API_KEY}` : undefined);
+    this.rpcUrl = alchemyUrl || (env.ENABLE_PUBLIC_RPC_FALLBACK ? env.ROBINHOOD_PUBLIC_RPC_URL : undefined);
+    this.name = alchemyUrl ? "alchemy" : "robinhood-public-rpc";
+    this.http = http ?? createProviderHttp(env, this.name);
   }
 
   isConfigured(): boolean {

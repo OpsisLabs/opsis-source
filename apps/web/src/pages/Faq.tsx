@@ -12,6 +12,9 @@ import {
 } from "lucide-react";
 import { Link } from "react-router";
 import KnowledgeHeader from "./KnowledgeHeader";
+import { isCollectibleCatalogEnabled } from "../product/availability";
+
+const COLLECTIBLE_CATALOG_ENABLED = isCollectibleCatalogEnabled();
 
 type FaqItem = {
   question: string;
@@ -84,11 +87,11 @@ const FAQ_GROUPS: Array<{ id: string; title: string; intro: string; items: FaqIt
     items: [
       {
         question: "Where do values and prices come from?",
-        answer: "In the enabled founder beta, swap previews come from Uniswap; onchain balances and states come from the named chain providers; RWA facts come from their named sources; and manual values are owner-entered and dated. Vault charts visualize those exact local inputs and expose an accessible data table; they do not create a live price feed or appraisal. DEX Screener market observations and TCGdex catalog assistance are coming soon.",
+        answer: `In the enabled founder beta, swap previews come from Uniswap; onchain balances and states come from the named chain providers; RWA facts come from their named sources; and manual values are owner-entered and dated. Vault charts visualize those exact local inputs and expose an accessible data table; they do not create a live price feed or appraisal. ${COLLECTIBLE_CATALOG_ENABLED ? "TCGdex catalog assistance is enabled for English card/set identity and optional sanitized thumbnails; it does not provide marketplace pricing or appraisal." : "TCGdex catalog assistance is coming soon."} DEX Screener market observations remain coming soon.`,
       },
       {
-        question: "Can I track Pokémon cards before the catalog is enabled?",
-        answer: "Yes. Create a manual Collectible record in the local Vault. You can save an identifier, owner-reported printing and condition, one-copy grade and certificate details, exact purchase lots, a locally processed photo, and up to 20 dated source-linked reference values. The chart uses those encrypted inputs and never calls them catalog-verified or live market prices.",
+        question: COLLECTIBLE_CATALOG_ENABLED ? "How does Pokémon card matching work?" : "Can I track Pokémon cards before the catalog is enabled?",
+        answer: COLLECTIBLE_CATALOG_ENABLED ? "Open Collectible Catalog in the unlocked Vault, confirm the exact network receipt, and search an English card name with optional number and set. TCGdex supplies bounded card/set identity and an optional low-resolution thumbnail that ChainScout sanitizes locally. Printing, condition, grade, certificate, authenticity, purchase lots, and dated values remain owner-entered and encrypted." : "Yes. Create a manual Collectible record in the local Vault. You can save an identifier, owner-reported printing and condition, one-copy grade and certificate details, exact purchase lots, a locally processed photo, and up to 20 dated source-linked reference values. The chart uses those encrypted inputs and never calls them catalog-verified or live market prices.",
       },
       {
         question: "Does ChainScout calculate my portfolio profit?",

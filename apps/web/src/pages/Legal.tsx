@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { isCollectibleCatalogEnabled } from "../product/availability";
 
 function LogoMark({ className = "w-7 h-7" }: { className?: string }) {
   return <img src="/logo.svg" alt="ChainScout" className={className} />;
@@ -82,6 +83,7 @@ function Section({
 }
 
 export function PrivacyPage() {
+  const collectibleCatalogEnabled = isCollectibleCatalogEnabled();
   return (
     <Shell
       tag="Legal"
@@ -159,8 +161,7 @@ export function PrivacyPage() {
           prepare a transaction.
         </p>
         <p>
-          <span className="text-[#e9e0d1]">Collectible Catalog.</span> This tool is
-          coming soon. If released, after an
+          <span className="text-[#e9e0d1]">Collectible Catalog.</span> {collectibleCatalogEnabled ? "When you use this enabled tool, after an" : "This tool is coming soon. If released, after an"}
           on-screen confirmation, ChainScout receives the English card name,
           optional set, and optional collector number; TCGdex receives only the
           name and optional collector number. A selected public card ID is sent
@@ -281,7 +282,7 @@ export function PrivacyPage() {
           physical object exists or is authentic.
         </p>
         <p>
-          When separately enabled, Collectible Catalog names TCGdex before each lookup. TCGdex applies
+          {collectibleCatalogEnabled ? "Collectible Catalog" : "When separately enabled, Collectible Catalog"} names TCGdex before each lookup. TCGdex applies
           its own terms and policies to public catalog searches. A catalog match
           identifies English card and set metadata; printing or variant remains
           owner-entered. It does not authenticate the object you own, verify an
