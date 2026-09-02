@@ -287,8 +287,11 @@ function beginnerView(entity: NormalizedEntity): { answer: string; summaryBullet
   const meaning = beginnerMeaning(entity);
   const primaryFact = beginnerPrimaryFact(entity);
   const coverage = beginnerCoverage(entity);
+  const limitedWalletSafety = entity.type === "wallet" && entity.facts.activityCoverage === "unavailable";
   const risk = entity.riskNotes.length > 0
     ? `${entity.riskNotes.length} heuristic risk signal${entity.riskNotes.length === 1 ? " needs" : "s need"} attention; ${entity.riskNotes.length === 1 ? "it is" : "they are"} evidence to review, not a verdict.`
+    : limitedWalletSafety
+      ? "Activity and approval coverage was unavailable, so this result cannot meaningfully assess wallet safety; it is not proof of safety."
     : "No heuristic risk signal appeared in the available facts; that is not proof of safety.";
   const summaryBullets = [
     `Meaning: ${meaning.bullet}`,
@@ -301,7 +304,9 @@ function beginnerView(entity: NormalizedEntity): { answer: string; summaryBullet
   ].slice(0, 5);
 
   return {
-    answer: [meaning.answer, primaryFact?.answer, coverage.answer, risk].filter(Boolean).join(" "),
+    answer: entity.type === "wallet" && primaryFact
+      ? [primaryFact.answer, coverage.answer, entity.riskNotes.length > 0 ? risk : undefined].filter(Boolean).join(" ")
+      : [meaning.answer, primaryFact?.answer, coverage.answer, risk].filter(Boolean).join(" "),
     summaryBullets
   };
 }
@@ -345,6 +350,45 @@ function beginnerPrimaryFact(entity: NormalizedEntity): { answer: string; bullet
   const facts = entity.facts;
   if (entity.type === "wallet") {
     const balance = conciseFact(facts.nativeBalanceEth);
+    const tokenBalances = Array.isArray(facts.tokenBalances)
+      ? facts.tokenBalances.filter((value): value is Record<string, unknown> => Boolean(value) && typeof value === "object")
+      : [];
+    if (tokenBalances.length > 0) {
+      const examples = tokenBalances.slice(0, 3).map((holding) => {
+        const symbol = conciseFact(holding.tokenSymbol) ?? conciseFact(holding.symbol) ?? conciseFact(holding.tokenName) ?? "token";
+        const amount = compactBeginnerDecimal(conciseFact(holding.formattedValue));
+        return amount ? `${amount} ${symbol}` : symbol;
+      });
+      const reviewedSample = facts.tokenBalanceCoverage === "reviewed_asset_sample";
+      const holdingText = `${tokenBalances.length} positive token balance${tokenBalances.length === 1 ? "" : "s"}${reviewedSample ? " in ChainScout's reviewed contract sample" : ""}`;
+      if (reviewedSample) {
+        const bySymbol = new Map(tokenBalances.map((holding) => [
+          conciseFact(holding.tokenSymbol) ?? conciseFact(holding.symbol),
+          holding
+        ]));
+        const amountFor = (symbol: string): string | undefined => {
+          const amount = compactBeginnerDecimal(conciseFact(bySymbol.get(symbol)?.formattedValue));
+          return amount ? `${amount} ${symbol}` : undefined;
+        };
+        const rwaSymbols = tokenBalances
+          .map((holding) => conciseFact(holding.tokenSymbol) ?? conciseFact(holding.symbol))
+          .filter((symbol): symbol is string => Boolean(symbol) && symbol !== "USDG" && symbol !== "WETH")
+          .slice(0, 6);
+        const highlights = [
+          amountFor("USDG"),
+          amountFor("WETH"),
+          rwaSymbols.length > 0 ? `tokenized assets ${rwaSymbols.join(", ")}` : undefined
+        ].filter((value): value is string => Boolean(value));
+        return {
+          answer: `A bounded direct check found ${holdingText}${highlights.length > 0 ? `—including ${highlights.join("; ")}` : ""}${balance ? `—and a native balance of ${compactBeginnerDecimal(balance) ?? balance} ETH for network fees` : ""}.`,
+          bullet: `${holdingText}${highlights.length > 0 ? `; ${highlights.join("; ")}` : ""}${balance ? `; ${compactBeginnerDecimal(balance) ?? balance} ETH native` : ""}.`
+        };
+      }
+      return {
+        answer: `The available data found ${holdingText}, including ${examples.join(", ")}${balance ? `, with a confirmed native balance of ${compactBeginnerDecimal(balance) ?? balance} ETH for network fees` : ""}.`,
+        bullet: `${holdingText}; ${examples.join(", ")}${balance ? `; ${compactBeginnerDecimal(balance) ?? balance} ETH native` : ""}.`
+      };
+    }
     if (balance) return {
       answer: `The available data confirms a native balance of ${balance} ETH.`,
       bullet: `native balance is ${balance} ETH.`
@@ -379,16 +423,22 @@ function beginnerCoverage(entity: NormalizedEntity): { answer?: string; bullets:
   const facts = entity.facts;
   const activityUnavailable = facts.activityCoverage === "unavailable";
   const tokensUnavailable = facts.tokenBalanceCoverage === "unavailable";
+  const reviewedSample = facts.tokenBalanceCoverage === "reviewed_asset_sample";
+  const contractsChecked = finiteNumber(facts.tokenBalanceContractsChecked);
   if (activityUnavailable && tokensUnavailable) return {
-    answer: "Recent activity and token balances could not be retrieved, so this view cannot determine recent behavior or the wallet's complete asset list.",
+    answer: "Recent activity and token balances could not be retrieved, so this view cannot determine recent behavior, the wallet's complete asset list, or its safety; missing data is not proof of safety.",
     bullets: [
       "Missing: recent activity and token balances were unavailable; unavailable does not mean zero."
     ]
   };
   if (activityUnavailable) return {
-    answer: "Recent activity could not be retrieved, so this view cannot determine the wallet's recent behavior.",
+    answer: reviewedSample
+      ? `Recent activity could not be retrieved, and the token result checks only ${contractsChecked ?? "a bounded set of"} reviewed contracts, so this is useful holdings context—not the wallet's complete asset list or a meaningful wallet-safety assessment.`
+      : "Recent activity could not be retrieved, so this view cannot determine the wallet's recent behavior or meaningfully assess its safety.",
     bullets: [
-      "Missing: recent activity was unavailable; unavailable history does not mean no transactions."
+      reviewedSample
+        ? `Coverage: ${contractsChecked ?? "a bounded set of"} reviewed token contracts checked; recent activity and all other tokens remain unknown.`
+        : "Missing: recent activity was unavailable; unavailable history does not mean no transactions."
     ]
   };
   if (tokensUnavailable) return {
@@ -457,6 +507,7 @@ function buildActivityBullets(entity: NormalizedEntity): string[] {
   const bullets: string[] = [];
   const activityUnavailable = facts.activityCoverage === "unavailable";
   const tokenBalancesUnavailable = facts.tokenBalanceCoverage === "unavailable";
+  const reviewedSample = facts.tokenBalanceCoverage === "reviewed_asset_sample";
   if (activityUnavailable && tokenBalancesUnavailable) {
     bullets.push("Recent activity and token balances were unavailable from the public indexer; this is not a zero-count finding.");
   } else if (activityUnavailable) {
@@ -469,7 +520,12 @@ function buildActivityBullets(entity: NormalizedEntity): string[] {
   if (!activityUnavailable && transactionCount !== undefined) bullets.push(`${transactionCount} recent transaction${transactionCount === 1 ? "" : "s"} in the available activity window.`);
   const nativeBalance = conciseFact(facts.nativeBalanceEth);
   if (nativeBalance) bullets.push(`Native balance: ${nativeBalance} ETH.`);
-  if (!tokenBalancesUnavailable && Array.isArray(facts.tokenBalances)) bullets.push(`${facts.tokenBalances.length} token balance${facts.tokenBalances.length === 1 ? "" : "s"} returned.`);
+  if (!tokenBalancesUnavailable && Array.isArray(facts.tokenBalances)) {
+    const checked = finiteNumber(facts.tokenBalanceContractsChecked);
+    bullets.push(reviewedSample
+      ? `${facts.tokenBalances.length} positive balance${facts.tokenBalances.length === 1 ? "" : "s"} found across ${checked ?? "the bounded"} reviewed token contracts; this is not a complete portfolio.`
+      : `${facts.tokenBalances.length} token balance${facts.tokenBalances.length === 1 ? "" : "s"} returned.`);
+  }
   const status = conciseFact(facts.status);
   if (status) bullets.push(`Transaction status: ${status}.`);
   const value = conciseFact(facts.valueEth ?? facts.value);
@@ -488,6 +544,16 @@ function conciseFact(value: unknown): string | undefined {
   if (typeof value === "number" && Number.isFinite(value)) return String(value);
   if (typeof value === "boolean") return value ? "yes" : "no";
   return undefined;
+}
+
+function compactBeginnerDecimal(value: string | undefined): string | undefined {
+  if (!value || !/^\d+(?:\.\d+)?$/.test(value)) return value;
+  const [whole = "0", fraction = ""] = value.split(".");
+  const groupedWhole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  if (!fraction || /^0+$/.test(fraction)) return groupedWhole;
+  const visible = fraction.slice(0, 6).replace(/0+$/, "");
+  if (!visible) return `<0.${"0".repeat(5)}1`;
+  return `${groupedWhole}.${visible}`;
 }
 
 function buildConfirmedFacts(entity: NormalizedEntity): AiExplorerAnswer["confirmedFacts"] {

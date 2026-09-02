@@ -42,10 +42,12 @@ export function applyPrivateProviderCoverage(resolution: ResolvedEntity): Resolv
   const hasActivityWindow = resolution.sources.some((source) =>
     source.provider === "blockscout" && source.requestUrl?.includes("/transactions")
   );
-  const hasTokenBalances = resolution.sources.some((source) =>
-    source.provider === "blockscout"
-    && (source.requestUrl?.includes("/token-balances") || source.requestUrl?.includes("/balances_v2/"))
-  );
+  const hasTokenBalances = resolution.sources.some((source) => {
+    const response = source.responseJson as { query?: unknown } | undefined;
+    return (source.provider === "blockscout"
+      && (source.requestUrl?.includes("/token-balances") || source.requestUrl?.includes("/balances_v2/")))
+      || response?.query === "reviewedTokenBalanceSample";
+  });
   if (hasActivityWindow && hasTokenBalances) return resolution;
 
   const facts = { ...resolution.entity.facts };
@@ -131,7 +133,7 @@ export async function privateRoutes(
           clearsOnReload: true,
           modelProvider: "none" as const,
           providerDestinations: resolution.providerDestinations,
-          disclosure: "Only the public chain identifier is sent to the listed data providers. Your question is not sent to them or to a model provider."
+          disclosure: "Only the public chain identifier is user-supplied to the listed data providers. When indexer balances are unavailable, Robinhood Public RPC may also receive ChainScout's fixed 12-contract reviewed sample in one read-only balance call. Your question is not sent to providers or to a model provider."
         }
       };
     }

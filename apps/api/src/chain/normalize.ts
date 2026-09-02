@@ -47,11 +47,15 @@ export function normalizeEntity(
 
 function fieldsUsedForDoc(doc: SourceDocumentInput): string[] {
   const url = doc.requestUrl ?? "";
-  const method = (doc.responseJson as { method?: string })?.method;
+  const response = doc.responseJson as { method?: string; query?: string };
+  const method = response?.method;
   if (method === "eth_getTransactionByHash") return ["result.hash", "result.from", "result.to", "result.value", "result.input", "result.blockNumber"];
   if (method === "eth_getTransactionReceipt") return ["result.status", "result.gasUsed", "result.contractAddress", "result.logs"];
   if (method === "eth_getBalance") return ["result"];
   if (method === "eth_getCode") return ["result"];
+  if (method === "eth_call" && response.query === "reviewedTokenBalanceSample") {
+    return ["items[].token", "items[].value", "contractsChecked", "registryReviewedAt"];
+  }
   if (method === "eth_call") return ["result", "token", "spender", "query"];
   if (url.includes("/token-transfers") || url.includes("/transfers")) return ["items[].from", "items[].to", "items[].token", "items[].value", "items[].transaction_hash"];
   if (url.includes("/internal-transactions")) return ["items[].from", "items[].to", "items[].value", "items[].success", "items[].error"];
@@ -118,9 +122,14 @@ function summarizeFacts(type: ChainEntityType, docs: SourceDocumentInput[]): Rec
     const tokenTransfers = documentItems(docs, "/token-transfers").map(normalizeTokenTransfer);
     const internalTransactions = documentItems(docs, "/internal-transactions");
     const balanceDoc = docs.find((doc) => doc.requestUrl?.includes("/token-balances"));
+    const reviewedBalanceDoc = docs.find((doc) =>
+      (doc.responseJson as { query?: unknown } | undefined)?.query === "reviewedTokenBalanceSample"
+    );
+    const reviewedBalanceResponse = reviewedBalanceDoc?.responseJson as { items?: unknown[]; contractsChecked?: unknown } | undefined;
     const tokenBalances = [
       ...(Array.isArray(balanceDoc?.responseJson) ? balanceDoc.responseJson : []).map(normalizeTokenBalance),
-      ...documentItems(docs, "/balances_v2/").map(normalizeTokenBalance)
+      ...documentItems(docs, "/balances_v2/").map(normalizeTokenBalance),
+      ...(Array.isArray(reviewedBalanceResponse?.items) ? reviewedBalanceResponse.items : []).map(normalizeTokenBalance)
     ];
     const todayTransactions = transactions.filter((transaction) => isTodayUtc(transaction.timestamp));
     const timestamps = transactions.map((transaction) => transaction.timestamp).filter((timestamp): timestamp is string => typeof timestamp === "string");
@@ -146,6 +155,10 @@ function summarizeFacts(type: ChainEntityType, docs: SourceDocumentInput[]): Rec
       tokenTransfers,
       internalTransactions,
       tokenBalances,
+      ...(reviewedBalanceDoc ? {
+        tokenBalanceCoverage: "reviewed_asset_sample",
+        tokenBalanceContractsChecked: reviewedBalanceResponse?.contractsChecked
+      } : {}),
       unusualActivity,
       hasTokenTransfers: Boolean(primary?.has_token_transfers),
       hasTokens: Boolean(primary?.has_tokens),

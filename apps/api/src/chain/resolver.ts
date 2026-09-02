@@ -19,6 +19,7 @@ export class ChainEntityResolver {
     isConfigured?(): boolean;
     getTransaction(hash: string): Promise<SourceDocumentInput[]>;
     getAddressSummary(address: string): Promise<SourceDocumentInput[]>;
+    getReviewedAssetBalances?(address: string): Promise<SourceDocumentInput[]>;
     getAllowances(owner: string, targets: AllowanceTarget[]): Promise<SourceDocumentInput[]>;
   };
   private readonly goldrush: Pick<ChainProvider, "name" | "isConfigured" | "getAddressSummary">;
@@ -100,6 +101,14 @@ export class ChainEntityResolver {
         }
       }
       if (resolvedType === "wallet") {
+        if (options.privateMode && !hasTokenBalanceSource(docs) && this.alchemy.getReviewedAssetBalances) {
+          try {
+            docs.push(...(await this.alchemy.getReviewedAssetBalances(identified.value)));
+          } catch {
+            // The direct reviewed sample is a bounded fallback. Native balance
+            // and code reads remain useful if this optional call is degraded.
+          }
+        }
         const provisional = normalizeEntity(this.env.ROBINHOOD_CHAIN_ID, resolvedType, identified.value, docs);
         const approvals = options.includeApprovals === false ? [] : Array.isArray(provisional.facts.approvalTransactions)
           ? (provisional.facts.approvalTransactions as Array<Record<string, unknown>>)
@@ -185,6 +194,15 @@ export class ChainEntityResolver {
       return;
     }
   }
+}
+
+function hasTokenBalanceSource(docs: SourceDocumentInput[]): boolean {
+  return docs.some((doc) => {
+    const response = doc.responseJson as { query?: unknown } | undefined;
+    return doc.requestUrl?.includes("/token-balances")
+      || doc.requestUrl?.includes("/balances_v2/")
+      || response?.query === "reviewedTokenBalanceSample";
+  });
 }
 
 export function validateEntityInput(inputType: ChainEntityType, input: string): { type: ChainEntityType; value: string } {

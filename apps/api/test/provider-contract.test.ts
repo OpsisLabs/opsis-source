@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { encodeFunctionResult, type Abi } from "viem";
 import { AlchemyProvider } from "../src/chain/alchemy.js";
 import { BlockscoutProvider } from "../src/chain/blockscout.js";
 import type { ProviderHttp } from "../src/chain/provider-http.js";
@@ -109,6 +110,55 @@ describe("provider fixture contracts", () => {
     expect(sources.every((source) => source.provider === "robinhood-public-rpc")).toBe(true);
     expect(http.requests).toHaveLength(2);
     expect(http.requests.every((request) => request.url === env.ROBINHOOD_PUBLIC_RPC_URL)).toBe(true);
+  });
+
+  it("reads a bounded reviewed token sample through one read-only multicall", async () => {
+    const balanceAbi = [{
+      type: "function", name: "balanceOf", stateMutability: "view",
+      inputs: [{ name: "account", type: "address" }], outputs: [{ name: "", type: "uint256" }]
+    }] as const satisfies Abi;
+    const aggregateAbi = [{
+      type: "function", name: "aggregate3", stateMutability: "payable",
+      inputs: [{ name: "calls", type: "tuple[]", components: [
+        { name: "target", type: "address" }, { name: "allowFailure", type: "bool" }, { name: "callData", type: "bytes" }
+      ] }],
+      outputs: [{ name: "returnData", type: "tuple[]", components: [
+        { name: "success", type: "bool" }, { name: "returnData", type: "bytes" }
+      ] }]
+    }] as const satisfies Abi;
+    const returns = Array.from({ length: 12 }, (_, index) => ({
+      success: true,
+      returnData: encodeFunctionResult({
+        abi: balanceAbi,
+        functionName: "balanceOf",
+        result: index === 2 ? 1250000000000000000n : 0n
+      })
+    }));
+    const requests: Array<{ url: string; init?: RequestInit }> = [];
+    const http: ProviderHttp = {
+      async requestJson(url, init) {
+        requests.push({ url, init });
+        return {
+          result: encodeFunctionResult({ abi: aggregateAbi, functionName: "aggregate3", result: returns })
+        };
+      }
+    };
+    const env = loadEnv({ NODE_ENV: "test", ENABLE_PUBLIC_RPC_FALLBACK: "true" });
+    const provider = new AlchemyProvider(env, http);
+
+    const sources = await provider.getReviewedAssetBalances(addressFixture.hash);
+
+    expect(requests).toHaveLength(1);
+    const request = JSON.parse(String(requests[0]?.init?.body)) as { method: string; params: Array<{ to: string; data: string }> };
+    expect(request.method).toBe("eth_call");
+    expect(request.params[0]?.to.toLowerCase()).toBe("0xca11bde05977b3631167028862be2a173976ca11");
+    expect(sources).toHaveLength(1);
+    expect(sources[0]?.responseJson).toMatchObject({
+      method: "eth_call",
+      query: "reviewedTokenBalanceSample",
+      contractsChecked: 12,
+      items: [{ token: { symbol: "AAPL", decimals: 18 }, value: "1250000000000000000" }]
+    });
   });
 
   it("reads and documents current allowances without exposing RPC credentials", async () => {

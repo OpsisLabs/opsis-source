@@ -246,10 +246,14 @@ export function PrivacyPage() {
 
       <Section n="05" title="Third-party providers">
         <p>
-          Private Mode queries Blockscout and may query an explicitly configured
-          Alchemy or GoldRush integration for public chain data; the on-screen
-          receipt names the providers actually used, and your question is not
-          sent to a model provider. The optional saved cloud workspace may use
+          Private Mode queries Blockscout for public chain data. If the indexer
+          cannot return wallet token balances, it may send the public wallet
+          address plus ChainScout's fixed 12-contract reviewed sample to
+          Robinhood Public RPC in one read-only balance call. That bounded sample
+          is not a complete asset list, price feed, valuation, activity history,
+          or wallet-safety assessment. The on-screen receipt names every provider
+          that received the public identifier, and your question is not sent to
+          a model provider. The optional saved cloud workspace may use
           OpenAI or a self-hosted model to word an explanation. Scout Swap sends
           Uniswap only the pair, amount, chain, and fixed non-user preview
           address needed for a quote. If you choose to continue, you leave

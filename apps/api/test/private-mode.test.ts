@@ -89,6 +89,46 @@ describe("no-account Private Mode", () => {
     expect(covered.entity.facts.hasTokens).toBeUndefined();
   });
 
+  it("keeps a direct reviewed token sample when the indexer is unavailable", () => {
+    const covered = applyPrivateProviderCoverage({
+      entity: {
+        ...entity,
+        facts: {
+          nativeBalanceEth: "0.8",
+          transactionsFetched: 0,
+          recentTransactions: [],
+          tokenBalanceCoverage: "reviewed_asset_sample",
+          tokenBalanceContractsChecked: 12,
+          tokenBalances: [{ tokenSymbol: "AAPL", formattedValue: "0.5" }]
+        }
+      },
+      providerDestinations: ["blockscout", "robinhood-public-rpc"],
+      sources: [{
+        id: "reviewed-balances",
+        provider: "robinhood-public-rpc",
+        chainId: 4663,
+        entityType: "wallet",
+        entityValue: identifier,
+        requestUrl: "https://rpc.mainnet.chain.robinhood.com",
+        responseJson: {
+          method: "eth_call",
+          query: "reviewedTokenBalanceSample",
+          contractsChecked: 12,
+          items: [{ token: { symbol: "AAPL", decimals: 18 }, value: "500000000000000000" }]
+        },
+        fetchedAt: "2026-09-02T00:00:00.000Z"
+      }]
+    });
+
+    expect(covered.entity.facts).toMatchObject({
+      activityCoverage: "unavailable",
+      tokenBalanceCoverage: "reviewed_asset_sample",
+      tokenBalanceContractsChecked: 12,
+      tokenBalances: [{ tokenSymbol: "AAPL", formattedValue: "0.5" }]
+    });
+    expect(covered.entity.facts.transactionsFetched).toBeUndefined();
+  });
+
   it("keeps the official public RPC fallback scoped to the ephemeral resolver", async () => {
     const source = await import("../src/routes/private.js");
     expect(source.privateResolverEnvironment(loadEnv({ NODE_ENV: "test" }))).toMatchObject({
@@ -242,6 +282,75 @@ describe("no-account Private Mode", () => {
     expect(persistedUpsert).not.toHaveBeenCalled();
   });
 
+  it("uses the reviewed direct-balance sample only when Private Mode lacks indexer balances", async () => {
+    const rpcSource = (id: string, method: string, result: string): SourceDocumentInput => ({
+      id,
+      provider: "robinhood-public-rpc",
+      chainId: 4663,
+      entityType: "wallet",
+      entityValue: identifier,
+      requestUrl: "https://rpc.mainnet.chain.robinhood.com",
+      responseJson: { method, result },
+      fetchedAt: "2026-09-02T00:00:00.000Z"
+    });
+    const getReviewedAssetBalances = vi.fn(async (): Promise<SourceDocumentInput[]> => [{
+      id: "reviewed-sample",
+      provider: "robinhood-public-rpc",
+      chainId: 4663,
+      entityType: "wallet",
+      entityValue: identifier,
+      requestUrl: "https://rpc.mainnet.chain.robinhood.com",
+      responseJson: {
+        method: "eth_call",
+        query: "reviewedTokenBalanceSample",
+        contractsChecked: 12,
+        items: [{
+          token: {
+            address_hash: "0xaF3D76f1834A1d425780943C99Ea8A608f8a93f9",
+            name: "Apple",
+            symbol: "AAPL",
+            type: "ERC-20",
+            decimals: 18
+          },
+          value: "1250000000000000000"
+        }]
+      },
+      fetchedAt: "2026-09-02T00:00:00.000Z"
+    }]);
+    const resolver = new ChainEntityResolver(loadEnv({ NODE_ENV: "test" }), new JsonCache(undefined, 60), undefined, {
+      blockscout: {
+        ...provider({}),
+        name: "blockscout",
+        getAddressSummary: vi.fn(async () => { throw new Error("indexer unavailable"); })
+      },
+      alchemy: {
+        name: "robinhood-public-rpc",
+        isConfigured: () => true,
+        getTransaction: vi.fn(async () => []),
+        getAddressSummary: vi.fn(async () => [
+          rpcSource("rpc-code", "eth_getCode", "0x"),
+          rpcSource("rpc-balance", "eth_getBalance", "0x0")
+        ]),
+        getReviewedAssetBalances,
+        getAllowances: vi.fn(async () => [])
+      },
+      goldrush: { ...provider({}), isConfigured: () => false }
+    });
+
+    const resolution = applyPrivateProviderCoverage(
+      await resolver.resolveWithSources("wallet", identifier, { privateMode: true, includeApprovals: false })
+    );
+
+    expect(getReviewedAssetBalances).toHaveBeenCalledOnce();
+    expect(resolution.entity.facts).toMatchObject({
+      activityCoverage: "unavailable",
+      tokenBalanceCoverage: "reviewed_asset_sample",
+      tokenBalanceContractsChecked: 12,
+      tokenBalances: [{ tokenSymbol: "AAPL", formattedValue: "1.25" }]
+    });
+    expect(resolution.providerDestinations).toEqual(["blockscout", "robinhood-public-rpc"]);
+  });
+
   it("discloses a configured provider that received the identifier and then failed", async () => {
     const source: SourceDocumentInput = {
       id: "blockscout-source",
@@ -291,6 +400,9 @@ describe("no-account Private Mode", () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.json().privacy.providerDestinations).toEqual(["blockscout", "alchemy"]);
+    expect(response.json().privacy.disclosure).toContain("fixed 12-contract reviewed sample");
+    expect(response.json().privacy.disclosure).toContain("one read-only balance call");
+    expect(response.json().privacy.disclosure).toContain("Your question is not sent");
   });
 
   it("keeps private canaries out of request logs and aggregate metrics", async () => {

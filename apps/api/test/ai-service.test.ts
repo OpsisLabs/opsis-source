@@ -40,7 +40,7 @@ describe("AI answer boundary", () => {
     ]);
 
     expect(new Set([overview.answer, risk.answer, evidence.answer, activity.answer]).size).toBe(4);
-    expect(overview.answer).toContain("public wallet address");
+    expect(overview.summaryBullets.join(" ")).toContain("public wallet address");
     expect(overview.answer).toContain("native balance of 0.25 ETH");
     expect(overview.answer).toContain("not a verdict");
     expect(overview.summaryBullets).toContain("Meaning: public wallet address, not a verified real-world identity.");
@@ -65,11 +65,37 @@ describe("AI answer boundary", () => {
       }
     });
 
-    expect(answer.answer).toContain("cannot determine recent behavior or the wallet's complete asset list");
+    expect(answer.answer).toContain("cannot determine recent behavior, the wallet's complete asset list, or its safety");
     expect(answer.answer).toContain("not proof of safety");
     expect(answer.summaryBullets).toContain("Missing: recent activity and token balances were unavailable; unavailable does not mean zero.");
     expect(answer.summaryBullets).toContain("Next: open the source panel and verify the cited fields.");
     expect(answer.summaryBullets.join(" ")).not.toMatch(/0 recent transactions|0 token balances/);
+  });
+
+  it("turns a reviewed token-balance sample into useful beginner context without calling it complete", async () => {
+    const service = new AiService(loadEnv({ NODE_ENV: "test", AI_PROVIDER: "fallback" }));
+    const answer = await service.answer("What should a beginner know?", {
+      ...entity,
+      type: "wallet",
+      facts: {
+        nativeBalanceEth: "0.803388546333112016",
+        activityCoverage: "unavailable",
+        tokenBalanceCoverage: "reviewed_asset_sample",
+        tokenBalanceContractsChecked: 12,
+        tokenBalances: [
+          { tokenSymbol: "AAPL", formattedValue: "0.00195582723276964" },
+          { tokenSymbol: "NVDA", formattedValue: "0.000087283447671763" },
+          { tokenSymbol: "SPY", formattedValue: "0.003640538791008344" }
+        ]
+      }
+    });
+
+    expect(answer.answer).toContain("3 positive token balances in ChainScout's reviewed contract sample");
+    expect(answer.answer).toContain("tokenized assets AAPL, NVDA, SPY");
+    expect(answer.answer).toContain("native balance of 0.803388 ETH for network fees");
+    expect(answer.answer).toContain("not the wallet's complete asset list");
+    expect(answer.summaryBullets).toContain("Coverage: 12 reviewed token contracts checked; recent activity and all other tokens remain unknown.");
+    expect(answer.answer).toContain("not the wallet's complete asset list or a meaningful wallet-safety assessment");
   });
 
   it("treats common beginner wording as a specific explanatory intent", async () => {
@@ -90,7 +116,7 @@ describe("AI answer boundary", () => {
       "Explain this simply"
     ]) {
       const result = await service.answer(question, wallet);
-      expect(result.answer).toContain("public wallet address");
+      expect(result.summaryBullets.join(" ")).toContain("public wallet address");
       expect(result.answer).toContain("0.693262389611335472 ETH");
       expect(result.answer).toContain("could not be retrieved");
       expect(result.answer).not.toContain("This read-only overview explains");
