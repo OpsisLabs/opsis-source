@@ -1,5 +1,8 @@
 import { defineConfig } from "@playwright/test";
 
+const appPort = process.env.PW_APP_PORT ?? "5173";
+const appOrigin = `http://localhost:${appPort}`;
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: false,
@@ -10,15 +13,15 @@ export default defineConfig({
   expect: { timeout: 12_000 },
   reporter: [["list"]],
   use: {
-    baseURL: "http://localhost:5173",
+    baseURL: appOrigin,
     browserName: "webkit",
     headless: true,
     trace: "retain-on-failure",
     screenshot: "only-on-failure"
   },
   webServer: {
-    command: "pnpm --filter @rh-chain/web exec vite --host 127.0.0.1 --port 5173",
-    url: "http://localhost:5173",
+    command: `pnpm --filter @rh-chain/web exec vite --host 127.0.0.1 --port ${appPort}`,
+    url: appOrigin,
     reuseExistingServer: true,
     timeout: 120_000
   }

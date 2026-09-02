@@ -25,9 +25,11 @@ import {
   Search,
   ShieldCheck,
   Sparkles,
+  WalletCards,
   X,
 } from "lucide-react";
 import { PRODUCT_FEATURES, type ProductFeature } from "./features";
+import FeatureQuickstart from "./FeatureQuickstart";
 import ProductTour from "./ProductTour";
 import { isProductFeatureEnabled } from "./availability";
 
@@ -220,6 +222,20 @@ function ProductRail({
       </div>
 
       <nav className="shrink-0 border-t border-[#34312f] bg-[#1c1b1a] p-3" aria-label="Product resources">
+        <Link
+          to="/login"
+          onClick={onNavigate}
+          className="group mb-3 flex min-h-[54px] items-center gap-3 border border-[#fa6c34] bg-[#2a211d] px-3 text-[#fff7ec] outline-none transition-colors hover:bg-[#fa6c34] hover:text-[#1d1d1d] focus-visible:ring-2 focus-visible:ring-[#ffd0bc]"
+        >
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-[#fa6c34]/55 text-[#fa6c34] transition-colors group-hover:border-[#1d1d1d]/30 group-hover:text-[#1d1d1d]">
+            <WalletCards size={14} />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[10.5px] font-semibold">Connect wallet / sign in</span>
+            <span className="mt-0.5 block font-mono-d text-[7px] tracking-[0.08em] text-[#c9a697] group-hover:text-[#4b2114]">OPTIONAL · MESSAGE SIGNATURE ONLY</span>
+          </span>
+          <ArrowRight size={13} className="shrink-0 transition-transform group-hover:translate-x-1" />
+        </Link>
         <div className="grid grid-cols-2 gap-1.5">
         {isProductFeatureEnabled("open-data-api") && <Link to="/developers" onClick={onNavigate} aria-current={location.pathname === "/developers" ? "page" : undefined} className={`flex items-center gap-3 border px-3 py-2.5 font-mono-d text-[10px] tracking-[0.08em] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#fa6c34] ${location.pathname === "/developers" ? "border-[#fa6c34] bg-[#fa6c34] font-semibold text-[#1d1d1d]" : "border-[#fa6c34]/25 text-[#c0b6aa] hover:border-[#fa6c34]/65 hover:bg-[#fa6c34]/10 hover:text-[#fff7ec]"}`}>
           <CodeXml size={14} /> DEVELOPERS
@@ -253,11 +269,17 @@ export default function ProductShell() {
     if (!import.meta.env.PROD && !forced) return false;
     return forced || !tourWasSeen();
   });
+  const [quickstartOpen, setQuickstartOpen] = useState(false);
   const shell = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const drawer = useRef<HTMLDivElement>(null);
   const introduced = useRef(false);
   const returnFocus = useRef<HTMLElement | null>(null);
+  const quickstartReturnFocus = useRef<HTMLElement | null>(null);
+  const currentFeature = PRODUCT_FEATURES.find((feature) =>
+    isProductFeatureEnabled(feature.id) && activeFeature(location, feature),
+  );
+  const modalOpen = tourOpen || quickstartOpen;
 
   const rememberTourDismissal = () => {
     rememberTourSeen();
@@ -282,6 +304,27 @@ export default function ProductShell() {
         else trigger.current?.focus();
       }
       returnFocus.current = null;
+    }, 0);
+  };
+
+  const openQuickstart = (source: HTMLElement) => {
+    if (!currentFeature) return;
+    quickstartReturnFocus.current = source;
+    setOpen(false);
+    setQuickstartOpen(true);
+  };
+
+  const closeQuickstart = () => {
+    setQuickstartOpen(false);
+    window.setTimeout(() => {
+      const destination = quickstartReturnFocus.current;
+      if (destination?.isConnected) destination.focus();
+      else {
+        const visibleTrigger = Array.from(document.querySelectorAll<HTMLElement>("[data-quickstart-trigger]"))
+          .find((element) => element.getClientRects().length > 0);
+        visibleTrigger?.focus();
+      }
+      quickstartReturnFocus.current = null;
     }, 0);
   };
 
@@ -380,9 +423,22 @@ export default function ProductShell() {
       >
         SKIP TO MAIN CONTENT
       </a>
-      <aside data-desktop-rail inert={tourOpen ? true : undefined} className="fixed inset-y-0 left-0 z-40 hidden w-[252px] border-r border-[#2e2e2e] lg:block" aria-label="ChainScout features">
+      <aside data-desktop-rail inert={modalOpen ? true : undefined} className="fixed inset-y-0 left-0 z-40 hidden w-[252px] border-r border-[#2e2e2e] lg:block" aria-label="ChainScout features">
         <ProductRail onOpenTour={openTour} />
       </aside>
+
+      {currentFeature && !modalOpen && (
+        <button
+          type="button"
+          data-quickstart-trigger
+          onClick={(event) => openQuickstart(event.currentTarget)}
+          className="clip-btn-sm fixed bottom-[70px] right-4 z-50 flex min-h-[46px] items-center gap-2 border border-[#fa6c34] bg-[#fa6c34] px-4 font-mono-d text-[9px] font-semibold tracking-[0.12em] text-[#1d1d1d] shadow-[0_10px_40px_rgba(0,0,0,0.45)] outline-none transition-colors hover:bg-[#ff8251] focus-visible:ring-2 focus-visible:ring-[#ffd0bc] lg:bottom-5 lg:right-5"
+          aria-haspopup="dialog"
+          aria-label="Open how-to instructions for this page"
+        >
+          <CircleHelp size={14} /> HOW TO USE <span className="hidden sm:inline">· {currentFeature.shortLabel.toUpperCase()}</span>
+        </button>
+      )}
 
       <button
         ref={trigger}
@@ -390,7 +446,7 @@ export default function ProductShell() {
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
         aria-expanded={open}
-        disabled={tourOpen}
+        disabled={modalOpen}
         className="clip-btn-sm fixed bottom-4 right-4 z-50 flex min-h-[46px] items-center gap-2 border border-[#fa6c34]/50 bg-[#242424] px-4 font-mono-d text-[10px] tracking-[0.12em] text-[#fa6c34] shadow-[0_10px_40px_rgba(0,0,0,0.45)] lg:hidden"
       >
         <Menu size={15} /> FEATURES
@@ -414,10 +470,13 @@ export default function ProductShell() {
         </div>
       )}
 
-      <div id="product-main" tabIndex={-1} data-route-content inert={open || tourOpen ? true : undefined} className="min-h-screen outline-none lg:pl-[252px]" aria-hidden={open || tourOpen ? true : undefined}>
+      <div id="product-main" tabIndex={-1} data-route-content inert={open || modalOpen ? true : undefined} className="min-h-screen outline-none lg:pl-[252px]" aria-hidden={open || modalOpen ? true : undefined}>
         <Outlet />
       </div>
       {tourOpen && <ProductTour onDismiss={closeTour} />}
+      {quickstartOpen && currentFeature && (
+        <FeatureQuickstart feature={currentFeature} onDismiss={closeQuickstart} />
+      )}
     </div>
   );
 }

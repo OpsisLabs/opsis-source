@@ -40,6 +40,11 @@ describe("AI answer boundary", () => {
     ]);
 
     expect(new Set([overview.answer, risk.answer, evidence.answer, activity.answer]).size).toBe(4);
+    expect(overview.answer).toContain("public wallet address");
+    expect(overview.answer).toContain("native balance of 0.25 ETH");
+    expect(overview.answer).toContain("not a verdict");
+    expect(overview.summaryBullets).toContain("Meaning: public wallet address, not a verified real-world identity.");
+    expect(overview.summaryBullets).toContain("Next: open the source panel and verify the cited fields.");
     expect(risk.answer).toContain("risk check");
     expect(risk.summaryBullets.join(" ")).toContain("Concentrated activity");
     expect(evidence.answer).toContain("evidence view");
@@ -60,8 +65,36 @@ describe("AI answer boundary", () => {
       }
     });
 
-    expect(answer.summaryBullets).toContain("Recent activity and token balances were unavailable from the public indexer; this is not a zero-count finding.");
+    expect(answer.answer).toContain("cannot determine recent behavior or the wallet's complete asset list");
+    expect(answer.answer).toContain("not proof of safety");
+    expect(answer.summaryBullets).toContain("Missing: recent activity and token balances were unavailable; unavailable does not mean zero.");
+    expect(answer.summaryBullets).toContain("Next: open the source panel and verify the cited fields.");
     expect(answer.summaryBullets.join(" ")).not.toMatch(/0 recent transactions|0 token balances/);
+  });
+
+  it("treats common beginner wording as a specific explanatory intent", async () => {
+    const service = new AiService(loadEnv({ NODE_ENV: "test", AI_PROVIDER: "fallback" }));
+    const wallet: NormalizedEntity = {
+      ...entity,
+      type: "wallet",
+      facts: {
+        nativeBalanceEth: "0.693262389611335472",
+        activityCoverage: "unavailable",
+        tokenBalanceCoverage: "unavailable"
+      }
+    };
+
+    for (const question of [
+      "What should a beginner know?",
+      "What should I notice?",
+      "Explain this simply"
+    ]) {
+      const result = await service.answer(question, wallet);
+      expect(result.answer).toContain("public wallet address");
+      expect(result.answer).toContain("0.693262389611335472 ETH");
+      expect(result.answer).toContain("could not be retrieved");
+      expect(result.answer).not.toContain("This read-only overview explains");
+    }
   });
 
   it("omits unavailable and internal fields from beginner-facing confirmed facts", async () => {

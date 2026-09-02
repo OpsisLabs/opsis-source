@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { APP_ORIGIN } from "./support/origin";
 
 const WETH = "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73";
 const USDG = "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168";
@@ -25,7 +26,7 @@ function asset(symbol: "WETH" | "USDG", address: string, decimals: number) {
 
 test("developer page documents and exercises only the two credentialless zero-provider routes", async ({ page }) => {
   const requests: Array<{ url: string; method: string; body: string | null; cookie?: string }> = [];
-  await page.context().addCookies([{ name: "cs_access", value: "account-cookie-canary", url: "http://localhost:5173", httpOnly: true, sameSite: "Strict" }]);
+  await page.context().addCookies([{ name: "cs_access", value: "account-cookie-canary", url: APP_ORIGIN, httpOnly: true, sameSite: "Strict" }]);
   await page.route("**/v1/**", async (route) => {
     const request = route.request();
     requests.push({ url: request.url(), method: request.method(), body: request.postData(), cookie: request.headers().cookie });

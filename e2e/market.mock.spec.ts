@@ -1,4 +1,5 @@
 import { expect, test, type Download, type Page } from "@playwright/test";
+import { APP_ORIGIN } from "./support/origin";
 
 const passphrase = "correct horse battery staple";
 const contract = "0x1111111111111111111111111111111111111111";
@@ -69,7 +70,7 @@ test("market lookup and exact landed-cost inputs stay cookie-free and encrypted"
     {
       name: "rh_access",
       value: "SESSION-COOKIE-CANARY",
-      url: "http://localhost:5173",
+      url: APP_ORIGIN,
       httpOnly: true,
     },
   ]);
@@ -241,7 +242,7 @@ test("an approved Woo mapping locks provider facts, accepts only local costs, an
     {
       name: "rh_access",
       value: "SESSION-COOKIE-CANARY",
-      url: "http://localhost:5173",
+      url: APP_ORIGIN,
       httpOnly: true,
     },
   ]);
@@ -662,7 +663,7 @@ test("a catalog identity builds click-only public handoffs and waits for the use
 }) => {
   const externalRequests: string[] = [];
   page.on("request", (request) => {
-    if (!request.url().startsWith("http://localhost:5173"))
+    if (!request.url().startsWith(APP_ORIGIN))
       externalRequests.push(request.url());
   });
   const privacy = {
@@ -838,6 +839,10 @@ async function addComparison(
   await editor
     .getByRole("button", { name: "ENCRYPT & ADD COMPARISON" })
     .click();
+  await expect(editor.getByLabel("OFFER LABEL")).toHaveValue("");
+  await expect(
+    editor.getByRole("button", { name: "ENCRYPT & ADD COMPARISON" }),
+  ).toBeDisabled();
 }
 
 async function readRawVault(

@@ -10,8 +10,10 @@ import {
   readVaultMeta,
   readVaultSnapshot,
   removeEncryptedRecord,
+  removeEncryptedRecords,
   replaceVault,
   writeEncryptedRecord,
+  writeEncryptedRecords,
   writeVaultMeta
 } from "./db";
 import { createBackup } from "./crypto";
@@ -53,6 +55,32 @@ describe("encrypted vault IndexedDB", () => {
     })).rejects.toThrow("vault session expired");
     expect(await listEncryptedRecords()).toEqual([]);
     expect(await readVaultMeta()).toMatchObject({ revision: 0 });
+  });
+
+  it("adds and removes a demo-sized record set in one revision without exposing plaintext", async () => {
+    const created = await createVault("correct horse battery staple");
+    await initializeVault(created.meta);
+    const first = fixtureAsset();
+    const second = {
+      ...fixtureAsset(),
+      id: "95f6d521-cf7e-4f32-8e72-af9805a25dfd",
+      name: "SECOND-PLAINTEXT-CANARY",
+    };
+    const records = await Promise.all([
+      encryptAsset(created.meta, created.key, first),
+      encryptAsset(created.meta, created.key, second),
+    ]);
+    const revisionOne = { ...created.meta, revision: 1 };
+
+    await writeEncryptedRecords(records, revisionOne, 0);
+    expect(await readVaultMeta()).toMatchObject({ revision: 1 });
+    expect(await listEncryptedRecords()).toHaveLength(2);
+    expect(JSON.stringify(await rawDatabase())).not.toContain("SECOND-PLAINTEXT-CANARY");
+
+    const revisionTwo = { ...revisionOne, revision: 2 };
+    await removeEncryptedRecords(records.map((record) => record.id), revisionTwo, 1);
+    expect(await listEncryptedRecords()).toEqual([]);
+    expect(await readVaultMeta()).toMatchObject({ revision: 2 });
   });
 
   it("replaces a verified backup atomically and deletes only the vault database", async () => {

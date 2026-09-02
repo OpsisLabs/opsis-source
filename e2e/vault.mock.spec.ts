@@ -1,5 +1,6 @@
 import { expect, test, type Download, type Page } from "@playwright/test";
 import { readFile } from "node:fs/promises";
+import { APP_ORIGIN } from "./support/origin";
 
 const passphrase = "correct horse battery staple";
 const nextPassphrase = "new recovery passphrase 2026";
@@ -174,7 +175,7 @@ test("Portfolio Intelligence sends only one approved public address and encrypts
   await page.context().addCookies([{
     name: "rh_access",
     value: sessionCookieCanary,
-    url: "http://localhost:5173",
+    url: APP_ORIGIN,
     httpOnly: true,
     sameSite: "Strict"
   }]);

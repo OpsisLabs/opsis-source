@@ -1,6 +1,8 @@
 import { defineConfig } from "@playwright/test";
 
 const live = process.env.E2E_LIVE === "1";
+const appPort = process.env.PW_APP_PORT ?? "5173";
+const appOrigin = `http://localhost:${appPort}`;
 
 export default defineConfig({
   testDir: "./e2e",
@@ -15,7 +17,7 @@ export default defineConfig({
     ["html", { open: "never", outputFolder: "playwright-report" }]
   ],
   use: {
-    baseURL: "http://localhost:5173",
+    baseURL: appOrigin,
     channel: "chrome",
     headless: process.env.HEADED !== "1",
     trace: "retain-on-failure",
@@ -29,8 +31,8 @@ export default defineConfig({
       timeout: 120_000
     }] : []),
     {
-      command: "pnpm --filter @rh-chain/web exec vite --host 127.0.0.1 --port 5173",
-      url: "http://localhost:5173",
+      command: `pnpm --filter @rh-chain/web exec vite --host 127.0.0.1 --port ${appPort}`,
+      url: appOrigin,
       reuseExistingServer: true,
       timeout: 120_000
     }

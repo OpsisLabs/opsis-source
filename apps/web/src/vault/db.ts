@@ -96,6 +96,19 @@ export async function writeEncryptedRecord(
   expectedRevision: number,
   assertActive: () => void = () => undefined
 ): Promise<void> {
+  await writeEncryptedRecords([record], meta, expectedRevision, assertActive);
+}
+
+export async function writeEncryptedRecords(
+  recordsToWrite: EncryptedVaultRecord[],
+  meta: VaultMeta,
+  expectedRevision: number,
+  assertActive: () => void = () => undefined
+): Promise<void> {
+  if (recordsToWrite.length === 0) return;
+  if (new Set(recordsToWrite.map((record) => record.id)).size !== recordsToWrite.length) {
+    throw new VaultError("INVALID_VAULT", "Encrypted records must have unique identities.");
+  }
   const db = await openVaultDatabase();
   try {
     const transaction = db.transaction([META_STORE, RECORD_STORE], "readwrite", { durability: "strict" });
@@ -108,9 +121,10 @@ export async function writeEncryptedRecord(
       transaction.abort();
       throw error;
     }
-    const nextRecords = [record, ...records.filter((existing) => existing.id !== record.id)];
+    const ids = new Set(recordsToWrite.map((record) => record.id));
+    const nextRecords = [...recordsToWrite, ...records.filter((existing) => !ids.has(existing.id))];
     assertVaultCapacity(meta, nextRecords);
-    recordStore.put(record);
+    recordsToWrite.forEach((record) => recordStore.put(record));
     transaction.objectStore(META_STORE).put(meta);
     await transactionDone(transaction);
   } finally {
@@ -119,11 +133,28 @@ export async function writeEncryptedRecord(
 }
 
 export async function removeEncryptedRecord(id: string, meta: VaultMeta, expectedRevision: number): Promise<void> {
+  await removeEncryptedRecords([id], meta, expectedRevision);
+}
+
+export async function removeEncryptedRecords(
+  idsToRemove: string[],
+  meta: VaultMeta,
+  expectedRevision: number,
+  assertActive: () => void = () => undefined
+): Promise<void> {
+  if (idsToRemove.length === 0) return;
   const db = await openVaultDatabase();
   try {
     const transaction = db.transaction([META_STORE, RECORD_STORE], "readwrite", { durability: "strict" });
     await assertRevision(transaction.objectStore(META_STORE), expectedRevision, transaction);
-    transaction.objectStore(RECORD_STORE).delete(id);
+    try {
+      assertActive();
+    } catch (error) {
+      transaction.abort();
+      throw error;
+    }
+    const recordStore = transaction.objectStore(RECORD_STORE);
+    new Set(idsToRemove).forEach((id) => recordStore.delete(id));
     transaction.objectStore(META_STORE).put(meta);
     await transactionDone(transaction);
   } finally {

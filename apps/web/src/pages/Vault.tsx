@@ -16,6 +16,7 @@ import {
   CheckCircle2,
   Download,
   FileKey2,
+  FlaskConical,
   HardDrive,
   ImagePlus,
   KeyRound,
@@ -32,6 +33,7 @@ import {
   bootstrapVault,
   createLocalVault,
   deleteVaultAsset,
+  deleteVaultAssets,
   destroyLocalVault,
   exportVault,
   importVaultBackup,
@@ -39,6 +41,7 @@ import {
   recoverLocalVault,
   recoverVaultBackup,
   saveVaultAsset,
+  saveVaultAssets,
   saveVaultCollectibleContext,
   saveVaultMarketContext,
   saveVaultPortfolio,
@@ -46,6 +49,11 @@ import {
   updateVaultPassphrase,
   type UnlockedVault,
 } from "../vault/service";
+import {
+  createVaultDemoDrafts,
+  isVaultDemoAsset,
+  promoteVaultDemoDraft,
+} from "../vault/demo";
 import { readStorageStatus, requestPersistentStorage } from "../vault/db";
 import { fileToVaultPhoto, MAX_SOURCE_PHOTO_BYTES } from "../vault/photo";
 import {
@@ -154,6 +162,7 @@ export default function VaultPage() {
   const [notice, setNotice] = useState("");
   const [editor, setEditor] = useState<VaultAsset | "new" | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [demoBusy, setDemoBusy] = useState(false);
   const [recoverySecret, setRecoverySecret] = useState("");
   const [sessionKey, setSessionKey] = useState<CryptoKey | null>(null);
   const [sessionGeneration, setSessionGeneration] = useState(0);
@@ -465,7 +474,9 @@ export default function VaultPage() {
           collectibles: current.collectibles,
           markets: current.markets,
         },
-        draft,
+        existing && isVaultDemoAsset(existing)
+          ? promoteVaultDemoDraft(draft)
+          : draft,
         existing,
         assertActive,
       );
@@ -505,6 +516,119 @@ export default function VaultPage() {
       setError("");
     } catch (deleteError) {
       setError(vaultErrorMessage(deleteError));
+    }
+  };
+
+  const loadDemoAssets = async (
+    expectedSession = sessionGenerationRef.current,
+  ) => {
+    if (demoBusy) return;
+    setDemoBusy(true);
+    try {
+      const assertActive = () => {
+        if (sessionGenerationRef.current !== expectedSession)
+          throw new Error("Vault session changed");
+      };
+      assertActive();
+      const current = unlockedStateRef.current;
+      if (!current.meta || !current.sessionKey || current.phase !== "unlocked")
+        throw new Error("Vault is locked");
+      const existingNames = new Set(
+        current.assets.filter(isVaultDemoAsset).map((asset) => asset.name),
+      );
+      const drafts = createVaultDemoDrafts().filter(
+        (draft) => !existingNames.has(draft.name),
+      );
+      if (drafts.length === 0) {
+        setNotice("The complete encrypted demo set is already in this Vault.");
+        setError("");
+        return;
+      }
+      const saved = await saveVaultAssets(
+        {
+          meta: current.meta,
+          key: current.sessionKey,
+          assets: current.assets,
+          portfolios: current.portfolios,
+          collectibles: current.collectibles,
+          markets: current.markets,
+        },
+        drafts,
+        assertActive,
+      );
+      assertActive();
+      const nextAssets = [...saved.assets, ...current.assets];
+      unlockedStateRef.current = {
+        ...current,
+        meta: saved.meta,
+        assets: nextAssets,
+      };
+      setMeta(saved.meta);
+      setAssets(nextAssets);
+      setEditor(null);
+      broadcast("changed", saved.meta);
+      setNotice(
+        `${saved.assets.length} clearly labeled demo records were encrypted and saved locally. No provider was contacted.`,
+      );
+      setError("");
+      setStorage(await readStorageStatus());
+    } catch (demoError) {
+      setError(vaultErrorMessage(demoError));
+    } finally {
+      setDemoBusy(false);
+    }
+  };
+
+  const removeDemoAssets = async (
+    expectedSession = sessionGenerationRef.current,
+  ) => {
+    if (demoBusy) return;
+    setDemoBusy(true);
+    try {
+      const assertActive = () => {
+        if (sessionGenerationRef.current !== expectedSession)
+          throw new Error("Vault session changed");
+      };
+      assertActive();
+      const current = unlockedStateRef.current;
+      if (!current.meta || !current.sessionKey || current.phase !== "unlocked")
+        throw new Error("Vault is locked");
+      const ids = current.assets.filter(isVaultDemoAsset).map((asset) => asset.id);
+      if (ids.length === 0) {
+        setNotice("No unchanged ChainScout demo records remain in this Vault.");
+        setError("");
+        return;
+      }
+      const nextMeta = await deleteVaultAssets(
+        {
+          meta: current.meta,
+          key: current.sessionKey,
+          assets: current.assets,
+          portfolios: current.portfolios,
+          collectibles: current.collectibles,
+          markets: current.markets,
+        },
+        ids,
+        assertActive,
+      );
+      assertActive();
+      const nextAssets = current.assets.filter((asset) => !ids.includes(asset.id));
+      unlockedStateRef.current = {
+        ...current,
+        meta: nextMeta,
+        assets: nextAssets,
+      };
+      setMeta(nextMeta);
+      setAssets(nextAssets);
+      setEditor(null);
+      broadcast("changed", nextMeta);
+      setNotice(`${ids.length} demo records were removed. Your other encrypted records were untouched.`);
+      setError("");
+      setStorage(await readStorageStatus());
+    } catch (demoError) {
+      setError(vaultErrorMessage(demoError));
+    } finally {
+      setDemoBusy(false);
     }
   };
 
@@ -942,6 +1066,9 @@ export default function VaultPage() {
                 <VaultDashboard
                   assets={assets}
                   onAdd={() => setEditor("new")}
+                  demoBusy={demoBusy}
+                  onLoadDemo={loadDemoAssets}
+                  onRemoveDemo={removeDemoAssets}
                 />
                 {editor && (
                   <AssetEditor
@@ -1193,11 +1320,19 @@ function UnlockPanel({
 function VaultDashboard({
   assets,
   onAdd,
+  demoBusy,
+  onLoadDemo,
+  onRemoveDemo,
 }: {
   assets: VaultAsset[];
   onAdd: () => void;
+  demoBusy: boolean;
+  onLoadDemo: () => Promise<void>;
+  onRemoveDemo: () => Promise<void>;
 }) {
+  const [confirmDemoRemoval, setConfirmDemoRemoval] = useState(false);
   const types = new Set(assets.map((asset) => asset.assetType)).size;
+  const demoCount = assets.filter(isVaultDemoAsset).length;
   const lots = assets.reduce((total, asset) => total + asset.lots.length, 0);
   const pricedLots = assets.reduce(
     (total, asset) => total + asset.lots.filter((lot) => lot.unitPrice).length,
@@ -1230,6 +1365,49 @@ function VaultDashboard({
               <PackagePlus size={14} /> ADD ASSET
             </button>
           </div>
+        </div>
+      </section>
+      <section className={`clip-panel border border-[#4b403b] bg-[#211e1c] p-5 sm:flex sm:items-center sm:justify-between sm:gap-6 ${assets.length ? "xl:col-span-2" : ""}`} aria-label="Vault demo content">
+        <div className="max-w-[690px]">
+          <p className="flex items-center gap-2 font-mono-d text-[9px] font-semibold tracking-[0.15em] text-[#ff9a70]"><FlaskConical size={13} /> NEED SAFE TEST CONTENT?</p>
+          <p className="mt-2 text-[12px] leading-relaxed text-[#cfc5ba]">
+            Load four clearly labeled examples—crypto, a Pokémon card, an RWA, and an NFT—to test cards, lots, collectible fields, and charts. They are encrypted into this Vault, make zero network requests, and never claim ownership or a live price.
+          </p>
+          {demoCount > 0 && (
+            <p className="mt-2 font-mono-d text-[8px] tracking-[0.12em] text-[#8f8780]">{demoCount} DEMO RECORD{demoCount === 1 ? "" : "S"} CURRENTLY SAVED · EDITED DEMOS BECOME YOUR RECORDS</p>
+          )}
+        </div>
+        <div className="mt-4 flex shrink-0 flex-col gap-2 sm:mt-0 sm:min-w-[210px]">
+          {demoCount < 4 && (
+            <button
+              type="button"
+              disabled={demoBusy}
+              onClick={() => {
+                setConfirmDemoRemoval(false);
+                void onLoadDemo();
+              }}
+              className="clip-btn-sm flex min-h-[44px] items-center justify-center gap-2 bg-[#fa6c34] px-5 font-mono-d text-[9.5px] font-semibold tracking-wider text-[#1d1d1d] disabled:opacity-40"
+            >
+              <FlaskConical size={13} /> {demoBusy ? "ENCRYPTING…" : demoCount ? "RESTORE DEMO SET" : "LOAD 4 DEMO ASSETS"}
+            </button>
+          )}
+          {demoCount > 0 && (
+            <button
+              type="button"
+              disabled={demoBusy}
+              onClick={() => {
+                if (!confirmDemoRemoval) {
+                  setConfirmDemoRemoval(true);
+                  return;
+                }
+                setConfirmDemoRemoval(false);
+                void onRemoveDemo();
+              }}
+              className={`flex min-h-[42px] items-center justify-center gap-2 border px-4 font-mono-d text-[8.5px] tracking-wider outline-none transition-colors disabled:opacity-40 ${confirmDemoRemoval ? "border-[#e0738a] bg-[#e0738a]/10 text-[#f09ab0]" : "border-[#4a4541] text-[#aaa19a] hover:border-[#e0738a]/55 hover:text-[#e0738a]"}`}
+            >
+              <Trash2 size={12} /> {confirmDemoRemoval ? `CONFIRM REMOVE ${demoCount}` : "REMOVE DEMO RECORDS"}
+            </button>
+          )}
         </div>
       </section>
     </div>

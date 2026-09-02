@@ -24,8 +24,10 @@ import {
   readVaultSnapshot,
   readVaultMeta,
   removeEncryptedRecord,
+  removeEncryptedRecords,
   replaceVault,
   writeEncryptedRecord,
+  writeEncryptedRecords,
   writeVaultMeta
 } from "./db";
 import {
@@ -134,9 +136,36 @@ export async function saveVaultAsset(
   return { asset, meta };
 }
 
+export async function saveVaultAssets(
+  unlocked: UnlockedVault,
+  drafts: VaultAssetDraft[],
+  assertActive: () => void = () => undefined
+): Promise<{ assets: VaultAsset[]; meta: VaultMeta }> {
+  if (drafts.length === 0) return { assets: [], meta: unlocked.meta };
+  const assets = drafts.map((draft) => createAsset(draft));
+  const meta = nextMeta(unlocked.meta);
+  const encrypted = await Promise.all(
+    assets.map((asset) => encryptAsset(unlocked.meta, unlocked.key, asset))
+  );
+  assertActive();
+  await writeEncryptedRecords(encrypted, meta, unlocked.meta.revision, assertActive);
+  return { assets, meta };
+}
+
 export async function deleteVaultAsset(unlocked: UnlockedVault, id: string): Promise<VaultMeta> {
   const meta = nextMeta(unlocked.meta);
   await removeEncryptedRecord(id, meta, unlocked.meta.revision);
+  return meta;
+}
+
+export async function deleteVaultAssets(
+  unlocked: UnlockedVault,
+  ids: string[],
+  assertActive: () => void = () => undefined
+): Promise<VaultMeta> {
+  if (ids.length === 0) return unlocked.meta;
+  const meta = nextMeta(unlocked.meta);
+  await removeEncryptedRecords(ids, meta, unlocked.meta.revision, assertActive);
   return meta;
 }
 

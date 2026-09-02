@@ -233,13 +233,14 @@ function deterministicAnswer(question: string, entity: NormalizedEntity, extraUn
   };
 }
 
-type DeterministicIntent = "overview" | "risk" | "evidence" | "activity";
+type DeterministicIntent = "overview" | "beginner" | "risk" | "evidence" | "activity";
 
 function detectDeterministicIntent(question: string): DeterministicIntent {
   const normalized = question.toLowerCase();
   if (/\b(?:risks?|warnings?|signals?|safe|safety|scams?|suspicious)\b/.test(normalized)) return "risk";
   if (/\b(?:evidence|sources?|citations?|proof|prove|verify|supports?|supporting)\b/.test(normalized)) return "evidence";
   if (/\b(?:activity|transactions?|transfers?|movements?|history|recent|happened)\b/.test(normalized)) return "activity";
+  if (/\b(?:beginner|first[-\s]?time|new\s+to|what\s+should\s+i\s+(?:know|notice)|what\s+stands?\s+out|explain(?:\s+(?:this|it))?\s+simply)\b/.test(normalized)) return "beginner";
   return "overview";
 }
 
@@ -247,6 +248,7 @@ function deterministicView(
   intent: DeterministicIntent,
   entity: NormalizedEntity
 ): { answer: string; summaryBullets: string[] } {
+  if (intent === "beginner") return beginnerView(entity);
   if (intent === "risk") {
     const count = entity.riskNotes.length;
     return {
@@ -279,6 +281,129 @@ function deterministicView(
     answer: `This read-only overview explains the available Robinhood Chain facts for this ${entity.type}. It includes ${riskCount} evidence-based risk signal${riskCount === 1 ? "" : "s"} and is informational only, not financial advice.`,
     summaryBullets: buildSummaryBullets(entity)
   };
+}
+
+function beginnerView(entity: NormalizedEntity): { answer: string; summaryBullets: string[] } {
+  const meaning = beginnerMeaning(entity);
+  const primaryFact = beginnerPrimaryFact(entity);
+  const coverage = beginnerCoverage(entity);
+  const risk = entity.riskNotes.length > 0
+    ? `${entity.riskNotes.length} heuristic risk signal${entity.riskNotes.length === 1 ? " needs" : "s need"} attention; ${entity.riskNotes.length === 1 ? "it is" : "they are"} evidence to review, not a verdict.`
+    : "No heuristic risk signal appeared in the available facts; that is not proof of safety.";
+  const summaryBullets = [
+    `Meaning: ${meaning.bullet}`,
+    ...(primaryFact ? [`Confirmed: ${primaryFact.bullet}`] : []),
+    ...coverage.bullets,
+    `Safety: ${risk}`,
+    entity.citations.length > 0
+      ? "Next: open the source panel and verify the cited fields."
+      : "Next: retry when source data is available before drawing conclusions."
+  ].slice(0, 5);
+
+  return {
+    answer: [meaning.answer, primaryFact?.answer, coverage.answer, risk].filter(Boolean).join(" "),
+    summaryBullets
+  };
+}
+
+function beginnerMeaning(entity: NormalizedEntity): { answer: string; bullet: string } {
+  switch (entity.type) {
+    case "wallet":
+      return {
+        answer: "This is a public wallet address on Robinhood Chain; it does not identify the person or prove who controls it.",
+        bullet: "public wallet address, not a verified real-world identity."
+      };
+    case "transaction":
+      return {
+        answer: "This is a public Robinhood Chain transaction record, showing what the network accepted or rejected—not why a person chose the action.",
+        bullet: "public transaction record, not proof of a person's intent."
+      };
+    case "token":
+      return {
+        answer: "This is a token contract observed on Robinhood Chain; a contract address identifies code, not legitimacy, value, or endorsement.",
+        bullet: "token contract identity does not establish safety or value."
+      };
+    case "contract":
+      return {
+        answer: "This is a public smart-contract address on Robinhood Chain; the address identifies deployed code, not who should trust or use it.",
+        bullet: "smart-contract address, not a trust or safety verdict."
+      };
+    case "block":
+      return {
+        answer: "This is a Robinhood Chain block, a public batch of transactions recorded together by the network.",
+        bullet: "public batch of recorded transactions."
+      };
+    default:
+      return {
+        answer: "This is a public Robinhood Chain identifier, but the available facts do not establish a more specific identity.",
+        bullet: "public identifier with limited resolved identity."
+      };
+  }
+}
+
+function beginnerPrimaryFact(entity: NormalizedEntity): { answer: string; bullet: string } | undefined {
+  const facts = entity.facts;
+  if (entity.type === "wallet") {
+    const balance = conciseFact(facts.nativeBalanceEth);
+    if (balance) return {
+      answer: `The available data confirms a native balance of ${balance} ETH.`,
+      bullet: `native balance is ${balance} ETH.`
+    };
+  }
+  if (entity.type === "transaction") {
+    const status = conciseFact(facts.status);
+    const value = conciseFact(facts.valueEth ?? facts.value);
+    if (status && value) return {
+      answer: `The available receipt reports status ${status} and a transferred value of ${value}${facts.valueEth !== undefined ? " ETH" : ""}.`,
+      bullet: `status ${status}; transferred value ${value}${facts.valueEth !== undefined ? " ETH" : ""}.`
+    };
+    if (status) return {
+      answer: `The available receipt reports transaction status ${status}.`,
+      bullet: `transaction status is ${status}.`
+    };
+  }
+  const name = conciseFact(facts.name);
+  const symbol = conciseFact(facts.symbol);
+  if (name || symbol) {
+    const label = name && symbol ? `${name} (${symbol})` : (name ?? symbol)!;
+    return {
+      answer: `The returned metadata labels it ${label}.`,
+      bullet: `returned metadata label is ${label}.`
+    };
+  }
+  return undefined;
+}
+
+function beginnerCoverage(entity: NormalizedEntity): { answer?: string; bullets: string[] } {
+  if (entity.type !== "wallet") return { bullets: [] };
+  const facts = entity.facts;
+  const activityUnavailable = facts.activityCoverage === "unavailable";
+  const tokensUnavailable = facts.tokenBalanceCoverage === "unavailable";
+  if (activityUnavailable && tokensUnavailable) return {
+    answer: "Recent activity and token balances could not be retrieved, so this view cannot determine recent behavior or the wallet's complete asset list.",
+    bullets: [
+      "Missing: recent activity and token balances were unavailable; unavailable does not mean zero."
+    ]
+  };
+  if (activityUnavailable) return {
+    answer: "Recent activity could not be retrieved, so this view cannot determine the wallet's recent behavior.",
+    bullets: [
+      "Missing: recent activity was unavailable; unavailable history does not mean no transactions."
+    ]
+  };
+  if (tokensUnavailable) return {
+    answer: "Token balances could not be retrieved, so the native balance is not a complete asset list.",
+    bullets: [
+      "Missing: token balances were unavailable; the native balance is not the complete portfolio."
+    ]
+  };
+  const transactionCount = finiteNumber(facts.transactionsFetched)
+    ?? (Array.isArray(facts.recentTransactions) ? facts.recentTransactions.length : undefined);
+  const tokenCount = Array.isArray(facts.tokenBalances) ? facts.tokenBalances.length : undefined;
+  const coverageParts: string[] = [];
+  if (transactionCount !== undefined) coverageParts.push(`${transactionCount} recent transaction${transactionCount === 1 ? "" : "s"} in the returned window`);
+  if (tokenCount !== undefined) coverageParts.push(`${tokenCount} token balance${tokenCount === 1 ? "" : "s"} returned`);
+  return { bullets: coverageParts.length > 0 ? [`Coverage: ${coverageParts.join("; ")}.`] : [] };
 }
 
 function sanitizeAnswer(raw: RawAiAnswer, entity: NormalizedEntity, tokenUsage?: Record<string, number>): AiExplorerAnswer {

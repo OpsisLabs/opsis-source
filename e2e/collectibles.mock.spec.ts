@@ -1,5 +1,6 @@
 import { expect, test, type Download, type Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
+import { APP_ORIGIN } from "./support/origin";
 
 const passphrase = "correct horse battery staple";
 const cardName = "Charizard";
@@ -79,7 +80,7 @@ test("catalog match saves only encrypted owner data and survives encrypted backu
       {
         name: "rh_access",
         value: "SESSION-COOKIE-CANARY",
-        url: "http://localhost:5173",
+        url: APP_ORIGIN,
         httpOnly: true,
       },
     ]);

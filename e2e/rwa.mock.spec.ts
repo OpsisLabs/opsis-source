@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { APP_ORIGIN } from "./support/origin";
 
 const STOCK = "0xaF3D76f1834A1d425780943C99Ea8A608f8a93f9";
 const NOW = "2026-08-11T12:00:00.000Z";
@@ -12,7 +13,7 @@ test("confirms the exact public lookup, omits cookies, and explains a Stock Toke
   const unexpected: string[] = [];
   page.on("request", (request) => {
     const url = new URL(request.url());
-    if (url.origin !== "http://localhost:5173") unexpected.push(request.url());
+    if (url.origin !== APP_ORIGIN) unexpected.push(request.url());
     if (/\/v1\/(?:auth|chat|account|portfolio)/.test(url.pathname)) unexpected.push(request.url());
   });
   await page.route("**/v1/private/rwa/verify", async (route) => {

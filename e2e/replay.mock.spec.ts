@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { APP_ORIGIN } from "./support/origin";
 
 const passphrase = "replay action test passphrase";
 const address = "0x1111111111111111111111111111111111111111";
@@ -12,7 +13,7 @@ test("rebuilds a fresh trade without transmitting history, cookies, or the old a
   await page.context().addCookies([{
     name: "rh_access",
     value: cookieCanary,
-    url: "http://localhost:5173",
+    url: APP_ORIGIN,
     httpOnly: true,
     sameSite: "Strict",
   }]);
@@ -99,7 +100,7 @@ test("purchase rebuild requires a newly approved exact offer and opens only its 
   await page.context().addCookies([{
     name: "rh_access",
     value: "PURCHASE-COOKIE-CANARY",
-    url: "http://localhost:5173",
+    url: APP_ORIGIN,
     httpOnly: true,
     sameSite: "Strict",
   }]);

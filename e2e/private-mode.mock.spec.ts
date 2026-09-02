@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { APP_ORIGIN } from "./support/origin";
 
 const address = "0x0000000000000000000000000000000000000042";
 const timestamp = "2026-08-10T12:00:00.000Z";
@@ -28,7 +29,7 @@ test("Private Mode needs no account or wallet, renders citations, and clears on 
   page.on("request", (request) => {
     const url = new URL(request.url());
     if (url.pathname.startsWith("/v1/")) apiPaths.push(url.pathname);
-    if (url.origin !== "http://localhost:5173") externalOrigins.add(url.origin);
+    if (url.origin !== APP_ORIGIN) externalOrigins.add(url.origin);
   });
   await page.route("**/v1/private/analyze", async (route) => {
     expect(route.request().headers()["x-chainscout-csrf"]).toBe("1");

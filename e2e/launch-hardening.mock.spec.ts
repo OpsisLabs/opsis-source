@@ -64,6 +64,90 @@ test("keyboard tour makes the background inert, supports reflow, and restores fo
   await expect(page.locator("#product-main")).toBeFocused();
 });
 
+test("persistent sign-in and workspace quick start make the active flow obvious", async ({ page }) => {
+  await dismissTour(page);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/app");
+
+  await expect(page.getByRole("link", { name: /Connect wallet \/ sign in/i })).toHaveAttribute("href", "/login");
+  const trigger = page.getByRole("button", { name: "Open how-to instructions for this page" });
+  await trigger.focus();
+  await page.keyboard.press("Enter");
+
+  const quickstart = page.getByRole("dialog", { name: "Private Explorer" });
+  await expect(quickstart).toBeVisible();
+  await expect(page.locator("[data-route-content]")).toHaveAttribute("inert", "");
+  await expect(page.locator("[data-desktop-rail]")).toHaveAttribute("inert", "");
+  await expect(quickstart.getByText("01")).toBeVisible();
+  await expect(quickstart.getByText("02")).toBeVisible();
+  await expect(quickstart.getByText("03")).toBeVisible();
+  await expect(quickstart.getByText("Paste one public address or transaction hash.")).toBeVisible();
+  await expect(quickstart.getByRole("link", { name: /FULL GUIDE/i })).toHaveAttribute("href", "/guide#private-explorer");
+  const contrast = await new AxeBuilder({ page }).include("[role=dialog]").withRules(["color-contrast"]).analyze();
+  expect(contrast.violations).toEqual([]);
+
+  await page.keyboard.press("Escape");
+  await expect(trigger).toBeFocused();
+});
+
+test("Vault demo set is local-only, encrypted, persistent, and removable as a group", async ({ page }) => {
+  test.setTimeout(45_000);
+  await dismissTour(page);
+  const apiRequests: string[] = [];
+  page.on("request", (request) => {
+    if (new URL(request.url()).pathname.startsWith("/v1/")) apiRequests.push(request.url());
+  });
+  await page.goto("/vault?view=assets");
+  await page.getByLabel("VAULT PASSPHRASE").fill(passphrase);
+  await page.getByLabel("CONFIRM PASSPHRASE").fill(passphrase);
+  await page.getByRole("button", { name: "CREATE ENCRYPTED VAULT" }).click();
+  await page.getByRole("button", { name: /I SAVED IT/i }).click();
+
+  await page.getByRole("button", { name: "LOAD 4 DEMO ASSETS" }).click();
+  for (const name of [
+    "[DEMO] Wrapped Ether",
+    "[DEMO] Charizard · Base Set",
+    "[DEMO] Apple Stock Token",
+    "[DEMO] Robinhood Chain Collectible #42",
+  ]) {
+    await expect(page.getByRole("heading", { name })).toBeVisible();
+  }
+  await expect(page.getByTestId("collectible-value-history")).toBeVisible();
+  await expect(page.getByText(/4 clearly labeled demo records were encrypted/i)).toBeVisible();
+  expect(apiRequests).toEqual([]);
+
+  const rawVault = JSON.stringify(await page.evaluate(async () => new Promise((resolve, reject) => {
+    const request = indexedDB.open("chainscout-private-vault", 1);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const db = request.result;
+      const transaction = db.transaction(["meta", "records"], "readonly");
+      const meta = transaction.objectStore("meta").getAll();
+      const records = transaction.objectStore("records").getAll();
+      transaction.oncomplete = () => {
+        db.close();
+        resolve({ meta: meta.result, records: records.result });
+      };
+      transaction.onerror = () => reject(transaction.error);
+    };
+  })));
+  expect(rawVault).not.toContain("[DEMO] Charizard");
+  expect(rawVault).not.toContain("CHAINSCOUT DEMO DATA");
+
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Unlock on this device" })).toBeVisible();
+  await page.getByLabel("VAULT PASSPHRASE").fill(passphrase);
+  await page.getByRole("button", { name: "UNLOCK LOCALLY" }).click();
+  await expect(page.getByRole("heading", { name: "[DEMO] Charizard · Base Set" })).toBeVisible();
+
+  await page.getByRole("button", { name: "REMOVE DEMO RECORDS" }).click();
+  await page.getByRole("button", { name: "CONFIRM REMOVE 4" }).click();
+  await expect(page.getByText("NO ENCRYPTED ASSETS YET")).toBeVisible();
+  await expect(page.getByText(/4 demo records were removed/i)).toBeVisible();
+  expect(apiRequests).toEqual([]);
+});
+
 test("mobile new-user journey moves from a private lookup into one encrypted workspace", async ({ page }) => {
   test.setTimeout(45_000);
   await dismissTour(page);
