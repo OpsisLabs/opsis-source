@@ -49,6 +49,17 @@ test("public routes expose route-specific canonical metadata", async ({ page }) 
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex,nofollow");
 });
 
+test("the production-static GSAP notice preserves package and license details", async ({ request }) => {
+  const response = await request.get("/THIRD_PARTY_NOTICES.txt");
+  expect(response.ok()).toBe(true);
+  expect(response.headers()["content-type"]).toContain("text/plain");
+  const notice = await response.text();
+  expect(notice).toContain("GSAP 3.15.0");
+  expect(notice).toContain("@gsap/react 2.1.2");
+  expect(notice).toContain("Copyright 2008-2026, GreenSock. All rights reserved.");
+  expect(notice).toContain("https://gsap.com/standard-license");
+});
+
 test("keyboard tour makes the background inert, supports reflow, and restores focus", async ({ page, browserName }) => {
   await dismissTour(page);
   await page.emulateMedia({ reducedMotion: "reduce" });

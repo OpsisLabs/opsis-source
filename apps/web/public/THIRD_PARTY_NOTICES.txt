@@ -1,0 +1,13 @@
+ChainScout third-party notices
+
+GSAP 3.15.0
+Copyright 2008-2026, GreenSock. All rights reserved.
+Subject to the terms at https://gsap.com/standard-license
+
+@gsap/react 2.1.2
+Copyright 2008-2025, GreenSock. All rights reserved.
+Subject to the terms at https://gsap.com/standard-license
+
+ChainScout uses these packages only to animate its own interface. It does not
+provide a visual animation builder or a product that competes with Webflow's
+visual animation-building capabilities.

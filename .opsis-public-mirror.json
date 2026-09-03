@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "74df9a77cd9b60f0df2a85d75674b123552405e9f68f12e019e34930920109f8",
+  "sourceTreeDigest": "204c2ee25138afeedbe547ef3bb7221520c9f9979c51f3d9729742532c95fb77",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "4c7c8dcafeb4695578deb65db4b9a27a91402dc5915b38495e0b5ae0b9c79a14",
@@ -143,6 +143,7 @@
     "apps/web/public/og.png": "e588ca8a07f9e475ca7583d7471540ae318cd2740003c4541504dc5d3475735f",
     "apps/web/public/open-data-v1.openapi.json": "45097f3fdaaa9c2a654eb93ad7c9162f731fa84dd3b2fc574087b971392fca60",
     "apps/web/public/robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
+    "apps/web/public/THIRD_PARTY_NOTICES.txt": "efe05eb7e825fcc0640e186cc3c17172fb7479930d79c345b6eee85e7a743cb2",
     "apps/web/railway.json": "90cc1ae5d061c79535485e9501b7e83d0c033207e348679dd0178b9eaa8350ea",
     "apps/web/README.md": "7dceec95fd57a8fd734f4882a55b0c85789b7240099159efa0989fa567404b7f",
     "apps/web/src/App.tsx": "df95377b915ebb3629ca72de9c99a7e03f4df43046e3fee1329135203401e32e",
@@ -243,7 +244,7 @@
     "docs/dependency-licenses.md": "8cee1b9b2e571bd379b7bf86f2ab4d78aa0367677d26e131556bb06a61debd8d",
     "docs/release-train.md": "748ae1f0fae35013d732e532639a5d76aae1be16b8286d9603bd7eac0c4743b6",
     "e2e/collectibles.mock.spec.ts": "377b29096354c2826f2ab675f7f7dea7e544d8b33855feb6f96b35e69687e071",
-    "e2e/launch-hardening.mock.spec.ts": "40a115dd4673736815dfe854b823367ef722f65ca8c427d9f87fbb072ebe176f",
+    "e2e/launch-hardening.mock.spec.ts": "c339facf3a03ca417a8179a2066288259cb9bc4a1efb67de286dc810749243dd",
     "e2e/market.mock.spec.ts": "1dafddd81264d418b0939e01195e1497c0292b7f3baf0b36c46bc792ec8e4e44",
     "e2e/open-data-disabled.mock.spec.ts": "0b6386a56c5934c3b94a25e4e26633f51522a217041dab3f37d66d25f3800dce",
     "e2e/open-data.mock.spec.ts": "cf1cb205abe51ba3cd3176e28b4eb342221900c81ab718b904da1cfdb053e21b",
