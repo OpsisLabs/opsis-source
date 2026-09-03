@@ -28,7 +28,7 @@ export default function KnowledgeHeader({ active }: { active: KnowledgePage }) {
         </Link>
 
         <nav
-          className="ml-auto flex min-w-0 items-center gap-1 border border-[#383838] bg-[#222222] p-1"
+          className="ml-auto flex min-w-0 flex-wrap items-center gap-1 rounded-sm border border-[#383838] bg-[#222222] p-1"
           aria-label="Knowledge pages"
         >
           {PAGES.filter(({ id }) => id !== "developers" || isOpenDataApiEnabled()).map(({ id, label, path, icon: Icon }) => {
@@ -38,7 +38,7 @@ export default function KnowledgeHeader({ active }: { active: KnowledgePage }) {
                 key={id}
                 to={path}
                 aria-current={selected ? "page" : undefined}
-                className={`flex min-h-[34px] items-center gap-2 px-2.5 font-mono-d text-[8px] tracking-[0.08em] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#fa6c34] sm:px-3 sm:text-[9px] sm:tracking-[0.12em] ${
+                className={`flex min-h-11 items-center gap-2 whitespace-nowrap px-2.5 text-[14px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#fa6c34] sm:px-3 ${
                   selected
                     ? "bg-[#fa6c34] font-semibold text-[#1d1d1d]"
                     : "text-[#8f8880] hover:bg-[#2b2725] hover:text-[#f0e8da]"

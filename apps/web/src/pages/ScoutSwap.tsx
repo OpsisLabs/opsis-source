@@ -3,7 +3,6 @@ import { Link } from "react-router";
 import {
   AlertTriangle,
   ArrowDownUp,
-  ArrowLeft,
   ArrowUpRight,
   Check,
   CheckCircle2,
@@ -295,24 +294,17 @@ export default function ScoutSwap() {
         </div>
       </header>
 
-      <main className="relative mx-auto w-full max-w-[1180px] px-4 pb-20 pt-12 sm:px-6 sm:pt-16">
-        <Link to="/" className="relative inline-flex items-center gap-2 font-mono-d text-[10px] tracking-wider text-[#635d5a] transition-colors hover:text-[#e9e0d1]"><ArrowLeft size={12} /> BACK HOME</Link>
-
-        <div className="relative mt-10 grid items-end gap-8 lg:grid-cols-[1fr_0.72fr]">
+      <main className="workspace-layout">
+        <div className="workspace-heading">
           <div>
-            <p className="font-mono-d text-[10px] tracking-[0.22em] text-[#fa6c34]">RELEASE 01 · LIVE ROUTE, QUIET HANDOFF</p>
-            <h1 className="mt-5 max-w-[760px] font-serif-d text-[clamp(48px,7vw,88px)] leading-[0.93] tracking-[-0.045em] text-[#e9e0d1]">See the trade<br /><span className="text-[#fa6c34]">before the trade.</span></h1>
-          </div>
-          <div className="border-l border-[#383838] pl-5 sm:pl-7">
-            <p className="text-[14px] leading-relaxed text-[#9a938a]">Preview a current WETH/USDG route in plain English. ChainScout explains; the official Uniswap app independently requotes and handles every approval, signature, and transaction.</p>
-            <div className="mt-5 flex flex-wrap gap-2">
-              {["NO SIGNING", "NO BROADCAST", "30S FRESHNESS", "CHAIN 4663"].map((item) => <span key={item} className="border border-[#383838] bg-[#242424] px-2.5 py-1.5 font-mono-d text-[9px] tracking-wider text-[#7f7972]">{item}</span>)}
-            </div>
+            <p className="workspace-eyebrow"><ArrowDownUp size={14} /> Scout Swap · read-only preview</p>
+            <h1 className="workspace-title">See the trade<br /><span className="text-[#fa6c34]">before the trade.</span></h1>
+            <p className="workspace-description">Preview a current WETH/USDG route, estimated output and costs. The official Uniswap app requotes and handles every approval, signature and transaction.</p>
           </div>
         </div>
 
-        <div className="relative mt-12 grid min-w-0 gap-6 lg:grid-cols-[minmax(0,0.76fr)_minmax(0,1.24fr)]">
-          <form onSubmit={fetchQuote} className="clip-panel h-fit border border-[#383838] bg-[#242424] p-5 sm:p-6 lg:sticky lg:top-[88px]">
+        <div className="relative grid min-w-0 gap-6 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+          <form onSubmit={fetchQuote} className="clip-panel h-fit border border-[#383838] bg-[#242424] p-5 sm:p-6 xl:sticky xl:top-[88px]">
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-mono-d text-[9px] tracking-[0.16em] text-[#635d5a]">YOU SEND</p>
@@ -372,10 +364,10 @@ export default function ScoutSwap() {
             )}
             {quote && !loading && <QuotePanel quote={quote} elapsedMs={elapsedMs} />}
             {!quote && !loading && !error && (
-              <div className="clip-panel flex min-h-[480px] flex-col justify-between border border-[#383838] bg-[#202020] p-6 sm:p-8">
+              <div className="clip-panel flex min-h-[360px] flex-col justify-between border border-[#383838] bg-[#202020] p-6 sm:p-8">
                 <div>
                   <div className="flex h-12 w-12 items-center justify-center border border-[#383838] bg-[#242424] text-[#fa6c34]"><Route size={20} /></div>
-                  <h2 className="mt-7 font-serif-d text-[34px] leading-tight text-[#e9e0d1]">A useful answer,<br />before a risky action.</h2>
+                  <h2 className="mt-5 text-[24px] font-medium leading-tight text-[#e9e0d1]">See the route before you continue.</h2>
                   <p className="mt-4 max-w-[520px] text-[13px] leading-relaxed text-[#8f8880]">ChainScout asks Uniswap for a current route, then translates the response into the five details a beginner actually needs.</p>
                 </div>
                 <div className="mt-10 grid gap-px overflow-hidden border border-[#383838] bg-[#383838] sm:grid-cols-2">

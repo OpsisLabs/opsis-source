@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { Link } from "react-router";
 import {
-  AlertTriangle, ArrowLeft, BadgeCheck, BarChart3, Box, Building2, Check,
+  AlertTriangle, BadgeCheck, BarChart3, Box, Building2, Check,
   ChevronRight, CircleDollarSign, Clock3, DatabaseZap, FileCheck2, Layers3,
   LockKeyhole, Search, ShieldAlert, ShieldCheck, Sparkles, X
 } from "lucide-react";
 import { isAddress } from "viem";
 import { ApiError } from "../dashboard/http";
 import { verifyRwa, type RwaCheck, type RwaVerification } from "../rwa/api";
+import { WorkspaceDisclosure } from "../product/WorkspaceDisclosure";
 
 const SAMPLE_STOCK = "0xaF3D76f1834A1d425780943C99Ea8A608f8a93f9";
 const SAMPLE_VAULT = "0xBeEff033F34C046626B8D0A041844C5d1A5409dd";
@@ -73,23 +74,24 @@ export default function RwaVerify() {
         <nav className="flex items-center gap-4 font-mono-d text-[9px] text-[#7f7972] sm:text-[10px]"><Link to="/vault" className="hover:text-[#e9e0d1]">VAULT</Link><Link to="/app" className="hover:text-[#e9e0d1]">PRIVATE MODE</Link></nav>
       </header>
 
-      <main className="mx-auto w-full max-w-[1220px] px-4 pb-24 pt-9 sm:px-6 lg:pt-14">
-        <Link to="/" className="mb-8 inline-flex items-center gap-2 font-mono-d text-[10px] tracking-wider text-[#635d5a] hover:text-[#d6ccba]"><ArrowLeft size={12} /> HOME</Link>
-        <section className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+      <main className="workspace-layout">
+        <section className="workspace-heading">
           <div>
-            <p className="font-mono-d text-[10px] tracking-[0.18em] text-[#c9a6ff]">CONTRACT-FIRST · SOURCE-LINKED · READ-ONLY</p>
-            <h1 className="mt-4 max-w-[800px] text-[43px] font-medium leading-[1.01] tracking-[-0.045em] text-[#f0e8da] sm:text-[62px]">Know what the token<br /><span className="text-[#d6ccba]">actually represents.</span></h1>
-            <p className="mt-5 max-w-[700px] text-[15px] leading-relaxed text-[#9a938a]">Paste a contract. ChainScout checks the canonical registry, the contract itself, price-feed freshness, corporate actions, vault state, and the reported conditions and limitations around custody or redemption claims.</p>
+            <p className="workspace-eyebrow"><BadgeCheck size={14} /> RWA Verify · public evidence</p>
+            <h1 className="workspace-title">Know what the token<br /><span className="text-[#d6ccba]">actually represents.</span></h1>
+            <p className="workspace-description">Check a token or vault contract against source-linked identity, pricing, custody, and redemption evidence. See what is confirmed—and what remains unknown.</p>
           </div>
+          <WorkspaceDisclosure title="What this check includes" className="workspace-privacy-details">
           <div className="grid grid-cols-2 gap-px border border-[#383838] bg-[#383838]">
             <Feature icon={<Search size={14} />} label="IDENTITY" value="ADDRESS FIRST" />
             <Feature icon={<ShieldCheck size={14} />} label="EXECUTION" value="READ ONLY" />
             <Feature icon={<DatabaseZap size={14} />} label="QUERY / RESULT HISTORY" value="NONE" />
             <Feature icon={<Sparkles size={14} />} label="AI UPLOAD" value="NONE" />
           </div>
+          </WorkspaceDisclosure>
         </section>
 
-        <form onSubmit={prepare} className="clip-panel mt-10 border border-[#423a49] bg-[#242424]">
+        <form onSubmit={prepare} className="clip-panel border border-[#423a49] bg-[#242424]">
           <div className="flex items-center gap-2.5 border-b border-[#383838] px-5 py-4 sm:px-6"><Box size={14} className="text-[#c9a6ff]" /><span className="font-mono-d text-[10.5px] tracking-[0.15em] text-[#d6ccba]">RWA EVIDENCE INSPECTOR</span><span className="ml-auto font-mono-d text-[9px] text-[#635d5a]">ROBINHOOD CHAIN · 4663</span></div>
           <label className="block p-5 sm:p-7">
             <span className="font-mono-d text-[9.5px] tracking-[0.14em] text-[#635d5a]">TOKEN OR VAULT CONTRACT</span>
@@ -206,7 +208,7 @@ function Sources({ sources }: { sources: RwaVerification["sources"] }) {
 function Metric({ icon, label, value, detail }: { icon: React.ReactNode; label: string; value: string; detail: string }) { return <div className="min-w-0 bg-[#202020] p-5"><div className="flex items-center gap-2 text-[#c9a6ff]">{icon}<span className="font-mono-d text-[8.5px] text-[#635d5a]">{label}</span></div><p className="mt-4 break-words font-mono-d text-[13px] text-[#e9e0d1]">{value}</p><p className="mt-2 text-[10.5px] leading-relaxed text-[#635d5a]">{detail}</p></div>; }
 function Feature({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) { return <div className="bg-[#202020] p-4"><div className="flex items-center gap-2 text-[#c9a6ff]">{icon}<span className="font-mono-d text-[8.5px] text-[#635d5a]">{label}</span></div><p className="mt-3 font-mono-d text-[10px] tracking-wider text-[#d6ccba]">{value}</p></div>; }
 function LoadingState() { return <div role="status" aria-live="polite" className="scan-panel clip-panel mt-8 overflow-hidden border border-[#c9a6ff]/25 bg-[#242424] p-8"><div className="flex items-center gap-3"><span className="h-2 w-2 animate-ping rounded-full bg-[#c9a6ff]" /><p className="font-mono-d text-[10px] tracking-[0.14em] text-[#c9a6ff]">RECONCILING PUBLIC EVIDENCE</p></div><div className="mt-7 grid gap-3 sm:grid-cols-3">{["REGISTRY", "DIRECT CONTRACT", "CLAIMS + FRESHNESS"].map((item) => <div key={item} className="decode-tile h-24 border border-[#383838] bg-[#1d1d1d] p-4"><p className="font-mono-d text-[9px] text-[#635d5a]">{item}</p><p className="mt-5 font-mono-d text-[16px] text-[#4f4a46]">0100110101</p></div>)}</div></div>; }
-function EmptyState() { return <div className="dots mt-10 flex min-h-[230px] items-center justify-center border border-[#2e2e2e] text-center"><div className="max-w-[480px] px-6"><BadgeCheck size={24} className="mx-auto text-[#4f4a46]" /><p className="mt-4 font-mono-d text-[10px] leading-relaxed tracking-[0.12em] text-[#635d5a]">NO TICKER GUESSING<br />NO AUTHENTICITY CLAIM WITHOUT EVIDENCE</p></div></div>; }
+function EmptyState() { return <div className="workspace-empty mt-6"><BadgeCheck size={26} className="text-[#fa6c34]" /><h2 className="text-[18px] text-[#e9e0d1]">Start with a contract, not a ticker</h2><p>Use a live sample above or paste an exact address. Identity and authenticity are never inferred from a token name alone.</p></div>; }
 function formatRaw(raw: string, decimals: number): string { const value = raw.padStart(decimals + 1, "0"); const whole = value.slice(0, -decimals || undefined); const fullFraction = decimals ? value.slice(-decimals).replace(/0+$/, "") : ""; const fraction = fullFraction.slice(0, 6); return `${whole}${fraction ? `.${fraction}${fullFraction.length > 6 ? "…" : ""}` : ""}`; }
 function short(value: string): string { return `${value.slice(0, 6)}…${value.slice(-4)}`; }
 function formatIndexTiming(delta: number | null): string { if (delta === null) return "UNKNOWN"; if (delta === 0) return "SAME BLOCK"; return delta > 0 ? `${delta.toLocaleString()} BLOCKS BEHIND` : `${Math.abs(delta).toLocaleString()} BLOCKS AHEAD`; }

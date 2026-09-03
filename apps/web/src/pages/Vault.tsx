@@ -12,7 +12,6 @@ import {
 import { Link, useSearchParams } from "react-router";
 import {
   ArchiveRestore,
-  ArrowLeft,
   CheckCircle2,
   Download,
   FileKey2,
@@ -75,6 +74,7 @@ import { PortfolioPanel } from "../portfolio/PortfolioPanel";
 import { CollectibleCatalogPanel } from "../collectibles/CollectibleCatalogPanel";
 import { MarketInventoryPanel } from "../market/MarketInventoryPanel";
 import { ReplayActionsPanel } from "../replay/ReplayActionsPanel";
+import { WorkspaceDisclosure } from "../product/WorkspaceDisclosure";
 import {
   isCollectibleCatalogEnabled,
   isMarketInventoryEnabled,
@@ -851,13 +851,7 @@ export default function VaultPage() {
   return (
     <div className="min-h-screen bg-[#1d1d1d] text-[#e9e0d1]">
       <VaultHeader phase={phase} onLock={() => lock()} />
-      <main className="mx-auto w-full max-w-[1180px] px-4 pb-24 pt-10 sm:px-6 lg:pt-14">
-        <Link
-          to="/app"
-          className="mb-8 inline-flex items-center gap-2 font-mono-d text-[10px] tracking-wider text-[#635d5a] hover:text-[#d6ccba]"
-        >
-          <ArrowLeft size={12} /> PRIVATE EXPLORER
-        </Link>
+      <main className="workspace-layout">
         <VaultHero storage={storage} phase={phase} />
 
         {error && (
@@ -881,14 +875,12 @@ export default function VaultPage() {
         {phase === "deleting" && <VaultDeleting />}
         {phase === "unsupported" && <UnsupportedState />}
         {phase === "empty" && (
-          <div className="mt-8">
-            <div className="border border-[#e0a96d]/30 bg-[#e0a96d]/5 px-5 py-4 text-[11.5px] leading-relaxed text-[#b7a17e]">
-              NO VAULT FOUND · If you expected one here, this browser may have
-              cleared or evicted the site's local data. Restore an encrypted
-              backup; do not create a replacement until you have checked your
-              backup.
+          <div className="vault-entry">
+            <div className="vault-entry-notice">
+              <strong>Already have a Vault?</strong> Use the same browser and site
+              address, or restore your backup below before creating a new one.
             </div>
-            <div className="mt-5 grid gap-5 lg:grid-cols-2">
+            <div className="mt-5 space-y-4">
               <CreateVaultPanel
                 onCreate={async (passphrase) => {
                   try {
@@ -904,6 +896,7 @@ export default function VaultPage() {
                   }
                 }}
               />
+              <WorkspaceDisclosure title="Have a backup? Restore your Vault">
               <ImportVaultPanel
                 existing={false}
                 expectedMeta={null}
@@ -915,6 +908,8 @@ export default function VaultPage() {
                   broadcast("changed", unlocked.meta);
                 }}
               />
+              </WorkspaceDisclosure>
+              <WorkspaceDisclosure title="Restore a backup with a recovery code">
               <BackupRecoveryPanel
                 onRecover={(unlocked) => {
                   acceptUnlocked(
@@ -924,11 +919,12 @@ export default function VaultPage() {
                   broadcast("changed", unlocked.meta);
                 }}
               />
+              </WorkspaceDisclosure>
             </div>
           </div>
         )}
         {phase === "locked" && meta && (
-          <div className="mt-8 grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="vault-entry space-y-4">
             <UnlockPanel
               onUnlock={async (passphrase) => {
                 try {
@@ -941,7 +937,7 @@ export default function VaultPage() {
                 }
               }}
             />
-            <div className="space-y-5">
+            <WorkspaceDisclosure title="Forgot your passphrase? Use your recovery code">
               <RecoveryPanel
                 meta={meta}
                 onRecover={(recovered) => {
@@ -952,6 +948,8 @@ export default function VaultPage() {
                   broadcast("changed", recovered.meta);
                 }}
               />
+            </WorkspaceDisclosure>
+            <WorkspaceDisclosure title="Have a backup? Restore your Vault">
               <ImportVaultPanel
                 existing
                 expectedMeta={meta}
@@ -963,8 +961,10 @@ export default function VaultPage() {
                   broadcast("changed", unlocked.meta);
                 }}
               />
+            </WorkspaceDisclosure>
+            <WorkspaceDisclosure title="Vault settings · delete local data">
               <DeleteVaultPanel onDelete={destroy} compact />
-            </div>
+            </WorkspaceDisclosure>
           </div>
         )}
         {phase === "unlocked" && meta && (
@@ -976,7 +976,7 @@ export default function VaultPage() {
               />
             )}
             <div
-              className="mt-8 grid grid-cols-2 gap-px border border-[#383838] bg-[#383838] md:grid-cols-3 xl:grid-cols-5"
+              className="vault-workspace-tabs mt-6 flex flex-wrap gap-1 border-b border-[#383838] pb-2"
             >
               <button
                 type="button"
@@ -1088,6 +1088,8 @@ export default function VaultPage() {
             <button
               type="button"
               onClick={() => setSettingsOpen((current) => !current)}
+              aria-expanded={settingsOpen}
+              aria-controls="vault-settings"
               className="mt-8 flex w-full items-center justify-between border border-[#383838] bg-[#202020] px-5 py-4 text-left font-mono-d text-[10px] tracking-[0.14em] text-[#9a938a] hover:text-[#e9e0d1]"
             >
               <span>BACKUP · RECOVERY · STORAGE · PASSPHRASE</span>
@@ -1178,22 +1180,22 @@ function VaultHero({
       ? "PERSISTENT STORAGE"
       : "BACKUP ADVISED";
   return (
-    <section className="grid gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:items-end">
+    <section className="workspace-heading">
       <div>
-        <p className="font-mono-d text-[10px] tracking-[0.18em] text-[#fa6c34]">
-          LOCAL-FIRST · ZERO SERVER SYNC · USER-HELD KEY
+        <p className="workspace-eyebrow">
+          <LockKeyhole size={14} /> Your private Vault
         </p>
-        <h1 className="mt-4 max-w-[760px] text-[42px] font-medium leading-[1.02] tracking-[-0.04em] text-[#f0e8da] sm:text-[58px]">
+        <h1 className="workspace-title">
           Your assets.
           <br />
           <span className="text-[#d6ccba]">Encrypted on this device.</span>
         </h1>
-        <p className="mt-5 max-w-[690px] text-[15px] leading-relaxed text-[#9a938a]">
-          Track purchase prices, quantities, notes, identifiers, and photos
-          without creating an account or uploading a portfolio. Your passphrase
-          never leaves this page.
+        <p className="workspace-description">
+          Keep your assets, purchase prices, notes, and photos together.
+          Encrypted here, on this device—not synced to a server.
         </p>
       </div>
+      <WorkspaceDisclosure title="Privacy & storage details" className="workspace-privacy-details">
       <div className="grid grid-cols-2 gap-px border border-[#383838] bg-[#383838]">
         <PrivacyTile label="CIPHER" value="AES-256-GCM" />
         <PrivacyTile label="KEY DERIVATION" value="PBKDF2 · 600K" />
@@ -1209,6 +1211,7 @@ function VaultHero({
           </div>
         )}
       </div>
+      </WorkspaceDisclosure>
     </section>
   );
 }
@@ -1236,13 +1239,11 @@ function CreateVaultPanel({
       <PanelTitle
         icon={<KeyRound size={15} />}
         eyebrow="NEW LOCAL VAULT"
-        title="Create your encryption key"
+        title="Create your private Vault"
       />
       <p className="mt-4 text-[12.5px] leading-relaxed text-[#9a938a]">
-        Use a unique passphrase with at least 12 characters. ChainScout cannot
-        recover it. Save the one-time recovery code and an encrypted backup.
-        Browser storage is tied to this exact site address, so export before any
-        domain change.
+        Choose a unique passphrase with at least 12 characters. We cannot reset
+        it—save your recovery code and an encrypted backup so you can regain access.
       </p>
       <PasswordField
         label="VAULT PASSPHRASE"
@@ -1288,7 +1289,7 @@ function UnlockPanel({
   return (
     <form
       onSubmit={submit}
-      className="clip-panel border border-[#7fb069]/35 bg-[#20251f] p-6 sm:p-8"
+      className="clip-panel border border-[#514a45] bg-[#242424] p-6 sm:p-8"
     >
       <PanelTitle
         icon={<LockKeyhole size={15} />}
@@ -1309,7 +1310,7 @@ function UnlockPanel({
       <button
         type="submit"
         disabled={busy || passphrase.length < 12}
-        className="clip-btn-sm mt-5 flex min-h-[46px] w-full items-center justify-center gap-2 bg-[#7fb069] px-5 font-mono-d text-[10.5px] font-medium tracking-wider text-[#172015] disabled:opacity-40"
+        className="clip-btn-sm mt-5 flex min-h-[48px] w-full items-center justify-center gap-2 bg-[#fa6c34] px-5 text-[14px] font-semibold text-[#1d1d1d] disabled:opacity-40"
       >
         <KeyRound size={14} /> {busy ? "UNWRAPPING KEY…" : "UNLOCK LOCALLY"}
       </button>
@@ -1340,7 +1341,7 @@ function VaultDashboard({
   );
   return (
     <div
-      className={`mt-8 grid gap-5 ${assets.length ? "xl:grid-cols-[0.72fr_1.28fr]" : ""}`}
+      className={`vault-dashboard mt-8 grid gap-5 ${assets.length ? "xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]" : ""}`}
     >
       {assets.length > 0 && (
         <Suspense fallback={null}>
@@ -1988,16 +1989,16 @@ function AssetGrid({
 }) {
   if (!assets.length) {
     return (
-      <div className="dots mt-5 flex min-h-[240px] items-center justify-center border border-[#2e2e2e] px-6 text-center font-mono-d text-[10px] leading-relaxed tracking-[0.12em] text-[#635d5a]">
-        NO ENCRYPTED ASSETS YET
-        <br />
-        ADD THE FIRST ITEM YOU OWN
+      <div className="workspace-empty mt-5">
+        <PackagePlus size={26} className="text-[#fa6c34]" />
+        <h2 className="text-[18px] text-[#e9e0d1]">NO ENCRYPTED ASSETS YET</h2>
+        <p>Add the first item you own, or load the four labeled examples above to try the Vault.</p>
       </div>
     );
   }
   return (
     <section
-      className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3"
+      className="vault-asset-grid mt-6"
       data-testid="vault-assets"
     >
       {assets.map((asset) => (
@@ -2023,14 +2024,18 @@ function AssetCard({
 }) {
   const [confirm, setConfirm] = useState(false);
   const firstLot = asset.lots[0];
+  const latestReference = asset.collectible?.references.reduce<typeof asset.collectible.references[number] | undefined>(
+    (latest, reference) => !latest || reference.observedAt >= latest.observedAt ? reference : latest,
+    undefined,
+  );
   return (
-    <article className="clip-panel overflow-hidden border border-[#383838] bg-[#242424]">
+    <article className="vault-asset-card overflow-hidden rounded-[6px] border border-[#383838] bg-[#242424]">
       {asset.photo ? (
         <div className="border-b border-[#383838] bg-[#191919]">
           <img
             src={asset.photo.dataUrl}
-            alt=""
-            className="h-44 w-full object-cover"
+            alt={`${asset.name} — ${asset.collectible?.photoSource === "tcgdex_catalog" ? "catalog thumbnail" : "owner-supplied photo"}`}
+            className="vault-asset-photo h-64 w-full object-contain p-4"
           />
           {asset.collectible && (
             <p className="px-3 py-2 font-mono-d text-[7.5px] tracking-wider text-[#635d5a]">
@@ -2043,8 +2048,9 @@ function AssetCard({
           )}
         </div>
       ) : (
-        <div className="dots flex h-28 items-center justify-center border-b border-[#383838] text-[#4f4a46]">
-          <FileKey2 size={24} />
+        <div className="vault-asset-placeholder flex h-64 flex-col items-center justify-center gap-3 border-b border-[#383838] bg-[#201e1c] text-[#aaa39b]">
+          <FileKey2 size={32} className="text-[#fa6c34]" />
+          <span className="text-[12px]">{asset.assetType === "collectible" ? "Collectible" : asset.assetType === "rwa" ? "Tokenized asset" : asset.assetType === "nft" ? "NFT" : asset.assetType === "crypto" ? "Crypto" : "Manual asset"} · no photo added</span>
         </div>
       )}
       <div className="p-5">
@@ -2066,7 +2072,7 @@ function AssetCard({
             type="button"
             onClick={onEdit}
             aria-label={`Edit ${asset.name}`}
-            className="p-2 text-[#635d5a] hover:text-[#e9e0d1]"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm border border-[#514a45] text-[#aaa39b] hover:border-[#fa6c34] hover:text-[#e9e0d1]"
           >
             <Pencil size={14} />
           </button>
@@ -2107,8 +2113,8 @@ function AssetCard({
             <SmallMetric
               label="MANUAL VALUE HISTORY"
               value={
-                asset.collectible.references.length
-                  ? `${asset.collectible.references.length} dated reference${asset.collectible.references.length === 1 ? "" : "s"} · latest ${asset.collectible.references.at(-1)?.value} ${asset.collectible.references.at(-1)?.currency}`
+                latestReference
+                  ? `${asset.collectible.references.length} dated reference${asset.collectible.references.length === 1 ? "" : "s"} · latest ${latestReference.value} ${latestReference.currency} · ${latestReference.observedAt}`
                   : "NOT ENTERED"
               }
             />
@@ -2217,6 +2223,7 @@ function VaultSettings({
     <div
       className="mt-4 grid gap-5 lg:grid-cols-2"
       data-testid="vault-settings"
+      id="vault-settings"
     >
       <section className="clip-panel border border-[#383838] bg-[#242424] p-6">
         <PanelTitle

@@ -291,6 +291,7 @@ test("catalog match saves only encrypted owner data and survives encrypted backu
     .getByLabel("TYPE DELETE MY LOCAL VAULT")
     .fill("DELETE MY LOCAL VAULT");
   await page.getByRole("button", { name: "DELETE LOCAL VAULT" }).click();
+  await page.locator("summary").filter({ hasText: "Have a backup? Restore your Vault" }).click();
   await page
     .getByLabel("Encrypted vault backup", { exact: true })
     .setInputFiles({

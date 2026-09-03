@@ -115,7 +115,8 @@ test("Private Mode needs no account or wallet, renders citations, and clears on 
   expect(await page.evaluate(() => document.cookie)).not.toContain("chainscout_");
 
   await page.reload();
-  await expect(page.getByText("THIS VIEW IS EPHEMERAL")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Your explanation will appear here" })).toBeVisible();
+  await expect(page.getByText(/Results stay in this tab and are cleared on reload/)).toBeVisible();
   await expect(page.getByTestId("answer-card")).toHaveCount(0);
   expect(apiPaths).toEqual(["/v1/private/analyze"]);
 });

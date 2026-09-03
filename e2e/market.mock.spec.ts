@@ -214,6 +214,7 @@ test("market lookup and exact landed-cost inputs stay cookie-free and encrypted"
     .getByLabel("TYPE DELETE MY LOCAL VAULT")
     .fill("DELETE MY LOCAL VAULT");
   await page.getByRole("button", { name: "DELETE LOCAL VAULT" }).click();
+  await page.locator("summary").filter({ hasText: "Restore a backup with a recovery code" }).click();
   await page
     .getByLabel("Encrypted vault backup for recovery")
     .setInputFiles(backupFile(backup));

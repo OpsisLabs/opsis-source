@@ -454,7 +454,7 @@ function CollectibleOwnerForm({ card, busy: parentBusy, sessionId, onSave, onBac
       </div>
       <div className="mt-5 flex flex-col gap-4 border-t border-[#383838] pt-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-3">
-          {photo && <img src={photo.dataUrl} alt={`${card.name} sanitized thumbnail preview`} className="h-24 w-20 rounded-sm border border-[#383838] object-cover" />}
+          {photo && <img src={photo.dataUrl} alt={`${card.name} sanitized thumbnail preview`} className="h-36 w-28 rounded-sm border border-[#383838] bg-[#1d1d1d] object-contain p-2" />}
           <label className="flex min-h-[42px] cursor-pointer items-center gap-2 border border-[#383838] px-4 font-mono-d text-[9px] text-[#9a938a] hover:text-[#f0e8da]"><ImagePlus size={13} /> {photoBusy ? "SANITIZING…" : photo ? "REPLACE WITH OWNER PHOTO" : "ADD OWNER PHOTO"}<input aria-label="OWNER-SUPPLIED COLLECTIBLE PHOTO" type="file" accept="image/jpeg,image/png,image/webp" onChange={onPhoto} disabled={busy || photoBusy} className="sr-only" /></label>
           {photo && <button type="button" onClick={() => { photoRequestRef.current += 1; setPhoto(undefined); setPhotoSource(null); setPhotoNotice("Photo removed from this draft."); }} className="font-mono-d text-[8.5px] text-[#e0738a]">REMOVE PHOTO</button>}
           {!photo && card.imageUrl && <button type="button" onClick={() => { void loadCatalogThumbnail(); }} disabled={photoBusy} className="font-mono-d text-[8.5px] text-[#7fb069] disabled:opacity-40">RESTORE CATALOG THUMBNAIL</button>}

@@ -38,7 +38,7 @@ function Shell({
         </Link>
       </header>
 
-      <main id="legal-main" tabIndex={-1} className="mx-auto max-w-[860px] px-6 py-16 outline-none md:px-12">
+      <main id="legal-main" tabIndex={-1} className="mx-auto max-w-[860px] px-6 py-16 [overflow-wrap:anywhere] outline-none md:px-12">
         <div className="mb-10 flex items-center gap-3 border-y border-[#2e2e2e] py-3">
           <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-[#e9e0d1]" />
           <span className="font-mono-d text-[12px] text-[#9a938a]">{tag}</span>

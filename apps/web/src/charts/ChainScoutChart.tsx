@@ -41,8 +41,8 @@ export function ChainScoutChart({
     const chart = init(container, undefined, { renderer: "svg" });
     chart.setOption({
       animation: !reducedMotion,
-      animationDuration: reducedMotion ? 0 : 420,
-      animationDurationUpdate: reducedMotion ? 0 : 260,
+      animationDuration: reducedMotion ? 0 : 220,
+      animationDurationUpdate: reducedMotion ? 0 : 180,
       color: [...CHART_COLORS],
       backgroundColor: "transparent",
       textStyle: {

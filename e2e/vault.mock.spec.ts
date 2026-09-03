@@ -57,7 +57,10 @@ test("encrypted Vault creates, stores ciphertext, locks, exports, deletes, and r
   page.on("console", (message) => consoleMessages.push(message.text()));
   await page.goto("/vault");
   await expect(page.getByRole("heading", { name: /Encrypted on this device/i })).toBeVisible();
-  await expect(page.getByText("ZERO SERVER SYNC")).toBeVisible();
+  await page.locator("summary").filter({ hasText: "Privacy & storage details" }).click();
+  await expect(page.getByText("SERVER COPY", { exact: true })).toBeVisible();
+  await expect(page.getByText("NONE", { exact: true })).toBeVisible();
+  await page.locator("summary").filter({ hasText: "Privacy & storage details" }).click();
 
   await page.getByLabel("VAULT PASSPHRASE").fill(passphrase);
   await page.getByLabel("CONFIRM PASSPHRASE").fill(passphrase);
@@ -78,13 +81,15 @@ test("encrypted Vault creates, stores ciphertext, locks, exports, deletes, and r
   await page.getByRole("button", { name: "ADD FIRST DATED REFERENCE" }).click();
   await page.getByLabel("REFERENCE 1 VALUE").fill("1300.25");
   await page.getByLabel("REFERENCE 1 CURRENCY").fill("USD");
-  await page.getByLabel("REFERENCE 1 OBSERVED DATE").fill("2026-08-11");
+  // Enter references out of date order; the summary must use observed date,
+  // never insertion order or the highest value.
+  await page.getByLabel("REFERENCE 1 OBSERVED DATE").fill("2026-08-12");
   await page.getByLabel("REFERENCE 1 HTTPS SOURCE URL").fill("https://example.com/collector-show");
   await page.getByLabel("REFERENCE 1 SOURCE LABEL").fill(firstReferenceLabel);
   await page.getByRole("button", { name: "+ ADD DATED REFERENCE" }).click();
   await page.getByLabel("REFERENCE 2 VALUE").fill("1400.75");
   await page.getByLabel("REFERENCE 2 CURRENCY").fill("USD");
-  await page.getByLabel("REFERENCE 2 OBSERVED DATE").fill("2026-08-12");
+  await page.getByLabel("REFERENCE 2 OBSERVED DATE").fill("2026-08-11");
   await page.getByLabel("REFERENCE 2 HTTPS SOURCE URL").fill("https://example.com/auction-result");
   await page.getByLabel("REFERENCE 2 SOURCE LABEL").fill(secondReferenceLabel);
   const sourceMetadataCanary = "SOURCE-METADATA-CANARY";
@@ -94,9 +99,11 @@ test("encrypted Vault creates, stores ciphertext, locks, exports, deletes, and r
   await expect(page.getByRole("heading", { name: assetName })).toBeVisible();
   await expect(page.getByText(privateNote)).toBeVisible();
   await expect(page.locator("article img")).toBeVisible();
+  await expect(page.locator("article img")).toHaveCSS("object-fit", "contain");
   await expect(page.getByTestId("collectible-value-history")).toBeVisible();
   await expect(page.locator("[data-chart-renderer=echarts-svg]").first()).toBeVisible();
-  await expect(page.getByText("2 dated references · latest 1400.75 USD")).toBeVisible();
+  await expect(page.getByText("2 dated references · latest 1300.25 USD · 2026-08-12")).toBeVisible();
+  await expect(page.getByTestId("collectible-value-history")).toContainText("Latest dated entry: 1300.25 USD");
   await page.getByTestId("collectible-value-history").getByText("ACCESSIBLE EXACT DATA TABLE").click();
   await expect(page.getByRole("cell", { name: "1300.25" })).toBeVisible();
   await expect(page.getByRole("cell", { name: "1400.75" })).toBeVisible();
@@ -136,9 +143,10 @@ test("encrypted Vault creates, stores ciphertext, locks, exports, deletes, and r
 
   await page.getByLabel("TYPE DELETE MY LOCAL VAULT").fill("DELETE MY LOCAL VAULT");
   await page.getByRole("button", { name: "DELETE LOCAL VAULT" }).click();
-  await expect(page.getByRole("heading", { name: "Create your encryption key" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Create your private Vault" })).toBeVisible();
   expect((await readRawVault(page)).records).toEqual([]);
 
+  await page.locator("summary").filter({ hasText: "Have a backup? Restore your Vault" }).click();
   await page.getByLabel("Encrypted vault backup", { exact: true }).setInputFiles(backupFile(backupBuffer));
   await page.getByLabel("BACKUP PASSPHRASE", { exact: true }).fill(passphrase);
   await page.getByRole("button", { name: "VERIFY & RESTORE LOCALLY" }).click();
@@ -252,6 +260,7 @@ test("Portfolio Intelligence sends only one approved public address and encrypts
   const mixedBackup = await downloadBuffer(await mixedDownload);
   await page.getByLabel("TYPE DELETE MY LOCAL VAULT").fill("DELETE MY LOCAL VAULT");
   await page.getByRole("button", { name: "DELETE LOCAL VAULT" }).click();
+  await page.locator("summary").filter({ hasText: "Have a backup? Restore your Vault" }).click();
   await page.getByLabel("Encrypted vault backup", { exact: true }).setInputFiles(backupFile(mixedBackup));
   await page.getByLabel("BACKUP PASSPHRASE", { exact: true }).fill(passphrase);
   await page.getByRole("button", { name: "VERIFY & RESTORE LOCALLY" }).click();
@@ -390,6 +399,7 @@ test("one-time recovery resets the passphrase and rotates the recovery code", as
   const firstRecovery = await page.getByTestId("recovery-code").textContent();
   await page.reload();
 
+  await page.locator("summary").filter({ hasText: "Forgot your passphrase? Use your recovery code" }).click();
   await page.getByLabel("RECOVERY CODE").fill(firstRecovery ?? "");
   await page.getByLabel("NEW PASSPHRASE", { exact: true }).fill(nextPassphrase);
   await page.getByLabel("CONFIRM NEW PASSPHRASE").fill(nextPassphrase);
@@ -421,7 +431,9 @@ test("mobile Vault exposes honest best-effort storage and local validation", asy
     });
   });
   await page.goto("/vault");
+  await page.locator("summary").filter({ hasText: "Privacy & storage details" }).click();
   await expect(page.getByText("BACKUP ADVISED")).toBeVisible();
+  await page.locator("summary").filter({ hasText: "Privacy & storage details" }).click();
   await page.getByLabel("VAULT PASSPHRASE").fill(passphrase);
   await page.getByLabel("CONFIRM PASSPHRASE").fill(passphrase);
   await page.getByRole("button", { name: "CREATE ENCRYPTED VAULT" }).click();
@@ -490,7 +502,7 @@ test("blocked deletion exposes no Vault operation until the browser completes it
   await expect(page.getByLabel("Encrypted vault backup")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "ADD ASSET" })).toHaveCount(0);
   await page.evaluate(() => (window as unknown as { __vaultBlocker: IDBDatabase }).__vaultBlocker.close());
-  await expect(page.getByRole("heading", { name: "Create your encryption key" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Create your private Vault" })).toBeVisible();
 });
 
 test("Vault changes lock other tabs and reload the newest encrypted revision", async ({ page, context }) => {
@@ -539,6 +551,7 @@ test("an encrypted backup and matching recovery code restore after local loss", 
 
   await page.getByLabel("TYPE DELETE MY LOCAL VAULT").fill("DELETE MY LOCAL VAULT");
   await page.getByRole("button", { name: "DELETE LOCAL VAULT" }).click();
+  await page.locator("summary").filter({ hasText: "Restore a backup with a recovery code" }).click();
   await page.getByLabel("Encrypted vault backup for recovery").setInputFiles(backupFile(backup));
   await page.getByLabel("BACKUP RECOVERY CODE").fill(originalRecovery ?? "");
   await page.getByLabel("NEW BACKUP PASSPHRASE", { exact: true }).fill(nextPassphrase);

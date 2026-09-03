@@ -1,7 +1,6 @@
 import { useRef, useState, type FormEvent } from "react";
 import { Link } from "react-router";
 import {
-  ArrowLeft,
   CheckCircle2,
   DatabaseZap,
   EyeOff,
@@ -16,6 +15,7 @@ import { classify, SAMPLE_TX, SAMPLE_WALLET } from "../dashboard/api";
 import { ApiError } from "../dashboard/http";
 import type { ChatSession } from "../dashboard/types";
 import { analyzePrivate, type PrivateAnalysis } from "../private/api";
+import { WorkspaceDisclosure } from "../product/WorkspaceDisclosure";
 
 const PROMPTS = [
   "What stands out to a beginner?",
@@ -97,29 +97,28 @@ export default function PrivateExplorer() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-[1180px] px-4 pb-20 pt-10 sm:px-6 lg:pt-14">
-        <Link to="/" className="mb-8 inline-flex items-center gap-2 font-mono-d text-[10px] tracking-wider text-[#635d5a] hover:text-[#d6ccba]">
-          <ArrowLeft size={12} /> HOME
-        </Link>
-        <section className="grid gap-8 lg:grid-cols-[1.35fr_0.65fr] lg:items-end">
+      <main className="workspace-layout">
+        <section className="workspace-heading">
           <div>
-            <p className="font-mono-d text-[10px] tracking-[0.18em] text-[#fa6c34]">NO ACCOUNT · NO WALLET · NO HISTORY</p>
-            <h1 className="mt-4 max-w-[760px] text-[42px] font-medium leading-[1.02] tracking-[-0.04em] text-[#f0e8da] sm:text-[58px]">
+            <p className="workspace-eyebrow"><Search size={14} /> Private Explorer · Robinhood Chain</p>
+            <h1 className="workspace-title">
               Understand the chain.<br /><span className="text-[#d6ccba]">Leave no profile behind.</span>
             </h1>
-            <p className="mt-5 max-w-[660px] text-[15px] leading-relaxed text-[#9a938a]">
-              Paste one public Robinhood Chain identifier. ChainScout returns sourced, read-only facts without an account, model provider, or saved server record.
+            <p className="workspace-description">
+              Paste a wallet address, token contract, or transaction to understand it in plain English, with sources. No account or wallet connection needed.
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-px border border-[#383838] bg-[#383838]">
+          <WorkspaceDisclosure title="How this stays private" className="workspace-privacy-details">
+          <div className="grid grid-cols-2 gap-px bg-[#383838]">
             <PrivacyTile icon={<LockKeyhole size={14} />} label="ACCOUNT" value="NOT NEEDED" />
             <PrivacyTile icon={<EyeOff size={14} />} label="AI UPLOAD" value="NONE" />
             <PrivacyTile icon={<DatabaseZap size={14} />} label="SERVER HISTORY" value="NONE" />
             <PrivacyTile icon={<Trash2 size={14} />} label="ON RELOAD" value="CLEARED" />
           </div>
+          </WorkspaceDisclosure>
         </section>
 
-        <form onSubmit={run} className="clip-panel mt-10 border border-[#383838] bg-[#242424]">
+        <form onSubmit={run} className="clip-panel explorer-form border border-[#383838] bg-[#242424]">
           <div className="flex items-center gap-2.5 border-b border-[#383838] px-5 py-4 sm:px-6">
             <Search size={14} className="text-[#fa6c34]" />
             <span className="font-mono-d text-[10.5px] tracking-[0.15em] text-[#d6ccba]">PRIVATE LOOKUP</span>
@@ -137,7 +136,7 @@ export default function PrivateExplorer() {
                 autoComplete="off"
                 spellCheck={false}
                 placeholder="0x…"
-                className="mt-3 w-full bg-transparent font-mono-d text-[13px] text-[#e9e0d1] outline-none placeholder:text-[#4f4a46] sm:text-[15px]"
+                className="mt-3 min-h-12 w-full rounded-sm border border-[#514a45] bg-[#1d1d1d] px-3 font-mono-d text-[16px] text-[#e9e0d1] outline-none placeholder:text-[#aaa39b] focus:border-[#fa6c34]"
                 aria-label="Public chain identifier"
               />
             </label>
@@ -149,7 +148,7 @@ export default function PrivateExplorer() {
                 maxLength={500}
                 autoComplete="off"
                 placeholder="What should I notice?"
-                className="mt-3 w-full bg-transparent text-[13px] text-[#e9e0d1] outline-none placeholder:text-[#4f4a46] sm:text-[14px]"
+                className="mt-3 min-h-12 w-full rounded-sm border border-[#514a45] bg-[#1d1d1d] px-3 text-[16px] text-[#e9e0d1] outline-none placeholder:text-[#aaa39b] focus:border-[#fa6c34]"
                 aria-label="Optional question"
               />
             </label>
@@ -158,13 +157,16 @@ export default function PrivateExplorer() {
             <div className="flex flex-wrap gap-2">
               <button type="button" onClick={() => chooseEntity(SAMPLE_WALLET)} className="border border-[#383838] px-3 py-2 font-mono-d text-[9px] text-[#7f7972] hover:text-[#e9e0d1]">SAMPLE WALLET</button>
               <button type="button" onClick={() => chooseEntity(SAMPLE_TX)} className="border border-[#383838] px-3 py-2 font-mono-d text-[9px] text-[#7f7972] hover:text-[#e9e0d1]">SAMPLE TX</button>
-              {PROMPTS.map((prompt) => <button key={prompt} type="button" onClick={() => setQuestion(prompt)} className="hidden border border-[#383838] px-3 py-2 text-[10px] text-[#7f7972] hover:text-[#e9e0d1] xl:block">{prompt}</button>)}
             </div>
             <button type="submit" disabled={!entityInput.trim() || loading} className="clip-btn-sm flex min-h-[44px] items-center justify-center gap-2 bg-[#fa6c34] px-6 font-mono-d text-[10.5px] font-medium tracking-wider text-[#1d1d1d] disabled:opacity-50">
               <Sparkles size={13} /> {loading ? "RESOLVING…" : "EXPLAIN PRIVATELY"}
             </button>
           </div>
         </form>
+        <div className="mt-4 flex flex-wrap items-center gap-2" aria-label="Example questions">
+          <span className="mr-1 text-[14px] text-[#aaa39b]">Or ask:</span>
+          {PROMPTS.map((prompt) => <button key={prompt} type="button" onClick={() => setQuestion(prompt)} className="min-h-11 rounded-sm border border-[#514a45] px-3 py-2 text-[14px] text-[#b8b0a7] transition-colors hover:border-[#fa6c34] hover:text-[#e9e0d1]">{prompt}</button>)}
+        </div>
 
         {error && <div role="alert" className="mt-5 border border-[#e0738a]/40 bg-[#e0738a]/10 px-5 py-4 text-[12.5px] text-[#e0738a]">{error}</div>}
 
@@ -193,10 +195,10 @@ export default function PrivateExplorer() {
             </div>
           )}
           {!loading && !result && !error && (
-            <div className="dots mt-10 flex min-h-[220px] items-center justify-center border border-[#2e2e2e] text-center">
-              <p className="max-w-[420px] px-6 font-mono-d text-[10px] leading-relaxed tracking-[0.12em] text-[#635d5a]">
-                THIS VIEW IS EPHEMERAL<br />RELOAD THE PAGE AND IT IS GONE
-              </p>
+            <div className="workspace-empty mt-6">
+              <Search size={26} className="text-[#fa6c34]" />
+              <h2 className="text-[18px] text-[#e9e0d1]">Your explanation will appear here</h2>
+              <p>Try a sample wallet or transaction above. Results stay in this tab and are cleared on reload.</p>
             </div>
           )}
         </div>

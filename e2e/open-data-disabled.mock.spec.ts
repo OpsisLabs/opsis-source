@@ -25,7 +25,10 @@ test("production-default build keeps dormant Vault workspaces unavailable", asyn
   await page.goto("/vault?view=catalog");
   await expect(page).toHaveURL(/\/vault\?view=catalog$/);
   await expect(page.getByRole("heading", { name: /Your assets/i })).toBeVisible();
+  await expect(page.getByLabel("Collectible Catalog is coming soon")).toBeHidden();
+  await page.locator("[data-desktop-rail] summary").filter({ hasText: "Coming soon" }).click();
   await expect(page.getByLabel("Collectible Catalog is coming soon")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Collectible Catalog/ })).toHaveCount(0);
 
   await page.goto("/");
   await expect(page.getByText(/Assisted TCGdex card\/set matching is coming soon/i)).toBeVisible();

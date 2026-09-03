@@ -74,7 +74,8 @@ test("Scout Swap explains a fresh quote and hands off only to official Uniswap",
 
   await expect(page).toHaveTitle("ChainScout — Private Multi-Asset Command Center");
   await expect(page.getByRole("heading", { name: /See the trade/i })).toBeVisible();
-  await expect(page.getByText("NO SIGNING")).toBeVisible();
+  await expect(page.getByText("Scout Swap · read-only preview", { exact: true })).toBeVisible();
+  await expect(page.getByText(/official Uniswap app requotes and handles every approval, signature and transaction/)).toBeVisible();
   await expect(page.getByText("NO WALLET DATA")).toBeVisible();
   await page.getByLabel("Wrapped Ether").fill("0.01");
   await page.getByRole("button", { name: "GET LIVE PREVIEW" }).click();
@@ -103,6 +104,36 @@ test("Scout Swap explains a fresh quote and hands off only to official Uniswap",
   }
   expect(calls()).toBe(1);
 });
+
+for (const width of [1024, 1100, 1279, 1280]) {
+  test(`Scout Swap form and results remain separate while scrolling at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 800 });
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await mockQuote(page);
+    await page.goto("/swap");
+    const form = page.locator("main form");
+    const result = page.locator("main form + div");
+
+    const expectSeparatePanels = async () => {
+      await page.evaluate(() => window.scrollTo({ top: 750, behavior: "instant" }));
+      await expect.poll(async () => {
+        const formBox = await form.boundingBox();
+        const resultBox = await result.boundingBox();
+        if (!formBox || !resultBox) return false;
+        return width < 1280
+          ? formBox.y + formBox.height <= resultBox.y
+          : formBox.x + formBox.width <= resultBox.x;
+      }, { message: "The form must not overlap the result panel after scrolling" }).toBe(true);
+      await expect(form).toHaveCSS("position", width < 1280 ? "static" : "sticky");
+    };
+
+    // Cover the empty panel as well as the taller, populated quote.
+    await expectSeparatePanels();
+    await page.getByRole("button", { name: "GET LIVE PREVIEW" }).click();
+    await expect(page.getByTestId("swap-quote")).toBeVisible();
+    await expectSeparatePanels();
+  });
+}
 
 test("expired data is never presented as a current quote", async ({ page }) => {
   await mockQuote(page, { stale: true });

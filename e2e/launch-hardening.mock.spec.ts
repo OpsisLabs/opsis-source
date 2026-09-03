@@ -238,8 +238,8 @@ function privateResult() {
 test("essential muted copy meets the audited charcoal contrast floor", async ({ page }) => {
   await dismissTour(page);
   await page.goto("/app");
-  const foreground = await page.getByText("THIS VIEW IS EPHEMERAL").evaluate((element) => getComputedStyle(element).color);
-  expect(foreground).toBe("rgb(154, 147, 138)");
+  const foreground = await page.getByText(/Results stay in this tab and are cleared on reload/).evaluate((element) => getComputedStyle(element).color);
+  expect(foreground).toBe("rgb(184, 176, 167)");
   const result = await new AxeBuilder({ page }).withRules(["color-contrast"]).analyze();
   expect(result.violations).toEqual([]);
 });
@@ -259,7 +259,7 @@ test("marketing home makes the multi-asset Vault apparent and honors reduced mot
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   await expect(page.getByRole("heading", { name: /Know what you own/i })).toBeVisible();
-  await expect(page.getByText("POKÉMON / TCG", { exact: true })).toBeVisible();
+  await expect(page.getByText("Pokémon / TCG", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Pokémon, TCG & collectibles" })).toBeVisible();
   await expect(page.getByText(/Assisted TCGdex English card\/set matching.*work in this build/i)).toBeVisible();
   await expect(page.getByText("TCGdex-assisted collectible identity", { exact: true })).toBeVisible();
@@ -272,4 +272,102 @@ test("marketing home makes the multi-asset Vault apparent and honors reduced mot
   await page.goto("/docs");
   await expect(page.getByText(/RWA Verify, and Collectible Catalog are enabled/i)).toBeVisible();
   await expect(page.locator("details").filter({ hasText: "COLLECTIBLES" }).getByText("COMING SOON")).toHaveCount(0);
+});
+
+for (const width of [320, 390, 768, 1280]) {
+  test(`polished launch surfaces reflow without page-level horizontal scrolling at ${width}px`, async ({ page }) => {
+    test.setTimeout(60_000);
+    await dismissTour(page);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.setViewportSize({ width, height: 900 });
+    for (const path of ["/", "/app", "/vault", "/rwa", "/swap", "/guide", "/docs", "/faq", "/privacy", "/terms"]) {
+      await page.goto(path);
+      await page.locator("main").first().waitFor({ state: "visible" });
+      const widths = await page.evaluate(() => ({
+        viewport: window.innerWidth,
+        document: document.documentElement.scrollWidth,
+        mains: [...document.querySelectorAll("main")].map((main) => ({ client: main.clientWidth, scroll: main.scrollWidth })),
+      }));
+      expect(widths.document, `${path}: document overflow at ${width}px`).toBeLessThanOrEqual(widths.viewport + 1);
+      for (const main of widths.mains) expect(main.scroll, `${path}: main content overflow at ${width}px`).toBeLessThanOrEqual(main.client + 1);
+      if (width < 1024 && ["/app", "/vault", "/rwa", "/swap"].includes(path)) {
+        const help = await page.getByRole("button", { name: "Open how-to instructions for this page" }).boundingBox();
+        const menu = await page.getByRole("button", { name: "FEATURES", exact: true }).boundingBox();
+        expect(help).not.toBeNull();
+        expect(menu).not.toBeNull();
+        expect(help!.x + help!.width, `${path}: mobile actions must not overlap`).toBeLessThanOrEqual(menu!.x);
+        expect(help!.height).toBeGreaterThanOrEqual(44);
+        expect(menu!.height).toBeGreaterThanOrEqual(44);
+      }
+      if (process.env.QA_SCREENSHOTS === "1" && [390, 1280].includes(width) && ["/", "/app", "/vault", "/swap"].includes(path)) {
+        await page.screenshot({ path: `output/qa/polish-${path === "/" ? "home" : path.slice(1)}-${width}.png`, fullPage: true });
+        await page.screenshot({ path: `output/qa/polish-${path === "/" ? "home" : path.slice(1)}-${width}-viewport.png` });
+      }
+    }
+  });
+}
+
+test("Vault setup prioritizes creation while keyboard-accessible recovery stays secondary", async ({ page }) => {
+  await dismissTour(page);
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto("/vault?view=assets");
+  const privacy = page.locator("summary").filter({ hasText: "Privacy & storage details" });
+  const restore = page.locator("summary").filter({ hasText: "Have a backup? Restore your Vault" });
+  await expect(page.getByRole("heading", { name: "Create your private Vault" })).toBeVisible();
+  const passphraseBox = await page.getByLabel("VAULT PASSPHRASE", { exact: true }).boundingBox();
+  expect(passphraseBox).not.toBeNull();
+  expect(passphraseBox!.y + passphraseBox!.height).toBeLessThanOrEqual(720);
+  await expect(page.getByLabel("BACKUP PASSPHRASE", { exact: true })).toBeHidden();
+  await expect(page.getByText("AES-256-GCM", { exact: true })).toBeHidden();
+  await privacy.focus();
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("AES-256-GCM", { exact: true })).toBeVisible();
+  await page.keyboard.press("Enter");
+  await restore.focus();
+  await page.keyboard.press("Enter");
+  await expect(page.getByLabel("BACKUP PASSPHRASE", { exact: true })).toBeVisible();
+  await page.keyboard.press("Enter");
+
+  const create = page.getByRole("button", { name: "CREATE ENCRYPTED VAULT" });
+  await page.getByLabel("VAULT PASSPHRASE").fill(passphrase);
+  await page.getByLabel("CONFIRM PASSPHRASE").fill("a different passphrase");
+  await expect(create).toBeDisabled();
+  await expect(page.getByText("Passphrases do not match.")).toBeVisible();
+  await page.getByLabel("CONFIRM PASSPHRASE").fill(passphrase);
+  await create.click();
+  await page.getByRole("button", { name: /I SAVED IT/i }).click();
+  await page.getByRole("button", { name: "LOAD 4 DEMO ASSETS" }).click();
+  const legend = page.getByRole("list", { name: "Record counts by asset type" });
+  await expect(legend.getByRole("listitem")).toHaveCount(4);
+  await expect(legend).toContainText("Collectibles");
+  await expect(page.locator(".record-mix-total")).toHaveText("4records");
+  await expect(page.locator(".vault-asset-card")).toHaveCount(4);
+  await page.getByRole("button", { name: "LOCK", exact: true }).click();
+  await expect(page.getByLabel("RECOVERY CODE", { exact: true })).toBeHidden();
+  await expect(page.getByRole("button", { name: "DELETE LOCAL VAULT" })).toBeHidden();
+  await page.locator("summary").filter({ hasText: "Forgot your passphrase? Use your recovery code" }).click();
+  await expect(page.getByLabel("RECOVERY CODE", { exact: true })).toBeVisible();
+  await page.locator("summary").filter({ hasText: "Vault settings · delete local data" }).click();
+  await expect(page.getByRole("button", { name: "DELETE LOCAL VAULT" })).toBeDisabled();
+});
+
+test("flat hero workflows and mobile menu are keyboard operable", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  const art = page.locator("[data-hero-art] img");
+  await expect(art).toHaveAttribute("src", "/asset-collection-v3.jpg");
+  await expect.poll(() => art.evaluate((image) => (image as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+  const workflow = page.getByRole("button", { name: "Understand public activity", exact: true });
+  await workflow.focus();
+  await page.keyboard.press("Enter");
+  await expect(workflow).toHaveAttribute("aria-expanded", "true");
+  await expect(page.locator("#hero-workflow-1")).toBeVisible();
+  await expect(page.locator("#hero-workflow-0")).toBeHidden();
+  const menu = page.getByRole("button", { name: "Open navigation menu" });
+  await menu.click();
+  await expect(menu).toHaveAttribute("aria-expanded", "true");
+  await page.keyboard.press("Escape");
+  await expect(menu).toHaveAttribute("aria-expanded", "false");
+  await expect(menu).toBeFocused();
 });

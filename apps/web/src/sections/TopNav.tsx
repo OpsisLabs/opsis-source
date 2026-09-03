@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { Menu, X } from "lucide-react";
 
@@ -13,22 +13,31 @@ const LINKS = [
 
 export default function TopNav() {
   const [open, setOpen] = useState(false);
+  const trigger = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { setOpen(false); trigger.current?.focus(); }
+    };
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [open]);
 
   return (
     <>
-      <header className="fixed left-0 right-0 top-0 z-30 flex h-[60px] items-center border-b border-[#2e2e2e] bg-[#1d1d1d]/90 backdrop-blur lg:left-[220px]">
+      <header className="fixed inset-x-0 top-0 z-30 flex h-[72px] items-center gap-3 border-b border-[#383838] bg-[#1d1d1d] px-4 sm:px-6 xl:px-10">
         {/* mobile logo block */}
         <a
           href="#hero"
-          className="flex h-full w-[60px] shrink-0 items-center justify-center bg-[#fa6c34] lg:hidden"
-          style={{ clipPath: "polygon(0 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%)" }}
+          className="flex shrink-0 items-center gap-3 text-[18px] font-semibold text-[#f0e8da]"
+          aria-label="ChainScout home"
         >
-          <img src="/logo.svg" alt="ChainScout" className="h-6 w-6" />
+          <span className="clip-btn-sm flex h-10 w-10 items-center justify-center bg-[#fa6c34]"><img src="/logo.svg" alt="" className="h-6 w-6" /></span><span>ChainScout</span>
         </a>
 
         <div className="flex-1" />
 
-        <nav className="hidden items-center gap-5 pr-5 text-[12px] text-[#9a938a] md:flex xl:gap-8 xl:pr-8 xl:text-[13px]">
+        <nav aria-label="Homepage sections" className="hidden items-center gap-5 pr-3 text-[14px] text-[#b8b0a7] lg:flex xl:gap-7">
           {LINKS.map((l) => (
             <a key={l.label} href={l.href} className="transition-colors hover:text-[#e9e0d1]">
               {l.label}
@@ -38,16 +47,19 @@ export default function TopNav() {
 
         <Link
           to="/app"
-          className="clip-btn-sm mr-3 hidden items-center bg-[#fa6c34] px-5 py-2.5 font-mono-d text-[11px] font-medium tracking-wide text-[#1d1d1d] transition-colors hover:bg-[#ff7038] sm:flex md:mr-0 md:h-full md:px-8 md:text-[12px]"
+          className="clip-btn-sm hidden min-h-11 items-center bg-[#fa6c34] px-5 text-[14px] font-semibold text-[#1d1d1d] transition-colors hover:bg-[#ff7038] sm:flex"
         >
           OPEN EXPLORER
         </Link>
 
         {/* hamburger */}
         <button
+          ref={trigger}
           onClick={() => setOpen(!open)}
-          className="flex h-full w-[60px] items-center justify-center border-l border-[#2e2e2e] text-[#e9e0d1] md:hidden"
-          aria-label="Menu"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm border border-[#514a45] text-[#e9e0d1] lg:hidden"
+          aria-label="Open navigation menu"
+          aria-expanded={open}
+          aria-controls="homepage-mobile-menu"
         >
           {open ? <X size={20} /> : <Menu size={20} />}
         </button>
@@ -55,7 +67,7 @@ export default function TopNav() {
 
       {/* mobile menu */}
       {open && (
-        <div className="fixed inset-x-0 top-[60px] z-40 border-b border-[#2e2e2e] bg-[#1d1d1d] md:hidden">
+        <nav id="homepage-mobile-menu" aria-label="Mobile homepage sections" className="fixed inset-x-0 top-[72px] z-40 max-h-[calc(100dvh-72px)] overflow-y-auto border-b border-[#383838] bg-[#1d1d1d] lg:hidden">
           {LINKS.map((l) => (
             <a
               key={l.label}
@@ -76,7 +88,7 @@ export default function TopNav() {
               OPEN EXPLORER
             </Link>
           </div>
-        </div>
+        </nav>
       )}
     </>
   );

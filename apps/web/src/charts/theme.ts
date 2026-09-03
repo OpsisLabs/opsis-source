@@ -8,17 +8,17 @@ export const CHART_COLORS = [
 ] as const;
 
 export const darkGrid = {
-  left: 12,
-  right: 18,
-  top: 28,
-  bottom: 24,
+  left: 8,
+  right: 16,
+  top: 36,
+  bottom: 16,
   containLabel: true,
 };
 
 export const darkAxis = {
   axisLine: { lineStyle: { color: "#4a4642" } },
   axisTick: { show: false },
-  axisLabel: { color: "#9a938a", fontSize: 9 },
+  axisLabel: { color: "#b8b0a7", fontSize: 12, hideOverlap: true },
   splitLine: { lineStyle: { color: "#302f2d" } },
 };
 
@@ -28,7 +28,8 @@ export const darkTooltip = {
   borderWidth: 1,
   textStyle: {
     color: "#f0e8da",
-    fontFamily: "IBM Plex Mono, monospace",
-    fontSize: 10,
+    fontFamily: "Inter, sans-serif",
+    fontSize: 14,
   },
+  confine: true,
 };

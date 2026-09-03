@@ -46,25 +46,20 @@ export function VaultRecordMixChart({ assets }: { assets: VaultAsset[] }) {
       },
     },
     legend: {
-      bottom: 0,
-      textStyle: { color: "#9a938a", fontSize: 9 },
-      itemWidth: 9,
-      itemHeight: 9,
+      show: false,
     },
     series: [
       {
         name: "Encrypted records",
         type: "pie",
-        radius: ["48%", "72%"],
-        center: ["50%", "44%"],
+        radius: ["58%", "80%"],
+        center: ["50%", "50%"],
         avoidLabelOverlap: true,
         itemStyle: { borderColor: "#242424", borderWidth: 3 },
         label: {
-          color: "#d6ccba",
-          fontFamily: "IBM Plex Mono, monospace",
-          fontSize: 9,
-          formatter: "{b}\n{c}",
+          show: false,
         },
+        labelLine: { show: false },
         data,
       },
     ],
@@ -75,11 +70,14 @@ export function VaultRecordMixChart({ assets }: { assets: VaultAsset[] }) {
       eyebrow="ENCRYPTED RECORD MIX"
       copy="Record counts only. This is not a value allocation or market-weight chart."
     >
-      <ChainScoutChart
+      <div className="record-mix-visual">
+      <div className="record-mix-chart"><ChainScoutChart
         option={option}
         label={`Encrypted Vault records by asset type: ${data.map((item) => `${item.name} ${item.value}`).join(", ")}.`}
-        height={250}
-      />
+        height={190}
+      /><div className="record-mix-total" aria-hidden="true"><strong>{assets.length}</strong><span>records</span></div></div>
+      <ul className="record-mix-legend" aria-label="Record counts by asset type">{data.map((item, index) => <li key={item.name}><span className="record-mix-dot" style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }} /><span>{item.name}</span><strong>{item.value}</strong></li>)}</ul>
+      </div>
       <DataTable
         headings={["Asset type", "Encrypted records"]}
         rows={data.map((item) => [item.name, String(item.value)])}
@@ -120,7 +118,7 @@ export function CollectibleValueHistoryChart({ asset }: { asset: VaultAsset }) {
             ...darkAxis,
             type: "value",
             name: currency,
-            nameTextStyle: { color: "#9a938a", fontSize: 9 },
+            nameTextStyle: { color: "#b8b0a7", fontSize: 12 },
           },
           series: [
             {
@@ -152,10 +150,14 @@ export function CollectibleValueHistoryChart({ asset }: { asset: VaultAsset }) {
                 LAVENDER PURCHASE · ORANGE REFERENCE
               </p>
             </div>
+            <p className="mt-3 text-[14px] leading-relaxed text-[#b8b0a7]">
+              Latest dated entry: <strong className="font-medium text-[#e9e0d1]">{points.at(-1)?.value} {currency}</strong>
+              <span className="block text-[12px] text-[#aaa39b]">{points.at(-1)?.date} · {points.at(-1)?.label}</span>
+            </p>
             <ChainScoutChart
               option={option}
               label={`${asset.name} owner-entered purchase and dated reference history in ${currency}. Not a live market feed.`}
-              height={210}
+              height={240}
             />
             <DataTable
               headings={["Date", "Entry", `Exact value (${currency})`]}
@@ -218,7 +220,7 @@ export function PortfolioAllocationChart({
               max: 100,
               axisLabel: {
                 color: "#9a938a",
-                fontSize: 9,
+                fontSize: 12,
                 formatter: "{value}%",
               },
             },
