@@ -151,20 +151,15 @@ describe("browser privacy static boundary", () => {
       resolve(repositoryRoot, "apps/web/src/App.tsx"),
       "utf8",
     );
-    expect(app).toContain(
-      '<Route path="/app" element={<PrivateExplorer />} />',
-    );
-    expect(app).toContain('<Route path="/vault" element={<VaultPage />} />');
-    expect(app).toContain('<Route path="/rwa" element={<RwaVerify />} />');
-    expect(
-      app.indexOf('<Route path="/app" element={<PrivateExplorer />} />'),
-    ).toBeLessThan(app.indexOf("<Route element={<CloudProviders />}>"));
-    expect(
-      app.indexOf('<Route path="/vault" element={<VaultPage />} />'),
-    ).toBeLessThan(app.indexOf("<Route element={<CloudProviders />}>"));
-    expect(
-      app.indexOf('<Route path="/rwa" element={<RwaVerify />} />'),
-    ).toBeLessThan(app.indexOf("<Route element={<CloudProviders />}>"));
+    expect(app).not.toContain('from "./dashboard/store"');
+    expect(app).not.toContain('from "./dashboard/walletStore"');
+    const cloudBoundary = app.indexOf("<CloudProviders />");
+    expect(cloudBoundary).toBeGreaterThan(0);
+    for (const route of ["/app", "/vault", "/rwa"]) {
+      const privateRoute = app.indexOf(`path="${route}"`);
+      expect(privateRoute).toBeGreaterThan(0);
+      expect(privateRoute).toBeLessThan(cloudBoundary);
+    }
   });
 
   it("keeps vault plaintext and local cryptography outside every network and weak-storage API", () => {

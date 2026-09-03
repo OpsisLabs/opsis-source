@@ -15,7 +15,7 @@ const railwayPublicUrl = process.env.RAILWAY_PUBLIC_DOMAIN
   ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
   : undefined;
 const publicSiteUrl = new URL(
-  process.env.VITE_PUBLIC_SITE_URL || railwayPublicUrl || "https://web-production-78f53e.up.railway.app",
+  process.env.VITE_PUBLIC_SITE_URL || railwayPublicUrl || "https://www.chainscout.net",
 ).origin;
 
 // https://vite.dev/config/

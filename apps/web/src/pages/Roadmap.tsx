@@ -631,13 +631,6 @@ export default function Roadmap() {
   const [active, setActive] = useState(RELEASES[0].id);
 
   useEffect(() => {
-    document.title = "Product Roadmap | ChainScout";
-    const description = document.querySelector<HTMLMetaElement>('meta[name="description"]');
-    const previousDescription = description?.content;
-    if (description) {
-      description.content = "Explore ChainScout's zero-new-spend roadmap for safer swaps, open asset data, universal inventory, best-price routing, reputation, and phygital verification.";
-    }
-
     const revealObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -695,8 +688,6 @@ export default function Roadmap() {
     window.addEventListener("resize", queueScrollMotion);
 
     return () => {
-      document.title = "ChainScout: Robinhood Chain Intelligence in Plain English";
-      if (description && previousDescription) description.content = previousDescription;
       revealObserver.disconnect();
       phaseObserver.disconnect();
       window.removeEventListener("scroll", queueScrollMotion);

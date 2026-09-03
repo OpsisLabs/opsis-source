@@ -100,13 +100,16 @@ export default function Hero() {
         </p>
       </div>
       <figure data-hero-art className="marketing-hero-art">
-        <img
-          src="/asset-collection-v3.jpg"
-          width={1122}
-          height={1402}
-          fetchPriority="high"
-          alt="Illustration of collectible cards, crypto coins and a tokenized asset certificate, grouped as one personal collection"
-        />
+        <picture>
+          <source srcSet="/asset-collection-v3.avif" type="image/avif" />
+          <img
+            src="/asset-collection-v3.jpg"
+            width={1122}
+            height={1402}
+            fetchPriority="high"
+            alt="Illustration of collectible cards, crypto coins and a tokenized asset certificate, grouped as one personal collection"
+          />
+        </picture>
         <figcaption>
           Different assets. One private place.
           <span>Conceptual illustration · not an actual portfolio</span>

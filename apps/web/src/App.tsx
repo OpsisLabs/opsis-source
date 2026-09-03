@@ -1,120 +1,240 @@
-import { lazy, Suspense } from "react";
-import { Routes, Route, Navigate, Outlet, useLocation, useParams } from "react-router";
+import { lazy, Suspense, type ReactNode } from "react";
+import { Navigate, Route, Routes } from "react-router";
 import Home from "./pages/Home";
-import Roadmap from "./pages/Roadmap";
-import ScoutSwap from "./pages/ScoutSwap";
-import { PrivacyPage, TermsPage } from "./pages/Legal";
-import { AuthProvider, useAuth } from "./dashboard/store";
-import { WalletProvider } from "./dashboard/walletStore";
-import { LoginPage, RegisterPage } from "./dashboard/AuthPages";
-import AppShell from "./dashboard/AppShell";
-import ChatPage from "./dashboard/ChatPage";
-import PrivateExplorer from "./pages/PrivateExplorer";
-import AccountPrivacyPage from "./dashboard/AccountPrivacyPage";
-import VaultPage from "./pages/Vault";
-import RwaVerify from "./pages/RwaVerify";
-import FeatureGuide from "./pages/FeatureGuide";
-import ProductShell from "./product/ProductShell";
+import RouteMetadata from "./RouteMetadata";
 import { isOpenDataApiEnabled } from "./product/availability";
 
+const Roadmap = lazy(() => import("./pages/Roadmap"));
+const ScoutSwap = lazy(() => import("./pages/ScoutSwap"));
+const PrivateExplorer = lazy(() => import("./pages/PrivateExplorer"));
+const VaultPage = lazy(() => import("./pages/Vault"));
+const RwaVerify = lazy(() => import("./pages/RwaVerify"));
+const FeatureGuide = lazy(() => import("./pages/FeatureGuide"));
 const TechnicalDocs = lazy(() => import("./pages/TechnicalDocs"));
 const Faq = lazy(() => import("./pages/Faq"));
 const Developers = lazy(() => import("./pages/Developers"));
+const ProductShell = lazy(() => import("./product/ProductShell"));
+const AppShell = lazy(() => import("./dashboard/AppShell"));
+const AccountPrivacyPage = lazy(() => import("./dashboard/AccountPrivacyPage"));
+const PrivacyPage = lazy(() =>
+  import("./pages/Legal").then((module) => ({ default: module.PrivacyPage })),
+);
+const TermsPage = lazy(() =>
+  import("./pages/Legal").then((module) => ({ default: module.TermsPage })),
+);
+const LoginPage = lazy(() =>
+  import("./dashboard/AuthPages").then((module) => ({
+    default: module.LoginPage,
+  })),
+);
+const RegisterPage = lazy(() =>
+  import("./dashboard/AuthPages").then((module) => ({
+    default: module.RegisterPage,
+  })),
+);
+const CloudProviders = lazy(() =>
+  import("./dashboard/CloudRoutes").then((module) => ({
+    default: module.CloudProviders,
+  })),
+);
+const RequireAuth = lazy(() =>
+  import("./dashboard/CloudRoutes").then((module) => ({
+    default: module.RequireAuth,
+  })),
+);
+const DashboardIndex = lazy(() =>
+  import("./dashboard/CloudRoutes").then((module) => ({
+    default: module.DashboardIndex,
+  })),
+);
+const ChatRoute = lazy(() =>
+  import("./dashboard/CloudRoutes").then((module) => ({
+    default: module.ChatRoute,
+  })),
+);
 
-function KnowledgePageFallback() {
+function PageFallback() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#1d1d1d]">
-      <span className="h-2 w-2 animate-ping rounded-full bg-[#fa6c34]" aria-label="Loading page" />
+      <span
+        className="h-2 w-2 animate-ping rounded-full bg-[#fa6c34]"
+        aria-label="Loading page"
+      />
     </div>
   );
 }
 
-function DeferredPage({ children }: { children: React.ReactNode }) {
-  return <Suspense fallback={<KnowledgePageFallback />}>{children}</Suspense>;
-}
-
-function RequireAuth({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
-  const loc = useLocation();
-  if (loading)
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#1d1d1d]">
-        <span className="h-2 w-2 animate-ping rounded-full bg-[#fa6c34]" />
-      </div>
-    );
-  if (!user) return <Navigate to="/login" state={{ from: loc.pathname }} replace />;
-  return <>{children}</>;
-}
-
-function DashboardIndex() {
-  return (
-    <div className="dots flex flex-1 items-center justify-center">
-      <div className="max-w-[420px] text-center">
-        <p className="font-mono-d text-[11px] tracking-wider text-[#635d5a]">ROBINHOOD CHAIN · 4663</p>
-        <h2 className="mt-4 text-[26px] font-medium tracking-[-0.02em] text-[#e9e0d1]">
-          Start a session or resolve an entity
-        </h2>
-        <p className="mt-3 text-[13.5px] leading-relaxed text-[#9a938a]">
-          Paste a wallet, transaction hash, token, or contract in the search bar above, or pick
-          a session from the left rail.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function ChatRoute() {
-  const { sessionId } = useParams();
-  // React Router reuses the route element when only the parameter changes.
-  // Remounting prevents any card, explorer URL, or pending request state from
-  // leaking from the previous saved session.
-  return <ChatPage key={sessionId} />;
-}
-
-function CloudProviders() {
-  return (
-    <AuthProvider>
-      <WalletProvider>
-        <Outlet />
-      </WalletProvider>
-    </AuthProvider>
-  );
+function DeferredPage({ children }: { children: ReactNode }) {
+  return <Suspense fallback={<PageFallback />}>{children}</Suspense>;
 }
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/roadmap" element={<Roadmap />} />
-      <Route element={<ProductShell />}>
-        <Route path="/swap" element={<ScoutSwap />} />
-        <Route path="/app" element={<PrivateExplorer />} />
-        <Route path="/vault" element={<VaultPage />} />
-        <Route path="/rwa" element={<RwaVerify />} />
-        <Route path="/guide" element={<FeatureGuide />} />
-        <Route path="/docs" element={<DeferredPage><TechnicalDocs /></DeferredPage>} />
-        <Route path="/faq" element={<DeferredPage><Faq /></DeferredPage>} />
-        <Route path="/developers" element={isOpenDataApiEnabled() ? <DeferredPage><Developers /></DeferredPage> : <Navigate to="/guide#open-data-api" replace />} />
-      </Route>
-      <Route path="/privacy" element={<PrivacyPage />} />
-      <Route path="/terms" element={<TermsPage />} />
-      <Route element={<CloudProviders />}>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+    <>
+      <RouteMetadata />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route
+          path="/roadmap"
+          element={
+            <DeferredPage>
+              <Roadmap />
+            </DeferredPage>
+          }
+        />
+        <Route
+          element={
+            <DeferredPage>
+              <ProductShell />
+            </DeferredPage>
+          }
+        >
+          <Route
+            path="/swap"
+            element={
+              <DeferredPage>
+                <ScoutSwap />
+              </DeferredPage>
+            }
+          />
+          <Route
+            path="/app"
+            element={
+              <DeferredPage>
+                <PrivateExplorer />
+              </DeferredPage>
+            }
+          />
+          <Route
+            path="/vault"
+            element={
+              <DeferredPage>
+                <VaultPage />
+              </DeferredPage>
+            }
+          />
+          <Route
+            path="/rwa"
+            element={
+              <DeferredPage>
+                <RwaVerify />
+              </DeferredPage>
+            }
+          />
+          <Route
+            path="/guide"
+            element={
+              <DeferredPage>
+                <FeatureGuide />
+              </DeferredPage>
+            }
+          />
+          <Route
+            path="/docs"
+            element={
+              <DeferredPage>
+                <TechnicalDocs />
+              </DeferredPage>
+            }
+          />
+          <Route
+            path="/faq"
+            element={
+              <DeferredPage>
+                <Faq />
+              </DeferredPage>
+            }
+          />
+          <Route
+            path="/developers"
+            element={
+              isOpenDataApiEnabled() ? (
+                <DeferredPage>
+                  <Developers />
+                </DeferredPage>
+              ) : (
+                <Navigate to="/guide#open-data-api" replace />
+              )
+            }
+          />
+        </Route>
+        <Route
+          path="/privacy"
+          element={
+            <DeferredPage>
+              <PrivacyPage />
+            </DeferredPage>
+          }
+        />
+        <Route
+          path="/terms"
+          element={
+            <DeferredPage>
+              <TermsPage />
+            </DeferredPage>
+          }
+        />
+        <Route
+          element={
+            <DeferredPage>
+              <CloudProviders />
+            </DeferredPage>
+          }
+        >
+          <Route
+            path="/login"
+            element={
+              <DeferredPage>
+                <LoginPage />
+              </DeferredPage>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <DeferredPage>
+                <RegisterPage />
+              </DeferredPage>
+            }
+          />
           <Route
             path="/cloud"
             element={
-              <RequireAuth>
-                <AppShell />
-              </RequireAuth>
+              <DeferredPage>
+                <RequireAuth>
+                  <AppShell />
+                </RequireAuth>
+              </DeferredPage>
             }
           >
-            <Route index element={<DashboardIndex />} />
-            <Route path="chat/:sessionId" element={<ChatRoute />} />
-            <Route path="privacy" element={<AccountPrivacyPage />} />
+            <Route
+              index
+              element={
+                <DeferredPage>
+                  <DashboardIndex />
+                </DeferredPage>
+              }
+            />
+            <Route
+              path="chat/:sessionId"
+              element={
+                <DeferredPage>
+                  <ChatRoute />
+                </DeferredPage>
+              }
+            />
+            <Route
+              path="privacy"
+              element={
+                <DeferredPage>
+                  <AccountPrivacyPage />
+                </DeferredPage>
+              }
+            />
           </Route>
-      </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
   );
 }

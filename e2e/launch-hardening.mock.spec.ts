@@ -29,6 +29,26 @@ test("key launch surfaces pass automated serious/critical accessibility checks",
   }
 });
 
+test("public routes expose route-specific canonical metadata", async ({ page }) => {
+  await dismissTour(page);
+  for (const expected of [
+    { path: "/", title: "ChainScout — Private Multi-Asset Command Center" },
+    { path: "/app", title: "Private Explorer | ChainScout" },
+    { path: "/vault", title: "Encrypted Asset Vault | ChainScout" },
+    { path: "/docs", title: "Technical Docs | ChainScout" },
+    { path: "/privacy", title: "Privacy Policy | ChainScout" },
+  ]) {
+    await page.goto(expected.path);
+    await expect(page).toHaveTitle(expected.title);
+    const canonical = await page.locator('link[rel="canonical"]').getAttribute("href");
+    expect(new URL(canonical ?? "http://invalid").pathname).toBe(expected.path);
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "index,follow");
+  }
+
+  await page.goto("/login");
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex,nofollow");
+});
+
 test("keyboard tour makes the background inert, supports reflow, and restores focus", async ({ page, browserName }) => {
   await dismissTour(page);
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -53,6 +73,7 @@ test("keyboard tour makes the background inert, supports reflow, and restores fo
 
   await page.reload();
   const skipLink = page.locator("a[href='#product-main']");
+  await page.locator("#product-main").waitFor({ state: "visible" });
   // macOS WebKit follows the host's Full Keyboard Access preference and may
   // skip links during Tab traversal. Chromium proves traversal; WebKit still
   // proves the focus target, focus treatment, and keyboard activation.
