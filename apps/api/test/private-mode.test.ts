@@ -4,7 +4,10 @@ import { buildApp } from "../src/app.js";
 import { loadEnv } from "../src/config/env.js";
 import { memoryStore } from "../src/db/memory.js";
 import { ChainEntityResolver } from "../src/chain/resolver.js";
-import { applyPrivateProviderCoverage } from "../src/routes/private.js";
+import {
+  applyPrivateProviderCoverage,
+  resolvePrivateWithinDeadline
+} from "../src/routes/private.js";
 import { JsonCache } from "../src/cache/service.js";
 import type { ChainProvider, SourceDocumentInput } from "../src/chain/types.js";
 import type { PrismaClient } from "@prisma/client";
@@ -54,6 +57,36 @@ afterEach(async () => {
 });
 
 describe("no-account Private Mode", () => {
+  it("fails the complete resolution after its overall provider deadline", async () => {
+    const neverResolves = vi.fn(() => new Promise<never>(() => undefined));
+
+    await expect(resolvePrivateWithinDeadline(neverResolves, 5)).rejects.toMatchObject({
+      code: "PROVIDER_UNAVAILABLE",
+      statusCode: 503
+    });
+    expect(neverResolves).toHaveBeenCalledOnce();
+  });
+
+  it("returns a bounded provider error when the complete private route stalls", async () => {
+    const resolve = vi.fn(() => new Promise<never>(() => undefined));
+    const answerQuestion = vi.fn(async () => answer);
+    const app = await buildApp(loadEnv({ NODE_ENV: "test", LOG_LEVEL: "silent" }), undefined, {
+      privateAnalysis: { resolve, answer: answerQuestion, resolutionTimeoutMs: 5 }
+    });
+    apps.push(app);
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/v1/private/analyze",
+      payload: { entity: identifier, question: "What should a beginner notice?" }
+    });
+
+    expect(response.statusCode).toBe(503);
+    expect(response.json().error).toMatchObject({ code: "PROVIDER_UNAVAILABLE" });
+    expect(resolve).toHaveBeenCalledOnce();
+    expect(answerQuestion).not.toHaveBeenCalled();
+  });
+
   it("never turns unavailable indexer activity into verified zero counts", () => {
     const covered = applyPrivateProviderCoverage({
       entity: {

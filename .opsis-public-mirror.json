@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "dbba63e6a7149919dce3a8aa46f6047e553acf384eefd77ea8b617baa6172d9f",
+  "sourceTreeDigest": "43bae9e12635a0fc983ec112846a5a03d2b7026d0dff49222fde642b9053b970",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "4c7c8dcafeb4695578deb65db4b9a27a91402dc5915b38495e0b5ae0b9c79a14",
@@ -70,7 +70,7 @@
     "apps/api/src/routes/market.ts": "951aab227136ec79e63a694a3af3b17fd3502e753c592d8d4ac21f615f890e9c",
     "apps/api/src/routes/open-data.ts": "39893e53c5aeba835feb215f9685491520c0d91bec361e862f15adfce5335559",
     "apps/api/src/routes/portfolio.ts": "d82fb6f7af7f4c0253123023451443ca35473bf3ce1499583c7737e4f00a75fc",
-    "apps/api/src/routes/private.ts": "c0763f970b188bdee8af2f05d1c39b0cceb2bd9f540a1bfdefa4570f4c478dae",
+    "apps/api/src/routes/private.ts": "d05cb67a90403caf8ce6825b7ac2d90c60dc17cf06f11c9c2ead2f355c976d7a",
     "apps/api/src/routes/rwa.ts": "ff6c57531c39b33abf312d9205b9de345a552411973a70d1564c96e3a2dfc7b9",
     "apps/api/src/routes/swaps.ts": "b6b1f1107203589575765c66c2d68706d6b36eb8307d911d746529171a086279",
     "apps/api/src/routes/usage.ts": "e52c864ab3d402854324ed1137c69c505b522e13aa785ac9f7188762edd455ba",
@@ -117,7 +117,7 @@
     "apps/api/test/portfolio.test.ts": "620a6aa69848d3108e22ce9a7ec0ea8aa7ca90d8d3776f5465a8455bf79e73ab",
     "apps/api/test/privacy-static.test.ts": "bfbfa1f1f1630f3e4f7d9edc1bef8250be481833cc2a3014f8ab4901c3526aa0",
     "apps/api/test/privacy.test.ts": "cbbb802a0d040015dba38db2a8a884690c193cd4f9bdb882d912d8158ae24b62",
-    "apps/api/test/private-mode.test.ts": "9d248b4d51362eb3d1c42c78d35e7742e56e48eb3465402ed9a56ea100da9f48",
+    "apps/api/test/private-mode.test.ts": "d2f84e373e827aafc4c8112189392e1cefb31c74eb1f623a3f6805bb14f6aff7",
     "apps/api/test/provider-contract.test.ts": "19e84876a4c2602e068b41f26952dfeb8beafba64d8dedffaa9af12cec2c1027",
     "apps/api/test/provider-http.test.ts": "89b08511c0ffe3b26701afdb73f7ce7c482e10ea2d1067bccdad7224731241a3",
     "apps/api/test/redis.integration.test.ts": "736b41f60ca48a9df21e4566a74e411894910d0a50ce3d180ee5d134b35370f3",
@@ -258,7 +258,7 @@
     "e2e/vault.mock.spec.ts": "ccd6b727baefa90b8bdaaf0d7525a45e74b608d61cc3683ad41d9eddf05f9e1b",
     "e2e/wallet-ai.live.spec.ts": "0b74831125b671378e36c1fad76be23f98a9f4beec3c08250df2451ca107727e",
     "e2e/wallet-ai.mock.spec.ts": "a229067837c646d50a1fcb2de04c4ac0e3f83b9c351006990194c06c23345541",
-    "package.json": "b508936c7b2e78c6ef6d6813c3c77e3e1301c0f715b71e8842ed641f40f2e091",
+    "package.json": "793caf1b972c2b4d5f0032fb68423e265eaeb37ca3932aadfab1ffae9711580a",
     "packages/shared/package.json": "cbeb5593b144f6eaf00e0abcc3f4f6cf4a8df87325ecde9946e7d24821a63da5",
     "packages/shared/src/index.ts": "54e1bd31add65d4a5f37f6a39e34bf29e9cda5a93a232ffec8f28613e543d394",
     "packages/shared/tsconfig.json": "3543b1e7b426d5b65115ebff7122a5e79298db33c9f366b3c89f8d575a27fc1e",
@@ -269,10 +269,11 @@
     "pnpm-workspace.yaml": "08d75840c97ab0e72d1d9b5b84a17e47a2e06cb159a5fbec5ee0a6a56682dad7",
     "README.md": "4fc91844b5e240d3f5bec7f18b0a09aaa7151f671458b203ce4a9e34dfef92ed",
     "release-train.json": "67858cd89eba88c944910be1a11c91fe73913294276048a31152330691d4808e",
+    "scripts/audit-production-dependencies.mjs": "24bcfb5b02ef4e5a007a330215de123e9a8013207f779ddd5fdf9c2a3150940f",
     "scripts/check-production-licenses.mjs": "4dbcec01012b2e8f22fcfee2bf6a1dbf9fdbbaa26c6d415d2e54b872a6020908",
     "scripts/launch-smoke.mjs": "7371a4f1602ed9fa607773768bba65e23a96e1de1d34889a2415bbcb4ff0558d",
     "scripts/load-smoke.mjs": "f474b59f3e8e25d87e551b3a8833eeae336d2ba7aee4f7337385153efa13f756",
-    "scripts/release-train.mjs": "713a688ec3e67703bfd9f649eb7e71395fcfdcc2ea628608a186db6200e3651e",
+    "scripts/release-train.mjs": "adf6efaa9236091a2b12759434749d49dc5786164833ac75eb61ccad3e8b5094",
     "scripts/test-load-smoke.mjs": "f5389abc3e4a7ea82cf5593328321bccae440304c134c68c286d062f578ce660",
     "tsconfig.base.json": "106ea736491527813ed147545e145b13b677944c1533afaecf6a975c3c433d01"
   }

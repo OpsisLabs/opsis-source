@@ -16,10 +16,35 @@ const analyzeBody = z.object({
   question: z.string().trim().min(1).max(500).optional()
 }).strict();
 
+export const PRIVATE_RESOLUTION_TIMEOUT_MS = 15_000;
+
 export type PrivateAnalysisDependencies = {
   resolve(type: ChainEntityType, value: string, options: ResolveOptions): Promise<ResolvedEntity>;
   answer(question: string, entity: NormalizedEntity): Promise<AiExplorerAnswer>;
+  resolutionTimeoutMs?: number;
 };
+
+export async function resolvePrivateWithinDeadline<T>(
+  resolve: () => Promise<T>,
+  timeoutMs = PRIVATE_RESOLUTION_TIMEOUT_MS
+): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const deadline = new Promise<T>((_resolve, reject) => {
+    timer = setTimeout(() => {
+      reject(new AppError(
+        "PROVIDER_UNAVAILABLE",
+        503,
+        "Public chain data providers are temporarily unavailable"
+      ));
+    }, timeoutMs);
+    timer.unref?.();
+  });
+  try {
+    return await Promise.race([resolve(), deadline]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
 
 export function privateResolverEnvironment(env: Env): Env {
   return {
@@ -84,8 +109,9 @@ export async function privateRoutes(
   dependencies?: PrivateAnalysisDependencies
 ): Promise<void> {
   // The private first-look path is deliberately bounded: one attempt per
-  // public provider call and an eight-second ceiling. A slow optional upstream
-  // should degrade promptly instead of trapping a beginner behind retry loops.
+  // public provider call, plus a hard overall deadline for the full resolution.
+  // A slow optional upstream should degrade promptly instead of trapping a
+  // beginner behind a chain of individually bounded fallbacks.
   const privateResolverEnv = privateResolverEnvironment(env);
   const resolver = new ChainEntityResolver(privateResolverEnv, cache, prisma);
   // Private Mode is deterministic by design. It never spends provider AI
@@ -110,11 +136,14 @@ export async function privateRoutes(
       const body = analyzeBody.parse(request.body);
       let resolution: ResolvedEntity;
       try {
-        resolution = applyPrivateProviderCoverage(await privateAnalysis.resolve(body.entityType, body.entity, {
-          limit: 25,
-          includeApprovals: false,
-          privateMode: true
-        }));
+        resolution = applyPrivateProviderCoverage(await resolvePrivateWithinDeadline(
+          () => privateAnalysis.resolve(body.entityType, body.entity, {
+            limit: 25,
+            includeApprovals: false,
+            privateMode: true
+          }),
+          privateAnalysis.resolutionTimeoutMs
+        ));
       } catch (error) {
         if (error instanceof AppError && (error.statusCode === 400 || error.statusCode === 404)) throw error;
         throw new AppError("PROVIDER_UNAVAILABLE", 503, "Public chain data providers are temporarily unavailable");

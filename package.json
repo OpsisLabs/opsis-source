@@ -24,6 +24,7 @@
     "release:candidate": "node scripts/release-train.mjs candidate",
     "release:advance": "node scripts/release-train.mjs advance",
     "audit": "pnpm audit",
+    "audit:prod": "node scripts/audit-production-dependencies.mjs",
     "licenses": "pnpm licenses list --prod",
     "licenses:check": "node scripts/check-production-licenses.mjs",
     "launch:smoke": "node scripts/launch-smoke.mjs",
