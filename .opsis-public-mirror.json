@@ -1,10 +1,11 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "204c2ee25138afeedbe547ef3bb7221520c9f9979c51f3d9729742532c95fb77",
+  "sourceTreeDigest": "dbba63e6a7149919dce3a8aa46f6047e553acf384eefd77ea8b617baa6172d9f",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "4c7c8dcafeb4695578deb65db4b9a27a91402dc5915b38495e0b5ae0b9c79a14",
     ".githooks/pre-commit": "7c59996b2757341240727badb98e1dd2691b2e412078591610d9153e3a4a6af8",
+    ".github/security/pnpm-audit-baseline.json": "1818dcbfaa6de56e86c19827c56ecbe8719d0194b7cdb7f75f0667962789adb2",
     ".gitignore": "fc431b1589bf1c43f704a4f2099875f292031d28ccd9312f85ce14aec740b229",
     ".node-version": "7d2df647f25529bd87500319c41564e032e2be642e565350fa6136d7a1ec4d10",
     "apps/api/Dockerfile": "fd94c2fbd37333793249a6e7f8ee9a0f2a07f8563a866f2519abb29f2f538b69",
