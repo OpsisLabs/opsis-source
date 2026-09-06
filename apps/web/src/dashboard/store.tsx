@@ -10,6 +10,7 @@ import {
 import { clearLegacyBrowserCredentials } from "./http";
 import { connectWallet, signSignInMessage } from "./wallet";
 import type { User } from "./types";
+import { cloudWorkspaceEnabled, cloudUnavailableMessage } from "./cloudAvailability";
 
 interface AuthCtx {
   user: User | null;
@@ -49,6 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signInWithWallet = async (username?: string) => {
+    if (!cloudWorkspaceEnabled) throw new Error(cloudUnavailableMessage);
     if (!pending.current) {
       const { address } = await connectWallet();
       const challenge = await walletChallenge(address);

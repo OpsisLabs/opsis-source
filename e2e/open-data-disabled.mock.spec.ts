@@ -1,5 +1,22 @@
 import { expect, test } from "@playwright/test";
 
+test("cloud-off build offers private tools without requesting a wallet signature", async ({ page }) => {
+  const requests: string[] = [];
+  await page.route("**/v1/auth/wallet/**", async (route) => {
+    requests.push(route.request().url());
+    await route.abort();
+  });
+  for (const path of ["/login", "/register"]) {
+    await page.goto(path);
+    await expect(page.getByRole("status")).toContainText("Saved cloud research is temporarily unavailable");
+    await expect(page.getByRole("button", { name: "CONNECT WALLET" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Open local Vault" })).toBeVisible();
+  }
+  await page.getByRole("link", { name: "Open Private Explorer" }).click();
+  await expect(page).toHaveURL(/\/app$/);
+  expect(requests).toEqual([]);
+});
+
 test("flag-off build redirects the direct developer route without an Open Data request", async ({ page }) => {
   const requests: string[] = [];
   await page.route("**/v1/public/open-data/**", async (route) => {

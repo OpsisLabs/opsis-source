@@ -39,6 +39,7 @@ import { createMarketBudget } from "./market/budget.js";
 import { openDataRoutes } from "./routes/open-data.js";
 import type { OpenDataLimiter } from "./open-data/limiter.js";
 import { corsOptionsForRequest } from "./http/cors.js";
+import { installCloudWorkspaceGuard } from "./http/cloud-workspace.js";
 
 export async function buildApp(
   env: Env,
@@ -100,6 +101,7 @@ export async function buildApp(
     delegator: async (request: FastifyRequest) => corsOptionsForRequest(request.url, env),
   });
   installCsrfProtection(app, env);
+  installCloudWorkspaceGuard(app, env, Boolean(prisma));
   await app.register(helmet);
   await app.register(rateLimit, {
     max: (request, key) => key.startsWith("user:") ? env.RATE_LIMIT_LOOKUP_PER_HOUR : env.RATE_LIMIT_PUBLIC_PER_HOUR,

@@ -4,6 +4,7 @@ import { Wallet } from "lucide-react";
 import { useAuth } from "./store";
 import { USERNAME_REQUIRED } from "./api";
 import { hasMetaMask } from "./wallet";
+import { cloudWorkspaceEnabled, cloudUnavailableMessage } from "./cloudAvailability";
 
 function LogoMark({ className = "w-7 h-7" }: { className?: string }) {
   return <img src="/logo.svg" alt="ChainScout" className={className} />;
@@ -104,6 +105,14 @@ function WalletAuth({ variant }: { variant: "signin" | "signup" }) {
     }
   };
 
+  if (!cloudWorkspaceEnabled) {
+    return <div className="mt-6 space-y-4">
+      <p role="status" className="border border-[#fa6c34]/40 p-4 text-[14px] leading-relaxed text-[#e9e0d1]">{cloudUnavailableMessage}</p>
+      <Link to="/app" className="flex min-h-11 items-center justify-center bg-[#fa6c34] px-4 text-[14px] font-semibold text-[#1d1d1d]">Open Private Explorer</Link>
+      <Link to="/vault" className="flex min-h-11 items-center justify-center border border-[#766a60] px-4 text-[14px] text-[#e9e0d1]">Open local Vault</Link>
+    </div>;
+  }
+
   if (!hasMetaMask()) {
     return (
       <div className="mt-8 space-y-5">
@@ -175,13 +184,13 @@ function WalletAuth({ variant }: { variant: "signin" | "signup" }) {
 export function LoginPage() {
   return (
     <AuthLayout
-      title="Welcome back"
-      sub="Sign in with your wallet to continue your Robinhood Chain research."
+      title={cloudWorkspaceEnabled ? "Welcome back" : "Use ChainScout privately"}
+      sub={cloudWorkspaceEnabled ? "Sign in with your wallet to continue your Robinhood Chain research." : "Cloud sign-in is paused. Your private tools are available."}
       footer={
         <>
-          First time here?{" "}
-          <Link to="/register" className="text-[#e9e0d1] underline decoration-[#635d5a] underline-offset-4 hover:decoration-[#e9e0d1]">
-            Create an account
+          {cloudWorkspaceEnabled ? "First time here? " : "Learn how the private tools work: "}
+          <Link to={cloudWorkspaceEnabled ? "/register" : "/guide"} className="text-[#e9e0d1] underline decoration-[#635d5a] underline-offset-4 hover:decoration-[#e9e0d1]">
+            {cloudWorkspaceEnabled ? "Create an account" : "Feature guide"}
           </Link>
         </>
       }
@@ -194,8 +203,8 @@ export function LoginPage() {
 export function RegisterPage() {
   return (
     <AuthLayout
-      title="Create your account"
-      sub="Connect a wallet and pick a username. No email, no password. The free tier includes 500 AI messages and 5,000 chain lookups per month."
+      title={cloudWorkspaceEnabled ? "Create your account" : "Use ChainScout privately"}
+      sub={cloudWorkspaceEnabled ? "Connect a wallet and pick a username. No email, no password. The free tier includes 500 AI messages and 5,000 chain lookups per month." : "You do not need an account for Private Explorer or the local Vault."}
       footer={
         <>
           Already have an account?{" "}

@@ -33,6 +33,7 @@ import { PRODUCT_FEATURES, type ProductFeature } from "./features";
 import FeatureQuickstart from "./FeatureQuickstart";
 import ProductTour from "./ProductTour";
 import { isProductFeatureEnabled } from "./availability";
+import { cloudWorkspaceEnabled } from "../dashboard/cloudAvailability";
 
 gsap.registerPlugin(useGSAP);
 
@@ -253,7 +254,7 @@ function ProductRail({
       <div className="shrink-0 border-t border-[#34312f] bg-[#1c1b1a] p-3">
         <Link to="/login" onClick={onNavigate} className="group flex min-h-[58px] items-center gap-3 rounded-sm border border-[#fa6c34] bg-[#2a211d] px-3 py-2 text-[#fff7ec] outline-none transition-colors hover:bg-[#fa6c34] hover:text-[#1d1d1d] focus-visible:ring-2 focus-visible:ring-[#ffd0bc]">
           <WalletCards size={18} className="shrink-0 text-[#fa6c34] group-hover:text-[#1d1d1d]" />
-          <span className="min-w-0 flex-1"><span className="block text-[14px] font-semibold">Connect wallet / sign in</span><span className="mt-1 block text-[12px] text-[#c9a697] group-hover:text-[#4b2114]">Optional · message signature only</span></span>
+          <span className="min-w-0 flex-1"><span className="block text-[14px] font-semibold">{cloudWorkspaceEnabled ? "Connect wallet / sign in" : "Cloud sign-in unavailable"}</span><span className="mt-1 block text-[12px] text-[#c9a697] group-hover:text-[#4b2114]">{cloudWorkspaceEnabled ? "Optional · message signature only" : "Private tools need no sign-in"}</span></span>
           <ArrowRight size={14} className="shrink-0" />
         </Link>
       </div>
