@@ -291,7 +291,7 @@ test("marketing home makes the multi-asset Vault apparent and honors reduced mot
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   await expect(page.getByRole("heading", { name: /Know what you own/i })).toBeVisible();
-  await expect(page.getByText("Pokémon / TCG", { exact: true })).toBeVisible();
+  await expect(page.getByText("POKÉMON / TCG", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Pokémon, TCG & collectibles" })).toBeVisible();
   await expect(page.getByText(/Assisted TCGdex English card\/set matching.*work in this build/i)).toBeVisible();
   await expect(page.getByText("TCGdex-assisted collectible identity", { exact: true })).toBeVisible();
@@ -383,19 +383,19 @@ test("Vault setup prioritizes creation while keyboard-accessible recovery stays 
   await expect(page.getByRole("button", { name: "DELETE LOCAL VAULT" })).toBeDisabled();
 });
 
-test("flat hero workflows and mobile menu are keyboard operable", async ({ page }) => {
+test("animated geometric hero workflows and mobile menu are keyboard operable", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
-  const art = page.locator("[data-hero-art] img");
-  await expect(art).toHaveAttribute("src", "/asset-collection-v3.jpg");
-  await expect.poll(() => art.evaluate((image) => (image as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
-  const workflow = page.getByRole("button", { name: "Understand public activity", exact: true });
+  const art = page.locator('[data-hero-art] svg[aria-label*="Illustrative stack"]');
+  await expect(art).toHaveCount(1);
+  await expect(page.locator("[data-hero-shape]")).toHaveCount(4);
+  const workflow = page.getByRole("button", { name: /Understand public activity/ });
   await workflow.focus();
   await page.keyboard.press("Enter");
   await expect(workflow).toHaveAttribute("aria-expanded", "true");
   await expect(page.locator("#hero-workflow-1")).toBeVisible();
-  await expect(page.locator("#hero-workflow-0")).toBeHidden();
+  await expect(page.locator("#hero-workflow-0")).toHaveCount(0);
   const menu = page.getByRole("button", { name: "Open navigation menu" });
   await menu.click();
   await expect(menu).toHaveAttribute("aria-expanded", "true");
