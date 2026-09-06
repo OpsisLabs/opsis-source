@@ -384,6 +384,28 @@ describe("no-account Private Mode", () => {
     expect(resolution.providerDestinations).toEqual(["blockscout", "robinhood-public-rpc"]);
   });
 
+  it("keeps a delegated sample wallet usable when contract enrichment is unavailable", async () => {
+    const getContract = vi.fn(async () => { throw new Error("indexer unavailable"); });
+    const resolver = new ChainEntityResolver(loadEnv({ NODE_ENV: "test" }), new JsonCache(undefined, 60), undefined, {
+      blockscout: { ...provider({}), name: "blockscout", getContract, getAddressSummary: vi.fn(async () => { throw new Error("indexer unavailable"); }) },
+      alchemy: {
+        name: "robinhood-public-rpc",
+        isConfigured: () => true,
+        getTransaction: vi.fn(async () => []),
+        getAddressSummary: vi.fn(async () => [
+          { id: "code", provider: "robinhood-public-rpc", chainId: 4663, entityType: "wallet" as const, entityValue: identifier, fetchedAt: new Date().toISOString(), responseJson: { method: "eth_getCode", result: `0xef0100${"a".repeat(40)}` } },
+          { id: "balance", provider: "robinhood-public-rpc", chainId: 4663, entityType: "wallet" as const, entityValue: identifier, fetchedAt: new Date().toISOString(), responseJson: { method: "eth_getBalance", result: "0x0" } },
+        ]),
+        getAllowances: vi.fn(async () => []),
+      },
+      goldrush: { ...provider({}), isConfigured: () => false },
+    });
+    const resolution = applyPrivateProviderCoverage(await resolver.resolveWithSources("unknown", identifier, { privateMode: true, includeApprovals: false }));
+    expect(resolution.entity.type).toBe("wallet");
+    expect(resolution.entity.facts).toMatchObject({ accountType: "delegated_wallet", delegationTarget: `0x${"a".repeat(40)}`, isContract: false, nativeBalanceEth: "0", activityCoverage: "unavailable" });
+    expect(getContract).not.toHaveBeenCalled();
+  });
+
   it("discloses a configured provider that received the identifier and then failed", async () => {
     const source: SourceDocumentInput = {
       id: "blockscout-source",

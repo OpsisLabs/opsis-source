@@ -1,6 +1,7 @@
 import type { Citation, ChainEntityType, NormalizedEntity, RiskNote } from "@rh-chain/shared";
 import { decodeFunctionData, toFunctionSelector, type Abi, type AbiFunction, type Hex } from "viem";
 import type { SourceDocumentInput } from "./types.js";
+import { delegationTarget } from "./delegation.js";
 
 function citation(doc: SourceDocumentInput, fieldsUsed: string[], description: string, explorerBase: string): Citation {
   return {
@@ -139,6 +140,7 @@ function summarizeFacts(type: ChainEntityType, docs: SourceDocumentInput[]): Rec
       unusualActivity.push("An unlimited or operator-wide approval appears in the fetched activity window.");
     }
     const coinBalance = primary?.coin_balance ?? rpcResult(docs, "eth_getBalance");
+    const delegatedTo = delegationTarget(rpcResult(docs, "eth_getCode"));
     return {
       address: primary?.hash ?? primary?.address ?? docs[0]?.entityValue,
       coinBalance,
@@ -162,7 +164,8 @@ function summarizeFacts(type: ChainEntityType, docs: SourceDocumentInput[]): Rec
       unusualActivity,
       hasTokenTransfers: Boolean(primary?.has_token_transfers),
       hasTokens: Boolean(primary?.has_tokens),
-      isContract: Boolean(primary?.is_contract) || Boolean(rpcResult(docs, "eth_getCode") && !/^0x0*$/.test(String(rpcResult(docs, "eth_getCode"))))
+      ...(delegatedTo ? { accountType: "delegated_wallet", delegationTarget: delegatedTo } : {}),
+      isContract: !delegatedTo && (Boolean(primary?.is_contract) || Boolean(rpcResult(docs, "eth_getCode") && !/^0x0*$/.test(String(rpcResult(docs, "eth_getCode")))))
     };
   }
   if (type === "token") {

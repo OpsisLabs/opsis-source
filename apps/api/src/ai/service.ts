@@ -305,7 +305,7 @@ function beginnerView(entity: NormalizedEntity): { answer: string; summaryBullet
 
   return {
     answer: entity.type === "wallet" && primaryFact
-      ? [primaryFact.answer, coverage.answer, entity.riskNotes.length > 0 ? risk : undefined].filter(Boolean).join(" ")
+      ? [primaryFact.answer, entity.facts.accountType === "delegated_wallet" ? meaning.answer : undefined, coverage.answer, entity.riskNotes.length > 0 ? risk : undefined].filter(Boolean).join(" ")
       : [meaning.answer, primaryFact?.answer, coverage.answer, risk].filter(Boolean).join(" "),
     summaryBullets
   };
@@ -314,6 +314,10 @@ function beginnerView(entity: NormalizedEntity): { answer: string; summaryBullet
 function beginnerMeaning(entity: NormalizedEntity): { answer: string; bullet: string } {
   switch (entity.type) {
     case "wallet":
+      if (entity.facts.accountType === "delegated_wallet") return {
+        answer: "This wallet has an EIP-7702 code delegation, allowing it to use smart-account behavior. The delegated code has not been audited by this lookup.",
+        bullet: "wallet with smart-account code delegation; this lookup does not verify the delegated code's safety."
+      };
       return {
         answer: "This is a public wallet address on Robinhood Chain; it does not identify the person or prove who controls it.",
         bullet: "public wallet address, not a verified real-world identity."

@@ -22,6 +22,17 @@ const entity: NormalizedEntity = {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("AI answer boundary", () => {
+  it("explains delegated wallets without claiming their delegated code is safe", async () => {
+    const service = new AiService(loadEnv({ NODE_ENV: "test", AI_PROVIDER: "fallback" }));
+    const answer = await service.answer("What stands out to a beginner?", {
+      ...entity, type: "wallet",
+      facts: { accountType: "delegated_wallet", nativeBalanceEth: "0.25", activityCoverage: "unavailable" },
+    });
+    expect(answer.answer).toContain("EIP-7702 code delegation");
+    expect(answer.answer).toContain("has not been audited");
+    expect(answer.summaryBullets.join(" ")).toContain("smart-account code delegation");
+  });
+
   it("maps supported private questions to distinct deterministic cited views", async () => {
     const wallet: NormalizedEntity = {
       ...entity,

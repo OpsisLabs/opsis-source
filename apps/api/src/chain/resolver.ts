@@ -11,6 +11,7 @@ import { GoldRushProvider } from "./goldrush.js";
 import { normalizeEntity } from "./normalize.js";
 import type { ChainProvider, ResolvedEntity, ResolveOptions, SourceDocumentInput } from "./types.js";
 import { AppError } from "../http/errors.js";
+import { delegationTarget } from "./delegation.js";
 
 export class ChainEntityResolver {
   private readonly blockscout: ChainProvider;
@@ -288,6 +289,12 @@ export function classifyAddressResponse(response: unknown): "wallet" | "token" |
 }
 
 function classifyAddressSources(docs: SourceDocumentInput[]): "wallet" | "token" | "contract" {
+  // An EOA with an exact EIP-7702 designator remains a wallet. Some indexers
+  // mark any nonempty code as is_contract; the direct code read disambiguates it.
+  if (docs.some((doc) => {
+    const response = doc.responseJson as { method?: string; result?: unknown } | undefined;
+    return response?.method === "eth_getCode" && delegationTarget(response.result);
+  })) return "wallet";
   for (const doc of docs) {
     const address = doc.responseJson as { token?: unknown; is_contract?: boolean; method?: string; result?: unknown } | undefined;
     if (address?.token && typeof address.token === "object") return "token";
