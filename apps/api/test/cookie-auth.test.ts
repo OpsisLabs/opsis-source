@@ -1,9 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { FastifyReply } from "fastify";
+import Fastify, { type FastifyReply } from "fastify";
+import cookiePlugin from "@fastify/cookie";
 import { buildApp } from "../src/app.js";
 import { loadEnv } from "../src/config/env.js";
 import { memoryStore } from "../src/db/memory.js";
 import { setSessionCookies } from "../src/auth/cookies.js";
+import { authRoutes } from "../src/routes/auth.js";
 
 const apps: Array<Awaited<ReturnType<typeof buildApp>>> = [];
 
@@ -23,7 +25,11 @@ afterEach(async () => {
 
 describe("HttpOnly browser sessions", () => {
   it("keeps credentials out of non-test response bodies and authenticates with cookies", async () => {
-    const app = await buildApp(loadEnv({ NODE_ENV: "development", LOG_LEVEL: "silent" }));
+    // Exercise the non-test serialization/cookie boundary with an isolated
+    // route fixture. The real app correctly refuses database-less signups.
+    const app = Fastify();
+    await app.register(cookiePlugin);
+    await authRoutes(app, loadEnv({ NODE_ENV: "development", LOG_LEVEL: "silent" }));
     apps.push(app);
     const register = await app.inject({
       method: "POST",
