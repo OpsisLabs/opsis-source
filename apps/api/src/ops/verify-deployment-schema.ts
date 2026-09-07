@@ -3,6 +3,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { PrismaClient } from "@prisma/client";
 import { assertExactMigrationHistory, type AppliedMigration } from "./schema-state.js";
+import { deploymentSchemaRequired } from "./deployment-schema-policy.js";
 
 type ForeignKeyRow = {
   constraint_name: string;
@@ -12,8 +13,9 @@ type ForeignKeyRow = {
 const migrationsDirectory = resolve(import.meta.dirname, "../../prisma/migrations");
 
 async function verifyDeploymentSchema(): Promise<void> {
-  if (!process.env.DATABASE_URL) {
-    throw new Error("DATABASE_URL is required for the deployment schema check");
+  if (!deploymentSchemaRequired(process.env)) {
+    process.stdout.write("[schema-check] Explicit private-only deployment without a database; no database schema to verify\n");
+    return;
   }
 
   const prisma = new PrismaClient();

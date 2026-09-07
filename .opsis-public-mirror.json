@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "a58215733da06d58fca49cac51819154685db2c02f6c390ae30a58fc4ecd6e16",
+  "sourceTreeDigest": "4bc0509bc2e481711246dee5d8347976893050a8d4af9a80ac70bdbed8590826",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "1ce9b51ef309bdbbf614897b61d9d0b3988e58241cd3c5662aa13827a4dbbebf",
@@ -56,10 +56,11 @@
     "apps/api/src/observability/metrics.ts": "85fe98b0d345afb837cdf1baf2b326dcbc3ad9623a1aa39b8ad112a6bd520b6a",
     "apps/api/src/open-data/limiter.ts": "cdeadbd503d7c0f2a23bcd04eaac8bf52de638e6788b9abe6f80ec7f3446129c",
     "apps/api/src/open-data/registry.ts": "b5e3dfc135cf074eb32d7ad4012611d692b7be4a9eb225bf84a8335ec2e0874d",
+    "apps/api/src/ops/deployment-schema-policy.ts": "8daeead73edf032ddeb500c313cdfbcebbd689940cd056b65c26fb29fe9fbbda",
     "apps/api/src/ops/retention.ts": "ab0c661466231e8da24d0dfb8fbf4460cb9d66bb6dd723736c48895e939e7218",
     "apps/api/src/ops/run-retention.ts": "0c9434e75c544f51a2391695ef8d442d0032533ca758f09968f21964e25e05c5",
     "apps/api/src/ops/schema-state.ts": "fd3829aafbf2af7e07f3daeaf256949a69c8682636b6abfe3c71ce3150223272",
-    "apps/api/src/ops/verify-deployment-schema.ts": "e04d3b692d5e070c82814fe7c5d48df63607132a0770d7d3275d437d12911b8c",
+    "apps/api/src/ops/verify-deployment-schema.ts": "6c676f769abb02cc66a0cbf8c0e5c5014a4d91d62e22de4349689460e74cc2a2",
     "apps/api/src/portfolio/budget.ts": "50f182f24b5941cde8e1e42abebe0e1e02914341553aff379e10e3f21da8602f",
     "apps/api/src/portfolio/service.ts": "db2b9459d108aaec243f758db45630eedd990c37ff1612d4e74666c236dd00ed",
     "apps/api/src/routes/account.ts": "5565ef0eea35c18c48716bd295e7345e698cca5e61c7411c025da232cdb0edab",
@@ -96,6 +97,7 @@
     "apps/api/test/collectibles.test.ts": "aebe897ac920dfe405c9cdaa77465aed60d3cd017e9e7603e2ad77e150d43839",
     "apps/api/test/config.test.ts": "d280565c13e8e43a027db4a2b7e689b9f282562a5ef530b9669e6b15a002048d",
     "apps/api/test/cookie-auth.test.ts": "04653f45f33e7b28f8837c167eab058ad23844877c3a69aa8cb6110d654a09ad",
+    "apps/api/test/deployment-schema-policy.test.ts": "516f537fee9c433bb3bd5b26da75335664b988261c505baf08d46a305a9e79b9",
     "apps/api/test/fixtures/alchemy-transaction.json": "ada19ddb8e07de842978574237d5b3826ffce36ad604695ffeec6ad26fac6319",
     "apps/api/test/fixtures/blockscout-address.json": "8ebab0d3c7e4a5bcde0ed406245d8bec6991ae71fb42fdf920c3be5d32e6c67f",
     "apps/api/test/fixtures/blockscout-internal-transactions.json": "cc261d4d141946dbbc4c76a61c540947a9323e6249ba6fa8bcda997f6fad86f4",
