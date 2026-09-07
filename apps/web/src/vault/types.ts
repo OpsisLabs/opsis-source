@@ -12,6 +12,25 @@ export const VAULT_RECORD_VERSION = 1 as const;
 export const VAULT_PORTFOLIO_RECORD_VERSION = 2 as const;
 export const VAULT_COLLECTIBLE_RECORD_VERSION = 3 as const;
 export const VAULT_MARKET_RECORD_VERSION = 4 as const;
+export const VAULT_CONVERSATION_RECORD_VERSION = 5 as const;
+
+export interface VaultConversationTurn {
+  question: string;
+  entity: string;
+  answer: string;
+  bullets: string[];
+  sources: { label: string; url: string | null; fetchedAt: string }[];
+  savedAt: string;
+}
+
+export interface VaultConversation {
+  kind: "conversation";
+  id: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+  turns: VaultConversationTurn[];
+}
 export const VAULT_KDF_ITERATIONS = 600_000;
 export const VAULT_MAX_PHOTO_BYTES = 3 * 1024 * 1024;
 export const VAULT_MAX_BACKUP_BYTES = 32 * 1024 * 1024;
@@ -253,7 +272,8 @@ export interface EncryptedVaultRecord {
     | typeof VAULT_RECORD_VERSION
     | typeof VAULT_PORTFOLIO_RECORD_VERSION
     | typeof VAULT_COLLECTIBLE_RECORD_VERSION
-    | typeof VAULT_MARKET_RECORD_VERSION;
+    | typeof VAULT_MARKET_RECORD_VERSION
+    | typeof VAULT_CONVERSATION_RECORD_VERSION;
   iv: string;
   ciphertext: string;
 }

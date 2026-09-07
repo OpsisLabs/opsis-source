@@ -1,3 +1,5 @@
+import { readinessPasses } from "./readiness-policy.mjs";
+const scope = process.env.CHAINSCOUT_LAUNCH_SCOPE ?? "cloud";
 const webBase = requiredUrl("CHAINSCOUT_WEB_URL");
 const apiBase = requiredUrl("CHAINSCOUT_API_URL");
 const expectedSha = process.env.CHAINSCOUT_EXPECTED_SHA?.trim();
@@ -26,7 +28,7 @@ for (const [label, url, status] of checks) {
   if (label === "health") health = await response.json();
   if (label === "readiness") {
     const ready = await response.json();
-    if (!ready.ok || ready.database !== "up" || ready.redis !== "up" || ready.retention?.status !== "up") throw new Error("readiness: database, Redis, or retention is not up");
+    if (!readinessPasses(ready, scope)) throw new Error(`readiness: ${scope} deployment dependencies or cloud boundary failed`);
   }
   console.log(`PASS ${label} ${status}`);
 }
@@ -38,6 +40,17 @@ if (expectedSha && health?.buildSha !== expectedSha) {
   throw new Error(`health: expected build ${expectedSha}, received ${health?.buildSha ?? "none"}`);
 }
 if (expectedSha) console.log(`PASS exact build ${expectedSha}`);
+if (scope === "private-only") {
+  for (const path of ["/v1/auth/wallet/nonce", "/v1/chat/sessions"]) {
+    const response = await fetch(new URL(path, webBase), {
+      method: "POST", redirect: "error", signal: AbortSignal.timeout(timeoutMs),
+      headers: { "Content-Type": "application/json", "x-chainscout-csrf": "1", Origin: webBase.origin }, body: "{}"
+    });
+    const body = await response.json();
+    if (response.status !== 503 || body.error?.code !== "CLOUD_WORKSPACE_UNAVAILABLE") throw new Error(`private-only boundary failed: ${path}`);
+    console.log(`PASS cloud writes disabled ${path}`);
+  }
+}
 
 async function fetchBounded(url) {
   return fetch(url, { redirect: "error", signal: AbortSignal.timeout(timeoutMs), headers: { accept: "application/json,text/html" } });

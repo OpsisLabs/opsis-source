@@ -20,7 +20,7 @@ export default defineConfig({
     screenshot: "only-on-failure"
   },
   webServer: {
-    command: `pnpm --filter @rh-chain/web exec vite --host 127.0.0.1 --port ${appPort}`,
+    command: `VITE_CLOUD_WORKSPACE_ENABLED=true pnpm --filter @rh-chain/web exec vite --host 127.0.0.1 --port ${appPort}`,
     url: appOrigin,
     reuseExistingServer: true,
     timeout: 120_000

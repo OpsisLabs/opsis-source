@@ -1,3 +1,5 @@
+import { readinessPasses } from "./readiness-policy.mjs";
+const scope = process.env.CHAINSCOUT_LAUNCH_SCOPE ?? "cloud";
 const target = requiredUrl("CHAINSCOUT_LOAD_URL");
 const durationSeconds = boundedInteger(process.env.CHAINSCOUT_LOAD_SECONDS, 30, 5, 120);
 const concurrency = boundedInteger(process.env.CHAINSCOUT_LOAD_CONCURRENCY, 2, 1, 10);
@@ -14,7 +16,7 @@ await Promise.all(Array.from({ length: concurrency }, async () => {
       const response = await fetch(target, { redirect: "error", cache: "no-store", signal: AbortSignal.timeout(5_000) });
       if (!response.ok) failures += 1;
       const body = await response.json().catch(() => null);
-      if (!body || body.ok !== true || body.database !== "up" || body.redis !== "up" || body.retention?.status !== "up") failures += 1;
+      if (!readinessPasses(body, scope)) failures += 1;
     } catch {
       failures += 1;
     } finally {

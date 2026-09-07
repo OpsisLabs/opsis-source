@@ -1,6 +1,17 @@
 import { spawn } from "node:child_process";
 import { createServer } from "node:http";
 import { resolve } from "node:path";
+import assert from "node:assert/strict";
+import { readinessPasses } from "./readiness-policy.mjs";
+
+const privateReady = { ok: true, deploymentMode: "private-only", cloudWorkspace: "disabled", database: "memory", redis: "up", retention: { status: "disabled" } };
+assert.equal(readinessPasses(privateReady, "private-only"), true);
+assert.equal(readinessPasses(privateReady), false);
+assert.equal(readinessPasses({ ...privateReady, cloudWorkspace: "enabled" }, "private-only"), false);
+assert.equal(readinessPasses({ ...privateReady, deploymentMode: undefined }, "private-only"), false);
+assert.equal(readinessPasses({ ...privateReady, redis: "unavailable" }, "private-only"), false);
+assert.equal(readinessPasses({ ...privateReady, database: "unavailable" }, "private-only"), false);
+assert.throws(() => readinessPasses(privateReady, "anything"));
 
 const server = createServer((_request, response) => {
   response.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" });

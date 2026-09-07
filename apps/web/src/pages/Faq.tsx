@@ -55,8 +55,16 @@ const FAQ_GROUPS: Array<{ id: string; title: string; intro: string; items: FaqIt
     intro: "What leaves the browser, what stays local, and what the word private really means.",
     items: [
       {
+        question: "Will my chats still be here after restarting?",
+        answer: "Yes, successfully saved chats remain encrypted in the same browser profile at the same site address. Unlock your Vault again to reopen them. You must enable local autosave before asking; unsaved lookups are not retroactively retained. A site update does not intentionally clear history. Browser storage can still be cleared or evicted, so export an encrypted backup regularly. Incognito, a different browser, a different domain, a lost passphrase or device failure are not covered by a retention guarantee.",
+      },
+      {
+        question: "Are saved answers still current?",
+        answer: "No. Saved answers and citations are dated snapshots. Ask again for a fresh lookup. Each question is independently resolved; the saved transcript is never uploaded as conversation context. Local history preserves the answer text, summary and source links, not a live provider connection.",
+      },
+      {
         question: "What information is stored on ChainScout's servers?",
-        answer: "Private Explorer and the no-account Vault do not create a ChainScout portfolio record. Public lookup fields pass through server memory to the disclosed providers. Optional cloud saved research is a separate account product with export and deletion controls.",
+        answer: "Private Explorer and the no-account Vault do not save chats or portfolios on our servers. Public lookup fields pass through server memory to disclosed providers. If you unlock local history before asking, your questions, answers and sources are encrypted in this browser's Vault. Cloud research is a future update.",
       },
       {
         question: "What stays inside the local Vault?",

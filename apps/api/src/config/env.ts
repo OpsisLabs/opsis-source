@@ -23,6 +23,7 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(4000),
   APP_ORIGIN: z.string().default("http://localhost:5173"),
   DATABASE_URL: z.string().optional(),
+  CLOUD_WORKSPACE_ENABLED: envBoolean.default(false),
   REDIS_URL: z.string().optional(),
   CHAIN_CACHE_TTL_SECONDS: z.coerce.number().int().positive().default(60),
   JWT_ACCESS_SECRET: z.string().min(16).default("dev_access_secret_change_me"),
@@ -244,10 +245,10 @@ const envSchema = z.object({
   } catch {
     context.addIssue({ code: z.ZodIssueCode.custom, message: "Production APP_ORIGIN must be an explicit canonical HTTPS origin" });
   }
-  if (!env.DATABASE_URL || !env.REDIS_URL) {
-    context.addIssue({ code: z.ZodIssueCode.custom, message: "DATABASE_URL and REDIS_URL are required in production" });
+  if (!env.REDIS_URL || (env.CLOUD_WORKSPACE_ENABLED && !env.DATABASE_URL)) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: "REDIS_URL is required in production; DATABASE_URL is also required when cloud research is enabled" });
   }
-  if (!env.RETENTION_ENABLED) {
+  if (env.DATABASE_URL && !env.RETENTION_ENABLED) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: "Retention cleanup cannot be disabled in production" });
   }
   if (!env.ENABLE_METRICS || !env.METRICS_TOKEN || env.METRICS_TOKEN.length < 32) {
@@ -267,5 +268,7 @@ const envSchema = z.object({
 export type Env = z.infer<typeof envSchema>;
 
 export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
-  return envSchema.parse(source);
+  // Existing isolated auth/research tests exercise the deferred cloud path.
+  // An explicit false always wins, including in test mode.
+  return envSchema.parse({ ...source, CLOUD_WORKSPACE_ENABLED: source.CLOUD_WORKSPACE_ENABLED ?? (source.NODE_ENV === "test" ? "true" : "false") });
 }

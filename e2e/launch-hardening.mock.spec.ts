@@ -270,7 +270,7 @@ function privateResult() {
 test("essential muted copy meets the audited charcoal contrast floor", async ({ page }) => {
   await dismissTour(page);
   await page.goto("/app");
-  const foreground = await page.getByText(/Results stay in this tab and are cleared on reload/).evaluate((element) => getComputedStyle(element).color);
+  const foreground = await page.getByText(/Unsaved results are cleared on reload/).evaluate((element) => getComputedStyle(element).color);
   expect(foreground).toBe("rgb(184, 176, 167)");
   const result = await new AxeBuilder({ page }).withRules(["color-contrast"]).analyze();
   expect(result.violations).toEqual([]);

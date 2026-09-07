@@ -26,13 +26,14 @@ export const PRODUCT_FEATURES: ProductFeature[] = [
     navHint: "Explain a wallet or transaction",
     summary:
       "Explain one public Robinhood Chain wallet, transaction, token, or contract with source-linked facts.",
-    bestFor: "A fast answer when you do not want to create an account or save history.",
+    bestFor: "A fast answer without an account, with optional encrypted chat history on this device.",
     privacy:
       "The public identifier is sent only to the named chain-data providers. Your optional question is not sent to an AI model.",
     boundary:
-      "The view clears on reload. It does not sign, trade, save a profile, or prove that an asset is safe.",
+      "Unsaved views clear on reload. Unlock local history to autosave new questions and answers in your encrypted Vault. No cloud history, signing, trading, or safety guarantee.",
     steps: [
       "Paste one public address or transaction hash.",
+      "To retain new conversations, create a Vault and unlock Your chats, on this device before asking. Export encrypted backups regularly.",
       "Optionally choose the kind of explanation you want.",
       "Read the plain-English answer, risk notes, and source links.",
     ],

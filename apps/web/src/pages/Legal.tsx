@@ -88,7 +88,7 @@ export function PrivacyPage() {
     <Shell
       tag="Legal"
       title="Privacy Policy"
-      updated="LAST UPDATED · AUGUST 2026"
+      updated="LAST UPDATED · SEPTEMBER 2026"
     >
       <Section n="01" title="What this product is">
         <p>
@@ -96,7 +96,8 @@ export function PrivacyPage() {
           explains wallets, transactions, tokens, and contracts on Robinhood
           Chain (chain ID 4663) in plain English, with source citations. Private
           Mode works without an account or wallet connection and does not create
-          server chat history. Optional cloud-account sign-in asks your wallet
+          server chat history. Cloud research is deferred for the private launch.
+          In a separately enabled cloud workspace, sign-in asks your wallet
           for a single message signature that proves you control the address; it
           authorizes nothing on-chain. The product never asks for seed phrases,
           private keys, or wallet credentials, and it never executes blockchain
@@ -107,11 +108,18 @@ export function PrivacyPage() {
       <Section n="02" title="Data we collect">
         <p>
           <span className="text-[#e9e0d1]">Private Mode.</span> We do not save
-          your question, result, or an account link. The public wallet,
+          your question, result, or an account link on our servers. The public wallet,
           transaction, token, or contract identifier must be sent to the
           chain-data providers named in the on-screen privacy receipt. It may
           pass through our server memory while the response is produced.
-          Reloading clears the browser view.
+          Reloading clears an unsaved browser view. If you unlock local history
+          before asking, new questions, answer text, summaries and citations are
+          encrypted in this browser's Vault. The passphrase, saved transcripts
+          and encryption key are not uploaded for this local-history feature.
+          These records survive ordinary reloads and browser restarts, but are
+          limited to this site origin and browser profile. Clearing browser
+          storage, eviction, private browsing or device loss can remove them;
+          keep encrypted backups and your passphrase or matching recovery code.
         </p>
         <p>
           <span className="text-[#e9e0d1]">Optional cloud account data.</span>{" "}

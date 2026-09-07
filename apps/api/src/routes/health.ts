@@ -41,6 +41,8 @@ export async function healthRoutes(app: FastifyInstance, env: Env, prisma?: Pris
     if (retention.status === "unavailable") ok = false;
 
     const status = {
+      deploymentMode: env.CLOUD_WORKSPACE_ENABLED ? "cloud" : "private-only",
+      cloudWorkspace: !env.CLOUD_WORKSPACE_ENABLED ? "disabled" : prisma ? "enabled" : "unavailable",
       database,
       redis: redisStatus,
       retention,

@@ -2,6 +2,20 @@ import { describe, expect, it } from "vitest";
 import { loadEnv } from "../src/config/env.js";
 
 describe("environment validation", () => {
+  it("allows private-only production without cloud storage but keeps security gates", () => {
+    const privateProduction = {
+      NODE_ENV: "production", APP_ORIGIN: "https://chainscout.example",
+      JWT_ACCESS_SECRET: "configured-access-secret-at-least-32",
+      JWT_REFRESH_SECRET: "configured-refresh-secret-at-least-32",
+      REDIS_URL: "rediss://cache.example.com", METRICS_TOKEN: "metrics-secret-at-least-32-characters",
+      CLOUD_WORKSPACE_ENABLED: "false", RETENTION_ENABLED: "false"
+    };
+    expect(loadEnv(privateProduction).CLOUD_WORKSPACE_ENABLED).toBe(false);
+    expect(() => loadEnv({ ...privateProduction, CLOUD_WORKSPACE_ENABLED: "true" })).toThrow(/DATABASE_URL/);
+    expect(() => loadEnv({ ...privateProduction, REDIS_URL: "" })).toThrow(/REDIS_URL/);
+    expect(() => loadEnv({ ...privateProduction, ENABLE_METRICS: "false" })).toThrow(/Protected metrics/);
+    expect(() => loadEnv({ ...privateProduction, CSRF_PROTECTION_ENABLED: "false" })).toThrow(/CSRF/);
+  });
   it("treats blank optional URLs and false flags as disabled", () => {
     const env = loadEnv({
       NODE_ENV: "test",

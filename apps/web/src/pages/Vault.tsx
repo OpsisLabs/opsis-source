@@ -2232,7 +2232,8 @@ function VaultSettings({
           title="Encrypted backup"
         />
         <p className="mt-4 text-[12px] leading-relaxed text-[#9a938a]">
-          The download contains the wrapped key and ciphertext only. Recovery on
+          The download includes saved local chats and asset records as wrapped
+          key material and ciphertext only. Recovery on
           another device requires this file plus either the passphrase that
           existed at export or that backup's matching recovery code.
         </p>

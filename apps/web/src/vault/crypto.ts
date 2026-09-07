@@ -6,6 +6,8 @@ import {
   VAULT_MAX_RECORDS,
   VAULT_COLLECTIBLE_RECORD_VERSION,
   VAULT_MARKET_RECORD_VERSION,
+  VAULT_CONVERSATION_RECORD_VERSION,
+  type VaultConversation,
   VAULT_PORTFOLIO_RECORD_VERSION,
   VAULT_RECORD_VERSION,
   VAULT_SCHEMA_VERSION,
@@ -472,6 +474,52 @@ export async function decryptPortfolioContext(
   }
 }
 
+export function validateConversation(value: unknown): asserts value is VaultConversation {
+  const text = (v: unknown, max: number) => typeof v === "string" && v.length <= max;
+  const date = (v: unknown) => typeof v === "string" && ISO_DATE_TIME.test(v) && Number.isFinite(Date.parse(v));
+  if (!isRecord(value) || value.kind !== "conversation" || !text(value.id, 36) || !UUID.test(value.id as string)
+    || !text(value.title, 120) || !date(value.createdAt) || !date(value.updatedAt)
+    || !Array.isArray(value.turns) || value.turns.length < 1 || value.turns.length > 100
+    || JSON.stringify(value).length > 1_000_000
+    || value.turns.some((turn: unknown) => {
+      if (!isRecord(turn) || !text(turn.question, 500) || !text(turn.entity, 66)
+        || !/^0x[0-9a-f]{40}(?:[0-9a-f]{24})?$/i.test(turn.entity as string)
+        || !text(turn.answer, 50_000) || !date(turn.savedAt)
+        || !Array.isArray(turn.bullets) || turn.bullets.length > 100 || turn.bullets.some(v => !text(v, 10_000))
+        || !Array.isArray(turn.sources) || turn.sources.length > 100) return true;
+      return turn.sources.some((source: unknown) => {
+        if (!isRecord(source) || !text(source.label, 1000) || !date(source.fetchedAt)) return true;
+        if (source.url === null) return false;
+        if (!text(source.url, 2048)) return true;
+        try { const url = new URL(source.url as string); return url.protocol !== "https:" || Boolean(url.username || url.password); }
+        catch { return true; }
+      });
+    })) throw new VaultError("INVALID_CONVERSATION", "This conversation is invalid or too large. Start a new conversation; nothing was overwritten.");
+}
+
+export async function encryptConversation(meta: VaultMeta, key: CryptoKey, conversation: VaultConversation): Promise<EncryptedVaultRecord> {
+  validateVaultMeta(meta);
+  validateConversation(conversation);
+  const iv = randomBytes(12);
+  const encrypted = await crypto.subtle.encrypt(
+    aesParams(iv, recordAad(meta.vaultId, conversation.id, VAULT_CONVERSATION_RECORD_VERSION)),
+    key, encoder.encode(JSON.stringify(conversation))
+  );
+  return { id: conversation.id, version: VAULT_CONVERSATION_RECORD_VERSION, iv: bytesToBase64(iv), ciphertext: bytesToBase64(new Uint8Array(encrypted)) };
+}
+
+export async function decryptConversation(meta: VaultMeta, key: CryptoKey, record: EncryptedVaultRecord): Promise<VaultConversation> {
+  validateEncryptedRecord(record);
+  if (record.version !== VAULT_CONVERSATION_RECORD_VERSION) throw new VaultError("CORRUPT_RECORD", "This is not a conversation record.");
+  try {
+    const plaintext = await crypto.subtle.decrypt(aesParams(base64ToBytes(record.iv), recordAad(meta.vaultId, record.id, record.version)), key, base64ToBytes(record.ciphertext));
+    const value: unknown = JSON.parse(decoder.decode(plaintext));
+    validateConversation(value);
+    if (value.id !== record.id) throw new Error("record identity mismatch");
+    return value;
+  } catch { throw new VaultError("CORRUPT_RECORD", "An encrypted conversation is damaged or belongs to another Vault."); }
+}
+
 export async function decryptVaultRecord(
   meta: VaultMeta,
   key: CryptoKey,
@@ -481,7 +529,10 @@ export async function decryptVaultRecord(
   | VaultPortfolioContext
   | VaultCollectibleContext
   | VaultMarketContext
+  | VaultConversation
 > {
+  if (record.version === VAULT_CONVERSATION_RECORD_VERSION)
+    return decryptConversation(meta, key, record);
   if (record.version === VAULT_RECORD_VERSION)
     return decryptAsset(meta, key, record);
   if (record.version === VAULT_PORTFOLIO_RECORD_VERSION)
@@ -822,7 +873,8 @@ function validateEncryptedRecord(
     (value.version !== VAULT_RECORD_VERSION &&
       value.version !== VAULT_PORTFOLIO_RECORD_VERSION &&
       value.version !== VAULT_COLLECTIBLE_RECORD_VERSION &&
-      value.version !== VAULT_MARKET_RECORD_VERSION) ||
+      value.version !== VAULT_MARKET_RECORD_VERSION &&
+      value.version !== VAULT_CONVERSATION_RECORD_VERSION) ||
     typeof value.iv !== "string" ||
     base64ToBytes(value.iv).byteLength !== 12 ||
     typeof value.ciphertext !== "string" ||
@@ -2321,7 +2373,7 @@ function keyAad(vaultId: string): Uint8Array<ArrayBuffer> {
 function recordAad(
   vaultId: string,
   recordId: string,
-  version: 1 | 2 | 3 | 4,
+  version: 1 | 2 | 3 | 4 | 5,
 ): Uint8Array<ArrayBuffer> {
   return encoder.encode(
     `chainscout:vault-record:v${version}:${vaultId}:${recordId}`,

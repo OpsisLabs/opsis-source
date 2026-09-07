@@ -51,7 +51,7 @@ export async function writeVaultMeta(meta: VaultMeta, expectedRevision: number):
   try {
     const transaction = db.transaction([META_STORE, RECORD_STORE], "readwrite", { durability: "strict" });
     const metaStore = transaction.objectStore(META_STORE);
-    await assertRevision(metaStore, expectedRevision, transaction);
+    await assertRevision(metaStore, expectedRevision, meta.vaultId, transaction);
     const records = await requestResult<EncryptedVaultRecord[]>(transaction.objectStore(RECORD_STORE).getAll());
     assertVaultCapacity(meta, records);
     metaStore.put(meta);
@@ -112,7 +112,7 @@ export async function writeEncryptedRecords(
   const db = await openVaultDatabase();
   try {
     const transaction = db.transaction([META_STORE, RECORD_STORE], "readwrite", { durability: "strict" });
-    await assertRevision(transaction.objectStore(META_STORE), expectedRevision, transaction);
+    await assertRevision(transaction.objectStore(META_STORE), expectedRevision, meta.vaultId, transaction);
     const recordStore = transaction.objectStore(RECORD_STORE);
     const records = await requestResult<EncryptedVaultRecord[]>(recordStore.getAll());
     try {
@@ -146,7 +146,7 @@ export async function removeEncryptedRecords(
   const db = await openVaultDatabase();
   try {
     const transaction = db.transaction([META_STORE, RECORD_STORE], "readwrite", { durability: "strict" });
-    await assertRevision(transaction.objectStore(META_STORE), expectedRevision, transaction);
+    await assertRevision(transaction.objectStore(META_STORE), expectedRevision, meta.vaultId, transaction);
     try {
       assertActive();
     } catch (error) {
@@ -270,9 +270,9 @@ function openVaultDatabase(): Promise<IDBDatabase> {
   });
 }
 
-async function assertRevision(store: IDBObjectStore, expectedRevision: number, transaction: IDBTransaction): Promise<void> {
+async function assertRevision(store: IDBObjectStore, expectedRevision: number, expectedVaultId: string, transaction: IDBTransaction): Promise<void> {
   const current = await requestResult<VaultMeta | undefined>(store.get("vault"));
-  if (!current || current.revision !== expectedRevision) {
+  if (!current || current.vaultId !== expectedVaultId || current.revision !== expectedRevision) {
     transaction.abort();
     throw new VaultError(
       "VAULT_CONFLICT",

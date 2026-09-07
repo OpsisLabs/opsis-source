@@ -1,0 +1,281 @@
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  bootstrapVault,
+  unlockLocalVault,
+  saveVaultConversation,
+  exportVault,
+  deleteVaultAssets,
+  type UnlockedVault,
+} from "../vault/service";
+import { requestPersistentStorage } from "../vault/db";
+import type { VaultConversation, VaultConversationTurn } from "../vault/types";
+
+// The key lives only in this mounted page. No localStorage flag or key permits
+// automatic decryption after restarting the browser.
+export function useLocalHistory(onLock: () => void) {
+  const [phase, setPhase] = useState<
+    "loading" | "empty" | "locked" | "unlocked"
+  >("loading");
+  const [conversations, setConversations] = useState<VaultConversation[]>([]);
+  const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [lockEpoch, setLockEpoch] = useState(0);
+  const unlocked = useRef<UnlockedVault | null>(null);
+  const generation = useRef(0);
+  const channel = useRef<BroadcastChannel | null>(null);
+  const onLockRef = useRef(onLock);
+  const operation = useRef(false);
+  useEffect(() => {
+    onLockRef.current = onLock;
+  }, [onLock]);
+
+  const lock = useCallback((notify = true) => {
+    generation.current++;
+    setLockEpoch((value) => value + 1);
+    const meta = unlocked.current?.meta;
+    unlocked.current = null;
+    setConversations([]);
+    setPhase((current) => (current === "empty" ? "empty" : "locked"));
+    setNotice("Local history locked. Unlock to reopen saved conversations.");
+    setError("");
+    onLockRef.current();
+    if (notify && meta)
+      channel.current?.postMessage({ event: "lock", vaultId: meta.vaultId });
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    const epoch = generation;
+    bootstrapVault()
+      .then((meta) => {
+        if (active) setPhase(meta ? "locked" : "empty");
+      })
+      .catch(() => {
+        if (active) {
+          setPhase("locked");
+          setError(
+            "Local storage is unavailable. History cannot be saved in this browser.",
+          );
+        }
+      });
+    const bus =
+      typeof BroadcastChannel !== "undefined"
+        ? new BroadcastChannel("chainscout-vault-control-v1")
+        : null;
+    channel.current = bus;
+    if (bus)
+      bus.onmessage = (event: MessageEvent<unknown>) => {
+        const data = event.data as { event?: string } | null;
+        if (
+          data &&
+          ["lock", "changed", "deleting", "deleted"].includes(data.event ?? "")
+        )
+          lock(false);
+      };
+    const hide = () => {
+      if (document.hidden) lock();
+    };
+    const leave = () => lock();
+    const show = (event: PageTransitionEvent) => { if (event.persisted) lock(); };
+    let lastActivity = Date.now();
+    const activity = () => {
+      lastActivity = Date.now();
+    };
+    const timer = window.setInterval(() => {
+      if (unlocked.current && Date.now() - lastActivity >= 600_000) lock();
+    }, 15_000);
+    document.addEventListener("visibilitychange", hide);
+    window.addEventListener("pagehide", leave);
+    window.addEventListener("pageshow", show);
+    window.addEventListener("pointerdown", activity);
+    window.addEventListener("keydown", activity);
+    return () => {
+      active = false;
+      epoch.current++;
+      unlocked.current = null;
+      bus?.close();
+      channel.current = null;
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", hide);
+      window.removeEventListener("pagehide", leave);
+      window.removeEventListener("pageshow", show);
+      window.removeEventListener("pointerdown", activity);
+      window.removeEventListener("keydown", activity);
+    };
+  }, [lock]);
+
+  const unlock = async (passphrase: string) => {
+    if (operation.current) return;
+    operation.current = true;
+    setBusy(true);
+    setError("");
+    const expected = generation.current;
+    try {
+      const meta = await bootstrapVault();
+      if (!meta) {
+        setPhase("empty");
+        throw new Error(
+          "Create a local Vault first, then return here to unlock history.",
+        );
+      }
+      const value = await unlockLocalVault(meta, passphrase);
+      if (generation.current !== expected) return;
+      unlocked.current = value;
+      setConversations(value.conversations ?? []);
+      setPhase("unlocked");
+      setNotice(
+        "Local autosave is on for new questions. Earlier unsaved lookups are not imported.",
+      );
+      // Denial does not prevent honest best-effort storage, nor make a guarantee.
+      await requestPersistentStorage();
+    } catch (cause) {
+      if (generation.current === expected)
+        setError(
+          cause instanceof Error
+            ? cause.message
+            : "Could not unlock local history.",
+        );
+    } finally {
+      operation.current = false;
+      setBusy(false);
+    }
+  };
+
+  const save = async (
+    turn: VaultConversationTurn,
+    id: string | null,
+    expected: number,
+  ): Promise<string> => {
+    if (operation.current)
+      throw new Error(
+        "Another local history operation is running. This answer is not saved; retry saving it.",
+      );
+    const assertActive = () => {
+      if (generation.current !== expected || !unlocked.current)
+        throw new Error(
+          "History locked or changed before saving. This answer was not saved.",
+        );
+    };
+    assertActive();
+    operation.current = true;
+    try {
+      const current = unlocked.current!;
+      const previous = id
+        ? current.conversations?.find((item) => item.id === id)
+        : undefined;
+      const conversation: VaultConversation = {
+        kind: "conversation",
+        id: previous?.id ?? crypto.randomUUID(),
+        title: previous?.title ?? (turn.question || turn.entity).slice(0, 120),
+        createdAt: previous?.createdAt ?? turn.savedAt,
+        updatedAt: turn.savedAt,
+        turns: [...(previous?.turns ?? []), turn],
+      };
+      const meta = await saveVaultConversation(
+        current,
+        conversation,
+        assertActive,
+      );
+      assertActive();
+      const next = [
+        conversation,
+        ...(current.conversations ?? []).filter(
+          (item) => item.id !== conversation.id,
+        ),
+      ];
+      unlocked.current = { ...current, meta, conversations: next };
+      setConversations(next);
+      setNotice("Saved encrypted on this device.");
+      channel.current?.postMessage({
+        event: "changed",
+        vaultId: meta.vaultId,
+        revision: meta.revision,
+      });
+      return conversation.id;
+    } finally {
+      operation.current = false;
+    }
+  };
+
+  const backup = async () => {
+    if (operation.current || !unlocked.current) return;
+    operation.current = true;
+    setBusy(true);
+    setError("");
+    const expected = generation.current;
+    try {
+      const value = await exportVault(unlocked.current);
+      if (generation.current !== expected) return;
+      const url = URL.createObjectURL(
+        new Blob([JSON.stringify(value)], { type: "application/json" }),
+      );
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `chainscout-encrypted-vault-${new Date().toISOString().slice(0, 10)}.json`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setNotice(
+        "Encrypted backup downloaded: includes saved chats and all Vault records. Keep it with your recovery plan.",
+      );
+    } catch {
+      if (generation.current === expected)
+        setError(
+          "Backup failed. Unlock again if another tab changed the Vault; no records were deleted.",
+        );
+    } finally {
+      operation.current = false;
+      setBusy(false);
+    }
+  };
+
+  const remove = async (id: string) => {
+    if (operation.current || !unlocked.current) return;
+    operation.current = true;
+    setBusy(true);
+    setError("");
+    const expected = generation.current;
+    const assertActive = () => {
+      if (generation.current !== expected || !unlocked.current)
+        throw new Error("History changed. Unlock again.");
+    };
+    try {
+      const current = unlocked.current;
+      const meta = await deleteVaultAssets(current, [id], assertActive);
+      assertActive();
+      const next = (current.conversations ?? []).filter(
+        (item) => item.id !== id,
+      );
+      unlocked.current = { ...current, meta, conversations: next };
+      setConversations(next);
+      channel.current?.postMessage({
+        event: "changed",
+        vaultId: meta.vaultId,
+        revision: meta.revision,
+      });
+      setNotice(
+        "Conversation deleted locally. Previously exported backups may still contain it.",
+      );
+    } catch {
+      if (generation.current === expected)
+        setError("Deletion failed. Unlock again before retrying.");
+    } finally {
+      operation.current = false;
+      setBusy(false);
+    }
+  };
+  return {
+    phase,
+    conversations,
+    error,
+    notice,
+    busy,
+    generation,
+    lockEpoch,
+    unlock,
+    lock,
+    save,
+    backup,
+    remove,
+  };
+}

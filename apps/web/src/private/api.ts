@@ -23,7 +23,7 @@ export async function analyzePrivate(input: {
   entity: string;
   entityType?: ChainEntityType;
   question?: string;
-}): Promise<PrivateAnalysis> {
+}, signal?: AbortSignal): Promise<PrivateAnalysis> {
   const response = await privateApi<{
     mode: "private";
     entity: BackendEntity;
@@ -33,7 +33,7 @@ export async function analyzePrivate(input: {
     entity: input.entity,
     entityType: input.entityType ?? "unknown",
     ...(input.question ? { question: input.question } : {})
-  });
+  }, signal);
   return {
     entity: response.entity,
     answer: adaptAnswer(response.answer, { type: response.entity.type, id: response.entity.value }),

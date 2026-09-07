@@ -8,7 +8,7 @@ test("cloud-off build offers private tools without requesting a wallet signature
   });
   for (const path of ["/login", "/register"]) {
     await page.goto(path);
-    await expect(page.getByRole("status")).toContainText("Saved cloud research is temporarily unavailable");
+    await expect(page.getByRole("status")).toContainText("Cloud research is coming in a future update");
     await expect(page.getByRole("button", { name: "CONNECT WALLET" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "Open local Vault" })).toBeVisible();
   }

@@ -185,7 +185,7 @@ export function LoginPage() {
   return (
     <AuthLayout
       title={cloudWorkspaceEnabled ? "Welcome back" : "Use ChainScout privately"}
-      sub={cloudWorkspaceEnabled ? "Sign in with your wallet to continue your Robinhood Chain research." : "Cloud sign-in is paused. Your private tools are available."}
+      sub={cloudWorkspaceEnabled ? "Sign in with your wallet to continue your Robinhood Chain research." : "Cloud research is a future update. Your private tools are available."}
       footer={
         <>
           {cloudWorkspaceEnabled ? "First time here? " : "Learn how the private tools work: "}

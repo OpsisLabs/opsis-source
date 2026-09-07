@@ -11,6 +11,7 @@ import {
   encryptCollectibleContext,
   encryptMarketContext,
   encryptPortfolioContext,
+  encryptConversation,
   parseBackup,
   recoverVault,
   unlockVault,
@@ -42,7 +43,8 @@ import {
   type VaultMarketContext,
   type VaultMarketContextDraft,
   type VaultPortfolioContext,
-  type VaultPortfolioContextDraft
+  type VaultPortfolioContextDraft,
+  type VaultConversation
 } from "./types";
 
 export interface UnlockedVault {
@@ -52,6 +54,7 @@ export interface UnlockedVault {
   portfolios: VaultPortfolioContext[];
   collectibles: VaultCollectibleContext[];
   markets: VaultMarketContext[];
+  conversations?: VaultConversation[];
 }
 
 export interface CreatedVault extends UnlockedVault {
@@ -92,6 +95,18 @@ export async function saveVaultPortfolio(
     assertActive
   );
   return { portfolio, meta };
+}
+
+export async function saveVaultConversation(
+  unlocked: UnlockedVault,
+  conversation: VaultConversation,
+  assertActive: () => void = () => undefined
+): Promise<VaultMeta> {
+  const meta = nextMeta(unlocked.meta);
+  const encrypted = await encryptConversation(unlocked.meta, unlocked.key, conversation);
+  assertActive();
+  await writeEncryptedRecord(encrypted, meta, unlocked.meta.revision, assertActive);
+  return meta;
 }
 
 export async function saveVaultCollectibleContext(
@@ -255,15 +270,17 @@ async function decryptRecords(
   meta: VaultMeta,
   key: CryptoKey,
   encrypted: EncryptedVaultRecord[]
-): Promise<{ assets: VaultAsset[]; portfolios: VaultPortfolioContext[]; collectibles: VaultCollectibleContext[]; markets: VaultMarketContext[] }> {
+): Promise<{ assets: VaultAsset[]; portfolios: VaultPortfolioContext[]; collectibles: VaultCollectibleContext[]; markets: VaultMarketContext[]; conversations: VaultConversation[] }> {
   const records = await Promise.all(encrypted.map((record) => decryptVaultRecord(meta, key, record)));
   const assets = records.filter((record): record is VaultAsset => !("kind" in record));
   const portfolios = records.filter((record): record is VaultPortfolioContext => "kind" in record && record.kind === "portfolio-context");
   const collectibles = records.filter((record): record is VaultCollectibleContext => "kind" in record && record.kind === "collectible-context");
   const markets = records.filter((record): record is VaultMarketContext => "kind" in record && record.kind === "market-context");
+  const conversations = records.filter((record): record is VaultConversation => "kind" in record && record.kind === "conversation");
+  conversations.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
   assets.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
   portfolios.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
   collectibles.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
   markets.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
-  return { assets, portfolios, collectibles, markets };
+  return { assets, portfolios, collectibles, markets, conversations };
 }

@@ -37,10 +37,20 @@ describe("cloud storage boundary", () => {
   it("allows durable cloud writes and isolated in-memory tests", async () => {
     for (const [mode, persistent] of [["development", true], ["test", false]] as const) {
       const app = Fastify();
-      installCloudWorkspaceGuard(app, loadEnv({ NODE_ENV: mode }), persistent);
+      installCloudWorkspaceGuard(app, loadEnv({ NODE_ENV: mode, CLOUD_WORKSPACE_ENABLED: "true" }), persistent);
       app.post("/v1/chat/sessions", async () => ({ reached: true }));
       expect((await app.inject({ method: "POST", url: "/v1/chat/sessions" })).statusCode).toBe(200);
       await app.close();
     }
+  });
+
+  it("keeps cloud research deferred even when durable storage exists", async () => {
+    const app = Fastify();
+    installCloudWorkspaceGuard(app, loadEnv({ NODE_ENV: "test", CLOUD_WORKSPACE_ENABLED: "false" }), true);
+    app.post("/v1/chat/sessions", async () => ({ reached: true }));
+    app.patch("/v1/chat/sessions/test", async () => ({ reached: true }));
+    expect((await app.inject({ method: "POST", url: "/v1/chat/sessions" })).statusCode).toBe(503);
+    expect((await app.inject({ method: "PATCH", url: "/v1/chat/sessions/test", payload: { title: "must not write" } })).statusCode).toBe(503);
+    await app.close();
   });
 });

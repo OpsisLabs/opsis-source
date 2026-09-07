@@ -42,7 +42,7 @@ const ADAPTERS = [
     input: "One public wallet, transaction, token, or contract",
     process: "Bounded provider resolution + deterministic explanation",
     output: "Source-linked facts, coverage, risks, and plain English",
-    limit: "Ephemeral; reload clears the view",
+    limit: "Unsaved by default; optional encrypted local chat history",
   },
   {
     name: "SCOUT SWAP",
@@ -182,13 +182,13 @@ export default function TechnicalDocs() {
 
           <DocSection id="architecture" eyebrow="01 · DATA PATHS" title="Three modes, three different boundaries.">
             <p className="mt-4 max-w-[760px] text-[13.5px] leading-relaxed text-[#9a938a]">
-              “Private” is not a single switch. ChainScout separates temporary public research, local encrypted ownership, and optional cloud history so each path can make a precise promise.
+              ChainScout separates unsaved public lookups from opt-in encrypted local history and ownership records. Cloud research is deferred to a future update, not a launch dependency.
             </p>
             <div className="mt-7 grid gap-px border border-[#383838] bg-[#383838] md:grid-cols-3">
               {[
-                [ScanSearch, "EPHEMERAL LOOKUP", "Public identifier", "Same-origin API", "No ChainScout record", "The view clears on reload. Named providers receive only the disclosed public fields required for that lookup."],
-                [LockKeyhole, "LOCAL VAULT", "Ownership context", "Web Crypto + IndexedDB", "Encrypted browser record", "Labels, lots, photos, notes, and valuations stay encrypted on this origin. Coming-soon tools cannot write to the Vault."],
-                [ServerCog, "OPTIONAL CLOUD", "Saved research", "HttpOnly cookie session", "User-controlled server history", "Separate account workspace with export and deletion. It is not required for Private Explorer or Vault."],
+                [ScanSearch, "EPHEMERAL LOOKUP", "Public identifier", "Same-origin API", "No server history", "Unsaved results clear on reload. Named providers receive only the disclosed public fields required for that lookup. Saved transcripts are not uploaded as context."],
+                [LockKeyhole, "LOCAL VAULT + CHATS", "Opt-in history and ownership", "Web Crypto + IndexedDB", "Encrypted browser records", "Unlock before asking to autosave questions, answers and sources. Record version 5 binds conversations to the existing AES-GCM Vault key. Backups authenticate and restore chats alongside asset records. Same browser profile and origin only; browser deletion or eviction still requires a backup."],
+                [ServerCog, "CLOUD · FUTURE UPDATE", "Not enabled for launch", "Separate future workspace", "No cloud retention promised", "Existing account recovery/export routes remain available where configured. Cloud research is not needed for local chat history or the Vault."],
               ].map(([Icon, name, input, path, storage, copy]) => {
                 const DataIcon = Icon as typeof ScanSearch;
                 return (
