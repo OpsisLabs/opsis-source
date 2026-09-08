@@ -27,6 +27,19 @@ function source(path: string, responseJson: unknown): SourceDocumentInput {
 }
 
 describe("transaction normalization", () => {
+  it("distinguishes balance, code and sampled-token citations without exposing API URLs", () => {
+    const docs = [
+      { method: "eth_getBalance", result: "0x1" },
+      { method: "eth_getCode", result: "0x" },
+      { method: "eth_call", query: "reviewedTokenBalanceSample", result: { items: [], contractsChecked: 12 } },
+    ].map((responseJson, i) => ({ ...source(String(i), responseJson), provider: "robinhood", entityType: "wallet" as const, requestUrl: "https://rpc.example.test?apikey=must-not-leak" }));
+    const result = normalizeEntity(4663, "wallet", hash, docs);
+    expect(result.citations.map(item => item.description)).toEqual([
+      "Native ETH balance · robinhood", "Contract code / account delegation · robinhood",
+      "Limited reviewed-token balance sample (not all holdings) · robinhood",
+    ]);
+    expect(JSON.stringify(result.citations)).not.toContain("must-not-leak");
+  });
   it("normalizes decoded methods, transfers, internal calls, and events", () => {
     const normalized = normalizeEntity(4663, "transaction", hash, [
       source("", transaction),

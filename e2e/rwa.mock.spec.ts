@@ -82,7 +82,7 @@ test("locks the requested identity during a delayed lookup and labels the return
   await page.getByRole("button", { name: "CONFIRM PUBLIC LOOKUP" }).click();
   await expect(page.getByLabel("RWA contract address")).toBeDisabled();
   await expect(page.getByRole("button", { name: "STEAKHOUSE USDG" })).toBeDisabled();
-  await expect(page.getByTestId("rwa-result")).toContainText(`VERIFIED CONTRACT · ${STOCK.toLowerCase()}`);
+  await expect(page.getByTestId("rwa-result")).toContainText(`LOOKED-UP ADDRESS · ${STOCK.toLowerCase()}`);
 });
 
 test("does not present a paused oracle's retained numeric answer as current", async ({ page }) => {
@@ -113,6 +113,8 @@ test("renders unsupported physical authenticity without a fraud verdict", async 
   await page.getByRole("button", { name: "VERIFY EVIDENCE" }).click();
   await page.getByRole("button", { name: "CONFIRM PUBLIC LOOKUP" }).click();
   await expect(page.getByTestId("rwa-result")).toContainText("NOT VERIFIED");
+  await expect(page.getByTestId("rwa-result")).toContainText("LOOKED-UP ADDRESS");
+  await expect(page.getByTestId("rwa-result")).not.toContainText("VERIFIED CONTRACT");
   await expect(page.getByTestId("rwa-result")).toContainText("not an accusation of fraud");
 });
 

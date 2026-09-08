@@ -624,14 +624,14 @@ export function AnswerCard({
               {ai.citations.map((c) => (
                 <div key={c.id} className="flex items-center gap-3 text-[12px]">
                   <span className="w-10 shrink-0 font-mono-d text-[10px] text-[#635d5a]">{c.id}</span>
-                  <span className="min-w-0 flex-1 truncate text-[#9a938a]">{c.label}</span>
+                  <span className="min-w-0 flex-1 break-words text-[#9a938a]">{c.label}</span>
                   {c.url && (
                     <a
                       href={c.url}
                       target="_blank"
                       rel="noreferrer"
                       aria-label={`Verify ${c.id} on Blockscout`}
-                      className="shrink-0 text-[#635d5a] transition-colors hover:text-[#fa6c34]"
+                      className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center text-[#9a938a] transition-colors hover:text-[#fa6c34]"
                     >
                       <ExternalLink size={11} />
                     </a>

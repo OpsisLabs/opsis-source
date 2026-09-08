@@ -376,13 +376,20 @@ export function deriveCard(
   // wallet or contract
   const isContract = bool(facts.isContract) || kind === "contract";
   push("Balance", facts.nativeBalanceEth != null ? `${formatAmount(String(facts.nativeBalanceEth))} ETH` : undefined);
-  push("Token balances", str(facts.tokenBalanceCoverage) === "unavailable" ? "Unavailable" : (count(facts.tokenBalances) !== undefined ? String(count(facts.tokenBalances)) : undefined), str(facts.tokenBalanceCoverage) === "unavailable" ? "warn" : undefined);
+  const sampledTokens = str(facts.tokenBalanceCoverage) === "reviewed_asset_sample";
+  push(sampledTokens ? "Sample matches" : "Token balances", str(facts.tokenBalanceCoverage) === "unavailable" ? "Unavailable" : (count(facts.tokenBalances) !== undefined ? String(count(facts.tokenBalances)) : undefined), sampledTokens || str(facts.tokenBalanceCoverage) === "unavailable" ? "warn" : undefined);
   push("Activity", str(facts.activityCoverage) === "unavailable" ? "Unavailable" : (count(facts.transactionsFetched) !== undefined ? String(count(facts.transactionsFetched)) : undefined), str(facts.activityCoverage) === "unavailable" ? "warn" : undefined);
   const approvals = count(facts.approvalTransactions);
   if (approvals) push("Approvals", String(approvals), "warn");
   const failed = count(facts.failedTransactions);
   if (failed) push("Failed", String(failed), "warn");
   const badges: AnswerCardMeta["badges"] = [{ label: isContract ? "CONTRACT" : "WALLET" }];
+  if (sampledTokens) {
+    const checked = facts.tokenBalanceContractsChecked;
+    badges.push({ label: typeof checked === "number" && Number.isSafeInteger(checked) && checked > 0
+      ? `LIMITED SAMPLE · ${checked} CONTRACTS CHECKED`
+      : "LIMITED TOKEN SAMPLE", tone: "warn" });
+  }
   if (isContract && bool(facts.verified) === false) badges.push({ label: "UNVERIFIED", tone: "warn" });
   if (isContract && bool(facts.verified) === true) badges.push({ label: "VERIFIED", tone: "good" });
   return {

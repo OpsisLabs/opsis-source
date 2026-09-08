@@ -31,7 +31,7 @@ export function normalizeEntity(
   docs: SourceDocumentInput[],
   explorerBase = "https://robinhoodchain.blockscout.com"
 ): NormalizedEntity {
-  const citations = docs.map((doc) => citation(doc, fieldsUsedForDoc(doc), `${doc.provider} ${doc.entityType} source data`, explorerBase));
+  const citations = docs.map((doc) => citation(doc, fieldsUsedForDoc(doc), sourceDescription(doc), explorerBase));
   const facts = summarizeFacts(type, docs);
   facts.chainId = chainId;
   facts.explorerUrl = explorerUrl(type, value, explorerBase);
@@ -44,6 +44,31 @@ export function normalizeEntity(
     citations,
     riskNotes: buildRiskNotes(type, facts, citations)
   };
+}
+
+function sourceDescription(doc: SourceDocumentInput): string {
+  const response = doc.responseJson as { method?: string; query?: string } | null;
+  const methodLabels: Record<string, string> = {
+    eth_getBalance: "Native ETH balance",
+    eth_getCode: "Contract code / account delegation",
+    eth_getTransactionByHash: "Transaction sender, recipient and value",
+    eth_getTransactionReceipt: "Transaction outcome, gas and event logs",
+  };
+  const label = response?.method === "eth_call" && response.query === "reviewedTokenBalanceSample"
+    ? "Limited reviewed-token balance sample (not all holdings)"
+    : response?.method ? methodLabels[response.method] : undefined;
+  if (label) return `${label} · ${doc.provider}`;
+  const path = doc.requestUrl ?? "";
+  const indexed = path.includes("/token-transfers") ? "Token transfers"
+    : path.includes("/internal-transactions") ? "Internal transaction calls"
+    : path.includes("/logs") ? "Transaction event logs"
+    : path.includes("/raw-trace") ? "Transaction execution trace"
+    : path.includes("/state-changes") ? "Transaction state changes"
+    : path.includes("/token-balances") ? "Indexed token balances"
+    : path.includes("/transactions") ? (doc.entityType === "transaction" ? "Transaction details" : "Indexed recent transactions")
+    : path.includes("/smart-contracts/") ? "Contract metadata and verification"
+    : undefined;
+  return indexed ? `${indexed} · ${doc.provider}` : `${doc.provider} ${doc.entityType} source data`;
 }
 
 function fieldsUsedForDoc(doc: SourceDocumentInput): string[] {

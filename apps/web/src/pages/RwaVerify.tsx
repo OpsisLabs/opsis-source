@@ -145,7 +145,7 @@ function EvidenceResult({ result }: { result: RwaVerification }) {
     <div className="clip-panel border border-[#383838] bg-[#242424]">
       <div className="h-1" style={{ background: tone }} />
       <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_auto]">
-        <div><p className="font-mono-d text-[9.5px] tracking-[0.14em]" style={{ color: tone }}>{result.kind.replaceAll("_", " ").toUpperCase()}</p><h2 className="mt-3 text-[27px] font-medium tracking-[-0.025em] text-[#f0e8da] sm:text-[34px]">{result.headline}</h2><p className="mt-3 max-w-[790px] text-[13.5px] leading-relaxed text-[#9a938a]">{result.summary}</p><p className="mt-4 break-all font-mono-d text-[9px] text-[#635d5a]">VERIFIED CONTRACT · {result.address}</p></div>
+        <div><p className="font-mono-d text-[9.5px] tracking-[0.14em]" style={{ color: tone }}>{result.kind.replaceAll("_", " ").toUpperCase()}</p><h2 className="mt-3 text-[27px] font-medium tracking-[-0.025em] text-[#f0e8da] sm:text-[34px]">{result.headline}</h2><p className="mt-3 max-w-[790px] text-[13.5px] leading-relaxed text-[#9a938a]">{result.summary}</p><p className="mt-4 break-all font-mono-d text-[9px] text-[#635d5a]">LOOKED-UP ADDRESS · {result.address}</p></div>
         <div className="min-w-[220px] border border-[#383838] bg-[#1d1d1d] p-4"><p className="font-mono-d text-[8.5px] text-[#635d5a]">CAPTURED CURRENT BLOCK</p><p className="mt-2 font-mono-d text-[17px] text-[#d6ccba]">{result.anchor.blockNumber.toLocaleString()}</p><p className="mt-2 font-mono-d text-[8.5px] text-[#d9a441]">NON-FINAL · HASH RECHECKED</p><p className="mt-3 break-all font-mono-d text-[8px] text-[#635d5a]">{result.anchor.blockHash}</p></div>
       </div>
     </div>
