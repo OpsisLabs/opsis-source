@@ -189,10 +189,10 @@ export default function FeatureGuide() {
 
         <section className="mt-8 grid gap-px border border-[#383838] bg-[#383838] sm:grid-cols-2">
           <div className="bg-[#242424] p-6 sm:p-8">
-            <p className="font-mono-d text-[9px] tracking-[0.16em] text-[#635d5a]">OPTIONAL SAVED CLOUD</p>
-            <h2 className="mt-3 text-[22px] text-[#e9e0d1]">Saved research is separate.</h2>
-            <p className="mt-3 text-[13px] leading-relaxed text-[#9a938a]">Wallet sign-in is optional and belongs only to the legacy saved-research workspace. The encrypted Vault needs no wallet, account, or signature.</p>
-            <Link to="/login" className="mt-5 inline-flex font-mono-d text-[10px] tracking-wider text-[#fa6c34]">OPEN SAVED RESEARCH →</Link>
+            <p className="font-mono-d text-[9px] tracking-[0.16em] text-[#635d5a]">ENCRYPTED LOCAL CHATS</p>
+            <h2 className="mt-3 text-[22px] text-[#e9e0d1]">Keep your research on this device.</h2>
+            <p className="mt-3 text-[13px] leading-relaxed text-[#9a938a]">Unlock your Vault in Explorer before asking to save new chats. Reopen them in the same browser and site address, and export encrypted backups regularly. No wallet, account, or signature needed. Cloud research is a future update.</p>
+            <Link to="/app#local-history" className="mt-5 inline-flex font-mono-d text-[10px] tracking-wider text-[#fa6c34]">OPEN LOCAL CHATS →</Link>
           </div>
           <div className="bg-[#242424] p-6 sm:p-8">
             <p className="font-mono-d text-[9px] tracking-[0.16em] text-[#635d5a]">WHAT IS COMING LATER?</p>

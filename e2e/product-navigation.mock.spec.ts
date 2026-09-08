@@ -100,11 +100,13 @@ test("desktop product rail explains and switches between every live workspace", 
     page.getByRole("heading", { name: /What do you want/i }),
   ).toBeVisible();
   await expect(page.getByRole("link", { name: /START A PRIVATE LOOKUP/i })).toBeVisible();
+  await expect(page.getByRole("link", { name: /OPEN LOCAL CHATS/i })).toHaveAttribute("href", "/app#local-history");
+  await expect(page.getByText("Saved research is separate.", { exact: true })).toHaveCount(0);
   await expect(page.getByRole("link", { name: /OPEN PORTFOLIO/i })).toBeVisible();
   await expect(page.getByRole("link", { name: /ADD AN ASSET/i })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Private Explorer" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Market & Inventory" })).toBeVisible();
-  await expect(page.getByText("Saved research is separate.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Keep your research on this device." })).toBeVisible();
   const scrollbarTheme = await page.locator("html").evaluate((element) => {
     const styles = getComputedStyle(element);
     return {
