@@ -25,7 +25,7 @@ jobs:
         if: github.event_name == 'push'
         run: node scripts/identity-guard.mjs history HEAD && node scripts/verify-public-tree.mjs HEAD
       - name: Test publication policy
-        run: node scripts/test-identity-guard.mjs && node scripts/test-public-export.mjs
+        run: node scripts/test-identity-guard.mjs && node scripts/test-public-export.mjs && node scripts/test-public-history.mjs
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @rh-chain/shared build && pnpm --filter @rh-chain/api db:generate
       - run: pnpm audit:prod && pnpm licenses:check

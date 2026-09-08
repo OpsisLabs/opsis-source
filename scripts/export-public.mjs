@@ -14,12 +14,38 @@ function git(root, args, encoding = "utf8") {
   return execFileSync("git", args, { cwd: root, encoding, stdio: ["ignore", "pipe", "pipe"], maxBuffer: 32 * 1024 * 1024 });
 }
 function digest(bytes) { return createHash("sha256").update(bytes).digest("hex"); }
+const sourceBlobs = new Map();
+
+export function publicSnapshot(root, revision = "HEAD", policyRevision = revision) {
+  const policy = JSON.parse(git(root, ["show", `${policyRevision}:public-source-policy.json`]));
+  const output = new Map();
+  const modes = new Map();
+  for (const entry of git(root, ["ls-tree", "-rz", "--full-tree", revision]).split("\0").filter(Boolean)) {
+    const [header, path] = entry.split("\t");
+    if (!selected(path, policy)) continue;
+    const [mode, kind, oid] = header.split(" ");
+    if (kind !== "blob" || !["100644", "100755"].includes(mode)) throw new Error(`unsupported public file type: ${path}`);
+    const cacheKey = `${root}:${oid}`;
+    if (!sourceBlobs.has(cacheKey)) sourceBlobs.set(cacheKey, git(root, ["cat-file", "blob", oid], null));
+    output.set(path, sourceBlobs.get(cacheKey));
+    modes.set(path, mode === "100755" ? 0o755 : 0o644);
+  }
+  for (const [destination, template] of [[".github/workflows/public-verify.yml", policy.publicWorkflowTemplate], ["docs/marketing-sourcebook.md", policy.publicClaimsTemplate]]) {
+    if (!template) continue;
+    const exists = git(root, ["ls-tree", "--name-only", revision, "--", template]).trim();
+    if (exists) output.set(destination, git(root, ["show", `${revision}:${template}`], null));
+    else if (revision === policyRevision) throw new Error(`missing reviewed public template: ${template}`);
+  }
+  const hashes = Object.fromEntries([...output].sort(([a], [b]) => a.localeCompare(b)).map(([path, bytes]) => [path, digest(bytes)]));
+  const snapshot = { format: "chainscout.public-source.v1", sourceTreeDigest: digest(JSON.stringify(hashes)), files: hashes };
+  output.set(".chainscout-public-mirror.json", Buffer.from(JSON.stringify(snapshot, null, 2) + "\n"));
+  return { output, modes, snapshot };
+}
 
 export function exportPublic(root, target, check = false) {
   root = resolve(root); target = resolve(target);
   if (target === root || target.startsWith(root + sep) || root.startsWith(target + sep) || target === dirname(target)) throw new Error("destination must be a separate dedicated directory, not an ancestor or child of the private repo");
   if (git(root, ["status", "--porcelain"]).trim()) throw new Error("commit and review the private working tree before exporting");
-  const policy = JSON.parse(git(root, ["show", "HEAD:public-source-policy.json"]));
   const marker = resolve(target, ".chainscout-public-mirror.json");
   let previous = [];
   if (existsSync(target)) {
@@ -35,23 +61,7 @@ export function exportPublic(root, target, check = false) {
       if (!check && git(target, ["status", "--porcelain"]).trim()) throw new Error("public clone has local changes; preserve or commit them before syncing");
     }
   }
-  const entries = git(root, ["ls-tree", "-rz", "--full-tree", "HEAD"]).split("\0").filter(Boolean);
-  const output = new Map();
-  const modes = new Map();
-  for (const entry of entries) {
-    const [header, path] = entry.split("\t");
-    if (!selected(path, policy)) continue;
-    const [mode, kind, oid] = header.split(" ");
-    if (kind !== "blob" || !["100644", "100755"].includes(mode)) throw new Error(`unsupported public file type: ${path}`);
-    output.set(path, git(root, ["cat-file", "blob", oid], null));
-    modes.set(path, mode === "100755" ? 0o755 : 0o644);
-  }
-  output.set(".github/workflows/public-verify.yml", Buffer.from(git(root, ["show", `HEAD:${policy.publicWorkflowTemplate}`])));
-  if (policy.publicClaimsTemplate) output.set("docs/marketing-sourcebook.md", Buffer.from(git(root, ["show", `HEAD:${policy.publicClaimsTemplate}`])));
-  const hashes = Object.fromEntries([...output].sort(([a], [b]) => a.localeCompare(b)).map(([path, bytes]) => [path, digest(bytes)]));
-  // No private commit SHA, author, machine path or repository URL in the marker.
-  const snapshot = { format: "chainscout.public-source.v1", sourceTreeDigest: digest(JSON.stringify(hashes)), files: hashes };
-  output.set(".chainscout-public-mirror.json", Buffer.from(JSON.stringify(snapshot, null, 2) + "\n"));
+  const { output, modes, snapshot } = publicSnapshot(root);
   const safePath = (path) => {
     if (isAbsolute(path) || path.split("/").some(part => ["..", ".git", ""].includes(part))) throw new Error("unsafe managed path");
     const full = resolve(target, path);
@@ -79,7 +89,7 @@ export function exportPublic(root, target, check = false) {
     for (const path of removed) if (existsSync(safePath(path))) unlinkSync(safePath(path));
   }
   if (check && (changed.length || removed.length)) throw new Error(`mirror differs: ${changed.length} changed/missing and ${removed.length} obsolete files`);
-  console.log(`${check ? "Verified" : "Exported"} ${hashes ? Object.keys(hashes).length : 0} reviewed files; source digest ${snapshot.sourceTreeDigest}. No Git history copied.`);
+  console.log(`${check ? "Verified" : "Exported"} ${Object.keys(snapshot.files).length} reviewed files; source digest ${snapshot.sourceTreeDigest}. No Git history copied.`);
   return snapshot;
 }
 
