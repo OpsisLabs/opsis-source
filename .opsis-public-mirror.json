@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "c4b1b2d2bfd149cd2bfe9681847b57199cf5a13422c7528bda7e340f151ca9bd",
+  "sourceTreeDigest": "d4db541666ba53ca563807d7c8a0cd9167a54de6a4c0ae90f10a3d0f54d02785",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "1ce9b51ef309bdbbf614897b61d9d0b3988e58241cd3c5662aa13827a4dbbebf",
@@ -8,6 +8,7 @@
     ".githooks/pre-commit": "919c6a46fd512ba1b8837f4c87de156c67a6870bdc9d926caacb97d88c55dd3d",
     ".githooks/pre-push": "35a10006294bc8551f310127ab1234c09c11caf91bd1ae38a0a964d33c5a23bc",
     ".github/security/pnpm-audit-baseline.json": "1818dcbfaa6de56e86c19827c56ecbe8719d0194b7cdb7f75f0667962789adb2",
+    ".github/workflows/public-verify.yml": "dd16f96860d984e8eca84834968d1d9fb7f0258c367d62e89c574edff3e2824f",
     ".gitignore": "fc431b1589bf1c43f704a4f2099875f292031d28ccd9312f85ce14aec740b229",
     ".node-version": "7d2df647f25529bd87500319c41564e032e2be642e565350fa6136d7a1ec4d10",
     "apps/api/Dockerfile": "fd94c2fbd37333793249a6e7f8ee9a0f2a07f8563a866f2519abb29f2f538b69",
@@ -257,6 +258,8 @@
     "docker-compose.yml": "34cd2feaa1920f115eebabb31b882f0cd25425d0a0f6c60c596f033d68a9cae2",
     "docs/assets/chainscout-source.svg": "7230ef9be0b7a6dc9bac52ff1c3e3ebc37764e9b6616f75a0f7eefbb6b345464",
     "docs/dependency-licenses.md": "8cee1b9b2e571bd379b7bf86f2ab4d78aa0367677d26e131556bb06a61debd8d",
+    "docs/opsis/30-marketing.md": "d6ff31477982f059695aab9496dd905575eac2ec99d1a00a0c39b6a2ecacf49c",
+    "docs/public-source.md": "6f38c82cb9362a0a5049a37d9a48959849fd7887a205194628a78982f5bea9eb",
     "docs/release-train.md": "748ae1f0fae35013d732e532639a5d76aae1be16b8286d9603bd7eac0c4743b6",
     "e2e/collectibles.mock.spec.ts": "377b29096354c2826f2ab675f7f7dea7e544d8b33855feb6f96b35e69687e071",
     "e2e/launch-hardening.mock.spec.ts": "c9000e00f90da039213175af7685c18da709aca193ce9fe1a3803f97f7a04a9e",
@@ -282,11 +285,13 @@
     "playwright.webkit.config.ts": "be54a7ca3ddfb8f2ede44bfbe90d425843b03e2b94b3788665548b32261884d0",
     "pnpm-lock.yaml": "f607e2d283adbcc4a47235a34423ddfe9587ae9a0bc5f1b9737c17e8306aefb4",
     "pnpm-workspace.yaml": "08d75840c97ab0e72d1d9b5b84a17e47a2e06cb159a5fbec5ee0a6a56682dad7",
+    "public-source-policy.json": "aabc8dcb3f6d267be1d355122e5bd72628696c1c2cf19d80f519b593dbf334cf",
     "README.md": "e6f29b0f4e090a6a510997a5d018cd1497a1bf20bc191056b1b479e338d76bc0",
     "release-train.json": "67858cd89eba88c944910be1a11c91fe73913294276048a31152330691d4808e",
     "scripts/audit-production-dependencies.mjs": "24bcfb5b02ef4e5a007a330215de123e9a8013207f779ddd5fdf9c2a3150940f",
     "scripts/check-production-licenses.mjs": "4dbcec01012b2e8f22fcfee2bf6a1dbf9fdbbaa26c6d415d2e54b872a6020908",
-    "scripts/identity-guard.mjs": "6ca266c8cba1b0790881a2e2a377c9f7d272b16ea497411e3a4540227403e7c0",
+    "scripts/export-public.mjs": "944cd2634f799a01fc04ce8174b6a8fbf1bc76e989bbcc62d979e74dffeb5756",
+    "scripts/identity-guard.mjs": "6c98dd119fcba355d9902cd8ca9767c57e1ef6b79ac7d5b39a818e49f73f34ee",
     "scripts/launch-smoke.mjs": "63e05c63b8623e420450bc6f5c42c825937af55fb6d6f2696f8faa83e7224e46",
     "scripts/load-smoke.mjs": "86bb0e43cc0fc52269aa899c42c18f5a81e8f3c290397d71e1596426e8025a22",
     "scripts/readiness-policy.mjs": "87f1b432a07e89bcd307bc89bcbf0c883dcd171a97bcff73f26717db57615aef",
@@ -294,6 +299,8 @@
     "scripts/test-identity-guard.mjs": "fee5c29a1b634e7a52045bc306e3255d75b0551e8b59a2bbb64bb76d919b8538",
     "scripts/test-load-smoke.mjs": "ab4966fdf17e3df35bba94dfea9f7b9e9715221473a16325b825f0bef8476825",
     "scripts/test-private-launch-smoke.mjs": "d2ac6d1fb1e34f3322402d36f69189bda43af33dcc4a63ccdb011b02dfbd52b5",
+    "scripts/test-public-export.mjs": "ed834aa301b26375d337bf1424ebf6425964ee0b063e02de4dc35974130a5763",
+    "scripts/verify-public-tree.mjs": "39998f43e560619f1340070105044252983f2342344c6f772655acf979e9ecd7",
     "tsconfig.base.json": "106ea736491527813ed147545e145b13b677944c1533afaecf6a975c3c433d01"
   }
 }

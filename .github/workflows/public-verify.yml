@@ -1,0 +1,34 @@
+name: Public source checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@7088e561eb65bb68695d245aa206f005ef30921d
+        with:
+          version: 8.15.9
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.12.0
+          cache: pnpm
+      - name: Verify public commit metadata
+        if: github.event_name == 'push'
+        run: node scripts/identity-guard.mjs history HEAD && node scripts/verify-public-tree.mjs HEAD
+      - name: Test publication policy
+        run: node scripts/test-identity-guard.mjs && node scripts/test-public-export.mjs
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @rh-chain/shared build && pnpm --filter @rh-chain/api db:generate
+      - run: pnpm audit:prod && pnpm licenses:check
+      - run: pnpm lint && pnpm typecheck && pnpm test && pnpm build
+      - run: pnpm exec playwright install --with-deps chrome webkit
+      - run: pnpm test:e2e

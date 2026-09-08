@@ -56,6 +56,7 @@ export function main(args = process.argv.slice(2)) {
       if (role === "public") {
         if (remoteRef !== "refs/heads/main") throw new Error("public mirror only accepts its main branch");
         inspectCommits([localSha], policy);
+        execFileSync(process.execPath, ["scripts/verify-public-tree.mjs", localSha], { stdio: "inherit" });
       } else {
         inspectCommits(/^0+$/.test(remoteSha) ? [localSha, "--not", `--remotes=${rest[0]}`] : [`${remoteSha}..${localSha}`], policy);
       }
