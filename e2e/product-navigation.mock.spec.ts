@@ -170,7 +170,7 @@ test("technical docs and FAQ expose the implementation without presenting token 
   await expect(page.getByText("DO NOT BUILD")).toBeVisible();
   await expect(
     page.getByRole("link", { name: /VIEW SOURCE/i }),
-  ).toHaveAttribute("href", "https://github.com/ChainScoutAi/ChainScout");
+  ).toHaveAttribute("href", "https://github.com/ChainScoutAi/chainscout-source");
 
   const rail = page.getByRole("complementary", {
     name: "ChainScout features",

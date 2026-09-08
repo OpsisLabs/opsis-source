@@ -171,7 +171,7 @@ export default function TechnicalDocs() {
               ChainScout is a read-only asset-intelligence layer plus a browser-encrypted ownership layer. It resolves exact public identifiers, normalizes bounded evidence, labels uncertainty, and keeps the private context that makes an asset yours off the server.
             </p>
             <div className="mt-8 flex flex-wrap gap-2">
-              <a href="https://github.com/ChainScoutAi/ChainScout" target="_blank" rel="noreferrer" className="clip-btn-sm inline-flex items-center gap-2 bg-[#fa6c34] px-5 py-3 font-mono-d text-[9px] font-semibold tracking-[0.1em] text-[#1d1d1d] hover:bg-[#ff7c48]">
+              <a href="https://github.com/ChainScoutAi/chainscout-source" target="_blank" rel="noreferrer" className="clip-btn-sm inline-flex items-center gap-2 bg-[#fa6c34] px-5 py-3 font-mono-d text-[9px] font-semibold tracking-[0.1em] text-[#1d1d1d] hover:bg-[#ff7c48]">
                 VIEW SOURCE <ExternalLink size={12} />
               </a>
               <Link to="/faq" className="inline-flex items-center gap-2 border border-[#484848] px-5 py-3 font-mono-d text-[9px] tracking-[0.1em] text-[#c7bdb0] hover:border-[#fa6c34] hover:text-[#f0e8da]">

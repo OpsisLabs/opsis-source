@@ -196,7 +196,7 @@ const FAQ_GROUPS: Array<{ id: string; title: string; intro: string; items: FaqIt
         answer: (
           <>
             The public repository is available at{" "}
-            <a href="https://github.com/ChainScoutAi/ChainScout" target="_blank" rel="noreferrer" className="text-[#fa6c34] underline decoration-[#fa6c34]/45 underline-offset-4 hover:text-[#ff9b72]">github.com/ChainScoutAi/ChainScout</a>. Open source improves inspectability; it does not automatically prove that deployed code is bug-free or that every third-party source is correct.
+            <a href="https://github.com/ChainScoutAi/chainscout-source" target="_blank" rel="noreferrer" className="text-[#fa6c34] underline decoration-[#fa6c34]/45 underline-offset-4 hover:text-[#ff9b72]">github.com/ChainScoutAi/chainscout-source</a>. Open source improves inspectability; it does not automatically prove that deployed code is bug-free or that every third-party source is correct.
           </>
         ),
       },
@@ -290,7 +290,7 @@ export default function Faq() {
             <Bookend label="WANT TO INSPECT THE CODE?" />
             <h2 className="mt-3 text-[22px] text-[#e9e0d1]">Follow the source.</h2>
             <p className="mt-3 text-[12.5px] leading-relaxed text-[#9a938a]">Read the public repository, tests, release evidence, and integration register directly.</p>
-            <a href="https://github.com/ChainScoutAi/ChainScout" target="_blank" rel="noreferrer" className="mt-5 inline-flex items-center gap-2 font-mono-d text-[9px] tracking-[0.11em] text-[#fa6c34]">OPEN GITHUB <Github size={12} /><ExternalLink size={10} /></a>
+            <a href="https://github.com/ChainScoutAi/chainscout-source" target="_blank" rel="noreferrer" className="mt-5 inline-flex items-center gap-2 font-mono-d text-[9px] tracking-[0.11em] text-[#fa6c34]">OPEN GITHUB <Github size={12} /><ExternalLink size={10} /></a>
           </div>
         </section>
 

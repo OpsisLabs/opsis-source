@@ -64,8 +64,8 @@ export default function FooterCta() {
               <Link to="/docs" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">Technical docs</Link>
               <Link to="/faq" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">Full FAQ</Link>
               <a href="https://robinhoodchain.blockscout.com" target="_blank" rel="noreferrer" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">Robinhood Blockscout</a>
-              <a href="https://github.com/ChainScoutAi/ChainScout" target="_blank" rel="noreferrer" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">Source code</a>
-              <a href="https://github.com/ChainScoutAi/ChainScout/issues" target="_blank" rel="noreferrer" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">Support tracker</a>
+              <a href="https://github.com/ChainScoutAi/chainscout-source" target="_blank" rel="noreferrer" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">Source code</a>
+              <a href="https://github.com/ChainScoutAi/chainscout-source/issues" target="_blank" rel="noreferrer" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">Support tracker</a>
             </div>
           </div>
         </div>
