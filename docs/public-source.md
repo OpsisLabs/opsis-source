@@ -1,6 +1,6 @@
 # Public-source publication and identity policy
 
-This is a source mirror with a separate Git history. It is not a Git `--mirror`
+This is a source mirror with a filtered reconstruction of Git history. It is not a Git `--mirror`
 remote, a backup of the private repository, or a deployment trigger.
 
 ## What is copied
@@ -12,7 +12,7 @@ tree. A generated digest manifest records the exact published file hashes withou
 embedding private authors, commit hashes, repository URLs, or local machine paths.
 
 Internal release evidence, founder instructions, operational runbooks, private CI,
-recordings, backups, environment secrets, caches, and Git history are excluded.
+recordings, backups, environment secrets, caches, and original identity metadata are excluded.
 An existing privacy regression test reads a marketing-sourcebook path. The public
 mirror supplies a small reviewed claim-boundary counterpart at that path, rather
 than exporting internal marketing plans.
@@ -56,25 +56,31 @@ address is intentionally not a personal, verified GitHub email or contact mailbo
 
 1. Review and commit the source changes in logical groups with real timestamps.
 2. Run the applicable release gate and publication-policy tests.
-3. Export into a **new, separate, empty directory**:
+3. Export filtered history into a **new, separate, empty directory**:
 
    ```bash
-   node scripts/export-public.mjs /absolute/path/to/chainscout-public
+   node scripts/export-public-history.mjs /absolute/path/to/chainscout-public
    ```
 
 4. Inspect the exported file list. Scan **the exported tree** with an independently
    maintained secret scanner (for example Gitleaks), review findings, and check for
    personal identifiers, local paths, embedded image metadata, and internal URLs.
    An allowlist and a scanner reduce risk; neither proves absence of secrets.
-5. Initialize fresh Git history on `main`. Configure the identity guard before
-   making commits. Use small, logical source-publication commits; do not falsify
-   dates or pretend they are the original development history.
+5. The exporter initializes guarded `main`, normalizes author/committer identities,
+   removes attribution trailers from commit messages, and preserves **every original
+   author date, committer date, commit and parent relationship**. Private-only
+   changes become labeled empty checkpoints, not invented source changes. The
+   resulting history is explicitly disclosed as a reconstruction; commit dates
+   are upstream dates, not publication dates. Original source copyright notices
+   and third-party licensing obligations remain applicable. The private source
+   repository is never rewritten.
 6. Verify all published commits and the exact source snapshot:
 
    ```bash
    node scripts/identity-guard.mjs history HEAD
    # From the private source clone:
    node scripts/export-public.mjs /absolute/path/to/chainscout-public --check
+   node scripts/export-public-history.mjs /absolute/path/to/chainscout-public --verify
    ```
 
 7. Audit the complete new Git history for secrets, then push only public `main`.
@@ -85,14 +91,25 @@ address is intentionally not a personal, verified GitHub email or contact mailbo
 1. Finish and test a change in the private source clone. Commit it there.
 2. In the public clone, fetch and fast-forward `main`. Stop for unrelated local
    work or unexpected upstream changes; do not overwrite them.
-3. Run the same exporter from the private clone against the public clone. It
+3. Run `node scripts/export-public-history.mjs /absolute/path/to/chainscout-public --sync`
+   from the private clone against the public clone. It
    refuses a dirty source, dirty public destination, or a non-`main` public branch.
-   Only obsolete files named in the previous managed manifest may be removed.
-4. Review the public diff and rerun the secret/identity checks. Commit the actual
-   change with a descriptive message; an unchanged snapshot needs no commit.
+   Existing commits are never rewritten. Each new source commit becomes one
+   filtered public commit with its real dates, even when its private-only change
+   produces an explicitly labeled empty checkpoint. New public tip files exactly
+   match the current reviewed source selection.
+4. Review the appended commits and rerun the full-history secret/identity checks.
+   Verify dates/count/topology with `--verify` and current file parity with the
+   snapshot exporter's `--check`. An unchanged source history creates no commits.
 5. Push public `main`. This **does not deploy** ChainScout. Follow the private
    release process separately for production.
 
-The exporter itself never commits, pushes, changes remotes, creates repositories,
-or reads ignored environment files. `--check` is read-only. Keep the two clones
-separate even if both ultimately publish equivalent application code.
+The snapshot exporter never commits or pushes; the history exporter creates local
+commits but never pushes, configures a remote, or creates a GitHub repository.
+Neither reads ignored environment files. `--check` and `--verify` are read-only.
+The source/public hash mapping stays only in the public clone's
+`.git/chainscout-history-map.json`; retain it privately for future synchronization.
+Do not commit it or export the `.git` directory. A new clone without that ledger
+must stop for reviewed recovery, not guess a mapping or force-push.
+Keep the two clones separate. Set the approved public push URL explicitly after
+reviewing the newly created repository, and never push private origin to it.

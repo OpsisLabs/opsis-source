@@ -32,8 +32,9 @@ your purchase prices, ownership notes, photos, and saved chats stay local.**
 
 > This repository is a public source mirror, not a deployment feed. Source
 > availability does not mean every feature is enabled on the hosted site.
-> It starts with a clean publication history; private operational history and
-> deployment automation are intentionally not mirrored.
+> Its history is a filtered reconstruction: original commit dates, counts and
+> merge relationships are retained, while author/committer identities are
+> normalized to the project. Private files and deployment automation are omitted.
 
 ## What you can do
 
@@ -237,10 +238,18 @@ is useful evidence, **not an independent security audit or guarantee of safety**
 
 ## Source mirror and contributions
 
-Development happens upstream. Reviewed source snapshots are exported into this
-repository with new, narrowly scoped commits. Application source, tests, lockfile,
+Development happens upstream. Reviewed source history is exported into this
+repository one commit at a time. Application source, tests, lockfile,
 and build configuration are kept byte-identical; internal operations documents,
-private history, and production automation are excluded by policy.
+private operational files, and production automation are excluded by policy.
+
+Author and committer timestamps are preserved from the original Git records;
+they describe upstream development, not when this repository became public.
+Private-only changes remain clearly labeled empty checkpoints to preserve the
+real commit count. Commit hashes change because the trees and identity metadata
+are filtered. Project attribution is a publication identity, not a claim that
+every original contribution was authored by a single person. No commits or dates
+are manufactured to suggest extra development activity.
 
 See [the public-source workflow](docs/public-source.md) for synchronization,
 identity setup, audit requirements, and verification. Do not use `git push --mirror`

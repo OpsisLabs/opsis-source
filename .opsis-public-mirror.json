@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "5a9b2b08dc3769a8fcfd43e1edbe57247b2e3edfe06a032454d90ef93ea34927",
+  "sourceTreeDigest": "669e81802aa64d35b3a6d4159cfb6197a46274b8cfc5770c018e849584c0bf23",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "1ce9b51ef309bdbbf614897b61d9d0b3988e58241cd3c5662aa13827a4dbbebf",
@@ -259,7 +259,7 @@
     "docs/assets/chainscout-source.svg": "7230ef9be0b7a6dc9bac52ff1c3e3ebc37764e9b6616f75a0f7eefbb6b345464",
     "docs/dependency-licenses.md": "8cee1b9b2e571bd379b7bf86f2ab4d78aa0367677d26e131556bb06a61debd8d",
     "docs/opsis/30-marketing.md": "d6ff31477982f059695aab9496dd905575eac2ec99d1a00a0c39b6a2ecacf49c",
-    "docs/public-source.md": "6f38c82cb9362a0a5049a37d9a48959849fd7887a205194628a78982f5bea9eb",
+    "docs/public-source.md": "ca4243af6133b5cc22d6eb3fe5f68fbda30e8e7b685a2aa301b854d41b7ebd59",
     "docs/release-train.md": "748ae1f0fae35013d732e532639a5d76aae1be16b8286d9603bd7eac0c4743b6",
     "e2e/collectibles.mock.spec.ts": "377b29096354c2826f2ab675f7f7dea7e544d8b33855feb6f96b35e69687e071",
     "e2e/launch-hardening.mock.spec.ts": "c9000e00f90da039213175af7685c18da709aca193ce9fe1a3803f97f7a04a9e",
@@ -286,7 +286,7 @@
     "pnpm-lock.yaml": "f607e2d283adbcc4a47235a34423ddfe9587ae9a0bc5f1b9737c17e8306aefb4",
     "pnpm-workspace.yaml": "08d75840c97ab0e72d1d9b5b84a17e47a2e06cb159a5fbec5ee0a6a56682dad7",
     "public-source-policy.json": "aabc8dcb3f6d267be1d355122e5bd72628696c1c2cf19d80f519b593dbf334cf",
-    "README.md": "e6f29b0f4e090a6a510997a5d018cd1497a1bf20bc191056b1b479e338d76bc0",
+    "README.md": "c125a79bad51e456c4b68de63dc20c0248539158c56095998e7947a2eeabced2",
     "release-train.json": "67858cd89eba88c944910be1a11c91fe73913294276048a31152330691d4808e",
     "scripts/audit-production-dependencies.mjs": "24bcfb5b02ef4e5a007a330215de123e9a8013207f779ddd5fdf9c2a3150940f",
     "scripts/check-production-licenses.mjs": "4dbcec01012b2e8f22fcfee2bf6a1dbf9fdbbaa26c6d415d2e54b872a6020908",
