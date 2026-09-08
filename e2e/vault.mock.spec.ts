@@ -71,6 +71,10 @@ test("encrypted Vault creates, stores ciphertext, locks, exports, deletes, and r
 
   await page.getByRole("button", { name: "ADD ASSET" }).click();
   await page.getByLabel("ASSET NAME").fill(assetName);
+  await page.getByLabel("LOT 1 QUANTITY").fill("1,000");
+  await page.getByRole("button", { name: "ENCRYPT & SAVE" }).click();
+  await expect(page.getByLabel("LOT 1 QUANTITY")).toHaveJSProperty("validationMessage", "Enter a decimal such as 1 or 185.50, without commas or minus signs.");
+  await expect(page.getByRole("alert")).toContainText("without commas or minus signs");
   await page.getByLabel("IDENTIFIER / CONTRACT / SKU").fill(identifier);
   await page.getByLabel("LOT 1 QUANTITY").fill("1.000000000000000001");
   await page.getByLabel("PRICE PER UNIT").fill("1234.560000000000000001");
@@ -138,12 +142,22 @@ test("encrypted Vault creates, stores ciphertext, locks, exports, deletes, and r
   const download = await downloadPromise;
   const backupBuffer = await downloadBuffer(download);
   const backupText = backupBuffer.toString("utf8");
+  await expect(page.getByRole("link", { name: "Download prepared backup" })).toBeVisible();
+  const retryDownload = page.waitForEvent("download");
+  await page.getByRole("link", { name: "Download prepared backup" }).click();
+  expect(await downloadBuffer(await retryDownload)).toEqual(backupBuffer);
+  await page.getByText("Download blocked? Save encrypted text instead", { exact: true }).click();
+  await expect(page.getByRole("textbox", { name: "Encrypted backup JSON" })).toHaveValue(backupText);
+  await page.getByRole("textbox", { name: "Encrypted backup JSON" }).focus();
+  await expect(page.getByRole("textbox", { name: "Encrypted backup JSON" })).toHaveJSProperty("selectionStart", 0);
+  await expect(page.getByRole("textbox", { name: "Encrypted backup JSON" })).toHaveJSProperty("selectionEnd", backupText.length);
   expect(JSON.parse(backupText)).toMatchObject({ format: "chainscout.encrypted-vault", schemaVersion: 1 });
   for (const canary of [assetName, privateNote, identifier, recoveryCode ?? "CSV1-"]) expect(backupText).not.toContain(canary);
 
   await page.getByLabel("TYPE DELETE MY LOCAL VAULT").fill("DELETE MY LOCAL VAULT");
   await page.getByRole("button", { name: "DELETE LOCAL VAULT" }).click();
   await expect(page.getByRole("heading", { name: "Create your private Vault" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Download prepared backup" })).toHaveCount(0);
   expect((await readRawVault(page)).records).toEqual([]);
 
   await page.locator("summary").filter({ hasText: "Have a backup? Restore your Vault" }).click();

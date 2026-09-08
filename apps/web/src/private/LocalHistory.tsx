@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 import type { useLocalHistory } from "./useLocalHistory";
 import type { VaultConversation } from "../vault/types";
+import { BackupDownloadLink } from "../vault/BackupDownloadLink";
 
 const button =
   "min-h-11 rounded-sm border border-[#63564c] px-3 py-2 text-sm text-[#e9e0d1] hover:border-[#fa6c34] disabled:opacity-50";
@@ -113,6 +114,7 @@ export function LocalHistory({
               Export encrypted backup
             </button>
           </div>
+          <BackupDownloadLink download={history.download} />
           <nav
             aria-label="Saved conversations"
             className="max-h-72 space-y-2 overflow-y-auto"
@@ -133,7 +135,7 @@ export function LocalHistory({
                 >
                   <span className="block truncate">{item.title}</span>
                   <span className="text-xs text-[#b8b0a7]">
-                    {item.turns.length} answers ·{" "}
+                    {item.turns.length} {item.turns.length === 1 ? "answer" : "answers"} ·{" "}
                     {new Date(item.updatedAt).toLocaleString()}
                   </span>
                 </button>

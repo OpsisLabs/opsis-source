@@ -105,6 +105,8 @@ test("local history backup restores a multi-answer conversation into a separate 
   await page.getByLabel("Optional question").fill(historyQuestion);
   await page.getByRole("button", { name: "EXPLAIN PRIVATELY", exact: true }).click();
   await expect(page.getByText("Saved encrypted on this device.", { exact: true })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Saved conversations" })).toContainText("1 answer ·");
+  await expect(page.getByRole("navigation", { name: "Saved conversations" })).not.toContainText("1 answers");
   await page.getByLabel("Optional question").fill("SECOND-LOCAL-QUESTION");
   await page.getByRole("button", { name: "EXPLAIN PRIVATELY", exact: true }).click();
   await expect(page.getByRole("navigation", { name: "Saved conversations" })).toContainText("2 answers");
@@ -114,6 +116,9 @@ test("local history backup restores a multi-answer conversation into a separate 
   const downloadEvent = page.waitForEvent("download");
   await page.getByRole("button", { name: "Export encrypted backup" }).click();
   const download = await downloadEvent;
+  await expect(page.getByRole("link", { name: "Download prepared backup" })).toBeVisible();
+  await page.getByRole("button", { name: "Lock history", exact: true }).click();
+  await expect(page.getByRole("link", { name: "Download prepared backup" })).toHaveCount(0);
   const chunks: Buffer[] = [];
   for await (const chunk of await download.createReadStream()) chunks.push(Buffer.from(chunk));
   const context = await browser.newContext({ baseURL: APP_ORIGIN });

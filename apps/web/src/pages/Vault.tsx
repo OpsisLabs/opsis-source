@@ -3,6 +3,7 @@ import {
   Suspense,
   useCallback,
   useEffect,
+  useId,
   useRef,
   useState,
   type ChangeEvent,
@@ -10,6 +11,8 @@ import {
   type ReactNode,
 } from "react";
 import { Link, useSearchParams } from "react-router";
+import { useBackupDownload } from "../vault/useBackupDownload";
+import { BackupDownloadLink } from "../vault/BackupDownloadLink";
 import {
   ArchiveRestore,
   CheckCircle2,
@@ -56,7 +59,6 @@ import {
 import { readStorageStatus, requestPersistentStorage } from "../vault/db";
 import { fileToVaultPhoto, MAX_SOURCE_PHOTO_BYTES } from "../vault/photo";
 import {
-  VAULT_MAX_BACKUP_BYTES,
   type VaultAsset,
   type VaultAssetDraft,
   type VaultAssetType,
@@ -2218,6 +2220,8 @@ function VaultSettings({
   onDelete: () => Promise<void>;
 }) {
   const [backupError, setBackupError] = useState("");
+  const [backupBusy, setBackupBusy] = useState(false);
+  const { download, prepare } = useBackupDownload();
   const [storageError, setStorageError] = useState("");
   return (
     <div
@@ -2246,16 +2250,21 @@ function VaultSettings({
           type="button"
           onClick={async () => {
             try {
-              await downloadEncryptedBackup(unlocked);
+              setBackupBusy(true);
+              prepare(await exportVault(unlocked));
               setBackupError("");
             } catch (downloadError) {
               setBackupError(vaultErrorMessage(downloadError));
+            } finally {
+              setBackupBusy(false);
             }
           }}
-          className="mt-5 flex min-h-[44px] w-full items-center justify-center gap-2 border border-[#7fb069]/45 bg-[#7fb069]/5 font-mono-d text-[10px] text-[#9fc68f]"
+          disabled={backupBusy}
+          className="mt-5 flex min-h-[44px] w-full items-center justify-center gap-2 border border-[#7fb069]/45 bg-[#7fb069]/5 font-mono-d text-[10px] text-[#9fc68f] disabled:opacity-50"
         >
           <Download size={13} /> EXPORT ENCRYPTED JSON
         </button>
+        <BackupDownloadLink download={download} />
         <div className="mt-5">
           <ImportVaultPanel
             existing
@@ -2918,6 +2927,8 @@ function Field({
   disabled?: boolean;
   flush?: boolean;
 }) {
+  const [validationError, setValidationError] = useState("");
+  const validationId = useId();
   return (
     <label className={flush ? "block" : "mt-4 block"}>
       <span className="font-mono-d text-[9px] tracking-[0.13em] text-[#635d5a]">
@@ -2925,9 +2936,22 @@ function Field({
       </span>
       <input
         aria-label={label}
+        aria-invalid={validationError ? true : undefined}
+        aria-describedby={validationError ? validationId : undefined}
         type={type}
         value={value}
-        onChange={(event) => onChange(event.target.value)}
+        onChange={(event) => {
+          event.target.setCustomValidity("");
+          setValidationError("");
+          onChange(event.target.value);
+        }}
+        onInvalid={(event) => {
+          if (inputMode === "decimal" && event.currentTarget.validity.patternMismatch) {
+            const message = "Enter a decimal such as 1 or 185.50, without commas or minus signs.";
+            event.currentTarget.setCustomValidity(message);
+            setValidationError(message);
+          }
+        }}
         placeholder={placeholder}
         maxLength={maxLength}
         required={required}
@@ -2938,6 +2962,7 @@ function Field({
         disabled={disabled}
         className="mt-2 min-h-[44px] w-full border border-[#383838] bg-[#1d1d1d] px-4 font-mono-d text-[11px] text-[#e9e0d1] outline-none placeholder:text-[#4f4a46] focus:border-[#fa6c34] disabled:opacity-50"
       />
+      {validationError && <span id={validationId} role="alert" className="mt-2 block text-xs text-[#e0738a]">{validationError}</span>}
     </label>
   );
 }
@@ -3054,23 +3079,6 @@ function assetToDraft(asset: VaultAsset): VaultAssetDraft {
         }
       : {}),
   };
-}
-
-async function downloadEncryptedBackup(unlocked: UnlockedVault): Promise<void> {
-  const backup = await exportVault(unlocked);
-  const serialized = JSON.stringify(backup, null, 2);
-  const blob = new Blob([serialized], { type: "application/json" });
-  if (blob.size > VAULT_MAX_BACKUP_BYTES) {
-    throw new Error("Encrypted backup exceeds the supported size");
-  }
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = `chainscout-encrypted-vault-${new Date().toISOString().slice(0, 10)}.json`;
-  anchor.click();
-  // Revoking synchronously can race the browser's download reader and produce
-  // an empty file. Keep the object URL alive just long enough for that reader.
-  window.setTimeout(() => URL.revokeObjectURL(url), 1_000);
 }
 
 function formatStorage(storage: VaultStorageStatus): string {

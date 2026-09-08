@@ -9,10 +9,12 @@ import {
 } from "../vault/service";
 import { requestPersistentStorage } from "../vault/db";
 import type { VaultConversation, VaultConversationTurn } from "../vault/types";
+import { useBackupDownload } from "../vault/useBackupDownload";
 
 // The key lives only in this mounted page. No localStorage flag or key permits
 // automatic decryption after restarting the browser.
 export function useLocalHistory(onLock: () => void) {
+  const { download, prepare: prepareDownload, clear: clearDownload } = useBackupDownload();
   const [phase, setPhase] = useState<
     "loading" | "empty" | "locked" | "unlocked"
   >("loading");
@@ -31,6 +33,7 @@ export function useLocalHistory(onLock: () => void) {
   }, [onLock]);
 
   const lock = useCallback((notify = true) => {
+    clearDownload();
     generation.current++;
     setLockEpoch((value) => value + 1);
     const meta = unlocked.current?.meta;
@@ -42,7 +45,7 @@ export function useLocalHistory(onLock: () => void) {
     onLockRef.current();
     if (notify && meta)
       channel.current?.postMessage({ event: "lock", vaultId: meta.vaultId });
-  }, []);
+  }, [clearDownload]);
 
   useEffect(() => {
     let active = true;
@@ -207,16 +210,9 @@ export function useLocalHistory(onLock: () => void) {
     try {
       const value = await exportVault(unlocked.current);
       if (generation.current !== expected) return;
-      const url = URL.createObjectURL(
-        new Blob([JSON.stringify(value)], { type: "application/json" }),
-      );
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `chainscout-encrypted-vault-${new Date().toISOString().slice(0, 10)}.json`;
-      link.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      prepareDownload(value);
       setNotice(
-        "Encrypted backup downloaded: includes saved chats and all Vault records. Keep it with your recovery plan.",
+        "Backup prepared with saved chats and all Vault records. Confirm that your browser saved the file.",
       );
     } catch {
       if (generation.current === expected)
@@ -276,6 +272,7 @@ export function useLocalHistory(onLock: () => void) {
     lock,
     save,
     backup,
+    download,
     remove,
   };
 }
