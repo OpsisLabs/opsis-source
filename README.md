@@ -6,7 +6,8 @@
   <a href="https://www.chainscout.net">Website</a> ·
   <a href="https://www.chainscout.net/guide">Start guide</a> ·
   <a href="https://www.chainscout.net/docs">Technical docs</a> ·
-  <a href="https://www.chainscout.net/faq">FAQ</a>
+  <a href="https://www.chainscout.net/faq">FAQ</a> ·
+  <a href="LICENSE">License: PolyForm Noncommercial 1.0.0</a>
 </p>
 
 ```text
@@ -267,9 +268,23 @@ otherwise request a private contact through [the project](https://www.chainscout
 
 ## Rights, dependencies and independence
 
-Public visibility alone does not grant a reuse license. Unless a root `LICENSE`
-explicitly says otherwise, project-authored source is provided for inspection
-with rights retained. Dependencies and bundled assets retain their own terms;
+Project-authored code and documentation in this revision are **source-available
+under [PolyForm Noncommercial 1.0.0](LICENSE)**, not permissively licensed open source.
+You may use, modify, self-host, and redistribute them for purposes permitted by
+that license, while preserving its terms and required notices. These include
+noncommercial purposes and the personal uses and organizations specified in the
+license. Commercial uses outside those permissions require a separate written
+license from the applicable rights holders; publishing the code is not permission
+to sell it or run a commercial hosted clone.
+
+The complete [LICENSE](LICENSE) controls; this paragraph is only a summary.
+For commercial licensing enquiries, contact the maintainers through the
+[ChainScout organization](https://github.com/ChainScoutAi). No personal contact
+details or copyright ownership transfers are implied by project commit identities.
+This license does not retroactively change the terms of earlier revisions.
+It grants no trademark rights or permission to imply ChainScout endorsement.
+
+Dependencies and third-party bundled assets retain their own terms;
 see [dependency licensing](docs/dependency-licenses.md) and
 [third-party notices](apps/web/public/THIRD_PARTY_NOTICES.txt). A project license
 does not grant rights to third-party artwork, trademarks, or provider data.

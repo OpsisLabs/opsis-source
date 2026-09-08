@@ -3,6 +3,16 @@
 This is a source mirror with a filtered reconstruction of Git history. It is not a Git `--mirror`
 remote, a backup of the private repository, or a deployment trigger.
 
+## Source license
+
+New licensed revisions include the unmodified [PolyForm Noncommercial 1.0.0](../LICENSE)
+text. The README summarizes permitted purposes and the separate-permission boundary
+for commercial use. This is source-available software, not a permissive open-source
+release. Preserve the license and third-party notices when synchronizing or sharing
+copies; the project license does not replace dependency licenses or grant rights to
+provider data, third-party artwork, or trademarks. Earlier revisions retain their
+original terms.
+
 ## What is copied
 
 `public-source-policy.json` selects application source, shared contracts, tests,

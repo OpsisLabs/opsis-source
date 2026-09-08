@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "506269b8ab3fa6bdfcbd923112a8146e36a304210ecf01d741617f7b7f37b432",
+  "sourceTreeDigest": "2f50a54c2e53de9ba4b6821b10393f8a15e1992a5eac7a62fc9f7d497e9d456f",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "1ce9b51ef309bdbbf614897b61d9d0b3988e58241cd3c5662aa13827a4dbbebf",
@@ -260,7 +260,7 @@
     "docs/assets/chainscout-source.svg": "7230ef9be0b7a6dc9bac52ff1c3e3ebc37764e9b6616f75a0f7eefbb6b345464",
     "docs/dependency-licenses.md": "8cee1b9b2e571bd379b7bf86f2ab4d78aa0367677d26e131556bb06a61debd8d",
     "docs/opsis/30-marketing.md": "d6ff31477982f059695aab9496dd905575eac2ec99d1a00a0c39b6a2ecacf49c",
-    "docs/public-source.md": "ca4243af6133b5cc22d6eb3fe5f68fbda30e8e7b685a2aa301b854d41b7ebd59",
+    "docs/public-source.md": "273a082381bad664a3ca57c6e9acf1a0fc9dca3a928e121eefcd1f13809a973a",
     "docs/release-train.md": "748ae1f0fae35013d732e532639a5d76aae1be16b8286d9603bd7eac0c4743b6",
     "e2e/collectibles.mock.spec.ts": "377b29096354c2826f2ab675f7f7dea7e544d8b33855feb6f96b35e69687e071",
     "e2e/launch-hardening.mock.spec.ts": "c9000e00f90da039213175af7685c18da709aca193ce9fe1a3803f97f7a04a9e",
@@ -277,6 +277,7 @@
     "e2e/wallet-ai.live.spec.ts": "0b74831125b671378e36c1fad76be23f98a9f4beec3c08250df2451ca107727e",
     "e2e/wallet-ai.mock.spec.ts": "a229067837c646d50a1fcb2de04c4ac0e3f83b9c351006990194c06c23345541",
     "identity-policy.json": "0344660da1525234126b8fcf2628b81dbd71924997e832e5eba326437a9cebb7",
+    "LICENSE": "c0ea4a896d2c8c394b29f9427589996db826cd501c512279ff0ed3ef48fabbe5",
     "package.json": "83febda8c043496c553fdf816b9f07eb2d6bf552d987a63c54a7eec44490122b",
     "packages/shared/package.json": "cbeb5593b144f6eaf00e0abcc3f4f6cf4a8df87325ecde9946e7d24821a63da5",
     "packages/shared/src/index.ts": "54e1bd31add65d4a5f37f6a39e34bf29e9cda5a93a232ffec8f28613e543d394",
@@ -287,7 +288,7 @@
     "pnpm-lock.yaml": "f607e2d283adbcc4a47235a34423ddfe9587ae9a0bc5f1b9737c17e8306aefb4",
     "pnpm-workspace.yaml": "08d75840c97ab0e72d1d9b5b84a17e47a2e06cb159a5fbec5ee0a6a56682dad7",
     "public-source-policy.json": "c105308e1a537faade1bbb7fe42cdab556dc9d780850983e810cbaac75079c6a",
-    "README.md": "18f65989f187d90b5bc0ceeebc22c2d8d4a7bdfbb47fd70f3fa21a37bbaeacc1",
+    "README.md": "d21b41914468ebc6923949c0df235be4073ed13ca1e2dc9afc58a3d7c01f46fb",
     "release-train.json": "67858cd89eba88c944910be1a11c91fe73913294276048a31152330691d4808e",
     "scripts/audit-production-dependencies.mjs": "24bcfb5b02ef4e5a007a330215de123e9a8013207f779ddd5fdf9c2a3150940f",
     "scripts/check-production-licenses.mjs": "4dbcec01012b2e8f22fcfee2bf6a1dbf9fdbbaa26c6d415d2e54b872a6020908",
@@ -301,7 +302,7 @@
     "scripts/test-identity-guard.mjs": "fee5c29a1b634e7a52045bc306e3255d75b0551e8b59a2bbb64bb76d919b8538",
     "scripts/test-load-smoke.mjs": "ab4966fdf17e3df35bba94dfea9f7b9e9715221473a16325b825f0bef8476825",
     "scripts/test-private-launch-smoke.mjs": "d2ac6d1fb1e34f3322402d36f69189bda43af33dcc4a63ccdb011b02dfbd52b5",
-    "scripts/test-public-export.mjs": "ed834aa301b26375d337bf1424ebf6425964ee0b063e02de4dc35974130a5763",
+    "scripts/test-public-export.mjs": "e08bb7eea248a0dbd981a374a3293261f2d614ea6ae683aecbd56d8bb75649ee",
     "scripts/test-public-history.mjs": "a1abcc2959382e85e5ade30bda7e702a5dd0ebf902f9b02aad8a8a744bfe2ac2",
     "scripts/verify-public-tree.mjs": "39998f43e560619f1340070105044252983f2342344c6f772655acf979e9ecd7",
     "tsconfig.base.json": "106ea736491527813ed147545e145b13b677944c1533afaecf6a975c3c433d01"
