@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "799fad6ca6e0553f849d7d1354d9eb4ba82ed37c1c70d3b613d5a0cf135f3b55",
+  "sourceTreeDigest": "f893cd56234b63e4752955f05f907521e2ca5056a1a2721be5bc085ae0681e9a",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "1ce9b51ef309bdbbf614897b61d9d0b3988e58241cd3c5662aa13827a4dbbebf",
@@ -13,7 +13,7 @@
     ".gitleaks.toml": "70a50d298defecbcace1c8cbfb7c38ccc9f3aa8866cb37bc8e9c0190c6a743a7",
     ".node-version": "7d2df647f25529bd87500319c41564e032e2be642e565350fa6136d7a1ec4d10",
     "apps/api/Dockerfile": "fd94c2fbd37333793249a6e7f8ee9a0f2a07f8563a866f2519abb29f2f538b69",
-    "apps/api/package.json": "aa666b47cf1e8e3ece4e97a33bb20e5d7693a2ee372bb42d972e73415350e938",
+    "apps/api/package.json": "a8d0444ff16d0176d7e8e05e350be8ea6c467de0e7e4f1b93ca87676cc361524",
     "apps/api/prisma/migrations/20260710083736_init/migration.sql": "2dd4fec871ff7ccd0855d62b5e636db6b99af1f90046530782fa569166cc449d",
     "apps/api/prisma/migrations/20260710152000_auth_tokens/migration.sql": "0616e0d3048393c4e130982c8a8f0b169fa6185b84dcdbfae0d5f28a8eda5d16",
     "apps/api/prisma/migrations/20260710211500_usage_aggregates/migration.sql": "ecfc56587803e58b7d70fc944cad2b0ae0c3d36d08f5bd96bb826dea6a4780ff",
@@ -102,6 +102,7 @@
     "apps/api/test/config.test.ts": "d280565c13e8e43a027db4a2b7e689b9f282562a5ef530b9669e6b15a002048d",
     "apps/api/test/cookie-auth.test.ts": "04653f45f33e7b28f8837c167eab058ad23844877c3a69aa8cb6110d654a09ad",
     "apps/api/test/deployment-schema-policy.test.ts": "516f537fee9c433bb3bd5b26da75335664b988261c505baf08d46a305a9e79b9",
+    "apps/api/test/email-dependency.test.ts": "7fb9cf829ac7ce343c704012d55129eca2a072d4042da1da9f1c3c39c203a164",
     "apps/api/test/fixtures/alchemy-transaction.json": "ada19ddb8e07de842978574237d5b3826ffce36ad604695ffeec6ad26fac6319",
     "apps/api/test/fixtures/blockscout-address.json": "8ebab0d3c7e4a5bcde0ed406245d8bec6991ae71fb42fdf920c3be5d32e6c67f",
     "apps/api/test/fixtures/blockscout-internal-transactions.json": "cc261d4d141946dbbc4c76a61c540947a9323e6249ba6fa8bcda997f6fad86f4",
@@ -285,7 +286,7 @@
     "playwright.config.ts": "34f3cf71069371446faf66a96c03ad1050b998a89f25fba02594c263ebb832f7",
     "playwright.open-data-disabled.config.ts": "092d2f1b9b3321ef8ecf0a93826970d4a61bbea4ba07f5a96ca352dc63f7b278",
     "playwright.webkit.config.ts": "be54a7ca3ddfb8f2ede44bfbe90d425843b03e2b94b3788665548b32261884d0",
-    "pnpm-lock.yaml": "f607e2d283adbcc4a47235a34423ddfe9587ae9a0bc5f1b9737c17e8306aefb4",
+    "pnpm-lock.yaml": "8aa3409175077bd6bb3c2fa24b929775cd44244e0e26b081f4d0681a59e2b631",
     "pnpm-workspace.yaml": "08d75840c97ab0e72d1d9b5b84a17e47a2e06cb159a5fbec5ee0a6a56682dad7",
     "public-source-policy.json": "c105308e1a537faade1bbb7fe42cdab556dc9d780850983e810cbaac75079c6a",
     "README.md": "d21b41914468ebc6923949c0df235be4073ed13ca1e2dc9afc58a3d7c01f46fb",
