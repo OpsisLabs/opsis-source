@@ -10,14 +10,14 @@
 </p>
 
 ```text
-  +---------------------------------------------------------------+
+  +----------------------------------------------------------------+
   |  CHAINSCOUT                                      CHAIN // 4663 |
-  |                                                               |
-  |  Public chain facts  --->  Clear explanations                   |
-  |  Your private context --->  Your encrypted, local Vault         |
-  |                                                               |
-  |  READ-ONLY BY DESIGN.  NO KEYS.  NO TRADE EXECUTION.             |
-  +---------------------------------------------------------------+
+  |                                                                |
+  |  Public chain facts  --->  Clear explanations                  |
+  |  Your private context --->  Your encrypted, local Vault        |
+  |                                                                |
+  |  READ-ONLY BY DESIGN.  NO KEYS.  NO TRADE EXECUTION.           |
+  +----------------------------------------------------------------+
 ```
 
 # Understand what you own. Keep your context private.
