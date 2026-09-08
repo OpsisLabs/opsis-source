@@ -195,8 +195,8 @@ const FAQ_GROUPS: Array<{ id: string; title: string; intro: string; items: FaqIt
         question: "Is ChainScout open source?",
         answer: (
           <>
-            The public repository is available at{" "}
-            <a href="https://github.com/ChainScoutAi/chainscout-source" target="_blank" rel="noreferrer" className="text-[#fa6c34] underline decoration-[#fa6c34]/45 underline-offset-4 hover:text-[#ff9b72]">github.com/ChainScoutAi/chainscout-source</a>. Open source improves inspectability; it does not automatically prove that deployed code is bug-free or that every third-party source is correct.
+            ChainScout is source-available under PolyForm Noncommercial 1.0.0, not permissively licensed open source. You may use, modify, and share it for purposes permitted by that license; commercial use outside those permissions requires a separate license. The public repository and full license are available at{" "}
+            <a href="https://github.com/ChainScoutAi/chainscout-source" target="_blank" rel="noreferrer" className="text-[#fa6c34] underline decoration-[#fa6c34]/45 underline-offset-4 hover:text-[#ff9b72]">github.com/ChainScoutAi/chainscout-source</a>. Public source improves inspectability; it does not automatically prove that deployed code is bug-free or that every third-party source is correct.
           </>
         ),
       },

@@ -380,10 +380,11 @@ export function PrivacyPage() {
 
       <Section n="08" title="Contact">
         <p>
-          ChainScout is currently operated as an independent open-source beta.
-          Questions about this policy, your data, or a security issue can be
-          submitted through the public project support tracker at{" "}
+          ChainScout is currently operated as an independent source-available beta.
+          General product questions can be submitted through the public project support tracker at{" "}
           <a href="https://github.com/ChainScoutAi/chainscout-source/issues" target="_blank" rel="noreferrer" className="text-[#fa6c34] underline underline-offset-4">github.com/ChainScoutAi/chainscout-source/issues</a>.
+          Report suspected vulnerabilities through{" "}
+          <a href="https://github.com/ChainScoutAi/ChainScoutAI/security/advisories/new" target="_blank" rel="noreferrer" className="text-[#fa6c34] underline underline-offset-4">private vulnerability reporting</a>, not public issues.
           Do not post a Vault passphrase, recovery code, wallet secret, account
           credential, or other private data. This policy may be updated as the
           product evolves; material changes will be noted on this page.

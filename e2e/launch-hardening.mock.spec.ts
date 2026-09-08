@@ -49,6 +49,18 @@ test("public routes expose route-specific canonical metadata", async ({ page }) 
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex,nofollow");
 });
 
+test("license and security guidance distinguish source availability from commercial permission", async ({ page }) => {
+  await dismissTour(page);
+  await page.goto("/privacy");
+  await expect(page.getByText(/independent source-available beta/)).toBeVisible();
+  await expect(page.getByRole("link", { name: "private vulnerability reporting" })).toHaveAttribute("href", "https://github.com/ChainScoutAi/ChainScoutAI/security/advisories/new");
+  await expect(page.locator("main")).not.toContainText("independent open-source beta");
+  await page.goto("/faq");
+  await page.getByText("Is ChainScout open source?", { exact: true }).click();
+  await expect(page.getByText(/source-available under PolyForm Noncommercial 1.0.0/)).toBeVisible();
+  await expect(page.getByText(/commercial use outside those permissions requires a separate license/)).toBeVisible();
+});
+
 test("the production-static GSAP notice preserves package and license details", async ({ request }) => {
   const response = await request.get("/THIRD_PARTY_NOTICES.txt");
   expect(response.ok()).toBe(true);
