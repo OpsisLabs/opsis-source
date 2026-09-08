@@ -1,100 +1,270 @@
-# Robinhood Chain AI Explorer
+<p align="center">
+  <img src="docs/assets/chainscout-source.svg" alt="ChainScout — public facts, private context. Explore, understand, keep privately." width="100%" />
+</p>
 
-Read-only AI explorer for Robinhood Chain with source-linked explanations, saved sessions, entity views, and a responsive web interface.
+<p align="center">
+  <a href="https://www.chainscout.net">Website</a> ·
+  <a href="https://www.chainscout.net/guide">Start guide</a> ·
+  <a href="https://www.chainscout.net/docs">Technical docs</a> ·
+  <a href="https://www.chainscout.net/faq">FAQ</a>
+</p>
 
-Requires Node.js 22 LTS. The repository includes a `.node-version` file for compatible version managers.
+```text
+  +---------------------------------------------------------------+
+  |  CHAINSCOUT                                      CHAIN // 4663 |
+  |                                                               |
+  |  Public chain facts  --->  Clear explanations                   |
+  |  Your private context --->  Your encrypted, local Vault         |
+  |                                                               |
+  |  READ-ONLY BY DESIGN.  NO KEYS.  NO TRADE EXECUTION.             |
+  +---------------------------------------------------------------+
+```
 
-## Stack
+# Understand what you own. Keep your context private.
 
-- API: Node.js, Fastify, Zod, Prisma, PostgreSQL, Redis caching/rate limiting, Argon2id auth.
-- Chain data: Blockscout and Alchemy provider abstractions.
-- AI: local Ollama, OpenAI Responses API, or deterministic fallback.
-- Web: React 19, Vite, TypeScript, Tailwind, react-router v7, viem (MetaMask, read-only). See [apps/web/README.md](apps/web/README.md) for how the dashboard is wired to the API.
+ChainScout is a read-only asset intelligence workspace for **Robinhood Chain**.
+Explore wallets and transactions, inspect tokenized-asset claims, preview supported
+swaps, and keep your own crypto, NFT, Pokémon card, collectible, and real-world
+asset records together in an encrypted, browser-local Vault.
 
-## Local Setup
+The distinction is deliberate: **public evidence comes from public sources;
+your purchase prices, ownership notes, photos, and saved chats stay local.**
+
+> This repository is a public source mirror, not a deployment feed. Source
+> availability does not mean every feature is enabled on the hosted site.
+> It starts with a clean publication history; private operational history and
+> deployment automation are intentionally not mirrored.
+
+## What you can do
+
+| Workspace | What it does | Important boundary |
+| --- | --- | --- |
+| **Private Explorer** | Explain a public wallet, token, contract, or transaction with source-linked facts and follow-up questions. | No account or wallet connection required. Provider gaps are reported, not invented away. |
+| **Encrypted Vault** | Track assets, exact purchase lots, notes, local photos, and dated values. Export, restore, recover, and lock your records. | Browser-local ciphertext; not automatic cloud sync. Manual ownership and valuations are your claims. |
+| **Local chat history** | Opt into encrypted autosave by unlocking the Vault in Explorer. Reopen saved conversations and include them in backups. | Same browser profile and site origin. Saved answers are dated snapshots, not refreshed evidence. |
+| **Portfolio Intelligence** | Build a read-only holdings/activity snapshot and combine it with private local context. | Coverage is bounded and provider-dependent. A captured current block is not a finality guarantee. |
+| **RWA Verify** | Check exact-address Stock Token and Morpho vault identity, source evidence, and limitations. | A registry match is not proof of physical authenticity, solvency, redemption eligibility, or safety. |
+| **Scout Swap** | Inspect a supported WETH/USDG preview, freshness, minimum received, costs, and simulation information. | Official Uniswap independently requotes and owns signing/execution. ChainScout never submits a trade. |
+| **Collectible Catalog** | Match supported Pokémon card identity and attach owner-reported variant, condition, grading, photos, and references. | Catalog metadata and permitted image paths do not authenticate a card or establish its value. Manual entry remains available. |
+| **Market & Inventory** | Compare supported public observations and approved merchant mappings with private landed-cost inputs. | Opt-in, flag-controlled. Coverage and freshness vary; unsupported venues use outbound handoffs. |
+| **Replay Actions** | Rebuild a supported trade or purchase with fresh inputs and current evidence. | Flag-controlled. It does not infer or reuse historical intent, calldata, approvals, or checkout sessions. |
+| **Open Data API** | Reuse a small reviewed support registry and normalize identifier syntax. | Flag-controlled. Not a general price feed, wallet-history API, or API for private Vault data. |
+
+### What this does not do
+
+- Hold private keys, seed phrases, funds, or custody of assets.
+- Sign, broadcast, route, or execute transactions; mint or redeem assets.
+- Promise complete portfolio coverage, trustworthy issuers, or accurate manual valuations.
+- Guarantee that a browser will retain local data forever.
+- Enable cloud research or token-paid query packs by default. These are not
+  implied launch features or economic rights simply because code is public.
+
+Network gas, liquidity, and protocol costs may apply at an official execution
+venue. Read-only does **not** mean third-party actions are free.
+
+## How the pieces fit together
+
+```mermaid
+flowchart LR
+  A[Public identifier + your question] --> B[React workspace]
+  B -->|Explicit public lookup| C[Fastify API]
+  C --> D[Reviewed public providers]
+  D --> E[Normalized evidence + citations]
+  E --> B
+  B -->|Opt-in local save| F[Web Crypto encryption]
+  F --> G[(IndexedDB Vault)]
+  G --> H[Encrypted backup]
+  B -->|User-chosen handoff| I[Official external app]
+```
+
+The API validates identifiers, applies request limits and provider budgets,
+normalizes the available evidence, and returns citations and limitations.
+Supported AI paths can explain those facts; a deterministic fallback remains
+available. Public Private Explorer uses the privacy-specific route and reports
+the actual destinations in its privacy receipt. Optional cloud/AI paths have
+different data boundaries and must not be confused with that mode.
+
+Private notes, purchase lots, photos, Vault keys, and passphrases are not inputs
+to public-provider lookups. Providers can still observe identifiers you choose
+to send them. “Private” does not mean anonymous networking or invisible traffic.
+
+## Inside the encrypted Vault
+
+- **Encryption:** AES-256-GCM via browser Web Crypto, with fresh random IVs.
+- **Passphrase wrapping:** PBKDF2-HMAC-SHA-256 with 600,000 iterations and a random
+  salt derives a key that wraps the Vault's master key.
+- **Recovery:** a separately generated recovery secret wraps the master key;
+  recovery rotates the relevant recovery material.
+- **Storage:** encrypted records and wrapped keys live in IndexedDB. The unlocked
+  key exists in the page's memory and is removed from application state on lock.
+- **Backups:** encrypted JSON includes the records and wrapped key material.
+  Restore verifies the backup before replacing local data. Keep the matching
+  passphrase or recovery code separately and test restoration.
+
+This does not defend against a compromised device, malicious browser extension,
+or malicious code executing in the page while the Vault is unlocked. A copied
+backup can be attacked offline; use a strong, unique passphrase. Clearing site
+data, browser eviction, private browsing, a lost device, or lost recovery material
+can permanently lose access. Another browser, subdomain, or port is a different
+storage location. **Export backups regularly.**
+
+## Run locally
+
+Prerequisites: **Node.js 22.12–22.x**, **pnpm 8.15.9**, and Git. Version files and
+the lockfile are included. No global services or paid subscriptions are needed
+for the minimal deterministic development path.
 
 ```bash
-corepack enable
-corepack prepare pnpm@8.15.9 --activate
-pnpm install
+pnpm install --frozen-lockfile
 cp .env.example .env
-pnpm db:generate
+pnpm --filter @rh-chain/shared build
+pnpm --filter @rh-chain/api db:generate
+```
+
+In your local `.env`, use the deterministic path to start without a model:
+
+```dotenv
+AI_PROVIDER=fallback
+ENABLE_PUBLIC_RPC_FALLBACK=true
+CLOUD_WORKSPACE_ENABLED=false
+VITE_CLOUD_WORKSPACE_ENABLED=false
+```
+
+Then start the API and frontend:
+
+```bash
 pnpm dev
 ```
 
-API: `http://localhost:4000`
-Web: `http://localhost:5173`
-OpenAPI UI: `http://localhost:4000/docs`
-Prometheus metrics: `http://localhost:4000/metrics`
+| Local service | Address |
+| --- | --- |
+| Web workspace | `http://localhost:5173/app` |
+| Local Vault | `http://localhost:5173/vault` |
+| API | `http://localhost:4000` |
+| API documentation | `http://localhost:4000/docs` |
+| Readiness check | `http://localhost:4000/readyz` |
 
-The example leaves `DATABASE_URL` and `REDIS_URL` blank so the minimal local flow uses in-memory storage and caching. Configure Postgres and Redis when persistence and distributed limits are needed.
+The checked-in example defaults to Ollama; override `AI_PROVIDER` as above if you
+do not have it running. For a local model, configure `AI_PROVIDER=ollama`,
+`OLLAMA_BASE_URL`, and `OLLAMA_MODEL` after installing and starting Ollama yourself.
+An OpenAI path also exists, but requires explicit configuration and can incur
+costs. **Never place provider secrets in `VITE_*` variables or commit `.env`.**
 
-## Local AI With Ollama
+Minimal development can use in-memory server dependencies. That is not a
+production persistence recommendation. Production validation requires an explicit
+HTTPS origin and distributed rate-limit storage; enabling cloud research adds
+database, authentication, retention, and recovery requirements.
 
-Ollama runs models on your computer and does not require an API key. Install Ollama, start it, and pull the default compact model:
+### Feature switches
 
-```bash
-brew install ollama
-brew services start ollama
-ollama pull qwen3:4b
+The example intentionally leaves specialist network features off. Enable only
+the paths you have configured and reviewed; changing a flag does not provision a
+provider account or make unsupported data available.
+
+| Feature | Server configuration | Web configuration |
+| --- | --- | --- |
+| Public RPC fallback | `ENABLE_PUBLIC_RPC_FALLBACK=true` | — |
+| Portfolio | `PORTFOLIO_MODE_ENABLED=true` | — |
+| RWA evidence | `RWA_VERIFY_ENABLED=true` | — |
+| Collectibles | `COLLECTIBLE_CATALOG_ENABLED=true` | `VITE_COLLECTIBLE_CATALOG_ENABLED=true` |
+| Market | `MARKET_INVENTORY_ENABLED=true` | `VITE_MARKET_INVENTORY_ENABLED=true` |
+| Replay UI | Underlying market/swap features must be configured | `VITE_REPLAY_ACTIONS_ENABLED=true` |
+| Open Data | `OPEN_DATA_API_ENABLED=true` | `VITE_OPEN_DATA_API_ENABLED=true` |
+| Swap previews | `UNISWAP_QUOTE_ENABLED=true` and supported provider configuration | — |
+
+See [.env.example](.env.example) and [environment validation](apps/api/src/config/env.ts)
+for the full set of limits and dependencies. Keep unused integrations disabled.
+
+## Public API versus private records
+
+The optional Open Data surface exposes only:
+
+```text
+GET  /v1/public/open-data/v1/registry
+POST /v1/public/open-data/v1/normalize
 ```
 
-The checked-in `.env.example` selects Ollama for local setup. These values are sufficient:
+It returns reviewed static support information and syntactic normalization—not
+proof of ownership, current market prices, or transaction safety. The separate
+Private Explorer endpoint is `POST /v1/private/analyze`. Specialist private
+routes support explicit consent receipts and bounded public lookups.
+See the [Open Data specification](apps/web/public/open-data-v1.openapi.json).
 
-```bash
-AI_PROVIDER=ollama
-OLLAMA_BASE_URL=http://127.0.0.1:11434
-OLLAMA_MODEL=qwen3:4b
+## Data availability and honest failure states
+
+Public providers can rate-limit, reject requests, change terms, or return partial
+results. Current reviewed-source behavior includes a limited 12-contract RPC
+sample when indexed token balances are unavailable. **Zero sample matches is
+not zero assets.** Missing activity is not proof of inactivity. A verified
+contract's source code is not proof that the asset is safe.
+
+As of the September 2026 review, public Blockscout requests were returning 403 in
+the tested deployment. Complete indexed holdings/activity is not established.
+Supported authorized access must be configured and retested; no paid provider or
+access-control workaround is implied by this repository.
+
+## Development map
+
+```text
+chainscout/
+|-- apps/
+|   |-- api/           Fastify routes, providers, evidence, limits, migrations
+|   `-- web/           React workspace, local encryption, asset tools, design
+|-- packages/shared/   Shared contracts and validation schemas
+|-- e2e/               Chromium and WebKit workflow/privacy regression tests
+|-- scripts/           Verification, identity guard, reviewed-source export
+|-- docs/              Public architecture, source policy and dependency notices
+`-- .githooks/         Local author, committer and push-destination checks
 ```
 
-Run `pnpm dev`, create or sign in to a local account, paste a wallet or token address, enter a question, and select **Ask AI with citations**. Set `AI_PROVIDER=auto` to use OpenAI when `OPENAI_API_KEY` exists and the deterministic fallback otherwise. Set `AI_PROVIDER=fallback` to disable generative AI explicitly.
-
-Verify the installed model directly with the opt-in integration test:
-
-```bash
-TEST_OLLAMA_URL=http://127.0.0.1:11434 pnpm --filter @rh-chain/api test -- ollama.integration.test.ts
-```
-
-## Browser Tests
-
-The browser suite uses the installed Google Chrome application. The deterministic test starts the frontend automatically and mocks API responses:
+Stack: TypeScript · React 19 · Vite · Tailwind · GSAP · ECharts · Fastify · Zod ·
+viem · Prisma · PostgreSQL/Redis where enabled · Web Crypto · IndexedDB.
 
 ```bash
-pnpm test:e2e
-pnpm test:e2e:headed
-```
-
-The live test starts the API and frontend, then registers a user and sends a real wallet question through Blockscout and local Ollama. Complete the local setup above first, including `.env`, Ollama, and `qwen3:4b`:
-
-```bash
-pnpm test:e2e:live
-pnpm test:e2e:live:headed
-```
-
-Override the live wallet when needed:
-
-```bash
-E2E_WALLET_ADDRESS=0x... pnpm test:e2e:live
-```
-
-Failure traces and screenshots are written to `test-results`. View the latest HTML report with `pnpm test:e2e:report`.
-
-Production requires unique JWT secrets plus `SMTP_HOST` and `EMAIL_FROM`. Registration requires email verification in production; non-production responses expose one-time verification/reset tokens for local testing only.
-
-## Safety Boundary
-
-This app is informational and non-custodial. It must not ask for seed phrases, private keys, transaction signatures, token approvals, transfers, or transaction submission. Wallet sign-in may request one explicit plain-text ownership message that cannot move funds. Scout Swap may explain a short-lived quote and link to the official Uniswap app, but ChainScout never signs, broadcasts, executes, or routes a trade. Provider keys stay server-side.
-
-## Useful Commands
-
-```bash
+pnpm lint
 pnpm typecheck
 pnpm test
 pnpm build
-pnpm db:migrate
-pnpm --filter @rh-chain/api ops:retention
+pnpm exec playwright install chrome webkit
+pnpm test:e2e
+node scripts/test-identity-guard.mjs
 ```
 
-See `docs/deployment.md` for container startup, production configuration, backups, first-admin assignment, acceptance, and rollback guidance.
+Most browser tests use deterministic provider fixtures so privacy and failure
+states are repeatable. Real-provider checks are opt-in and subject to availability.
+Database integration tests need their isolated test services. Passing these checks
+is useful evidence, **not an independent security audit or guarantee of safety**.
 
-See `docs/spec-traceability.md` for page-level PDF compliance and `docs/final-acceptance-report.md` for final local acceptance results and remaining external launch inputs.
+## Source mirror and contributions
+
+Development happens upstream. Reviewed source snapshots are exported into this
+repository with new, narrowly scoped commits. Application source, tests, lockfile,
+and build configuration are kept byte-identical; internal operations documents,
+private history, and production automation are excluded by policy.
+
+See [the public-source workflow](docs/public-source.md) for synchronization,
+identity setup, audit requirements, and verification. Do not use `git push --mirror`
+from a private development clone. Public pushes do not deploy the product.
+
+Commit metadata uses `ChainScout <source@chainscout.invalid>`; the reserved address
+is deliberately not a personal mailbox. This avoids personal author/email
+attribution in project commits, **not GitHub activity attribution or anonymity**.
+Local hooks must be installed per clone and can be bypassed; CI is a secondary
+detection layer, not a way to undo an already published identity.
+
+For suspected vulnerabilities, do not post secrets or exploit details in public
+issues. Use the repository's private vulnerability-reporting channel when enabled;
+otherwise request a private contact through [the project](https://www.chainscout.net).
+
+## Rights, dependencies and independence
+
+Public visibility alone does not grant a reuse license. Unless a root `LICENSE`
+explicitly says otherwise, project-authored source is provided for inspection
+with rights retained. Dependencies and bundled assets retain their own terms;
+see [dependency licensing](docs/dependency-licenses.md) and
+[third-party notices](apps/web/public/THIRD_PARTY_NOTICES.txt). A project license
+does not grant rights to third-party artwork, trademarks, or provider data.
+
+ChainScout is an independent project. Robinhood, Uniswap, Morpho, Pokémon, and
+other referenced providers or brands do not imply sponsorship or endorsement.
+The software is informational, not investment advice or an assurance about an asset.

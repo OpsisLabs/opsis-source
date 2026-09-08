@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "a9b1290462b5b2ddc97ab5c426e59f26c18086995d028960a438c5ef75e2d75a",
+  "sourceTreeDigest": "c4b1b2d2bfd149cd2bfe9681847b57199cf5a13422c7528bda7e340f151ca9bd",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "1ce9b51ef309bdbbf614897b61d9d0b3988e58241cd3c5662aa13827a4dbbebf",
@@ -255,6 +255,7 @@
     "apps/web/tsconfig.node.json": "f015347d7004ca7bde3598890b6dfa6ebe1e4c4f5735a7156d2a52ab45cbfe58",
     "apps/web/vite.config.ts": "03a71a1e6248b027458cc8830f833b5893df25db6b3676819a7a94e5fa570029",
     "docker-compose.yml": "34cd2feaa1920f115eebabb31b882f0cd25425d0a0f6c60c596f033d68a9cae2",
+    "docs/assets/chainscout-source.svg": "7230ef9be0b7a6dc9bac52ff1c3e3ebc37764e9b6616f75a0f7eefbb6b345464",
     "docs/dependency-licenses.md": "8cee1b9b2e571bd379b7bf86f2ab4d78aa0367677d26e131556bb06a61debd8d",
     "docs/release-train.md": "748ae1f0fae35013d732e532639a5d76aae1be16b8286d9603bd7eac0c4743b6",
     "e2e/collectibles.mock.spec.ts": "377b29096354c2826f2ab675f7f7dea7e544d8b33855feb6f96b35e69687e071",
@@ -281,7 +282,7 @@
     "playwright.webkit.config.ts": "be54a7ca3ddfb8f2ede44bfbe90d425843b03e2b94b3788665548b32261884d0",
     "pnpm-lock.yaml": "f607e2d283adbcc4a47235a34423ddfe9587ae9a0bc5f1b9737c17e8306aefb4",
     "pnpm-workspace.yaml": "08d75840c97ab0e72d1d9b5b84a17e47a2e06cb159a5fbec5ee0a6a56682dad7",
-    "README.md": "4fc91844b5e240d3f5bec7f18b0a09aaa7151f671458b203ce4a9e34dfef92ed",
+    "README.md": "e6f29b0f4e090a6a510997a5d018cd1497a1bf20bc191056b1b479e338d76bc0",
     "release-train.json": "67858cd89eba88c944910be1a11c91fe73913294276048a31152330691d4808e",
     "scripts/audit-production-dependencies.mjs": "24bcfb5b02ef4e5a007a330215de123e9a8013207f779ddd5fdf9c2a3150940f",
     "scripts/check-production-licenses.mjs": "4dbcec01012b2e8f22fcfee2bf6a1dbf9fdbbaa26c6d415d2e54b872a6020908",
