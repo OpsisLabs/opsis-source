@@ -2,7 +2,7 @@
   "version": 1,
   "prefixes": ["apps/", "packages/", "e2e/", ".githooks/", "docs/assets/"],
   "files": [
-    ".dockerignore", ".env.example", ".gitignore", ".node-version",
+    ".dockerignore", ".env.example", ".gitignore", ".gitleaks.toml", ".node-version",
     "README.md", "LICENSE", "identity-policy.json", "public-source-policy.json",
     "package.json", "pnpm-lock.yaml", "pnpm-workspace.yaml", "tsconfig.base.json",
     "docker-compose.yml", "playwright.config.ts", "playwright.webkit.config.ts",

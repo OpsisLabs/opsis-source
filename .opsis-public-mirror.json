@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "b10e231ecbee4326a8aa8e5fbc23900aba206ca501910ec793169a3afbbee36b",
+  "sourceTreeDigest": "cfc6e728761d081dcffc12fbe31b290a68a7f2a73b6e1e3c3afe2db380c92d10",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "1ce9b51ef309bdbbf614897b61d9d0b3988e58241cd3c5662aa13827a4dbbebf",
@@ -10,6 +10,7 @@
     ".github/security/pnpm-audit-baseline.json": "1818dcbfaa6de56e86c19827c56ecbe8719d0194b7cdb7f75f0667962789adb2",
     ".github/workflows/public-verify.yml": "8daf564a7b4a5b394819ad81d12ba812b1f1eeeacd916d900f1fa08f0accc635",
     ".gitignore": "fc431b1589bf1c43f704a4f2099875f292031d28ccd9312f85ce14aec740b229",
+    ".gitleaks.toml": "70a50d298defecbcace1c8cbfb7c38ccc9f3aa8866cb37bc8e9c0190c6a743a7",
     ".node-version": "7d2df647f25529bd87500319c41564e032e2be642e565350fa6136d7a1ec4d10",
     "apps/api/Dockerfile": "fd94c2fbd37333793249a6e7f8ee9a0f2a07f8563a866f2519abb29f2f538b69",
     "apps/api/package.json": "aa666b47cf1e8e3ece4e97a33bb20e5d7693a2ee372bb42d972e73415350e938",
@@ -285,7 +286,7 @@
     "playwright.webkit.config.ts": "be54a7ca3ddfb8f2ede44bfbe90d425843b03e2b94b3788665548b32261884d0",
     "pnpm-lock.yaml": "f607e2d283adbcc4a47235a34423ddfe9587ae9a0bc5f1b9737c17e8306aefb4",
     "pnpm-workspace.yaml": "08d75840c97ab0e72d1d9b5b84a17e47a2e06cb159a5fbec5ee0a6a56682dad7",
-    "public-source-policy.json": "aabc8dcb3f6d267be1d355122e5bd72628696c1c2cf19d80f519b593dbf334cf",
+    "public-source-policy.json": "c105308e1a537faade1bbb7fe42cdab556dc9d780850983e810cbaac75079c6a",
     "README.md": "c125a79bad51e456c4b68de63dc20c0248539158c56095998e7947a2eeabced2",
     "release-train.json": "67858cd89eba88c944910be1a11c91fe73913294276048a31152330691d4808e",
     "scripts/audit-production-dependencies.mjs": "24bcfb5b02ef4e5a007a330215de123e9a8013207f779ddd5fdf9c2a3150940f",
