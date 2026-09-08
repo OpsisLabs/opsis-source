@@ -17,7 +17,9 @@ try {
   writeFileSync(join(source, "public-source-policy.json"), JSON.stringify({ files: ["README.md", "identity-policy.json"], prefixes: [], scriptExtension: ".mjs" }));
   writeFileSync(join(source, "identity-policy.json"), JSON.stringify({ name: "ChainScout", email: "source@chainscout.invalid" }));
   writeFileSync(join(source, "README.md"), "Reviewed source\n");
-  git("init", "-b", "main"); git("add", "."); commit("initial source", "2020-01-02T03:04:05-05:00");
+  git("init", "-b", "main");
+  git("config", "user.name", "Fixture Person"); git("config", "user.email", "fixture@example.test");
+  git("add", "."); commit("initial source", "2020-01-02T03:04:05-05:00");
   const initial = git("rev-parse", "HEAD");
   writeFileSync(join(source, "internal.txt"), "Private fixture excluded\n");
   git("add", "."); commit("internal update", "2020-01-03T03:04:05+02:00");

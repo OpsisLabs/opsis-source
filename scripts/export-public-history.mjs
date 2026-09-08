@@ -77,6 +77,7 @@ export function exportHistory(root, target, sync = false) {
 
 export function verifyHistory(root, target) {
   const ledger = JSON.parse(readFileSync(resolve(target, ".git/chainscout-history-map.json"), "utf8"));
+  if (!ledger.length || git(target, ["rev-parse", "HEAD"]) !== ledger.at(-1).public) throw new Error("public HEAD differs from the privately recorded export; preserve unrelated changes");
   const mapping = new Map(ledger.map(item => [item.source, item.public]));
   if (Number(git(target, ["rev-list", "--count", "HEAD"])) !== ledger.length) throw new Error("public commit count differs");
   if (Number(git(root, ["rev-list", "--count", ledger.at(-1).source])) !== ledger.length) throw new Error("source commit count differs");
