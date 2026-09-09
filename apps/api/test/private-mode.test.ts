@@ -4,6 +4,7 @@ import { buildApp } from "../src/app.js";
 import { loadEnv } from "../src/config/env.js";
 import { memoryStore } from "../src/db/memory.js";
 import { ChainEntityResolver } from "../src/chain/resolver.js";
+import { AiService } from "../src/ai/service.js";
 import {
   applyPrivateProviderCoverage,
   resolvePrivateWithinDeadline
@@ -57,6 +58,27 @@ afterEach(async () => {
 });
 
 describe("no-account Private Mode", () => {
+  it("returns a useful no-model transaction explanation through the private route", async () => {
+    const transaction: NormalizedEntity = {
+      ...entity, type: "transaction", value: `0x${"a".repeat(64)}`,
+      facts: { status: "0x1", valueEth: "0", gasUsed: "0x3074c" },
+    };
+    const env = loadEnv({ NODE_ENV: "test", LOG_LEVEL: "silent", AI_PROVIDER: "fallback" });
+    const ai = new AiService(env);
+    const app = await buildApp(env, undefined, { privateAnalysis: {
+      resolve: async () => ({ entity: transaction, providerDestinations: ["robinhood-public-rpc"], sources: [] }),
+      answer: (question, resolved) => ai.answer(question, resolved),
+    } });
+    apps.push(app);
+    const before = snapshotMemory();
+    const response = await app.inject({ method: "POST", url: "/v1/private/analyze", payload: { entity: transaction.value } });
+    expect(response.statusCode).toBe(200);
+    expect(response.json().answer.answer).toContain("succeeded on Robinhood Chain");
+    expect(response.json().answer.summaryBullets.join(" ")).toContain("198,476 gas units");
+    expect(response.json().privacy.modelProvider).toBe("none");
+    expect(snapshotMemory()).toEqual(before);
+  });
+
   it("fails the complete resolution after its overall provider deadline", async () => {
     const neverResolves = vi.fn(() => new Promise<never>(() => undefined));
 

@@ -248,6 +248,9 @@ function deterministicView(
   intent: DeterministicIntent,
   entity: NormalizedEntity
 ): { answer: string; summaryBullets: string[] } {
+  if (entity.type === "transaction" && intent !== "risk" && intent !== "evidence") {
+    return transactionView(entity);
+  }
   if (intent === "beginner") return beginnerView(entity);
   if (intent === "risk") {
     const count = entity.riskNotes.length;
@@ -281,6 +284,58 @@ function deterministicView(
     answer: `This read-only overview explains the available Robinhood Chain facts for this ${entity.type}. It includes ${riskCount} evidence-based risk signal${riskCount === 1 ? "" : "s"} and is informational only, not financial advice.`,
     summaryBullets: buildSummaryBullets(entity)
   };
+}
+
+function transactionOutcome(status: unknown): "succeeded" | "failed" | "pending" | "unknown" {
+  const value = String(status ?? "").trim().toLowerCase();
+  if (["ok", "success", "succeeded", "1", "0x1", "true"].includes(value)) return "succeeded";
+  if (["error", "failed", "fail", "reverted", "0", "0x0", "false"].includes(value)) return "failed";
+  if (value === "pending") return "pending";
+  return "unknown";
+}
+
+function transactionView(entity: NormalizedEntity): { answer: string; summaryBullets: string[] } {
+  const facts = entity.facts;
+  const outcome = transactionOutcome(facts.status);
+  const headline = outcome === "unknown"
+    ? "The available receipt does not establish whether this Robinhood Chain transaction succeeded."
+    : outcome === "pending"
+      ? "This Robinhood Chain transaction is pending; its execution outcome is not confirmed."
+      : `This transaction ${outcome} on Robinhood Chain.`;
+  const method = typeof facts.method === "string" && /^[a-zA-Z_][a-zA-Z0-9_]*(?:\([^\n]*\))?$/.test(facts.method)
+    && !facts.method.startsWith("eth_") ? facts.method.slice(0, 100) : undefined;
+  const context = outcome === "failed"
+    ? "Its execution was reverted, so the intended changes were not applied; a network fee can still be charged."
+    : facts.internalTransactionFailure === true
+      ? "At least one internal call reported an error; overall success does not prove every intended action completed."
+      : method
+        ? `The decoded call is ${method}; the method name alone does not prove its intended effect or safety.`
+        : "The action was not decoded, so this result cannot tell you whether it was a swap, approval, or another action.";
+  const bullets: string[] = [];
+  // Native transaction value is not a token-transfer total or the network fee.
+  const value = conciseFact(facts.valueEth);
+  if (value && /^\d+(?:\.\d+)?$/.test(value)) {
+    bullets.push(/^0(?:\.0+)?$/.test(value)
+      ? "No native ETH was attached. Tokens may still be involved; this does not mean the transaction was free."
+      : `${compactBeginnerDecimal(value)} ETH attached to the transaction—not the fee${outcome === "failed" ? "; the reverted transfer did not complete" : "; receipt and transfer evidence determine what completed"}.`);
+  } else {
+    bullets.push("Native ETH amount is unavailable; raw values are not shown as coin amounts.");
+  }
+  const shortAddress = (value: unknown): string | undefined => typeof value === "string" && /^0x[a-fA-F0-9]{40}$/.test(value)
+    ? `${value.slice(0, 6)}…${value.slice(-4)}` : undefined;
+  const from = shortAddress(facts.from);
+  const to = shortAddress(facts.to);
+  if (from && to) bullets.push(`From ${from} to ${to}; these addresses do not identify their owners.`);
+  if (method) bullets.push(`Decoded method: ${method}. Review its inputs and resulting transfers in the sources.`);
+  const rawGas = conciseFact(facts.gasUsed);
+  if (rawGas && /^(?:\d+|0x[\da-f]+)$/i.test(rawGas)) {
+    const gas = BigInt(rawGas).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    bullets.push(`${gas} gas units used—computational work, not an ETH or dollar fee.`);
+  }
+  bullets.push(Array.isArray(facts.tokenTransfers) && facts.tokenTransfers.length > 0
+    ? `${facts.tokenTransfers.length} token-transfer record${facts.tokenTransfers.length === 1 ? "" : "s"} returned; inspect amounts and recipients in the sources. Coverage may be incomplete.`
+    : "Token movements are not established by this view; 0 ETH alone does not mean nothing moved.");
+  return { answer: `${headline} ${context}`, summaryBullets: bullets.slice(0, 5) };
 }
 
 function beginnerView(entity: NormalizedEntity): { answer: string; summaryBullets: string[] } {
@@ -567,6 +622,9 @@ function buildConfirmedFacts(entity: NormalizedEntity): AiExplorerAnswer["confir
     .filter(([key]) => !INTERNAL_FACT_KEYS.has(key) && !RAW_BEGINNER_FACT_KEYS.has(key))
     .filter(([key]) => key !== "value" || entity.facts.valueEth === undefined)
     .flatMap(([key, value]) => {
+      if (entity.type === "transaction" && key === "status") {
+        return [{ fact: `Transaction outcome: ${transactionOutcome(value)}`, sourceIds }];
+      }
       const rendered = renderConfirmedFact(value);
       return rendered ? [{ fact: `${humanizeFactKey(key)}: ${rendered}`, sourceIds }] : [];
     })

@@ -22,6 +22,54 @@ const entity: NormalizedEntity = {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("AI answer boundary", () => {
+  it.each(["Explain this transaction", "What should a beginner know?", "What happened?", "Explain"])("explains receipt facts in plain English for %s", async (question) => {
+    const service = new AiService(loadEnv({ NODE_ENV: "test", AI_PROVIDER: "fallback" }));
+    const facts = { status: "0x1", valueEth: "0", gasUsed: "0x3074c", from: `0x${"1".repeat(40)}`, to: `0x${"2".repeat(40)}` };
+    const answer = await service.answer(question, { ...entity, facts });
+    expect(answer.answer).toContain("succeeded on Robinhood Chain");
+    expect(answer.answer).toContain("action was not decoded");
+    expect(answer.summaryBullets.join(" ")).toContain("No native ETH was attached");
+    expect(answer.summaryBullets.join(" ")).toContain("does not mean the transaction was free");
+    expect(answer.summaryBullets.join(" ")).toContain("198,476 gas units");
+    expect(answer.summaryBullets.join(" ")).toContain("From 0x1111…1111 to 0x2222…2222");
+    expect(answer.summaryBullets.join(" ")).not.toContain("0x1.");
+    expect(answer.facts).toEqual(facts);
+    expect(answer.confirmedFacts).toContainEqual({ fact: "Transaction outcome: succeeded", sourceIds: ["source-1"] });
+    expect(answer.citations).toEqual(entity.citations);
+  });
+
+  it.each(["0x0", "error", "reverted", 0, false])("does not call reverted value a completed transfer (%s)", async (status) => {
+    const answer = await new AiService(loadEnv({ NODE_ENV: "test", AI_PROVIDER: "fallback" })).answer("Explain", {
+      ...entity, facts: { status, valueEth: "1.25", gasUsed: "21000" },
+    });
+    expect(answer.answer).toContain("failed on Robinhood Chain");
+    expect(answer.answer).toContain("network fee can still be charged");
+    expect(answer.summaryBullets.join(" ")).toContain("reverted transfer did not complete");
+    expect(answer.summaryBullets.join(" ")).not.toContain("Transferred value");
+  });
+
+  it.each([undefined, "not-success", "0x12"])("does not infer success or a native amount from missing/unknown facts (%s)", async (status) => {
+    const answer = await new AiService(loadEnv({ NODE_ENV: "test", AI_PROVIDER: "fallback" })).answer("Explain", {
+      ...entity, facts: { status, value: "1000000000000000000", gasUsed: "-1", method: "0xa9059cbb" },
+    });
+    expect(answer.answer).toContain("does not establish whether");
+    expect(answer.answer).toContain("action was not decoded");
+    expect(answer.summaryBullets.join(" ")).toContain("Native ETH amount is unavailable");
+    expect(answer.summaryBullets.join(" ")).not.toMatch(/1000000000000000000|gas units/);
+  });
+
+  it("keeps pending and internal-call errors distinct from full execution success", async () => {
+    const service = new AiService(loadEnv({ NODE_ENV: "test", AI_PROVIDER: "fallback" }));
+    const pending = await service.answer("Explain", { ...entity, facts: { status: "pending" } });
+    expect(pending.answer).toContain("outcome is not confirmed");
+    const partial = await service.answer("Explain", { ...entity, facts: { status: "ok", internalTransactionFailure: true } });
+    expect(partial.answer).toContain("does not prove every intended action completed");
+    const decoded = await service.answer("Explain", { ...entity, facts: { status: "ok", method: "approve(address,uint256)", tokenTransfers: [{}] } });
+    expect(decoded.answer).toContain("decoded call is approve");
+    expect(decoded.answer).toContain("does not prove its intended effect or safety");
+    expect(decoded.summaryBullets.join(" ")).toContain("1 token-transfer record returned");
+  });
+
   it("explains delegated wallets without claiming their delegated code is safe", async () => {
     const service = new AiService(loadEnv({ NODE_ENV: "test", AI_PROVIDER: "fallback" }));
     const answer = await service.answer("What stands out to a beginner?", {
@@ -232,8 +280,8 @@ describe("AI answer boundary", () => {
 
     const answer = await new AiService(loadEnv({ NODE_ENV: "test", OPENAI_API_KEY: "test-key" })).answer("Should I buy?", entity);
 
-    expect(answer.answer).toContain("read-only");
-    expect(answer.answer).toContain("informational only");
+    expect(answer.answer).toContain("succeeded on Robinhood Chain");
+    expect(answer.answer).toContain("action was not decoded");
     expect(answer.answer).not.toContain("buy this token");
     expect(answer.uncertainty.length).toBeGreaterThan(0);
   });
