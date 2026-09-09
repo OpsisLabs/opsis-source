@@ -6,8 +6,9 @@
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement",
     "transactionExecutionOwner": "Official Uniswap app",
-    "branchCreation": "Create only the active release branch. Create the next branch from main only after the current RC tag is merged.",
-    "staging": "One Railway staging service follows only the active release branch.",
+    "parallelPreparation": true,
+    "branchCreation": "Registered queued releases may be prepared on private branches. Only the active release may ship; integrate current main and reverify before activation.",
+    "staging": "Gate-passed private previews must be isolated and access-restricted. Production-connected staging services must not be repurposed for unfinished work.",
     "production": "Only main deploys to production."
   },
   "releases": [

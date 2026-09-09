@@ -87,7 +87,10 @@ function releaseRefs() {
 function validateSequence(manifest, { allowMain = true } = {}) {
   const active = validateManifest(manifest);
   const currentBranch = branchName();
-  const allowedBranches = allowMain ? [manifest.baseBranch, active.branch] : [active.branch];
+  const prepared = manifest.rules.parallelPreparation === true
+    ? manifest.releases.filter((release) => release.status === "queued").map((release) => release.branch)
+    : [];
+  const allowedBranches = allowMain ? [manifest.baseBranch, active.branch, ...prepared] : [active.branch];
 
   if (!allowedBranches.includes(currentBranch)) {
     fail(`current branch is ${currentBranch || "detached"}; expected ${active.branch}`);
@@ -99,7 +102,7 @@ function validateSequence(manifest, { allowMain = true } = {}) {
   const premature = releaseRefs().find((ref) =>
     futureBranches.some((branch) => ref === branch || ref === `origin/${branch}`),
   );
-  if (premature) fail(`future branch exists before its turn: ${premature}`);
+  if (premature && manifest.rules.parallelPreparation !== true) fail(`future branch exists before its turn: ${premature}`);
 
   if (currentBranch === active.branch) {
     try {
@@ -115,7 +118,8 @@ function validateSequence(manifest, { allowMain = true } = {}) {
 function printStatus(manifest) {
   const active = validateManifest(manifest);
   console.log(`Active release: ${active.id}`);
-  console.log(`Expected branch: ${active.branch}`);
+  console.log(`Shipping branch: ${active.branch}`);
+  console.log(`Parallel private preparation: ${manifest.rules.parallelPreparation === true ? "allowed for registered queued releases" : "disabled"}`);
   console.log(`Current branch:  ${branchName() || "detached"}`);
   console.log(`Monthly new-vendor budget: $${manifest.rules.incrementalVendorBudgetUsdPerMonth}`);
   console.log("");
@@ -136,7 +140,8 @@ const gateCommands = [
 
 function runGate(manifest) {
   const { active } = validateSequence(manifest);
-  console.log(`\nRunning complete gate for ${active.id}\n`);
+  const target = manifest.releases.find((release) => release.branch === branchName()) ?? active;
+  console.log(`\nRunning complete gate for ${target.id}${target.status === "queued" ? " (preview only; not eligible to ship)" : ""}\n`);
 
   for (const [command, args] of gateCommands) {
     console.log(`\n--- ${command} ${args.join(" ")} ---\n`);
@@ -144,7 +149,20 @@ function runGate(manifest) {
     if (result.status !== 0) fail(`${command} ${args.join(" ")} failed`);
   }
 
-  console.log(`\nPASS: ${active.id} cleared the local release gate.\n`);
+  console.log(`\nPASS: ${target.id} cleared the local release gate.${target.status === "queued" ? " Preview only; release order still applies." : ""}\n`);
+}
+
+function prepare(manifest, releaseId) {
+  const active = validateManifest(manifest);
+  if (manifest.rules.parallelPreparation !== true) fail("parallel preparation is disabled");
+  if (![manifest.baseBranch, active.branch].includes(branchName())) fail("prepare must start from main or the active branch");
+  if (git(["status", "--porcelain"])) fail("prepare requires a clean working tree");
+  const target = manifest.releases.find((release) => release.id === releaseId);
+  if (!target || target.status !== "queued") fail("prepare requires a registered queued release");
+  if (releaseRefs().some((ref) => ref === target.branch || ref === `origin/${target.branch}`)) fail(`${target.branch} already exists`);
+  git(["merge-base", "--is-ancestor", baseBranchRef(manifest.baseBranch), "HEAD"]);
+  git(["branch", target.branch], { inherit: true });
+  console.log(`Created private preparation branch ${target.branch}; shipping order unchanged. Nothing pushed or deployed.`);
 }
 
 function candidate(manifest) {
@@ -175,20 +193,29 @@ function advance(manifest, nextId) {
   const next = manifest.releases[currentIndex + 1];
   if (!next) fail("the final planned release is already active");
   if (next.id !== nextId) fail(`the only valid next release is ${next.id}`);
-  if (releaseRefs().some((ref) => ref === next.branch || ref === `origin/${next.branch}`)) {
-    fail(`${next.branch} already exists`);
-  }
+  const existing = releaseRefs().includes(next.branch);
+  if (releaseRefs().includes(`origin/${next.branch}`) && !existing) fail("fetch and check out the existing private preparation branch before activation");
+  if (existing && manifest.rules.parallelPreparation !== true) fail(`${next.branch} already exists`);
 
   const mergedTags = git(["tag", "--merged", manifest.baseBranch, "--list", `${active.tagPrefix}*`]);
   if (!mergedTags) fail(`${active.id} needs an immutable RC tag merged into ${manifest.baseBranch}`);
 
-  git(["switch", "-c", next.branch], { inherit: true });
+  if (existing) {
+    try {
+      git(["merge-base", "--is-ancestor", manifest.baseBranch, next.branch]);
+    } catch {
+      fail(`merge current main into ${next.branch} first, then return to main and advance; do not rewrite published history`);
+    }
+    git(["switch", next.branch], { inherit: true });
+  } else {
+    git(["switch", "-c", next.branch], { inherit: true });
+  }
   active.status = "released";
   next.status = "active";
   manifest.activeRelease = next.id;
   writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
 
-  console.log(`\nCreated ${next.branch} from ${manifest.baseBranch}.`);
+  console.log(`\nActivated ${next.branch} including ${manifest.baseBranch}. Rerun the complete candidate gate before shipping.`);
   console.log("release-train.json is updated but not committed. Review it, then commit normally.");
 }
 
@@ -213,6 +240,10 @@ switch (command) {
   case "advance":
     if (!argument) fail("usage: pnpm release:advance <next-release-id>");
     advance(manifest, argument);
+    break;
+  case "prepare":
+    if (!argument) fail("usage: pnpm release:prepare <release-id>");
+    prepare(manifest, argument);
     break;
   default:
     fail(`unknown command: ${command}`);
