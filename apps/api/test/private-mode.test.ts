@@ -276,6 +276,39 @@ describe("no-account Private Mode", () => {
     expect(oversized.statusCode).toBe(400);
   });
 
+  it("rejects primitive, array and incorrectly typed bodies before provider access", async () => {
+    const resolve = vi.fn();
+    const answerQuestion = vi.fn();
+    const app = await buildApp(loadEnv({ NODE_ENV: "test", LOG_LEVEL: "silent" }), undefined, {
+      privateAnalysis: { resolve, answer: answerQuestion }
+    });
+    apps.push(app);
+    for (const payload of [null, 10, true, identifier, [], { entity: 10 }]) {
+      const response = await app.inject({
+        method: "POST", url: "/v1/private/analyze",
+        headers: { "content-type": "application/json" }, payload: JSON.stringify(payload)
+      });
+      expect(response.statusCode).toBe(400);
+    }
+    expect(resolve).not.toHaveBeenCalled();
+    expect(answerQuestion).not.toHaveBeenCalled();
+  });
+
+  it("does not trust caller-supplied forwarded identity headers", async () => {
+    const app = await buildApp(loadEnv({ NODE_ENV: "test", LOG_LEVEL: "silent" }));
+    apps.push(app);
+    app.get("/test-forwarded-boundary", async (request) => ({
+      ip: request.ip, hostname: request.hostname, protocol: request.protocol
+    }));
+    const response = await app.inject({
+      method: "GET", url: "/test-forwarded-boundary",
+      headers: { host: "localhost", "x-forwarded-for": "203.0.113.9",
+        "x-forwarded-host": "attacker.invalid", "x-forwarded-proto": "https" }
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ ip: "127.0.0.1", hostname: "localhost", protocol: "http" });
+  });
+
   it("fails closed behind the release kill switch", async () => {
     const resolve = vi.fn();
     const app = await buildApp(loadEnv({
