@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "10-launch-hardening",
+  "activeRelease": "11-approval-manager",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement",
@@ -97,7 +97,7 @@
       "id": "10-launch-hardening",
       "branch": "release/10-launch-hardening",
       "tagPrefix": "rc/10-launch-hardening/",
-      "status": "active",
+      "status": "released",
       "outcome": "Certify the enabled private asset command center for launch",
       "shipGate": "End-to-end launch journeys pass on desktop and mobile; dependency, privacy, accessibility, provider-failure, load, legal-copy, backup, deletion, monitoring, and rollback gates are complete."
     },
@@ -106,7 +106,7 @@
       "id": "11-approval-manager",
       "branch": "release/11-approval-manager",
       "tagPrefix": "rc/11-approval-manager/",
-      "status": "queued",
+      "status": "active",
       "outcome": "Understand discovered spending permissions and prepare a safe external revocation",
       "shipGate": "Current ERC20, ERC721 and operator permissions are anchored, source-linked and explicitly bounded by discovery coverage; revoked, unknown and unavailable are distinct; no safety verdict or exhaustive scan is implied. External revocation requires a verified chain-supported destination, explicit disclosure of network costs and user-controlled execution; ChainScout never signs or broadcasts."
     },
