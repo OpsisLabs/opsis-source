@@ -306,6 +306,16 @@ export function PrivacyPage() {
           authenticity, condition, ownership, or value.
         </p>
         <p>
+          When separately enabled, Deal Finder can retrieve free reference prices
+          from TCGdex (Pokémon) and YGOPRODeck (Yu-Gi-Oh!). Only the public card ID
+          and chosen provider are submitted after an explicit click. Public
+          responses may be cached by ChainScout; wallet addresses, ownership,
+          grades, notes and purchase prices are not included. References are not
+          available inventory, graded-card valuations or verified sold listings.
+          Provider mapping limitations, currencies and known or unknown update
+          times are shown. The browser view is ephemeral and clears on Vault lock.
+        </p>
+        <p>
           When separately enabled, Market & Inventory names DEX Screener or the opted-in merchant before
           a live lookup. DEX Screener's indexed price describes the pair's base
           token and is not an executable quote, route, market-wide inventory

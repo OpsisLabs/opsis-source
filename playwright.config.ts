@@ -27,13 +27,13 @@ export default defineConfig({
     ...(live ? [{
       command: "pnpm --filter @rh-chain/api dev",
       url: "http://127.0.0.1:4000/readyz",
-      reuseExistingServer: true,
+      reuseExistingServer: process.env.CHAINSCOUT_FEATURE_PREVIEW !== "1",
       timeout: 120_000
     }] : []),
     {
       command: `VITE_CLOUD_WORKSPACE_ENABLED=true pnpm --filter @rh-chain/web exec vite --host 127.0.0.1 --port ${appPort}`,
       url: appOrigin,
-      reuseExistingServer: true,
+      reuseExistingServer: process.env.CHAINSCOUT_FEATURE_PREVIEW !== "1",
       timeout: 120_000
     }
   ]

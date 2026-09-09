@@ -72,6 +72,7 @@ const envSchema = z.object({
   TCGDEX_API_BASE_URL: z.string().url().default("https://api.tcgdex.net/v2"),
   COLLECTIBLE_DAILY_REQUEST_BUDGET: z.coerce.number().int().min(50).max(10_000).default(500),
   MARKET_INVENTORY_ENABLED: envBoolean.default(false),
+  COLLECTIBLE_DEAL_FINDER_ENABLED: envBoolean.default(false),
   MARKET_DAILY_REQUEST_BUDGET: z.coerce.number().int().min(50).max(25_000).default(1_000),
   OPEN_DATA_API_ENABLED: envBoolean.default(false),
   OPEN_DATA_DAILY_REQUEST_BUDGET: z.coerce.number().int().min(100).max(100_000).default(10_000),

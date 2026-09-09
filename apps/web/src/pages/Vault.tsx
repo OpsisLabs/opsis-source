@@ -73,6 +73,7 @@ import {
   type VaultStorageStatus,
 } from "../vault/types";
 import { PortfolioPanel } from "../portfolio/PortfolioPanel";
+import { isDealFinderEnabled } from "../product/availability";
 import { CollectibleCatalogPanel } from "../collectibles/CollectibleCatalogPanel";
 import { MarketInventoryPanel } from "../market/MarketInventoryPanel";
 import { ReplayActionsPanel } from "../replay/ReplayActionsPanel";
@@ -1033,7 +1034,8 @@ export default function VaultPage() {
                 />
               </div>
             )}
-            {workspace === "market" &&
+            {isDealFinderEnabled() && <button type="button" className="mt-4 min-h-[44px] border border-[#fa6c34] px-4 text-[#fa6c34]" onClick={() => selectWorkspace("deals")}>COLLECTIBLE DEAL FINDER</button>}
+            {workspace === "deals" && isDealFinderEnabled() ? <MarketInventoryPanel key={`${meta.vaultId}:${sessionGeneration}:deals`} dealsOnly assets={assets.filter(asset => asset.assetType === "collectible")} context={markets[0]} sessionId={sessionGeneration} onSaveContext={saveMarketContext} /> : workspace === "market" &&
             MARKET_INVENTORY_ENABLED ? null : workspace === "portfolio" ? (
               <PortfolioPanel
                 key={`${meta.vaultId}:${sessionGeneration}:portfolio`}

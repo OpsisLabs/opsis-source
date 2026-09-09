@@ -36,8 +36,11 @@ import {
   fetchMerchantInventory,
 } from "./api";
 import { buildMarketHandoffs, calculateLandedCosts } from "./math";
+import { DealBrief } from "../deals/DealBrief";
+import { Benchmarks } from "../deals/Benchmarks";
 
 type Props = {
+  dealsOnly?: boolean;
   assets: VaultAsset[];
   context?: VaultMarketContext;
   sessionId: number;
@@ -121,6 +124,7 @@ const EMPTY_COMPARISON: ComparisonDraft = {
 };
 
 export function MarketInventoryPanel({
+  dealsOnly = false,
   assets,
   context,
   sessionId,
@@ -277,7 +281,7 @@ export function MarketInventoryPanel({
     abortRef.current?.abort();
     abortRef.current = controller;
     try {
-      const response = await fetchApprovedMerchants(controller.signal);
+      const response = await fetchApprovedMerchants(controller.signal, dealsOnly);
       setDirectory(response);
       if (response.merchants.length === 0) {
         setNotice(
@@ -381,6 +385,7 @@ export function MarketInventoryPanel({
             reviewedAt: request.reviewedAt,
           },
           controller.signal,
+          dealsOnly,
         );
         providerCompleted = true;
         const observationIdentity = merchantObservationKey(
@@ -663,16 +668,15 @@ export function MarketInventoryPanel({
     <section className="mt-8 space-y-5" data-testid="market-inventory">
       <div className="clip-panel border border-[#383838] bg-[#242424] p-5 sm:p-7">
         <p className="flex items-center gap-2 font-mono-d text-[9.5px] tracking-[0.15em] text-[#fa6c34]">
-          <BarChart3 size={14} /> MARKET & INVENTORY
+          <BarChart3 size={14} /> {dealsOnly ? "COLLECTIBLE DEAL FINDER" : "MARKET & INVENTORY"}
         </p>
         <h2 className="mt-3 text-[26px] font-medium tracking-[-0.025em] text-[#f0e8da]">
           Compare what is actually comparable.
         </h2>
         <p className="mt-3 max-w-[820px] text-[12.5px] leading-relaxed text-[#9a938a]">
-          Exact-contract crypto context, opted-in merchant stock, private
-          landed-cost math, and click-only marketplace searches. No scraping,
-          checkout, currency conversion, hidden tax estimate, or paid provider
-          path.
+          {dealsOnly
+            ? "Exact-card searches and private landed-cost comparisons. Live merchant inventory requires an approved, opted-in source. No checkout, hidden tax estimates, or automatic marketplace scraping."
+            : "Exact-contract crypto context, opted-in merchant stock, private landed-cost math, and click-only marketplace searches. No scraping, checkout, currency conversion, hidden tax estimate, or paid provider path."}
         </p>
         {error && (
           <div
@@ -692,8 +696,10 @@ export function MarketInventoryPanel({
         )}
       </div>
 
+      {dealsOnly && <DealBrief />}
+      {dealsOnly && <Benchmarks />}
       <div className="grid gap-5 lg:grid-cols-2">
-        <form
+        {!dealsOnly && <form
           onSubmit={askCryptoPermission}
           className="clip-panel border border-[#383838] bg-[#242424] p-5 sm:p-6"
         >
@@ -722,7 +728,7 @@ export function MarketInventoryPanel({
           >
             <ShieldCheck size={13} /> REVIEW EXACT-CONTRACT LOOKUP
           </button>
-        </form>
+        </form>}
         <form
           onSubmit={askMerchantPermission}
           className="clip-panel border border-[#383838] bg-[#242424] p-5 sm:p-6"
@@ -836,10 +842,10 @@ export function MarketInventoryPanel({
         </form>
       </div>
 
-      <CryptoObservations
+      {!dealsOnly && <CryptoObservations
         observations={context?.cryptoObservations ?? []}
         freshIds={freshCryptoIds}
-      />
+      />}
       <MerchantObservations
         observations={context?.merchantObservations ?? []}
         freshIds={freshMerchantIds}

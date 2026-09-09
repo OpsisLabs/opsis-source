@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import type { Env } from "../config/env.js";
 import { AppError } from "../http/errors.js";
+import { BenchmarkService } from "../market/benchmarks.js";
 import {
   MarketInventoryService,
   type MarketInventorySource,
@@ -36,16 +37,23 @@ export async function marketRoutes(
   app: FastifyInstance,
   env: Env,
   source: MarketInventorySource = new MarketInventoryService(env),
+  benchmarks: Pick<BenchmarkService, "lookup"> = new BenchmarkService(env),
 ): Promise<void> {
   const config = {
     rateLimit: { max: env.RATE_LIMIT_MARKET_PER_HOUR, timeWindow: "1 hour" },
   };
-  app.post(
-    "/v1/private/market/merchants",
+  app.post("/v1/private/deals/benchmark", { config }, async (request, reply) => {
+    noStore(reply);
+    assertEnabled(env, true);
+    const input = z.object({ provider: z.enum(["tcgdex", "ygoprodeck"]), cardId: z.string().min(1).max(80) }).strict().parse(request.body);
+    return benchmarks.lookup(input);
+  });
+  for (const path of ["/v1/private/market/merchants", "/v1/private/deals/merchants"]) app.post(
+    path,
     { config },
     async (request, reply) => {
       noStore(reply);
-      assertEnabled(env);
+      assertEnabled(env, path.includes("/deals/"));
       z.object({}).strict().parse(request.body);
       return source.directory();
     },
@@ -56,12 +64,12 @@ export async function marketRoutes(
     const input = cryptoBody.parse(request.body);
     return source.crypto(input.contract);
   });
-  app.post(
-    "/v1/private/market/merchant",
+  for (const path of ["/v1/private/market/merchant", "/v1/private/deals/offer"]) app.post(
+    path,
     { config },
     async (request, reply) => {
       noStore(reply);
-      assertEnabled(env);
+      assertEnabled(env, path.includes("/deals/"));
       const input = merchantBody.parse(request.body);
       return source.merchant(input.merchantId, input.canonicalAssetId, {
         sku: input.expectedSku,
@@ -72,7 +80,11 @@ export async function marketRoutes(
   );
 }
 
-function assertEnabled(env: Env): void {
+function assertEnabled(env: Env, deals = false): void {
+  if (deals) {
+    if (!env.COLLECTIBLE_DEAL_FINDER_ENABLED) throw new AppError("COLLECTIBLE_DEAL_FINDER_DISABLED", 503, "Collectible Deal Finder is not enabled in this build");
+    return;
+  }
   if (!env.MARKET_INVENTORY_ENABLED) {
     throw new AppError(
       "MARKET_INVENTORY_DISABLED",
