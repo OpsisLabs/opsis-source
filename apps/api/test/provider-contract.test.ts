@@ -42,6 +42,29 @@ class FixtureHttp implements ProviderHttp {
 }
 
 describe("provider fixture contracts", () => {
+  it("returns the transaction summary without starting stalled optional enrichment", async () => {
+    const requests: string[] = [];
+    const http: ProviderHttp = {
+      async requestJson(url) {
+        requests.push(url);
+        if (new URL(url).pathname.endsWith(`/transactions/${transactionFixture.hash}`)) return transactionFixture;
+        return new Promise(() => {});
+      }
+    };
+    const provider = new BlockscoutProvider(loadEnv({ NODE_ENV: "test" }), http);
+    const sources = await provider.getTransaction(transactionFixture.hash, { detail: "summary" });
+    expect(sources.map(source => source.responseJson)).toEqual([transactionFixture]);
+    expect(requests).toHaveLength(1);
+  });
+
+  it("does not turn failed transaction summary retrieval into empty evidence", async () => {
+    const provider = new BlockscoutProvider(loadEnv({ NODE_ENV: "test" }), {
+      async requestJson() { throw new Error("provider timed out"); }
+    });
+    await expect(provider.getTransaction(transactionFixture.hash, { detail: "summary" }))
+      .rejects.toThrow("provider timed out");
+  });
+
   it("maps Blockscout address endpoints into source documents", async () => {
     const http = new FixtureHttp();
     const provider = new BlockscoutProvider(loadEnv({ NODE_ENV: "test" }), http);

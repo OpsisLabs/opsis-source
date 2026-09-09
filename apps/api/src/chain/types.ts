@@ -15,7 +15,7 @@ export type ChainProvider = {
   name: string;
   /** Whether calling this provider can make an external network request. */
   isConfigured?(): boolean;
-  getTransaction(hash: string): Promise<SourceDocumentInput[]>;
+  getTransaction(hash: string, options?: ProviderQueryOptions): Promise<SourceDocumentInput[]>;
   getAddressSummary(address: string, options?: ProviderQueryOptions): Promise<SourceDocumentInput[]>;
   getToken(address: string, options?: ProviderQueryOptions): Promise<SourceDocumentInput[]>;
   getContract(address: string, options?: ProviderQueryOptions): Promise<SourceDocumentInput[]>;

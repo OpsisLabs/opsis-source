@@ -8,8 +8,13 @@ export class BlockscoutProvider implements ChainProvider {
 
   constructor(private readonly env: Env, private readonly http: ProviderHttp = createProviderHttp(env, "blockscout")) {}
 
-  async getTransaction(hash: string): Promise<SourceDocumentInput[]> {
+  async getTransaction(hash: string, options: ProviderQueryOptions = {}): Promise<SourceDocumentInput[]> {
     const transaction = await this.fetchDoc("transaction", hash, `/transactions/${hash}`);
+    // The private first answer must fit inside one provider timeout. Core
+    // transaction data already includes decoded input when available; the RPC
+    // provider independently supplies its receipt. Do not queue paginated
+    // traces, state changes or ABI enrichment behind that useful evidence.
+    if (options.detail === "summary") return [transaction];
     const transactionJson = transaction.responseJson as Record<string, unknown>;
     const to = addressValue(transactionJson.to);
     const needsAbi = !transactionJson.decoded_input && typeof (transactionJson.raw_input ?? transactionJson.input) === "string";

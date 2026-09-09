@@ -68,7 +68,9 @@ export class ChainEntityResolver {
     const providerDestinations = new Set<string>();
     if (identified.type === "transaction") {
       const providerResults = await Promise.allSettled(compactProviderRequests([
-        providerRequest(this.blockscout, providerDestinations, () => this.blockscout.getTransaction(identified.value)),
+        providerRequest(this.blockscout, providerDestinations, () => this.blockscout.getTransaction(identified.value, {
+          detail: options.privateMode ? "summary" : "full"
+        })),
         providerRequest(this.alchemy, providerDestinations, () => this.alchemy.getTransaction(identified.value))
       ]));
       docs = providerResults.flatMap((result) => result.status === "fulfilled" ? result.value : []);

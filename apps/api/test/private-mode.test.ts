@@ -4,6 +4,8 @@ import { buildApp } from "../src/app.js";
 import { loadEnv } from "../src/config/env.js";
 import { memoryStore } from "../src/db/memory.js";
 import { ChainEntityResolver } from "../src/chain/resolver.js";
+import { BlockscoutProvider } from "../src/chain/blockscout.js";
+import transactionFixture from "./fixtures/blockscout-transaction.json";
 import { AiService } from "../src/ai/service.js";
 import {
   applyPrivateProviderCoverage,
@@ -58,6 +60,34 @@ afterEach(async () => {
 });
 
 describe("no-account Private Mode", () => {
+  it("finishes a real private transaction resolver without waiting for optional indexer requests", async () => {
+    const requests: string[] = [];
+    const blockscout = new BlockscoutProvider(loadEnv({ NODE_ENV: "test" }), {
+      async requestJson(url) {
+        requests.push(url);
+        if (url.endsWith(`/transactions/${transactionFixture.hash}`)) return transactionFixture;
+        return new Promise(() => {});
+      }
+    });
+    const resolver = new ChainEntityResolver(loadEnv({ NODE_ENV: "test" }), undefined, undefined, {
+      blockscout,
+      alchemy: {
+        name: "robinhood-public-rpc",
+        getTransaction: async () => [],
+        getAddressSummary: async () => [],
+        getAllowances: async () => []
+      },
+      goldrush: provider({})
+    });
+    const result = await resolvePrivateWithinDeadline(() => resolver.resolveWithSources(
+      "transaction", transactionFixture.hash, { privateMode: true }
+    ), 100);
+    expect(requests).toHaveLength(1);
+    expect(result.entity.type).toBe("transaction");
+    expect(result.sources).toHaveLength(1);
+    expect(result.entity.facts.status).toBe("ok");
+  });
+
   it("returns a useful no-model transaction explanation through the private route", async () => {
     const transaction: NormalizedEntity = {
       ...entity, type: "transaction", value: `0x${"a".repeat(64)}`,
