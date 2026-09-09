@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { Env } from "../config/env.js";
 import { AppError } from "../http/errors.js";
 import { BenchmarkService } from "../market/benchmarks.js";
+import { authorizeDealPreview } from "../market/preview-access.js";
 import {
   MarketInventoryService,
   type MarketInventorySource,
@@ -42,9 +43,15 @@ export async function marketRoutes(
   const config = {
     rateLimit: { max: env.RATE_LIMIT_MARKET_PER_HOUR, timeWindow: "1 hour" },
   };
+  app.post("/v1/private/deals/access", { config }, async (request, reply) => {
+    noStore(reply);
+    authorizeDealPreview(env, request.headers.authorization);
+    z.object({}).strict().parse(request.body);
+    return { expiresAt: env.DEAL_FINDER_PREVIEW_EXPIRES_AT };
+  });
   app.post("/v1/private/deals/benchmark", { config }, async (request, reply) => {
     noStore(reply);
-    assertEnabled(env, true);
+    assertEnabled(env, true, request.headers.authorization);
     const input = z.object({ provider: z.enum(["tcgdex", "ygoprodeck"]), cardId: z.string().min(1).max(80) }).strict().parse(request.body);
     return benchmarks.lookup(input);
   });
@@ -53,7 +60,7 @@ export async function marketRoutes(
     { config },
     async (request, reply) => {
       noStore(reply);
-      assertEnabled(env, path.includes("/deals/"));
+      assertEnabled(env, path.includes("/deals/"), request.headers.authorization);
       z.object({}).strict().parse(request.body);
       return source.directory();
     },
@@ -69,7 +76,7 @@ export async function marketRoutes(
     { config },
     async (request, reply) => {
       noStore(reply);
-      assertEnabled(env, path.includes("/deals/"));
+      assertEnabled(env, path.includes("/deals/"), request.headers.authorization);
       const input = merchantBody.parse(request.body);
       return source.merchant(input.merchantId, input.canonicalAssetId, {
         sku: input.expectedSku,
@@ -80,8 +87,9 @@ export async function marketRoutes(
   );
 }
 
-function assertEnabled(env: Env, deals = false): void {
+function assertEnabled(env: Env, deals = false, authorization?: string): void {
   if (deals) {
+    if (env.NODE_ENV === "production" || env.DEAL_FINDER_PREVIEW_HASH) authorizeDealPreview(env, authorization);
     if (!env.COLLECTIBLE_DEAL_FINDER_ENABLED) throw new AppError("COLLECTIBLE_DEAL_FINDER_DISABLED", 503, "Collectible Deal Finder is not enabled in this build");
     return;
   }
