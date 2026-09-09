@@ -100,6 +100,33 @@
       "status": "active",
       "outcome": "Certify the enabled private asset command center for launch",
       "shipGate": "End-to-end launch journeys pass on desktop and mobile; dependency, privacy, accessibility, provider-failure, load, legal-copy, backup, deletion, monitoring, and rollback gates are complete."
+    },
+    {
+      "order": 11,
+      "id": "11-approval-manager",
+      "branch": "release/11-approval-manager",
+      "tagPrefix": "rc/11-approval-manager/",
+      "status": "queued",
+      "outcome": "Understand discovered spending permissions and prepare a safe external revocation",
+      "shipGate": "Current ERC20, ERC721 and operator permissions are anchored, source-linked and explicitly bounded by discovery coverage; revoked, unknown and unavailable are distinct; no safety verdict or exhaustive scan is implied. External revocation requires a verified chain-supported destination, explicit disclosure of network costs and user-controlled execution; ChainScout never signs or broadcasts."
+    },
+    {
+      "order": 12,
+      "id": "12-trade-simulator",
+      "branch": "release/12-trade-simulator",
+      "tagPrefix": "rc/12-trade-simulator/",
+      "status": "queued",
+      "outcome": "Compare private trade scenarios and their portfolio effects without executing",
+      "shipGate": "Fresh supported quotes drive exact before/after quantities, allocation assumptions and disclosed costs; stale, unsupported, insufficient-balance and failed-quote states are tested. Saved scenarios are encrypted locally. Quote previews are not described as guaranteed execution or full transaction simulation; official tools independently requote and own execution."
+    },
+    {
+      "order": 13,
+      "id": "13-collectible-deal-finder",
+      "branch": "release/13-collectible-deal-finder",
+      "tagPrefix": "rc/13-collectible-deal-finder/",
+      "status": "queued",
+      "outcome": "Compare exact collectible offers and evidence without confusing asking prices with value",
+      "shipGate": "Supported authorized free-tier sources distinguish printing, condition and grade, list known landed costs and timestamp every offer. Sold-price evidence is independently labeled and never fabricated; unknown shipping and weak matches cannot rank as guaranteed cheapest. Provider limits fail closed without overage; unsupported venues use explicit search handoffs rather than claimed live listings."
     }
   ]
 }
