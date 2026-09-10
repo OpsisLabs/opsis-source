@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import officialTokenConfiguration from "../apps/web/src/product/official-token.json";
 
 const officialTokenFixture = { status: "published", address: "0x1111111111111111111111111111111111111111", network: "Test network", chainId: 31337 };
 
@@ -11,6 +12,7 @@ async function mockOfficialToken(page: Page, value: unknown) {
 }
 
 test("official contract panels show no fake CA before launch on desktop and mobile", async ({ page }) => {
+  await mockOfficialToken(page, { status: "not-launched", address: null, network: null, chainId: null });
   for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 950 });
     for (const path of ["/", "/app"]) {
@@ -24,6 +26,22 @@ test("official contract panels show no fake CA before launch on desktop and mobi
       expect(box!.y).toBeGreaterThanOrEqual(0);
       expect(box!.y + box!.height).toBeLessThan(950);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    }
+  }
+});
+
+test("official contract panels use the single committed identity on both entry pages", async ({ page }) => {
+  for (const path of ["/", "/app"]) {
+    await page.goto(path);
+    const panel = page.getByRole("region", { name: "Official ChainScout contract" });
+    await expect(panel).toBeVisible();
+    if (officialTokenConfiguration.status === "published") {
+      await expect(panel.locator("code")).toHaveText(String(officialTokenConfiguration.address));
+      await expect(panel).toContainText(`${officialTokenConfiguration.network} · Chain ID ${officialTokenConfiguration.chainId}`);
+    } else {
+      expect(officialTokenConfiguration.status).toBe("not-launched");
+      await expect(panel).toContainText("Not launched yet — no official CA.");
+      await expect(panel.getByRole("button")).toHaveCount(0);
     }
   }
 });
