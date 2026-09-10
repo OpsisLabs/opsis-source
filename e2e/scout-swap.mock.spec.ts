@@ -3,6 +3,45 @@ import { expect, test, type Page } from "@playwright/test";
 const WETH = "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73";
 const USDG = "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168";
 
+test("trade simulator compares quantities, keeps balances private and invalidates edits", async ({ page }) => {
+  test.skip(process.env.VITE_TRADE_SIMULATOR_ENABLED !== "true", "preview flag required");
+  await page.route("**/v1/private/trade-simulator/quote", async route => {
+    expect(route.request().postDataJSON()).toEqual({ direction: "WETH_TO_USDG", amount: "0.01" });
+    await route.fulfill({ json: quoteFixture() });
+  });
+  await page.goto("/vault");
+  await page.getByLabel("VAULT PASSPHRASE").fill("trade preview test passphrase");
+  await page.getByLabel("CONFIRM PASSPHRASE").fill("trade preview test passphrase");
+  await page.getByRole("button", { name: "CREATE ENCRYPTED VAULT" }).click();
+  await page.getByRole("button", { name: /I SAVED IT/i }).click();
+  await page.goto("/simulate");
+  await page.getByLabel("History Vault passphrase").fill("trade preview test passphrase");
+  await page.getByRole("button", { name: "Unlock report history" }).click();
+  await expect(page.getByRole("button", { name: "Lock history" })).toBeVisible();
+  await page.getByLabel("Your WETH balance", { exact: true }).fill("1");
+  await page.getByLabel("Your USDG balance", { exact: true }).fill("100");
+  await page.getByLabel("WETH reference price in USDG").fill("3645");
+  await page.getByRole("button", { name: "Request quote & compare" }).click();
+  await expect(page.getByRole("cell", { name: "136.45", exact: true })).toBeVisible();
+  if (process.env.CHAINSCOUT_PREVIEW_SHOT) await page.screenshot({ path: process.env.CHAINSCOUT_PREVIEW_SHOT, fullPage: true });
+  for (const width of [320, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow, `preview must reflow at ${width}px`).toBeLessThanOrEqual(1);
+  }
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.getByRole("button", { name: "Save encrypted scenario report" }).click();
+  await expect(page.getByText("Saved encrypted on this device.", { exact: true })).toBeVisible();
+  await page.getByLabel("Trade amount").fill("0.02");
+  await expect(page.getByRole("heading", { name: "Before and after" })).toHaveCount(0);
+  await page.reload();
+  await page.getByLabel("History Vault passphrase").fill("trade preview test passphrase");
+  await page.getByRole("button", { name: "Unlock report history" }).click();
+  await expect(page.getByRole("button", { name: /^Trade scenario: 0.01 WETH/ })).toBeVisible();
+  await page.getByRole("button", { name: /^Trade scenario: 0.01 WETH/ }).click();
+  await expect(page.getByText(/Historical what-if report, not a live quote/)).toBeVisible();
+});
+
 function quoteFixture(stale = false, warning = false) {
   const now = Date.now();
   const quotedAt = stale ? now - 65_000 : now;

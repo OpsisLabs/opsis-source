@@ -18,12 +18,15 @@ export async function swapRoutes(
 ): Promise<void> {
   const service = new ScoutSwapService(env, cache, source);
 
-  app.post("/v1/swaps/quote", {
+  for (const path of ["/v1/swaps/quote", "/v1/private/trade-simulator/quote"]) app.post(path, {
     config: {
       rateLimit: { max: env.UNISWAP_QUOTE_RATE_LIMIT_PER_MINUTE, timeWindow: "1 minute" }
     }
   }, async (request, reply) => {
     reply.header("cache-control", "private, no-store");
+    if (path.includes("trade-simulator") && !env.TRADE_SIMULATOR_ENABLED) {
+      throw new AppError("TRADE_SIMULATOR_DISABLED", 503, "Trade Simulator is not enabled in this build");
+    }
     if (!env.UNISWAP_QUOTE_ENABLED) {
       throw new AppError("SCOUT_SWAP_DISABLED", 503, "Live Scout Swap previews are temporarily turned off");
     }

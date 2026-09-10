@@ -6,6 +6,7 @@ import { isOpenDataApiEnabled } from "./product/availability";
 
 const Roadmap = lazy(() => import("./pages/Roadmap"));
 const ScoutSwap = lazy(() => import("./pages/ScoutSwap"));
+const TradeSimulator = lazy(() => import("./simulator/TradeSimulator"));
 const PrivateExplorer = lazy(() => import("./pages/PrivateExplorer"));
 const VaultPage = lazy(() => import("./pages/Vault"));
 const RwaVerify = lazy(() => import("./pages/RwaVerify"));
@@ -97,6 +98,7 @@ export default function App() {
               </DeferredPage>
             }
           />
+          <Route path="/simulate" element={import.meta.env.VITE_TRADE_SIMULATOR_ENABLED === "true" ? <DeferredPage><TradeSimulator /></DeferredPage> : <Navigate to="/guide" replace />} />
           <Route
             path="/app"
             element={

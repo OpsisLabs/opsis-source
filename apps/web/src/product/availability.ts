@@ -50,6 +50,7 @@ export function isOpenDataApiEnabled() {
 }
 
 export function isProductFeatureEnabled(id: string) {
+  if (id === "trade-simulator") return import.meta.env.VITE_TRADE_SIMULATOR_ENABLED === "true";
   if (id === "collectible-catalog") return isCollectibleCatalogEnabled();
   if (id === "market-inventory") return isMarketInventoryEnabled();
   if (id === "replay-actions") return isReplayActionsEnabled();

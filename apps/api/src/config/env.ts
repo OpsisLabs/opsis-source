@@ -55,6 +55,7 @@ const envSchema = z.object({
   ALCHEMY_ROBINHOOD_RPC_URL: optionalUrl,
   ALCHEMY_ROBINHOOD_WS_URL: optionalUrl,
   UNISWAP_QUOTE_ENABLED: envBoolean.default(false),
+  TRADE_SIMULATOR_ENABLED: envBoolean.default(false),
   UNISWAP_API_KEY: optionalString,
   UNISWAP_API_BASE_URL: z.string().url().default("https://trade-api.gateway.uniswap.org/v1"),
   UNISWAP_QUOTE_TIMEOUT_MS: z.coerce.number().int().positive().max(30_000).default(8_000),

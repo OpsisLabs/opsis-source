@@ -15,6 +15,7 @@ export type ProductFeature = {
 };
 
 export const PRODUCT_FEATURES: ProductFeature[] = [
+  { id: "trade-simulator", group: "explore", label: "Trade Simulator", shortLabel: "Simulator", helpLabel: "About trade scenarios", path: "/simulate", eyebrow: "PRIVATE WHAT-IF", navHint: "Compare before and after", summary: "Model a WETH/USDG trade with a fresh quote and entered balances.", bestFor: "Comparing exact quantities and two-token allocation before independent execution.", privacy: "Balances and reference prices stay local; only pair and amount reach the quote provider.", boundary: "Not a guaranteed execution or full-wallet valuation; native ETH fees are separate. Saved reports are historical.", steps: ["Enter balances, amount and a reference price.", "Request a fresh quote.", "Compare expected and minimum outputs.", "Unlock local history to save an encrypted report."] },
   {
     id: "private-explorer",
     group: "explore",
