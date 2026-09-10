@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execFileSync, spawnSync } from "node:child_process";
 
-function fixture(t, parallelPreparation = true) {
+function fixture(t, parallelPreparation = true, prefix = "release") {
   const root = mkdtempSync(join(tmpdir(), "chainscout-release-policy-test-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   mkdirSync(join(root, "scripts"));
@@ -17,8 +17,8 @@ function fixture(t, parallelPreparation = true) {
   git("config", "commit.gpgsign", "false");
   const manifest = { baseBranch: "main", activeRelease: "one", rules: { parallelPreparation }, releases: [
     { id: "one", order: 1, branch: "release/one", status: "active", tagPrefix: "rc/one/" },
-    { id: "two", order: 2, branch: "release/two", status: "queued", tagPrefix: "rc/two/" },
-    { id: "three", order: 3, branch: "release/three", status: "queued", tagPrefix: "rc/three/" }
+    { id: "two", order: 2, branch: `${prefix}/two`, status: "queued", tagPrefix: "rc/two/" },
+    { id: "three", order: 3, branch: `${prefix}/three`, status: "queued", tagPrefix: "rc/three/" }
   ] };
   writeFileSync(join(root, "release-train.json"), JSON.stringify(manifest));
   git("add", "."); git("commit", "-m", "fixture"); git("branch", "release/one");
@@ -77,4 +77,29 @@ test("stale prepared branches cannot activate until main is integrated", t => {
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /merge current main/);
   assert.equal(git("branch", "--show-current"), "main");
+});
+
+test("codex-prefixed preparation is recognized and activated without replacing work", t => {
+  const { root, git, run } = fixture(t, true, "codex");
+  assert.equal(run("prepare", "two").status, 0);
+  assert.notEqual(run("prepare", "two").status, 0);
+  git("switch", "codex/two");
+  writeFileSync(join(root, "feature.txt"), "prepared codex work");
+  git("add", "."); git("commit", "-m", "prepare feature");
+  const tip = git("rev-parse", "HEAD");
+  git("switch", "main"); git("tag", "rc/one/1");
+  assert.equal(run("advance", "two").status, 0);
+  assert.equal(git("rev-parse", "HEAD"), tip);
+  assert.equal(git("branch", "--show-current"), "codex/two");
+});
+
+test("codex-prefixed branches retain the stale-main and legacy-policy guards", t => {
+  const { root, git, run } = fixture(t, true, "codex");
+  assert.equal(run("prepare", "two").status, 0);
+  writeFileSync(join(root, "main-fix.txt"), "new main fix");
+  git("add", "."); git("commit", "-m", "main fix"); git("tag", "rc/one/1");
+  assert.match(run("advance", "two").stderr, /merge current main/);
+  const legacy = fixture(t, false, "codex");
+  legacy.git("branch", "codex/two");
+  assert.notEqual(legacy.run("check").status, 0);
 });

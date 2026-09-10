@@ -78,8 +78,8 @@ function releaseRefs() {
   const output = git([
     "for-each-ref",
     "--format=%(refname:short)",
-    "refs/heads/release",
-    "refs/remotes/origin/release",
+    "refs/heads",
+    "refs/remotes/origin",
   ]);
   return output ? output.split("\n") : [];
 }
