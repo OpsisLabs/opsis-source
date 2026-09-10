@@ -1,5 +1,109 @@
 import { expect, test, type Page } from "@playwright/test";
 
+const officialTokenFixture = { status: "published", address: "0x1111111111111111111111111111111111111111", network: "Test network", chainId: 31337 };
+
+async function mockOfficialToken(page: Page, value: unknown) {
+  // Test-only Vite module fixture. There is no runtime override in the product.
+  await page.route("**/src/product/official-token.json*", (route) => route.fulfill({
+    contentType: "application/javascript",
+    body: `export default ${JSON.stringify(value)};`,
+  }));
+}
+
+test("official contract panels show no fake CA before launch on desktop and mobile", async ({ page }) => {
+  for (const width of [320, 390, 1440]) {
+    await page.setViewportSize({ width, height: 950 });
+    for (const path of ["/", "/app"]) {
+      await page.goto(`${path}?ca=${officialTokenFixture.address}&network=Fake`);
+      const panel = page.getByRole("region", { name: "Official ChainScout contract" });
+      await expect(panel).toBeVisible();
+      await expect(panel).toContainText("Not launched yet — no official CA.");
+      await expect(panel.getByRole("button")).toHaveCount(0);
+      await expect(panel).not.toContainText(officialTokenFixture.address);
+      const box = await panel.boundingBox();
+      expect(box!.y).toBeGreaterThanOrEqual(0);
+      expect(box!.y + box!.height).toBeLessThan(950);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    }
+  }
+});
+
+test("official contract copy uses the exact configured address with keyboard feedback", async ({ page }) => {
+  await mockOfficialToken(page, officialTokenFixture);
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async (text: string) => { document.documentElement.dataset.copiedContract = text; } } });
+  });
+  for (const path of ["/", "/app"]) {
+    await page.goto(path);
+    const panel = page.getByRole("region", { name: "Official ChainScout contract" });
+    await expect(panel).toContainText("Test network · Chain ID 31337");
+    await expect(panel.locator("code")).toHaveText(officialTokenFixture.address);
+    const copy = panel.getByRole("button", { name: "Copy official ChainScout contract address" });
+    await copy.focus();
+    await page.keyboard.press("Enter");
+    await expect(panel.getByRole("status")).toHaveText("Official contract address copied to clipboard.");
+    await expect(page.locator("html")).toHaveAttribute("data-copied-contract", officialTokenFixture.address);
+  }
+});
+
+test.describe("official contract touch access", () => {
+  test.use({ hasTouch: true, viewport: { width: 390, height: 844 } });
+
+  test("tap copies the full address on mobile without clipping", async ({ page }) => {
+    await mockOfficialToken(page, officialTokenFixture);
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async (text: string) => { document.documentElement.dataset.copiedContract = text; } } });
+    });
+    for (const path of ["/", "/app"]) {
+      await page.goto(path);
+      const panel = page.getByRole("region", { name: "Official ChainScout contract" });
+      await panel.getByRole("button", { name: "Copy official ChainScout contract address" }).tap();
+      await expect(page.locator("html")).toHaveAttribute("data-copied-contract", officialTokenFixture.address);
+      await expect(panel.getByRole("status")).toContainText("copied to clipboard");
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    }
+  });
+});
+
+for (const failure of ["denied", "missing"] as const) {
+  test(`official contract supports manual copying when clipboard is ${failure}`, async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 850 });
+    await mockOfficialToken(page, officialTokenFixture);
+    await page.addInitScript((mode) => {
+      Object.defineProperty(navigator, "clipboard", { configurable: true, value: mode === "missing" ? undefined : { writeText: async () => { throw new DOMException("Blocked", "NotAllowedError"); } } });
+    }, failure);
+    await page.goto("/app");
+    const panel = page.getByRole("region", { name: "Official ChainScout contract" });
+    await panel.getByRole("button", { name: "Copy official ChainScout contract address" }).click();
+    const manual = panel.getByRole("textbox", { name: "Clipboard blocked. Select and copy this full address:" });
+    await expect(manual).toBeFocused();
+    await expect(manual).toHaveValue(officialTokenFixture.address);
+    await expect(manual).toHaveAttribute("readonly", "");
+    expect(await manual.evaluate((element: HTMLTextAreaElement) => element.selectionEnd - element.selectionStart)).toBe(42);
+    await expect(panel.getByRole("status")).not.toContainText("copied to clipboard");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  });
+}
+
+test("official contract fails closed if a published identity is malformed", async ({ page }) => {
+  await mockOfficialToken(page, { ...officialTokenFixture, address: "0x123" });
+  await page.goto("/");
+  const panel = page.getByRole("region", { name: "Official ChainScout contract" });
+  await expect(panel).toContainText("Official contract address unavailable.");
+  await expect(panel).not.toContainText("Not launched yet");
+  await expect(panel.getByRole("button")).toHaveCount(0);
+  await expect(panel).not.toContainText("0x123");
+});
+
+test("official contract writes the browser clipboard on a real user gesture", async ({ page, context, browserName }) => {
+  test.skip(browserName !== "chromium", "WebKit has no Playwright clipboard permission grant; touch, success and denied paths are tested above.");
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await mockOfficialToken(page, officialTokenFixture);
+  await page.goto("/");
+  await page.getByRole("button", { name: "Copy official ChainScout contract address" }).click();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(officialTokenFixture.address);
+});
+
 const passphrase = "navigation audit passphrase";
 
 async function createDisposableVault(page: Page) {
