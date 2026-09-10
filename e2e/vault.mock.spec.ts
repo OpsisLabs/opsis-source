@@ -99,6 +99,39 @@ function portfolioSnapshot(address = portfolioAddress) {
   };
 }
 
+test("approval manager reviews anchored permissions without executing or leaking labels", async ({ page }) => {
+  test.skip(process.env.VITE_APPROVAL_MANAGER_ENABLED !== "true", "dedicated preview flag required");
+  const snapshot = portfolioSnapshot();
+  await page.route("**/v1/private/approvals/snapshot", async route => {
+    expect(route.request().postDataJSON()).toEqual({ address: portfolioAddress });
+    await route.fulfill({ json: { ...snapshot, approvals: [{ contract: portfolioToken, spender: secondPortfolioAddress, transactionHash: `0x${"b".repeat(64)}`, kind: "erc20", symbol: "TST", active: true, unlimited: true, currentAmount: "100", sourceIds: ["robinhood-public-rpc-anchor"] }], reconciliation: { ...snapshot.reconciliation, approvalCandidates: 2, approvalConfirmed: 1 } } });
+  });
+  await page.goto("/vault?view=approvals");
+  await page.getByLabel("VAULT PASSPHRASE").fill(passphrase);
+  await page.getByLabel("CONFIRM PASSPHRASE").fill(passphrase);
+  await page.getByRole("button", { name: "CREATE ENCRYPTED VAULT" }).click();
+  await page.getByRole("button", { name: /I SAVED IT/i }).click();
+  await page.getByLabel("ROBINHOOD ADDRESS").fill(portfolioAddress);
+  await page.getByRole("button", { name: "REVIEW REFRESH" }).click();
+  await page.getByRole("button", { name: "CONFIRM ONE-TIME REFRESH" }).click();
+  await expect(page.getByText("TST · ACTIVE BROAD ACCESS", { exact: true })).toBeVisible();
+  await expect(page.getByText(/1 unresolved reads/)).toBeVisible();
+  await page.getByLabel("Filter permissions").selectOption("inactive");
+  await expect(page.getByText(/No confirmed permissions match/)).toBeVisible();
+  await page.getByLabel("Filter permissions").selectOption("all");
+  await page.getByRole("button", { name: "Review external revocation" }).click();
+  await expect(page.getByRole("link", { name: "Open Revoke.cash for Robinhood Chain" })).toHaveAttribute("href", "https://revoke.cash/token-approval-checker/robinhood-chain");
+  if (process.env.CHAINSCOUT_PREVIEW_SHOT) await page.screenshot({ path: process.env.CHAINSCOUT_PREVIEW_SHOT, fullPage: true });
+  for (const width of [320, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow, `preview must reflow at ${width}px`).toBeLessThanOrEqual(1);
+  }
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.getByRole("button", { name: "LOCK", exact: true }).click();
+  await expect(page.getByText("TST · ACTIVE BROAD ACCESS", { exact: true })).toHaveCount(0);
+});
+
 test("encrypted Vault creates, stores ciphertext, locks, exports, deletes, and restores", async ({ page }) => {
   const requests: Array<{ method: string; url: string; body: string }> = [];
   const consoleMessages: string[] = [];

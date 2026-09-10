@@ -39,7 +39,7 @@ function portfolioEnv(enabled = true) {
 }
 
 function blockscoutFixture(url: string, options: RpcFixtureOptions = {}): unknown {
-  if (url.endsWith("/token-balances")) return [
+  if (url.endsWith("/tokens?type=ERC-20")) return { items: [
     {
       value: "999999999999999999999999",
       token: { address_hash: TOKEN, decimals: "not-indexer-trusted", type: "ERC-20", name: "Test Token", symbol: "TST" }
@@ -48,7 +48,7 @@ function blockscoutFixture(url: string, options: RpcFixtureOptions = {}): unknow
       value: "1",
       token: { address_hash: indexedTokenAddress(index), type: "ERC-20", name: `Extra ${index}`, symbol: `X${index}` }
     }))
-  ];
+  ], next_page_params: null };
   if (url.endsWith("/nft")) return {
     items: [
       { id: "7", token_type: "ERC-721", token: { address_hash: NFT, type: "ERC-721", name: "Test NFT", symbol: "TNFT" } },
@@ -242,6 +242,22 @@ afterEach(async () => {
 });
 
 describe("anchored portfolio snapshot", () => {
+  it("bounds ERC-20 discovery to one filtered page without the unbounded balance route", async () => {
+    const { service, blockscout } = makeService();
+    const snapshot = await service.snapshot(OWNER);
+    const urls = vi.mocked(blockscout.requestJson).mock.calls.map(([url]) => url);
+    expect(urls).toHaveLength(5);
+    expect(urls).toContain(`https://explorer.example/api/v2/addresses/${OWNER}/tokens?type=ERC-20`);
+    expect(urls).toContain(`https://explorer.example/api/v2/addresses/${OWNER}/nft`);
+    expect(urls.some(url => url.includes("/token-balances"))).toBe(false);
+    expect(snapshot.tokens).toHaveLength(1);
+    expect(snapshot.approvals).toHaveLength(2);
+    expect(snapshot.citations).toContainEqual(expect.objectContaining({
+      id: "blockscout-token-balances",
+      url: `https://explorer.example/api/v2/addresses/${OWNER}/tokens?type=ERC-20`
+    }));
+  });
+
   it("reconciles holdings, activity and fetched-window approvals at one captured current block", async () => {
     const { service, rpc, budget } = makeService();
     const snapshot = await service.snapshot(OWNER.toUpperCase().replace("0X", "0x"));
@@ -480,6 +496,20 @@ describe("anchored portfolio snapshot", () => {
 });
 
 describe("portfolio route boundary", () => {
+  it("approval manager is independently gated and rejects private context", async () => {
+    const source = { snapshot: vi.fn().mockResolvedValue({ ok: true }) };
+    for (const flag of [false, true]) {
+      const app = Fastify({ logger: false }); apps.push(app); installErrorHandler(app);
+      await portfolioRoutes(app, { ...portfolioEnv(), APPROVAL_MANAGER_ENABLED: flag }, source);
+      const response = await app.inject({ method: "POST", url: "/v1/private/approvals/snapshot", payload: { address: OWNER } });
+      expect(response.statusCode).toBe(flag ? 200 : 503);
+      expect(response.headers["cache-control"]).toBe("private, no-store");
+      if (!flag) expect(source.snapshot).not.toHaveBeenCalled();
+      const bad = await app.inject({ method: "POST", url: "/v1/private/approvals/snapshot", payload: { address: OWNER, label: "private" } });
+      expect(bad.statusCode).toBe(flag ? 400 : 503);
+    }
+    expect(source.snapshot).toHaveBeenCalledTimes(1);
+  });
   it("is flag-gated, strict, uncached and never accepts private Vault context", async () => {
     const source = { snapshot: vi.fn().mockResolvedValue({ ok: true }) };
     const disabled = Fastify({ logger: false });

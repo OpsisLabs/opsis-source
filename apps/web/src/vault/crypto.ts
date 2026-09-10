@@ -1705,6 +1705,7 @@ function validatePortfolioSnapshot(value: unknown, address: string): void {
       typeof approval.active !== "boolean" ||
       typeof approval.unlimited !== "boolean" ||
       typeof approval.currentAmount !== "string" ||
+      (approval.tokenId !== undefined && (typeof approval.tokenId !== "string" || !/^\d{1,78}$/.test(approval.tokenId))) ||
       approval.currentAmount.length > 120 ||
       !validSources(approval.sourceIds)
     );

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "11-approval-manager",
+  "activeRelease": "12-trade-simulator",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement",
@@ -107,7 +107,7 @@
       "id": "11-approval-manager",
       "branch": "release/11-approval-manager",
       "tagPrefix": "rc/11-approval-manager/",
-      "status": "active",
+      "status": "released",
       "outcome": "Understand discovered spending permissions and prepare a safe external revocation",
       "shipGate": "Current ERC20, ERC721 and operator permissions are anchored, source-linked and explicitly bounded by discovery coverage; revoked, unknown and unavailable are distinct; no safety verdict or exhaustive scan is implied. External revocation requires a verified chain-supported destination, explicit disclosure of network costs and user-controlled execution; ChainScout never signs or broadcasts."
     },
@@ -116,7 +116,7 @@
       "id": "12-trade-simulator",
       "branch": "release/12-trade-simulator",
       "tagPrefix": "rc/12-trade-simulator/",
-      "status": "queued",
+      "status": "active",
       "outcome": "Compare private trade scenarios and their portfolio effects without executing",
       "shipGate": "Fresh supported quotes drive exact before/after quantities, allocation assumptions and disclosed costs; stale, unsupported, insufficient-balance and failed-quote states are tested. Saved scenarios are encrypted locally. Quote previews are not described as guaranteed execution or full transaction simulation; official tools independently requote and own execution."
     },

@@ -13,12 +13,14 @@ export function LocalHistory({
   onSelect,
   onNew,
   pending,
+  reports = false,
 }: {
   history: ReturnType<typeof useLocalHistory>;
   selected: string | null;
   onSelect: (conversation: VaultConversation) => void;
   onNew: () => void;
   pending: boolean;
+  reports?: boolean;
 }) {
   const [passphrase, setPassphrase] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -29,9 +31,9 @@ export function LocalHistory({
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg text-[#e9e0d1]">Your chats, on this device</h2>
+          <h2 className="text-lg text-[#e9e0d1]">{reports ? "Your scenario reports, on this device" : "Your chats, on this device"}</h2>
           <p className="mt-1 text-sm text-[#b8b0a7]">
-            {history.phase === "unlocked"
+            {reports ? "Save a report explicitly after comparing a quote. Reports are encrypted here, not synced to the cloud." : history.phase === "unlocked"
               ? "Encrypted autosave is on. No cloud history or wallet connection."
               : "Unlock local history to keep new conversations. Otherwise, lookups are unsaved."}
           </p>
@@ -54,7 +56,7 @@ export function LocalHistory({
           className={`${button} inline-flex items-center bg-[#fa6c34] !text-[#1d1d1d]`}
           to="/vault?view=assets"
         >
-          Create encrypted Vault to save chats
+          {reports ? "Create encrypted Vault to save reports" : "Create encrypted Vault to save chats"}
         </Link>
       )}
       {history.phase === "locked" && (
@@ -82,7 +84,7 @@ export function LocalHistory({
             className={`${button} self-end bg-[#fa6c34] !text-[#1d1d1d]`}
             disabled={history.busy || !passphrase || pending}
           >
-            Unlock & enable local autosave
+            {reports ? "Unlock report history" : "Unlock & enable local autosave"}
           </button>
         </form>
       )}
@@ -93,7 +95,7 @@ export function LocalHistory({
       )}
       {history.notice && (
         <p role="status" className="text-sm text-[#c7d7b8]">
-          {history.notice}
+          {reports && history.notice.startsWith("Local autosave is on") ? "Report history unlocked. Use Save encrypted scenario report to keep a comparison." : history.notice}
         </p>
       )}
       {history.phase === "unlocked" && (
@@ -104,7 +106,7 @@ export function LocalHistory({
               disabled={pending || history.busy}
               onClick={onNew}
             >
-              New conversation
+              {reports ? "Close saved report" : "New conversation"}
             </button>
             <button
               className={button}
@@ -121,8 +123,7 @@ export function LocalHistory({
           >
             {!history.conversations.length && (
               <p className="text-sm text-[#b8b0a7]">
-                No saved chats yet. Your next successful lookup will be saved
-                automatically.
+                {reports ? "No saved reports yet. Compare a quote, then choose Save encrypted scenario report." : "No saved chats yet. Your next successful lookup will be saved automatically."}
               </p>
             )}
             {history.conversations.map((item) => (

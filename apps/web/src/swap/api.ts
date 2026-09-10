@@ -44,9 +44,11 @@ const UNISWAP_ROUTER_2_1_1 = "0x8876789976decbfcbbbe364623c63652db8c0904";
 export async function getScoutSwapQuote(request: {
   direction: SwapDirection;
   amount: string;
-}, signal?: AbortSignal): Promise<ScoutSwapQuote> {
+}, signal?: AbortSignal, simulator = false): Promise<ScoutSwapQuote> {
   const canonicalRequest = { ...request, amount: canonicalSwapAmount(request.amount) };
-  const response = await privateApi<ScoutSwapQuote>("/v1/swaps/quote", canonicalRequest, signal);
+  const response = simulator
+    ? await privateApi<ScoutSwapQuote>("/v1/private/trade-simulator/quote", canonicalRequest, signal)
+    : await privateApi<ScoutSwapQuote>("/v1/swaps/quote", canonicalRequest, signal);
   assertScoutSwapQuote(response, canonicalRequest);
   return response;
 }

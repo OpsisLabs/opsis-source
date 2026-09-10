@@ -358,6 +358,7 @@ export class PortfolioService implements PortfolioSnapshotSource {
           symbol: approval.symbol,
           active,
           unlimited: false,
+          tokenId: approval.tokenId ?? undefined,
           currentAmount: approved,
           sourceIds: [approval.sourceId, rpcCitation.id]
         }];
@@ -517,7 +518,12 @@ export class PortfolioService implements PortfolioSnapshotSource {
   private async discover(address: string): Promise<{ documents: Discovery[]; degraded: string[] }> {
     const paths: Discovery["path"][] = ["address", "token-balances", "nft", "transactions", "token-transfers"];
     const requests = paths.map(async (path): Promise<Discovery> => {
-      const suffix = path === "address" ? `/addresses/${address}` : `/addresses/${address}/${path}`;
+      // The unpaginated token-balances route can return tens of thousands of
+      // spam/NFT balances and exceed the provider response-size safety limit.
+      // Fetch one bounded ERC-20 page; NFT discovery already has its own path.
+      const suffix = path === "address" ? `/addresses/${address}`
+        : path === "token-balances" ? `/addresses/${address}/tokens?type=ERC-20`
+        : `/addresses/${address}/${path}`;
       const { authenticated, publicUrl } = this.blockscoutUrl(suffix);
       return {
         path,

@@ -1,8 +1,10 @@
 import type { PortfolioSnapshot } from "@rh-chain/shared";
 import { privateApi } from "../dashboard/http";
 
-export async function requestPortfolioSnapshot(address: string, signal?: AbortSignal): Promise<PortfolioSnapshot> {
-  const response = await privateApi<PortfolioSnapshot>("/v1/private/portfolio/snapshot", { address }, signal);
+export async function requestPortfolioSnapshot(address: string, signal?: AbortSignal, approvalsOnly = false): Promise<PortfolioSnapshot> {
+  const response = approvalsOnly
+    ? await privateApi<PortfolioSnapshot>("/v1/private/approvals/snapshot", { address }, signal)
+    : await privateApi<PortfolioSnapshot>("/v1/private/portfolio/snapshot", { address }, signal);
   assertPortfolioSnapshot(response, address);
   return response;
 }

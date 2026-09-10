@@ -73,7 +73,7 @@ import {
   type VaultStorageStatus,
 } from "../vault/types";
 import { PortfolioPanel } from "../portfolio/PortfolioPanel";
-import { isDealFinderEnabled } from "../product/availability";
+import { isApprovalManagerEnabled, isDealFinderEnabled } from "../product/availability";
 import { CollectibleCatalogPanel } from "../collectibles/CollectibleCatalogPanel";
 import { MarketInventoryPanel } from "../market/MarketInventoryPanel";
 import { ReplayActionsPanel } from "../replay/ReplayActionsPanel";
@@ -1034,11 +1034,13 @@ export default function VaultPage({ previewDeals = false }: { previewDeals?: boo
                 />
               </div>
             )}
+            {isApprovalManagerEnabled() && <button type="button" className="mt-4 min-h-[44px] border border-[#fa6c34] px-4 text-[#fa6c34]" onClick={() => selectWorkspace("approvals")}>APPROVAL MANAGER</button>}
             {isDealFinderEnabled() && <button type="button" className="mt-4 min-h-[44px] border border-[#fa6c34] px-4 text-[#fa6c34]" onClick={() => selectWorkspace("deals")}>COLLECTIBLE DEAL FINDER</button>}
             {workspace === "deals" && (previewDeals || isDealFinderEnabled()) ? <MarketInventoryPanel key={`${meta.vaultId}:${sessionGeneration}:deals`} dealsOnly assets={assets.filter(asset => asset.assetType === "collectible")} context={markets[0]} sessionId={sessionGeneration} onSaveContext={saveMarketContext} /> : workspace === "market" &&
-            MARKET_INVENTORY_ENABLED ? null : workspace === "portfolio" ? (
+            MARKET_INVENTORY_ENABLED ? null : workspace === "portfolio" || workspace === "approvals" ? (
               <PortfolioPanel
-                key={`${meta.vaultId}:${sessionGeneration}:portfolio`}
+                key={`${meta.vaultId}:${sessionGeneration}:${workspace}`}
+                approvalsOnly={workspace === "approvals"}
                 assets={assets}
                 context={portfolios[0]}
                 sessionId={sessionGeneration}

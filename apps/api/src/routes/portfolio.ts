@@ -13,6 +13,17 @@ export async function portfolioRoutes(
   env: Env,
   source: PortfolioSnapshotSource = new PortfolioService(env)
 ): Promise<void> {
+  app.post("/v1/private/approvals/snapshot", {
+    config: { rateLimit: { max: env.RATE_LIMIT_PORTFOLIO_PER_HOUR, timeWindow: "1 hour" } }
+  }, async (request, reply) => {
+    reply.header("Cache-Control", "private, no-store");
+    reply.header("Pragma", "no-cache");
+    if (!env.APPROVAL_MANAGER_ENABLED || !env.PORTFOLIO_MODE_ENABLED) {
+      throw new AppError("APPROVAL_MANAGER_DISABLED", 503, "Approval Manager is not enabled in this build");
+    }
+    const { address } = snapshotBody.parse(request.body);
+    return source.snapshot(address);
+  });
   app.post(
     "/v1/private/portfolio/snapshot",
     {

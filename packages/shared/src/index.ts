@@ -119,6 +119,7 @@ export type PortfolioTransaction = {
 };
 
 export type PortfolioApproval = {
+  tokenId?: string;
   transactionHash: string;
   contract: string;
   spender: string;
