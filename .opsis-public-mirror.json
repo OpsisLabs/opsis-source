@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "99ad94a479217c05facc669bb49eabdce1c96314230d2d4d26673363eb2f86b5",
+  "sourceTreeDigest": "a9865a18ce370b6648ec562de44f3fd229c420629275690c4aebd6d9aa01d73a",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "1ce9b51ef309bdbbf614897b61d9d0b3988e58241cd3c5662aa13827a4dbbebf",
@@ -68,7 +68,7 @@
     "apps/api/src/ops/schema-state.ts": "fd3829aafbf2af7e07f3daeaf256949a69c8682636b6abfe3c71ce3150223272",
     "apps/api/src/ops/verify-deployment-schema.ts": "6c676f769abb02cc66a0cbf8c0e5c5014a4d91d62e22de4349689460e74cc2a2",
     "apps/api/src/portfolio/budget.ts": "50f182f24b5941cde8e1e42abebe0e1e02914341553aff379e10e3f21da8602f",
-    "apps/api/src/portfolio/service.ts": "e1b6dbd9a04b8a9d61c2797b568751d41f4903878e99d2791019a976b642bf31",
+    "apps/api/src/portfolio/service.ts": "7b8b9c37d6fd1087269990b857749c050931b8bf962d2d188b74fd8c660fdf2e",
     "apps/api/src/routes/account.ts": "5565ef0eea35c18c48716bd295e7345e698cca5e61c7411c025da232cdb0edab",
     "apps/api/src/routes/admin.ts": "8e1d6976ef7592cd6ec062558b303da81addfed776f521527bd253aa844ad0a3",
     "apps/api/src/routes/auth.ts": "6bcab5e768e1557425eb5578210d61a1122ebe68920e5116e6673b4552a61ca3",
@@ -130,7 +130,7 @@
     "apps/api/test/persistence.integration.test.ts": "40c97900c1e4831dc345666c2587878dd0a0339b9007d9b85e851478cc6f09ec",
     "apps/api/test/persistence.test.ts": "80222d5b2e3b93f5571006e14927f9623abb7729317b728014e2cdaac42e140b",
     "apps/api/test/portfolio-budget.test.ts": "3d7e6d3a7e8ab0682d1bb98e9f1678b64518aaf007d763ebb6113f92866a475c",
-    "apps/api/test/portfolio.test.ts": "2a53cba6497b6be893dd92dfa23c8147baf808dc91404949f4cd2c2b680811ba",
+    "apps/api/test/portfolio.test.ts": "8075ce99c87eaddb3674edbaba7db03bc77d693095c4277df543f2aa7127619e",
     "apps/api/test/privacy-static.test.ts": "bfbfa1f1f1630f3e4f7d9edc1bef8250be481833cc2a3014f8ab4901c3526aa0",
     "apps/api/test/privacy.test.ts": "cbbb802a0d040015dba38db2a8a884690c193cd4f9bdb882d912d8158ae24b62",
     "apps/api/test/private-mode.test.ts": "63a3727f05507d374b38ec6617a838c30910f41b0f4a9675774f22ee5790c1d0",
