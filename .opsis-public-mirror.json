@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "b90707ee183ccce69ab13526a7e81ff3e1b44e8b5313f23ea0f95bd4e5bb4926",
+  "sourceTreeDigest": "1ecb55b8fb610e79e02b4d37d74c53b633dcfff0db26026515b3d7ad1af34850",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "1ce9b51ef309bdbbf614897b61d9d0b3988e58241cd3c5662aa13827a4dbbebf",
@@ -394,8 +394,8 @@
     "scripts/launch-smoke.mjs": "63e05c63b8623e420450bc6f5c42c825937af55fb6d6f2696f8faa83e7224e46",
     "scripts/load-smoke.mjs": "86bb0e43cc0fc52269aa899c42c18f5a81e8f3c290397d71e1596426e8025a22",
     "scripts/readiness-policy.mjs": "87f1b432a07e89bcd307bc89bcbf0c883dcd171a97bcff73f26717db57615aef",
-    "scripts/release-train.mjs": "04f7a8c8669fa94ef4bdf9db0695f6f93cf275f35777b8ef0b82428d7b403874",
-    "scripts/release-train.test.mjs": "5367f4eb2b74373dfbda72830ed85934fcc77e83fbb4a8f0ba1ef7d74fee4c0e",
+    "scripts/release-train.mjs": "7e007a8e8e1dea392b69dd4f9e3c3d9399bcde47dea85ba9846bd8992454d858",
+    "scripts/release-train.test.mjs": "97c8367cbe2b2072e21017edf3c5e26f4ab5d94055025b9b6801400bfc128a79",
     "scripts/test-feature-previews.mjs": "a30fa4d51fb4b466b502de51bc5b610363c005101a20352126d6baa902677f4c",
     "scripts/test-identity-guard.mjs": "fee5c29a1b634e7a52045bc306e3255d75b0551e8b59a2bbb64bb76d919b8538",
     "scripts/test-load-smoke.mjs": "ab4966fdf17e3df35bba94dfea9f7b9e9715221473a16325b825f0bef8476825",
