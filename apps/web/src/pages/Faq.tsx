@@ -94,6 +94,12 @@ const FAQ_GROUPS: Array<{ id: string; title: string; intro: string; items: FaqIt
     intro: "How to read the words current, exact, verified, empty, and unavailable.",
     items: [
       {
+        question: "Can I check Pokémon or Yu-Gi-Oh! prices without setting up a Vault?",
+        answer: import.meta.env.VITE_CARD_PRICE_CHECK_ENABLED === "true"
+          ? "Yes. Open Card Price Check, choose a named example or find a Pokémon catalog ID, then request references. USD and EUR stay separate, and each metric retains its source and timestamp. Optional Pokémon photos are catalog references only. These are not live offers, guaranteed bargains or values for your exact printing, condition or grade. No wallet or Vault is required."
+          : "Standalone Card Price Check is coming soon. Its public reference prices will be kept separate from live offers and exact graded-card appraisals.",
+      },
+      {
         question: "Where do values and prices come from?",
         answer: `In the enabled founder beta, swap previews come from Uniswap; onchain balances and states come from the named chain providers; RWA facts come from their named sources; and manual values are owner-entered and dated. Vault charts visualize those exact local inputs and expose an accessible data table; they do not create a live price feed or appraisal. ${COLLECTIBLE_CATALOG_ENABLED ? "TCGdex catalog assistance is enabled for English card/set identity and optional sanitized thumbnails; it does not provide marketplace pricing or appraisal." : "TCGdex catalog assistance is coming soon."} DEX Screener market observations remain coming soon.`,
       },

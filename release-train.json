@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "12-trade-simulator",
+  "activeRelease": "13-collectible-deal-finder",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement",
@@ -116,7 +116,7 @@
       "id": "12-trade-simulator",
       "branch": "release/12-trade-simulator",
       "tagPrefix": "rc/12-trade-simulator/",
-      "status": "active",
+      "status": "released",
       "outcome": "Compare private trade scenarios and their portfolio effects without executing",
       "shipGate": "Fresh supported quotes drive exact before/after quantities, allocation assumptions and disclosed costs; stale, unsupported, insufficient-balance and failed-quote states are tested. Saved scenarios are encrypted locally. Quote previews are not described as guaranteed execution or full transaction simulation; official tools independently requote and own execution."
     },
@@ -125,7 +125,8 @@
       "id": "13-collectible-deal-finder",
       "branch": "release/13-collectible-deal-finder",
       "tagPrefix": "rc/13-collectible-deal-finder/",
-      "status": "queued",
+      "status": "active",
+      "currentSlice": "Card Price Check: standalone public reference prices only. Automatic live offers and sold-listing aggregation remain access-restricted and unshipped; the listing ship gate below is not claimed complete.",
       "outcome": "Compare exact collectible offers and evidence without confusing asking prices with value",
       "shipGate": "Supported authorized free-tier sources distinguish printing, condition and grade, list known landed costs and timestamp every offer. Sold-price evidence is independently labeled and never fabricated; unknown shipping and weak matches cannot rank as guaranteed cheapest. Provider limits fail closed without overage; unsupported venues use explicit search handoffs rather than claimed live listings."
     }

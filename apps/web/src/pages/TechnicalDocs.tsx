@@ -82,6 +82,14 @@ const ADAPTERS = [
     gated: true,
   },
   {
+    name: "CARD PRICE CHECK",
+    input: "Public card ID and TCGdex or YGOPRODeck selection, on click",
+    process: "Bounded free reference-price lookup; cached public data; no ownership fields",
+    output: "Source-labelled price metrics, variants, separate USD/EUR and known or unknown timestamps",
+    limit: "Not live inventory, exact graded-card value, sold-listing evidence or appraisal",
+    gated: import.meta.env.VITE_CARD_PRICE_CHECK_ENABLED !== "true",
+  },
+  {
     name: "OPEN DATA V1",
     input: "One reviewed support-registry read or one public EVM address",
     process: "Static ChainScout tuple or deterministic syntax normalization",

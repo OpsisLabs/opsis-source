@@ -50,6 +50,7 @@ export function isOpenDataApiEnabled() {
 }
 
 export function isProductFeatureEnabled(id: string) {
+  if (id === "card-price-check") return import.meta.env.VITE_CARD_PRICE_CHECK_ENABLED === "true";
   if (id === "trade-simulator") return import.meta.env.VITE_TRADE_SIMULATOR_ENABLED === "true";
   if (id === "approval-manager") return isApprovalManagerEnabled();
   if (id === "collectible-deal-finder") return isDealFinderEnabled();

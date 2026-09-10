@@ -187,6 +187,17 @@ export function PrivacyPage() {
           included in catalog requests.
         </p>
         <p>
+          <span className="text-[#e9e0d1]">Card Price Check.</span> When separately
+          enabled, clicking an example or lookup sends only the public card ID
+          and provider choice to ChainScout, then to TCGdex or YGOPRODeck.
+          Public reference responses may be cached for one hour (Pokémon) or
+          two days (Yu-Gi-Oh!). Pokémon name search sends only the entered public
+          name to TCGdex. Optional catalog photos require a separate click and
+          use the catalog/CDN path described above. No Vault, ownership details,
+          grade, purchase prices, wallet connection or model is used. This
+          standalone view is not persisted and clears on edits or leaving it.
+        </p>
+        <p>
           <span className="text-[#e9e0d1]">Market & Inventory.</span> This tool is
           coming soon. If released, after an
           encrypted permission-attempt receipt is saved, an exact public
@@ -306,14 +317,16 @@ export function PrivacyPage() {
           authenticity, condition, ownership, or value.
         </p>
         <p>
-          When separately enabled, Deal Finder can retrieve free reference prices
+          When separately enabled, Card Price Check and the restricted Deal Finder
+          preview can retrieve free reference prices
           from TCGdex (Pokémon) and YGOPRODeck (Yu-Gi-Oh!). Only the public card ID
           and chosen provider are submitted after an explicit click. Public
           responses may be cached by ChainScout; wallet addresses, ownership,
           grades, notes and purchase prices are not included. References are not
           available inventory, graded-card valuations or verified sold listings.
           Provider mapping limitations, currencies and known or unknown update
-          times are shown. The browser view is ephemeral and clears on Vault lock.
+          times are shown. The standalone browser view is ephemeral and clears
+          on edits or navigation; the Vault preview additionally clears on lock.
         </p>
         <p>
           When separately enabled, Market & Inventory names DEX Screener or the opted-in merchant before

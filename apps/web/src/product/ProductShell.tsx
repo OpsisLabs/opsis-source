@@ -51,6 +51,7 @@ function rememberTourSeen() {
 }
 
 const ICONS: Record<string, ComponentType<{ size?: number; className?: string }>> = {
+  "card-price-check": WalletCards,
   "private-explorer": Search,
   "scout-swap": ArrowLeftRight,
   "rwa-verify": BadgeCheck,

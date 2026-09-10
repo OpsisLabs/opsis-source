@@ -4,8 +4,9 @@ import { SectionHeader } from "./AssetUniverse";
 
 export default function AvailabilityMatrix() {
   const catalogEnabled = isCollectibleCatalogEnabled();
+  const cardPrices = import.meta.env.VITE_CARD_PRICE_CHECK_ENABLED === "true" ? ["Card Price Check · Pokémon & Yu-Gi-Oh! references"] : [];
   const groups = [
-    { label: "AVAILABLE IN FOUNDER BUILD", icon: Check, tone: "#7fb069", items: ["Private Explorer", "Encrypted Vault", "Manual crypto / NFT / RWA / collectible records", "Dated collectible value-history charts", "Portfolio Intelligence", "RWA Verify", "Scout Swap", ...(catalogEnabled ? ["TCGdex-assisted collectible identity"] : [])] },
+    { label: "AVAILABLE IN FOUNDER BUILD", icon: Check, tone: "#7fb069", items: ["Private Explorer", "Encrypted Vault", "Manual crypto / NFT / RWA / collectible records", "Dated collectible value-history charts", "Portfolio Intelligence", "RWA Verify", "Scout Swap", ...cardPrices, ...(catalogEnabled ? ["TCGdex-assisted collectible identity"] : [])] },
     { label: "COMING SOON", icon: Clock3, tone: "#e0a96d", items: [...(!catalogEnabled ? ["TCGdex-assisted collectible identity"] : []), "Market & Inventory", "Replay Actions", "Open Data API"] },
     { label: "NEXT, AFTER THIS RELEASE", icon: Clock3, tone: "#c9a6ff", items: ["Additional source-reviewed asset coverage", "Historical market series only with approved data rights", "More opt-in data adapters after legal and spend review"] },
   ];

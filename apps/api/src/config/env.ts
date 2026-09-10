@@ -75,6 +75,7 @@ const envSchema = z.object({
   COLLECTIBLE_DAILY_REQUEST_BUDGET: z.coerce.number().int().min(50).max(10_000).default(500),
   MARKET_INVENTORY_ENABLED: envBoolean.default(false),
   COLLECTIBLE_DEAL_FINDER_ENABLED: envBoolean.default(false),
+  CARD_PRICE_CHECK_ENABLED: envBoolean.default(false),
   DEAL_FINDER_PREVIEW_HASH: optionalString,
   DEAL_FINDER_PREVIEW_EXPIRES_AT: optionalString,
   MARKET_DAILY_REQUEST_BUDGET: z.coerce.number().int().min(50).max(25_000).default(1_000),

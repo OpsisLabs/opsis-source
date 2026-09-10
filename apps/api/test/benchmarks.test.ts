@@ -8,6 +8,38 @@ const input = { provider: "tcgdex", cardId: "base1-4" } as const;
 const now = new Date("2026-09-09T12:00:00Z");
 const raw = { id: "base1-4", name: "Charizard", pricing: { cardmarket: { unit: "EUR", updated: "2026-09-08T12:00:00Z", trend: 42, low: null }, tcgplayer: { unit: "USD", updated: "2099-01-01", holofoil: { marketPrice: 51, lowPrice: -1, highPrice: "NaN" } } } };
 describe("free benchmarks", () => {
+  it("standalone price endpoint defaults closed and never enables the deal preview", async () => {
+    for (const enabled of [false, true]) {
+      const app = Fastify(); installErrorHandler(app);
+      const lookup = vi.fn().mockResolvedValue(parseBenchmark(input, raw, now));
+      try {
+        const env = { ...loadEnv({ NODE_ENV: "test", CARD_PRICE_CHECK_ENABLED: String(enabled) }), NODE_ENV: "production" as const };
+        await marketRoutes(app, env, undefined, { lookup });
+        const response = await app.inject({ method: "POST", url: "/v1/private/cards/prices", payload: input });
+        expect(response.statusCode).toBe(enabled ? 200 : 503);
+        expect(response.headers["cache-control"]).toBe("private, no-store");
+        expect(lookup).toHaveBeenCalledTimes(enabled ? 1 : 0);
+        for (const path of ["access", "benchmark", "merchants", "offer"]) {
+          const blocked = await app.inject({ method: "POST", url: `/v1/private/deals/${path}`, payload: input });
+          expect(blocked.statusCode).toBe(404);
+        }
+      } finally { await app.close(); }
+    }
+  });
+  it("standalone price endpoint rejects private extras and provider failure is not a success", async () => {
+    const app = Fastify(); installErrorHandler(app); const lookup = vi.fn();
+    try {
+      await marketRoutes(app, loadEnv({ NODE_ENV: "test", CARD_PRICE_CHECK_ENABLED: "true" }), undefined, { lookup });
+      for (const extra of [{ wallet: "private" }, { notes: "private" }, { grade: "10" }, { purchasePrice: 20 }]) {
+        const response = await app.inject({ method: "POST", url: "/v1/private/cards/prices", payload: { ...input, ...extra } });
+        expect(response.statusCode).toBe(400);
+      }
+      expect(lookup).not.toHaveBeenCalled(); lookup.mockRejectedValue(new Error("upstream unavailable"));
+      const unavailable = await app.inject({ method: "POST", url: "/v1/private/cards/prices", payload: input });
+      expect(unavailable.statusCode).toBe(500);
+      expect(unavailable.json()).not.toHaveProperty("rows");
+    } finally { await app.close(); }
+  });
   it("preserves marketplace, currency, variant and source time without inventing missing values", () => {
     const result = parseBenchmark(input, raw, now);
     expect(result.rows).toHaveLength(2);

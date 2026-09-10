@@ -12,6 +12,10 @@ const HOME_DESCRIPTION =
   "Track crypto, NFTs, tokenized assets, Pokémon cards, collectibles, and anything else in one encrypted local Vault—then inspect source-linked Robinhood Chain activity.";
 
 const ROUTE_METADATA: Record<string, RouteMetadataEntry> = {
+  "/card-prices": {
+    title: "Card Price Check | ChainScout",
+    description: "Check Pokémon and Yu-Gi-Oh! price references across supported markets. No wallet required. Reference prices, not live offers or graded-card appraisals.",
+  },
   "/": {
     title: "ChainScout — Private Multi-Asset Command Center",
     description: HOME_DESCRIPTION,

@@ -157,6 +157,9 @@ export default function Hero() {
         <p data-hero-reveal className="relative mt-4 max-w-[650px] text-[12px] leading-relaxed text-[#aaa19a]">
           No wallet needed to explore. No server copy of your Vault.
         </p>
+        {import.meta.env.VITE_CARD_PRICE_CHECK_ENABLED === "true" && <Link data-hero-reveal to="/card-prices" className="relative mt-5 flex min-h-[52px] max-w-[650px] items-center justify-between gap-3 border border-[#fa6c34]/50 bg-[#28221e] px-4 py-3 text-[13px] text-[#e9e0d1] transition-colors hover:border-[#fa6c34]">
+          <span><span className="mr-2 font-mono-d text-[10px] text-[#fa6c34]">NEW</span> Card Price Check · Pokémon & Yu-Gi-Oh!</span><ArrowRight size={16} className="shrink-0 text-[#fa6c34]" />
+        </Link>}
 
         <div data-hero-reveal className="relative mt-10 max-w-[650px]">
           {LAYERS.map((layer, index) => (

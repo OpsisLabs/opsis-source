@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes card-price-enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: no-preference) { .card-price-reveal { animation: card-price-enter 280ms ease-out; } }
+
 :root {
   --ink: #1d1d1d;
   --ink-2: #242424;

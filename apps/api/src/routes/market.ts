@@ -49,6 +49,13 @@ export async function marketRoutes(
     z.object({}).strict().parse(request.body);
     return { expiresAt: env.DEAL_FINDER_PREVIEW_EXPIRES_AT };
   });
+  // Separate public-reference release: never unlock the restricted offer preview.
+  app.post("/v1/private/cards/prices", { config }, async (request, reply) => {
+    noStore(reply);
+    if (!env.CARD_PRICE_CHECK_ENABLED) throw new AppError("CARD_PRICE_CHECK_DISABLED", 503, "Card Price Check is unavailable in this build");
+    const input = z.object({ provider: z.enum(["tcgdex", "ygoprodeck"]), cardId: z.string().trim().min(1).max(80) }).strict().parse(request.body);
+    return benchmarks.lookup(input);
+  });
   app.post("/v1/private/deals/benchmark", { config }, async (request, reply) => {
     noStore(reply);
     assertEnabled(env, true, request.headers.authorization);
