@@ -63,6 +63,6 @@ export async function renderTradeCard(card: TradeCard): Promise<Blob> {
   text("Not a live offer or profit claim. Minimum output is not a total-cost guarantee.", 64, 975, 24, "#b5ada2");
   if (card.warning) text("Provider check returned a warning. Review the full quote before proceeding.", 64, 1015, 24, "#fa6c34");
   text("Try a what-if of your own.", 64, 1101, 40, "#e9e0d1", 1072, 700);
-  text("chainscout.net/simulate", 64, 1151, 32, "#fa6c34", 1072, 700);
+  text("www.chainscout.net/simulate", 64, 1151, 32, "#fa6c34", 1072, 700);
   return new Promise((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("Image export failed. Please try again.")), "image/png"));
 }

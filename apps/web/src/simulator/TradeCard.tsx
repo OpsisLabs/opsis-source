@@ -4,7 +4,7 @@ import { renderTradeCard, tradeCard } from "./trade-card";
 
 export function TradeCard({ quote, weth, usdg, reference, deadline }: { quote: ScoutSwapQuote; weth: string; usdg: string; reference: string; deadline: number }) {
   const [includeBalances, setIncludeBalances] = useState(false);
-  const [image, setImage] = useState<{ url: string; file: File } | null>(null);
+  const [image, setImage] = useState<{ url: string; preview: string; file: File } | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const generation = useRef(0);
@@ -19,11 +19,19 @@ export function TradeCard({ quote, weth, usdg, reference, deadline }: { quote: S
       if (performance.now() >= deadline) throw new Error("Quote expired. Request a fresh preview.");
       const card = tradeCard(quote, weth, usdg, reference, includeBalances);
       const blob = await renderTradeCard(card);
+      // The deployed image policy allows local data images, not blob images.
+      // Keep the revocable blob URL for downloads; neither representation leaves the browser.
+      const preview = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => typeof reader.result === "string" ? resolve(reader.result) : reject(new Error("Image preview failed. Please try again."));
+        reader.onerror = () => reject(new Error("Image preview failed. Please try again."));
+        reader.readAsDataURL(blob);
+      });
       if (generation.current !== current) return;
       if (performance.now() >= deadline || Date.now() >= Date.parse(quote.expiresAt)) throw new Error("Quote expired. Request a fresh preview.");
       const url = URL.createObjectURL(blob);
       imageUrl.current = url;
-      setImage({ url, file: new File([blob], "chainscout-trade-card.png", { type: "image/png" }) });
+      setImage({ url, preview, file: new File([blob], "chainscout-trade-card.png", { type: "image/png" }) });
     } catch (failure) { if (generation.current === current) setError(failure instanceof Error ? failure.message : "Image export unavailable."); }
     finally { if (generation.current === current) setBusy(false); }
   };
@@ -48,7 +56,7 @@ export function TradeCard({ quote, weth, usdg, reference, deadline }: { quote: S
       {error && <p role="alert" className="mt-3 text-sm">{error}</p>}
       {image && <div className="mt-5 space-y-4">
         <p role="status" className="text-sm">Card ready. Review it before sharing. Downloads are unencrypted images outside your Vault.</p>
-        <img src={image.url} alt="Your Trade Card preview, including the selected quote and disclosure fields" width={1200} height={1200} className="w-full max-w-xl border border-[#555]" />
+        <img src={image.preview} alt="Your Trade Card preview, including the selected quote and disclosure fields" width={1200} height={1200} className="w-full max-w-xl border border-[#555]" />
         <div className="flex flex-wrap gap-3"><a href={image.url} download="chainscout-trade-card.png" className="inline-flex min-h-12 items-center border border-[#fa6c34] px-5 py-3 text-[#fa6c34]">Download PNG</a>
           {typeof navigator.canShare === "function" && navigator.canShare({ files: [image.file] }) && <button onClick={() => void share()} className="min-h-12 border border-[#fa6c34] px-5 py-3 text-[#fa6c34]">Share image</button>}
         </div>

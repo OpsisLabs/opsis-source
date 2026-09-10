@@ -6,6 +6,15 @@ const USDG = "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168";
 
 test("trade simulator one-click example exports a private-by-default PNG and clears it on edit", async ({ page }) => {
   test.skip(process.env.VITE_TRADE_SIMULATOR_ENABLED !== "true", "preview flag required");
+  const nginx = await readFile("apps/web/nginx.conf", "utf8");
+  const imagePolicy = nginx.match(/img-src [^;]+/)?.[0];
+  expect(imagePolicy).toBe("img-src 'self' data:");
+  // Apply the actual production image directive; Vite's dev-only inline preamble
+  // cannot use the production script directive. Production policy is not changed.
+  await page.route("**/simulate", async route => {
+    const response = await route.fetch();
+    await route.fulfill({ response, headers: { ...response.headers(), "Content-Security-Policy": `${imagePolicy};` } });
+  });
   let calls = 0;
   await page.route("**/v1/private/trade-simulator/quote", async route => {
     calls++;
@@ -22,6 +31,8 @@ test("trade simulator one-click example exports a private-by-default PNG and cle
   await expect(page.getByLabel("Include my entered balances in the image")).not.toBeChecked();
   await page.getByRole("button", { name: "Create share card" }).click();
   await expect(card.getByRole("img")).toBeVisible();
+  await expect(card.getByRole("img")).toHaveAttribute("src", /^data:image\/png;base64,/);
+  await expect.poll(() => card.getByRole("img").evaluate(image => (image as HTMLImageElement).naturalWidth)).toBe(1200);
   const downloadPromise = page.waitForEvent("download");
   await page.getByRole("link", { name: "Download PNG" }).click();
   const download = await downloadPromise;

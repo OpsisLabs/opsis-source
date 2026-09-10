@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "42938ab2d58a83b9def95a86717e80e94ccc314d681ddf37d202aca5d627da44",
+  "sourceTreeDigest": "6db82000dd16a0bca81281ff8e9b1865011e412d953064be91962f8ea8224449",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "1ce9b51ef309bdbbf614897b61d9d0b3988e58241cd3c5662aa13827a4dbbebf",
@@ -261,8 +261,8 @@
     "apps/web/src/simulator/model.test.ts": "cce12bd677e82c366b9193af4f2b198f32e2daa294ea42681c6b775c8b88511c",
     "apps/web/src/simulator/model.ts": "260c4a57ab1f81ce74c6e5c7fcf8b3e9ee7f780bbf37719aa010383512b26cd4",
     "apps/web/src/simulator/trade-card.test.ts": "0e672db5c38b75e5160f24f0c7078cc802c8615744d47136af3033e557a5fdc9",
-    "apps/web/src/simulator/trade-card.ts": "2be74e79f6fbc1d9efbb31a250c6e11dc8882edc9f946d04ad61640080f98043",
-    "apps/web/src/simulator/TradeCard.tsx": "199a6be4cc6c5b435646fe363e93c76b0495d053f616cdb42c781079a6b5ed3b",
+    "apps/web/src/simulator/trade-card.ts": "917d55b45f42a8d5504752be1a180520a6a23f4c5417aa960a65e4f5fbef4f8a",
+    "apps/web/src/simulator/TradeCard.tsx": "874a609a53559adf49c5760dd424967f7871d436040ee53be9599b9773383af6",
     "apps/web/src/simulator/TradeSimulator.tsx": "1109cacd1abb1f975a369b217f9a92c1f7ce7fd84ea4d5f9e289e9d989934da1",
     "apps/web/src/swap/api.test.ts": "535c562ece97f42cbaf87557ea30ae2d66b2a7db4be934d5592004a67444a419",
     "apps/web/src/swap/api.ts": "5a79bd34319b322d309b7726529d3eeb1f90be613c90cac70033732e2ed8ecc2",
@@ -300,7 +300,7 @@
     "e2e/product-navigation.mock.spec.ts": "fcecf1660d2f350116d9bc04e243d45305a2b2f8c649f99aca929921023bd966",
     "e2e/replay.mock.spec.ts": "318a26b87d970b14231cc058a55f40fa217fa2506013daf70825949b71351374",
     "e2e/rwa.mock.spec.ts": "b0cf42fd72da28dfa6fbf7bf514d96ba294336537301e2bab3cfee0d7f035c51",
-    "e2e/scout-swap.mock.spec.ts": "6e65b9e5a21e19a33c79474d260655f1c03e1d0f1a18b6a7d82c729f07ac51b7",
+    "e2e/scout-swap.mock.spec.ts": "687299ea9fb334a567ee4d44f39d415dbb574031c835d0228de1c84bc031f533",
     "e2e/support/origin.ts": "ca6f98ac33b26b8c540ce812d8acbccf944c6cd1d94f4ff9911f51402e293fb8",
     "e2e/vault.mock.spec.ts": "2170a4baab1820e0ff0a6dcd5a292ea8f05bd7205b775e8a35cdea679e44fc1a",
     "e2e/wallet-ai.live.spec.ts": "0b74831125b671378e36c1fad76be23f98a9f4beec3c08250df2451ca107727e",
