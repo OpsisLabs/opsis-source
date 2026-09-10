@@ -143,7 +143,8 @@ function runGate(manifest) {
   const target = manifest.releases.find((release) => release.branch === branchName()) ?? active;
   console.log(`\nRunning complete gate for ${target.id}${target.status === "queued" ? " (preview only; not eligible to ship)" : ""}\n`);
 
-  for (const [command, args] of gateCommands) {
+  const commands = [...gateCommands, ...(JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8")).scripts?.["test:feature-preview"] ? [["pnpm", ["test:feature-preview"]]] : [])];
+  for (const [command, args] of commands) {
     console.log(`\n--- ${command} ${args.join(" ")} ---\n`);
     const result = spawnSync(command, args, { cwd: repoRoot, stdio: "inherit" });
     if (result.status !== 0) fail(`${command} ${args.join(" ")} failed`);

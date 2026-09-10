@@ -16,6 +16,16 @@ export type ProductFeature = {
 
 export const PRODUCT_FEATURES: ProductFeature[] = [
   {
+    id: "approval-manager", group: "vault", label: "Approval Manager", shortLabel: "Approvals",
+    helpLabel: "About spending permissions", path: "/vault?view=approvals",
+    eyebrow: "BOUNDED READ-ONLY REVIEW", navHint: "Review who can move assets",
+    summary: "Review discovered spending permissions at a captured block.",
+    bestFor: "Understanding limited, unlimited and NFT permissions before independent external review.",
+    privacy: "Public-address reads are disclosed; saved evidence remains encrypted in your local Vault.",
+    boundary: "Not an exhaustive scan or safety verdict. External tools and your wallet own revocation, with network costs.",
+    steps: ["Unlock your Vault.", "Approve one public-address refresh.", "Filter permissions and inspect exact evidence.", "Review the external handoff; refresh after any change."]
+  },
+  {
     id: "private-explorer",
     group: "explore",
     label: "Private Explorer",

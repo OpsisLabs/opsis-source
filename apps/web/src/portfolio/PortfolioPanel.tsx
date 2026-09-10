@@ -19,6 +19,7 @@ import type {
   VaultPortfolioValuation
 } from "../vault/types";
 import { requestPortfolioSnapshot } from "./api";
+import { ApprovalManager } from "../approvals/ApprovalManager";
 import { allocationPercent, buildPortfolioMath, formatDisplayDecimal, valueTotals, verifiedHoldingCount, type PortfolioMathRow } from "./math";
 const PortfolioAllocationChart = lazy(() =>
   import("../charts/VaultVisualizations").then((module) => ({
@@ -29,11 +30,13 @@ const PortfolioAllocationChart = lazy(() =>
 const ADDRESS = /^0x[0-9a-fA-F]{40}$/;
 
 export function PortfolioPanel({
+  approvalsOnly = false,
   assets,
   context,
   sessionId,
   onSave
 }: {
+  approvalsOnly?: boolean;
   assets: VaultAsset[];
   context?: VaultPortfolioContext;
   sessionId: number;
@@ -135,7 +138,7 @@ export function PortfolioPanel({
       setReceipts(approvedReceipts);
       if (!activeRef.current || controller.signal.aborted) return;
       networkStarted = true;
-      const nextSnapshot = await requestPortfolioSnapshot(normalizedAddress, controller.signal);
+      const nextSnapshot = await requestPortfolioSnapshot(normalizedAddress, controller.signal, approvalsOnly);
       networkCompleted = true;
       if (!activeRef.current || controller.signal.aborted) return;
       const completedReceipt = {
@@ -235,7 +238,7 @@ export function PortfolioPanel({
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="flex items-center gap-2 font-mono-d text-[9.5px] tracking-[0.16em] text-[#fa6c34]"><WalletCards size={14} /> ANCHORED PORTFOLIO LENS</p>
-            <h2 className="mt-3 text-[28px] font-medium tracking-[-0.03em] text-[#f0e8da]">One local view of what you own.</h2>
+            <h2 className="mt-3 text-[28px] font-medium tracking-[-0.03em] text-[#f0e8da]">{approvalsOnly ? "Know who can move your assets." : "One local view of what you own."}</h2>
             <p className="mt-3 max-w-[720px] text-[12.5px] leading-relaxed text-[#9a938a]">Refresh one public Robinhood Chain address on demand. ChainScout captures one current block, verifies every direct read against that exact anchor, rechecks its hash, then encrypts the snapshot, your label, and your reference prices only inside this Vault. The anchor is current, not final.</p>
           </div>
           <div className="flex items-center gap-2 border border-[#7fb069]/30 bg-[#7fb069]/5 px-4 py-3 font-mono-d text-[9px] tracking-wider text-[#9fc68f]"><LockKeyhole size={12} /> NO AUTO-REFRESH · NO WALLET CONNECTION</div>
@@ -272,6 +275,7 @@ export function PortfolioPanel({
       {notice && <div role="status" className="flex items-center gap-2 border border-[#7fb069]/35 bg-[#7fb069]/5 px-5 py-4 text-[11.5px] text-[#9fc68f]"><CheckCircle2 size={14} /> {notice}</div>}
 
       {snapshot && (
+        approvalsOnly ? <ApprovalManager key={`${snapshot.address}:${snapshot.anchor.blockHash}`} snapshot={snapshot} /> :
         <>
           <SnapshotHeader snapshot={snapshot} totals={totals} label={saved?.label || label} />
           <Suspense fallback={null}>

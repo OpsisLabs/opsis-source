@@ -73,6 +73,7 @@ import {
   type VaultStorageStatus,
 } from "../vault/types";
 import { PortfolioPanel } from "../portfolio/PortfolioPanel";
+import { isApprovalManagerEnabled } from "../product/availability";
 import { CollectibleCatalogPanel } from "../collectibles/CollectibleCatalogPanel";
 import { MarketInventoryPanel } from "../market/MarketInventoryPanel";
 import { ReplayActionsPanel } from "../replay/ReplayActionsPanel";
@@ -1033,10 +1034,12 @@ export default function VaultPage() {
                 />
               </div>
             )}
+            {isApprovalManagerEnabled() && <button type="button" className="mt-4 min-h-[44px] border border-[#fa6c34] px-4 text-[#fa6c34]" onClick={() => selectWorkspace("approvals")}>APPROVAL MANAGER</button>}
             {workspace === "market" &&
-            MARKET_INVENTORY_ENABLED ? null : workspace === "portfolio" ? (
+            MARKET_INVENTORY_ENABLED ? null : workspace === "portfolio" || workspace === "approvals" ? (
               <PortfolioPanel
-                key={`${meta.vaultId}:${sessionGeneration}:portfolio`}
+                key={`${meta.vaultId}:${sessionGeneration}:${workspace}`}
+                approvalsOnly={workspace === "approvals"}
                 assets={assets}
                 context={portfolios[0]}
                 sessionId={sessionGeneration}

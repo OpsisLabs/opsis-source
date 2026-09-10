@@ -50,6 +50,7 @@ export function isOpenDataApiEnabled() {
 }
 
 export function isProductFeatureEnabled(id: string) {
+  if (id === "approval-manager") return isApprovalManagerEnabled();
   if (id === "collectible-catalog") return isCollectibleCatalogEnabled();
   if (id === "market-inventory") return isMarketInventoryEnabled();
   if (id === "replay-actions") return isReplayActionsEnabled();
@@ -57,7 +58,11 @@ export function isProductFeatureEnabled(id: string) {
   return true;
 }
 
-export type VaultWorkspace = "assets" | "portfolio" | "collectibles" | "market" | "replay";
+export function isApprovalManagerEnabled() {
+  return import.meta.env.VITE_APPROVAL_MANAGER_ENABLED === "true";
+}
+
+export type VaultWorkspace = "assets" | "portfolio" | "collectibles" | "market" | "replay" | "approvals";
 
 type VaultAvailability = Pick<ReturnType<typeof productAvailability>, "collectibleCatalog" | "marketInventory" | "replayActions">;
 
@@ -66,6 +71,7 @@ export function vaultWorkspaceFromSearch(
   availability: VaultAvailability = currentAvailability(),
 ): VaultWorkspace {
   const requested = searchParams.get("view");
+  if (requested === "approvals" && isApprovalManagerEnabled()) return requested;
   if (requested === "portfolio") return requested;
   if (requested === "collectibles" && availability.collectibleCatalog)
     return requested;

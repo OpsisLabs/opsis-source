@@ -358,6 +358,7 @@ export class PortfolioService implements PortfolioSnapshotSource {
           symbol: approval.symbol,
           active,
           unlimited: false,
+          tokenId: approval.tokenId ?? undefined,
           currentAmount: approved,
           sourceIds: [approval.sourceId, rpcCitation.id]
         }];
