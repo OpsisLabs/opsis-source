@@ -1,7 +1,82 @@
 import { expect, test, type Page } from "@playwright/test";
+import { readFile } from "node:fs/promises";
 
 const WETH = "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73";
 const USDG = "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168";
+
+test("trade simulator one-click example exports a private-by-default PNG and clears it on edit", async ({ page }) => {
+  test.skip(process.env.VITE_TRADE_SIMULATOR_ENABLED !== "true", "preview flag required");
+  let calls = 0;
+  await page.route("**/v1/private/trade-simulator/quote", async route => {
+    calls++;
+    expect(route.request().postDataJSON()).toEqual({ direction: "WETH_TO_USDG", amount: "0.01" });
+    await route.fulfill({ json: quoteFixture() });
+  });
+  await page.goto("/simulate");
+  expect(calls).toBe(0);
+  await expect(page.getByText(/Examples use 1 WETH/)).toBeVisible();
+  await page.getByRole("button", { name: "Try 0.01 WETH → USDG" }).click();
+  const card = page.getByRole("region", { name: "Trade Card", exact: true });
+  await expect(card).toBeVisible();
+  await expect(card.getByText("36.45 USDG", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Include my entered balances in the image")).not.toBeChecked();
+  await page.getByRole("button", { name: "Create share card" }).click();
+  await expect(card.getByRole("img")).toBeVisible();
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByRole("link", { name: "Download PNG" }).click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toBe("chainscout-trade-card.png");
+  const bytes = await readFile((await download.path())!);
+  expect(bytes.subarray(0, 8).toString("hex")).toBe("89504e470d0a1a0a");
+  expect(bytes.readUInt32BE(16)).toBe(1200);
+  expect(bytes.readUInt32BE(20)).toBe(1200);
+  for (const width of [320, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+  }
+  if (process.env.CHAINSCOUT_CARD_SHOT) {
+    await page.getByRole("img", { name: /Your Trade Card preview/ }).screenshot({ path: process.env.CHAINSCOUT_CARD_SHOT });
+  }
+  await page.getByLabel("Include my entered balances in the image").check();
+  await expect(card.getByRole("link", { name: "Download PNG" })).toHaveCount(0);
+  await page.getByRole("button", { name: "Create share card" }).click();
+  await expect(card.getByRole("img")).toBeVisible();
+  expect(calls).toBe(1);
+  await page.getByLabel("Trade amount", { exact: true }).fill("0.02");
+  await expect(card).toHaveCount(0);
+});
+
+test("trade simulator reverse example, expiry, provider failure and export failure remain honest", async ({ page }) => {
+  test.skip(process.env.VITE_TRADE_SIMULATOR_ENABLED !== "true", "preview flag required");
+  let fail = false;
+  await page.route("**/v1/private/trade-simulator/quote", async route => {
+    expect(route.request().postDataJSON()).toEqual({ direction: "USDG_TO_WETH", amount: "25" });
+    if (fail) { await route.fulfill({ status: 503, json: { error: { code: "UNAVAILABLE", message: "Quotes temporarily unavailable" } } }); return; }
+    const quote = quoteFixture(false, true);
+    quote.input = { symbol: "USDG", address: USDG, amount: "25" };
+    quote.output = { ...quote.output, symbol: "WETH", address: WETH, amount: "0.007", minimumReceived: "0.0069" };
+    quote.transactionPreview.action = "Execute an exact-input swap for 25 USDG → at least 0.0069 WETH";
+    quote.handoffUrl = `https://app.uniswap.org/swap?chain=robinhood&inputCurrency=${USDG}&outputCurrency=${WETH}&field=input&value=25&theme=dark`;
+    await route.fulfill({ json: quote });
+  });
+  await page.clock.install();
+  await page.goto("/simulate");
+  await page.getByRole("button", { name: "Try 25 USDG → WETH" }).click();
+  const card = page.getByRole("region", { name: "Trade Card", exact: true });
+  await expect(card.getByText("0.007 WETH", { exact: true })).toBeVisible();
+  await expect(card.getByText(/Provider check returned a warning/)).toBeVisible();
+  await page.evaluate(() => { HTMLCanvasElement.prototype.toBlob = function (callback) { callback(null); }; });
+  await page.getByRole("button", { name: "Create share card" }).click();
+  await expect(card.getByRole("alert")).toHaveText("Image export failed. Please try again.");
+  await expect(card.getByRole("link", { name: "Download PNG" })).toHaveCount(0);
+  await page.clock.fastForward(31000);
+  await expect(card).toHaveCount(0);
+  await expect(page.getByRole("alert")).toContainText("expired");
+  fail = true;
+  await page.getByRole("button", { name: "Try 25 USDG → WETH" }).click();
+  await expect(page.getByRole("alert")).toContainText("The service is unavailable right now");
+  await expect(card).toHaveCount(0);
+});
 
 test("trade simulator compares quantities, keeps balances private and invalidates edits", async ({ page }) => {
   test.skip(process.env.VITE_TRADE_SIMULATOR_ENABLED !== "true", "preview flag required");
