@@ -120,6 +120,10 @@ test("official contract writes the browser clipboard on a real user gesture", as
   await page.goto("/");
   await page.getByRole("button", { name: "Copy official ChainScout contract address" }).click();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(officialTokenFixture.address);
+  // Do not leave a synthetic token identity on the test clipboard.
+  await page.evaluate(async (fixture) => {
+    if (await navigator.clipboard.readText() === fixture) await navigator.clipboard.writeText("");
+  }, officialTokenFixture.address);
 });
 
 const passphrase = "navigation audit passphrase";

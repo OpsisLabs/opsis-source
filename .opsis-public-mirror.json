@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "a31214ae9be3e98f531d3a6c2cbde35148ac6f3e1c72cb72c90992b38b326b6a",
+  "sourceTreeDigest": "9b2dd1b97c3587c7e0dff84d73af0f6fa8263bcbd1aaab25bdbe3f1def1bc97f",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "1ce9b51ef309bdbbf614897b61d9d0b3988e58241cd3c5662aa13827a4dbbebf",
@@ -286,7 +286,7 @@
     "e2e/open-data-disabled.mock.spec.ts": "f53937cb99ad0a4248fc333cdd48b69634da514ce74ac2ac19ad22dd2128124a",
     "e2e/open-data.mock.spec.ts": "cf1cb205abe51ba3cd3176e28b4eb342221900c81ab718b904da1cfdb053e21b",
     "e2e/private-mode.mock.spec.ts": "e7c380b8280dbc4d7574ff5dc8d8ee3f7f325eb92be18881116f1aec02c880d1",
-    "e2e/product-navigation.mock.spec.ts": "48a4f2033d4734cd5d6f07ca5a35e64d9bd6e614126e5f2707920da9e27df897",
+    "e2e/product-navigation.mock.spec.ts": "fcecf1660d2f350116d9bc04e243d45305a2b2f8c649f99aca929921023bd966",
     "e2e/replay.mock.spec.ts": "318a26b87d970b14231cc058a55f40fa217fa2506013daf70825949b71351374",
     "e2e/rwa.mock.spec.ts": "b0cf42fd72da28dfa6fbf7bf514d96ba294336537301e2bab3cfee0d7f035c51",
     "e2e/scout-swap.mock.spec.ts": "0c6de4b561dbf7b409b4527d83fa2f955b372ee1ffd1295c5359b88fdf1ff01d",
