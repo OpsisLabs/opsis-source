@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "d0ebf373bbd0a267b100b73677d936b0968ed573d69eb4e1b782f38148f109e2",
+  "sourceTreeDigest": "d5cec79fc4e962302081a9e03b914911a3d9ffee5a041861d51e6dca243ecf9f",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "1ce9b51ef309bdbbf614897b61d9d0b3988e58241cd3c5662aa13827a4dbbebf",
@@ -260,7 +260,7 @@
     "apps/web/src/sections/TopNav.tsx": "09f0553f8a4a5cba9caa2a5a25abe7b20bc5b5d3d57f3e840a897d0abccabdda",
     "apps/web/src/simulator/model.test.ts": "cce12bd677e82c366b9193af4f2b198f32e2daa294ea42681c6b775c8b88511c",
     "apps/web/src/simulator/model.ts": "260c4a57ab1f81ce74c6e5c7fcf8b3e9ee7f780bbf37719aa010383512b26cd4",
-    "apps/web/src/simulator/TradeSimulator.tsx": "1707631be7a456ddfa99da27aa4db4fec86977250f9009beaf5fbd3e5be665e0",
+    "apps/web/src/simulator/TradeSimulator.tsx": "f5e72a3279dd7b4887ad15c674c70c03a62d7b2802feb630fe02e1e2de7eac47",
     "apps/web/src/swap/api.test.ts": "535c562ece97f42cbaf87557ea30ae2d66b2a7db4be934d5592004a67444a419",
     "apps/web/src/swap/api.ts": "5a79bd34319b322d309b7726529d3eeb1f90be613c90cac70033732e2ed8ecc2",
     "apps/web/src/vault/BackupDownloadLink.tsx": "de8309657166688610dc0805518deba2604ceda14ae325ee268ee9a19a6affb9",
@@ -297,7 +297,7 @@
     "e2e/product-navigation.mock.spec.ts": "fcecf1660d2f350116d9bc04e243d45305a2b2f8c649f99aca929921023bd966",
     "e2e/replay.mock.spec.ts": "318a26b87d970b14231cc058a55f40fa217fa2506013daf70825949b71351374",
     "e2e/rwa.mock.spec.ts": "b0cf42fd72da28dfa6fbf7bf514d96ba294336537301e2bab3cfee0d7f035c51",
-    "e2e/scout-swap.mock.spec.ts": "5b9ea1e7408e5243ef0366878d128f819fa4aec58a97cdef9da793c2cd6d896b",
+    "e2e/scout-swap.mock.spec.ts": "5c5a38e9bcc7277026bfa4533d2a7c558bdea4cd55852fad59fea42491ebeda1",
     "e2e/support/origin.ts": "ca6f98ac33b26b8c540ce812d8acbccf944c6cd1d94f4ff9911f51402e293fb8",
     "e2e/vault.mock.spec.ts": "2170a4baab1820e0ff0a6dcd5a292ea8f05bd7205b775e8a35cdea679e44fc1a",
     "e2e/wallet-ai.live.spec.ts": "0b74831125b671378e36c1fad76be23f98a9f4beec3c08250df2451ca107727e",

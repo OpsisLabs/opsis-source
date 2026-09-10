@@ -23,6 +23,8 @@ test("trade simulator compares quantities, keeps balances private and invalidate
   await page.getByLabel("WETH reference price in USDG").fill("3645");
   await page.getByRole("button", { name: "Request quote & compare" }).click();
   await expect(page.getByRole("cell", { name: "136.45", exact: true })).toBeVisible();
+  await expect(page.getByText(/Liquidity-provider, protocol and token-specific fees may also apply/)).toBeVisible();
+  await expect(page.getByText(/minimum output is not a total-cost guarantee/)).toBeVisible();
   if (process.env.CHAINSCOUT_PREVIEW_SHOT) await page.screenshot({ path: process.env.CHAINSCOUT_PREVIEW_SHOT, fullPage: true });
   for (const width of [320, 390]) {
     await page.setViewportSize({ width, height: 900 });
