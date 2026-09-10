@@ -129,6 +129,16 @@
       "currentSlice": "Card Price Check: standalone public reference prices only. Automatic live offers and sold-listing aggregation remain access-restricted and unshipped; the listing ship gate below is not claimed complete.",
       "outcome": "Compare exact collectible offers and evidence without confusing asking prices with value",
       "shipGate": "Supported authorized free-tier sources distinguish printing, condition and grade, list known landed costs and timestamp every offer. Sold-price evidence is independently labeled and never fabricated; unknown shipping and weak matches cannot rank as guaranteed cheapest. Provider limits fail closed without overage; unsupported venues use explicit search handoffs rather than claimed live listings."
+    },
+    {
+      "order": 14,
+      "id": "14-scout-watch",
+      "branch": "codex/14-scout-watch",
+      "tagPrefix": "rc/14-scout-watch/",
+      "status": "queued",
+      "outcome": "Save wallets privately and see what changed between checks",
+      "dependencies": ["04-portfolio-intelligence", "03-encrypted-vault"],
+      "shipGate": "Wallet labels and bounded snapshot history are encrypted locally. User-triggered public-address refreshes show exact comparable balance changes and newly observed activity with block anchors, source links and coverage gaps; missing is never zero, transfers are not inferred trades, and no background monitoring or profit claims are made. Persistence, backup/restore, deletion, stale/reorg/provider errors, concurrency, accessibility and English/Chinese mobile flows are tested. No signing, new provider, recurring vendor cost or private-data upload is introduced."
     }
   ]
 }
