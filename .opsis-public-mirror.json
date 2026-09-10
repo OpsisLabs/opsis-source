@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "9b2dd1b97c3587c7e0dff84d73af0f6fa8263bcbd1aaab25bdbe3f1def1bc97f",
+  "sourceTreeDigest": "751d1af59074b2b8a668516ef16e174de1d8da25d161f916935c37b6f5162730",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "1ce9b51ef309bdbbf614897b61d9d0b3988e58241cd3c5662aa13827a4dbbebf",
@@ -226,7 +226,7 @@
     "apps/web/src/product/features.ts": "baac7b61218c4fa3dcba1e6cdb21b36adf25c89fb28f188c9a78f2fb4da63d95",
     "apps/web/src/product/official-token-config.test.ts": "1e00f2c76cab3ba572c40287f8418bbb8905f149abfe753f3030e686ad06ec6c",
     "apps/web/src/product/official-token-config.ts": "7f06a726f56bee41bf677e8d46cf3f72ebae36960d0e9fcd47b2de296c279422",
-    "apps/web/src/product/official-token.json": "94c3ccf100caf76731de547be9c41d10347f1c8637741781ab201f99bd452d05",
+    "apps/web/src/product/official-token.json": "7a5dfbe66b376fa5dbb1ffdd6ff9bab8b6a3e97a9aca18b3c62a51131b5a1d87",
     "apps/web/src/product/OfficialContract.tsx": "569b93d35834806f9011dcdf2c71a5bc61bc5203a749b3d63fc13f591b36a8a4",
     "apps/web/src/product/ProductShell.tsx": "8b9c343f23c27c50ace9d8ee8fbc8bd58fce2e4d3d97a6e4fbea5f3e323c41d4",
     "apps/web/src/product/ProductTour.tsx": "b2ec167182e07a340f7e897243832d87bb735f774094e7e36ff8c4ac90f652b6",
