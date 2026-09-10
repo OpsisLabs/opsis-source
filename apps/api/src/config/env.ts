@@ -64,6 +64,7 @@ const envSchema = z.object({
   UNISWAP_QUOTE_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().min(1).max(120).default(20),
   PRIVATE_MODE_ENABLED: envBoolean.default(true),
   PORTFOLIO_MODE_ENABLED: envBoolean.default(false),
+  APPROVAL_MANAGER_ENABLED: envBoolean.default(false),
   PORTFOLIO_DAILY_RPC_UNIT_BUDGET: z.coerce.number().int().min(100).max(100_000).default(5_000),
   PORTFOLIO_MAX_RPC_SUBCALLS: z.coerce.number().int().min(10).max(100).default(64),
   RWA_VERIFY_ENABLED: envBoolean.default(false),

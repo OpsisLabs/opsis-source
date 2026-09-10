@@ -480,6 +480,20 @@ describe("anchored portfolio snapshot", () => {
 });
 
 describe("portfolio route boundary", () => {
+  it("approval manager is independently gated and rejects private context", async () => {
+    const source = { snapshot: vi.fn().mockResolvedValue({ ok: true }) };
+    for (const flag of [false, true]) {
+      const app = Fastify({ logger: false }); apps.push(app); installErrorHandler(app);
+      await portfolioRoutes(app, { ...portfolioEnv(), APPROVAL_MANAGER_ENABLED: flag }, source);
+      const response = await app.inject({ method: "POST", url: "/v1/private/approvals/snapshot", payload: { address: OWNER } });
+      expect(response.statusCode).toBe(flag ? 200 : 503);
+      expect(response.headers["cache-control"]).toBe("private, no-store");
+      if (!flag) expect(source.snapshot).not.toHaveBeenCalled();
+      const bad = await app.inject({ method: "POST", url: "/v1/private/approvals/snapshot", payload: { address: OWNER, label: "private" } });
+      expect(bad.statusCode).toBe(flag ? 400 : 503);
+    }
+    expect(source.snapshot).toHaveBeenCalledTimes(1);
+  });
   it("is flag-gated, strict, uncached and never accepts private Vault context", async () => {
     const source = { snapshot: vi.fn().mockResolvedValue({ ok: true }) };
     const disabled = Fastify({ logger: false });
