@@ -58,6 +58,8 @@ export function humanize(
       return translateCurrent("cloud.http.privateModeDisabled");
     case "PORTFOLIO_MODE_DISABLED":
       return translateCurrent("cloud.http.portfolioModeDisabled");
+    case "SCOUT_WATCH_DISABLED":
+      return translateCurrent("watch.error.disabled");
     case "PORTFOLIO_DAILY_BUDGET_EXCEEDED":
       return translateCurrent("cloud.http.portfolioDailyBudget");
     case "PORTFOLIO_BUDGET_UNAVAILABLE":

@@ -15,6 +15,7 @@ import { legal } from "./legal";
 import { roadmap } from "./roadmap";
 import { cloud } from "./cloud";
 import { cards } from "./cards";
+import { watch } from "./watch";
 
 export const en = {
   ...common,
@@ -34,6 +35,7 @@ export const en = {
   ...roadmap,
   ...cloud,
   ...cards,
+  ...watch,
 };
 
 export type TranslationKey = keyof typeof en;

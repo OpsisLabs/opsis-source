@@ -13,6 +13,17 @@ export const VAULT_PORTFOLIO_RECORD_VERSION = 2 as const;
 export const VAULT_COLLECTIBLE_RECORD_VERSION = 3 as const;
 export const VAULT_MARKET_RECORD_VERSION = 4 as const;
 export const VAULT_CONVERSATION_RECORD_VERSION = 5 as const;
+export const VAULT_WATCH_RECORD_VERSION = 6 as const;
+
+export interface VaultWatch {
+  kind: "watch";
+  id: string;
+  address: string;
+  label: string;
+  snapshots: PortfolioSnapshot[];
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface VaultConversationTurn {
   question: string;
@@ -273,7 +284,8 @@ export interface EncryptedVaultRecord {
     | typeof VAULT_PORTFOLIO_RECORD_VERSION
     | typeof VAULT_COLLECTIBLE_RECORD_VERSION
     | typeof VAULT_MARKET_RECORD_VERSION
-    | typeof VAULT_CONVERSATION_RECORD_VERSION;
+    | typeof VAULT_CONVERSATION_RECORD_VERSION
+    | typeof VAULT_WATCH_RECORD_VERSION;
   iv: string;
   ciphertext: string;
 }

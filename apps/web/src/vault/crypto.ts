@@ -7,6 +7,8 @@ import {
   VAULT_COLLECTIBLE_RECORD_VERSION,
   VAULT_MARKET_RECORD_VERSION,
   VAULT_CONVERSATION_RECORD_VERSION,
+  VAULT_WATCH_RECORD_VERSION,
+  type VaultWatch,
   type VaultConversation,
   VAULT_PORTFOLIO_RECORD_VERSION,
   VAULT_RECORD_VERSION,
@@ -521,6 +523,59 @@ export async function decryptConversation(meta: VaultMeta, key: CryptoKey, recor
   } catch { throw new VaultError("CORRUPT_RECORD", translateCurrent("vault.crypto.corruptConversation")); }
 }
 
+export function validateWatch(value: unknown): asserts value is VaultWatch {
+  if (!isRecord(value) || value.kind !== "watch" || typeof value.id !== "string" || !UUID.test(value.id)
+    || typeof value.address !== "string" || !/^0x[0-9a-f]{40}$/.test(value.address)
+    || typeof value.label !== "string" || !value.label.trim() || value.label.length > 80
+    || typeof value.createdAt !== "string" || !ISO_DATE_TIME.test(value.createdAt)
+    || typeof value.updatedAt !== "string" || !ISO_DATE_TIME.test(value.updatedAt)
+    || !Number.isFinite(Date.parse(value.createdAt)) || !Number.isFinite(Date.parse(value.updatedAt))
+    || !Array.isArray(value.snapshots) || value.snapshots.length < 1 || value.snapshots.length > 3
+    || JSON.stringify(value).length > 1_000_000) {
+    throw new VaultError("INVALID_WATCH", translateCurrent("watch.error.invalidRecord"));
+  }
+  let previous = -1;
+  for (const snapshot of value.snapshots) {
+    validateWatchSnapshot(snapshot, value.address);
+    if (snapshot.anchor.blockNumber <= previous) throw new VaultError("INVALID_WATCH", translateCurrent("watch.error.order"));
+    previous = snapshot.anchor.blockNumber;
+  }
+}
+
+export async function encryptWatch(meta: VaultMeta, key: CryptoKey, watch: VaultWatch): Promise<EncryptedVaultRecord> {
+  validateVaultMeta(meta);
+  validateWatch(watch);
+  const iv = randomBytes(12);
+  const bytes = await crypto.subtle.encrypt(aesParams(iv, recordAad(meta.vaultId, watch.id, VAULT_WATCH_RECORD_VERSION)), key, encoder.encode(JSON.stringify(watch)));
+  return { id: watch.id, version: VAULT_WATCH_RECORD_VERSION, iv: bytesToBase64(iv), ciphertext: bytesToBase64(new Uint8Array(bytes)) };
+}
+
+export function validateWatchSnapshot(value: unknown, address: string): asserts value is VaultWatch["snapshots"][number] {
+  validatePortfolioSnapshot(value, address);
+  const snapshot = value as VaultWatch["snapshots"][number];
+  const unique = (keys: string[]) => new Set(keys).size === keys.length;
+  if (!unique(snapshot.tokens.map(row => row.contract)) || !unique(snapshot.nfts.map(row => `${row.kind}:${row.contract}:${row.tokenId}`))
+    || !unique(snapshot.transactions.map(row => row.hash)) || snapshot.anchor.blockNumber < 0
+    || !Number.isFinite(Date.parse(snapshot.anchor.fetchedAt)) || !Number.isFinite(Date.parse(snapshot.anchor.timestamp))
+    || snapshot.transactions.some(row => row.blockNumber > snapshot.anchor.blockNumber)
+    || snapshot.tokens.some(row => {
+      const [whole, fraction = ""] = row.quantity.split(".");
+      return fraction.length > row.decimals || BigInt(whole + fraction.padEnd(row.decimals, "0")) !== BigInt(row.rawBalance);
+    })) throw new VaultError("INVALID_WATCH", translateCurrent("watch.error.invalidSnapshot"));
+}
+
+export async function decryptWatch(meta: VaultMeta, key: CryptoKey, record: EncryptedVaultRecord): Promise<VaultWatch> {
+  validateEncryptedRecord(record);
+  if (record.version !== VAULT_WATCH_RECORD_VERSION) throw new VaultError("CORRUPT_RECORD", translateCurrent("watch.error.invalidRecord"));
+  try {
+    const bytes = await crypto.subtle.decrypt(aesParams(base64ToBytes(record.iv), recordAad(meta.vaultId, record.id, record.version)), key, base64ToBytes(record.ciphertext));
+    const value: unknown = JSON.parse(decoder.decode(bytes));
+    validateWatch(value);
+    if (value.id !== record.id) throw new Error("record identity mismatch");
+    return value;
+  } catch { throw new VaultError("CORRUPT_RECORD", translateCurrent("watch.error.invalidRecord")); }
+}
+
 export async function decryptVaultRecord(
   meta: VaultMeta,
   key: CryptoKey,
@@ -531,7 +586,10 @@ export async function decryptVaultRecord(
   | VaultCollectibleContext
   | VaultMarketContext
   | VaultConversation
+  | VaultWatch
 > {
+  if (record.version === VAULT_WATCH_RECORD_VERSION)
+    return decryptWatch(meta, key, record);
   if (record.version === VAULT_CONVERSATION_RECORD_VERSION)
     return decryptConversation(meta, key, record);
   if (record.version === VAULT_RECORD_VERSION)
@@ -875,7 +933,8 @@ function validateEncryptedRecord(
       value.version !== VAULT_PORTFOLIO_RECORD_VERSION &&
       value.version !== VAULT_COLLECTIBLE_RECORD_VERSION &&
       value.version !== VAULT_MARKET_RECORD_VERSION &&
-      value.version !== VAULT_CONVERSATION_RECORD_VERSION) ||
+      value.version !== VAULT_CONVERSATION_RECORD_VERSION &&
+      value.version !== VAULT_WATCH_RECORD_VERSION) ||
     typeof value.iv !== "string" ||
     base64ToBytes(value.iv).byteLength !== 12 ||
     typeof value.ciphertext !== "string" ||
@@ -1555,7 +1614,7 @@ function validDexUrl(value: string): boolean {
   }
 }
 
-function validatePortfolioSnapshot(value: unknown, address: string): void {
+export function validatePortfolioSnapshot(value: unknown, address: string): void {
   if (
     !isRecord(value) ||
     value.schemaVersion !== 1 ||
@@ -2375,7 +2434,7 @@ function keyAad(vaultId: string): Uint8Array<ArrayBuffer> {
 function recordAad(
   vaultId: string,
   recordId: string,
-  version: 1 | 2 | 3 | 4 | 5,
+  version: 1 | 2 | 3 | 4 | 5 | 6,
 ): Uint8Array<ArrayBuffer> {
   return encoder.encode(
     `chainscout:vault-record:v${version}:${vaultId}:${recordId}`,

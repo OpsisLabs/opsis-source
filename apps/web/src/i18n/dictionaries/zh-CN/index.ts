@@ -15,6 +15,7 @@ import { legal } from "./legal";
 import { roadmap } from "./roadmap";
 import { cloud } from "./cloud";
 import { cards } from "./cards";
+import { watch } from "./watch";
 
 export const zhCN: Record<string, string> = {
   ...common,
@@ -34,4 +35,5 @@ export const zhCN: Record<string, string> = {
   ...roadmap,
   ...cloud,
   ...cards,
+  ...watch,
 };

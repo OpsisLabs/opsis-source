@@ -9,6 +9,7 @@ const Roadmap = lazy(() => import("./pages/Roadmap"));
 const ScoutSwap = lazy(() => import("./pages/ScoutSwap"));
 const TradeSimulator = lazy(() => import("./simulator/TradeSimulator"));
 const CardPriceCheck = lazy(() => import("./deals/CardPriceCheck"));
+const ScoutWatch = lazy(() => import("./watch/ScoutWatch"));
 const PrivateExplorer = lazy(() => import("./pages/PrivateExplorer"));
 const VaultPage = lazy(() => import("./pages/Vault"));
 const PrivateDealPreview = lazy(() => import("./deals/PrivatePreview"));
@@ -105,6 +106,7 @@ export default function App() {
           />
           <Route path="/simulate" element={import.meta.env.VITE_TRADE_SIMULATOR_ENABLED === "true" ? <DeferredPage><TradeSimulator /></DeferredPage> : <Navigate to="/guide" replace />} />
           <Route path="/card-prices" element={import.meta.env.VITE_CARD_PRICE_CHECK_ENABLED === "true" ? <DeferredPage><CardPriceCheck /></DeferredPage> : <Navigate to="/guide" replace />} />
+          <Route path="/watch" element={import.meta.env.VITE_SCOUT_WATCH_ENABLED === "true" ? <DeferredPage><ScoutWatch /></DeferredPage> : <Navigate to="/guide" replace />} />
           <Route
             path="/app"
             element={

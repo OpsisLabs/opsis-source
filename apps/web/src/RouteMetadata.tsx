@@ -10,6 +10,7 @@ type RouteMetadataEntry = {
 };
 
 const ROUTE_METADATA: Record<string, RouteMetadataEntry> = {
+  "/watch": { title: "watch.metadata.title", description: "watch.metadata.description", noIndex: true },
   "/card-prices": {
     title: "cards.metadata.title",
     description: "cards.metadata.description",

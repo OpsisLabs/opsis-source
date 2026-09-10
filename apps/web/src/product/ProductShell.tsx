@@ -18,6 +18,7 @@ import {
   CircleHelp,
   CodeXml,
   FilePenLine,
+  Eye,
   House,
   Menu,
   MessageCircleQuestion,
@@ -53,6 +54,7 @@ function rememberTourSeen() {
 }
 
 const ICONS: Record<string, ComponentType<{ size?: number; className?: string }>> = {
+  "scout-watch": Eye,
   "card-price-check": WalletCards,
   "private-explorer": Search,
   "scout-swap": ArrowLeftRight,

@@ -7,6 +7,7 @@ const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const port = Number(process.env.PW_FEATURE_PORT ?? "5383");
 if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error("Invalid PW_FEATURE_PORT");
 const features = [
+  { source: "apps/web/src/watch/ScoutWatch.tsx", flag: "VITE_SCOUT_WATCH_ENABLED", file: "e2e/scout-watch.mock.spec.ts", grep: "scout watch" },
   { source: "apps/web/src/deals/CardPriceCheck.tsx", flag: "VITE_CARD_PRICE_CHECK_ENABLED", file: "e2e/card-prices.mock.spec.ts", grep: "card price check" },
   { source: "apps/web/src/approvals/ApprovalManager.tsx", flag: "VITE_APPROVAL_MANAGER_ENABLED", file: "e2e/vault.mock.spec.ts", grep: "approval manager" },
   { source: "apps/web/src/simulator/TradeSimulator.tsx", flag: "VITE_TRADE_SIMULATOR_ENABLED", file: "e2e/scout-swap.mock.spec.ts", grep: "trade simulator" },
@@ -24,6 +25,12 @@ for (const engine of ["chromium", "webkit"]) {
   }
   if (existsSync(join(root, "e2e/card-prices.mock.spec.ts"))) {
     const closed = spawnSync("pnpm", ["exec", "playwright", "test", ...config, "e2e/card-prices.mock.spec.ts", "--grep", "closed by default"], {
+      cwd: root, stdio: "inherit", env: baseEnv,
+    });
+    if (closed.status !== 0) process.exit(closed.status ?? 1);
+  }
+  if (existsSync(join(root, "e2e/scout-watch.mock.spec.ts"))) {
+    const closed = spawnSync("pnpm", ["exec", "playwright", "test", ...config, "e2e/scout-watch.mock.spec.ts", "--grep", "closed by default"], {
       cwd: root, stdio: "inherit", env: baseEnv,
     });
     if (closed.status !== 0) process.exit(closed.status ?? 1);

@@ -12,6 +12,7 @@ import {
   encryptMarketContext,
   encryptPortfolioContext,
   encryptConversation,
+  encryptWatch,
   parseBackup,
   recoverVault,
   unlockVault,
@@ -45,7 +46,8 @@ import {
   type VaultMarketContextDraft,
   type VaultPortfolioContext,
   type VaultPortfolioContextDraft,
-  type VaultConversation
+  type VaultConversation,
+  type VaultWatch
 } from "./types";
 
 export interface UnlockedVault {
@@ -56,6 +58,7 @@ export interface UnlockedVault {
   collectibles: VaultCollectibleContext[];
   markets: VaultMarketContext[];
   conversations?: VaultConversation[];
+  watches?: VaultWatch[];
 }
 
 export interface CreatedVault extends UnlockedVault {
@@ -105,6 +108,20 @@ export async function saveVaultConversation(
 ): Promise<VaultMeta> {
   const meta = nextMeta(unlocked.meta);
   const encrypted = await encryptConversation(unlocked.meta, unlocked.key, conversation);
+  assertActive();
+  await writeEncryptedRecord(encrypted, meta, unlocked.meta.revision, assertActive);
+  return meta;
+}
+
+export async function saveVaultWatch(unlocked: UnlockedVault, watch: VaultWatch, assertActive: () => void = () => undefined): Promise<VaultMeta> {
+  const existing = unlocked.watches ?? [];
+  const prior = existing.find(item => item.id === watch.id);
+  if ((!prior && existing.length >= 10) || (prior && prior.address !== watch.address)
+    || existing.some(item => item.id !== watch.id && item.address === watch.address)) {
+    throw new VaultError("INVALID_WATCH", translateCurrent("watch.error.duplicateOrLimit"));
+  }
+  const meta = nextMeta(unlocked.meta);
+  const encrypted = await encryptWatch(unlocked.meta, unlocked.key, watch);
   assertActive();
   await writeEncryptedRecord(encrypted, meta, unlocked.meta.revision, assertActive);
   return meta;
@@ -271,17 +288,19 @@ async function decryptRecords(
   meta: VaultMeta,
   key: CryptoKey,
   encrypted: EncryptedVaultRecord[]
-): Promise<{ assets: VaultAsset[]; portfolios: VaultPortfolioContext[]; collectibles: VaultCollectibleContext[]; markets: VaultMarketContext[]; conversations: VaultConversation[] }> {
+): Promise<{ assets: VaultAsset[]; portfolios: VaultPortfolioContext[]; collectibles: VaultCollectibleContext[]; markets: VaultMarketContext[]; conversations: VaultConversation[]; watches: VaultWatch[] }> {
   const records = await Promise.all(encrypted.map((record) => decryptVaultRecord(meta, key, record)));
   const assets = records.filter((record): record is VaultAsset => !("kind" in record));
   const portfolios = records.filter((record): record is VaultPortfolioContext => "kind" in record && record.kind === "portfolio-context");
   const collectibles = records.filter((record): record is VaultCollectibleContext => "kind" in record && record.kind === "collectible-context");
   const markets = records.filter((record): record is VaultMarketContext => "kind" in record && record.kind === "market-context");
   const conversations = records.filter((record): record is VaultConversation => "kind" in record && record.kind === "conversation");
+  const watches = records.filter((record): record is VaultWatch => "kind" in record && record.kind === "watch");
+  watches.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
   conversations.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
   assets.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
   portfolios.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
   collectibles.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
   markets.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
-  return { assets, portfolios, collectibles, markets, conversations };
+  return { assets, portfolios, collectibles, markets, conversations, watches };
 }
