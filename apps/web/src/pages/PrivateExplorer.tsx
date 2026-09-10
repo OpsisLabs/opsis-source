@@ -25,6 +25,7 @@ import { WorkspaceDisclosure } from "../product/WorkspaceDisclosure";
 import { useLocalHistory } from "../private/useLocalHistory";
 import { LocalHistory, SavedConversation } from "../private/LocalHistory";
 import type { VaultConversationTurn } from "../vault/types";
+import OfficialContract from "../product/OfficialContract";
 
 const PROMPTS = [
   "What stands out to a beginner?",
@@ -204,6 +205,8 @@ export default function PrivateExplorer() {
           </a>
         </div>
       </header>
+
+      <OfficialContract />
 
       <main className="workspace-layout">
         <section className="workspace-heading">
