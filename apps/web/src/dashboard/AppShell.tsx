@@ -6,6 +6,7 @@ import { useAuth } from "./store";
 import { useWallet } from "./walletStore";
 import { hasMetaMask, shortAddress } from "./wallet";
 import type { ChatSession, Usage, User } from "./types";
+import OfficialContract from "../product/OfficialContract";
 
 function LogoMark({ className = "w-6 h-6" }: { className?: string }) {
   return <img src="/logo.svg" alt="ChainScout" className={className} />;
@@ -372,6 +373,7 @@ export default function AppShell() {
           </div>
         )}
 
+        <OfficialContract />
         <Outlet context={{ refreshSessions: refresh }} />
       </div>
     </div>
