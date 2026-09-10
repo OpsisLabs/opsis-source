@@ -1,3 +1,5 @@
+import { translateCurrent } from "../i18n/translate";
+
 export interface ImageDimensions {
   width: number;
   height: number;
@@ -13,12 +15,12 @@ export function readImageDimensions(bytes: Uint8Array, mimeType: string): ImageD
 export async function fileToVaultPhoto(file: File): Promise<VaultPhoto> {
   const dimensions = readImageDimensions(new Uint8Array(await file.arrayBuffer()), file.type);
   if (!dimensions || dimensions.width > MAX_SOURCE_PIXELS / dimensions.height) {
-    throw new Error("Image dimensions are invalid or too large");
+    throw new Error(translateCurrent("vault.photo.invalidDimensions"));
   }
   const bitmap = await createImageBitmap(file);
   if (bitmap.width * bitmap.height > MAX_SOURCE_PIXELS) {
     bitmap.close();
-    throw new Error("Image dimensions are too large");
+    throw new Error(translateCurrent("vault.photo.tooLarge"));
   }
   const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
   const canvas = document.createElement("canvas");
@@ -27,17 +29,17 @@ export async function fileToVaultPhoto(file: File): Promise<VaultPhoto> {
   const context = canvas.getContext("2d", { alpha: true });
   if (!context) {
     bitmap.close();
-    throw new Error("Canvas is unavailable");
+    throw new Error(translateCurrent("vault.photo.canvasUnavailable"));
   }
   context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
   bitmap.close();
   let processed = await canvasBlob(canvas, "image/webp", 0.84);
   if (!processed || processed.size > VAULT_MAX_PHOTO_BYTES) processed = await canvasBlob(canvas, "image/jpeg", 0.76);
-  if (!processed || processed.size > VAULT_MAX_PHOTO_BYTES) throw new Error("Processed image is too large");
+  if (!processed || processed.size > VAULT_MAX_PHOTO_BYTES) throw new Error(translateCurrent("vault.photo.processedTooLarge"));
   const dataUrl = await new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => typeof reader.result === "string" ? resolve(reader.result) : reject(new Error("Invalid photo"));
-    reader.onerror = () => reject(reader.error ?? new Error("Photo read failed"));
+    reader.onload = () => typeof reader.result === "string" ? resolve(reader.result) : reject(new Error(translateCurrent("vault.photo.invalid")));
+    reader.onerror = () => reject(reader.error ?? new Error(translateCurrent("vault.photo.readFailed")));
     reader.readAsDataURL(processed);
   });
   return {

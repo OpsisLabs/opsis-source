@@ -1,4 +1,5 @@
 import { fileToVaultPhoto, MAX_SOURCE_PHOTO_BYTES } from "../vault/photo";
+import { translateCurrent } from "../i18n/translate";
 import type { VaultPhoto } from "../vault/types";
 
 export async function catalogImageToVaultPhoto(
@@ -16,13 +17,13 @@ export async function catalogImageToVaultPhoto(
     signal,
   });
   if (!response.ok || response.url !== url.href) {
-    throw new Error("Catalog thumbnail is unavailable");
+    throw new Error(translateCurrent("collectibles.thumbnail.unavailable"));
   }
   const mimeType = response.headers.get("content-type")?.split(";", 1)[0]?.trim();
-  if (mimeType !== "image/png") throw new Error("Catalog thumbnail has an invalid type");
+  if (mimeType !== "image/png") throw new Error(translateCurrent("collectibles.thumbnail.invalidType"));
   const blob = await response.blob();
   if (blob.size < 1 || blob.size > MAX_SOURCE_PHOTO_BYTES) {
-    throw new Error("Catalog thumbnail has an invalid size");
+    throw new Error(translateCurrent("collectibles.thumbnail.invalidSize"));
   }
   return fileToVaultPhoto(
     new File([blob], `${catalogId}-catalog.png`, { type: "image/png" }),
@@ -42,7 +43,7 @@ function validatedCatalogImageUrl(value: string): URL {
     || segments.length !== 5
     || segments[0] !== "en"
     || segments[4] !== "low.png") {
-    throw new Error("Catalog thumbnail URL is invalid");
+    throw new Error(translateCurrent("collectibles.thumbnail.invalidUrl"));
   }
   return url;
 }

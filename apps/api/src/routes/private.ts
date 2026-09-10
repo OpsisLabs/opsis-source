@@ -4,7 +4,7 @@ import type { Env } from "../config/env.js";
 import type { JsonCache } from "../cache/service.js";
 import type { PrismaClient } from "@prisma/client";
 import { z } from "zod";
-import { AiService } from "../ai/service.js";
+import { AiService, type AiLocale } from "../ai/service.js";
 import { ChainEntityResolver } from "../chain/resolver.js";
 import type { ResolvedEntity } from "../chain/types.js";
 import type { ResolveOptions } from "../chain/types.js";
@@ -13,14 +13,15 @@ import { AppError } from "../http/errors.js";
 const analyzeBody = z.object({
   entity: z.string().trim().min(1).max(200),
   entityType: z.enum(["wallet", "transaction", "token", "contract", "block", "unknown"]).default("unknown"),
-  question: z.string().trim().min(1).max(500).optional()
+  question: z.string().trim().min(1).max(500).optional(),
+  locale: z.enum(["en", "zh-CN"]).optional().default("en")
 }).strict();
 
 export const PRIVATE_RESOLUTION_TIMEOUT_MS = 15_000;
 
 export type PrivateAnalysisDependencies = {
   resolve(type: ChainEntityType, value: string, options: ResolveOptions): Promise<ResolvedEntity>;
-  answer(question: string, entity: NormalizedEntity): Promise<AiExplorerAnswer>;
+  answer(question: string, entity: NormalizedEntity, locale?: AiLocale): Promise<AiExplorerAnswer>;
   resolutionTimeoutMs?: number;
 };
 
@@ -119,7 +120,7 @@ export async function privateRoutes(
   const ai = new AiService({ ...env, AI_PROVIDER: "fallback", OPENAI_API_KEY: undefined });
   const privateAnalysis = dependencies ?? {
     resolve: (type: ChainEntityType, value: string, options: ResolveOptions) => resolver.resolveWithSources(type, value, options),
-    answer: (question: string, entity: NormalizedEntity) => ai.answer(question, entity)
+    answer: (question: string, entity: NormalizedEntity, locale: AiLocale) => ai.answer(question, entity, locale)
   };
 
   app.post(
@@ -149,7 +150,9 @@ export async function privateRoutes(
         throw new AppError("PROVIDER_UNAVAILABLE", 503, "Public chain data providers are temporarily unavailable");
       }
       const question = body.question ?? defaultQuestion(resolution.entity.type);
-      const answer = await privateAnalysis.answer(question, resolution.entity);
+      const answer = body.locale === "en"
+        ? await privateAnalysis.answer(question, resolution.entity)
+        : await privateAnalysis.answer(question, resolution.entity, body.locale);
       return {
         mode: "private" as const,
         entity: resolution.entity,

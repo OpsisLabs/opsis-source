@@ -9,6 +9,7 @@ import { createPortal } from "react-dom";
 import { collectibleDetail, searchCollectibles, type CatalogSearch } from "./api";
 import { fileToVaultPhoto, MAX_SOURCE_PHOTO_BYTES } from "../vault/photo";
 import { catalogImageToVaultPhoto } from "./catalog-image";
+import { useI18n } from "../i18n";
 import type {
   VaultAssetDraft,
   VaultCollectibleCondition,
@@ -35,9 +36,8 @@ type PendingRequest =
   | { operation: "search"; input: CatalogSearch; summary: string }
   | { operation: "detail"; language: CollectibleLanguage; card: CollectibleCardBrief; summary: string };
 
-const LANGUAGES: Array<[CollectibleLanguage, string]> = [["en", "English · launch"]];
-
 export function CollectibleCatalogPanel({ context, sessionId, onSaveContext, onSaveAsset, onManual }: Props) {
+  const { t } = useI18n();
   const [language, setLanguage] = useState<CollectibleLanguage>("en");
   const [name, setName] = useState("");
   const [number, setNumber] = useState("");
@@ -53,6 +53,7 @@ export function CollectibleCatalogPanel({ context, sessionId, onSaveContext, onS
   const contextRef = useRef(context);
   const abortRef = useRef<AbortController | null>(null);
   const [permissionTrigger, setPermissionTrigger] = useState<HTMLElement | null>(null);
+  const languageOptions: Array<[CollectibleLanguage, string]> = [["en", t("collectibles.catalog.languageEnglishLaunch")]];
 
   useEffect(() => { contextRef.current = context; }, [context]);
   useEffect(() => () => abortRef.current?.abort(), []);
@@ -72,7 +73,7 @@ export function CollectibleCatalogPanel({ context, sessionId, onSaveContext, onS
     setPending({
       operation: "search",
       input,
-      summary: `${language.toUpperCase()} · ${name.trim()}${number.trim() ? ` · #${number.trim()}` : ""}${setId.trim() ? ` · set ${setId.trim()}` : ""}`
+      summary: `${language.toUpperCase()} · ${name.trim()}${number.trim() ? ` · #${number.trim()}` : ""}${setId.trim() ? ` · ${t("collectibles.catalog.setSuffix", { setId: setId.trim() })}` : ""}`
     });
   };
 
@@ -106,8 +107,8 @@ export function CollectibleCatalogPanel({ context, sessionId, onSaveContext, onS
       query: request.summary,
       providerDestinations: ["TCGdex"],
       disclosure: request.operation === "search"
-        ? "ChainScout receives the confirmed English card name, optional collector number, and optional set ID. TCGdex receives only the name and optional collector number. Ownership and other private fields remain encrypted in this browser."
-        : "ChainScout and TCGdex receive the selected public card ID. TCGdex returns allowlisted identity metadata and a catalog image path; the browser fetches the low-resolution image directly without cookies or a referrer. Ownership and other private fields remain encrypted in this browser.",
+        ? t("collectibles.receipt.disclosureSearch")
+        : t("collectibles.receipt.disclosureDetail"),
       approvedAt: new Date().toISOString(),
       outcome: "approved"
     };
@@ -122,20 +123,20 @@ export function CollectibleCatalogPanel({ context, sessionId, onSaveContext, onS
         setResultLanguage(request.input.language);
         setTruncated(response.truncated);
         setNotice(response.results.length
-          ? `${response.matchesShown} catalog match${response.matchesShown === 1 ? "" : "es"} shown. Choose one to verify its card and set identity.`
-          : "No catalog match was found. You can adjust the search or add the asset manually.");
+          ? t(response.matchesShown === 1 ? "collectibles.catalog.matchesShownOne" : "collectibles.catalog.matchesShownMany", { count: response.matchesShown })
+          : t("collectibles.catalog.noMatch"));
       } else {
         const response = await collectibleDetail(request.language, request.card.catalogId, controller.signal);
         setCard(response.card);
-        setNotice("Catalog identity resolved. Owner details below remain local and are not verified by TCGdex.");
+        setNotice(t("collectibles.catalog.detailResolved"));
       }
       await persistReceipt({ ...receipt, outcome: "completed", resolvedAt: new Date().toISOString() });
     } catch (requestError) {
       if (controller.signal.aborted) return;
       if (!receiptSaved) {
-        setError("The encrypted permission receipt could not be saved, so ChainScout did not contact the catalog.");
+        setError(t("collectibles.catalog.receiptSaveFailed"));
       } else {
-        setError(requestError instanceof Error ? requestError.message : "The catalog request failed. The manual Vault path is still available.");
+        setError(requestError instanceof Error ? requestError.message : t("collectibles.catalog.requestFailed"));
         await persistReceipt({ ...receipt, outcome: "failed", resolvedAt: new Date().toISOString() }).catch(() => undefined);
       }
     } finally {
@@ -149,38 +150,41 @@ export function CollectibleCatalogPanel({ context, sessionId, onSaveContext, onS
       <div className="clip-panel border border-[#383838] bg-[#242424] p-5 sm:p-7">
         <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
           <div>
-            <p className="flex items-center gap-2 font-mono-d text-[9.5px] tracking-[0.15em] text-[#fa6c34]"><BookOpenCheck size={14} /> COLLECTIBLE CATALOG</p>
-            <h2 className="mt-3 text-[26px] font-medium tracking-[-0.025em] text-[#f0e8da]">Match the card. Keep ownership private.</h2>
-            <p className="mt-3 max-w-[760px] text-[12.5px] leading-relaxed text-[#9a938a]">TCGdex supplies English card and set identity plus an optional low-resolution catalog thumbnail. ChainScout sanitizes that image locally before it enters the encrypted Vault. Printing or variant, condition, grade, certificate, value, authenticity, and inventory remain owner claims; marketplace prices are not requested.</p>
+            <p className="flex items-center gap-2 font-mono-d text-[9.5px] tracking-[0.15em] text-[#fa6c34]"><BookOpenCheck size={14} /> {t("collectibles.catalog.eyebrow")}</p>
+            <h2 className="mt-3 text-[26px] font-medium tracking-[-0.025em] text-[#f0e8da]">{t("collectibles.catalog.title")}</h2>
+            <p className="mt-3 max-w-[760px] text-[12.5px] leading-relaxed text-[#9a938a]">{t("collectibles.catalog.description")}</p>
           </div>
-          <button type="button" onClick={onManual} className="min-h-[42px] border border-[#4a4743] px-4 font-mono-d text-[9px] tracking-wider text-[#d6ccba] hover:border-[#fa6c34]">ADD WITHOUT CATALOG</button>
+          <button type="button" onClick={onManual} className="min-h-[42px] border border-[#4a4743] px-4 font-mono-d text-[9px] tracking-wider text-[#d6ccba] hover:border-[#fa6c34]">{t("collectibles.catalog.addWithout")}</button>
         </div>
 
         <form onSubmit={requestSearch} className="mt-6 grid gap-3 md:grid-cols-[0.65fr_1.5fr_0.7fr_0.8fr_auto] md:items-end">
-          <Select label="LANGUAGE" value={language} onChange={(value) => setLanguage(value as CollectibleLanguage)} options={LANGUAGES} disabled={busy} />
-          <Input label="CARD NAME" value={name} onChange={setName} placeholder="e.g. Charizard" maxLength={80} required disabled={busy} />
-          <Input label="NUMBER" value={number} onChange={setNumber} placeholder="Optional" maxLength={24} disabled={busy} />
-          <Input label="SET ID" value={setId} onChange={setSetId} placeholder="Optional" maxLength={32} disabled={busy} />
-          <button type="submit" disabled={busy || name.trim().length < 2} className="clip-btn-sm flex min-h-[44px] items-center justify-center gap-2 bg-[#fa6c34] px-5 font-mono-d text-[9.5px] font-medium tracking-wider text-[#1d1d1d] disabled:opacity-40"><Search size={13} /> REVIEW LOOKUP</button>
+          <Select label={t("collectibles.catalog.languageLabel")} value={language} onChange={(value) => setLanguage(value as CollectibleLanguage)} options={languageOptions} disabled={busy} />
+          <Input label={t("collectibles.catalog.cardNameLabel")} value={name} onChange={setName} placeholder={t("collectibles.catalog.cardNamePlaceholder")} maxLength={80} required disabled={busy} />
+          <Input label={t("collectibles.catalog.numberLabel")} value={number} onChange={setNumber} placeholder={t("collectibles.catalog.optionalPlaceholder")} maxLength={24} disabled={busy} />
+          <Input label={t("collectibles.catalog.setIdLabel")} value={setId} onChange={setSetId} placeholder={t("collectibles.catalog.optionalPlaceholder")} maxLength={32} disabled={busy} />
+          <button type="submit" disabled={busy || name.trim().length < 2} className="clip-btn-sm flex min-h-[44px] items-center justify-center gap-2 bg-[#fa6c34] px-5 font-mono-d text-[9.5px] font-medium tracking-wider text-[#1d1d1d] disabled:opacity-40"><Search size={13} /> {t("collectibles.catalog.submit")}</button>
         </form>
-        <p className="mt-3 font-mono-d text-[8.5px] leading-relaxed tracking-wide text-[#635d5a]">TIP · SET ID + COLLECTOR NUMBER PRODUCES THE LEAST AMBIGUOUS MATCH</p>
+        <p className="mt-3 font-mono-d text-[8.5px] leading-relaxed tracking-wide text-[#635d5a]">{t("collectibles.catalog.tip")}</p>
         {error && <div role="alert" className="mt-5 border border-[#e0738a]/40 bg-[#e0738a]/8 px-4 py-3 text-[11.5px] text-[#e0738a]">{error}</div>}
         {notice && <div role="status" className="mt-5 border border-[#7fb069]/30 bg-[#7fb069]/5 px-4 py-3 text-[11.5px] text-[#9fc68f]">{notice}</div>}
 
         {results.length > 0 && !card && (
-          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            {results.map((result) => (
-              <button key={result.catalogId} type="button" disabled={busy} onClick={(event) => { setPermissionTrigger(event.currentTarget); setPending({ operation: "detail", language: resultLanguage, card: result, summary: `${resultLanguage.toUpperCase()} · ${result.catalogId}` }); }} className="border border-[#383838] bg-[#1f1f1f] p-4 text-left hover:border-[#fa6c34] disabled:opacity-40">
-                <p className="font-mono-d text-[8px] tracking-wider text-[#635d5a]">TCGDEX · {result.catalogId}</p>
-                <p className="mt-3 text-[15px] font-medium text-[#f0e8da]">{result.name}</p>
-                <p className="mt-2 font-mono-d text-[9px] text-[#d6ccba]">COLLECTOR #{result.number}</p>
-                <p className="mt-4 font-mono-d text-[8px] text-[#fa6c34]">REVIEW EXACT MATCH →</p>
-              </button>
-            ))}
-          </div>
+          <>
+            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              {results.map((result) => (
+                <button key={result.catalogId} type="button" disabled={busy} onClick={(event) => { setPermissionTrigger(event.currentTarget); setPending({ operation: "detail", language: resultLanguage, card: result, summary: `${resultLanguage.toUpperCase()} · ${result.catalogId}` }); }} className="border border-[#383838] bg-[#1f1f1f] p-4 text-left hover:border-[#fa6c34] disabled:opacity-40">
+                  <p className="font-mono-d text-[8px] tracking-wider text-[#635d5a]">TCGDEX · {result.catalogId}</p>
+                  <p className="mt-3 text-[15px] font-medium text-[#f0e8da]">{result.name}</p>
+                  <p className="mt-2 font-mono-d text-[9px] text-[#d6ccba]">{t("collectibles.catalog.collectorNumber", { number: result.number })}</p>
+                  <p className="mt-4 font-mono-d text-[8px] text-[#fa6c34]">{t("collectibles.catalog.reviewExactMatch")}</p>
+                </button>
+              ))}
+            </div>
+            <p className="mt-3 font-mono-d text-[8.5px] leading-relaxed tracking-wide text-[#635d5a]">{t("collectibles.providerOriginalLanguage")}</p>
+          </>
         )}
-        {truncated && <p className="mt-3 text-[10.5px] text-[#e0a96d]">Results are bounded and truncated. Add a set ID or collector number to narrow the lookup.</p>}
-        <p className="mt-5 border-t border-[#383838] pt-4 text-[9.5px] leading-relaxed text-[#635d5a]">Community catalog metadata is supplied by TCGdex under its database license. ChainScout is not affiliated with or endorsed by TCGdex, Nintendo, The Pokémon Company, any marketplace, or any grading company. Names and trademarks remain the property of their respective owners.</p>
+        {truncated && <p className="mt-3 text-[10.5px] text-[#e0a96d]">{t("collectibles.catalog.truncated")}</p>}
+        <p className="mt-5 border-t border-[#383838] pt-4 text-[9.5px] leading-relaxed text-[#635d5a]">{t("collectibles.catalog.license")}</p>
       </div>
 
       {card && (
@@ -202,6 +206,7 @@ export function CollectibleCatalogPanel({ context, sessionId, onSaveContext, onS
 }
 
 function PermissionDialog({ pending, returnFocus, onCancel, onConfirm }: { pending: PendingRequest; returnFocus: HTMLElement | null; onCancel: () => void; onConfirm: () => void }) {
+  const { t } = useI18n();
   const dialogRef = useRef<HTMLDivElement>(null);
   const cancelRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
@@ -233,25 +238,25 @@ function PermissionDialog({ pending, returnFocus, onCancel, onConfirm }: { pendi
     <div ref={dialogRef} onKeyDown={onKeyDown} className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4" role="dialog" aria-modal="true" aria-labelledby="catalog-permission-title">
       <div className="clip-panel w-full max-w-[620px] border border-[#fa6c34]/55 bg-[#242424] p-6 sm:p-8">
         <div className="flex items-start justify-between gap-4">
-          <div><p className="font-mono-d text-[9px] tracking-[0.15em] text-[#fa6c34]">EXACT NETWORK RECEIPT</p><h3 id="catalog-permission-title" className="mt-3 text-[24px] font-medium text-[#f0e8da]">Confirm this catalog lookup</h3></div>
-          <button ref={cancelRef} type="button" onClick={onCancel} aria-label="Cancel catalog lookup" className="p-2 text-[#635d5a] hover:text-[#f0e8da]"><X size={16} /></button>
+          <div><p className="font-mono-d text-[9px] tracking-[0.15em] text-[#fa6c34]">{t("collectibles.permission.eyebrow")}</p><h3 id="catalog-permission-title" className="mt-3 text-[24px] font-medium text-[#f0e8da]">{t("collectibles.permission.title")}</h3></div>
+          <button ref={cancelRef} type="button" onClick={onCancel} aria-label={t("collectibles.permission.cancelAria")} className="p-2 text-[#635d5a] hover:text-[#f0e8da]"><X size={16} /></button>
         </div>
         <div className="mt-5 border border-[#383838] bg-[#1d1d1d] p-4">
-          <p className="font-mono-d text-[8px] tracking-wider text-[#635d5a]">SENT TO CHAINSCOUT</p>
+          <p className="font-mono-d text-[8px] tracking-wider text-[#635d5a]">{t("collectibles.permission.sentToChainScout")}</p>
           <p className="mt-2 break-words font-mono-d text-[10px] text-[#d6ccba]">{pending.summary}</p>
         </div>
         <div className="mt-3 border border-[#383838] bg-[#1d1d1d] p-4">
-          <p className="font-mono-d text-[8px] tracking-wider text-[#635d5a]">SENT TO TCGDEX</p>
+          <p className="font-mono-d text-[8px] tracking-wider text-[#635d5a]">{t("collectibles.permission.sentToTcgdex")}</p>
           <p className="mt-2 break-words font-mono-d text-[10px] text-[#d6ccba]">{providerSummary(pending)}</p>
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <PrivacyFact title="ENCRYPTED LOCALLY" text="Permission attempt, ownership fields, photos, costs, notes, grades, certificates, and manual values." />
-          <PrivacyFact title="NOT REQUESTED" text={pending.operation === "search" ? "No account, wallet, AI model, artwork, marketplace price, printing claim, or server-stored catalog result." : "No account, wallet, AI model, marketplace price, printing claim, ownership field, or server-stored catalog result."} />
+          <PrivacyFact title={t("collectibles.permission.encryptedTitle")} text={t("collectibles.permission.encryptedText")} />
+          <PrivacyFact title={t("collectibles.permission.notRequestedTitle")} text={pending.operation === "search" ? t("collectibles.permission.notRequestedSearch") : t("collectibles.permission.notRequestedDetail")} />
         </div>
-        <p className="mt-4 text-[11px] leading-relaxed text-[#9a938a]">{pending.operation === "search" ? "Search requests only card IDs, collector numbers, and names—no artwork or marketplace fields." : "The detail request adds only the catalog image base. If supplied, your browser fetches its low-resolution image from TCGdex without credentials or a referrer, then strips metadata and re-encodes it locally."} The encrypted permission attempt is saved before the request. A catalog match or thumbnail is not proof that your physical card is authentic or currently worth any amount.</p>
+        <p className="mt-4 text-[11px] leading-relaxed text-[#9a938a]">{t(pending.operation === "search" ? "collectibles.permission.searchNote" : "collectibles.permission.detailNote")} {t("collectibles.permission.receiptNote")}</p>
         <div className="mt-6 flex gap-3">
-          <button type="button" onClick={onCancel} className="min-h-[44px] flex-1 border border-[#4a4743] font-mono-d text-[9px] text-[#9a938a]">CANCEL</button>
-          <button type="button" onClick={onConfirm} className="clip-btn-sm flex min-h-[44px] flex-1 items-center justify-center gap-2 bg-[#fa6c34] font-mono-d text-[9px] font-medium text-[#1d1d1d]"><ShieldCheck size={13} /> SAVE RECEIPT + LOOK UP</button>
+          <button type="button" onClick={onCancel} className="min-h-[44px] flex-1 border border-[#4a4743] font-mono-d text-[9px] text-[#9a938a]">{t("collectibles.permission.cancel")}</button>
+          <button type="button" onClick={onConfirm} className="clip-btn-sm flex min-h-[44px] flex-1 items-center justify-center gap-2 bg-[#fa6c34] font-mono-d text-[9px] font-medium text-[#1d1d1d]"><ShieldCheck size={13} /> {t("collectibles.permission.confirm")}</button>
         </div>
       </div>
     </div>,
@@ -271,6 +276,7 @@ function CollectibleOwnerForm({ card, busy: parentBusy, sessionId, onSave, onBac
   onSave: (draft: VaultAssetDraft, expectedSession: number) => Promise<void>;
   onBack: () => void;
 }) {
+  const { t } = useI18n();
   const [ownerPrinting, setOwnerPrinting] = useState("");
   const [condition, setCondition] = useState<VaultCollectibleCondition>("unknown");
   const [grader, setGrader] = useState<VaultCollectibleGrader>("ungraded");
@@ -289,28 +295,45 @@ function CollectibleOwnerForm({ card, busy: parentBusy, sessionId, onSave, onBac
   const [photo, setPhoto] = useState<VaultPhoto>();
   const [photoSource, setPhotoSource] = useState<"owner_supplied" | "tcgdex_catalog" | null>(null);
   const [photoBusy, setPhotoBusy] = useState(Boolean(card.imageUrl));
-  const [photoNotice, setPhotoNotice] = useState(card.imageUrl ? "FETCHING + SANITIZING CATALOG THUMBNAIL…" : "");
+  const [photoNotice, setPhotoNotice] = useState(card.imageUrl ? t("collectibles.owner.thumbnailLoading") : "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const photoRequestRef = useRef(0);
   const graded = grader !== "ungraded";
+
+  const conditionOptions: Array<[VaultCollectibleCondition, string]> = [
+    ["unknown", t("collectibles.owner.condition.unknown")],
+    ["poor", t("collectibles.owner.condition.poor")],
+    ["played", t("collectibles.owner.condition.played")],
+    ["good", t("collectibles.owner.condition.good")],
+    ["excellent", t("collectibles.owner.condition.excellent")],
+    ["near-mint", t("collectibles.owner.condition.nearMint")],
+    ["mint", t("collectibles.owner.condition.mint")]
+  ];
+  const graderOptions: Array<[VaultCollectibleGrader, string]> = [
+    ["ungraded", t("collectibles.owner.grader.ungraded")],
+    ["psa", t("collectibles.owner.grader.psa")],
+    ["cgc", t("collectibles.owner.grader.cgc")],
+    ["bgs", t("collectibles.owner.grader.bgs")],
+    ["other", t("collectibles.owner.grader.other")]
+  ];
 
   const loadCatalogThumbnail = async () => {
     if (!card.imageUrl) return;
     const requestId = ++photoRequestRef.current;
     const controller = new AbortController();
     setPhotoBusy(true);
-    setPhotoNotice("FETCHING + SANITIZING CATALOG THUMBNAIL…");
+    setPhotoNotice(t("collectibles.owner.thumbnailLoading"));
     try {
       const next = await catalogImageToVaultPhoto(card.imageUrl, card.catalogId, controller.signal);
       if (photoRequestRef.current === requestId) {
         setPhoto(next);
         setPhotoSource("tcgdex_catalog");
-        setPhotoNotice("CATALOG THUMBNAIL READY · SANITIZED LOCALLY");
+        setPhotoNotice(t("collectibles.owner.thumbnailReady"));
       }
     } catch (thumbnailError) {
       if (photoRequestRef.current === requestId && !(thumbnailError instanceof DOMException && thumbnailError.name === "AbortError")) {
-        setPhotoNotice("Catalog thumbnail unavailable. You can still add an owner photo or save without one.");
+        setPhotoNotice(t("collectibles.owner.thumbnailUnavailable"));
       }
     } finally {
       if (photoRequestRef.current === requestId) setPhotoBusy(false);
@@ -328,11 +351,11 @@ function CollectibleOwnerForm({ card, busy: parentBusy, sessionId, onSave, onBac
           if (photoRequestRef.current !== requestId) return;
           setPhoto(next);
           setPhotoSource("tcgdex_catalog");
-          setPhotoNotice("CATALOG THUMBNAIL READY · SANITIZED LOCALLY");
+          setPhotoNotice(t("collectibles.owner.thumbnailReady"));
         })
         .catch((thumbnailError: unknown) => {
           if (photoRequestRef.current !== requestId || (thumbnailError instanceof DOMException && thumbnailError.name === "AbortError")) return;
-          setPhotoNotice("Catalog thumbnail unavailable. You can still add an owner photo or save without one.");
+          setPhotoNotice(t("collectibles.owner.thumbnailUnavailable"));
         })
         .finally(() => {
           if (photoRequestRef.current === requestId) setPhotoBusy(false);
@@ -343,7 +366,7 @@ function CollectibleOwnerForm({ card, busy: parentBusy, sessionId, onSave, onBac
       photoRequestRef.current += 1;
       controller.abort();
     };
-  }, [card.catalogId, card.imageUrl]);
+  }, [card.catalogId, card.imageUrl, t]);
 
   const onPhoto = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -351,7 +374,7 @@ function CollectibleOwnerForm({ card, busy: parentBusy, sessionId, onSave, onBac
     if (!file) return;
     const requestId = ++photoRequestRef.current;
     if (file.size > MAX_SOURCE_PHOTO_BYTES || !["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-      setError("Use one owner-supplied JPEG, PNG, or WebP source up to 12 MB.");
+      setError(t("collectibles.owner.photoTooLarge"));
       return;
     }
     setPhotoBusy(true);
@@ -361,10 +384,10 @@ function CollectibleOwnerForm({ card, busy: parentBusy, sessionId, onSave, onBac
       if (photoRequestRef.current === requestId) {
         setPhoto(next);
         setPhotoSource("owner_supplied");
-        setPhotoNotice("OWNER PHOTO READY · SANITIZED LOCALLY");
+        setPhotoNotice(t("collectibles.owner.ownerPhotoReady"));
       }
     } catch {
-      if (photoRequestRef.current === requestId) setError("That photo could not be sanitized locally.");
+      if (photoRequestRef.current === requestId) setError(t("collectibles.owner.photoSanitizeFailed"));
     } finally {
       if (photoRequestRef.current === requestId) setPhotoBusy(false);
     }
@@ -374,12 +397,12 @@ function CollectibleOwnerForm({ card, busy: parentBusy, sessionId, onSave, onBac
     event.preventDefault();
     if (busy || parentBusy || photoBusy) return;
     if (graded && (quantity !== "1" || !grade.trim() || !certificate.trim())) {
-      setError("A graded certificate must describe exactly one copy and include both grade and certificate number.");
+      setError(t("collectibles.owner.gradedError"));
       return;
     }
     const hasReference = Boolean(referenceValue || referenceDate || referenceUrl || referenceLabel);
     if (hasReference && (!referenceValue || !referenceDate || !referenceUrl || !referenceLabel)) {
-      setError("A manual value reference needs value, date observed, source URL, and a short source label.");
+      setError(t("collectibles.owner.referenceError"));
       return;
     }
     setBusy(true);
@@ -414,7 +437,7 @@ function CollectibleOwnerForm({ card, busy: parentBusy, sessionId, onSave, onBac
       }, sessionId);
       onBack();
     } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : "The encrypted collectible could not be saved.");
+      setError(saveError instanceof Error ? saveError.message : t("collectibles.owner.saveFailed"));
     } finally {
       setBusy(false);
     }
@@ -423,47 +446,47 @@ function CollectibleOwnerForm({ card, busy: parentBusy, sessionId, onSave, onBac
   return (
     <form onSubmit={submit} className="clip-panel mt-5 border border-[#7fb069]/40 bg-[#222722] p-5 sm:p-7" data-testid="collectible-owner-form">
       <div className="flex items-start justify-between gap-4">
-        <div><p className="font-mono-d text-[9px] tracking-wider text-[#7fb069]">CATALOG IDENTITY RESOLVED · NOT AN AUTHENTICITY CHECK</p><h3 className="mt-3 text-[24px] font-medium text-[#f0e8da]">{card.name}</h3><p className="mt-2 text-[12px] text-[#9a938a]">{card.set.name} · #{card.number} · {card.rarity ?? "Rarity not supplied"}</p></div>
-        <button type="button" onClick={onBack} className="p-2 text-[#635d5a] hover:text-[#f0e8da]" aria-label="Close resolved catalog card"><X size={16} /></button>
+        <div><p className="font-mono-d text-[9px] tracking-wider text-[#7fb069]">{t("collectibles.owner.identityResolved")}</p><h3 className="mt-3 text-[24px] font-medium text-[#f0e8da]">{card.name}</h3><p className="mt-2 text-[12px] text-[#9a938a]">{card.set.name} · #{card.number} · {card.rarity ?? t("collectibles.owner.rarityNotSupplied")}</p><p className="mt-2 font-mono-d text-[8.5px] tracking-wide text-[#635d5a]">{t("collectibles.providerOriginalLanguage")}</p></div>
+        <button type="button" onClick={onBack} className="p-2 text-[#635d5a] hover:text-[#f0e8da]" aria-label={t("collectibles.owner.closeAria")}><X size={16} /></button>
       </div>
       <div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Input label="OWNER-REPORTED PRINTING / VARIANT" value={ownerPrinting} onChange={setOwnerPrinting} maxLength={120} placeholder="Optional · e.g. holo, shadowless" />
-        <Select label="OWNER-REPORTED CONDITION" value={condition} onChange={(value) => setCondition(value as VaultCollectibleCondition)} options={[["unknown", "Not entered"], ["poor", "Poor"], ["played", "Played"], ["good", "Good"], ["excellent", "Excellent"], ["near-mint", "Near mint"], ["mint", "Mint"]]} />
-        <Select label="OWNER-REPORTED GRADER" value={grader} onChange={(value) => {
+        <Input label={t("collectibles.owner.printingLabel")} value={ownerPrinting} onChange={setOwnerPrinting} maxLength={120} placeholder={t("collectibles.owner.printingPlaceholder")} />
+        <Select label={t("collectibles.owner.conditionLabel")} value={condition} onChange={(value) => setCondition(value as VaultCollectibleCondition)} options={conditionOptions} />
+        <Select label={t("collectibles.owner.graderLabel")} value={grader} onChange={(value) => {
           const next = value as VaultCollectibleGrader;
           setGrader(next);
           if (next === "ungraded") { setGrade(""); setCertificate(""); }
           else setQuantity("1");
-        }} options={[["ungraded", "Ungraded"], ["psa", "PSA"], ["cgc", "CGC"], ["bgs", "BGS"], ["other", "Other"]]} />
-        <Input label="QUANTITY" value={quantity} onChange={setQuantity} maxLength={157} required disabled={graded} />
-        {graded && <><Input label="OWNER-ENTERED GRADE" value={grade} onChange={setGrade} maxLength={40} required /><Input label="OWNER-ENTERED CERTIFICATE" value={certificate} onChange={setCertificate} maxLength={80} required /></>}
-        <Input label="PURCHASE PRICE / UNIT" value={unitPrice} onChange={setUnitPrice} maxLength={157} placeholder="Optional" />
-        <Input label="PURCHASE CURRENCY" value={currency} onChange={setCurrency} maxLength={12} required />
-        <Input label="ACQUIRED DATE" value={acquiredAt} onChange={setAcquiredAt} type="date" />
+        }} options={graderOptions} />
+        <Input label={t("collectibles.owner.quantityLabel")} value={quantity} onChange={setQuantity} maxLength={157} required disabled={graded} />
+        {graded && <><Input label={t("collectibles.owner.gradeLabel")} value={grade} onChange={setGrade} maxLength={40} required /><Input label={t("collectibles.owner.certificateLabel")} value={certificate} onChange={setCertificate} maxLength={80} required /></>}
+        <Input label={t("collectibles.owner.purchasePriceLabel")} value={unitPrice} onChange={setUnitPrice} maxLength={157} placeholder={t("collectibles.catalog.optionalPlaceholder")} />
+        <Input label={t("collectibles.owner.purchaseCurrencyLabel")} value={currency} onChange={setCurrency} maxLength={12} required />
+        <Input label={t("collectibles.owner.acquiredDateLabel")} value={acquiredAt} onChange={setAcquiredAt} type="date" />
       </div>
-      <label className="mt-4 block"><span className="font-mono-d text-[8.5px] tracking-wider text-[#635d5a]">PRIVATE NOTES</span><textarea value={notes} onChange={(event) => setNotes(event.target.value)} maxLength={5_000} rows={3} className="mt-2 w-full border border-[#383838] bg-[#1d1d1d] px-4 py-3 text-[12px] text-[#e9e0d1] outline-none focus:border-[#fa6c34]" placeholder="Storage location, provenance, personal notes…" /></label>
+      <label className="mt-4 block"><span className="font-mono-d text-[8.5px] tracking-wider text-[#635d5a]">{t("collectibles.owner.notesLabel")}</span><textarea value={notes} onChange={(event) => setNotes(event.target.value)} maxLength={5_000} rows={3} className="mt-2 w-full border border-[#383838] bg-[#1d1d1d] px-4 py-3 text-[12px] text-[#e9e0d1] outline-none focus:border-[#fa6c34]" placeholder={t("collectibles.owner.notesPlaceholder")} /></label>
       <div className="mt-5 border border-[#383838] bg-[#1d1d1d] p-4 sm:p-5">
-        <p className="font-mono-d text-[8.5px] tracking-wider text-[#fa6c34]">OPTIONAL MANUAL VALUE REFERENCE · NOT LIVE OR VERIFIED</p>
+        <p className="font-mono-d text-[8.5px] tracking-wider text-[#fa6c34]">{t("collectibles.owner.valueReferenceTitle")}</p>
         <div className="mt-3 grid gap-3 md:grid-cols-2 lg:grid-cols-5">
-          <Input label="VALUE" value={referenceValue} onChange={setReferenceValue} maxLength={157} placeholder="Optional" />
-          <Input label="CURRENCY" value={referenceCurrency} onChange={setReferenceCurrency} maxLength={12} />
-          <Input label="OBSERVED DATE" value={referenceDate} onChange={setReferenceDate} type="date" />
-          <Input label="HTTPS SOURCE URL" value={referenceUrl} onChange={setReferenceUrl} maxLength={1_000} placeholder="https://…" />
-          <Input label="SOURCE LABEL" value={referenceLabel} onChange={setReferenceLabel} maxLength={120} placeholder="e.g. sold listing" />
+          <Input label={t("collectibles.owner.valueLabel")} value={referenceValue} onChange={setReferenceValue} maxLength={157} placeholder={t("collectibles.catalog.optionalPlaceholder")} />
+          <Input label={t("collectibles.owner.currencyLabel")} value={referenceCurrency} onChange={setReferenceCurrency} maxLength={12} />
+          <Input label={t("collectibles.owner.observedDateLabel")} value={referenceDate} onChange={setReferenceDate} type="date" />
+          <Input label={t("collectibles.owner.sourceUrlLabel")} value={referenceUrl} onChange={setReferenceUrl} maxLength={1_000} placeholder={t("collectibles.owner.sourceUrlPlaceholder")} />
+          <Input label={t("collectibles.owner.sourceLabelLabel")} value={referenceLabel} onChange={setReferenceLabel} maxLength={120} placeholder={t("collectibles.owner.sourceLabelPlaceholder")} />
         </div>
       </div>
       <div className="mt-5 flex flex-col gap-4 border-t border-[#383838] pt-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-3">
-          {photo && <img src={photo.dataUrl} alt={`${card.name} sanitized thumbnail preview`} className="h-36 w-28 rounded-sm border border-[#383838] bg-[#1d1d1d] object-contain p-2" />}
-          <label className="flex min-h-[42px] cursor-pointer items-center gap-2 border border-[#383838] px-4 font-mono-d text-[9px] text-[#9a938a] hover:text-[#f0e8da]"><ImagePlus size={13} /> {photoBusy ? "SANITIZING…" : photo ? "REPLACE WITH OWNER PHOTO" : "ADD OWNER PHOTO"}<input aria-label="OWNER-SUPPLIED COLLECTIBLE PHOTO" type="file" accept="image/jpeg,image/png,image/webp" onChange={onPhoto} disabled={busy || photoBusy} className="sr-only" /></label>
-          {photo && <button type="button" onClick={() => { photoRequestRef.current += 1; setPhoto(undefined); setPhotoSource(null); setPhotoNotice("Photo removed from this draft."); }} className="font-mono-d text-[8.5px] text-[#e0738a]">REMOVE PHOTO</button>}
-          {!photo && card.imageUrl && <button type="button" onClick={() => { void loadCatalogThumbnail(); }} disabled={photoBusy} className="font-mono-d text-[8.5px] text-[#7fb069] disabled:opacity-40">RESTORE CATALOG THUMBNAIL</button>}
-          <div className="max-w-[440px]"><p role="status" className="font-mono-d text-[8.5px] text-[#7fb069]">{photoNotice}</p><p className="mt-1 text-[10px] leading-relaxed text-[#635d5a]">Catalog images are fetched directly from TCGdex without cookies or a referrer, then re-encoded locally. Only sanitized bytes are encrypted when you save; nothing is uploaded.</p></div>
+          {photo && <img src={photo.dataUrl} alt={t("collectibles.owner.photoAlt", { name: card.name })} className="h-36 w-28 rounded-sm border border-[#383838] bg-[#1d1d1d] object-contain p-2" />}
+          <label className="flex min-h-[42px] cursor-pointer items-center gap-2 border border-[#383838] px-4 font-mono-d text-[9px] text-[#9a938a] hover:text-[#f0e8da]"><ImagePlus size={13} /> {photoBusy ? t("collectibles.owner.photoSanitizing") : photo ? t("collectibles.owner.photoReplace") : t("collectibles.owner.photoAdd")}<input aria-label={t("collectibles.owner.photoAria")} type="file" accept="image/jpeg,image/png,image/webp" onChange={onPhoto} disabled={busy || photoBusy} className="sr-only" /></label>
+          {photo && <button type="button" onClick={() => { photoRequestRef.current += 1; setPhoto(undefined); setPhotoSource(null); setPhotoNotice(t("collectibles.owner.photoRemoved")); }} className="font-mono-d text-[8.5px] text-[#e0738a]">{t("collectibles.owner.photoRemove")}</button>}
+          {!photo && card.imageUrl && <button type="button" onClick={() => { void loadCatalogThumbnail(); }} disabled={photoBusy} className="font-mono-d text-[8.5px] text-[#7fb069] disabled:opacity-40">{t("collectibles.owner.thumbnailRestore")}</button>}
+          <div className="max-w-[440px]"><p role="status" className="font-mono-d text-[8.5px] text-[#7fb069]">{photoNotice}</p><p className="mt-1 text-[10px] leading-relaxed text-[#635d5a]">{t("collectibles.owner.thumbnailNote")}</p></div>
         </div>
-        <button type="submit" disabled={busy || parentBusy || photoBusy} className="clip-btn-sm flex min-h-[46px] items-center justify-center gap-2 bg-[#7fb069] px-6 font-mono-d text-[9.5px] font-medium tracking-wider text-[#172015] disabled:opacity-40"><LockKeyhole size={13} /> {busy ? "ENCRYPTING…" : "SAVE PRIVATE COLLECTIBLE"}</button>
+        <button type="submit" disabled={busy || parentBusy || photoBusy} className="clip-btn-sm flex min-h-[46px] items-center justify-center gap-2 bg-[#7fb069] px-6 font-mono-d text-[9.5px] font-medium tracking-wider text-[#172015] disabled:opacity-40"><LockKeyhole size={13} /> {busy ? t("collectibles.owner.saving") : t("collectibles.owner.save")}</button>
       </div>
       {error && <p role="alert" className="mt-4 text-[11px] text-[#e0738a]">{error}</p>}
-      <p className="mt-4 text-[10px] leading-relaxed text-[#635d5a]">Catalog source: <a href={card.sourceUrl} target="_blank" rel="noreferrer" className="text-[#9a938a] underline">TCGdex GraphQL</a> · <a href={card.licenseUrl} target="_blank" rel="noreferrer" className="text-[#9a938a] underline">database license</a>. The catalog thumbnail is visual reference only. Printing, condition, grade, certificate, value, authenticity, and inventory remain owner-entered or unsupported claims.</p>
+      <p className="mt-4 text-[10px] leading-relaxed text-[#635d5a]">{t("collectibles.owner.sourcePrefix")}<a href={card.sourceUrl} target="_blank" rel="noreferrer" className="text-[#9a938a] underline">{t("collectibles.owner.sourceGraphql")}</a> · <a href={card.licenseUrl} target="_blank" rel="noreferrer" className="text-[#9a938a] underline">{t("collectibles.owner.sourceLicense")}</a>{t("collectibles.owner.sourceFooterTail")}</p>
     </form>
   );
 }

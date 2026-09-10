@@ -5,6 +5,7 @@ import { classify, EXPLORER, listMessages, listSessions, SAMPLE_TX, SAMPLE_WALLE
 import { useWallet } from "./walletStore";
 import { shortAddress } from "./wallet";
 import type { AiExplorerAnswer, AnswerCardMeta, AnswerStat, AnswerWidget, ChatMessage, ChatSession, EntitySummary, Severity } from "./types";
+import { useI18n, type TranslationKey } from "../i18n";
 
 const SEV_STYLE: Record<Severity, { dot: string; text: string; icon: React.ReactNode }> = {
   info: { dot: "#7cc4f8", text: "text-[#7cc4f8]", icon: <Info size={12} /> },
@@ -13,21 +14,21 @@ const SEV_STYLE: Record<Severity, { dot: string; text: string; icon: React.React
   high: { dot: "#e0738a", text: "text-[#e0738a]", icon: <AlertTriangle size={12} /> },
 };
 
-const STARTERS = [
-  "What did this wallet do today?",
-  "Explain this transaction like I am new.",
-  "Show me the risky approvals for this address.",
-  "Is this token contract verified?",
+const STARTER_KEYS: TranslationKey[] = [
+  "cloud.chat.starter.today",
+  "cloud.chat.starter.explain",
+  "cloud.chat.starter.approvals",
+  "cloud.chat.starter.verified",
 ];
 
 
-const KIND_LABEL: Record<string, string> = {
-  wallet: "WALLET",
-  token: "TOKEN",
-  contract: "CONTRACT",
-  transaction: "TRANSACTION",
-  block: "BLOCK",
-  unknown: "ENTITY",
+const KIND_LABEL_KEYS: Record<string, TranslationKey> = {
+  wallet: "cloud.kind.wallet",
+  token: "cloud.kind.token",
+  contract: "cloud.kind.contract",
+  transaction: "cloud.kind.transaction",
+  block: "cloud.kind.block",
+  unknown: "cloud.kind.unknown",
 };
 
 const STAT_TONE: Record<NonNullable<AnswerStat["tone"]>, string> = {
@@ -48,6 +49,7 @@ const DONUT_PALETTE = ["#fa6c34", "#e0738a", "#7cc4f8", "#d6ccba", "#7fb069"];
 
 /** 0x addresses and tx hashes become buttons that pivot to that entity. */
 function Linkified({ text, onPivot }: { text: string; onPivot: (v: string) => void }) {
+  const { t } = useI18n();
   const parts = text.split(/(0x[a-fA-F0-9]{40,64})/g);
   return (
     <>
@@ -56,7 +58,7 @@ function Linkified({ text, onPivot }: { text: string; onPivot: (v: string) => vo
           <button
             key={i}
             onClick={() => onPivot(part)}
-            title={`Look up ${part}`}
+            title={t("cloud.chat.lookUp", { value: part })}
             className="mx-0.5 inline-flex items-center gap-1 border-b border-dashed border-[#7cc4f8]/50 font-mono-d text-[12.5px] text-[#7cc4f8] transition-colors hover:border-[#7cc4f8] hover:text-[#a9d8fb]"
           >
             {part.length > 20 ? `${part.slice(0, 6)}…${part.slice(-4)}` : part}
@@ -71,6 +73,7 @@ function Linkified({ text, onPivot }: { text: string; onPivot: (v: string) => vo
 }
 
 function CopyButton({ value }: { value: string }) {
+  const { t } = useI18n();
   const [done, setDone] = useState(false);
   return (
     <button
@@ -81,10 +84,10 @@ function CopyButton({ value }: { value: string }) {
         });
       }}
       className="flex items-center gap-1 font-mono-d text-[10px] text-[#635d5a] transition-colors hover:text-[#e9e0d1]"
-      aria-label="Copy address"
+      aria-label={t("cloud.chat.copyAddress")}
     >
       <Copy size={11} />
-      {done ? "COPIED" : "COPY"}
+      {done ? t("cloud.chat.copied") : t("cloud.chat.copy")}
     </button>
   );
 }
@@ -208,29 +211,30 @@ function BinaryTrace({ reverse = false }: { reverse?: boolean }) {
   );
 }
 
-const RESOLVING_STATS: Record<string, string[]> = {
-  wallet: ["NATIVE BALANCE", "TRANSACTIONS", "TOKEN BALANCES", "RISK SIGNALS"],
-  token: ["TOTAL SUPPLY", "HOLDERS", "TRANSFERS", "TOP HOLDER"],
-  contract: ["TRANSACTIONS", "METHODS", "AGE", "RISK SIGNALS"],
-  transaction: ["STATUS", "GAS USED", "VALUE", "EVENTS"],
-  block: ["TRANSACTIONS", "GAS USED", "TIMESTAMP", "STATUS"],
-  unknown: ["ENTITY TYPE", "ACTIVITY", "SOURCES", "RISK SIGNALS"],
+const RESOLVING_STAT_KEYS: Record<string, TranslationKey[]> = {
+  wallet: ["cloud.resolving.nativeBalance", "cloud.resolving.transactions", "cloud.resolving.tokenBalances", "cloud.resolving.riskSignals"],
+  token: ["cloud.resolving.totalSupply", "cloud.resolving.holders", "cloud.resolving.transfers", "cloud.resolving.topHolder"],
+  contract: ["cloud.resolving.transactions", "cloud.resolving.methods", "cloud.resolving.age", "cloud.resolving.riskSignals"],
+  transaction: ["cloud.resolving.status", "cloud.resolving.gasUsed", "cloud.resolving.value", "cloud.resolving.events"],
+  block: ["cloud.resolving.transactions", "cloud.resolving.gasUsed", "cloud.resolving.timestamp", "cloud.resolving.status"],
+  unknown: ["cloud.resolving.entityType", "cloud.resolving.activity", "cloud.resolving.sources", "cloud.resolving.riskSignals"],
 };
 
 export function ResolvingAnswerCard({ entity }: { entity?: ChatSession["entity"] }) {
+  const { t } = useI18n();
   const kind = entity?.type ?? "unknown";
-  const labels = RESOLVING_STATS[kind] ?? RESOLVING_STATS.unknown!;
+  const labels = RESOLVING_STAT_KEYS[kind] ?? RESOLVING_STAT_KEYS.unknown!;
   return (
     <div
       data-testid="resolving-answer-card"
       role="status"
-      aria-label="Retrieving and decoding live chain data"
+      aria-label={t("cloud.chat.retrieving")}
       className="clip-panel scan-panel max-w-[92%] overflow-hidden border border-[#2e2e2e] bg-[#242424]"
     >
       <div className="flex items-center gap-2 border-b border-[#2e2e2e] px-6 py-3.5">
         <Sparkles size={13} className="pulse-dot text-[#fa6c34]" />
-        <span className="font-mono-d text-[10.5px] tracking-wider text-[#9a938a]">CHAIN DATA · DECODING</span>
-        <span className="ml-auto font-mono-d text-[9px] tracking-wider text-[#fa6c34]">LIVE</span>
+        <span className="font-mono-d text-[10.5px] tracking-wider text-[#9a938a]">{t("cloud.chat.chainDataDecoding")}</span>
+        <span className="ml-auto font-mono-d text-[9px] tracking-wider text-[#fa6c34]">{t("cloud.chat.live")}</span>
       </div>
 
       <div className="relative border-b border-[#2e2e2e] px-6 py-6">
@@ -240,10 +244,10 @@ export function ResolvingAnswerCard({ entity }: { entity?: ChatSession["entity"]
           </div>
           <div className="min-w-0 flex-1">
             <span className="border border-[#fa6c34]/30 bg-[#fa6c34]/10 px-2 py-0.5 font-mono-d text-[9.5px] tracking-wider text-[#fa6c34]">
-              {KIND_LABEL[kind] ?? "ENTITY"}
+              {t(KIND_LABEL_KEYS[kind] ?? "cloud.kind.unknown")}
             </span>
             <p className="mt-2 truncate font-mono-d text-[11px] text-[#635d5a]">
-              {entity?.id ?? "WAITING FOR ENTITY CONTEXT"}
+              {entity?.id ?? t("cloud.chat.waitingEntity")}
             </p>
           </div>
         </div>
@@ -251,7 +255,7 @@ export function ResolvingAnswerCard({ entity }: { entity?: ChatSession["entity"]
         <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
           {labels.map((label, index) => (
             <div key={label} className="decode-tile border border-[#2e2e2e] bg-[#1d1d1d]/80 px-3.5 py-3">
-              <p className="font-mono-d text-[9px] tracking-wider text-[#635d5a]">{label}</p>
+              <p className="font-mono-d text-[9px] tracking-wider text-[#635d5a]">{t(label)}</p>
               <p className="font-num mt-1.5 flex h-[21px] items-center text-[21px] leading-none text-[#9a938a]">
                 <DecodingNumber digits={index === 0 ? 7 : 5} />
               </p>
@@ -270,6 +274,7 @@ export function ResolvingAnswerCard({ entity }: { entity?: ChatSession["entity"]
 }
 
 function CardActions({ card, answer }: { card: AnswerCardMeta; answer: string }) {
+  const { t } = useI18n();
   const [flash, setFlash] = useState<"" | "copy" | "share">("");
   const blink = (kind: "copy" | "share") => {
     setFlash(kind);
@@ -292,23 +297,23 @@ function CardActions({ card, answer }: { card: AnswerCardMeta; answer: string })
     <div className="mt-5 flex flex-wrap items-center gap-2">
       <button type="button" className={CHIP_CLASS} onClick={() => navigator.clipboard?.writeText(card.id).then(() => blink("copy"))}>
         <Copy size={10} />
-        {flash === "copy" ? "COPIED" : card.kind === "transaction" ? "COPY HASH" : "COPY ADDRESS"}
+        {flash === "copy" ? t("cloud.chat.copied") : card.kind === "transaction" ? t("cloud.chat.copyHash") : t("cloud.chat.copyAddressAction")}
       </button>
       <a className={CHIP_CLASS} href={explorer} target="_blank" rel="noreferrer">
-        EXPLORER <ExternalLink size={10} />
+        {t("cloud.chat.explorer")} <ExternalLink size={10} />
       </a>
       {card.kind === "token" && (
         <>
           <a className={CHIP_CLASS} href={`${EXPLORER}/token/${card.id}?tab=holders`} target="_blank" rel="noreferrer">
-            HOLDERS <ExternalLink size={10} />
+            {t("cloud.chat.holders")} <ExternalLink size={10} />
           </a>
           <a className={CHIP_CLASS} href={`${EXPLORER}/token/${card.id}?tab=token_transfers`} target="_blank" rel="noreferrer">
-            TRANSFERS <ExternalLink size={10} />
+            {t("cloud.chat.transfers")} <ExternalLink size={10} />
           </a>
         </>
       )}
       <button type="button" className={CHIP_CLASS} onClick={() => navigator.clipboard?.writeText(shareText).then(() => blink("share"))}>
-        {flash === "share" ? "COPIED" : "SHARE"}
+        {flash === "share" ? t("cloud.chat.copied") : t("cloud.chat.share")}
       </button>
     </div>
   );
@@ -316,6 +321,7 @@ function CardActions({ card, answer }: { card: AnswerCardMeta; answer: string })
 
 /** Animated donut whose segments partition the whole; legend rows pivot. */
 function Donut({ segments, onPivot }: { segments: NonNullable<AnswerWidget["segments"]>; onPivot: (v: string) => void }) {
+  const { t } = useI18n();
   const R = 34;
   const C = 2 * Math.PI * R;
   const [drawn, setDrawn] = useState(false);
@@ -353,7 +359,7 @@ function Donut({ segments, onPivot }: { segments: NonNullable<AnswerWidget["segm
         {top && (
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="font-num text-[17px] leading-none text-[#f0e8da]">{Math.round(top.pct)}%</span>
-            <span className="mt-1 font-mono-d text-[8px] tracking-wider text-[#635d5a]">TOP</span>
+            <span className="mt-1 font-mono-d text-[8px] tracking-wider text-[#635d5a]">{t("cloud.chat.top")}</span>
           </div>
         )}
       </div>
@@ -375,7 +381,7 @@ function Donut({ segments, onPivot }: { segments: NonNullable<AnswerWidget["segm
         {total < 99 && (
           <div className="flex items-center gap-2 px-1.5 py-1">
             <span className="h-2 w-2 shrink-0 bg-[#2e2e2e]" />
-            <span className="min-w-0 flex-1 truncate font-mono-d text-[10.5px] text-[#635d5a]">everyone else</span>
+            <span className="min-w-0 flex-1 truncate font-mono-d text-[10.5px] text-[#635d5a]">{t("cloud.chat.everyoneElse")}</span>
             <span className="font-num text-[11px] text-[#635d5a]">{Math.max(0, 100 - Math.round(total))}%</span>
           </div>
         )}
@@ -465,13 +471,15 @@ export function AnswerCard({
   ai,
   onPivot,
   animateText = false,
-  eyebrow = "AI ANSWER · CITED",
+  eyebrow,
 }: {
   ai: AiExplorerAnswer;
   onPivot: (v: string) => void;
   animateText?: boolean;
   eyebrow?: string;
 }) {
+  const { t } = useI18n();
+  const resolvedEyebrow = eyebrow ?? t("cloud.chat.eyebrow");
   const [expanded, setExpanded] = useState(false);
   const [showSources, setShowSources] = useState(false);
   const streamedAnswer = useStreamedText(ai.answer, animateText);
@@ -480,7 +488,7 @@ export function AnswerCard({
     <div data-testid="answer-card" className={`clip-panel border border-[#2e2e2e] bg-[#242424] ${animateText ? "result-materialize" : ""}`}>
       <div className="flex items-center gap-2 border-b border-[#2e2e2e] px-6 py-3.5">
         <Sparkles size={13} className="text-[#fa6c34]" />
-        <span className="font-mono-d text-[10.5px] tracking-wider text-[#9a938a]">{eyebrow}</span>
+        <span className="font-mono-d text-[10.5px] tracking-wider text-[#9a938a]">{resolvedEyebrow}</span>
       </div>
 
       {ai.card && (
@@ -492,7 +500,7 @@ export function AnswerCard({
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                 <span className="border border-[#fa6c34]/40 bg-[#fa6c34]/10 px-2 py-0.5 font-mono-d text-[9.5px] tracking-wider text-[#fa6c34]">
-                  {KIND_LABEL[ai.card.kind] ?? "ENTITY"}
+                  {t(KIND_LABEL_KEYS[ai.card.kind] ?? "cloud.kind.unknown")}
                 </span>
                 <h3 className="text-[24px] font-medium tracking-[-0.02em] text-[#f0e8da]">{ai.card.title}</h3>
                 {ai.card.subtitle && <span className="font-mono-d text-[12px] text-[#9a938a]">{ai.card.subtitle}</span>}
@@ -548,7 +556,7 @@ export function AnswerCard({
           </span>
           <span className="flex-1 truncate text-[12.5px] text-[#d6ccba]">{ai.riskNotes[0]!.note}</span>
           <span className="shrink-0 font-mono-d text-[10px] text-[#635d5a]">
-            {expanded ? "HIDE" : ai.riskNotes.length > 1 ? `+${ai.riskNotes.length - 1} MORE` : "DETAIL"}
+            {expanded ? t("cloud.chat.hide") : ai.riskNotes.length > 1 ? t("cloud.chat.more", { count: ai.riskNotes.length - 1 }) : t("cloud.chat.detail")}
           </span>
         </button>
       )}
@@ -604,7 +612,7 @@ export function AnswerCard({
             ))}
           </div>
           <p className="mt-3 border-t border-[#2e2e2e] pt-3 font-mono-d text-[10px] leading-relaxed text-[#635d5a]">
-            RISK NOTES ARE EVIDENCE-BASED OBSERVATIONS, NOT VERDICTS OR ADVICE.
+            {t("cloud.chat.riskDisclaimer")}
           </p>
         </div>
       )}
@@ -617,7 +625,7 @@ export function AnswerCard({
             className="flex items-center gap-2 font-mono-d text-[10px] tracking-wider text-[#635d5a] transition-colors hover:text-[#9a938a]"
           >
             {showSources ? <ChevronDown size={11} /> : <ChevronRight size={11} />}
-            {ai.citations.length} SOURCES · {[...new Set(ai.citations.map((c) => c.provider))].join(", ").toUpperCase()}
+            {t("cloud.chat.sources", { count: ai.citations.length, providers: [...new Set(ai.citations.map((c) => c.provider))].join(", ").toUpperCase() })}
           </button>
           {showSources && (
             <div className="mt-3 space-y-1.5">
@@ -630,7 +638,7 @@ export function AnswerCard({
                       href={c.url}
                       target="_blank"
                       rel="noreferrer"
-                      aria-label={`Verify ${c.id} on Blockscout`}
+                      aria-label={t("cloud.chat.verifyLink", { id: c.id })}
                       className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center text-[#9a938a] transition-colors hover:text-[#fa6c34]"
                     >
                       <ExternalLink size={11} />
@@ -655,6 +663,8 @@ function EntityPanel({
   selected?: ChatSession["entity"];
   resolving: boolean;
 }) {
+  const { t } = useI18n();
+  const unlimited = t("cloud.common.unlimited");
   if (!summary) {
     if (selected) {
       const explorerUrl = `${EXPLORER}/${selected.type === "transaction" ? "tx" : "address"}/${selected.id}`;
@@ -662,7 +672,7 @@ function EntityPanel({
         <div className="p-5">
           <div className="mb-4 flex items-center justify-between">
             <span className="font-mono-d text-[10.5px] tracking-wider text-[#635d5a]">
-              {resolving ? "RESOLVING ENTITY" : "ENTITY SELECTED"}
+              {resolving ? t("cloud.entity.resolving") : t("cloud.entity.selected")}
             </span>
             <span className="border border-[#fa6c34]/40 bg-[#fa6c34]/10 px-2 py-0.5 font-mono-d text-[9.5px] uppercase tracking-wider text-[#fa6c34]">
               {selected.type}
@@ -671,7 +681,7 @@ function EntityPanel({
           <p className="break-all font-mono-d text-[11px] leading-relaxed text-[#9a938a]">{selected.id}</p>
           <div className="mt-2 flex items-center gap-4">
             <a href={explorerUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 font-mono-d text-[10.5px] text-[#7cc4f8] hover:underline">
-              Open in Blockscout <ExternalLink size={10} />
+              {t("cloud.entity.openInBlockscout")} <ExternalLink size={10} />
             </a>
             <CopyButton value={selected.id} />
           </div>
@@ -682,7 +692,7 @@ function EntityPanel({
             <BinaryTrace />
             <BinaryTrace reverse />
             <p className="pt-1 font-mono-d text-[9.5px] tracking-wider text-[#635d5a]">
-              {resolving ? "FETCHING LIVE CHAIN DATA…" : "DETAILS LOAD WITH THE FIRST ANSWER"}
+              {resolving ? t("cloud.entity.fetching") : t("cloud.entity.detailsWithAnswer")}
             </p>
           </div>
         </div>
@@ -692,9 +702,9 @@ function EntityPanel({
       <div className="flex h-full flex-col items-center justify-center gap-3 p-8 text-center">
         <div className="dots h-16 w-16 opacity-40" />
         <p className="font-mono-d text-[10.5px] leading-relaxed tracking-wider text-[#635d5a]">
-          NO ENTITY RESOLVED
+          {t("cloud.entity.noneResolved")}
           <br />
-          PASTE AN ADDRESS TO INSPECT
+          {t("cloud.entity.pasteAddress")}
         </p>
       </div>
     );
@@ -702,7 +712,7 @@ function EntityPanel({
   return (
     <div className="result-materialize p-5">
       <div className="mb-4 flex items-center justify-between">
-        <span className="font-mono-d text-[10.5px] tracking-wider text-[#635d5a]">ENTITY SUMMARY</span>
+        <span className="font-mono-d text-[10.5px] tracking-wider text-[#635d5a]">{t("cloud.entity.summary")}</span>
         <span className="border border-[#fa6c34]/40 bg-[#fa6c34]/10 px-2 py-0.5 font-mono-d text-[9.5px] uppercase tracking-wider text-[#fa6c34]">
           {summary.kind}
         </span>
@@ -710,13 +720,13 @@ function EntityPanel({
       <p className="break-all font-mono-d text-[11px] leading-relaxed text-[#9a938a]">{summary.address}</p>
       <div className="mt-2 flex items-center gap-4">
         <a href={summary.explorerUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 font-mono-d text-[10.5px] text-[#7cc4f8] hover:underline">
-          Open in Blockscout <ExternalLink size={10} />
+          {t("cloud.entity.openInBlockscout")} <ExternalLink size={10} />
         </a>
         <CopyButton value={summary.address} />
       </div>
 
       <div className="mt-5 border border-[#2e2e2e] bg-[#242424] p-4">
-        <p className="font-mono-d text-[10px] tracking-wider text-[#635d5a]">NATIVE BALANCE</p>
+        <p className="font-mono-d text-[10px] tracking-wider text-[#635d5a]">{t("cloud.entity.nativeBalance")}</p>
         <p className="font-num mt-1 text-[26px] text-[#e9e0d1]">{summary.nativeBalanceEth} ETH</p>
         <div className="mt-3 space-y-1.5 border-t border-[#2e2e2e] pt-3">
           {summary.tokenBalances.map((t) => (
@@ -729,18 +739,18 @@ function EntityPanel({
       </div>
 
       <div className="mt-4 border border-[#2e2e2e] bg-[#242424] p-4">
-        <p className="mb-2.5 font-mono-d text-[10px] tracking-wider text-[#635d5a]">ACTIVE APPROVALS</p>
+        <p className="mb-2.5 font-mono-d text-[10px] tracking-wider text-[#635d5a]">{t("cloud.entity.activeApprovals")}</p>
         {summary.approvals.map((a) => (
           <div key={a.token + a.spender} className="mb-2 flex items-center justify-between text-[12px] last:mb-0">
             <span className="text-[#d6ccba]">{a.token}</span>
             <span className="font-mono-d text-[10.5px] text-[#635d5a]">{a.spender}</span>
-            <span className={`font-mono-d text-[10.5px] ${a.amount === "Unlimited" ? "text-[#fa6c34]" : "text-[#9a938a]"}`}>{a.amount}</span>
+            <span className={`font-mono-d text-[10.5px] ${a.amount === unlimited ? "text-[#fa6c34]" : "text-[#9a938a]"}`}>{a.amount}</span>
           </div>
         ))}
       </div>
 
       <div className="mt-4 border border-[#2e2e2e] bg-[#242424] p-4">
-        <p className="mb-2.5 font-mono-d text-[10px] tracking-wider text-[#635d5a]">RISK SIGNALS</p>
+        <p className="mb-2.5 font-mono-d text-[10px] tracking-wider text-[#635d5a]">{t("cloud.entity.riskSignals")}</p>
         {summary.riskSignals.map((r) => (
           <div key={r.code} className="mb-2 flex items-center gap-2.5 text-[12px] last:mb-0">
             <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: SEV_STYLE[r.severity].dot }} />
@@ -753,6 +763,7 @@ function EntityPanel({
 }
 
 export default function ChatPage() {
+  const { t } = useI18n();
   const { sessionId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -783,12 +794,12 @@ export default function ChatPage() {
         setSession(nextSession);
         setMessages(nextMessages);
         setEntity([...nextMessages].reverse().find((message) => message.ai?.entitySummary)?.ai?.entitySummary ?? null);
-        setLoadError(nextSession ? "" : "This session could not be found.");
+        setLoadError(nextSession ? "" : t("cloud.chat.loadErrorNotFound"));
       })
       .catch((err) => {
         if (cancelled) return;
         console.error("failed to load session", err);
-        setLoadError(err instanceof Error ? err.message : "Could not load this session. Try again.");
+        setLoadError(err instanceof Error ? err.message : t("cloud.chat.loadError"));
       })
       .finally(() => {
         if (!cancelled) setLoadedSessionId(sessionId);
@@ -796,7 +807,7 @@ export default function ChatPage() {
     return () => {
       cancelled = true;
     };
-  }, [sessionId]);
+  }, [sessionId, t]);
 
   useEffect(() => {
     if (!pending) return;
@@ -835,13 +846,13 @@ export default function ChatPage() {
     } catch (error) {
       console.error("failed to send question", error);
       setMessages((current) => current.filter((message) => message.id !== temporaryId));
-      setRequestError(error instanceof Error ? error.message : "Could not analyze that request. Try again.");
+      setRequestError(error instanceof Error ? error.message : t("cloud.chat.requestError"));
     } finally {
       pendingRef.current = false;
       setPending(false);
       setPendingEntity(undefined);
     }
-  }, [refreshSessions, session, sessionId]);
+  }, [refreshSessions, session, sessionId, t]);
 
   // handle firstMessage passed from search bar
   useEffect(() => {
@@ -869,12 +880,12 @@ export default function ChatPage() {
       <div className="flex min-h-[calc(100vh-64px)] flex-col">
         <div className="flex items-center justify-between border-b border-[#2e2e2e] px-6 py-3.5">
           <div>
-            <p className="text-[14px] text-[#e9e0d1]">{session?.title === "Untitled session" && lastAi?.card ? lastAi.card.title : (session?.title ?? "Session")}</p>
+            <p className="text-[14px] text-[#e9e0d1]">{session?.title === "Untitled session" ? (lastAi?.card ? lastAi.card.title : t("cloud.sessions.untitled")) : (session?.title ?? t("cloud.sessions.session"))}</p>
             <p className="mt-0.5 font-mono-d text-[10px] text-[#635d5a]">
-              {session?.entity ? `${session.entity.type.toUpperCase()} · CHAIN 4663` : "NO ENTITY · CHAIN 4663"}
+              {session?.entity ? t("cloud.sessions.entityChain", { type: session.entity.type.toUpperCase() }) : t("cloud.sessions.noEntity")}
             </p>
           </div>
-          <span className="font-mono-d text-[10px] tracking-wider text-[#635d5a]">{messages.length} MESSAGES</span>
+          <span className="font-mono-d text-[10px] tracking-wider text-[#635d5a]">{t("cloud.sessions.messageCount", { count: messages.length })}</span>
         </div>
 
         <div className="flex-1 space-y-6 overflow-y-auto px-6 py-8">
@@ -901,34 +912,37 @@ export default function ChatPage() {
           {!loading && !loadError && messages.length === 0 && (
             <div className="mx-auto max-w-[560px] pt-14 text-center">
               <div className="dots mx-auto mb-8 h-20 w-20 opacity-50" />
-              <h2 className="text-[24px] font-medium tracking-[-0.02em] text-[#e9e0d1]">Ask about anything on Robinhood Chain</h2>
+              <h2 className="text-[24px] font-medium tracking-[-0.02em] text-[#e9e0d1]">{t("cloud.chat.emptyTitle")}</h2>
               <p className="mx-auto mt-3 max-w-[420px] text-[13.5px] leading-relaxed text-[#9a938a]">
-                Paste a wallet, transaction hash, token, or contract, or start with one of these:
+                {t("cloud.chat.emptyBody")}
               </p>
               <div className="mt-8 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-                {STARTERS.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => ask(s)}
-                    className="border border-[#2e2e2e] bg-[#242424] px-4 py-3.5 text-left text-[12.5px] text-[#9a938a] transition-colors hover:border-[#fa6c34]/50 hover:text-[#e9e0d1]"
-                  >
-                    {s}
-                  </button>
-                ))}
+                {STARTER_KEYS.map((key) => {
+                  const s = t(key);
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => ask(s)}
+                      className="border border-[#2e2e2e] bg-[#242424] px-4 py-3.5 text-left text-[12.5px] text-[#9a938a] transition-colors hover:border-[#fa6c34]/50 hover:text-[#e9e0d1]"
+                    >
+                      {s}
+                    </button>
+                  );
+                })}
               </div>
               <div className="mt-4 flex justify-center gap-2.5">
-                <button onClick={() => ask(`Summarize this wallet: ${SAMPLE_WALLET}`)} className="font-mono-d text-[10.5px] text-[#7cc4f8] hover:underline">
-                  Try sample wallet →
+                <button onClick={() => ask(t("cloud.chat.prompt.summarizeWallet", { address: SAMPLE_WALLET }))} className="font-mono-d text-[10.5px] text-[#7cc4f8] hover:underline">
+                  {t("cloud.chat.trySampleWallet")}
                 </button>
-                <button onClick={() => ask(`Explain this transaction: ${SAMPLE_TX}`)} className="font-mono-d text-[10.5px] text-[#7cc4f8] hover:underline">
-                  Try sample tx →
+                <button onClick={() => ask(t("cloud.chat.prompt.explainTx", { address: SAMPLE_TX }))} className="font-mono-d text-[10.5px] text-[#7cc4f8] hover:underline">
+                  {t("cloud.chat.trySampleTx")}
                 </button>
                 {wallet && (
                   <button
-                    onClick={() => ask(`What did my wallet do today? ${wallet.address}`)}
+                    onClick={() => ask(t("cloud.chat.prompt.walletToday", { address: wallet.address }))}
                     className="font-mono-d text-[10.5px] text-[#fa6c34] hover:underline"
                   >
-                    Ask about my wallet ({shortAddress(wallet.address)}) →
+                    {t("cloud.chat.askMyWallet", { address: shortAddress(wallet.address) })}
                   </button>
                 )}
               </div>
@@ -948,7 +962,7 @@ export default function ChatPage() {
                   <AnswerCard
                     ai={m.ai}
                     animateText={animatedMessageIds.has(m.id)}
-                    onPivot={(v) => ask(`What can you tell me about ${v}?`)}
+                    onPivot={(v) => ask(t("cloud.chat.prompt.about", { value: v }))}
                   />
                 </div>
               )
@@ -985,16 +999,16 @@ export default function ChatPage() {
                 setInput(e.target.value);
                 if (requestError) setRequestError("");
               }}
-              aria-label="Question"
+              aria-label={t("cloud.chat.question")}
               aria-describedby={requestError ? "chat-request-error" : undefined}
-              placeholder="Ask a question, or paste a 0x address / tx hash…"
+              placeholder={t("cloud.chat.composerPlaceholder")}
               className="w-full bg-transparent py-4 text-[13.5px] text-[#e9e0d1] outline-none placeholder:text-[#635d5a]"
             />
             <button
               type="submit"
               disabled={pending || !input.trim()}
               className="clip-btn-sm flex h-10 w-10 shrink-0 items-center justify-center bg-[#fa6c34] text-[#1d1d1d] transition-colors hover:bg-[#ff7038] disabled:opacity-40"
-              aria-label="Send"
+              aria-label={t("cloud.chat.send")}
             >
               <ArrowUp size={16} />
             </button>
@@ -1003,14 +1017,14 @@ export default function ChatPage() {
             {wallet && (
               <button
                 type="button"
-                onClick={() => setInput((v) => (v ? `${v} ${wallet.address}` : `Summarize my wallet: ${wallet.address}`))}
+                onClick={() => setInput((v) => (v ? `${v} ${wallet.address}` : t("cloud.chat.prompt.summarizeMyWallet", { address: wallet.address })))}
                 className="font-mono-d text-[9.5px] tracking-wider text-[#fa6c34] hover:underline"
               >
-                + INSERT MY WALLET {shortAddress(wallet.address)}
+                {t("cloud.chat.insertWallet", { address: shortAddress(wallet.address) })}
               </button>
             )}
             <p className="text-center font-mono-d text-[9.5px] tracking-wider text-[#635d5a]">
-              READ-ONLY ANALYSIS · ANSWERS CITE SOURCES · AI CAN MAKE MISTAKES · NOT FINANCIAL ADVICE
+              {t("cloud.chat.composerDisclaimer")}
             </p>
           </div>
         </form>

@@ -1,4 +1,5 @@
 import type { PortfolioSnapshot } from "@rh-chain/shared";
+import { translateCurrent } from "../i18n/translate";
 import type { VaultAsset, VaultPortfolioValuation } from "../vault/types";
 
 type Decimal = { coefficient: bigint; scale: number };
@@ -69,13 +70,13 @@ export function buildPortfolioMath(
       ? acquisition.find((cost) => cost.currency === reference.currency && cost.complete)
       : undefined;
     const gainUnavailableReason = !reference
-      ? "Add a local reference price to estimate value."
+      ? translateCurrent("portfolio.math.gainNoReference")
       : !linkedAsset
-        ? "Link a Vault asset by contract, ETH, or contract:tokenId to compare cost."
+        ? translateCurrent("portfolio.math.gainNoAsset")
         : !quantityMatches
-          ? "Onchain quantity and entered lots do not match; ChainScout will not invent a disposal method."
+          ? translateCurrent("portfolio.math.gainMismatch")
           : acquisition.length !== 1 || !matchingCost
-            ? "Cost basis is missing or uses a different/mixed currency."
+            ? translateCurrent("portfolio.math.gainMixedCurrency")
             : null;
     return {
       assetKey: holding.assetKey,

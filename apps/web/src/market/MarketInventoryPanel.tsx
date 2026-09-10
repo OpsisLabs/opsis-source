@@ -38,6 +38,7 @@ import {
 import { buildMarketHandoffs, calculateLandedCosts } from "./math";
 import { DealBrief } from "../deals/DealBrief";
 import { Benchmarks } from "../deals/Benchmarks";
+import { useI18n } from "../i18n";
 
 type Props = {
   dealsOnly?: boolean;
@@ -102,7 +103,7 @@ type ComparisonDraft = {
 const EMPTY_COMPARISON: ComparisonDraft = {
   canonicalAssetId: "",
   label: "",
-  providerName: "Owner-entered source",
+  providerName: "",
   sourceUrl: "",
   currency: "USD",
   itemUnitPrice: "",
@@ -123,6 +124,20 @@ const EMPTY_COMPARISON: ComparisonDraft = {
   freshForMs: 86_400_000,
 };
 
+const INVENTORY_STATE_KEYS = {
+  provider_available: "market.inventory.providerAvailable",
+  provider_low_stock: "market.inventory.providerLowStock",
+  provider_unavailable: "market.inventory.providerUnavailable",
+  owner_available: "market.inventory.ownerAvailable",
+  unknown: "market.inventory.unknown",
+} as const;
+
+const IDENTITY_CONFIDENCE_KEYS = {
+  exact_provider_mapping: "market.confidence.exactProviderMapping",
+  owner_linked: "market.confidence.ownerLinked",
+  candidate: "market.confidence.candidate",
+} as const;
+
 export function MarketInventoryPanel({
   dealsOnly = false,
   assets,
@@ -130,6 +145,11 @@ export function MarketInventoryPanel({
   sessionId,
   onSaveContext,
 }: Props) {
+  const { t } = useI18n();
+  const emptyComparison = (): ComparisonDraft => ({
+    ...EMPTY_COMPARISON,
+    providerName: t("market.comparison.ownerEnteredSource"),
+  });
   const [contract, setContract] = useState(
     cryptoIdentifier(
       assets.find((asset) => asset.assetType === "crypto")?.identifier ?? "",
@@ -153,7 +173,7 @@ export function MarketInventoryPanel({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
-  const [comparison, setComparison] = useState(EMPTY_COMPARISON);
+  const [comparison, setComparison] = useState(emptyComparison);
   const [providerDraftDeadline, setProviderDraftDeadline] = useState<
     number | null
   >(null);
@@ -235,10 +255,13 @@ export function MarketInventoryPanel({
       contract: normalized,
       publicIdentifier: `eip155:4663/erc20:${normalized}`,
       providers: ["DEX Screener"],
-      chainScoutSummary: `Robinhood Chain 4663 · ${normalized}`,
-      providerSummary: `Robinhood token-pairs lookup · ${normalized}`,
-      disclosure:
-        "The exact public chain ID and token contract go transiently to ChainScout and DEX Screener. Ownership, lots, costs, labels, notes, photos, other assets, cookies, wallet connections, and AI are excluded.",
+      chainScoutSummary: t("market.crypto.summaryChainScout", {
+        contract: normalized,
+      }),
+      providerSummary: t("market.crypto.summaryProvider", {
+        contract: normalized,
+      }),
+      disclosure: t("market.crypto.disclosure"),
     });
   };
 
@@ -264,11 +287,22 @@ export function MarketInventoryPanel({
       productId: merchantProductId,
       reviewedAt: merchantMappingReviewedAt,
       publicIdentifier: `${merchant}:${asset}`,
-      providers: [merchantName || `approved merchant ${merchant}`],
-      chainScoutSummary: `Merchant ID ${merchant} · canonical asset ${asset} · reviewed SKU ${merchantSku} · expected product ID ${merchantProductId} · mapping reviewed ${merchantMappingReviewedAt}`,
-      providerSummary: `Exact reviewed SKU ${merchantSku} · expected product ID ${merchantProductId}`,
-      disclosure:
-        "The public canonical asset ID, approved merchant ID, reviewed SKU, expected product ID, and mapping review date go transiently to ChainScout. Only the reviewed SKU and expected product ID go to that opted-in merchant. Ownership, lots, costs, labels, notes, photos, other assets, cookies, wallet connections, and AI are excluded.",
+      providers: [
+        merchantName ||
+          t("market.merchant.approvedMerchant", { merchant }),
+      ],
+      chainScoutSummary: t("market.merchant.summaryChainScout", {
+        merchant,
+        asset,
+        sku: merchantSku,
+        productId: merchantProductId,
+        reviewedAt: merchantMappingReviewedAt,
+      }),
+      providerSummary: t("market.merchant.summaryProvider", {
+        sku: merchantSku,
+        productId: merchantProductId,
+      }),
+      disclosure: t("market.merchant.disclosure"),
     });
   };
 
@@ -284,16 +318,14 @@ export function MarketInventoryPanel({
       const response = await fetchApprovedMerchants(controller.signal, dealsOnly);
       setDirectory(response);
       if (response.merchants.length === 0) {
-        setNotice(
-          "No merchant is enabled yet. Live stock stays off until a store affirmatively opts in and its exact product mapping is reviewed.",
-        );
+        setNotice(t("market.notice.noMerchant"));
       }
     } catch (requestError) {
       if (!controller.signal.aborted) {
         setError(
           requestError instanceof Error
             ? requestError.message
-            : "The approved merchant directory could not be loaded.",
+            : t("market.error.directoryLoad"),
         );
       }
     } finally {
@@ -313,7 +345,7 @@ export function MarketInventoryPanel({
       request.operation === "merchant" &&
       comparison.sourceKind === "provider_offer"
     ) {
-      setComparison(EMPTY_COMPARISON);
+      setComparison(emptyComparison());
       setProviderDraftDeadline(null);
     }
     const controller = new AbortController();
@@ -372,8 +404,13 @@ export function MarketInventoryPanel({
         setFreshnessNow(receivedAt);
         setNotice(
           response.pairs.length
-            ? `${response.pairsShown} exact-contract pool observation${response.pairsShown === 1 ? "" : "s"} saved encrypted. These are indexed references, not executable quotes.`
-            : "DEX Screener returned a valid empty pair collection. That does not prove no pool exists elsewhere.",
+            ? t(
+                response.pairsShown === 1
+                  ? "market.notice.cryptoPairsOne"
+                  : "market.notice.cryptoPairsOther",
+                { count: response.pairsShown },
+              )
+            : t("market.notice.cryptoEmpty"),
         );
       } else {
         const response = await fetchMerchantInventory(
@@ -426,34 +463,42 @@ export function MarketInventoryPanel({
         });
         setFreshnessNow(receivedAt);
         if (response.offer) {
-          setComparison(comparisonDraftFromOffer(response));
+          setComparison(
+            comparisonDraftFromOffer(
+              response,
+              t("market.merchant.returnNotSupplied"),
+            ),
+          );
           setProviderDraftDeadline(receivedAt + response.offer.freshForMs);
-          setNotice(
-            "The reviewed price and conservative availability are locked into the editor. Enter your own quantity and explicit local costs, then encrypt the comparison. Exact stock quantity and merchant reputation were not supplied.",
-          );
+          setNotice(t("market.notice.merchantOffer"));
         } else {
-          setComparison(EMPTY_COMPARISON);
+          setComparison(emptyComparison());
           setProviderDraftDeadline(null);
-          setNotice(
-            "The opted-in merchant returned a valid empty exact-SKU result. That dated empty observation replaced its prior current state; older comparisons remain encrypted but stale.",
-          );
+          setNotice(t("market.notice.merchantEmpty"));
         }
       }
     } catch (requestError) {
       if (controller.signal.aborted) return;
       if (!receiptSaved) {
         setError(
-          `The encrypted permission receipt could not be saved. ${vaultErrorMessage(requestError)} ChainScout did not contact a market provider.`,
+          t("market.error.receiptSave", {
+            message: vaultErrorMessage(requestError),
+          }),
         );
       } else if (providerCompleted) {
         setError(
-          `The provider returned a result and the approved public identifier was sent, but ${localSaveFailure(requestError)} The result was not persisted; the prior encrypted observation remains unchanged.`,
+          t("market.error.providerLocalSave", {
+            reason: localSaveFailure(
+              requestError,
+              t("market.error.localSave"),
+            ),
+          }),
         );
       } else {
         setError(
           requestError instanceof Error
             ? requestError.message
-            : "The market request failed after approval. The public identifier may already have been sent; prior encrypted observations remain unchanged.",
+            : t("market.error.requestFailed"),
         );
         await persistReceipt({
           ...receipt,
@@ -534,12 +579,12 @@ export function MarketInventoryPanel({
         ),
       );
       setFreshnessNow(savedAt);
-      setComparison(EMPTY_COMPARISON);
+      setComparison(emptyComparison());
       setProviderDraftDeadline(null);
       setNotice(
         comparison.sourceKind === "provider_offer"
-          ? "The reviewed merchant observation and your local costs were saved encrypted. It ranks only while the original provider freshness window remains open."
-          : "Owner-entered offer saved encrypted. It is ranked only against complete comparisons with the same linked identity, currency, condition, quantity, and region in this unlocked session.",
+          ? t("market.notice.comparisonProvider")
+          : t("market.notice.comparisonOwner"),
       );
       setError("");
     } catch (saveError) {
@@ -566,9 +611,7 @@ export function MarketInventoryPanel({
         deadlines.delete(id);
         return deadlines;
       });
-      setNotice(
-        "The selected local comparison was removed from the encrypted Vault.",
-      );
+      setNotice(t("market.notice.comparisonRemoved"));
     } catch (saveError) {
       setError(vaultErrorMessage(saveError));
     } finally {
@@ -600,9 +643,7 @@ export function MarketInventoryPanel({
         new Map(deadlines).set(id, reconfirmedAt + current.freshForMs),
       );
       setFreshnessNow(reconfirmedAt);
-      setNotice(
-        "You reconfirmed this owner-entered offer for the current unlocked session. ChainScout did not contact its source.",
-      );
+      setNotice(t("market.notice.reconfirmed"));
     } catch (saveError) {
       setError(vaultErrorMessage(saveError));
     } finally {
@@ -618,8 +659,8 @@ export function MarketInventoryPanel({
     );
   }, [freshDeadlines, freshnessNow]);
   const rows = useMemo(
-    () => calculateLandedCosts(context?.comparisons ?? [], freshIds),
-    [context?.comparisons, freshIds],
+    () => calculateLandedCosts(context?.comparisons ?? [], freshIds, t),
+    [context?.comparisons, freshIds, t],
   );
   const freshCryptoIds = useMemo(
     () =>
@@ -668,15 +709,16 @@ export function MarketInventoryPanel({
     <section className="mt-8 space-y-5" data-testid="market-inventory">
       <div className="clip-panel border border-[#383838] bg-[#242424] p-5 sm:p-7">
         <p className="flex items-center gap-2 font-mono-d text-[9.5px] tracking-[0.15em] text-[#fa6c34]">
-          <BarChart3 size={14} /> {dealsOnly ? "COLLECTIBLE DEAL FINDER" : "MARKET & INVENTORY"}
+          <BarChart3 size={14} />{" "}
+          {dealsOnly
+            ? t("market.header.dealsTitle")
+            : t("market.header.title")}
         </p>
         <h2 className="mt-3 text-[26px] font-medium tracking-[-0.025em] text-[#f0e8da]">
-          Compare what is actually comparable.
+          {t("market.hero.title")}
         </h2>
         <p className="mt-3 max-w-[820px] text-[12.5px] leading-relaxed text-[#9a938a]">
-          {dealsOnly
-            ? "Exact-card searches and private landed-cost comparisons. Live merchant inventory requires an approved, opted-in source. No checkout, hidden tax estimates, or automatic marketplace scraping."
-            : "Exact-contract crypto context, opted-in merchant stock, private landed-cost math, and click-only marketplace searches. No scraping, checkout, currency conversion, hidden tax estimate, or paid provider path."}
+          {dealsOnly ? t("market.hero.bodyDeals") : t("market.hero.body")}
         </p>
         {error && (
           <div
@@ -705,19 +747,17 @@ export function MarketInventoryPanel({
         >
           <PanelTitle
             icon={<BarChart3 size={14} />}
-            eyebrow="LIVE PUBLIC CONTEXT"
-            title="Robinhood token pools"
+            eyebrow={t("market.crypto.eyebrow")}
+            title={t("market.crypto.title")}
           />
           <p className="mt-3 text-[11.5px] leading-relaxed text-[#8e8881]">
-            DEX Screener prices the pair's base token. The searched contract can
-            be the quote token, so ChainScout shows the priced address
-            explicitly and never silently inverts it.
+            {t("market.crypto.description")}
           </p>
           <Input
-            label="TOKEN CONTRACT"
+            label={t("market.crypto.contractLabel")}
             value={contract}
             onChange={setContract}
-            placeholder="0x…"
+            placeholder={t("market.crypto.contractPlaceholder")}
             maxLength={42}
             disabled={busy}
           />
@@ -726,7 +766,7 @@ export function MarketInventoryPanel({
             disabled={busy || !/^0x[0-9a-fA-F]{40}$/.test(contract.trim())}
             className="mt-4 flex min-h-[44px] w-full items-center justify-center gap-2 bg-[#fa6c34] font-mono-d text-[9.5px] font-medium text-[#1d1d1d] disabled:opacity-35"
           >
-            <ShieldCheck size={13} /> REVIEW EXACT-CONTRACT LOOKUP
+            <ShieldCheck size={13} /> {t("market.crypto.review")}
           </button>
         </form>}
         <form
@@ -735,13 +775,11 @@ export function MarketInventoryPanel({
         >
           <PanelTitle
             icon={<Boxes size={14} />}
-            eyebrow="OPT-IN MERCHANTS ONLY"
-            title="Reviewed Woo inventory"
+            eyebrow={t("market.merchant.eyebrow")}
+            title={t("market.merchant.title")}
           />
           <p className="mt-3 text-[11.5px] leading-relaxed text-[#8e8881]">
-            A live lookup works only after an opted-in store and exact
-            simple-product mapping are code-reviewed. Unapproved Shopify paths
-            stay off; supported public venues remain click-only searches.
+            {t("market.merchant.description")}
           </p>
           <button
             type="button"
@@ -749,12 +787,12 @@ export function MarketInventoryPanel({
             onClick={loadApprovedMerchants}
             className="mt-4 min-h-[42px] w-full border border-[#4a4743] px-4 font-mono-d text-[8.5px] text-[#d6ccba] disabled:opacity-35"
           >
-            LOAD APPROVED STORES
+            {t("market.merchant.loadStores")}
           </button>
           {directory && directory.merchants.length > 0 && (
             <div
               className="mt-3 space-y-2"
-              aria-label="Approved merchant mappings"
+              aria-label={t("market.merchant.mappingsAria")}
             >
               {directory.merchants.flatMap((merchant) =>
                 merchant.mappings.map((mapping) => (
@@ -789,18 +827,18 @@ export function MarketInventoryPanel({
           )}
           <div className="grid gap-3 sm:grid-cols-2">
             <Input
-              label="MERCHANT ID"
+              label={t("market.merchant.idLabel")}
               value={merchantId}
               onChange={setMerchantId}
-              placeholder="Approved ID"
+              placeholder={t("market.merchant.idPlaceholder")}
               maxLength={64}
               disabled
             />
             <Input
-              label="CANONICAL ASSET ID"
+              label={t("market.merchant.assetLabel")}
               value={merchantAssetId}
               onChange={setMerchantAssetId}
-              placeholder="tcgdex:en:…"
+              placeholder={t("market.merchant.assetPlaceholder")}
               maxLength={200}
               disabled
             />
@@ -813,7 +851,7 @@ export function MarketInventoryPanel({
                 rel="noreferrer noopener"
                 className="underline"
               >
-                MERCHANT PERMISSION EVIDENCE
+                {t("market.merchant.permissionEvidence")}
               </a>
               <a
                 href={merchantMappingEvidence}
@@ -821,7 +859,7 @@ export function MarketInventoryPanel({
                 rel="noreferrer noopener"
                 className="underline"
               >
-                EXACT MAPPING EVIDENCE
+                {t("market.merchant.mappingEvidence")}
               </a>
             </p>
           )}
@@ -837,7 +875,7 @@ export function MarketInventoryPanel({
             }
             className="mt-4 flex min-h-[44px] w-full items-center justify-center gap-2 border border-[#7fb069]/45 bg-[#7fb069]/5 font-mono-d text-[9.5px] text-[#9fc68f] disabled:opacity-35"
           >
-            <ShieldCheck size={13} /> REVIEW MERCHANT LOOKUP
+            <ShieldCheck size={13} /> {t("market.merchant.review")}
           </button>
         </form>
       </div>
@@ -867,24 +905,22 @@ export function MarketInventoryPanel({
       <div className="clip-panel border border-[#383838] bg-[#242424] p-5 sm:p-7">
         <PanelTitle
           icon={<Search size={14} />}
-          eyebrow="UNSUPPORTED VENUES"
-          title="Precise click-only searches"
+          eyebrow={t("market.handoff.eyebrow")}
+          title={t("market.handoff.title")}
         />
         <p className="mt-3 text-[11.5px] leading-relaxed text-[#8e8881]">
-          These links contain only public card identity. ChainScout does not
-          fetch, pre-load, rank, or claim inventory from the destination. Review
-          the exact query before opening.
+          {t("market.handoff.description")}
         </p>
         <label className="mt-4 block">
           <span className="font-mono-d text-[8px] tracking-wider text-[#635d5a]">
-            ENCRYPTED COLLECTIBLE
+            {t("market.handoff.collectibleLabel")}
           </span>
           <select
             value={handoffAssetId}
             onChange={(event) => setHandoffAssetId(event.target.value)}
             className="mt-2 min-h-[44px] w-full border border-[#383838] bg-[#1d1d1d] px-3 text-[12px] text-[#e9e0d1] outline-none"
           >
-            <option value="">Choose a catalog-matched collectible</option>
+            <option value="">{t("market.handoff.chooseCollectible")}</option>
             {assets
               .filter((asset) => asset.collectible)
               .map((asset) => (
@@ -904,14 +940,15 @@ export function MarketInventoryPanel({
               className="border border-[#383838] bg-[#1d1d1d] p-4 hover:border-[#fa6c34]"
             >
               <p className="font-mono-d text-[8px] text-[#fa6c34]">
-                SEARCH ONLY · NO LIVE DATA
+                {t("market.handoff.searchOnly")}
               </p>
               <p className="mt-2 text-[13px] text-[#f0e8da]">{handoff.label}</p>
               <p className="mt-2 line-clamp-2 text-[10px] text-[#7f7972]">
                 {handoff.query}
               </p>
               <span className="mt-3 flex items-center gap-1 font-mono-d text-[8px] text-[#9a938a]">
-                OPEN DESTINATION <ExternalLink size={10} />
+                {t("market.handoff.openDestination")}{" "}
+                <ExternalLink size={10} />
               </span>
             </a>
           ))}
@@ -937,13 +974,14 @@ function CryptoObservations({
   observations: CryptoMarketResponse[];
   freshIds: ReadonlySet<string>;
 }) {
+  const { t } = useI18n();
   if (!observations.length) return null;
   return (
     <div className="clip-panel border border-[#383838] bg-[#242424] p-5 sm:p-7">
       <PanelTitle
         icon={<BarChart3 size={14} />}
-        eyebrow="ENCRYPTED OBSERVATIONS"
-        title="Indexed pool context"
+        eyebrow={t("market.cryptoObs.eyebrow")}
+        title={t("market.cryptoObs.title")}
       />
       <div className="mt-4 space-y-4">
         {observations.map((observation) => (
@@ -956,11 +994,13 @@ function CryptoObservations({
                 {observation.contract}
               </p>
               <span className="font-mono-d text-[8px] text-[#e0a96d]">
-                {freshIds.has(observation.canonicalAssetId)
-                  ? "CURRENT REFERENCE WINDOW"
-                  : "STALE · REFRESH TO UPDATE"}{" "}
-                · OBSERVED {observation.fetchedAt} ·{" "}
-                {Math.round(observation.freshForMs / 1_000)}S WINDOW
+                {t("market.cryptoObs.windowStatus", {
+                  state: freshIds.has(observation.canonicalAssetId)
+                    ? t("market.cryptoObs.currentWindow")
+                    : t("market.cryptoObs.staleWindow"),
+                  observed: observation.fetchedAt,
+                  seconds: Math.round(observation.freshForMs / 1_000),
+                })}
               </span>
             </div>
             <a
@@ -969,7 +1009,7 @@ function CryptoObservations({
               rel="noreferrer noopener"
               className="mt-2 inline-block font-mono-d text-[8px] text-[#fa6c34] underline"
             >
-              OPEN DEX SCREENER SOURCE{" "}
+              {t("market.cryptoObs.openSource")}{" "}
               <ExternalLink size={10} className="inline" />
             </a>
             <div className="mt-3 grid gap-2 md:grid-cols-2 xl:grid-cols-3">
@@ -982,54 +1022,68 @@ function CryptoObservations({
                   className="border border-[#343434] p-3 hover:border-[#fa6c34]"
                 >
                   <p className="font-mono-d text-[8px] text-[#7fb069]">
-                    {pair.dexId.toUpperCase()} · BASE TOKEN PRICED
+                    {t("market.cryptoObs.baseTokenPriced", {
+                      dex: pair.dexId.toUpperCase(),
+                    })}
                   </p>
                   <p className="mt-2 text-[12px] text-[#f0e8da]">
                     {pair.baseToken.symbol}/{pair.quoteToken.symbol}
                   </p>
                   <p className="mt-1 break-all font-mono-d text-[7.5px] text-[#635d5a]">
-                    PRICED ADDRESS {pair.pricedTokenAddress}
+                    {t("market.cryptoObs.pricedAddress", {
+                      address: pair.pricedTokenAddress,
+                    })}
                   </p>
                   <p className="mt-1 break-all font-mono-d text-[7.5px] text-[#635d5a]">
-                    PAIR ID {pair.pairAddress}
+                    {t("market.cryptoObs.pairId", { id: pair.pairAddress })}
                   </p>
                   <p className="mt-1 break-all font-mono-d text-[7.5px] text-[#635d5a]">
-                    BASE {pair.baseToken.address} · QUOTE{" "}
-                    {pair.quoteToken.address}
+                    {t("market.cryptoObs.baseQuote", {
+                      base: pair.baseToken.address,
+                      quote: pair.quoteToken.address,
+                    })}
                   </p>
                   <p className="mt-2 font-mono-d text-[9px] text-[#d6ccba]">
-                    BASE USD {pair.baseTokenPriceUsd ?? "Not supplied"} · BASE
-                    IN QUOTE {pair.baseTokenPriceInQuote ?? "Not supplied"}
+                    {t("market.cryptoObs.baseUsd", {
+                      usd: pair.baseTokenPriceUsd ?? t("market.common.notSupplied"),
+                      quote:
+                        pair.baseTokenPriceInQuote ?? t("market.common.notSupplied"),
+                    })}
                   </p>
                   <p className="mt-1 font-mono-d text-[8px] text-[#8e8881]">
-                    LIQ {pair.liquidityUsd ?? "Not supplied"} · VOL 24H{" "}
-                    {pair.volume24hUsd ?? "Not supplied"} · CHANGE 24H{" "}
-                    {pair.priceChange24hPercent ?? "Not supplied"}
+                    {t("market.cryptoObs.stats", {
+                      liquidity:
+                        pair.liquidityUsd ?? t("market.common.notSupplied"),
+                      volume: pair.volume24hUsd ?? t("market.common.notSupplied"),
+                      change:
+                        pair.priceChange24hPercent ??
+                        t("market.common.notSupplied"),
+                    })}
                   </p>
                   <p className="mt-1 font-mono-d text-[7.5px] text-[#635d5a]">
-                    PAIR CREATED {pair.pairCreatedAt ?? "Not supplied"}
+                    {t("market.cryptoObs.pairCreated", {
+                      created:
+                        pair.pairCreatedAt ?? t("market.common.notSupplied"),
+                    })}
                   </p>
                 </a>
               ))}
             </div>
             {observation.pairs.length === 0 && (
               <p className="mt-3 border border-[#e0a96d]/25 px-3 py-2 text-[10px] text-[#e0a96d]">
-                VALID EMPTY · DEX Screener returned no exact-contract pair in
-                this bounded response. That does not prove no pool exists
-                elsewhere.
+                {t("market.cryptoObs.empty")}
               </p>
             )}
             {observation.pairs.length > 6 && (
               <p className="mt-3 text-[10px] text-[#e0a96d]">
-                Showing 6 of {observation.pairs.length} encrypted exact-contract
-                pool observations in this compact view. Open the source for the
-                broader indexed list.
+                {t("market.cryptoObs.showing", {
+                  total: observation.pairs.length,
+                })}
               </p>
             )}
             {observation.truncated && (
               <p className="mt-3 text-[10px] text-[#e0a96d]">
-                Provider collection reached ChainScout's observed safety bound;
-                additional pools may be omitted.
+                {t("market.cryptoObs.truncated")}
               </p>
             )}
           </div>
@@ -1046,13 +1100,14 @@ function MerchantObservations({
   observations: MerchantInventoryResponse[];
   freshIds: ReadonlySet<string>;
 }) {
+  const { t } = useI18n();
   if (!observations.length) return null;
   return (
     <div className="clip-panel border border-[#383838] bg-[#242424] p-5 sm:p-7">
       <PanelTitle
         icon={<Boxes size={14} />}
-        eyebrow="REVIEWED MERCHANT OBSERVATIONS"
-        title="Exact mapped simple products"
+        eyebrow={t("market.merchantObs.eyebrow")}
+        title={t("market.merchantObs.title")}
       />
       <div className="mt-4 space-y-3">
         {observations.map((observation) => {
@@ -1068,19 +1123,29 @@ function MerchantObservations({
                 className="border border-[#383838] bg-[#1d1d1d] p-4"
               >
                 <p className="text-[13px] text-[#f0e8da]">
-                  {observation.merchant.name} · no exact mapped product returned
+                  {t("market.merchantObs.noOffer", {
+                    merchant: observation.merchant.name,
+                  })}
                 </p>
                 <p className="mt-2 font-mono-d text-[8px] text-[#e0a96d]">
-                  VALID EMPTY · {freshIds.has(identity) ? "CURRENT" : "STALE"}
+                  {t("market.merchantObs.validEmpty", {
+                    state: freshIds.has(identity)
+                      ? t("market.common.current")
+                      : t("market.common.stale"),
+                  })}
                 </p>
                 <p className="mt-2 break-all text-[10.5px] text-[#8e8881]">
-                  {observation.canonicalAssetId} · observed{" "}
-                  {observation.fetchedAt}
+                  {t("market.merchantObs.observedLine", {
+                    id: observation.canonicalAssetId,
+                    observed: observation.fetchedAt,
+                  })}
                 </p>
                 <p className="mt-2 break-all font-mono-d text-[8px] text-[#7f7972]">
-                  SKU {observation.mapping.sku} · PRODUCT ID{" "}
-                  {observation.mapping.productId} · MAPPING REVIEWED{" "}
-                  {observation.mapping.reviewedAt}
+                  {t("market.merchantObs.mappingLine", {
+                    sku: observation.mapping.sku,
+                    productId: observation.mapping.productId,
+                    reviewedAt: observation.mapping.reviewedAt,
+                  })}
                 </p>
                 <a
                   href={observation.mapping.evidenceUrl}
@@ -1088,7 +1153,7 @@ function MerchantObservations({
                   rel="noreferrer noopener"
                   className="mt-3 inline-block font-mono-d text-[8px] text-[#fa6c34]"
                 >
-                  OPEN MAPPING EVIDENCE{" "}
+                  {t("market.merchantObs.openMapping")}{" "}
                   <ExternalLink size={10} className="inline" />
                 </a>
               </article>
@@ -1103,7 +1168,9 @@ function MerchantObservations({
                 <div>
                   <p className="text-[13px] text-[#f0e8da]">{offer.title}</p>
                   <p className="mt-1 font-mono-d text-[8px] text-[#7fb069]">
-                    EXACT REVIEWED SIMPLE-PRODUCT MAPPING · {offer.merchantName}
+                    {t("market.merchantObs.exactMapping", {
+                      merchant: offer.merchantName,
+                    })}
                   </p>
                 </div>
                 <a
@@ -1112,49 +1179,64 @@ function MerchantObservations({
                   rel="noreferrer noopener"
                   className="font-mono-d text-[8px] text-[#fa6c34]"
                 >
-                  OPEN PRODUCT SOURCE{" "}
+                  {t("market.merchantObs.openSource")}{" "}
                   <ExternalLink size={10} className="inline" />
                 </a>
               </div>
               <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                 <Fact
-                  label="MAPPED VARIANT"
+                  label={t("market.merchantObs.mappedVariant")}
                   value={`${offer.variantLabel} · ${offer.condition}`}
                 />
                 <Fact
-                  label="PUBLISHED PRICE"
+                  label={t("market.merchantObs.publishedPrice")}
                   value={`${offer.unitPrice} ${offer.currency}`}
                 />
                 <Fact
-                  label="PROVIDER AVAILABILITY"
-                  value={offer.inventoryState.replaceAll("_", " ")}
+                  label={t("market.merchantObs.providerAvailability")}
+                  value={t(INVENTORY_STATE_KEYS[offer.inventoryState])}
                 />
-                <Fact label="EXACT QUANTITY" value="Not supplied" />
                 <Fact
-                  label="PRODUCT RATING · NOT SELLER REPUTATION"
+                  label={t("market.merchantObs.exactQuantity")}
+                  value={t("market.common.notSupplied")}
+                />
+                <Fact
+                  label={t("market.merchantObs.productRating")}
                   value={
                     offer.productRating
-                      ? `${offer.productRating.average}/5 · ${offer.productRating.count} reviews`
-                      : "Not supplied"
+                      ? t("market.merchantObs.ratingValue", {
+                          average: offer.productRating.average,
+                          count: offer.productRating.count,
+                        })
+                      : t("market.common.notSupplied")
                   }
                 />
                 <Fact
-                  label="SELLER REPUTATION"
-                  value="Not supplied by this adapter"
+                  label={t("market.merchantObs.sellerReputation")}
+                  value={t("market.merchantObs.sellerReputationValue")}
                 />
-                <Fact label="OBSERVED" value={offer.fetchedAt} />
                 <Fact
-                  label="MAPPING REVIEWED"
+                  label={t("market.merchantObs.observed")}
+                  value={offer.fetchedAt}
+                />
+                <Fact
+                  label={t("market.merchantObs.mappingReviewed")}
                   value={offer.mappingReviewedAt}
                 />
-                <Fact label="EXACT SKU" value={offer.sku} />
-                <Fact label="EXPECTED PRODUCT ID" value={offer.productId} />
                 <Fact
-                  label="FRESHNESS"
+                  label={t("market.merchantObs.exactSku")}
+                  value={offer.sku}
+                />
+                <Fact
+                  label={t("market.merchantObs.expectedProductId")}
+                  value={offer.productId}
+                />
+                <Fact
+                  label={t("market.merchantObs.freshness")}
                   value={
                     freshIds.has(identity)
-                      ? "Current observation window"
-                      : "Stale · refresh before comparing"
+                      ? t("market.merchantObs.freshnessCurrent")
+                      : t("market.merchantObs.freshnessStale")
                   }
                 />
               </div>
@@ -1164,7 +1246,7 @@ function MerchantObservations({
                 rel="noreferrer noopener"
                 className="mt-3 inline-block font-mono-d text-[8px] text-[#7f7972] underline"
               >
-                REVIEWED MAPPING EVIDENCE
+                {t("market.merchantObs.reviewedMappingEvidence")}
               </a>
             </article>
           );
@@ -1187,6 +1269,7 @@ function ComparisonEditor({
   busy: boolean;
   assets: VaultAsset[];
 }) {
+  const { t } = useI18n();
   const providerLocked = value.sourceKind === "provider_offer";
   const set = <K extends keyof typeof EMPTY_COMPARISON>(
     key: K,
@@ -1200,24 +1283,21 @@ function ComparisonEditor({
     >
       <PanelTitle
         icon={<Calculator size={14} />}
-        eyebrow="ENCRYPTED LOCAL MATH"
-        title="Add a landed-cost comparison"
+        eyebrow={t("market.comparison.eyebrow")}
+        title={t("market.comparison.title")}
       />
       <p className="mt-3 text-[11.5px] text-[#8e8881]">
-        Blank means unknown. Type 0 when a cost is explicitly zero. ChainScout
-        never estimates tax, duty, shipping, or exchange rates.
+        {t("market.comparison.description")}
       </p>
       {providerLocked && (
         <p className="mt-3 border border-[#7fb069]/25 bg-[#7fb069]/5 px-3 py-2 text-[10.5px] text-[#9fc68f]">
-          Merchant identity, condition, unit price, currency, and availability
-          are locked to the reviewed response. Only your quantity and local cost
-          fields can change.
+          {t("market.comparison.providerLocked")}
         </p>
       )}
       <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <label>
           <span className="font-mono-d text-[8px] text-[#635d5a]">
-            LINKED ASSET
+            {t("market.comparison.linkedAsset")}
           </span>
           <select
             value={value.canonicalAssetId}
@@ -1225,7 +1305,7 @@ function ComparisonEditor({
             disabled={providerLocked}
             className="mt-2 min-h-[42px] w-full border border-[#383838] bg-[#1d1d1d] px-3 text-[11px] text-[#e9e0d1]"
           >
-            <option value="">Candidate / not linked</option>
+            <option value="">{t("market.comparison.candidateOption")}</option>
             {assets
               .filter((asset) => asset.identifier)
               .map((asset) => (
@@ -1236,7 +1316,7 @@ function ComparisonEditor({
           </select>
         </label>
         <Input
-          label="OFFER LABEL"
+          label={t("market.comparison.offerLabel")}
           value={value.label}
           onChange={(next) => set("label", next)}
           maxLength={160}
@@ -1244,7 +1324,7 @@ function ComparisonEditor({
           disabled={providerLocked}
         />
         <Input
-          label="SOURCE NAME"
+          label={t("market.comparison.sourceName")}
           value={value.providerName}
           onChange={(next) => set("providerName", next)}
           maxLength={100}
@@ -1252,7 +1332,7 @@ function ComparisonEditor({
           disabled={providerLocked}
         />
         <Input
-          label="SOURCE URL"
+          label={t("market.comparison.sourceUrl")}
           value={value.sourceUrl}
           onChange={(next) => set("sourceUrl", next)}
           maxLength={1000}
@@ -1261,7 +1341,7 @@ function ComparisonEditor({
           disabled={providerLocked}
         />
         <Input
-          label="CONDITION / VARIANT"
+          label={t("market.comparison.condition")}
           value={value.condition}
           onChange={(next) => set("condition", next)}
           maxLength={120}
@@ -1269,13 +1349,13 @@ function ComparisonEditor({
           disabled={providerLocked}
         />
         <Input
-          label="REGION"
+          label={t("market.comparison.region")}
           value={value.region}
           onChange={(next) => set("region", next)}
           maxLength={120}
         />
         <Input
-          label="UNIT PRICE"
+          label={t("market.comparison.unitPrice")}
           value={value.itemUnitPrice}
           onChange={(next) => set("itemUnitPrice", next)}
           decimal
@@ -1283,14 +1363,14 @@ function ComparisonEditor({
           disabled={providerLocked}
         />
         <Input
-          label="QUANTITY"
+          label={t("market.comparison.quantity")}
           value={value.quantity}
           onChange={(next) => set("quantity", next)}
           decimal
           required
         />
         <Input
-          label="CURRENCY"
+          label={t("market.comparison.currency")}
           value={value.currency}
           onChange={(next) => set("currency", next)}
           maxLength={12}
@@ -1298,43 +1378,45 @@ function ComparisonEditor({
           disabled={providerLocked}
         />
         <Input
-          label="SHIPPING"
+          label={t("market.comparison.shipping")}
           value={value.shipping}
           onChange={(next) => set("shipping", next)}
           decimal
-          placeholder="Blank = unknown"
+          placeholder={t("market.comparison.blankUnknown")}
         />
         <Input
-          label="TAX"
+          label={t("market.comparison.tax")}
           value={value.tax}
           onChange={(next) => set("tax", next)}
           decimal
-          placeholder="Blank = unknown"
+          placeholder={t("market.comparison.blankUnknown")}
         />
         <Input
-          label="DUTY"
+          label={t("market.comparison.duty")}
           value={value.duty}
           onChange={(next) => set("duty", next)}
           decimal
-          placeholder="Blank = unknown"
+          placeholder={t("market.comparison.blankUnknown")}
         />
         <Input
-          label="FEES"
+          label={t("market.comparison.fees")}
           value={value.fees}
           onChange={(next) => set("fees", next)}
           decimal
-          placeholder="Blank = unknown"
+          placeholder={t("market.comparison.blankUnknown")}
         />
         <Input
-          label="DISCOUNT"
+          label={t("market.comparison.discount")}
           value={value.discount}
           onChange={(next) => set("discount", next)}
           decimal
-          placeholder="Blank = unknown"
+          placeholder={t("market.comparison.blankUnknown")}
         />
         <label>
           <span className="font-mono-d text-[8px] text-[#635d5a]">
-            {providerLocked ? "PROVIDER AVAILABILITY" : "OWNER AVAILABILITY"}
+            {providerLocked
+              ? t("market.comparison.providerAvailability")
+              : t("market.comparison.ownerAvailability")}
           </span>
           <select
             value={value.inventoryState}
@@ -1349,18 +1431,22 @@ function ComparisonEditor({
           >
             {providerLocked ? (
               <option value={value.inventoryState}>
-                {value.inventoryState.replaceAll("_", " ")}
+                {t(INVENTORY_STATE_KEYS[value.inventoryState])}
               </option>
             ) : (
               <>
-                <option value="owner_available">Owner says available</option>
-                <option value="unknown">Unknown</option>
+                <option value="owner_available">
+                  {t("market.comparison.ownerAvailable")}
+                </option>
+                <option value="unknown">
+                  {t("market.common.unknown")}
+                </option>
               </>
             )}
           </select>
         </label>
         <Input
-          label="RETURN NOTES"
+          label={t("market.comparison.returnNotes")}
           value={value.returnNotes}
           onChange={(next) => set("returnNotes", next)}
           maxLength={500}
@@ -1378,7 +1464,7 @@ function ComparisonEditor({
         }
         className="mt-5 flex min-h-[44px] items-center justify-center gap-2 border border-[#7fb069]/45 bg-[#7fb069]/5 px-5 font-mono-d text-[9.5px] text-[#9fc68f] disabled:opacity-35"
       >
-        <ShieldCheck size={13} /> ENCRYPT & ADD COMPARISON
+        <ShieldCheck size={13} /> {t("market.comparison.submit")}
       </button>
     </form>
   );
@@ -1395,13 +1481,14 @@ function ComparisonTable({
   onRemove: (id: string) => void;
   onReconfirm: (id: string) => void;
 }) {
+  const { t } = useI18n();
   if (!rows.length) return null;
   return (
     <div className="clip-panel border border-[#383838] bg-[#242424] p-5 sm:p-7">
       <PanelTitle
         icon={<Calculator size={14} />}
-        eyebrow="LOCAL RESULTS"
-        title="Comparable landed cost"
+        eyebrow={t("market.results.eyebrow")}
+        title={t("market.results.title")}
       />
       <div className="mt-4 space-y-3">
         {rows.map((row) => (
@@ -1415,28 +1502,48 @@ function ComparisonTable({
               </p>
               <p className="mt-1 font-mono-d text-[8px] text-[#635d5a]">
                 {row.comparison.sourceKind === "owner_entered"
-                  ? "OWNER-ENTERED"
-                  : "PROVIDER OFFER"}{" "}
+                  ? t("market.common.ownerEntered")
+                  : t("market.common.providerOffer")}{" "}
                 · {row.comparison.condition}
               </p>
               <p className="mt-1 font-mono-d text-[7.5px] text-[#7f7972]">
-                {row.comparison.identityConfidence.replaceAll("_", " ")} ·{" "}
-                {row.comparison.inventoryState.replaceAll("_", " ")} ·{" "}
-                {row.fresh ? "FRESH WINDOW" : "STALE"}
+                {t("market.results.meta", {
+                  confidence:
+                    t(
+                      IDENTITY_CONFIDENCE_KEYS[
+                        row.comparison.identityConfidence
+                      ],
+                    ),
+                  inventory: t(
+                    INVENTORY_STATE_KEYS[row.comparison.inventoryState],
+                  ),
+                  freshness: row.fresh
+                    ? t("market.results.freshWindow")
+                    : t("market.common.stale"),
+                })}
               </p>
               <p className="mt-1 text-[10px] text-[#8e8881]">
-                {row.comparison.providerName} · region{" "}
-                {row.comparison.region || "Not specified"}
+                {t("market.results.providerRegion", {
+                  provider: row.comparison.providerName,
+                  region:
+                    row.comparison.region || t("market.common.notSpecified"),
+                })}
               </p>
               <p className="mt-1 text-[10px] text-[#7f7972]">
-                Return notes: {row.comparison.returnNotes || "Not supplied"}
+                {t("market.results.returnNotesInline", {
+                  notes:
+                    row.comparison.returnNotes ||
+                    t("market.common.notSupplied"),
+                })}
               </p>
               {row.comparison.merchantMapping && (
                 <p className="mt-1 break-all font-mono-d text-[7.5px] text-[#635d5a]">
-                  MERCHANT {row.comparison.merchantMapping.merchantId} · SKU{" "}
-                  {row.comparison.merchantMapping.sku} · PRODUCT{" "}
-                  {row.comparison.merchantMapping.productId} · REVIEWED{" "}
-                  {row.comparison.merchantMapping.reviewedAt}
+                  {t("market.results.merchantMapping", {
+                    merchant: row.comparison.merchantMapping.merchantId,
+                    sku: row.comparison.merchantMapping.sku,
+                    productId: row.comparison.merchantMapping.productId,
+                    reviewedAt: row.comparison.merchantMapping.reviewedAt,
+                  })}
                 </p>
               )}
               <a
@@ -1445,37 +1552,42 @@ function ComparisonTable({
                 rel="noreferrer noopener"
                 className="mt-2 inline-block font-mono-d text-[7.5px] text-[#fa6c34] underline"
               >
-                SOURCE · OBSERVED {row.comparison.observedAt}
+                {t("market.results.sourceObserved", {
+                  observed: row.comparison.observedAt,
+                })}
               </a>
               <p className="mt-2 font-mono-d text-[7.5px] leading-relaxed text-[#635d5a]">
-                {row.comparison.itemUnitPrice} × {row.comparison.quantity} +
-                ship {row.comparison.shipping || "?"} + tax{" "}
-                {row.comparison.tax || "?"} + duty {row.comparison.duty || "?"}{" "}
-                + fees {row.comparison.fees || "?"} − discount{" "}
-                {row.comparison.discount || "?"}
+                {t("market.results.breakdown", {
+                  unitPrice: row.comparison.itemUnitPrice,
+                  quantity: row.comparison.quantity,
+                  shipping: row.comparison.shipping || "?",
+                  tax: row.comparison.tax || "?",
+                  duty: row.comparison.duty || "?",
+                  fees: row.comparison.fees || "?",
+                  discount: row.comparison.discount || "?",
+                })}
               </p>
             </div>
             <div>
               <p className="font-mono-d text-[8px] text-[#635d5a]">
-                LANDED TOTAL
+                {t("market.results.landedTotal")}
               </p>
               <p className="mt-1 text-[15px] text-[#d6ccba]">
                 {row.landedTotal
                   ? `${row.landedTotal} ${row.comparison.currency}`
-                  : "NOT RANKED"}
+                  : t("market.results.notRanked")}
               </p>
             </div>
             <div>
               <p className="font-mono-d text-[8px] text-[#635d5a]">
-                LOCAL RANK
+                {t("market.results.localRank")}
               </p>
               <p className="mt-1 text-[15px] text-[#fa6c34]">
                 {row.rank ? `#${row.rank}` : "—"}
               </p>
             </div>
             <div className="text-[10.5px] leading-relaxed text-[#8e8881]">
-              {row.unavailableReason ??
-                "Same owner-linked identifier, condition, currency, quantity, region, explicit costs, current-session confirmation, and available state."}
+              {row.unavailableReason ?? t("market.results.comparableExplanation")}
             </div>
             <div className="flex flex-wrap gap-2 md:flex-col">
               {row.comparison.sourceKind === "owner_entered" && (
@@ -1485,7 +1597,7 @@ function ComparisonTable({
                   onClick={() => onReconfirm(row.comparison.id)}
                   className="min-h-[36px] border border-[#7fb069]/35 px-3 font-mono-d text-[7.5px] text-[#9fc68f] disabled:opacity-35"
                 >
-                  RECONFIRM MY INPUTS
+                  {t("market.results.reconfirm")}
                 </button>
               )}
               <button
@@ -1494,17 +1606,14 @@ function ComparisonTable({
                 onClick={() => onRemove(row.comparison.id)}
                 className="min-h-[36px] border border-[#e0738a]/30 px-3 font-mono-d text-[7.5px] text-[#e0738a] disabled:opacity-35"
               >
-                REMOVE
+                {t("market.results.remove")}
               </button>
             </div>
           </article>
         ))}
       </div>
       <p className="mt-4 text-[10px] leading-relaxed text-[#635d5a]">
-        Rank is lowest entered landed total inside one owner-linked local
-        comparison group. Owner links are not independent identity verification.
-        It is not a market-wide best price, recommendation, appraisal, tax
-        quote, or merchant reputation score.
+        {t("market.results.disclaimer")}
       </p>
     </div>
   );
@@ -1521,6 +1630,7 @@ function PermissionDialog({
   onCancel: () => void;
   onConfirm: () => void;
 }) {
+  const { t } = useI18n();
   const dialogRef = useRef<HTMLDivElement>(null);
   const cancelRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
@@ -1570,37 +1680,37 @@ function PermissionDialog({
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="font-mono-d text-[9px] text-[#fa6c34]">
-              EXACT NETWORK RECEIPT
+              {t("market.dialog.eyebrow")}
             </p>
             <h3
               id="market-permission-title"
               className="mt-3 text-[24px] text-[#f0e8da]"
             >
-              Confirm this public lookup
+              {t("market.dialog.title")}
             </h3>
           </div>
           <button
             ref={cancelRef}
             type="button"
             onClick={onCancel}
-            aria-label="Cancel market lookup"
+            aria-label={t("market.dialog.cancelAria")}
             className="p-2 text-[#635d5a]"
           >
             <X size={16} />
           </button>
         </div>
         <ReceiptBlock
-          label="SENT TO CHAINSCOUT"
+          label={t("market.dialog.sentToChainScout")}
           value={pending.chainScoutSummary}
         />
         <ReceiptBlock
-          label={`SENT TO ${pending.providers.join(" + ").toUpperCase()}`}
+          label={t("market.dialog.sentToProviders", {
+            providers: pending.providers.join(" + ").toUpperCase(),
+          })}
           value={pending.providerSummary}
         />
         <p className="mt-4 text-[11px] leading-relaxed text-[#9a938a]">
-          {pending.disclosure} The encrypted permission attempt is saved before
-          the request. Indexed market facts are not an executable quote,
-          complete inventory, appraisal, or recommendation.
+          {pending.disclosure} {t("market.dialog.disclosureTail")}
         </p>
         <div className="mt-6 flex gap-3">
           <button
@@ -1608,14 +1718,14 @@ function PermissionDialog({
             onClick={onCancel}
             className="min-h-[44px] flex-1 border border-[#4a4743] font-mono-d text-[9px] text-[#9a938a]"
           >
-            CANCEL
+            {t("market.dialog.cancel")}
           </button>
           <button
             type="button"
             onClick={onConfirm}
             className="flex min-h-[44px] flex-1 items-center justify-center gap-2 bg-[#fa6c34] font-mono-d text-[9px] text-[#1d1d1d]"
           >
-            <ShieldCheck size={13} /> SAVE RECEIPT + LOOK UP
+            <ShieldCheck size={13} /> {t("market.dialog.confirm")}
           </button>
         </div>
       </div>
@@ -1626,6 +1736,7 @@ function PermissionDialog({
 
 function comparisonDraftFromOffer(
   response: MerchantInventoryResponse,
+  returnNotes: string,
 ): ComparisonDraft {
   const offer = response.offer;
   if (!offer) throw new Error("No exact merchant offer was supplied");
@@ -1656,7 +1767,7 @@ function comparisonDraftFromOffer(
     inventoryState: offer.inventoryState,
     condition: `${offer.variantLabel} · ${offer.condition}`,
     region: "",
-    returnNotes: "Merchant return policy not supplied",
+    returnNotes,
   };
 }
 
@@ -1702,10 +1813,10 @@ function merchantObservationKey(
   return `merchant:${merchantId}:${canonicalAssetId}`;
 }
 
-function localSaveFailure(error: unknown): string {
+function localSaveFailure(error: unknown, localSaveMessage: string): string {
   const message = vaultErrorMessage(error);
   return message.includes("Nothing was sent to a server")
-    ? "the local encrypted save failed."
+    ? localSaveMessage
     : message;
 }
 function ReceiptBlock({ label, value }: { label: string; value: string }) {

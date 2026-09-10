@@ -1,0 +1,135 @@
+export const collectibles: Record<string, string> = {
+  "collectibles.catalog.eyebrow": "收藏品目录",
+  "collectibles.catalog.title": "匹配卡牌。所有权保持私密。",
+  "collectibles.catalog.description":
+    "TCGdex 提供英文卡牌与系列身份，以及可选的低分辨率目录缩略图。ChainScout 会在该图片进入加密保险库前在本地进行净化。版本或变体、品相、评级、证书、价值、真实性和库存仍为持有者声明；不会请求市场价。",
+  "collectibles.providerOriginalLanguage":
+    "卡牌名称、系列、稀有度和插画师均以 TCGdex 提供的原始语言显示。",
+  "collectibles.catalog.addWithout": "不通过目录添加",
+  "collectibles.catalog.languageLabel": "语言",
+  "collectibles.catalog.languageEnglishLaunch": "英语 · 首发",
+  "collectibles.catalog.cardNameLabel": "卡牌名称",
+  "collectibles.catalog.cardNamePlaceholder": "例如 Charizard",
+  "collectibles.catalog.numberLabel": "编号",
+  "collectibles.catalog.setIdLabel": "系列 ID",
+  "collectibles.catalog.optionalPlaceholder": "可选",
+  "collectibles.catalog.setSuffix": "系列 {setId}",
+  "collectibles.catalog.submit": "查看查询",
+  "collectibles.catalog.tip": "提示 · 系列 ID + 收藏编号可获得歧义最少的匹配",
+  "collectibles.catalog.matchesShownOne":
+    "显示 {count} 条目录匹配。请选择一条以核对其卡牌和系列身份。",
+  "collectibles.catalog.matchesShownMany":
+    "显示 {count} 条目录匹配。请选择一条以核对其卡牌和系列身份。",
+  "collectibles.catalog.noMatch":
+    "未找到目录匹配。你可以调整搜索，或手动添加该资产。",
+  "collectibles.catalog.detailResolved":
+    "目录身份已解析。下方的持有者详情仍保留在本地，未经 TCGdex 验证。",
+  "collectibles.catalog.receiptSaveFailed":
+    "加密的权限凭据无法保存，因此 ChainScout 未联系目录。",
+  "collectibles.catalog.requestFailed":
+    "目录请求失败。手动保险库路径仍然可用。",
+  "collectibles.catalog.collectorNumber": "收藏编号 #{number}",
+  "collectibles.catalog.reviewExactMatch": "查看精确匹配 →",
+  "collectibles.catalog.truncated":
+    "结果有界且已截断。请添加系列 ID 或收藏编号以缩小查询范围。",
+  "collectibles.catalog.license":
+    "社区目录元数据由 TCGdex 依据其数据库许可提供。ChainScout 与 TCGdex、Nintendo、The Pokémon Company、任何市场或任何评级机构均无关联，也未获其认可。名称和商标归各自所有者所有。",
+  "collectibles.receipt.disclosureSearch":
+    "ChainScout 会收到已确认的英文卡牌名称、可选的收藏编号和可选的系列 ID。TCGdex 仅收到名称和可选的收藏编号。所有权及其他私密字段仍加密保存在此浏览器中。",
+  "collectibles.receipt.disclosureDetail":
+    "ChainScout 和 TCGdex 会收到所选的公开卡牌 ID。TCGdex 返回允许列表内的身份元数据和目录图片路径；浏览器在没有 Cookie 或引用来源的情况下直接获取该低分辨率图片。所有权及其他私密字段仍加密保存在此浏览器中。",
+  "collectibles.permission.eyebrow": "精确网络凭据",
+  "collectibles.permission.title": "确认此次目录查询",
+  "collectibles.permission.cancelAria": "取消目录查询",
+  "collectibles.permission.sentToChainScout": "发送给 CHAINSCOUT",
+  "collectibles.permission.sentToTcgdex": "发送给 TCGDEX",
+  "collectibles.permission.encryptedTitle": "本地加密",
+  "collectibles.permission.encryptedText":
+    "权限尝试、所有权字段、照片、成本、备注、评级、证书和手动价值。",
+  "collectibles.permission.notRequestedTitle": "不会请求",
+  "collectibles.permission.notRequestedSearch":
+    "不会请求账户、钱包、AI 模型、插画、市场价、版本声明或服务器存储的目录结果。",
+  "collectibles.permission.notRequestedDetail":
+    "不会请求账户、钱包、AI 模型、市场价、版本声明、所有权字段或服务器存储的目录结果。",
+  "collectibles.permission.searchNote":
+    "搜索仅请求卡牌 ID、收藏编号和名称——不请求插画或市场字段。",
+  "collectibles.permission.detailNote":
+    "详情请求仅增加目录图片基础部分。若提供，你的浏览器会从 TCGdex 获取其低分辨率图片，不携带凭据或引用来源，然后在本地剥离元数据并重新编码。",
+  "collectibles.permission.receiptNote":
+    "加密的权限尝试会在请求前保存。目录匹配或缩略图并不证明你的实体卡牌为真品，也不证明其当前价值。",
+  "collectibles.permission.cancel": "取消",
+  "collectibles.permission.confirm": "保存凭据并查询",
+  "collectibles.owner.identityResolved": "目录身份已解析 · 并非真实性检查",
+  "collectibles.owner.rarityNotSupplied": "未提供稀有度",
+  "collectibles.owner.closeAria": "关闭已解析的目录卡牌",
+  "collectibles.owner.printingLabel": "持有者报告的版本 / 变体",
+  "collectibles.owner.printingPlaceholder": "可选 · 例如 holo、shadowless",
+  "collectibles.owner.conditionLabel": "持有者报告的品相",
+  "collectibles.owner.graderLabel": "持有者报告的评级机构",
+  "collectibles.owner.quantityLabel": "数量",
+  "collectibles.owner.gradeLabel": "持有者输入的评级",
+  "collectibles.owner.certificateLabel": "持有者输入的证书",
+  "collectibles.owner.purchasePriceLabel": "买入价 / 单位",
+  "collectibles.owner.purchaseCurrencyLabel": "买入货币",
+  "collectibles.owner.acquiredDateLabel": "获得日期",
+  "collectibles.owner.notesLabel": "私密备注",
+  "collectibles.owner.notesPlaceholder": "存放位置、来源、个人备注…",
+  "collectibles.owner.valueReferenceTitle": "可选的手动价值参考 · 非实时且未验证",
+  "collectibles.owner.valueLabel": "价值",
+  "collectibles.owner.currencyLabel": "货币",
+  "collectibles.owner.observedDateLabel": "观察日期",
+  "collectibles.owner.sourceUrlLabel": "HTTPS 来源 URL",
+  "collectibles.owner.sourceUrlPlaceholder": "https://…",
+  "collectibles.owner.sourceLabelLabel": "来源标签",
+  "collectibles.owner.sourceLabelPlaceholder": "例如 已售出列表",
+  "collectibles.owner.photoAlt": "{name} 净化后的缩略图预览",
+  "collectibles.owner.photoSanitizing": "正在净化…",
+  "collectibles.owner.photoReplace": "替换为持有者照片",
+  "collectibles.owner.photoAdd": "添加持有者照片",
+  "collectibles.owner.photoAria": "持有者提供的收藏品照片",
+  "collectibles.owner.photoRemove": "移除照片",
+  "collectibles.owner.thumbnailLoading": "正在获取并净化目录缩略图…",
+  "collectibles.owner.thumbnailReady": "目录缩略图已就绪 · 已在本地净化",
+  "collectibles.owner.thumbnailUnavailable":
+    "目录缩略图不可用。你仍可添加持有者照片，或不带照片保存。",
+  "collectibles.owner.thumbnailRestore": "恢复目录缩略图",
+  "collectibles.owner.thumbnailNote":
+    "目录图片直接从 TCGdex 获取，不带 Cookie 或引用来源，然后在本地重新编码。保存时仅加密净化后的字节；不会上传任何内容。",
+  "collectibles.owner.photoRemoved": "已从此草稿移除照片。",
+  "collectibles.owner.photoTooLarge":
+    "请使用一张不超过 12 MB 的持有者提供的 JPEG、PNG 或 WebP 源文件。",
+  "collectibles.owner.ownerPhotoReady": "持有者照片已就绪 · 已在本地净化",
+  "collectibles.owner.photoSanitizeFailed": "该照片无法在本地净化。",
+  "collectibles.owner.gradedError":
+    "评分证书必须恰好描述一份副本，并同时包含评级和证书编号。",
+  "collectibles.owner.referenceError":
+    "手动价值参考需要价值、观察日期、来源 URL 和简短来源标签。",
+  "collectibles.owner.saveFailed": "加密的收藏品无法保存。",
+  "collectibles.owner.save": "保存私密收藏品",
+  "collectibles.owner.saving": "正在加密…",
+  "collectibles.owner.sourcePrefix": "目录来源：",
+  "collectibles.owner.sourceGraphql": "TCGdex GraphQL",
+  "collectibles.owner.sourceLicense": "数据库许可",
+  "collectibles.owner.sourceFooterTail":
+    "。目录缩略图仅供参考。版本、品相、评级、证书、价值、真实性和库存仍为持有者输入或不支持的声明。",
+  "collectibles.owner.condition.unknown": "未填写",
+  "collectibles.owner.condition.poor": "差",
+  "collectibles.owner.condition.played": "已使用",
+  "collectibles.owner.condition.good": "良好",
+  "collectibles.owner.condition.excellent": "极佳",
+  "collectibles.owner.condition.nearMint": "近新品",
+  "collectibles.owner.condition.mint": "全新品",
+  "collectibles.owner.grader.ungraded": "未评级",
+  "collectibles.owner.grader.psa": "PSA",
+  "collectibles.owner.grader.cgc": "CGC",
+  "collectibles.owner.grader.bgs": "BGS",
+  "collectibles.owner.grader.other": "其他",
+  "collectibles.api.englishOnly": "收藏品目录目前仅支持英文元数据",
+  "collectibles.api.invalidSearch": "ChainScout 返回了无效的收藏品搜索响应",
+  "collectibles.api.invalidDetail": "ChainScout 返回了无效的收藏品详情响应",
+  "collectibles.api.invalidPrivacy": "ChainScout 返回了无效的收藏品隐私凭据",
+  "collectibles.thumbnail.unavailable": "目录缩略图不可用",
+  "collectibles.thumbnail.invalidType": "目录缩略图类型无效",
+  "collectibles.thumbnail.invalidSize": "目录缩略图大小无效",
+  "collectibles.thumbnail.invalidUrl": "目录缩略图 URL 无效",
+};

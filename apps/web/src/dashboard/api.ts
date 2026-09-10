@@ -16,6 +16,8 @@ import {
   type BackendMessage,
   type BackendSession,
 } from "./adapters";
+import { readLocaleCookie } from "../i18n/locale";
+import { translateCurrent } from "../i18n/translate";
 import type {
   ChainEntityType,
   ChatMessage,
@@ -46,7 +48,7 @@ function toUser(result: AuthResponse): User {
   if (result.verificationRequired) {
     throw new ApiError(
       "EMAIL_VERIFICATION_REQUIRED",
-      "Check your inbox to verify this address, then sign in.",
+      translateCurrent("cloud.api.emailVerificationRequired"),
       403,
     );
   }
@@ -211,6 +213,7 @@ export async function sendMessage(
   // Send the value alone and let the API identify what it actually is.
   const body = {
     question: message,
+    locale: readLocaleCookie(),
     ...(resolved && resolved.type !== "unknown"
       ? { entity: resolved.id, ...(resolved.type === "transaction" ? { entityType: "transaction" as const } : {}) }
       : {}),
@@ -236,7 +239,7 @@ export async function sendMessage(
     const reason =
       error instanceof ApiError
         ? error.message
-        : "Could not reach the analysis service. Check that the API is running and try again.";
+        : translateCurrent("cloud.api.unreachable");
     return {
       id: `err_${Date.now()}`,
       role: "ASSISTANT",

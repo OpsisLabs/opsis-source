@@ -10,6 +10,35 @@ function fixture() { return { ...input, name: "Charizard", fetchedAt: new Date()
   { market: "TCGplayer", variant: "holofoil", metric: "marketPrice", amount: 55.5, currency: "USD", updatedAt: null },
   { market: "Cardmarket", variant: "unspecified printing", metric: "trend", amount: 42, currency: "EUR", updatedAt: "2026-09-01T12:00:00Z" },
 ] }; }
+
+test("card price check preserves exact data and inputs when switching English and Chinese", async ({ page }) => {
+  test.skip(!enabled, "enabled-build check"); let calls = 0;
+  await page.route("**/v1/private/cards/prices", async route => {
+    calls++; expect(route.request().postDataJSON()).toEqual(input);
+    await route.fulfill({ json: fixture() });
+  });
+  await page.goto("/card-prices");
+  await page.getByRole("button", { name: "Check Charizard", exact: true }).click();
+  await expect(page.getByText("USD 55.50", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Switch language to 简体中文" }).filter({ visible: true }).first().click();
+  await expect(page).toHaveTitle("卡牌价格查询 | ChainScout");
+  const snapshot = page.getByRole("region", { name: "卡牌价格快照" });
+  await expect(snapshot.getByText("USD 55.50", { exact: true })).toBeVisible();
+  await expect(snapshot.getByText("市场参考价", { exact: true })).toBeVisible();
+  await expect(snapshot.getByRole("heading", { name: "Charizard", exact: true })).toBeVisible();
+  await snapshot.getByRole("button", { name: "EUR", exact: true }).click();
+  await expect(snapshot.getByText("EUR 42.00", { exact: true })).toBeVisible();
+  for (const width of [320, 390, 768, 1024, 1440]) {
+    await page.setViewportSize({ width, height: 950 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+  }
+  await page.getByRole("button", { name: "切换语言为English" }).filter({ visible: true }).first().click();
+  await expect(page.getByText("EUR 42.00", { exact: true })).toBeVisible();
+  await page.getByLabel("Card name", { exact: true }).fill("Pikachu");
+  await page.getByRole("button", { name: "Switch language to 简体中文" }).filter({ visible: true }).first().click();
+  await expect(page.getByLabel("卡牌名称", { exact: true })).toHaveValue("Pikachu");
+  expect(calls).toBe(1);
+});
 test.beforeEach(async ({ page }) => { await page.context().addCookies([{ name: "chainscout_product_tour_seen_v1", value: "1", url: APP_ORIGIN, sameSite: "Strict" }]); });
 
 test("card price check is closed by default, including direct links", async ({ page }) => {

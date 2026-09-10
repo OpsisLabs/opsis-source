@@ -4,6 +4,7 @@ import type {
   CollectibleSearchResponse
 } from "@rh-chain/shared";
 import { privateApi } from "../dashboard/http";
+import { translateCurrent } from "../i18n/translate";
 
 export type CatalogSearch = {
   language: CollectibleLanguage;
@@ -13,7 +14,7 @@ export type CatalogSearch = {
 };
 
 export async function searchCollectibles(input: CatalogSearch, signal?: AbortSignal): Promise<CollectibleSearchResponse> {
-  if (input.language !== "en") throw new Error("Collectible Catalog currently supports English metadata only");
+  if (input.language !== "en") throw new Error(translateCurrent("collectibles.api.englishOnly"));
   const response = await privateApi<CollectibleSearchResponse>("/v1/private/collectibles/search", input, signal);
   if (!response
     || !response.query
@@ -43,7 +44,7 @@ export async function searchCollectibles(input: CatalogSearch, signal?: AbortSig
       || card.number.length > 24
       || !card.catalogId.endsWith(`-${card.number}`)
       || (input.setId && !card.catalogId.toLowerCase().startsWith(`${input.setId.trim().toLowerCase()}-`)))) {
-    throw new Error("ChainScout returned an invalid collectible search response");
+    throw new Error(translateCurrent("collectibles.api.invalidSearch"));
   }
   return {
     query: {
@@ -62,7 +63,7 @@ export async function searchCollectibles(input: CatalogSearch, signal?: AbortSig
 }
 
 export async function collectibleDetail(language: CollectibleLanguage, cardId: string, signal?: AbortSignal): Promise<CollectibleDetailResponse> {
-  if (language !== "en") throw new Error("Collectible Catalog currently supports English metadata only");
+  if (language !== "en") throw new Error(translateCurrent("collectibles.api.englishOnly"));
   const response = await privateApi<CollectibleDetailResponse>("/v1/private/collectibles/detail", { language, cardId }, signal);
   const card = response?.card;
   if (!card
@@ -93,7 +94,7 @@ export async function collectibleDetail(language: CollectibleLanguage, cardId: s
     || response.privacy?.serverStorage !== "none"
     || response.privacy?.modelProvider !== "none"
     || response.privacy?.providerDestinations?.[0] !== "TCGdex") {
-    throw new Error("ChainScout returned an invalid collectible detail response");
+    throw new Error(translateCurrent("collectibles.api.invalidDetail"));
   }
   return {
     card: {
@@ -157,7 +158,7 @@ function validTimestamp(value: unknown): value is string {
 
 function collectiblePrivacy(disclosure: string): CollectibleDetailResponse["privacy"] {
   if (typeof disclosure !== "string" || disclosure.length < 1 || disclosure.length > 1_000) {
-    throw new Error("ChainScout returned an invalid collectible privacy receipt");
+    throw new Error(translateCurrent("collectibles.api.invalidPrivacy"));
   }
   return {
     accountRequired: false,

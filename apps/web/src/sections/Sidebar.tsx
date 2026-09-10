@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { ArrowUpRight } from "lucide-react";
+import LanguageSwitcher from "../i18n/LanguageSwitcher";
+import { useI18n } from "../i18n";
 
 const INDEX = [
-  { n: "01", label: "What to track", id: "track" },
-  { n: "02", label: "How it works", id: "workflow" },
-  { n: "03", label: "Availability", id: "availability" },
-  { n: "04", label: "Safety", id: "safety" },
-  { n: "05", label: "FAQ", id: "faq" },
-];
+  { n: "01", labelKey: "landing.sidebar.index.whatToTrack", id: "track" },
+  { n: "02", labelKey: "landing.sidebar.index.howItWorks", id: "workflow" },
+  { n: "03", labelKey: "landing.sidebar.index.availability", id: "availability" },
+  { n: "04", labelKey: "landing.sidebar.index.safety", id: "safety" },
+  { n: "05", labelKey: "landing.sidebar.index.faq", id: "faq" },
+] as const;
 
 export default function Sidebar() {
+  const { t } = useI18n();
   const [active, setActive] = useState("hero");
 
   useEffect(() => {
@@ -36,18 +39,18 @@ export default function Sidebar() {
           <img src="/logo.svg" alt="" className="h-6 w-6" />
         </span>
         <span>
-          <span className="block text-[15px] font-semibold tracking-[-0.02em] text-[#f4ece4]">ChainScout</span>
-          <span className="mt-1 block font-mono-d text-[7.5px] tracking-[0.14em] text-[#9a938a]">PRIVATE ASSET WORKSPACE</span>
+          <span className="block text-[15px] font-semibold tracking-[-0.02em] text-[#f4ece4]">{t("common.brand.name")}</span>
+          <span className="mt-1 block font-mono-d text-[7.5px] tracking-[0.14em] text-[#9a938a]">{t("landing.sidebar.tagline")}</span>
         </span>
       </a>
 
       <div className="px-5 pb-5 pt-7">
         <p className="text-[12px] leading-[1.65] text-[#a9a098]">
-          Understand public activity. Keep ownership context encrypted on this device.
+          {t("landing.sidebar.description")}
         </p>
       </div>
 
-      <nav className="border-y border-[#34312f]" aria-label="Homepage sections">
+      <nav className="border-y border-[#34312f]" aria-label={t("landing.sidebar.sectionsLabel")}>
         {INDEX.map((item) => {
           const selected = active === item.id;
           return (
@@ -62,7 +65,7 @@ export default function Sidebar() {
               }`}
             >
               <span className={`font-mono-d text-[8px] ${selected ? "text-[#fa6c34]" : "text-[#9a938a]"}`}>{item.n}</span>
-              <span className="flex-1">{item.label}</span>
+              <span className="flex-1">{t(item.labelKey)}</span>
               <span className={`h-1.5 w-1.5 rounded-full ${selected ? "bg-[#fa6c34]" : "bg-transparent"}`} />
             </a>
           );
@@ -70,12 +73,13 @@ export default function Sidebar() {
       </nav>
 
       <div className="mt-auto space-y-3 border-t border-[#34312f] p-5">
+        <LanguageSwitcher className="w-full justify-center" />
         <div className="rounded-sm border border-[#34312f] bg-[#201e1c] p-4">
-          <p className="font-mono-d text-[8px] tracking-[0.13em] text-[#fa6c34]">FOUNDER BETA</p>
-          <p className="mt-2 text-[11px] leading-relaxed text-[#9f9790]">Available tools are separated from coming-soon adapters.</p>
+          <p className="font-mono-d text-[8px] tracking-[0.13em] text-[#fa6c34]">{t("landing.sidebar.founderBeta")}</p>
+          <p className="mt-2 text-[11px] leading-relaxed text-[#9f9790]">{t("landing.sidebar.founderCopy")}</p>
         </div>
         <Link to="/guide" className="flex min-h-[42px] items-center justify-between border border-[#4a4541] px-4 text-[11px] text-[#d6ccc2] transition-colors hover:border-[#fa6c34] hover:text-[#fff7ef]">
-          Start guide <ArrowUpRight size={13} />
+          {t("landing.sidebar.startGuide")} <ArrowUpRight size={13} />
         </Link>
       </div>
     </aside>

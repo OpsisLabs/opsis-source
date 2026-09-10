@@ -6,6 +6,7 @@ import type {
 } from "@rh-chain/shared";
 import type { SwapDirection } from "../swap/api";
 import type { VaultAsset } from "../vault/types";
+import { translateCurrent } from "../i18n/translate";
 
 const WETH = "0x0bd7d308f8e1639fab988df18a8011f41eacad73";
 const USDG = "0x5fc5360d0400a0fd4f2af552add042d716f1d168";
@@ -129,7 +130,7 @@ export function purchaseSelections(
     directory.limitations.some((item) => typeof item !== "string" || item.length > 500) ||
     !Array.isArray(directory.merchants) ||
     directory.merchants.length > 50
-  ) throw new Error("ChainScout returned an invalid approved merchant directory");
+  ) throw new Error(translateCurrent("actions.replay.directoryInvalid"));
   const eligible = purchaseAssets(assets);
   const merchantIds = new Set<string>();
   const merchantOrigins = new Set<string>();
@@ -137,7 +138,7 @@ export function purchaseSelections(
     assertMerchant(merchant);
     const origin = urlOrigin(merchant.permissionEvidenceUrl);
     if (merchantIds.has(merchant.id) || merchantOrigins.has(origin))
-      throw new Error("ChainScout returned an ambiguous approved merchant directory");
+      throw new Error(translateCurrent("actions.replay.directoryAmbiguous"));
     merchantIds.add(merchant.id);
     merchantOrigins.add(origin);
     const mappingKeys = new Set<string>();
@@ -146,7 +147,7 @@ export function purchaseSelections(
       assertMapping(mapping, origin);
       const mappingKey = mapping.canonicalAssetId;
       if (mappingKeys.has(mappingKey) || productIds.has(mapping.productId))
-        throw new Error("ChainScout returned an ambiguous approved merchant mapping");
+        throw new Error(translateCurrent("actions.replay.mappingAmbiguous"));
       mappingKeys.add(mappingKey);
       productIds.add(mapping.productId);
       const asset = eligible.find((candidate) => candidate.identifier === mapping.canonicalAssetId);
@@ -227,7 +228,7 @@ export function currentPurchaseOffer(
     !positiveDecimal(offer.unitPrice) ||
     !/^[A-Z]{3,12}$/.test(offer.currency) ||
     !safeProductUrl(offer.url, selection.merchant.permissionEvidenceUrl)
-  ) throw new Error("The current merchant response could not be matched safely to the reviewed offer");
+  ) throw new Error(translateCurrent("actions.replay.offerUnmatched"));
   return {
     merchantId: offer.merchantId,
     merchantName: offer.merchantName,
@@ -256,7 +257,7 @@ function assertMerchant(merchant: ApprovedMerchantDirectoryEntry): void {
     !httpsUrl(merchant.permissionEvidenceUrl) ||
     !Array.isArray(merchant.mappings) ||
     merchant.mappings.length > 100
-  ) throw new Error("ChainScout returned an invalid approved merchant directory");
+  ) throw new Error(translateCurrent("actions.replay.directoryInvalid"));
 }
 
 function assertMapping(
@@ -275,7 +276,7 @@ function assertMapping(
     !date(mapping.reviewedAt) ||
     !httpsUrl(mapping.evidenceUrl) ||
     urlOrigin(mapping.evidenceUrl) !== merchantOrigin
-  ) throw new Error("ChainScout returned an invalid approved merchant mapping");
+  ) throw new Error(translateCurrent("actions.replay.mappingInvalid"));
 }
 
 function safeProductUrl(value: string, permissionEvidence: string): boolean {

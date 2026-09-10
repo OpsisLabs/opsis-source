@@ -19,7 +19,8 @@ const sendBody = z.object({
   question: z.string().min(1).max(2000).optional(),
   message: z.string().min(1).max(2000).optional(),
   entity: z.string().min(1).max(200).optional(),
-  entityType: z.enum(["wallet", "transaction", "token", "contract", "block", "unknown"]).optional()
+  entityType: z.enum(["wallet", "transaction", "token", "contract", "block", "unknown"]).optional(),
+  locale: z.enum(["en", "zh-CN"]).optional().default("en")
 }).refine((body) => Boolean(body.question ?? body.message), { message: "question or message is required" });
 
 export async function chatRoutes(app: FastifyInstance, env: Env, prisma?: PrismaClient, cache?: JsonCache): Promise<void> {
@@ -84,7 +85,7 @@ export async function chatRoutes(app: FastifyInstance, env: Env, prisma?: Prisma
       const resolution = await resolver.resolveWithSources(resolutionType, activeEntity.value);
       const providerLatencyMs = performance.now() - providerStartedAt;
       const aiStartedAt = performance.now();
-      const answer = await ai.answer(question, resolution.entity);
+      const answer = await ai.answer(question, resolution.entity, body.locale);
       const aiLatencyMs = performance.now() - aiStartedAt;
       const message = await chats.addExchange(sessionId, request.user.sub, question, answer, resolution);
       if (!message) throw new AppError("NOT_FOUND", 404, "Chat session not found");

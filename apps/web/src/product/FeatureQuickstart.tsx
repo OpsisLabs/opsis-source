@@ -4,6 +4,7 @@ import { gsap } from "gsap";
 import { ArrowRight, BookOpenText, ShieldCheck, X } from "lucide-react";
 import { Link } from "react-router";
 import type { ProductFeature } from "./features";
+import { useI18n } from "../i18n";
 
 gsap.registerPlugin(useGSAP);
 
@@ -16,6 +17,7 @@ export default function FeatureQuickstart({
 }) {
   const panel = useRef<HTMLDivElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
+  const { t } = useI18n();
 
   useEffect(() => {
     const priorOverflow = document.body.style.overflow;
@@ -106,7 +108,7 @@ export default function FeatureQuickstart({
             ref={closeButton}
             type="button"
             onClick={onDismiss}
-            aria-label={`Close ${feature.label} quick start`}
+            aria-label={t("product.quickstart.closeAria", { feature: feature.label })}
             className="flex h-10 w-10 items-center justify-center border border-[#fa6c34]/40 text-[#fa6c34] outline-none transition-colors hover:border-[#fa6c34] hover:bg-[#fa6c34]/10 focus-visible:ring-2 focus-visible:ring-[#fa6c34]"
           >
             <X size={16} />
@@ -114,7 +116,7 @@ export default function FeatureQuickstart({
         </div>
 
         <div className="px-5 pb-7 pt-7 sm:px-8 sm:pb-8">
-          <p className="font-mono-d text-[8px] tracking-[0.18em] text-[#aaa19a]">HOW TO USE THIS WORKSPACE</p>
+          <p className="font-mono-d text-[8px] tracking-[0.18em] text-[#aaa19a]">{t("product.quickstart.eyebrow")}</p>
           <h2 id="feature-quickstart-title" className="mt-3 text-[34px] font-medium leading-none tracking-[-0.04em] text-[#f0e8da] sm:text-[46px]">
             {feature.label}
           </h2>
@@ -135,23 +137,23 @@ export default function FeatureQuickstart({
 
           <div className="mt-5 grid gap-px border border-[#3a3734] bg-[#3a3734] sm:grid-cols-2">
             <div className="bg-[#222721] p-4 sm:p-5">
-              <p className="flex items-center gap-2 font-mono-d text-[8px] font-semibold tracking-[0.15em] text-[#bfe4af]"><ShieldCheck size={12} /> WHAT STAYS PRIVATE</p>
+              <p className="flex items-center gap-2 font-mono-d text-[8px] font-semibold tracking-[0.15em] text-[#bfe4af]"><ShieldCheck size={12} /> {t("product.quickstart.privacyTitle")}</p>
               <p className="mt-3 text-[11.5px] leading-relaxed text-[#d8cfc7]">{feature.privacy}</p>
             </div>
             <div className="bg-[#292320] p-4 sm:p-5">
-              <p className="font-mono-d text-[8px] font-semibold tracking-[0.15em] text-[#ffd0bc]">WHERE IT STOPS</p>
+              <p className="font-mono-d text-[8px] font-semibold tracking-[0.15em] text-[#ffd0bc]">{t("product.quickstart.boundaryTitle")}</p>
               <p className="mt-3 text-[11.5px] leading-relaxed text-[#d8cfc7]">{feature.boundary}</p>
             </div>
           </div>
 
           <div className="mt-6 flex flex-col gap-3 border-t border-[#393633] pt-5 sm:flex-row sm:items-center sm:justify-between">
-            <p className="max-w-[390px] text-[10.5px] leading-relaxed text-[#aaa19a]">Need the full feature map, expected results, and limitation notes?</p>
+            <p className="max-w-[390px] text-[10.5px] leading-relaxed text-[#aaa19a]">{t("product.quickstart.footer")}</p>
             <Link
               to={`/guide#${feature.id}`}
               onClick={onDismiss}
               className="inline-flex min-h-[42px] items-center justify-center gap-2 border border-[#fa6c34] px-4 font-mono-d text-[9px] font-semibold tracking-[0.12em] text-[#fa6c34] outline-none transition-colors hover:bg-[#fa6c34] hover:text-[#1d1d1d] focus-visible:ring-2 focus-visible:ring-[#fa6c34]"
             >
-              <BookOpenText size={13} /> FULL GUIDE <ArrowRight size={12} />
+              <BookOpenText size={13} /> {t("product.quickstart.guide")} <ArrowRight size={12} />
             </Link>
           </div>
         </div>

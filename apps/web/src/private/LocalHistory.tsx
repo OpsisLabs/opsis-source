@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import type { useLocalHistory } from "./useLocalHistory";
 import type { VaultConversation } from "../vault/types";
 import { BackupDownloadLink } from "../vault/BackupDownloadLink";
+import { useI18n } from "../i18n";
 
 const button =
   "min-h-11 rounded-sm border border-[#63564c] px-3 py-2 text-sm text-[#e9e0d1] hover:border-[#fa6c34] disabled:opacity-50";
@@ -22,20 +23,21 @@ export function LocalHistory({
   pending: boolean;
   reports?: boolean;
 }) {
+  const { t } = useI18n();
   const [passphrase, setPassphrase] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   return (
     <aside
-      aria-label="Encrypted local chat history"
+      aria-label={t("cloud.history.ariaLabel")}
       className="mb-6 space-y-4 rounded-sm border border-[#514a45] bg-[#242424] p-5"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg text-[#e9e0d1]">{reports ? "Your scenario reports, on this device" : "Your chats, on this device"}</h2>
+          <h2 className="text-lg text-[#e9e0d1]">{reports ? t("cloud.history.title.reports") : t("cloud.history.title.chats")}</h2>
           <p className="mt-1 text-sm text-[#b8b0a7]">
-            {reports ? "Save a report explicitly after comparing a quote. Reports are encrypted here, not synced to the cloud." : history.phase === "unlocked"
-              ? "Encrypted autosave is on. No cloud history or wallet connection."
-              : "Unlock local history to keep new conversations. Otherwise, lookups are unsaved."}
+            {reports ? t("cloud.history.desc.reports") : history.phase === "unlocked"
+              ? t("cloud.history.desc.unlocked")
+              : t("cloud.history.desc.locked")}
           </p>
         </div>
         {history.phase === "unlocked" && (
@@ -44,19 +46,19 @@ export function LocalHistory({
             className={button}
             onClick={() => history.lock()}
           >
-            Lock history
+            {t("cloud.history.lock")}
           </button>
         )}
       </div>
       {history.phase === "loading" && (
-        <p role="status">Checking local storage…</p>
+        <p role="status">{t("cloud.history.checking")}</p>
       )}
       {history.phase === "empty" && (
         <Link
           className={`${button} inline-flex items-center bg-[#fa6c34] !text-[#1d1d1d]`}
           to="/vault?view=assets"
         >
-          {reports ? "Create encrypted Vault to save reports" : "Create encrypted Vault to save chats"}
+          {reports ? t("cloud.history.createForReports") : t("cloud.history.createForChats")}
         </Link>
       )}
       {history.phase === "locked" && (
@@ -70,9 +72,9 @@ export function LocalHistory({
           }}
         >
           <label className="grow text-sm text-[#d6ccba]">
-            Vault passphrase
+            {t("cloud.history.passphrase")}
             <input
-              aria-label="History Vault passphrase"
+              aria-label={t("cloud.history.passphraseAria")}
               type="password"
               autoComplete="off"
               value={passphrase}
@@ -84,7 +86,7 @@ export function LocalHistory({
             className={`${button} self-end bg-[#fa6c34] !text-[#1d1d1d]`}
             disabled={history.busy || !passphrase || pending}
           >
-            {reports ? "Unlock report history" : "Unlock & enable local autosave"}
+            {reports ? t("cloud.history.unlockReports") : t("cloud.history.unlockChats")}
           </button>
         </form>
       )}
@@ -95,7 +97,7 @@ export function LocalHistory({
       )}
       {history.notice && (
         <p role="status" className="text-sm text-[#c7d7b8]">
-          {reports && history.notice.startsWith("Local autosave is on") ? "Report history unlocked. Use Save encrypted scenario report to keep a comparison." : history.notice}
+          {reports && history.notice === t("cloud.history.notice.autosave") ? t("cloud.history.reportNotice") : history.notice}
         </p>
       )}
       {history.phase === "unlocked" && (
@@ -106,24 +108,24 @@ export function LocalHistory({
               disabled={pending || history.busy}
               onClick={onNew}
             >
-              {reports ? "Close saved report" : "New conversation"}
+              {reports ? t("cloud.history.closeReport") : t("cloud.history.newConversation")}
             </button>
             <button
               className={button}
               disabled={pending || history.busy}
               onClick={() => void history.backup()}
             >
-              Export encrypted backup
+              {t("cloud.history.exportBackup")}
             </button>
           </div>
           <BackupDownloadLink download={history.download} />
           <nav
-            aria-label="Saved conversations"
+            aria-label={t("cloud.history.savedConversations")}
             className="max-h-72 space-y-2 overflow-y-auto"
           >
             {!history.conversations.length && (
               <p className="text-sm text-[#b8b0a7]">
-                {reports ? "No saved reports yet. Compare a quote, then choose Save encrypted scenario report." : "No saved chats yet. Your next successful lookup will be saved automatically."}
+                {reports ? t("cloud.history.noReports") : t("cloud.history.noChats")}
               </p>
             )}
             {history.conversations.map((item) => (
@@ -136,17 +138,17 @@ export function LocalHistory({
                 >
                   <span className="block truncate">{item.title}</span>
                   <span className="text-xs text-[#b8b0a7]">
-                    {item.turns.length} {item.turns.length === 1 ? "answer" : "answers"} ·{" "}
+                    {item.turns.length === 1 ? t("cloud.history.answers.one", { count: item.turns.length }) : t("cloud.history.answers.other", { count: item.turns.length })} ·{" "}
                     {new Date(item.updatedAt).toLocaleString()}
                   </span>
                 </button>
                 <button
                   className={button}
-                  aria-label={`Delete conversation ${item.title}`}
+                  aria-label={t("cloud.history.deleteAria", { title: item.title })}
                   disabled={pending || history.busy}
                   onClick={() => setDeleteId(item.id)}
                 >
-                  Delete
+                  {t("cloud.history.delete")}
                 </button>
               </div>
             ))}
@@ -154,13 +156,11 @@ export function LocalHistory({
           {deleteId && (
             <div
               role="group"
-              aria-label="Confirm conversation deletion"
+              aria-label={t("cloud.history.confirmDeletionAria")}
               className="space-y-2 border border-[#b97864] p-3"
             >
               <p className="text-sm">
-                Delete this saved conversation from this browser? Recovery
-                requires a previously exported backup. Other Vault records are
-                unchanged.
+                {t("cloud.history.confirmDeletionBody")}
               </p>
               <button
                 className={button}
@@ -172,26 +172,23 @@ export function LocalHistory({
                   if (selected === id) onNew();
                 }}
               >
-                Confirm delete conversation
+                {t("cloud.history.confirmDelete")}
               </button>{" "}
               <button className={button} onClick={() => setDeleteId(null)}>
-                Cancel
+                {t("cloud.history.cancel")}
               </button>
             </div>
           )}
         </>
       )}
       <p className="text-xs leading-relaxed text-[#b8b0a7]">
-        Same browser profile and site address only. Unlock again after
-        restarting or leaving this page. Clearing site data, private browsing,
-        browser eviction, or a lost passphrase can lose access. Export backups
-        regularly; storage permission is not a guarantee.
+        {t("cloud.history.footnote")}
       </p>
       <Link
         className="inline-flex min-h-11 items-center text-sm text-[#ff985e] underline"
         to="/vault?view=assets"
       >
-        Vault setup, backup restore & recovery
+        {t("cloud.history.setupLink")}
       </Link>
     </aside>
   );
@@ -202,16 +199,15 @@ export function SavedConversation({
 }: {
   conversation: VaultConversation;
 }) {
+  const { t } = useI18n();
   return (
     <section
-      aria-label="Saved conversation transcript"
+      aria-label={t("cloud.history.transcriptAria")}
       className="mb-6 space-y-4"
     >
       <h2 className="text-lg text-[#e9e0d1]">{conversation.title}</h2>
       <p className="text-sm text-[#c9bfae]">
-        Saved snapshots—not live balances, prices, or safety checks. Ask again
-        below for a fresh lookup. Each question is an independent lookup; your
-        saved transcript is never uploaded as context.
+        {t("cloud.history.transcriptBody")}
       </p>
       {conversation.turns.map((turn, index) => (
         <article
@@ -219,10 +215,10 @@ export function SavedConversation({
           className="space-y-3 break-words border border-[#514a45] bg-[#242424] p-5"
         >
           <p className="text-xs text-[#b8b0a7]">
-            Saved {new Date(turn.savedAt).toLocaleString()}
+            {t("cloud.history.savedLabel", { date: new Date(turn.savedAt).toLocaleString() })}
           </p>
           <h3 className="text-[#ff985e]">
-            {turn.question || "Explain this public identifier"}
+            {turn.question || t("cloud.history.defaultQuestion")}
           </h3>
           <p className="break-all font-mono text-xs text-[#b8b0a7]">
             {turn.entity}
@@ -235,7 +231,7 @@ export function SavedConversation({
           </ul>
           <details>
             <summary className="cursor-pointer py-3 text-sm text-[#ff985e]">
-              {turn.sources.length} saved sources
+              {t("cloud.history.savedSources", { count: turn.sources.length })}
             </summary>
             <ul className="space-y-2 text-sm">
               {turn.sources.map((source, i) => (

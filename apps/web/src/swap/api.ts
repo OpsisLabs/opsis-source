@@ -1,5 +1,6 @@
 import { CHAINSCOUT_REVIEWED_ASSETS } from "@rh-chain/shared";
 import { privateApi } from "../dashboard/http";
+import { translateCurrent } from "../i18n/translate";
 
 export type SwapDirection = "WETH_TO_USDG" | "USDG_TO_WETH";
 
@@ -148,7 +149,7 @@ function assertScoutSwapQuote(
     value.disclosures.length > 20 ||
     value.disclosures.some((item) => typeof item !== "string" || item.length > 500)
   ) {
-    throw new Error("ChainScout returned an invalid live quote");
+    throw new Error(translateCurrent("trade.error.invalidQuote"));
   }
 }
 

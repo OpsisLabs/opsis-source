@@ -1,3 +1,10 @@
+import type { TranslateParams, TranslationKey } from "../i18n";
+
+export type FeatureTranslate = (
+  key: TranslationKey,
+  params?: TranslateParams,
+) => string;
+
 export type ProductFeature = {
   id: string;
   group: "explore" | "vault" | "build";
@@ -228,6 +235,30 @@ export const PRODUCT_FEATURES: ProductFeature[] = [
     ],
   },
 ];
+
+function featureKey(id: string, field: string): TranslationKey {
+  return `product.feature.${id}.${field}` as TranslationKey;
+}
+
+function featureStepKey(id: string, index: number): TranslationKey {
+  return `product.feature.${id}.step.${index + 1}` as TranslationKey;
+}
+
+export function productFeatures(t: FeatureTranslate): ProductFeature[] {
+  return PRODUCT_FEATURES.map((feature) => ({
+    ...feature,
+    label: t(featureKey(feature.id, "label")),
+    shortLabel: t(featureKey(feature.id, "shortLabel")),
+    helpLabel: t(featureKey(feature.id, "helpLabel")),
+    eyebrow: t(featureKey(feature.id, "eyebrow")),
+    navHint: t(featureKey(feature.id, "navHint")),
+    summary: t(featureKey(feature.id, "summary")),
+    bestFor: t(featureKey(feature.id, "bestFor")),
+    privacy: t(featureKey(feature.id, "privacy")),
+    boundary: t(featureKey(feature.id, "boundary")),
+    steps: feature.steps.map((_, index) => t(featureStepKey(feature.id, index))),
+  }));
+}
 
 export function featureById(id: string) {
   return PRODUCT_FEATURES.find((feature) => feature.id === id);

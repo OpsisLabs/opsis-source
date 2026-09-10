@@ -441,9 +441,16 @@ describe("browser privacy static boundary", () => {
   });
 
   it("keeps launch marketing aligned with the anchored zero-cost provider path", () => {
-    const marketing = sourceText(
-      resolve(repositoryRoot, "apps/web/src/sections"),
-    );
+    const marketing =
+      sourceText(resolve(repositoryRoot, "apps/web/src/sections")) +
+      "\n" +
+      readFileSync(
+        resolve(
+          repositoryRoot,
+          "apps/web/src/i18n/dictionaries/en/landing.ts",
+        ),
+        "utf8",
+      );
     expect(marketing).not.toMatch(/finalized block/i);
     expect(marketing).not.toMatch(/\balchemy\b|\bgoldrush\b/i);
     expect(marketing).not.toMatch(/12,408|98\.4%|99\.95%|3\.2s|86%|14%/);
@@ -498,6 +505,14 @@ describe("browser privacy static boundary", () => {
       ),
       readFileSync(
         resolve(repositoryRoot, "apps/web/src/pages/Legal.tsx"),
+        "utf8",
+      ),
+      readFileSync(
+        resolve(repositoryRoot, "apps/web/src/i18n/dictionaries/en/portfolio.ts"),
+        "utf8",
+      ),
+      readFileSync(
+        resolve(repositoryRoot, "apps/web/src/i18n/dictionaries/en/legal.ts"),
         "utf8",
       ),
     ].join("\n");

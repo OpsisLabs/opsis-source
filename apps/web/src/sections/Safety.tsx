@@ -1,33 +1,35 @@
 import { Check, Minus, ShieldCheck, X } from "lucide-react";
 import { SectionHeader } from "./AssetUniverse";
+import { useI18n } from "../i18n";
 
 const IS = [
-  "An encrypted browser-local asset Vault",
-  "A read-only Robinhood Chain explorer assistant",
-  "A source-linked public evidence workspace",
-  "An exact-decimal lot and owner-context tracker",
-];
+  "landing.safety.is1",
+  "landing.safety.is2",
+  "landing.safety.is3",
+  "landing.safety.is4",
+] as const;
 
 const IS_NOT = [
-  "A custodian, wallet, exchange, or marketplace",
-  "A live price oracle or professional appraisal",
-  "A guarantee of authenticity, ownership, or completeness",
-  "A tool that asks for seed phrases or private keys",
-  "Anything that signs or broadcasts transactions",
-];
+  "landing.safety.isNot1",
+  "landing.safety.isNot2",
+  "landing.safety.isNot3",
+  "landing.safety.isNot4",
+  "landing.safety.isNot5",
+] as const;
 
 export default function Safety() {
+  const { t } = useI18n();
   return (
     <section id="safety" data-home-reveal className="border-b border-[#34312f] bg-[#191817] px-5 py-20 sm:px-8 md:px-12 md:py-24 xl:px-16">
-      <SectionHeader eyebrow="BUILT-IN BOUNDARIES" title={<>Useful context.<br /><span className="text-[#7fb069]">Honest limits.</span></>} copy="Public facts, provider observations, and owner-entered records are labeled separately. A chart never upgrades a manual value into a market price." />
+      <SectionHeader eyebrow={t("landing.safety.eyebrow")} title={<>{t("landing.safety.titleA")}<br /><span className="text-[#7fb069]">{t("landing.safety.titleB")}</span></>} copy={t("landing.safety.copy")} />
       <div className="mt-12 grid gap-4 lg:grid-cols-2">
-        <BoundaryCard title="WHAT CHAINSCOUT IS" items={IS} icon="check" />
-        <BoundaryCard title="WHAT CHAINSCOUT IS NOT" items={IS_NOT} icon="x" />
+        <BoundaryCard title={t("landing.safety.isTitle")} items={IS.map((key) => t(key))} icon="check" />
+        <BoundaryCard title={t("landing.safety.isNotTitle")} items={IS_NOT.map((key) => t(key))} icon="x" />
       </div>
       <div className="mt-4 grid gap-4 md:grid-cols-3">
-        <SafetySignal icon={<ShieldCheck size={16} />} title="READ-ONLY" copy="ChainScout does not sign, submit, approve, buy, sell, or move funds." />
-        <SafetySignal icon={<Minus size={16} />} title="NO FALSE PRECISION" copy="Unknown, stale, partial, manual, and unavailable states remain visible." />
-        <SafetySignal icon={<Check size={16} />} title="INSPECTABLE" copy="Exact values, source links, coverage notes, and encrypted receipts stay reviewable." />
+        <SafetySignal icon={<ShieldCheck size={16} />} title={t("landing.safety.readOnly.title")} copy={t("landing.safety.readOnly.copy")} />
+        <SafetySignal icon={<Minus size={16} />} title={t("landing.safety.precision.title")} copy={t("landing.safety.precision.copy")} />
+        <SafetySignal icon={<Check size={16} />} title={t("landing.safety.inspectable.title")} copy={t("landing.safety.inspectable.copy")} />
       </div>
     </section>
   );

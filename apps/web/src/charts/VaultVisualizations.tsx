@@ -6,13 +6,16 @@ import {
   ChainScoutChart,
 } from "./ChainScoutChart";
 import { CHART_COLORS, darkAxis, darkGrid, darkTooltip } from "./theme";
+import { useI18n, type TranslateParams, type TranslationKey } from "../i18n";
 
-const TYPE_LABELS: Record<VaultAsset["assetType"], string> = {
-  crypto: "Crypto",
-  collectible: "Collectibles",
-  rwa: "Tokenized / RWA",
-  nft: "NFTs",
-  other: "Other",
+type Translate = (key: TranslationKey, params?: TranslateParams) => string;
+
+const TYPE_LABEL_KEYS: Record<VaultAsset["assetType"], TranslationKey> = {
+  crypto: "vault.chart.assetTypeCrypto",
+  collectible: "vault.chart.assetTypeCollectible",
+  rwa: "vault.chart.assetTypeRwa",
+  nft: "vault.chart.assetTypeNft",
+  other: "vault.chart.assetTypeOther",
 };
 
 type ValuePoint = {
@@ -24,15 +27,16 @@ type ValuePoint = {
 };
 
 export function VaultRecordMixChart({ assets }: { assets: VaultAsset[] }) {
+  const { t } = useI18n();
   const data = useMemo(
     () =>
-      Object.entries(TYPE_LABELS)
-        .map(([type, name]) => ({
-          name,
+      (Object.keys(TYPE_LABEL_KEYS) as VaultAsset["assetType"][])
+        .map((type) => ({
+          name: t(TYPE_LABEL_KEYS[type]),
           value: assets.filter((asset) => asset.assetType === type).length,
         }))
         .filter((item) => item.value > 0),
-    [assets],
+    [assets, t],
   );
   if (!data.length) return null;
 
@@ -42,7 +46,10 @@ export function VaultRecordMixChart({ assets }: { assets: VaultAsset[] }) {
       trigger: "item",
       formatter: (params: unknown) => {
         const item = params as { name?: string; value?: number };
-        return `${item.name ?? "Asset type"}<br/><b>${item.value ?? 0} encrypted record${item.value === 1 ? "" : "s"}</b>`;
+        const unit = item.value === 1
+          ? t("vault.chart.encryptedRecord")
+          : t("vault.chart.encryptedRecords");
+        return `${item.name ?? t("vault.chart.assetTypeFallback")}<br/><b>${item.value ?? 0} ${unit}</b>`;
       },
     },
     legend: {
@@ -50,7 +57,7 @@ export function VaultRecordMixChart({ assets }: { assets: VaultAsset[] }) {
     },
     series: [
       {
-        name: "Encrypted records",
+        name: t("vault.chart.encryptedRecords"),
         type: "pie",
         radius: ["58%", "80%"],
         center: ["50%", "50%"],
@@ -67,19 +74,19 @@ export function VaultRecordMixChart({ assets }: { assets: VaultAsset[] }) {
 
   return (
     <ChartPanel
-      eyebrow="ENCRYPTED RECORD MIX"
-      copy="Record counts only. This is not a value allocation or market-weight chart."
+      eyebrow={t("vault.chart.mixEyebrow")}
+      copy={t("vault.chart.mixCopy")}
     >
       <div className="record-mix-visual">
       <div className="record-mix-chart"><ChainScoutChart
         option={option}
-        label={`Encrypted Vault records by asset type: ${data.map((item) => `${item.name} ${item.value}`).join(", ")}.`}
+        label={t("vault.chart.mixAria", { details: data.map((item) => `${item.name} ${item.value}`).join(", ") })}
         height={190}
-      /><div className="record-mix-total" aria-hidden="true"><strong>{assets.length}</strong><span>records</span></div></div>
-      <ul className="record-mix-legend" aria-label="Record counts by asset type">{data.map((item, index) => <li key={item.name}><span className="record-mix-dot" style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }} /><span>{item.name}</span><strong>{item.value}</strong></li>)}</ul>
+      /><div className="record-mix-total" aria-hidden="true"><strong>{assets.length}</strong><span>{t("vault.chart.records")}</span></div></div>
+      <ul className="record-mix-legend" aria-label={t("vault.chart.recordCountsAria")}>{data.map((item, index) => <li key={item.name}><span className="record-mix-dot" style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }} /><span>{item.name}</span><strong>{item.value}</strong></li>)}</ul>
       </div>
       <DataTable
-        headings={["Asset type", "Encrypted records"]}
+        headings={[t("vault.chart.assetTypeFallback"), t("vault.chart.encryptedRecords")]}
         rows={data.map((item) => [item.name, String(item.value)])}
       />
     </ChartPanel>
@@ -87,7 +94,8 @@ export function VaultRecordMixChart({ assets }: { assets: VaultAsset[] }) {
 }
 
 export function CollectibleValueHistoryChart({ asset }: { asset: VaultAsset }) {
-  const groups = useMemo(() => collectibleGroups(asset), [asset]);
+  const { t } = useI18n();
+  const groups = useMemo(() => collectibleGroups(asset, t), [asset, t]);
   if (!asset.collectible || groups.length === 0) return null;
 
   return (
@@ -122,7 +130,7 @@ export function CollectibleValueHistoryChart({ asset }: { asset: VaultAsset }) {
           },
           series: [
             {
-              name: "Purchase / reference",
+              name: t("vault.chart.purchaseReference"),
               type: "line",
               smooth: false,
               connectNulls: false,
@@ -144,32 +152,30 @@ export function CollectibleValueHistoryChart({ asset }: { asset: VaultAsset }) {
           <div key={currency} className="border border-[#383838] bg-[#202020] p-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="font-mono-d text-[8px] tracking-wider text-[#fa6c34]">
-                OWNER-ENTERED HISTORY · {currency}
+                {t("vault.chart.ownerEnteredHistory", { currency })}
               </p>
               <p className="font-mono-d text-[7.5px] text-[#7f7972]">
-                LAVENDER PURCHASE · ORANGE REFERENCE
+                {t("vault.chart.legendColors")}
               </p>
             </div>
             <p className="mt-3 text-[14px] leading-relaxed text-[#b8b0a7]">
-              Latest dated entry: <strong className="font-medium text-[#e9e0d1]">{points.at(-1)?.value} {currency}</strong>
+              {t("vault.chart.latestDatedEntry")} <strong className="font-medium text-[#e9e0d1]">{points.at(-1)?.value} {currency}</strong>
               <span className="block text-[12px] text-[#aaa39b]">{points.at(-1)?.date} · {points.at(-1)?.label}</span>
             </p>
             <ChainScoutChart
               option={option}
-              label={`${asset.name} owner-entered purchase and dated reference history in ${currency}. Not a live market feed.`}
+              label={t("vault.chart.historyAria", { name: asset.name, currency })}
               height={240}
             />
             <DataTable
-              headings={["Date", "Entry", `Exact value (${currency})`]}
+              headings={[t("vault.chart.date"), t("vault.chart.entry"), t("vault.chart.exactValue", { currency })]}
               rows={points.map((point) => [point.date, point.label, point.value])}
             />
           </div>
         );
       })}
       <p className="text-[9px] leading-relaxed text-[#7f7972]">
-        This visualization uses encrypted purchase lots and owner-entered dated
-        reference sources. It is not a live price feed, appraisal, sale record,
-        or authenticity claim.
+        {t("vault.chart.historyCaption")}
       </p>
     </div>
   );
@@ -184,17 +190,17 @@ export function PortfolioAllocationChart({
     reference: { currency: string } | null;
   }>;
 }) {
+  const { t } = useI18n();
   const groups = useMemo(() => allocationGroups(rows), [rows]);
   if (!groups.length) return null;
 
   return (
     <section className="clip-panel border border-[#383838] bg-[#242424] p-5">
       <p className="font-mono-d text-[9px] tracking-[0.14em] text-[#fa6c34]">
-        LOCAL REFERENCE ALLOCATION
+        {t("vault.chart.localReferenceAllocation")}
       </p>
       <p className="mt-2 text-[10.5px] leading-relaxed text-[#7f7972]">
-        Values are grouped by matching owner-entered currency. ChainScout never
-        invents foreign-exchange conversion or mixes currencies into one total.
+        {t("vault.chart.allocationCopy")}
       </p>
       <div className="mt-4 grid gap-4 xl:grid-cols-2">
         {groups.map(({ currency, entries }) => {
@@ -210,7 +216,7 @@ export function PortfolioAllocationChart({
                 };
                 const entry = entries[item?.dataIndex ?? -1];
                 return entry
-                  ? `${entry.symbol}<br/><b>${entry.exact} ${currency}</b><br/>${entry.percent.toFixed(2)}% of ${currency} references`
+                  ? `${entry.symbol}<br/><b>${entry.exact} ${currency}</b><br/>${t("vault.chart.allocationTooltipSuffix", { percent: entry.percent.toFixed(2), currency })}`
                   : "";
               },
             },
@@ -243,15 +249,17 @@ export function PortfolioAllocationChart({
           return (
             <div key={currency} className="border border-[#333] bg-[#202020] p-3">
               <p className="font-mono-d text-[8px] tracking-wider text-[#d6ccba]">
-                {currency} · {entries.length} REFERENCED HOLDING{entries.length === 1 ? "" : "S"}
+                {entries.length === 1
+                  ? t("vault.chart.referencedHolding.one", { currency, count: entries.length })
+                  : t("vault.chart.referencedHolding.other", { currency, count: entries.length })}
               </p>
               <ChainScoutChart
                 option={option}
-                label={`Owner-entered portfolio reference allocation in ${currency}: ${entries.map((entry) => `${entry.symbol} ${entry.percent.toFixed(2)} percent`).join(", ")}.`}
+                label={t("vault.chart.allocationAria", { currency, details: entries.map((entry) => `${entry.symbol} ${entry.percent.toFixed(2)} percent`).join(", ") })}
                 height={Math.max(190, entries.length * 42 + 75)}
               />
               <DataTable
-                headings={["Holding", `Exact reference value (${currency})`, "Share"]}
+                headings={[t("vault.chart.holding"), t("vault.chart.exactReferenceValue", { currency }), t("vault.chart.share")]}
                 rows={entries.map((entry) => [
                   entry.symbol,
                   entry.exact,
@@ -266,7 +274,7 @@ export function PortfolioAllocationChart({
   );
 }
 
-function collectibleGroups(asset: VaultAsset) {
+function collectibleGroups(asset: VaultAsset, t: Translate) {
   if (!asset.collectible) return [];
   const byCurrency = new Map<string, ValuePoint[]>();
   const add = (currency: string, point: ValuePoint) => {
@@ -281,7 +289,7 @@ function collectibleGroups(asset: VaultAsset) {
       value: lot.unitPrice,
       numeric: Number(lot.unitPrice),
       kind: "purchase",
-      label: `Purchase lot ${index + 1} · unit price`,
+      label: t("vault.chart.purchaseLot", { n: index + 1 }),
     });
   });
   asset.collectible.references.forEach((reference) => {
@@ -385,10 +393,11 @@ function ChartPanel({
 }
 
 function DataTable({ headings, rows }: { headings: string[]; rows: string[][] }) {
+  const { t } = useI18n();
   return (
     <details className="mt-2 border-t border-[#333] pt-2">
       <summary className="cursor-pointer font-mono-d text-[8px] tracking-wider text-[#9a938a]">
-        ACCESSIBLE EXACT DATA TABLE
+        {t("vault.chart.dataTable")}
       </summary>
       <div className="mt-3 overflow-x-auto">
         <table className="w-full min-w-[360px] border-collapse text-left font-mono-d text-[8px] text-[#9a938a]">

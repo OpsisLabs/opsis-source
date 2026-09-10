@@ -19,6 +19,7 @@ import type {
   Severity,
   SourceCitation,
 } from "./types";
+import { translateCurrent } from "../i18n/translate";
 
 export const CHAIN_ID = Number(import.meta.env.VITE_CHAIN_ID ?? 4663);
 export const EXPLORER = import.meta.env.VITE_EXPLORER_URL ?? "https://robinhoodchain.blockscout.com";
@@ -162,15 +163,26 @@ export function formatFact(fact: string): string {
     try {
       const parsed = JSON.parse(value) as unknown;
       if (Array.isArray(parsed)) {
-        return `${key}: ${parsed.length} ${parsed.length === 1 ? "entry" : "entries"}`;
+        return translateCurrent(
+          parsed.length === 1
+            ? "cloud.adapters.fact.entry.one"
+            : "cloud.adapters.fact.entry.other",
+          { key, count: parsed.length },
+        );
       }
       if (parsed && typeof parsed === "object") {
         const keys = Object.keys(parsed);
-        return `${key}: ${keys.length} ${keys.length === 1 ? "field" : "fields"} (${keys.slice(0, 3).join(", ")}${keys.length > 3 ? ", …" : ""})`;
+        const keyList = `${keys.slice(0, 3).join(", ")}${keys.length > 3 ? ", …" : ""}`;
+        return translateCurrent(
+          keys.length === 1
+            ? "cloud.adapters.fact.field.one"
+            : "cloud.adapters.fact.field.other",
+          { key, count: keys.length, keys: keyList },
+        );
       }
     } catch {
       // Truncated mid-structure: the payload is unusable, so report its shape.
-      return `${key}: structured data (see Sources)`;
+      return translateCurrent("cloud.adapters.fact.structured", { key });
     }
   }
 
@@ -192,7 +204,7 @@ export function adaptAnswer(
     : source.facts;
   if (facts && !hasResolvableEntity(entity, facts)) {
     return errorAnswer(
-      "This saved session contains an invalid entity identifier. Start a new session with a complete address or transaction hash.",
+      translateCurrent("cloud.adapters.errorInvalidEntity"),
     );
   }
   const explorerUrl = str(facts?.explorerUrl);
@@ -238,7 +250,7 @@ export function adaptAnswer(
     citations: citations.map<SourceCitation>((citation) => ({
       id: alias.get(citation.id) ?? citation.id,
       provider: citation.provider,
-      label: citation.description ?? `${citation.provider} source data`,
+      label: citation.description ?? translateCurrent("cloud.adapters.sourceData", { provider: citation.provider }),
       // Older saved answers may contain raw provider API/RPC URLs. Prefer the
       // normalized human explorer URL so those citations remain verifiable.
       url: explorerUrl ?? citation.url ?? null,
@@ -314,6 +326,7 @@ export function deriveCard(
   hintedKind: ChainEntityType,
   fallbackId: string,
 ): AnswerCardMeta {
+  const t = translateCurrent;
   // The caller's hint comes from client-side pattern matching, which cannot tell
   // a token contract from a wallet. The fact bundle can, so trust it first.
   const kind: ChainEntityType =
@@ -338,18 +351,18 @@ export function deriveCard(
     const verified = bool(facts.verified);
     const top10 = num(facts.top10WalletShare);
     const pool = num(facts.liquidityPoolShare);
-    push("Holders", holders !== undefined ? formatAmount(String(holders), 0) : undefined);
+    push(t("cloud.adapters.stat.holders"), holders !== undefined ? formatAmount(String(holders), 0) : undefined);
     // Concentration and liquidity decide whether a position can be entered and
     // exited at all, so they outrank supply in the header.
-    if (top10 !== undefined) push("Top 10 wallets", `${top10}%`, top10 >= 50 ? "bad" : top10 >= 25 ? "warn" : "good");
-    if (pool !== undefined) push("In trading pool", `${pool}%`, pool > 0 && pool < 3 ? "warn" : "neutral");
-    push("Supply", scaleSupply(facts.totalSupply, facts.decimals));
+    if (top10 !== undefined) push(t("cloud.adapters.stat.top10"), `${top10}%`, top10 >= 50 ? "bad" : top10 >= 25 ? "warn" : "good");
+    if (pool !== undefined) push(t("cloud.adapters.stat.inTradingPool"), `${pool}%`, pool > 0 && pool < 3 ? "warn" : "neutral");
+    push(t("cloud.adapters.stat.supply"), scaleSupply(facts.totalSupply, facts.decimals));
     const lifetime = num(facts.lifetimeTransfers);
-    push("Transfers", lifetime !== undefined ? formatAmount(String(lifetime), 0) : (count(facts.recentTransfers) !== undefined ? String(count(facts.recentTransfers)) : undefined));
+    push(t("cloud.adapters.stat.transfers"), lifetime !== undefined ? formatAmount(String(lifetime), 0) : (count(facts.recentTransfers) !== undefined ? String(count(facts.recentTransfers)) : undefined));
     const badges: AnswerCardMeta["badges"] = [{ label: str(facts.type) ?? "ERC-20" }];
-    if (bool(facts.proxy)) badges.push({ label: "PROXY", tone: "warn" });
-    if (verified === false) badges.push({ label: "UNVERIFIED", tone: "warn" });
-    if (verified === true) badges.push({ label: "VERIFIED", tone: "good" });
+    if (bool(facts.proxy)) badges.push({ label: t("cloud.adapters.badge.proxy"), tone: "warn" });
+    if (verified === false) badges.push({ label: t("cloud.adapters.badge.unverified"), tone: "warn" });
+    if (verified === true) badges.push({ label: t("cloud.adapters.badge.verified"), tone: "good" });
     return {
       kind,
       id: str(facts.address) ?? fallbackId,
@@ -363,39 +376,39 @@ export function deriveCard(
   if (kind === "transaction") {
     const status = str(facts.status)?.toLowerCase();
     const ok = status === "ok" || status === "success" || status === "1" || status === "0x1" || status === "0x01";
-    push("Value", facts.valueEth != null ? `${formatAmount(String(facts.valueEth))} ETH` : undefined);
-    push("Gas used", facts.gasUsed != null ? formatAmount(String(Number(facts.gasUsed)), 0) : undefined);
-    push("Token transfers", count(facts.tokenTransfers) !== undefined ? String(count(facts.tokenTransfers)) : undefined);
+    push(t("cloud.adapters.stat.value"), facts.valueEth != null ? `${formatAmount(String(facts.valueEth))} ETH` : undefined);
+    push(t("cloud.adapters.stat.gasUsed"), facts.gasUsed != null ? formatAmount(String(Number(facts.gasUsed)), 0) : undefined);
+    push(t("cloud.adapters.stat.tokenTransfers"), count(facts.tokenTransfers) !== undefined ? String(count(facts.tokenTransfers)) : undefined);
     const badges: AnswerCardMeta["badges"] = [];
-    if (status) badges.push(ok ? { label: "SUCCEEDED", tone: "good" } : { label: "FAILED", tone: "bad" });
+    if (status) badges.push(ok ? { label: t("cloud.adapters.badge.succeeded"), tone: "good" } : { label: t("cloud.adapters.badge.failed"), tone: "bad" });
     const method = str(facts.method);
     if (method) badges.push({ label: method });
-    return { kind, id: str(facts.hash) ?? fallbackId, title: "Transaction", subtitle: shortHex(str(facts.hash) ?? fallbackId), badges, stats };
+    return { kind, id: str(facts.hash) ?? fallbackId, title: t("cloud.adapters.title.transaction"), subtitle: shortHex(str(facts.hash) ?? fallbackId), badges, stats };
   }
 
   // wallet or contract
   const isContract = bool(facts.isContract) || kind === "contract";
-  push("Balance", facts.nativeBalanceEth != null ? `${formatAmount(String(facts.nativeBalanceEth))} ETH` : undefined);
+  push(t("cloud.adapters.stat.balance"), facts.nativeBalanceEth != null ? `${formatAmount(String(facts.nativeBalanceEth))} ETH` : undefined);
   const sampledTokens = str(facts.tokenBalanceCoverage) === "reviewed_asset_sample";
-  push(sampledTokens ? "Sample matches" : "Token balances", str(facts.tokenBalanceCoverage) === "unavailable" ? "Unavailable" : (count(facts.tokenBalances) !== undefined ? String(count(facts.tokenBalances)) : undefined), sampledTokens || str(facts.tokenBalanceCoverage) === "unavailable" ? "warn" : undefined);
-  push("Activity", str(facts.activityCoverage) === "unavailable" ? "Unavailable" : (count(facts.transactionsFetched) !== undefined ? String(count(facts.transactionsFetched)) : undefined), str(facts.activityCoverage) === "unavailable" ? "warn" : undefined);
+  push(sampledTokens ? t("cloud.adapters.stat.sampleMatches") : t("cloud.adapters.stat.tokenBalances"), str(facts.tokenBalanceCoverage) === "unavailable" ? t("cloud.adapters.unavailable") : (count(facts.tokenBalances) !== undefined ? String(count(facts.tokenBalances)) : undefined), sampledTokens || str(facts.tokenBalanceCoverage) === "unavailable" ? "warn" : undefined);
+  push(t("cloud.adapters.stat.activity"), str(facts.activityCoverage) === "unavailable" ? t("cloud.adapters.unavailable") : (count(facts.transactionsFetched) !== undefined ? String(count(facts.transactionsFetched)) : undefined), str(facts.activityCoverage) === "unavailable" ? "warn" : undefined);
   const approvals = count(facts.approvalTransactions);
-  if (approvals) push("Approvals", String(approvals), "warn");
+  if (approvals) push(t("cloud.adapters.stat.approvals"), String(approvals), "warn");
   const failed = count(facts.failedTransactions);
-  if (failed) push("Failed", String(failed), "warn");
-  const badges: AnswerCardMeta["badges"] = [{ label: isContract ? "CONTRACT" : "WALLET" }];
+  if (failed) push(t("cloud.adapters.stat.failed"), String(failed), "warn");
+  const badges: AnswerCardMeta["badges"] = [{ label: isContract ? t("cloud.adapters.badge.contract") : t("cloud.adapters.badge.wallet") }];
   if (sampledTokens) {
     const checked = facts.tokenBalanceContractsChecked;
     badges.push({ label: typeof checked === "number" && Number.isSafeInteger(checked) && checked > 0
-      ? `LIMITED SAMPLE · ${checked} CONTRACTS CHECKED`
-      : "LIMITED TOKEN SAMPLE", tone: "warn" });
+      ? translateCurrent("cloud.adapters.badge.limitedSampleChecked", { count: checked })
+      : t("cloud.adapters.badge.limitedSample"), tone: "warn" });
   }
-  if (isContract && bool(facts.verified) === false) badges.push({ label: "UNVERIFIED", tone: "warn" });
-  if (isContract && bool(facts.verified) === true) badges.push({ label: "VERIFIED", tone: "good" });
+  if (isContract && bool(facts.verified) === false) badges.push({ label: t("cloud.adapters.badge.unverified"), tone: "warn" });
+  if (isContract && bool(facts.verified) === true) badges.push({ label: t("cloud.adapters.badge.verified"), tone: "good" });
   return {
     kind: isContract ? "contract" : "wallet",
     id: str(facts.address) ?? fallbackId,
-    title: isContract ? (str(facts.name) ?? "Smart contract") : "Wallet",
+    title: isContract ? (str(facts.name) ?? t("cloud.adapters.title.smartContract")) : t("cloud.adapters.title.wallet"),
     subtitle: shortHex(str(facts.address) ?? fallbackId),
     badges,
     stats,
@@ -466,7 +479,7 @@ export function deriveWidgets(facts: Record<string, unknown>, kind: ChainEntityT
       .slice(-12)
       .map(([day, count]) => ({ label: day.slice(5), count }));
     if (bars.length >= 2) {
-      widgets.push({ kind: "bars", title: "Activity by day", note: `${stamps.length} recent events · UTC`, bars });
+      widgets.push({ kind: "bars", title: translateCurrent("cloud.widget.activityByDay.title"), note: translateCurrent("cloud.widget.activityByDay.note", { count: stamps.length }), bars });
     }
   }
 
@@ -484,30 +497,30 @@ export function deriveWidgets(facts: Record<string, unknown>, kind: ChainEntityT
       const rest = Math.max(0, 100 - pool - top10);
       widgets.push({
         kind: "donut",
-        title: "Who controls the supply",
-        note: "pool is tradeable, not owned",
+        title: translateCurrent("cloud.widget.supplyControl.title"),
+        note: translateCurrent("cloud.widget.supplyControl.note"),
         segments: [
-          ...(pool > 0 ? [{ label: "Trading pool", pct: pool }] : []),
-          ...(top10 > 0 ? [{ label: "Top 10 wallets", pct: top10 }] : []),
-          ...(rest > 0 ? [{ label: "Everyone else", pct: rest }] : []),
+          ...(pool > 0 ? [{ label: translateCurrent("cloud.widget.segment.tradingPool"), pct: pool }] : []),
+          ...(top10 > 0 ? [{ label: translateCurrent("cloud.widget.segment.top10"), pct: top10 }] : []),
+          ...(rest > 0 ? [{ label: translateCurrent("cloud.widget.segment.everyoneElse"), pct: rest }] : []),
         ],
       });
 
       const peak = Math.max(...topHolders.map((h) => num(h.share) ?? 0), 1);
       widgets.push({
         kind: "rows",
-        title: "Largest holders",
-        note: `${facts.holdersAnalyzed ?? topHolders.length} analyzed`,
+        title: translateCurrent("cloud.widget.largestHolders.title"),
+        note: translateCurrent("cloud.widget.largestHolders.note", { count: String(facts.holdersAnalyzed ?? topHolders.length) }),
         rows: topHolders.map((h) => {
           const share = num(h.share) ?? 0;
           const isPool = h.isPool === true;
           return {
             label: shortHex(h.address),
             sub: isPool
-              ? "trading pool"
+              ? translateCurrent("cloud.widget.holder.tradingPool")
               : h.flaggedScam === true
-                ? "flagged"
-                : (str(h.label) ?? (h.isContract === true ? "contract" : "wallet")),
+                ? translateCurrent("cloud.widget.holder.flagged")
+                : (str(h.label) ?? (h.isContract === true ? translateCurrent("cloud.widget.holder.contract") : translateCurrent("cloud.widget.holder.wallet"))),
             value: `${share}%`,
             tone: isPool ? "neutral" : h.flaggedScam === true ? "bad" : share >= 10 ? "warn" : undefined,
             barPct: (share / peak) * 100,
@@ -537,8 +550,8 @@ export function deriveWidgets(facts: Record<string, unknown>, kind: ChainEntityT
       const peak = top[0]?.[1] ?? 0;
       widgets.push({
         kind: "rows",
-        title: "Where recent volume went",
-        note: `${transfers.length} recent transfers`,
+        title: translateCurrent("cloud.widget.volumeDestination.title"),
+        note: translateCurrent("cloud.widget.volumeDestination.note", { count: transfers.length }),
         rows: top.map(([addr, total]) => ({
           label: shortHex(addr),
           value: `${Math.round((total / volume) * 100)}%`,
@@ -565,8 +578,8 @@ export function deriveWidgets(facts: Record<string, unknown>, kind: ChainEntityT
     if (ranked.length > 0) {
       widgets.push({
         kind: "rows",
-        title: "Largest recent transfers",
-        note: "value in ETH where the transfer moved any",
+        title: translateCurrent("cloud.widget.largestTransfers.title"),
+        note: translateCurrent("cloud.widget.largestTransfers.note"),
         rows: ranked.map((t) => ({
           label: `${shortHex(t.from)} → ${shortHex(t.to)}`,
           // Millions of a memecoin mean nothing; the ETH the transaction moved
@@ -586,7 +599,7 @@ export function deriveWidgets(facts: Record<string, unknown>, kind: ChainEntityT
     if (balances.length > 0) {
       widgets.push({
         kind: "rows",
-        title: "Token holdings",
+        title: translateCurrent("cloud.widget.tokenHoldings.title"),
         rows: balances.slice(0, 6).map((b) => ({
           label: str(b.tokenSymbol) ?? str(b.tokenName) ?? shortHex(b.tokenAddress),
           value: formatAmount(str(b.formattedValue) ?? "0"),
@@ -599,14 +612,14 @@ export function deriveWidgets(facts: Record<string, unknown>, kind: ChainEntityT
     if (approvals.length > 0) {
       widgets.push({
         kind: "rows",
-        title: "Token approvals",
-        note: "spenders this wallet has authorized",
+        title: translateCurrent("cloud.widget.tokenApprovals.title"),
+        note: translateCurrent("cloud.widget.tokenApprovals.note"),
         rows: approvals.slice(0, 5).map((a) => {
           const unlimited = a.currentUnlimited === true || a.unlimited === true;
           return {
             label: str(a.tokenSymbol) ?? shortHex(a.contract),
-            sub: `spender ${shortHex(a.spender)}`,
-            value: unlimited ? "Unlimited" : (str(a.amount) ?? "—"),
+            sub: translateCurrent("cloud.widget.spender", { value: shortHex(a.spender) }),
+            value: unlimited ? translateCurrent("cloud.common.unlimited") : (str(a.amount) ?? "—"),
             tone: unlimited ? ("warn" as const) : undefined,
             pivot: hexOf(a.spender),
           };
@@ -628,8 +641,8 @@ export function deriveWidgets(facts: Record<string, unknown>, kind: ChainEntityT
       if (top.length >= 2) {
         widgets.push({
           kind: "rows",
-          title: "Top counterparties",
-          note: "from recent transactions",
+          title: translateCurrent("cloud.widget.topCounterparties.title"),
+          note: translateCurrent("cloud.widget.topCounterparties.note"),
           rows: top.map(([addr, count]) => ({
             label: shortHex(addr),
             value: `${count}×`,
@@ -644,7 +657,7 @@ export function deriveWidgets(facts: Record<string, unknown>, kind: ChainEntityT
   if (kind === "transaction") {
     const steps: NonNullable<AnswerWidget["rows"]> = [];
     const method = str(facts.method);
-    if (method) steps.push({ label: "Called", value: method });
+    if (method) steps.push({ label: translateCurrent("cloud.widget.called"), value: method });
     for (const t of rows(facts.tokenTransfers).slice(0, 4)) {
       steps.push({
         label: `${shortHex(hexOf(t.from))} → ${shortHex(hexOf(t.to))}`,
@@ -654,8 +667,8 @@ export function deriveWidgets(facts: Record<string, unknown>, kind: ChainEntityT
       });
     }
     const internal = rows(facts.internalTransactions);
-    if (internal.length > 0) steps.push({ label: "Internal calls", value: String(internal.length) });
-    if (steps.length > 0) widgets.push({ kind: "rows", title: "What happened", rows: steps });
+    if (internal.length > 0) steps.push({ label: translateCurrent("cloud.widget.internalCalls"), value: String(internal.length) });
+    if (steps.length > 0) widgets.push({ kind: "rows", title: translateCurrent("cloud.widget.whatHappened.title"), rows: steps });
   }
 
   return widgets;
@@ -719,7 +732,7 @@ export function adaptEntitySummary(entity: BackendEntity): EntitySummary {
     spender: shortHex(approval.spender),
     amount:
       approval.currentUnlimited === true || approval.unlimited === true
-        ? "Unlimited"
+        ? translateCurrent("cloud.common.unlimited")
         : (str(approval.currentAllowanceRaw) ?? str(approval.amount) ?? NONE),
   }));
 

@@ -27,6 +27,7 @@ import {
   type VaultRecoveryWrapper,
   type VaultWrappedKey,
 } from "./types";
+import { translateCurrent } from "../i18n/translate";
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder(undefined, { fatal: true });
@@ -118,7 +119,7 @@ export async function unlockVault(
   } catch {
     throw new VaultError(
       "WRONG_PASSPHRASE",
-      "That passphrase could not unlock this vault.",
+      translateCurrent("vault.crypto.wrongPassphrase"),
     );
   }
 }
@@ -137,7 +138,7 @@ export async function changeVaultPassphrase(
   } catch {
     throw new VaultError(
       "WRONG_PASSPHRASE",
-      "The current passphrase did not match this vault.",
+      translateCurrent("vault.crypto.currentPassphrase"),
     );
   }
   const salt = randomBytes(16);
@@ -186,7 +187,7 @@ export async function recoverVault(
   } catch {
     throw new VaultError(
       "RECOVERY_FAILED",
-      "That recovery code is invalid or the vault is damaged.",
+      translateCurrent("vault.crypto.recoveryFailed"),
     );
   }
   const salt = randomBytes(16);
@@ -258,7 +259,7 @@ export async function decryptAsset(
   ) {
     throw new VaultError(
       "CORRUPT_RECORD",
-      "This encrypted record is not an asset record.",
+      translateCurrent("vault.crypto.notAssetRecord"),
     );
   }
   try {
@@ -288,7 +289,7 @@ export async function decryptAsset(
     if (error instanceof VaultError) throw error;
     throw new VaultError(
       "CORRUPT_RECORD",
-      "An encrypted vault record is damaged or belongs to another vault.",
+      translateCurrent("vault.crypto.corruptRecord"),
     );
   }
 }
@@ -326,7 +327,7 @@ export async function decryptCollectibleRecord(
   if (record.version !== VAULT_COLLECTIBLE_RECORD_VERSION) {
     throw new VaultError(
       "CORRUPT_RECORD",
-      "This encrypted record is not a collectible record.",
+      translateCurrent("vault.crypto.notCollectibleRecord"),
     );
   }
   try {
@@ -353,7 +354,7 @@ export async function decryptCollectibleRecord(
     if (error instanceof VaultError) throw error;
     throw new VaultError(
       "CORRUPT_RECORD",
-      "An encrypted collectible record is damaged or belongs to another vault.",
+      translateCurrent("vault.crypto.corruptCollectibleRecord"),
     );
   }
 }
@@ -391,7 +392,7 @@ export async function decryptMarketContext(
   if (record.version !== VAULT_MARKET_RECORD_VERSION) {
     throw new VaultError(
       "CORRUPT_RECORD",
-      "This encrypted record is not a market record.",
+      translateCurrent("vault.crypto.notMarketRecord"),
     );
   }
   try {
@@ -411,7 +412,7 @@ export async function decryptMarketContext(
     if (error instanceof VaultError) throw error;
     throw new VaultError(
       "CORRUPT_RECORD",
-      "An encrypted market record is damaged or belongs to another vault.",
+      translateCurrent("vault.crypto.corruptMarketRecord"),
     );
   }
 }
@@ -449,7 +450,7 @@ export async function decryptPortfolioContext(
   if (record.version !== VAULT_PORTFOLIO_RECORD_VERSION) {
     throw new VaultError(
       "CORRUPT_RECORD",
-      "This encrypted record is not a portfolio record.",
+      translateCurrent("vault.crypto.notPortfolioRecord"),
     );
   }
   try {
@@ -469,7 +470,7 @@ export async function decryptPortfolioContext(
     if (error instanceof VaultError) throw error;
     throw new VaultError(
       "CORRUPT_RECORD",
-      "An encrypted portfolio record is damaged or belongs to another vault.",
+      translateCurrent("vault.crypto.corruptPortfolioRecord"),
     );
   }
 }
@@ -494,7 +495,7 @@ export function validateConversation(value: unknown): asserts value is VaultConv
         try { const url = new URL(source.url as string); return url.protocol !== "https:" || Boolean(url.username || url.password); }
         catch { return true; }
       });
-    })) throw new VaultError("INVALID_CONVERSATION", "This conversation is invalid or too large. Start a new conversation; nothing was overwritten.");
+    })) throw new VaultError("INVALID_CONVERSATION", translateCurrent("vault.crypto.invalidConversation"));
 }
 
 export async function encryptConversation(meta: VaultMeta, key: CryptoKey, conversation: VaultConversation): Promise<EncryptedVaultRecord> {
@@ -510,14 +511,14 @@ export async function encryptConversation(meta: VaultMeta, key: CryptoKey, conve
 
 export async function decryptConversation(meta: VaultMeta, key: CryptoKey, record: EncryptedVaultRecord): Promise<VaultConversation> {
   validateEncryptedRecord(record);
-  if (record.version !== VAULT_CONVERSATION_RECORD_VERSION) throw new VaultError("CORRUPT_RECORD", "This is not a conversation record.");
+  if (record.version !== VAULT_CONVERSATION_RECORD_VERSION) throw new VaultError("CORRUPT_RECORD", translateCurrent("vault.crypto.notConversationRecord"));
   try {
     const plaintext = await crypto.subtle.decrypt(aesParams(base64ToBytes(record.iv), recordAad(meta.vaultId, record.id, record.version)), key, base64ToBytes(record.ciphertext));
     const value: unknown = JSON.parse(decoder.decode(plaintext));
     validateConversation(value);
     if (value.id !== record.id) throw new Error("record identity mismatch");
     return value;
-  } catch { throw new VaultError("CORRUPT_RECORD", "An encrypted conversation is damaged or belongs to another Vault."); }
+  } catch { throw new VaultError("CORRUPT_RECORD", translateCurrent("vault.crypto.corruptConversation")); }
 }
 
 export async function decryptVaultRecord(
@@ -543,7 +544,7 @@ export async function decryptVaultRecord(
     return decryptMarketContext(meta, key, record);
   throw new VaultError(
     "INVALID_BACKUP",
-    "The encrypted-vault backup contains an unsupported record version.",
+    translateCurrent("vault.crypto.unsupportedRecordVersion"),
   );
 }
 
@@ -686,7 +687,7 @@ export function parseBackup(value: unknown): VaultBackup {
   ) {
     throw new VaultError(
       "INVALID_BACKUP",
-      "This is not a supported ChainScout encrypted-vault backup.",
+      translateCurrent("vault.crypto.invalidBackupFormat"),
     );
   }
   if (
@@ -696,7 +697,7 @@ export function parseBackup(value: unknown): VaultBackup {
   ) {
     throw new VaultError(
       "INVALID_BACKUP",
-      "The encrypted-vault backup is incomplete.",
+      translateCurrent("vault.crypto.backupIncomplete"),
     );
   }
   validateVaultMeta(value.vault);
@@ -707,7 +708,7 @@ export function parseBackup(value: unknown): VaultBackup {
   if (ids.size !== value.records.length) {
     throw new VaultError(
       "INVALID_BACKUP",
-      "The encrypted-vault backup contains duplicate records.",
+      translateCurrent("vault.crypto.backupDuplicateRecords"),
     );
   }
   return value as unknown as VaultBackup;
@@ -776,13 +777,13 @@ export function assertVaultCapacity(
   if (records.length > maxRecords) {
     throw new VaultError(
       "VAULT_CAPACITY",
-      `This Vault supports up to ${maxRecords.toLocaleString("en-US")} encrypted records.`,
+      translateCurrent("vault.crypto.capacityRecords", { max: maxRecords.toLocaleString("en-US") }),
     );
   }
   if (estimateVaultBackupBytes(meta, records) > maxBytes) {
     throw new VaultError(
       "VAULT_CAPACITY",
-      "Saving this asset would make the Vault too large for a supported encrypted backup. Remove or compress a photo, then try again.",
+      translateCurrent("vault.crypto.capacitySize"),
     );
   }
 }
@@ -791,13 +792,13 @@ export function validatePassphrase(passphrase: string): void {
   if (passphrase.length < 12) {
     throw new VaultError(
       "WEAK_PASSPHRASE",
-      "Use at least 12 characters for the vault passphrase.",
+      translateCurrent("vault.crypto.passphraseTooShort"),
     );
   }
   if (passphrase.length > 256) {
     throw new VaultError(
       "INVALID_PASSPHRASE",
-      "Vault passphrases are limited to 256 characters.",
+      translateCurrent("vault.crypto.passphraseTooLong"),
     );
   }
 }
@@ -805,12 +806,12 @@ export function validatePassphrase(passphrase: string): void {
 export function vaultErrorMessage(error: unknown): string {
   if (error instanceof VaultError) return error.message;
   if (error instanceof DOMException && error.name === "QuotaExceededError") {
-    return "This browser is out of storage space. Export your encrypted backup, then free space before trying again.";
+    return translateCurrent("vault.crypto.quotaExceeded");
   }
   if (error instanceof DOMException && error.name === "VersionError") {
-    return "This browser has a newer vault format than this build can open. Do not delete it; update ChainScout first.";
+    return translateCurrent("vault.crypto.versionError");
   }
-  return "The local vault could not complete that action. Nothing was sent to a server.";
+  return translateCurrent("vault.crypto.generic");
 }
 
 function validateVaultMeta(value: unknown): asserts value is VaultMeta {
@@ -842,7 +843,7 @@ function validateVaultMeta(value: unknown): asserts value is VaultMeta {
   ) {
     throw new VaultError(
       "INVALID_VAULT",
-      "The local vault metadata is invalid or uses an unsupported format.",
+      translateCurrent("vault.crypto.invalidVaultMeta"),
     );
   }
   const iv = base64ToBytes(value.wrappedKey.iv);
@@ -858,7 +859,7 @@ function validateVaultMeta(value: unknown): asserts value is VaultMeta {
   ) {
     throw new VaultError(
       "INVALID_VAULT",
-      "The local vault cryptographic parameters are invalid.",
+      translateCurrent("vault.crypto.invalidVaultCrypto"),
     );
   }
 }
@@ -883,7 +884,7 @@ function validateEncryptedRecord(
   ) {
     throw new VaultError(
       "INVALID_BACKUP",
-      "The encrypted-vault backup contains an invalid record.",
+      translateCurrent("vault.crypto.invalidBackupRecord"),
     );
   }
 }
@@ -911,7 +912,7 @@ function validatePortfolioContext(
   ) {
     throw new VaultError(
       "INVALID_PORTFOLIO",
-      "The encrypted portfolio context is invalid.",
+      translateCurrent("vault.crypto.invalidPortfolioContext"),
     );
   }
   const valuationIds = new Set<string>();
@@ -933,7 +934,7 @@ function validatePortfolioContext(
     ) {
       throw new VaultError(
         "INVALID_PORTFOLIO",
-        "One or more encrypted reference valuations are invalid.",
+        translateCurrent("vault.crypto.invalidValuations"),
       );
     }
     valuationIds.add(valuation.id);
@@ -972,7 +973,7 @@ function validatePortfolioContext(
     ) {
       throw new VaultError(
         "INVALID_PORTFOLIO",
-        "One or more encrypted privacy receipts are invalid.",
+        translateCurrent("vault.crypto.invalidPrivacyReceipts"),
       );
     }
     receiptIds.add(receipt.id);
@@ -1005,7 +1006,7 @@ function validateMarketContext(
   ) {
     throw new VaultError(
       "INVALID_MARKET",
-      "The encrypted market context is invalid or exceeds its supported bounds.",
+      translateCurrent("vault.crypto.invalidMarketContext"),
     );
   }
   const cryptoIds = new Set<string>();
@@ -1014,7 +1015,7 @@ function validateMarketContext(
     if (cryptoIds.has(observation.canonicalAssetId))
       throw new VaultError(
         "INVALID_MARKET",
-        "The encrypted market context has duplicate crypto observations.",
+        translateCurrent("vault.crypto.duplicateCryptoObservations"),
       );
     cryptoIds.add(observation.canonicalAssetId);
   }
@@ -1025,7 +1026,7 @@ function validateMarketContext(
     if (merchantIds.has(identity))
       throw new VaultError(
         "INVALID_MARKET",
-        "The encrypted market context has duplicate merchant observations.",
+        translateCurrent("vault.crypto.duplicateMerchantObservations"),
       );
     merchantIds.add(identity);
   }
@@ -1035,7 +1036,7 @@ function validateMarketContext(
     if (comparisonIds.has(comparison.id))
       throw new VaultError(
         "INVALID_MARKET",
-        "The encrypted market context has duplicate comparisons.",
+        translateCurrent("vault.crypto.duplicateComparisons"),
       );
     comparisonIds.add(comparison.id);
   }
@@ -1075,7 +1076,7 @@ function validateMarketContext(
     ) {
       throw new VaultError(
         "INVALID_MARKET",
-        "An encrypted market permission receipt is invalid.",
+        translateCurrent("vault.crypto.invalidMarketReceipt"),
       );
     }
     const merchantReceipt = receipt.operation === "merchant";
@@ -1093,7 +1094,7 @@ function validateMarketContext(
     ) {
       throw new VaultError(
         "INVALID_MARKET",
-        "An encrypted market permission receipt has invalid mapping evidence.",
+        translateCurrent("vault.crypto.invalidReceiptMapping"),
       );
     }
     receiptIds.add(receipt.id);
@@ -1139,7 +1140,7 @@ function validateCryptoMarketObservation(
   ) {
     throw new VaultError(
       "INVALID_MARKET",
-      "An encrypted crypto market observation is invalid.",
+      translateCurrent("vault.crypto.invalidCryptoObservation"),
     );
   }
   const pairIds = new Set<string>();
@@ -1176,7 +1177,7 @@ function validateCryptoMarketObservation(
     ) {
       throw new VaultError(
         "INVALID_MARKET",
-        "An encrypted DEX pair observation is invalid.",
+        translateCurrent("vault.crypto.invalidDexPair"),
       );
     }
     pairIds.add(candidate.pairAddress);
@@ -1231,7 +1232,7 @@ function validateMerchantObservation(
   ) {
     throw new VaultError(
       "INVALID_MARKET",
-      "An encrypted merchant observation is invalid.",
+      translateCurrent("vault.crypto.invalidMerchantObservation"),
     );
   }
   if (value.offer !== null) {
@@ -1251,7 +1252,7 @@ function validateMerchantObservation(
     ) {
       throw new VaultError(
         "INVALID_MARKET",
-        "The encrypted merchant observation conflicts with its exact offer.",
+        translateCurrent("vault.crypto.merchantOfferConflict"),
       );
     }
   }
@@ -1315,7 +1316,7 @@ function validateMerchantOffer(
   ) {
     throw new VaultError(
       "INVALID_MARKET",
-      "An encrypted merchant offer is invalid.",
+      translateCurrent("vault.crypto.invalidMerchantOffer"),
     );
   }
 }
@@ -1404,7 +1405,7 @@ function validateMarketComparison(
   ) {
     throw new VaultError(
       "INVALID_MARKET",
-      "An encrypted landed-cost comparison is invalid.",
+      translateCurrent("vault.crypto.invalidComparison"),
     );
   }
   const providerOffer = value.sourceKind === "provider_offer";
@@ -1444,7 +1445,7 @@ function validateMarketComparison(
   ) {
     throw new VaultError(
       "INVALID_MARKET",
-      "An encrypted landed-cost comparison has inconsistent source claims.",
+      translateCurrent("vault.crypto.inconsistentComparison"),
     );
   }
 }
@@ -1595,7 +1596,7 @@ function validatePortfolioSnapshot(value: unknown, address: string): void {
   ) {
     throw new VaultError(
       "INVALID_PORTFOLIO",
-      "The encrypted portfolio snapshot is invalid or exceeds its supported bounds.",
+      translateCurrent("vault.crypto.invalidPortfolioSnapshot"),
     );
   }
   const validAddress = (candidate: unknown) =>
@@ -1776,7 +1777,7 @@ function validatePortfolioSnapshot(value: unknown, address: string): void {
   ) {
     throw new VaultError(
       "INVALID_PORTFOLIO",
-      "The encrypted portfolio snapshot contains malformed or unsupported fields.",
+      translateCurrent("vault.crypto.malformedPortfolioSnapshot"),
     );
   }
 }
@@ -1795,7 +1796,7 @@ function validateBackupIntegrity(
   ) {
     throw new VaultError(
       "INVALID_BACKUP",
-      "The encrypted-vault backup integrity record is invalid.",
+      translateCurrent("vault.crypto.invalidBackupIntegrity"),
     );
   }
 }
@@ -1825,7 +1826,7 @@ function validateAsset(value: unknown): asserts value is VaultAsset {
   ) {
     throw new VaultError(
       "INVALID_ASSET",
-      "Check the asset name, quantities, price, date, currency, and note lengths.",
+      translateCurrent("vault.crypto.invalidAsset"),
     );
   }
   const lotIds = new Set<string>();
@@ -1846,7 +1847,7 @@ function validateAsset(value: unknown): asserts value is VaultAsset {
     ) {
       throw new VaultError(
         "INVALID_ASSET",
-        "One or more purchase lots contain invalid values.",
+        translateCurrent("vault.crypto.invalidLots"),
       );
     }
     lotIds.add(lot.id);
@@ -1872,7 +1873,7 @@ function validateAsset(value: unknown): asserts value is VaultAsset {
     ) {
       throw new VaultError(
         "INVALID_PHOTO",
-        "Use one locally processed JPEG, PNG, or WebP image up to 3 MB.",
+        translateCurrent("vault.crypto.invalidPhoto"),
       );
     }
   }
@@ -1900,7 +1901,7 @@ function validateCollectibleContext(
   ) {
     throw new VaultError(
       "INVALID_COLLECTIBLE",
-      "The encrypted collectible lookup context is invalid.",
+      translateCurrent("vault.crypto.invalidCollectibleContext"),
     );
   }
   const ids = new Set<string>();
@@ -1934,7 +1935,7 @@ function validateCollectibleContext(
     ) {
       throw new VaultError(
         "INVALID_COLLECTIBLE",
-        "An encrypted collectible permission receipt is invalid.",
+        translateCurrent("vault.crypto.invalidCollectibleReceipt"),
       );
     }
     ids.add(receipt.id);
@@ -1979,7 +1980,7 @@ function validateCollectibleDetails(value: unknown, asset: VaultAsset): void {
   ) {
     throw new VaultError(
       "INVALID_COLLECTIBLE",
-      "The encrypted collectible details are invalid.",
+      translateCurrent("vault.crypto.invalidCollectibleDetails"),
     );
   }
   if (isRecord(value.catalog)) {
@@ -1990,7 +1991,7 @@ function validateCollectibleDetails(value: unknown, asset: VaultAsset): void {
     ) {
       throw new VaultError(
         "INVALID_COLLECTIBLE",
-        "The encrypted collectible identifier does not match its catalog identity.",
+        translateCurrent("vault.crypto.collectibleIdentifierMismatch"),
       );
     }
     if (
@@ -2004,13 +2005,13 @@ function validateCollectibleDetails(value: unknown, asset: VaultAsset): void {
     ) {
       throw new VaultError(
         "INVALID_COLLECTIBLE",
-        "The encrypted catalog thumbnail provenance is invalid.",
+        translateCurrent("vault.crypto.catalogThumbnailProvenance"),
       );
     }
   } else if (value.photoSource === "tcgdex_catalog") {
     throw new VaultError(
       "INVALID_COLLECTIBLE",
-      "A catalog thumbnail requires a catalog identity.",
+      translateCurrent("vault.crypto.catalogThumbnailRequiresIdentity"),
     );
   }
   if (
@@ -2019,7 +2020,7 @@ function validateCollectibleDetails(value: unknown, asset: VaultAsset): void {
   ) {
     throw new VaultError(
       "INVALID_COLLECTIBLE",
-      "The owner-supplied photo metadata does not match the encrypted photo.",
+      translateCurrent("vault.crypto.photoMetadataMismatch"),
     );
   }
   const graded = value.grader !== "ungraded";
@@ -2031,7 +2032,7 @@ function validateCollectibleDetails(value: unknown, asset: VaultAsset): void {
   ) {
     throw new VaultError(
       "INVALID_COLLECTIBLE",
-      "A graded certificate must describe exactly one copy and include both grade and certificate number.",
+      translateCurrent("vault.crypto.gradedCertificate"),
     );
   }
   const referenceIds = new Set<string>();
@@ -2056,7 +2057,7 @@ function validateCollectibleDetails(value: unknown, asset: VaultAsset): void {
     ) {
       throw new VaultError(
         "INVALID_COLLECTIBLE",
-        "One or more manual collectible references are invalid.",
+        translateCurrent("vault.crypto.invalidReferences"),
       );
     }
     referenceIds.add(reference.id);
@@ -2116,7 +2117,7 @@ function validateCatalogCard(value: Record<string, unknown>): void {
   ) {
     throw new VaultError(
       "INVALID_COLLECTIBLE",
-      "The encrypted TCGdex catalog identity is invalid.",
+      translateCurrent("vault.crypto.invalidCatalogIdentity"),
     );
   }
 }
@@ -2149,7 +2150,7 @@ function normalizeCollectibleDetails(
   if (!value)
     throw new VaultError(
       "INVALID_COLLECTIBLE",
-      "Collectible details are required.",
+      translateCurrent("vault.crypto.collectibleDetailsRequired"),
     );
   return {
     catalog: value.catalog ? structuredClone(value.catalog) : null,
@@ -2335,7 +2336,7 @@ async function parseRecoverySecret(
   if (!match)
     throw new VaultError(
       "RECOVERY_FAILED",
-      "That recovery code is invalid or the vault is damaged.",
+      translateCurrent("vault.crypto.recoveryFailed"),
     );
   const bytes = base64UrlToBytes(match[1]);
   const checksum = await recoveryChecksum(bytes);
@@ -2345,7 +2346,7 @@ async function parseRecoverySecret(
   ) {
     throw new VaultError(
       "RECOVERY_FAILED",
-      "That recovery code is invalid or the vault is damaged.",
+      translateCurrent("vault.crypto.recoveryFailed"),
     );
   }
   return bytes;
@@ -2426,7 +2427,7 @@ async function verifyBackupManifest(
   } catch {
     throw new VaultError(
       "INVALID_BACKUP",
-      "The encrypted-vault backup manifest is damaged or does not match this vault.",
+      translateCurrent("vault.crypto.backupManifestDamaged"),
     );
   }
   const expected = JSON.stringify(
@@ -2438,13 +2439,13 @@ async function verifyBackupManifest(
   } catch {
     throw new VaultError(
       "INVALID_BACKUP",
-      "The encrypted-vault backup manifest is damaged or does not match this vault.",
+      translateCurrent("vault.crypto.backupManifestDamaged"),
     );
   }
   if (received !== expected) {
     throw new VaultError(
       "INVALID_BACKUP",
-      "The encrypted-vault backup record set is incomplete or has been changed.",
+      translateCurrent("vault.crypto.backupRecordSetChanged"),
     );
   }
 }
@@ -2524,7 +2525,7 @@ function base64ToBytes(value: string): Uint8Array<ArrayBuffer> {
   } catch {
     throw new VaultError(
       "INVALID_BASE64",
-      "The encrypted vault contains malformed binary data.",
+      translateCurrent("vault.crypto.malformedBinary"),
     );
   }
 }
@@ -2550,7 +2551,7 @@ function requireWebCrypto(): void {
   ) {
     throw new VaultError(
       "UNSUPPORTED_BROWSER",
-      "This browser does not provide the secure cryptography required by the vault.",
+      translateCurrent("vault.crypto.noWebCrypto"),
     );
   }
 }

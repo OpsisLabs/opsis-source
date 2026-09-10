@@ -1,6 +1,7 @@
 import { adaptAnswer, type BackendAnswer, type BackendEntity } from "../dashboard/adapters";
 import { privateApi } from "../dashboard/http";
 import type { AiExplorerAnswer, ChainEntityType } from "../dashboard/types";
+import { readLocaleCookie } from "../i18n/locale";
 
 export type PrivatePrivacyReceipt = {
   accountRequired: false;
@@ -32,6 +33,7 @@ export async function analyzePrivate(input: {
   }>("/v1/private/analyze", {
     entity: input.entity,
     entityType: input.entityType ?? "unknown",
+    locale: readLocaleCookie(),
     ...(input.question ? { question: input.question } : {})
   }, signal);
   return {

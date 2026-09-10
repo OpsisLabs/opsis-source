@@ -1,7 +1,8 @@
 import type { ScoutSwapQuote } from "../swap/api";
+import { translateCurrent } from "../i18n/translate";
 const SCALE = 10n ** 18n;
 export function units(value: string): bigint {
-  if (!/^(0|[1-9]\d{0,30})(\.\d{1,18})?$/.test(value)) throw new Error("Use a non-negative decimal with at most 18 fractional places.");
+  if (!/^(0|[1-9]\d{0,30})(\.\d{1,18})?$/.test(value)) throw new Error(translateCurrent("trade.error.invalidDecimal"));
   const [whole, part = ""] = value.split(".");
   return BigInt(whole) * SCALE + BigInt(part.padEnd(18, "0"));
 }
@@ -11,14 +12,14 @@ export function decimal(value: bigint): string {
   return part ? `${whole}.${part}` : whole.toString();
 }
 export function scenario(quote: ScoutSwapQuote, weth: string, usdg: string, wethReference: string, now = Date.now()) {
-  if (!Number.isFinite(Date.parse(quote.expiresAt)) || Date.parse(quote.expiresAt) <= now || Date.parse(quote.quotedAt) > now + 5000) throw new Error("Quote expired or invalid. Request a fresh preview.");
-  if (quote.simulation.status === "failed") throw new Error("Provider simulation failed. No scenario is available.");
+  if (!Number.isFinite(Date.parse(quote.expiresAt)) || Date.parse(quote.expiresAt) <= now || Date.parse(quote.quotedAt) > now + 5000) throw new Error(translateCurrent("trade.error.quoteExpiredOrInvalid"));
+  if (quote.simulation.status === "failed") throw new Error(translateCurrent("trade.error.simulationFailed"));
   const balances = { WETH: units(weth), USDG: units(usdg) };
   const before = { ...balances };
   const input = units(quote.input.amount), output = units(quote.output.amount), minimum = units(quote.output.minimumReceived);
   const reference = units(wethReference);
-  if (input <= 0n || reference <= 0n || minimum > output) throw new Error("Amount, reference price or output bounds are invalid.");
-  if (balances[quote.input.symbol] < input) throw new Error("The entered input balance is insufficient for this scenario.");
+  if (input <= 0n || reference <= 0n || minimum > output) throw new Error(translateCurrent("trade.error.invalidBounds"));
+  if (balances[quote.input.symbol] < input) throw new Error(translateCurrent("trade.error.insufficientBalance"));
   balances[quote.input.symbol] -= input;
   balances[quote.output.symbol] += output;
   const worst = { ...balances, [quote.output.symbol]: balances[quote.output.symbol] - output + minimum };

@@ -10,6 +10,7 @@ import {
 import { requestPersistentStorage } from "../vault/db";
 import type { VaultConversation, VaultConversationTurn } from "../vault/types";
 import { useBackupDownload } from "../vault/useBackupDownload";
+import { translateCurrent } from "../i18n/translate";
 
 // The key lives only in this mounted page. No localStorage flag or key permits
 // automatic decryption after restarting the browser.
@@ -40,7 +41,7 @@ export function useLocalHistory(onLock: () => void) {
     unlocked.current = null;
     setConversations([]);
     setPhase((current) => (current === "empty" ? "empty" : "locked"));
-    setNotice("Local history locked. Unlock to reopen saved conversations.");
+    setNotice(translateCurrent("cloud.history.notice.locked"));
     setError("");
     onLockRef.current();
     if (notify && meta)
@@ -58,7 +59,7 @@ export function useLocalHistory(onLock: () => void) {
         if (active) {
           setPhase("locked");
           setError(
-            "Local storage is unavailable. History cannot be saved in this browser.",
+            translateCurrent("cloud.history.error.unavailable"),
           );
         }
       });
@@ -119,7 +120,7 @@ export function useLocalHistory(onLock: () => void) {
       if (!meta) {
         setPhase("empty");
         throw new Error(
-          "Create a local Vault first, then return here to unlock history.",
+          translateCurrent("cloud.history.error.createFirst"),
         );
       }
       const value = await unlockLocalVault(meta, passphrase);
@@ -128,7 +129,7 @@ export function useLocalHistory(onLock: () => void) {
       setConversations(value.conversations ?? []);
       setPhase("unlocked");
       setNotice(
-        "Local autosave is on for new questions. Earlier unsaved lookups are not imported.",
+        translateCurrent("cloud.history.notice.autosave"),
       );
       // Denial does not prevent honest best-effort storage, nor make a guarantee.
       await requestPersistentStorage();
@@ -137,7 +138,7 @@ export function useLocalHistory(onLock: () => void) {
         setError(
           cause instanceof Error
             ? cause.message
-            : "Could not unlock local history.",
+            : translateCurrent("cloud.history.error.unlock"),
         );
     } finally {
       operation.current = false;
@@ -152,12 +153,12 @@ export function useLocalHistory(onLock: () => void) {
   ): Promise<string> => {
     if (operation.current)
       throw new Error(
-        "Another local history operation is running. This answer is not saved; retry saving it.",
+        translateCurrent("cloud.history.error.operationRunning"),
       );
     const assertActive = () => {
       if (generation.current !== expected || !unlocked.current)
         throw new Error(
-          "History locked or changed before saving. This answer was not saved.",
+          translateCurrent("cloud.history.error.lockedBeforeSave"),
         );
     };
     assertActive();
@@ -189,7 +190,7 @@ export function useLocalHistory(onLock: () => void) {
       ];
       unlocked.current = { ...current, meta, conversations: next };
       setConversations(next);
-      setNotice("Saved encrypted on this device.");
+      setNotice(translateCurrent("cloud.history.notice.saved"));
       channel.current?.postMessage({
         event: "changed",
         vaultId: meta.vaultId,
@@ -212,12 +213,12 @@ export function useLocalHistory(onLock: () => void) {
       if (generation.current !== expected) return;
       prepareDownload(value);
       setNotice(
-        "Backup prepared with saved chats and all Vault records. Confirm that your browser saved the file.",
+        translateCurrent("cloud.history.notice.backupPrepared"),
       );
     } catch {
       if (generation.current === expected)
         setError(
-          "Backup failed. Unlock again if another tab changed the Vault; no records were deleted.",
+          translateCurrent("cloud.history.error.backup"),
         );
     } finally {
       operation.current = false;
@@ -233,7 +234,7 @@ export function useLocalHistory(onLock: () => void) {
     const expected = generation.current;
     const assertActive = () => {
       if (generation.current !== expected || !unlocked.current)
-        throw new Error("History changed. Unlock again.");
+        throw new Error(translateCurrent("cloud.history.error.changed"));
     };
     try {
       const current = unlocked.current;
@@ -250,11 +251,11 @@ export function useLocalHistory(onLock: () => void) {
         revision: meta.revision,
       });
       setNotice(
-        "Conversation deleted locally. Previously exported backups may still contain it.",
+        translateCurrent("cloud.history.notice.deleted"),
       );
     } catch {
       if (generation.current === expected)
-        setError("Deletion failed. Unlock again before retrying.");
+        setError(translateCurrent("cloud.history.error.delete"));
     } finally {
       operation.current = false;
       setBusy(false);

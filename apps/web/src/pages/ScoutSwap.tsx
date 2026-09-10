@@ -18,6 +18,7 @@ import {
   Zap,
 } from "lucide-react";
 import { ApiError } from "../dashboard/http";
+import { useI18n } from "../i18n";
 import {
   SWAP_TOKENS,
   getScoutSwapQuote,
@@ -39,15 +40,16 @@ function TokenMark({ symbol }: { symbol: "WETH" | "USDG" }) {
 }
 
 function LoadingQuote() {
-  const labels = ["OUTPUT", "ROUTE", "PRICE IMPACT", "NETWORK COST"];
+  const { t } = useI18n();
+  const labels = [t("trade.swap.loadingOutput"), t("trade.swap.loadingRoute"), t("trade.swap.loadingPriceImpact"), t("trade.swap.loadingNetworkCost")];
   return (
-    <div data-testid="swap-loading" role="status" aria-label="Fetching a live Uniswap quote" className="clip-panel scan-panel overflow-hidden border border-[#383838] bg-[#242424]">
+    <div data-testid="swap-loading" role="status" aria-label={t("trade.swap.loadingAria")} className="clip-panel scan-panel overflow-hidden border border-[#383838] bg-[#242424]">
       <div className="flex items-center justify-between border-b border-[#383838] px-5 py-4 sm:px-6">
         <div className="flex items-center gap-2.5">
           <Sparkles size={14} className="pulse-dot text-[#fa6c34]" />
-          <span className="font-mono-d text-[10.5px] tracking-[0.16em] text-[#d6ccba]">ASKING UNISWAP</span>
+          <span className="font-mono-d text-[10.5px] tracking-[0.16em] text-[#d6ccba]">{t("trade.swap.askingUniswap")}</span>
         </div>
-        <span className="font-mono-d text-[9.5px] tracking-wider text-[#635d5a]">LIVE · CHAIN 4663</span>
+        <span className="font-mono-d text-[9.5px] tracking-wider text-[#635d5a]">{t("trade.swap.chainLive")}</span>
       </div>
       <div className="grid grid-cols-2 gap-px bg-[#383838] lg:grid-cols-4">
         {labels.map((label, index) => (
@@ -79,9 +81,9 @@ function Metric({ label, value, note, tone = "neutral" }: { label: string; value
   );
 }
 
-function formatUsdCost(value: string): string {
+function formatUsdCost(value: string, notSupplied: string): string {
   const amount = Number(value);
-  if (!Number.isFinite(amount) || amount < 0) return "Not supplied";
+  if (!Number.isFinite(amount) || amount < 0) return notSupplied;
   if (amount > 0 && amount < 0.000001) return "<$0.000001";
   return amount.toLocaleString("en-US", {
     style: "currency",
@@ -92,15 +94,17 @@ function formatUsdCost(value: string): string {
 }
 
 export function QuotePanel({ quote, elapsedMs }: { quote: ScoutSwapQuote; elapsedMs: number }) {
+  const { t, locale } = useI18n();
   const stale = elapsedMs >= quote.freshForMs;
   const seconds = Math.max(0, Math.ceil((quote.freshForMs - elapsedMs) / 1000));
   const simulationOkay = quote.simulation.status === "passed";
+  const notSupplied = t("trade.common.notSupplied");
   const gas = quote.estimatedGas.usdAmount
-    ? formatUsdCost(quote.estimatedGas.usdAmount)
+    ? formatUsdCost(quote.estimatedGas.usdAmount, notSupplied)
     : quote.estimatedGas.nativeAmount
       ? `${quote.estimatedGas.nativeAmount} ETH`
-      : "Not supplied";
-  const impact = quote.priceImpactPercent === null ? "Not supplied" : `${quote.priceImpactPercent.toFixed(2)}%`;
+      : notSupplied;
+  const impact = quote.priceImpactPercent === null ? notSupplied : `${quote.priceImpactPercent.toFixed(2)}%`;
   const rate = Number(quote.input.amount) > 0
     ? `${(Number(quote.output.amount) / Number(quote.input.amount)).toLocaleString("en-US", { maximumFractionDigits: 6 })} ${quote.output.symbol}`
     : "—";
@@ -113,26 +117,26 @@ export function QuotePanel({ quote, elapsedMs }: { quote: ScoutSwapQuote; elapse
         <div className="flex items-center gap-2.5">
           {stale ? <Clock3 size={15} className="text-[#fa6c34]" /> : <CheckCircle2 size={15} className="text-[#7fb069]" />}
           <span className={`font-mono-d text-[10.5px] tracking-[0.12em] ${stale ? "text-[#fa6c34]" : "text-[#7fb069]"}`}>
-            {stale ? "PREVIEW EXPIRED — NOT A CURRENT QUOTE" : `LIVE PREVIEW · ${seconds}S LEFT`}
+            {stale ? t("trade.quote.expired") : t("trade.quote.livePreview", { seconds })}
           </span>
         </div>
         <span className="font-mono-d text-[9.5px] text-[#7f7972]">
-          {quote.provider.cached ? "SAFE CACHE" : "NEW PROVIDER RESPONSE"} · {new Date(quote.quotedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+          {quote.provider.cached ? t("trade.quote.safeCache") : t("trade.quote.newProviderResponse")} · {new Date(quote.quotedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
         </span>
       </div>
 
       <div className="clip-panel overflow-hidden border border-[#383838] bg-[#383838]">
         <div className="grid gap-px sm:grid-cols-2 lg:grid-cols-4">
-          <Metric label="EXPECTED OUTPUT" value={`${quote.output.amount} ${quote.output.symbol}`} note={`1 ${quote.input.symbol} ≈ ${rate}`} tone="good" />
+          <Metric label={t("trade.quote.expectedOutput")} value={`${quote.output.amount} ${quote.output.symbol}`} note={t("trade.quote.rate", { input: quote.input.symbol, rate })} tone="good" />
           <Metric
-            label="MINIMUM RECEIVED"
+            label={t("trade.quote.minimumReceived")}
             value={`${quote.output.minimumReceived} ${quote.output.symbol}`}
             note={quote.output.minimumSource === "provider"
-              ? `Uniswap minimum · ${quote.slippageTolerancePercent}% tolerance`
-              : `Derived preview floor · ${quote.slippageTolerancePercent}% tolerance`}
+              ? t("trade.quote.providerMinimum", { percent: quote.slippageTolerancePercent })
+              : t("trade.quote.derivedFloor", { percent: quote.slippageTolerancePercent })}
           />
-          <Metric label="PRICE IMPACT" value={impact} note={quote.priceImpactPercent === null ? "Uniswap did not return this field" : "Estimated pool-price movement"} tone={(quote.priceImpactPercent ?? 0) >= 1 ? "warn" : "neutral"} />
-          <Metric label="ESTIMATED ROUTE COST" value={gas} note={quote.estimatedGas.paidBy === "filler_or_user" ? "UniswapX cost responsibility varies; the official app confirms it" : "Selected-route estimate; approval gas may be additional"} />
+          <Metric label={t("trade.quote.priceImpact")} value={impact} note={quote.priceImpactPercent === null ? t("trade.quote.priceImpactMissing") : t("trade.quote.priceImpactNote")} tone={(quote.priceImpactPercent ?? 0) >= 1 ? "warn" : "neutral"} />
+          <Metric label={t("trade.quote.estimatedRouteCost")} value={gas} note={quote.estimatedGas.paidBy === "filler_or_user" ? t("trade.quote.uniswapXCost") : t("trade.quote.routeEstimate")} />
         </div>
       </div>
 
@@ -141,28 +145,28 @@ export function QuotePanel({ quote, elapsedMs }: { quote: ScoutSwapQuote; elapse
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2.5">
               <Route size={15} className="text-[#7cc4f8]" />
-              <h2 className="font-mono-d text-[10.5px] tracking-[0.15em] text-[#d6ccba]">ROUTE EXPLAINED</h2>
+              <h2 className="font-mono-d text-[10.5px] tracking-[0.15em] text-[#d6ccba]">{t("trade.quote.routeExplained")}</h2>
             </div>
             <span className="border border-[#7cc4f8]/30 bg-[#7cc4f8]/10 px-2.5 py-1 font-mono-d text-[9px] tracking-wider text-[#7cc4f8]">{quote.route.routing}</span>
           </div>
           <p className="mt-5 break-all text-[19px] leading-snug text-[#e9e0d1]">{quote.route.label}</p>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <div className="border border-[#383838] bg-[#1d1d1d] p-4">
-              <p className="font-mono-d text-[9px] tracking-wider text-[#635d5a]">SIMULATION</p>
+              <p className="font-mono-d text-[9px] tracking-wider text-[#635d5a]">{t("trade.quote.simulation")}</p>
               <div className="mt-2 flex items-center gap-2">
                 {simulationOkay ? <Check size={14} className="text-[#7fb069]" /> : <AlertTriangle size={14} className="text-[#fa6c34]" />}
                 <span className={simulationOkay ? "text-[12px] text-[#7fb069]" : "text-[12px] text-[#fa6c34]"}>
                   {quote.simulation.status === "passed"
-                    ? "Provider route check passed"
+                    ? t("trade.quote.simulationPassed")
                     : quote.simulation.status === "warning"
-                      ? "Preview simulation limited — Uniswap rechecks"
-                      : "Provider reported a route issue"}
+                      ? t("trade.quote.simulationWarning")
+                      : t("trade.quote.simulationFailed")}
                 </span>
               </div>
             </div>
             <div className="border border-[#383838] bg-[#1d1d1d] p-4">
-              <p className="font-mono-d text-[9px] tracking-wider text-[#635d5a]">APPROVAL</p>
-              <p className="mt-2 text-[12px] text-[#9a938a]">{quote.approvalMayBeRequired ? "Uniswap may request token approval" : "No token approval indicated"}</p>
+              <p className="font-mono-d text-[9px] tracking-wider text-[#635d5a]">{t("trade.quote.approval")}</p>
+              <p className="mt-2 text-[12px] text-[#9a938a]">{quote.approvalMayBeRequired ? t("trade.quote.approvalMaybe") : t("trade.quote.approvalNone")}</p>
             </div>
           </div>
         </section>
@@ -170,13 +174,13 @@ export function QuotePanel({ quote, elapsedMs }: { quote: ScoutSwapQuote; elapse
         <section className="clip-panel min-w-0 border border-[#383838] bg-[#242424] p-5 sm:p-6">
           <div className="flex items-center gap-2.5">
             <LockKeyhole size={15} className="text-[#fa6c34]" />
-            <h2 className="font-mono-d text-[10.5px] tracking-[0.15em] text-[#d6ccba]">UNSIGNED PLAN</h2>
+            <h2 className="font-mono-d text-[10.5px] tracking-[0.15em] text-[#d6ccba]">{t("trade.quote.unsignedPlan")}</h2>
           </div>
           <p className="mt-5 text-[13px] leading-relaxed text-[#b6aea4]">{quote.transactionPreview.action}</p>
           <dl className="mt-5 space-y-3 border-t border-[#383838] pt-4 font-mono-d text-[9.5px]">
-            <div className="flex justify-between gap-4"><dt className="text-[#635d5a]">CHAIN</dt><dd className="text-[#9a938a]">4663</dd></div>
-            <div className="flex justify-between gap-4"><dt className="text-[#635d5a]">USER WALLET</dt><dd className="text-[#7fb069]">NOT SHARED</dd></div>
-            <div className="flex justify-between gap-4"><dt className="text-[#635d5a]">CHAINSCOUT</dt><dd className="text-[#7fb069]">CANNOT SIGN / SEND</dd></div>
+            <div className="flex justify-between gap-4"><dt className="text-[#635d5a]">{t("trade.quote.chain")}</dt><dd className="text-[#9a938a]">4663</dd></div>
+            <div className="flex justify-between gap-4"><dt className="text-[#635d5a]">{t("trade.quote.userWallet")}</dt><dd className="text-[#7fb069]">{t("trade.quote.notShared")}</dd></div>
+            <div className="flex justify-between gap-4"><dt className="text-[#635d5a]">{t("trade.quote.chainscout")}</dt><dd className="text-[#7fb069]">{t("trade.quote.cannotSign")}</dd></div>
           </dl>
         </section>
       </div>
@@ -185,10 +189,11 @@ export function QuotePanel({ quote, elapsedMs }: { quote: ScoutSwapQuote; elapse
         <div className="flex items-start gap-3">
           <Info size={15} className="mt-0.5 shrink-0 text-[#fa6c34]" />
           <div>
-            <h2 className="font-mono-d text-[10.5px] tracking-[0.14em] text-[#d6ccba]">BEFORE YOU CONTINUE</h2>
+            <h2 className="font-mono-d text-[10.5px] tracking-[0.14em] text-[#d6ccba]">{t("trade.quote.beforeContinue")}</h2>
             <ul className="mt-3 space-y-2.5 text-[12px] leading-relaxed text-[#8f8880]">
               {quote.disclosures.map((disclosure) => <li key={disclosure}>— {disclosure}</li>)}
             </ul>
+            {locale === "zh-CN" && <p className="mt-3 font-mono-d text-[8.5px] tracking-wider text-[#635d5a]">{t("common.state.originalLanguage")}</p>}
           </div>
         </div>
       </section>
@@ -200,8 +205,8 @@ export function QuotePanel({ quote, elapsedMs }: { quote: ScoutSwapQuote; elapse
         className="clip-btn group flex w-full items-center justify-between gap-4 bg-[#fa6c34] px-5 py-4 text-[#1d1d1d] transition-colors hover:bg-[#ff7038] sm:px-7"
       >
         <div>
-          <p className="font-mono-d text-[12px] font-semibold tracking-[0.12em]">{stale || !simulationOkay ? "OPEN UNISWAP FOR A NEW QUOTE" : "CONTINUE IN OFFICIAL UNISWAP"}</p>
-          <p className="mt-1 text-[11px] text-[#1d1d1d]/70">Pair and amount are prefilled; Uniswap independently requotes.</p>
+          <p className="font-mono-d text-[12px] font-semibold tracking-[0.12em]">{stale || !simulationOkay ? t("trade.quote.openNewQuote") : t("trade.quote.continueUniswap")}</p>
+          <p className="mt-1 text-[11px] text-[#1d1d1d]/70">{t("trade.quote.prefilled")}</p>
         </div>
         <ArrowUpRight size={20} className="shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
       </a>
@@ -210,6 +215,7 @@ export function QuotePanel({ quote, elapsedMs }: { quote: ScoutSwapQuote; elapse
 }
 
 export default function ScoutSwap() {
+  const { t } = useI18n();
   const [direction, setDirection] = useState<SwapDirection>("WETH_TO_USDG");
   const [amount, setAmount] = useState("0.01");
   const [quote, setQuote] = useState<ScoutSwapQuote | null>(null);
@@ -258,12 +264,12 @@ export default function ScoutSwap() {
       if (controller.signal.aborted) return;
       const code = requestError instanceof ApiError ? requestError.code : "SWAP_PROVIDER_UNAVAILABLE";
       const message = code === "SCOUT_SWAP_DISABLED"
-        ? "Live previews are paused right now. You can still open the official Uniswap app safely."
+        ? t("trade.swap.disabled")
         : code === "SWAP_NO_ROUTE"
-          ? "Uniswap could not find a route for that amount. Try a smaller amount or continue in Uniswap."
+          ? t("trade.swap.noRoute")
           : code === "SWAP_RATE_LIMITED"
-            ? "Live previews are cooling down for a minute. Uniswap can still fetch a new quote directly."
-            : requestError instanceof Error ? requestError.message : "Live Uniswap previews are temporarily unavailable.";
+            ? t("trade.swap.rateLimited")
+            : requestError instanceof Error ? requestError.message : t("trade.swap.unavailableGeneric");
       setError({ code, message });
     } finally {
       if (controllerRef.current === controller) {
@@ -276,7 +282,7 @@ export default function ScoutSwap() {
   return (
     <div className="min-h-screen bg-[#1d1d1d] text-[#e9e0d1]">
       <header className="sticky top-0 z-30 flex h-[64px] items-center border-b border-[#2e2e2e] bg-[#1d1d1d]/95 px-4 backdrop-blur sm:px-6">
-        <Link to="/" className="flex items-center gap-3" aria-label="ChainScout home">
+        <Link to="/" className="flex items-center gap-3" aria-label={t("trade.swap.homeLabel")}>
           <span className="flex h-9 w-9 items-center justify-center bg-[#fa6c34]" style={{ clipPath: "polygon(0 0,100% 0,100% 72%,72% 100%,0 100%)" }}>
             <img src="/logo.svg" alt="" className="h-5 w-5" />
           </span>
@@ -284,12 +290,12 @@ export default function ScoutSwap() {
         </Link>
         <div className="mx-auto flex items-center gap-2 font-mono-d text-[9.5px] tracking-[0.14em] text-[#635d5a] sm:text-[10.5px]">
           <span className="h-1.5 w-1.5 rounded-full bg-[#fa6c34]" />
-          SCOUT SWAP · PUBLIC PREVIEW
+          {t("trade.swap.publicPreview")}
         </div>
         <div className="flex items-center gap-2">
-          <Link to="/roadmap" className="hidden px-3 py-2 font-mono-d text-[10px] text-[#7f7972] transition-colors hover:text-[#e9e0d1] md:block">ROADMAP</Link>
+          <Link to="/roadmap" className="hidden px-3 py-2 font-mono-d text-[10px] text-[#7f7972] transition-colors hover:text-[#e9e0d1] md:block">{t("trade.swap.roadmap")}</Link>
           <span className="border border-[#7fb069]/40 bg-[#7fb069]/10 px-3 py-2 font-mono-d text-[9px] text-[#7fb069] sm:text-[10px]">
-            NO WALLET DATA
+            {t("trade.swap.noWalletData")}
           </span>
         </div>
       </header>
@@ -297,9 +303,9 @@ export default function ScoutSwap() {
       <main className="workspace-layout">
         <div className="workspace-heading">
           <div>
-            <p className="workspace-eyebrow"><ArrowDownUp size={14} /> Scout Swap · read-only preview</p>
-            <h1 className="workspace-title">See the trade<br /><span className="text-[#fa6c34]">before the trade.</span></h1>
-            <p className="workspace-description">Preview a current WETH/USDG route, estimated output and costs. The official Uniswap app requotes and handles every approval, signature and transaction.</p>
+            <p className="workspace-eyebrow"><ArrowDownUp size={14} /> {t("trade.swap.eyebrow")}</p>
+            <h1 className="workspace-title">{t("trade.swap.titleLead")}<br /><span className="text-[#fa6c34]">{t("trade.swap.titleAccent")}</span></h1>
+            <p className="workspace-description">{t("trade.swap.description")}</p>
           </div>
         </div>
 
@@ -307,10 +313,10 @@ export default function ScoutSwap() {
           <form onSubmit={fetchQuote} className="clip-panel h-fit border border-[#383838] bg-[#242424] p-5 sm:p-6 xl:sticky xl:top-[88px]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-mono-d text-[9px] tracking-[0.16em] text-[#635d5a]">YOU SEND</p>
-                <p className="mt-1 text-[12px] text-[#9a938a]">Exact input preview</p>
+                <p className="font-mono-d text-[9px] tracking-[0.16em] text-[#635d5a]">{t("trade.swap.youSend")}</p>
+                <p className="mt-1 text-[12px] text-[#9a938a]">{t("trade.swap.exactInput")}</p>
               </div>
-              <span className="flex items-center gap-1.5 border border-[#7fb069]/30 bg-[#7fb069]/10 px-2.5 py-1 font-mono-d text-[9px] text-[#7fb069]"><ShieldCheck size={11} /> READ-ONLY</span>
+              <span className="flex items-center gap-1.5 border border-[#7fb069]/30 bg-[#7fb069]/10 px-2.5 py-1 font-mono-d text-[9px] text-[#7fb069]"><ShieldCheck size={11} /> {t("trade.swap.readOnly")}</span>
             </div>
 
             <div className="mt-5 flex items-center gap-3 border border-[#383838] bg-[#1d1d1d] p-4 focus-within:border-[#fa6c34]">
@@ -321,11 +327,11 @@ export default function ScoutSwap() {
               </div>
               <span className="font-mono-d text-[12px] text-[#9a938a]">{input.symbol}</span>
             </div>
-            {!amountValid && amount && <p id="swap-amount-error" role="alert" className="mt-2 text-[11px] text-[#e0738a]">Enter a positive amount with no more than {input.decimals} decimal places.</p>}
+            {!amountValid && amount && <p id="swap-amount-error" role="alert" className="mt-2 text-[11px] text-[#e0738a]">{t("trade.swap.amountError", { decimals: input.decimals })}</p>}
 
             <div className="relative my-3 flex items-center justify-center">
               <div className="absolute inset-x-0 top-1/2 border-t border-[#383838]" />
-              <button type="button" onClick={changeDirection} aria-label="Reverse token direction" className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border border-[#4a4642] bg-[#2a2928] text-[#fa6c34] transition-transform hover:rotate-180 hover:border-[#fa6c34]">
+              <button type="button" onClick={changeDirection} aria-label={t("trade.swap.reverseDirection")} className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border border-[#4a4642] bg-[#2a2928] text-[#fa6c34] transition-transform hover:rotate-180 hover:border-[#fa6c34]">
                 <ArrowDownUp size={15} />
               </button>
             </div>
@@ -333,16 +339,16 @@ export default function ScoutSwap() {
             <div className="flex items-center gap-3 border border-[#383838] bg-[#202020] p-4">
               <TokenMark symbol={output.symbol} />
               <div className="flex-1">
-                <p className="font-mono-d text-[10px] text-[#635d5a]">YOU RECEIVE</p>
-                <p className="mt-1 font-mono-d text-[19px] text-[#9a938a]">Calculated live</p>
+                <p className="font-mono-d text-[10px] text-[#635d5a]">{t("trade.swap.youReceive")}</p>
+                <p className="mt-1 font-mono-d text-[19px] text-[#9a938a]">{t("trade.swap.calculatedLive")}</p>
               </div>
               <span className="font-mono-d text-[12px] text-[#9a938a]">{output.symbol}</span>
             </div>
 
             <button type="submit" disabled={!amountValid || loading} className="clip-btn mt-5 flex w-full items-center justify-center gap-2 bg-[#fa6c34] py-4 font-mono-d text-[11px] font-semibold tracking-[0.14em] text-[#1d1d1d] transition-colors hover:bg-[#ff7038] disabled:cursor-not-allowed disabled:opacity-40">
-              {loading ? <><RefreshCw size={14} className="animate-spin" /> FETCHING LIVE ROUTE…</> : <><Zap size={14} /> GET LIVE PREVIEW</>}
+              {loading ? <><RefreshCw size={14} className="animate-spin" /> {t("trade.swap.fetchingRoute")}</> : <><Zap size={14} /> {t("trade.swap.getPreview")}</>}
             </button>
-            <p className="mt-3 text-center text-[10.5px] leading-relaxed text-[#635d5a]">No wallet is requested or shared. The official Uniswap app handles wallet context only after you choose to continue.</p>
+            <p className="mt-3 text-center text-[10.5px] leading-relaxed text-[#635d5a]">{t("trade.swap.noWalletNote")}</p>
           </form>
 
           <div className="min-w-0">
@@ -352,13 +358,13 @@ export default function ScoutSwap() {
                 <div className="flex items-start gap-3">
                   <AlertTriangle size={17} className="mt-0.5 shrink-0 text-[#fa6c34]" />
                   <div>
-                    <p className="font-mono-d text-[10.5px] tracking-[0.14em] text-[#fa6c34]">LIVE PREVIEW UNAVAILABLE</p>
+                    <p className="font-mono-d text-[10.5px] tracking-[0.14em] text-[#fa6c34]">{t("trade.swap.unavailable")}</p>
                     <p className="mt-3 text-[14px] leading-relaxed text-[#b6aea4]">{error.message}</p>
                     <p className="mt-2 font-mono-d text-[9px] text-[#635d5a]">{error.code}</p>
                   </div>
                 </div>
                 <a href={directUrl} target="_blank" rel="noreferrer" className="clip-btn mt-6 flex items-center justify-between bg-[#e9e0d1] px-5 py-4 font-mono-d text-[11px] font-semibold tracking-wider text-[#1d1d1d]">
-                  OPEN OFFICIAL UNISWAP FOR A NEW QUOTE <ExternalLink size={15} />
+                  {t("trade.swap.openUniswapNewQuote")} <ExternalLink size={15} />
                 </a>
               </div>
             )}
@@ -367,15 +373,15 @@ export default function ScoutSwap() {
               <div className="clip-panel flex min-h-[360px] flex-col justify-between border border-[#383838] bg-[#202020] p-6 sm:p-8">
                 <div>
                   <div className="flex h-12 w-12 items-center justify-center border border-[#383838] bg-[#242424] text-[#fa6c34]"><Route size={20} /></div>
-                  <h2 className="mt-5 text-[24px] font-medium leading-tight text-[#e9e0d1]">See the route before you continue.</h2>
-                  <p className="mt-4 max-w-[520px] text-[13px] leading-relaxed text-[#8f8880]">ChainScout asks Uniswap for a current route, then translates the response into the five details a beginner actually needs.</p>
+                  <h2 className="mt-5 text-[24px] font-medium leading-tight text-[#e9e0d1]">{t("trade.swap.emptyTitle")}</h2>
+                  <p className="mt-4 max-w-[520px] text-[13px] leading-relaxed text-[#8f8880]">{t("trade.swap.emptyBody")}</p>
                 </div>
                 <div className="mt-10 grid gap-px overflow-hidden border border-[#383838] bg-[#383838] sm:grid-cols-2">
                   {[
-                    { icon: Sparkles, label: "Expected output", note: "What the route currently estimates" },
-                    { icon: Route, label: "Route & simulation", note: "How Uniswap plans to get there" },
-                    { icon: Fuel, label: "Costs & impact", note: "What can reduce the final outcome" },
-                    { icon: ExternalLink, label: "Official handoff", note: "Uniswap requotes before anything happens" },
+                    { icon: Sparkles, label: t("trade.swap.featureOutput"), note: t("trade.swap.featureOutputNote") },
+                    { icon: Route, label: t("trade.swap.featureRoute"), note: t("trade.swap.featureRouteNote") },
+                    { icon: Fuel, label: t("trade.swap.featureCosts"), note: t("trade.swap.featureCostsNote") },
+                    { icon: ExternalLink, label: t("trade.swap.featureHandoff"), note: t("trade.swap.featureHandoffNote") },
                   ].map(({ icon: Icon, label, note }) => (
                     <div key={label} className="bg-[#242424] p-4">
                       <Icon size={14} className="text-[#7cc4f8]" />

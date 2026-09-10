@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from "react-router";
 import Home from "./pages/Home";
 import RouteMetadata from "./RouteMetadata";
 import { isOpenDataApiEnabled } from "./product/availability";
+import { useI18n } from "./i18n";
 
 const Roadmap = lazy(() => import("./pages/Roadmap"));
 const ScoutSwap = lazy(() => import("./pages/ScoutSwap"));
@@ -57,11 +58,12 @@ const ChatRoute = lazy(() =>
 );
 
 function PageFallback() {
+  const { t } = useI18n();
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#1d1d1d]">
       <span
         className="h-2 w-2 animate-ping rounded-full bg-[#fa6c34]"
-        aria-label="Loading page"
+        aria-label={t("common.loadingPage")}
       />
     </div>
   );

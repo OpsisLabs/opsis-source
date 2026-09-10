@@ -29,11 +29,13 @@ import {
   WalletCards,
   X,
 } from "lucide-react";
-import { PRODUCT_FEATURES, type ProductFeature } from "./features";
+import { productFeatures, type ProductFeature } from "./features";
 import FeatureQuickstart from "./FeatureQuickstart";
 import ProductTour from "./ProductTour";
 import { isProductFeatureEnabled } from "./availability";
 import { cloudWorkspaceEnabled } from "../dashboard/cloudAvailability";
+import { useI18n } from "../i18n";
+import LanguageSwitcher from "../i18n/LanguageSwitcher";
 
 gsap.registerPlugin(useGSAP);
 
@@ -86,6 +88,7 @@ function FeatureLink({
 }) {
   const Icon = ICONS[feature.id] ?? ShieldCheck;
   const enabled = isProductFeatureEnabled(feature.id);
+  const { t } = useI18n();
   return (
     <div
       data-feature={feature.id}
@@ -118,7 +121,7 @@ function FeatureLink({
             </span>
           </span>
         </Link> : <div
-          aria-label={`${feature.label} is coming soon`}
+          aria-label={t("common.comingSoonLabel", { feature: feature.label })}
           className="flex min-w-0 flex-1 items-center gap-3 px-3 py-3 text-left"
         >
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-[#47413d] bg-[#24211f] text-[#a09790]">
@@ -126,7 +129,7 @@ function FeatureLink({
           </span>
           <span className="min-w-0">
             <span className="block text-[14px] leading-snug text-[#b8b0a7]">{feature.label}</span>
-            <span className="mt-1 block text-[12px] text-[#aaa39b]">Coming soon</span>
+            <span className="mt-1 block text-[12px] text-[#aaa39b]">{t("common.comingSoon")}</span>
           </span>
         </div>}
         <button
@@ -146,14 +149,14 @@ function FeatureLink({
         </button>
       </div>
       {expanded && (
-        <div className="border-t border-[#383431] bg-[#1b1a19] px-4 py-3" role="region" aria-label={`${feature.label} summary`}>
+        <div className="border-t border-[#383431] bg-[#1b1a19] px-4 py-3" role="region" aria-label={t("product.featureLink.summaryRegion", { feature: feature.label })}>
           <p className="text-[14px] leading-relaxed text-[#b8b0a7]">{feature.summary}</p>
           <Link
             to={`/guide#${feature.id}`}
             onClick={onNavigate}
             className="mt-2 inline-flex min-h-10 items-center text-[14px] font-medium text-[#fa6c34] hover:text-[#ff8a5c]"
           >
-            OPEN GUIDE →
+            {t("product.featureLink.openGuide")}
           </Link>
         </div>
       )}
@@ -169,8 +172,10 @@ function ProductRail({
   onOpenTour: (trigger: HTMLButtonElement) => void;
 }) {
   const location = useLocation();
+  const { t } = useI18n();
+  const features = productFeatures(t);
   const [expanded, setExpanded] = useState<string | null>(null);
-  const upcoming = PRODUCT_FEATURES.filter((feature) => !isProductFeatureEnabled(feature.id));
+  const upcoming = features.filter((feature) => !isProductFeatureEnabled(feature.id));
 
   return (
     <div className="flex h-full flex-col bg-[#1a1918]">
@@ -182,10 +187,13 @@ function ProductRail({
         <span className="clip-btn-sm flex h-11 w-11 items-center justify-center bg-[#fa6c34]"><img src="/logo.svg" alt="" className="h-6 w-6" /></span>
         <span>
           <span className="block text-[15px] font-semibold tracking-[-0.02em]">ChainScout</span>
-          <span className="mt-0.5 block text-[12px] text-[#aaa39b]">Your private workspace</span>
+          <span className="mt-0.5 block text-[12px] text-[#aaa39b]">{t("common.brand.tagline")}</span>
         </span>
       </Link>
 
+      <div className="shrink-0 border-b border-[#34312f] px-3 py-2">
+        <LanguageSwitcher className="w-full justify-center" />
+      </div>
       <div className="product-rail-scroll min-h-0 flex-1 overflow-y-auto pb-4 pt-3">
         <button
           type="button"
@@ -195,23 +203,23 @@ function ProductRail({
           }}
           data-tour-trigger
           className="group mx-3 mb-4 flex w-[calc(100%-1.5rem)] items-center gap-3 rounded-[3px] border border-[#fa6c34] bg-[#fa6c34] px-3 py-3 text-left text-[#1d1d1d] outline-none transition-colors hover:bg-[#ff7c48] focus-visible:ring-2 focus-visible:ring-[#ffd0bc]"
-          aria-label="Open the ChainScout 60-second tour"
+          aria-label={t("product.rail.tour.aria")}
         >
           <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-[#1d1d1d]/30 bg-[#1d1d1d]/10">
             <Sparkles size={14} />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[14px] font-semibold">New here? Take the tour</span>
-            <span className="mt-1 block text-[12px] font-medium text-[#482116]">A clear 60-second overview</span>
+            <span className="block text-[14px] font-semibold">{t("product.rail.tour.title")}</span>
+            <span className="mt-1 block text-[12px] font-medium text-[#482116]">{t("product.rail.tour.detail")}</span>
           </span>
           <ArrowRight size={14} className="shrink-0 transition-transform group-hover:translate-x-1" />
         </button>
-        {(["explore", "vault", "build"] as const).filter((group) => PRODUCT_FEATURES.some((feature) => feature.group === group && isProductFeatureEnabled(feature.id))).map((group) => (
-          <section key={group} className="mt-2 first:mt-0" aria-label={group === "explore" ? "Explore tools" : group === "vault" ? "Private Vault tools" : "Developer tools"}>
+        {(["explore", "vault", "build"] as const).filter((group) => features.some((feature) => feature.group === group && isProductFeatureEnabled(feature.id))).map((group) => (
+          <section key={group} className="mt-2 first:mt-0" aria-label={t(group === "explore" ? "product.rail.group.explore.aria" : group === "vault" ? "product.rail.group.vault.aria" : "product.rail.group.build.aria")}>
             <p className="px-4 pb-2 pt-2 text-[12px] font-medium text-[#aaa39b]">
-              {group === "explore" ? "Explore" : group === "vault" ? "Your Vault" : "Developers"}
+              {t(group === "explore" ? "product.rail.group.explore.label" : group === "vault" ? "product.rail.group.vault.label" : "product.rail.group.build.label")}
             </p>
-            {PRODUCT_FEATURES.filter((feature) => feature.group === group && isProductFeatureEnabled(feature.id)).map((feature) => (
+            {features.filter((feature) => feature.group === group && isProductFeatureEnabled(feature.id)).map((feature) => (
               <FeatureLink
                 key={feature.id}
                 feature={feature}
@@ -225,37 +233,37 @@ function ProductRail({
         ))}
         {upcoming.length > 0 && <details className="rail-upcoming mx-3 mt-4 border-y border-[#34312f] py-2">
           <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 px-1 text-[14px] text-[#b8b0a7]">
-            Coming soon <ChevronDown size={16} className="disclosure-chevron" />
+            {t("common.comingSoon")} <ChevronDown size={16} className="disclosure-chevron" />
           </summary>
           <div className="pt-2">
             {upcoming.map((feature) => <FeatureLink key={feature.id} feature={feature} active={false} expanded={expanded === feature.id} onExpand={() => setExpanded((current) => current === feature.id ? null : feature.id)} onNavigate={onNavigate} />)}
           </div>
         </details>}
-      <nav className="mt-4 px-3" aria-label="Product resources">
-        <p className="mb-2 px-1 text-[12px] font-medium text-[#aaa39b]">Help & resources</p>
+      <nav className="mt-4 px-3" aria-label={t("product.rail.resources.aria")}>
+        <p className="mb-2 px-1 text-[12px] font-medium text-[#aaa39b]">{t("product.rail.resources.title")}</p>
         <div className="grid grid-cols-2 gap-1.5">
         <Link to="/guide" onClick={onNavigate} className="flex min-h-[44px] items-center gap-2 rounded-sm border border-[#393532] px-3 text-[14px] text-[#bdb4ac] transition-colors hover:border-[#6b4a3e] hover:text-[#fff7ec]">
-          <BookOpenText size={13} /> Guide
+          <BookOpenText size={13} /> {t("product.rail.resources.guide")}
         </Link>
         <Link to="/docs" onClick={onNavigate} aria-current={location.pathname === "/docs" ? "page" : undefined} className={`flex min-h-[44px] items-center gap-2 rounded-sm border px-3 text-[14px] transition-colors ${location.pathname === "/docs" ? "border-[#fa6c34] bg-[#fa6c34] font-semibold text-[#1d1d1d]" : "border-[#393532] text-[#bdb4ac] hover:border-[#6b4a3e] hover:text-[#fff7ec]"}`}>
-          <BookOpenText size={13} /> Docs
+          <BookOpenText size={13} /> {t("product.rail.resources.docs")}
         </Link>
         <Link to="/faq" onClick={onNavigate} aria-current={location.pathname === "/faq" ? "page" : undefined} className={`flex min-h-[44px] items-center gap-2 rounded-sm border px-3 text-[14px] transition-colors ${location.pathname === "/faq" ? "border-[#fa6c34] bg-[#fa6c34] font-semibold text-[#1d1d1d]" : "border-[#393532] text-[#bdb4ac] hover:border-[#6b4a3e] hover:text-[#fff7ec]"}`}>
-          <MessageCircleQuestion size={13} /> FAQ
+          <MessageCircleQuestion size={13} /> {t("product.rail.resources.faq")}
         </Link>
         <Link to="/" onClick={onNavigate} className="flex min-h-[44px] items-center gap-2 rounded-sm border border-[#393532] px-3 text-[14px] text-[#bdb4ac] transition-colors hover:border-[#6b4a3e] hover:text-[#fff7ec]">
-          <House size={13} /> Home
+          <House size={13} /> {t("product.rail.resources.home")}
         </Link>
         </div>
         <Link to="/roadmap" onClick={onNavigate} className="mt-1.5 flex min-h-[44px] items-center justify-center gap-2 text-[12px] text-[#aaa39b] transition-colors hover:text-[#d6ccc2]">
-          <Boxes size={12} /> Product roadmap
+          <Boxes size={12} /> {t("product.rail.resources.roadmap")}
         </Link>
       </nav>
       </div>
       <div className="shrink-0 border-t border-[#34312f] bg-[#1c1b1a] p-3">
         <Link to={cloudWorkspaceEnabled ? "/login" : "/app#local-history"} onClick={onNavigate} className="group flex min-h-[58px] items-center gap-3 rounded-sm border border-[#fa6c34] bg-[#2a211d] px-3 py-2 text-[#fff7ec] outline-none transition-colors hover:bg-[#fa6c34] hover:text-[#1d1d1d] focus-visible:ring-2 focus-visible:ring-[#ffd0bc]">
           <WalletCards size={18} className="shrink-0 text-[#fa6c34] group-hover:text-[#1d1d1d]" />
-          <span className="min-w-0 flex-1"><span className="block text-[14px] font-semibold">{cloudWorkspaceEnabled ? "Connect wallet / sign in" : "Your encrypted chats"}</span><span className="mt-1 block text-[12px] text-[#c9a697] group-hover:text-[#4b2114]">{cloudWorkspaceEnabled ? "Optional · message signature only" : "Saved locally · unlock with your Vault"}</span></span>
+          <span className="min-w-0 flex-1"><span className="block text-[14px] font-semibold">{cloudWorkspaceEnabled ? t("product.rail.connect.title") : t("product.rail.chats.title")}</span><span className="mt-1 block text-[12px] text-[#c9a697] group-hover:text-[#4b2114]">{cloudWorkspaceEnabled ? t("product.rail.connect.detail") : t("product.rail.chats.detail")}</span></span>
           <ArrowRight size={14} className="shrink-0" />
         </Link>
       </div>
@@ -265,6 +273,7 @@ function ProductRail({
 
 export default function ProductShell() {
   const location = useLocation();
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [tourOpen, setTourOpen] = useState(() => {
     const forced = new URLSearchParams(window.location.search).get("tour") === "1";
@@ -278,7 +287,7 @@ export default function ProductShell() {
   const introduced = useRef(false);
   const returnFocus = useRef<HTMLElement | null>(null);
   const quickstartReturnFocus = useRef<HTMLElement | null>(null);
-  const currentFeature = PRODUCT_FEATURES.find((feature) =>
+  const currentFeature = productFeatures(t).find((feature) =>
     isProductFeatureEnabled(feature.id) && activeFeature(location, feature),
   );
   const modalOpen = tourOpen || quickstartOpen;
@@ -425,11 +434,12 @@ export default function ProductShell() {
         }}
         className="fixed left-3 top-3 z-[120] -translate-y-24 bg-[#fa6c34] px-4 py-3 font-mono-d text-[10px] font-semibold text-[#1d1d1d] outline-none transition-transform focus:translate-y-0 focus-visible:ring-2 focus-visible:ring-white"
       >
-        SKIP TO MAIN CONTENT
+        {t("common.skipToContent")}
       </a>
-      <aside data-desktop-rail inert={modalOpen ? true : undefined} className="fixed inset-y-0 left-0 z-40 hidden w-[280px] border-r border-[#2e2e2e] lg:block" aria-label="ChainScout features">
+      <aside data-desktop-rail inert={modalOpen ? true : undefined} className="fixed inset-y-0 left-0 z-40 hidden w-[280px] border-r border-[#2e2e2e] lg:block" aria-label={t("product.shell.asideAria")}>
         <ProductRail onOpenTour={openTour} />
       </aside>
+      {!modalOpen && !open && <div className="flex justify-end border-b border-[#34312f] bg-[#1a1918] px-4 py-2 lg:hidden"><LanguageSwitcher /></div>}
 
       {currentFeature && !modalOpen && (
         <button
@@ -438,9 +448,9 @@ export default function ProductShell() {
           onClick={(event) => openQuickstart(event.currentTarget)}
           className="clip-btn-sm fixed bottom-4 left-4 z-50 flex min-h-[46px] items-center gap-2 border border-[#fa6c34] bg-[#fa6c34] px-4 text-[14px] font-semibold text-[#1d1d1d] outline-none transition-colors hover:bg-[#ff8251] focus-visible:ring-2 focus-visible:ring-[#ffd0bc] lg:bottom-5 lg:left-auto lg:right-5"
           aria-haspopup="dialog"
-          aria-label="Open how-to instructions for this page"
+          aria-label={t("product.shell.quickstartAria")}
         >
-          <CircleHelp size={14} /> HOW TO USE <span className="hidden sm:inline">· {currentFeature.shortLabel.toUpperCase()}</span>
+          <CircleHelp size={14} /> {t("product.shell.quickstartButton")} <span className="hidden sm:inline">· {currentFeature.shortLabel.toUpperCase()}</span>
         </button>
       )}
 
@@ -453,20 +463,20 @@ export default function ProductShell() {
         disabled={modalOpen}
         className="clip-btn-sm fixed bottom-4 right-4 z-50 flex min-h-[46px] items-center gap-2 border border-[#fa6c34]/50 bg-[#242424] px-4 text-[14px] font-medium text-[#fa6c34] lg:hidden"
       >
-        <Menu size={15} /> FEATURES
+        <Menu size={15} /> {t("product.shell.menuButton")}
       </button>
 
       {open && (
         <div className="fixed inset-0 z-[70] lg:hidden" role="presentation">
-          <button type="button" aria-label="Close feature menu" onClick={close} className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+          <button type="button" aria-label={t("product.shell.closeMenu")} onClick={close} className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
           <div
             ref={drawer}
             role="dialog"
             aria-modal="true"
-            aria-label="ChainScout feature menu"
+            aria-label={t("product.shell.drawerAria")}
             className="absolute inset-y-0 left-0 w-[min(88vw,340px)] border-r border-[#383838] shadow-2xl"
           >
-            <button type="button" onClick={close} aria-label="Close feature menu" className="absolute right-3 top-3 z-10 flex h-11 w-11 items-center justify-center rounded-sm border border-[#514a45] bg-[#242424] text-[#e9e0d1] hover:bg-[#333]">
+            <button type="button" onClick={close} aria-label={t("product.shell.closeMenu")} className="absolute right-3 top-3 z-10 flex h-11 w-11 items-center justify-center rounded-sm border border-[#514a45] bg-[#242424] text-[#e9e0d1] hover:bg-[#333]">
               <X size={17} />
             </button>
             <ProductRail onNavigate={() => setOpen(false)} onOpenTour={openTour} />

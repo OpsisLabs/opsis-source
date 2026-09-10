@@ -1,6 +1,10 @@
 import type { VaultMarketComparison } from "../vault/types";
+import { translateCurrent } from "../i18n/translate";
+import type { TranslationKey } from "../i18n";
 
 type Decimal = { coefficient: bigint; scale: number };
+
+type ReasonTranslator = (key: TranslationKey) => string;
 
 export type LandedCostRow = {
   comparison: VaultMarketComparison;
@@ -15,6 +19,7 @@ export type LandedCostRow = {
 export function calculateLandedCosts(
   comparisons: VaultMarketComparison[],
   freshComparisonIds: ReadonlySet<string>,
+  translate: ReasonTranslator = translateCurrent,
 ): LandedCostRow[] {
   const rows = comparisons.map((comparison): LandedCostRow => {
     const group = JSON.stringify([
@@ -34,20 +39,19 @@ export function calculateLandedCosts(
     let total: Decimal | null = null;
     let reason: string | null = null;
     if (comparison.identityConfidence === "candidate")
-      reason = "Identity or variant is only a candidate match.";
+      reason = translate("market.math.reasonCandidate");
     else if (!comparison.condition.trim())
-      reason = "Condition or variant is missing.";
+      reason = translate("market.math.reasonCondition");
     else if (
       !["provider_available", "provider_low_stock", "owner_available"].includes(
         comparison.inventoryState,
       )
     )
-      reason = "Availability is unknown or unavailable.";
+      reason = translate("market.math.reasonAvailability");
     else if (!freshComparisonIds.has(comparison.id))
-      reason = "Observation is stale until you refresh or reconfirm it.";
+      reason = translate("market.math.reasonStale");
     else if (missing)
-      reason =
-        "Enter shipping, tax, duty, fees, and discount; explicit zero is allowed.";
+      reason = translate("market.math.reasonMissingCosts");
     else {
       total = subtract(
         add(
@@ -67,7 +71,7 @@ export function calculateLandedCosts(
       );
       if (total.coefficient < 0n) {
         total = null;
-        reason = "Discount exceeds the entered landed cost.";
+        reason = translate("market.math.reasonDiscountExceeds");
       }
     }
     return {
@@ -140,21 +144,21 @@ export function buildMarketHandoffs(
   return [
     {
       id: "ebay",
-      label: "eBay search",
+      label: translateCurrent("market.handoff.ebay"),
       url: `https://www.ebay.com/sch/i.html?_nkw=${encoded}`,
       query,
       liveData: false,
     },
     {
       id: "tcgplayer",
-      label: "TCGplayer search",
+      label: translateCurrent("market.handoff.tcgplayer"),
       url: `https://www.tcgplayer.com/search/all/product?q=${encoded}&view=grid`,
       query,
       liveData: false,
     },
     {
       id: "cardmarket",
-      label: "Cardmarket search",
+      label: translateCurrent("market.handoff.cardmarket"),
       url: `https://www.cardmarket.com/en/Pokemon/Products/Search?searchString=${encoded}`,
       query,
       liveData: false,

@@ -8,6 +8,7 @@ import {
   type OpenDataIdentityResponse,
 } from "@rh-chain/shared";
 import { getAddress, isAddress } from "viem";
+import { translateCurrent } from "../i18n/translate";
 
 export const OPEN_DATA_PATHS = {
   registry: "/v1/public/open-data/v1/registry",
@@ -56,8 +57,8 @@ async function publicError(response: Response): Promise<string> {
     // Keep the public failure bounded when a proxy returns something else.
   }
   return response.status === 503
-    ? "The Open Data API is coming soon."
-    : "The Open Data request was not accepted.";
+    ? translateCurrent("guide.openData.comingSoon")
+    : translateCurrent("guide.openData.notAccepted");
 }
 
 function assertRegistry(value: unknown): asserts value is RegistryResponse {
@@ -106,7 +107,7 @@ function assertAsset(value: unknown, expected: typeof TOKENS[number]): asserts v
 }
 
 function assertIdentity(value: unknown, requested: string): asserts value is OpenDataIdentityResponse {
-  if (!isAddress(requested, { strict: false })) throw new Error("ChainScout returned an invalid normalized identity");
+  if (!isAddress(requested, { strict: false })) throw new Error(translateCurrent("guide.openData.invalidIdentity"));
   const normalized = getAddress(requested);
   const candidate = record(value);
   if (!exactKeys(candidate, ["schemaVersion", "chain", "kind", "normalizedValue", "canonicalKey", "syntaxValid", "existenceVerified", "registryMatch", "explorerUrl", "provenance", "limitations"])) invalidIdentity();
@@ -151,7 +152,7 @@ function exactKeys(value: Record<string, unknown>, keys: readonly string[]): boo
 }
 
 function record(value: unknown): Record<string, unknown> {
-  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("ChainScout returned an invalid Open Data response");
+  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error(translateCurrent("guide.openData.invalidResponse"));
   return value as Record<string, unknown>;
 }
 
@@ -168,9 +169,9 @@ function fullSha(value: unknown): value is string {
 }
 
 function invalidRegistry(): never {
-  throw new Error("ChainScout returned an invalid Open Data registry");
+  throw new Error(translateCurrent("guide.openData.invalidRegistry"));
 }
 
 function invalidIdentity(): never {
-  throw new Error("ChainScout returned an invalid normalized identity");
+  throw new Error(translateCurrent("guide.openData.invalidIdentity"));
 }

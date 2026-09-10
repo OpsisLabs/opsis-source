@@ -50,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signInWithWallet = async (username?: string) => {
-    if (!cloudWorkspaceEnabled) throw new Error(cloudUnavailableMessage);
+    if (!cloudWorkspaceEnabled) throw new Error(cloudUnavailableMessage());
     if (!pending.current) {
       const { address } = await connectWallet();
       const challenge = await walletChallenge(address);

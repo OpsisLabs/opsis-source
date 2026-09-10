@@ -1,0 +1,503 @@
+export const vault: Record<string, string> = {
+  "vault.header.homeLabel": "ChainScout 首页",
+  "vault.header.encryptedVault": "加密保险库",
+  "vault.header.lock": "锁定",
+  "vault.header.explorer": "私密链上查询 →",
+
+  "vault.hero.eyebrow": "你的私密保险库",
+  "vault.hero.title.line1": "你的资产。",
+  "vault.hero.title.line2": "加密保存在此设备上。",
+  "vault.hero.description":
+    "把资产、买入价格、备注和照片集中保存。在此设备上加密——不会同步到服务器。",
+  "vault.hero.privacyTitle": "隐私与存储详情",
+  "vault.hero.storageUnsupported": "不支持",
+  "vault.hero.storagePersistent": "持久化存储",
+  "vault.hero.storageBackupAdvised": "建议备份",
+  "vault.hero.cipher": "加密算法",
+  "vault.hero.keyDerivation": "密钥派生",
+  "vault.hero.serverCopy": "服务器副本",
+  "vault.hero.storage": "存储",
+  "vault.hero.none": "无",
+  "vault.hero.autoLock": "自动锁定 · 10 分钟无操作",
+
+  "vault.empty.haveVault": "已经有保险库了？",
+  "vault.empty.haveVaultBody":
+    "请使用同一浏览器和站点地址，或先在下方还原备份，再创建新的保险库。",
+  "vault.disclosure.restoreBackup": "已有备份？还原你的保险库",
+  "vault.disclosure.restoreWithRecovery": "使用恢复码还原备份",
+  "vault.disclosure.forgotPassphrase": "忘记口令了？使用恢复码",
+  "vault.disclosure.settingsDelete": "保险库设置 · 删除本地数据",
+
+  "vault.tab.portfolio": "投资组合情报",
+  "vault.tab.collectibles": "收藏品目录",
+  "vault.tab.market": "市场与库存",
+  "vault.tab.replay": "重放操作",
+  "vault.tab.assets": "手动资产记录",
+  "vault.tab.approvals": "授权管理器",
+  "vault.tab.deals": "收藏品寻宝",
+
+  "vault.common.optional": "可选",
+  "vault.common.remove": "移除",
+  "vault.settings.toggleLabel": "备份 · 恢复 · 存储 · 口令",
+  "vault.settings.close": "关闭 −",
+  "vault.settings.open": "打开 +",
+
+  "vault.create.eyebrow": "新建本地保险库",
+  "vault.create.title": "创建你的私密保险库",
+  "vault.create.description":
+    "请选择至少 12 个字符的唯一口令。我们无法重置它——请保存恢复码和加密备份，以便日后重新获得访问权。",
+  "vault.field.vaultPassphrase": "保险库口令",
+  "vault.field.confirmPassphrase": "确认口令",
+  "vault.create.mismatch": "两次输入的口令不一致。",
+  "vault.create.deriving": "正在派生密钥…",
+  "vault.create.submit": "创建加密保险库",
+
+  "vault.unlock.eyebrow": "发现本地保险库",
+  "vault.unlock.title": "在此设备上解锁",
+  "vault.unlock.description":
+    "加密记录已存在。解密仅在此页面中进行；锁定或刷新后，密钥会从内存中移除。",
+  "vault.unlock.unwrapping": "正在解包密钥…",
+  "vault.unlock.submit": "本地解锁",
+
+  "vault.dashboard.encryptedAssets": "加密资产",
+  "vault.dashboard.purchaseLots": "买入批次",
+  "vault.dashboard.pricedLots": "已定价批次",
+  "vault.dashboard.assetType.one": "{count} 种资产类型",
+  "vault.dashboard.assetType.other": "{count} 种资产类型",
+  "vault.dashboard.addAsset": "添加资产",
+  "vault.dashboard.demoAria": "保险库演示内容",
+  "vault.dashboard.demoTitle": "需要安全的测试内容？",
+  "vault.dashboard.demoDescription":
+    "加载四条清晰标注的示例——加密货币、一张宝可梦卡牌、一项 RWA 和一枚 NFT——用于测试卡片、批次、收藏品字段和图表。它们会被加密存入此保险库，不发起任何网络请求，也绝不声称所有权或实时价格。",
+  "vault.dashboard.demoSaved.one":
+    "当前已保存 {count} 条演示记录 · 编辑后的演示将变为你的记录",
+  "vault.dashboard.demoSaved.other":
+    "当前已保存 {count} 条演示记录 · 编辑后的演示将变为你的记录",
+  "vault.dashboard.encrypting": "正在加密…",
+  "vault.dashboard.restoreDemo": "恢复演示集",
+  "vault.dashboard.loadDemo": "加载 4 条演示资产",
+  "vault.dashboard.confirmRemoveDemo": "确认移除 {count} 条",
+  "vault.dashboard.removeDemo": "移除演示记录",
+
+  "vault.editor.editEyebrow": "编辑加密记录",
+  "vault.editor.newEyebrow": "新建加密记录",
+  "vault.editor.newTitle": "添加自有资产",
+  "vault.editor.closeAria": "关闭资产编辑器",
+  "vault.field.assetName": "资产名称",
+  "vault.editor.namePlaceholder": "例如 PSA 10 喷火龙",
+  "vault.field.type": "类型",
+  "vault.options.collectible": "收藏品",
+  "vault.options.crypto": "加密货币",
+  "vault.options.rwa": "现实世界资产",
+  "vault.options.nft": "NFT",
+  "vault.options.other": "其他",
+  "vault.field.identifier": "标识符 / 合约 / SKU",
+  "vault.field.privateNotes": "私密备注",
+  "vault.editor.notesPlaceholder": "品相、来源、投资逻辑、存放位置…",
+  "vault.editor.catalogDetailsTitle": "目录身份 + 持有者报告详情",
+  "vault.editor.manualDetailsTitle": "持有者报告的收藏品详情",
+  "vault.editor.catalogDisclaimer": "TCGdex 卡牌与系列元数据已关联来源。",
+  "vault.editor.manualDisclaimer": "这是一条无目录验证的手动私密记录。",
+  "vault.editor.detailsDisclaimer":
+    "下方的版本、品相、评级、证书、照片和带日期价值均为你的声明——并非鉴定或评估。",
+  "vault.field.ownerPrinting": "持有者报告的版本 / 变体",
+  "vault.editor.ownerPrintingPlaceholder": "可选 · 持有者报告",
+  "vault.field.ownerCondition": "持有者报告的品相",
+  "vault.options.conditionUnknown": "未填写",
+  "vault.options.conditionPoor": "差",
+  "vault.options.conditionPlayed": "已使用",
+  "vault.options.conditionGood": "良好",
+  "vault.options.conditionExcellent": "极佳",
+  "vault.options.conditionNearMint": "近新品",
+  "vault.options.conditionMint": "全新品",
+  "vault.field.ownerGrader": "持有者报告的评级机构",
+  "vault.options.ungraded": "未评级",
+  "vault.editor.gradedError":
+    "评分证书只能描述一份副本。请先将该物品拆分为单独的单份记录，再添加评级机构。",
+  "vault.field.ownerGrade": "持有者输入的评级",
+  "vault.field.ownerCertificate": "持有者输入的证书",
+  "vault.editor.historyTitle": "带日期的手动价值历史 · 可选",
+  "vault.editor.addReference": "+ 添加带日期参考",
+  "vault.editor.historyDescription":
+    "最多可添加 20 条由持有者输入、关联来源的观察记录。它们会加密保存在本地，并为历史图表提供数据；其中任何一条都不会被视为实时市场价格或评估。",
+  "vault.editor.addFirstReference": "添加第一条带日期参考",
+  "vault.editor.reference": "参考 {n}",
+  "vault.editor.referenceValue": "参考 {n} 价值",
+  "vault.editor.referenceCurrency": "参考 {n} 货币",
+  "vault.editor.referenceObserved": "参考 {n} 观察日期",
+  "vault.editor.referenceUrl": "参考 {n} HTTPS 来源 URL",
+  "vault.editor.referenceLabel": "参考 {n} 来源标签",
+  "vault.editor.purchaseLots": "买入批次",
+  "vault.editor.purchaseLotsDescription":
+    "精确小数字符串；ChainScout 不会对金额或数量进行四舍五入。",
+  "vault.editor.addLot": "+ 添加批次",
+  "vault.editor.certificateLocked":
+    "该持有者输入的证书只描述一份副本，因此其数量和批次数固定为一。",
+  "vault.editor.lotQuantity": "批次 {n} 数量",
+  "vault.editor.pricePerUnit": "单价",
+  "vault.field.currency": "货币",
+  "vault.field.acquiredDate": "获得日期",
+  "vault.editor.removeLotAria": "移除批次 {n}",
+  "vault.editor.processingPhoto": "正在处理照片…",
+  "vault.editor.replacePhoto": "替换照片",
+  "vault.editor.addPhoto": "添加私密照片",
+  "vault.editor.photoAria": "私密资产照片",
+  "vault.editor.removePhoto": "移除照片",
+  "vault.editor.sanitizing": "保存前正在本地净化…",
+  "vault.editor.photoSourceError":
+    "请使用一张不超过 12 MB 的 JPEG、PNG 或 WebP 源文件。",
+  "vault.editor.photoReadError": "该图片无法在本地读取。",
+  "vault.editor.encrypting": "正在加密…",
+  "vault.editor.encryptSave": "加密并保存",
+  "vault.editor.saveError": "该加密记录无法保存。",
+
+  "vault.grid.emptyTitle": "还没有加密资产",
+  "vault.grid.emptyBody":
+    "添加你拥有的第一件物品，或加载上方的四条标注示例来试用保险库。",
+  "vault.card.altCatalog": "{name} — 目录缩略图",
+  "vault.card.altOwner": "{name} — 持有者提供的照片",
+  "vault.card.catalogThumbnail": "目录缩略图 · 已净化 + 已加密",
+  "vault.card.ownerPhoto": "持有者提供的本地照片",
+  "vault.card.added": "添加于",
+  "vault.card.fallbackCollectible": "收藏品",
+  "vault.card.fallbackRwa": "代币化资产",
+  "vault.card.fallbackNft": "NFT",
+  "vault.card.fallbackCrypto": "加密货币",
+  "vault.card.fallbackOther": "手动资产",
+  "vault.card.noPhoto": "未添加照片",
+  "vault.card.catalogEyebrow": "TCGDEX 元数据 + 持有者声明",
+  "vault.card.ownerCollectibleEyebrow": "持有者收藏品记录",
+  "vault.card.encryptedSuffix": " · 已加密",
+  "vault.card.editAria": "编辑 {name}",
+  "vault.card.lots": "批次",
+  "vault.card.firstUnitPrice": "首个单价",
+  "vault.card.ownerPrinting": "持有者报告的版本 / 变体",
+  "vault.card.ownerCondition": "持有者报告的品相",
+  "vault.card.ownerGradeCert": "持有者评级 / 证书",
+  "vault.card.manualValueHistory": "手动价值历史",
+  "vault.card.notEntered": "未填写",
+  "vault.card.notEnteredUpper": "未填写",
+  "vault.card.condition.poor": "差",
+  "vault.card.condition.played": "已使用",
+  "vault.card.condition.good": "良好",
+  "vault.card.condition.excellent": "极佳",
+  "vault.card.condition.nearMint": "近新品",
+  "vault.card.condition.mint": "全新品",
+  "vault.card.ungraded": "未评级",
+  "vault.card.graded": "{grader} {grade} · 证书 {certificate}",
+  "vault.card.references.one":
+    "{count} 条带日期参考 · 最新 {value} {currency} · {date}",
+  "vault.card.references.other":
+    "{count} 条带日期参考 · 最新 {value} {currency} · {date}",
+  "vault.card.catalogNote": "目录元数据并非鉴定、评估或库存。",
+  "vault.card.openCatalog": "打开目录来源",
+  "vault.card.manualNote": "手动持有者记录。未主张任何目录身份。",
+  "vault.card.openValueSource": "打开持有者输入的价值来源",
+  "vault.card.removeRecord": "移除本地记录",
+  "vault.card.confirmRemove": "确认移除",
+  "vault.card.cancel": "取消",
+
+  "vault.settings.recoveryEyebrow": "恢复",
+  "vault.settings.backupTitle": "加密备份",
+  "vault.settings.backupDescription":
+    "下载内容仅包含以包装密钥材料和密文形式保存的本地对话及资产记录。在另一台设备上恢复需要此文件，以及导出时使用的口令或该备份对应的恢复码。",
+  "vault.settings.exportJson": "导出加密 JSON",
+  "vault.settings.browserStorageEyebrow": "浏览器存储",
+  "vault.settings.evictionGranted": "已获得驱逐保护",
+  "vault.settings.bestEffort": "尽力而为的存储",
+  "vault.settings.storageDescription":
+    "浏览器可能会清除站点数据。持久化存储可降低自动驱逐的风险，但无法防止手动清除、隐私浏览清理或设备丢失。",
+  "vault.settings.requestProtection": "请求驱逐保护",
+  "vault.settings.persistent": "持久化",
+  "vault.settings.estimateUnavailable": "无法估算",
+  "vault.settings.storageUsage": "{used} 已使用 · {quota} 配额",
+  "vault.settings.keyControlEyebrow": "密钥控制",
+  "vault.settings.changePassphraseTitle": "更改口令",
+  "vault.field.currentPassphrase": "当前口令",
+  "vault.field.newPassphrase": "新口令",
+  "vault.field.confirmNewPassphrase": "确认新口令",
+  "vault.settings.rewrapping": "正在重新包装…",
+  "vault.settings.rewrap": "重新包装主密钥",
+
+  "vault.recovery.lostEyebrow": "忘记口令",
+  "vault.recovery.useCodeTitle": "使用恢复码",
+  "vault.field.recoveryCode": "恢复码",
+  "vault.recovery.rotates":
+    "恢复成功后会自动轮换恢复码。旧口令和旧恢复码将失效。",
+  "vault.recovery.recovering": "正在恢复…",
+  "vault.recovery.recoverRotate": "恢复并轮换恢复码",
+
+  "vault.backupRecovery.eyebrow": "忘记备份口令",
+  "vault.backupRecovery.title": "使用一次性恢复码恢复导出的保险库",
+  "vault.backupRecovery.description":
+    "选择加密备份，并输入属于该备份的恢复码。在还原任何内容之前，每条记录都会经过认证。恢复会设置新口令并轮换恢复码。",
+  "vault.common.selectJson": "选择加密 JSON",
+  "vault.backupRecovery.fileAria": "用于恢复的加密保险库备份",
+  "vault.field.backupRecoveryCode": "备份恢复码",
+  "vault.field.newBackupPassphrase": "新的备份口令",
+  "vault.field.confirmNewBackupPassphrase": "确认新的备份口令",
+  "vault.backupRecovery.authenticating": "正在认证每条记录…",
+  "vault.backupRecovery.submit": "恢复备份并轮换恢复码",
+
+  "vault.recoverySecret.downloadTitle": "ChainScout 加密保险库恢复码",
+  "vault.recoverySecret.downloadNote":
+    "请将此文件与加密保险库备份及口令分开存放。任何同时持有此恢复码并能访问本地保险库或备份的人都可以重置口令。",
+  "vault.recoverySecret.eyebrow": "仅显示一次",
+  "vault.recoverySecret.title": "立即保存你的恢复码",
+  "vault.recoverySecret.description":
+    "此高熵恢复码可用于重置遗忘的口令，且不会存储在任何地方。请将其与加密备份分开存放。ChainScout 无法重新生成它。",
+  "vault.recoverySecret.copied": "已复制",
+  "vault.recoverySecret.copyBlocked": "复制被阻止 · 下载",
+  "vault.recoverySecret.copy": "复制恢复码",
+  "vault.recoverySecret.download": "下载恢复码",
+  "vault.recoverySecret.saved": "我已保存 · 隐藏恢复码",
+
+  "vault.import.eyebrow": "导入并恢复",
+  "vault.import.titleNested": "还原此备份",
+  "vault.import.title": "有加密备份吗？",
+  "vault.import.description":
+    "ChainScout 会先验证包装密钥并解密每条记录，然后再替换任何内容。文件和口令都保留在此页面内。",
+  "vault.import.fileAria": "加密保险库备份",
+  "vault.field.backupPassphrase": "备份口令",
+  "vault.import.typeReplace": "输入 {phrase}",
+  "vault.import.replacePhrase": "替换我的本地保险库",
+  "vault.import.verifying": "正在验证每条记录…",
+  "vault.import.verifyReplace": "验证并替换本地保险库",
+  "vault.import.verifyRestore": "验证并在本地还原",
+
+  "vault.delete.eyebrow": "永久删除本地数据",
+  "vault.delete.title": "删除此保险库",
+  "vault.delete.description":
+    "这会从此浏览器中移除包装密钥和所有加密记录。若没有导出的备份及其口令，此操作无法撤销。",
+  "vault.delete.typePhrase": "输入 {phrase}",
+  "vault.delete.phrase": "删除我的本地保险库",
+  "vault.delete.deleting": "正在删除…",
+  "vault.delete.submit": "删除本地保险库",
+
+  "vault.loading": "正在检查本地加密存储…",
+  "vault.deleting.title": "正在执行本地删除",
+  "vault.deleting.description":
+    "由于 IndexedDB 删除请求一旦发出便无法取消，保险库控件将保持禁用。如果正在等待另一个标签页或浏览器进程，请关闭该阻塞者并保持此页面打开。",
+  "vault.unsupported.eyebrow": "保险库不可用",
+  "vault.unsupported.title": "安全本地存储不可用",
+  "vault.unsupported.description":
+    "请使用启用 Web Crypto 和 IndexedDB 的现代浏览器，并通过 HTTPS 访问。ChainScout 会故障关闭，而不会保存未加密数据。",
+  "vault.field.decimalError":
+    "请输入类似 1 或 185.50 的小数，不要包含逗号或负号。",
+
+  "vault.error.locked": "保险库已锁定",
+  "vault.error.sessionChanged": "保险库会话已更改",
+  "vault.notice.locked": "保险库已锁定。解密密钥已从页面内存中移除。",
+  "vault.notice.lockedAcrossTabs": "保险库已在所有打开的 ChainScout 标签页中锁定。",
+  "vault.notice.changedUnlock":
+    "此保险库已在另一个标签页中更改。请重新解锁以加载最新修订。",
+  "vault.notice.createdOtherTab":
+    "另一个 ChainScout 标签页创建了保险库。请在此处解锁以继续。",
+  "vault.notice.deletionPendingOtherTab":
+    "另一个 ChainScout 标签页正在等待删除。在浏览器完成之前，保险库操作已禁用。",
+  "vault.notice.deletionCancelled":
+    "本地删除未完成。保险库仍保持锁定且未更改。",
+  "vault.notice.deletedOtherTab": "此保险库已在另一个 ChainScout 标签页中被删除。",
+  "vault.notice.autoLocked": "保险库在 10 分钟无操作后自动锁定。",
+  "vault.notice.lockedHidden": "页面被隐藏或离开，保险库已锁定。",
+  "vault.notice.created": "保险库已创建。解密密钥仅存在于本页面的内存中。",
+  "vault.notice.assetUpdated": "加密资产已在本地更新。",
+  "vault.notice.assetSaved": "资产已加密并保存在本地。",
+  "vault.notice.assetRemoved": "加密资产已从此设备移除。",
+  "vault.notice.demoComplete": "完整的加密演示集已在此保险库中。",
+  "vault.notice.demoLoaded":
+    "已成功加密并本地保存 {count} 条清晰标注的演示记录。未联系任何提供商。",
+  "vault.notice.demoNoneLeft": "此保险库中已没有未修改的 ChainScout 演示记录。",
+  "vault.notice.demoRemoved":
+    "已移除 {count} 条演示记录。你的其他加密记录未受影响。",
+  "vault.notice.catalogSaved": "目录身份和持有者输入字段已加密并保存在本地。",
+  "vault.notice.deletionWaiting":
+    "删除操作正在等待另一个标签页或浏览器进程释放此保险库。请保持此页面打开并关闭阻塞者；删除将自动完成。",
+  "vault.notice.deleted": "本地加密保险库已从此浏览器中永久删除。",
+  "vault.notice.backupRestored": "加密备份已验证并已在本地还原。",
+  "vault.notice.backupRecovered":
+    "已使用一次性恢复码恢复备份。请立即保存新轮换的恢复码并导出新的备份；旧备份仍需要其原有的凭据。",
+  "vault.notice.unlocked": "保险库已在本地解锁。10 分钟无操作后将自动锁定。",
+  "vault.notice.recoverySucceeded":
+    "恢复成功。请立即保存新轮换的恢复码并导出新的备份；旧备份仍需要其原有的凭据。",
+  "vault.notice.backupReplaced": "加密备份已验证并替换了本地保险库。",
+  "vault.notice.passphraseChanged":
+    "口令已更改。请立即导出新的备份；旧备份仍需要包装它们时所用的口令。",
+
+  "vault.chart.assetTypeCrypto": "加密货币",
+  "vault.chart.assetTypeCollectible": "收藏品",
+  "vault.chart.assetTypeRwa": "代币化 / RWA",
+  "vault.chart.assetTypeNft": "NFT",
+  "vault.chart.assetTypeOther": "其他",
+  "vault.chart.assetTypeFallback": "资产类型",
+  "vault.chart.encryptedRecord": "条加密记录",
+  "vault.chart.encryptedRecords": "条加密记录",
+  "vault.chart.mixEyebrow": "加密记录构成",
+  "vault.chart.mixCopy": "仅统计记录数量。这不是价值配置或市值权重图表。",
+  "vault.chart.mixAria": "按资产类型划分的加密保险库记录：{details}。",
+  "vault.chart.records": "条记录",
+  "vault.chart.recordCountsAria": "按资产类型统计的记录数量",
+  "vault.chart.dataTable": "无障碍精确数据表",
+  "vault.chart.purchaseLot": "买入批次 {n} · 单价",
+  "vault.chart.purchaseReference": "买入 / 参考",
+  "vault.chart.ownerEnteredHistory": "持有者输入的历史 · {currency}",
+  "vault.chart.legendColors": "淡紫色买入 · 橙色参考",
+  "vault.chart.latestDatedEntry": "最新带日期条目：",
+  "vault.chart.historyAria":
+    "{name} 在 {currency} 中由持有者输入的买入及带日期参考历史。并非实时市场行情。",
+  "vault.chart.date": "日期",
+  "vault.chart.entry": "条目",
+  "vault.chart.exactValue": "精确价值（{currency}）",
+  "vault.chart.historyCaption":
+    "此可视化使用加密的买入批次和持有者输入的带日期参考来源。它并非实时价格行情、评估、成交记录或真实性声明。",
+  "vault.chart.localReferenceAllocation": "本地参考配置",
+  "vault.chart.allocationCopy":
+    "价值按匹配的持有者输入货币分组。ChainScout 绝不凭空进行外汇换算，也不会将不同货币合并为一个总额。",
+  "vault.chart.allocationTooltipSuffix": "{currency} 参考的 {percent}%",
+  "vault.chart.referencedHolding.one": "{currency} · {count} 项参考持有",
+  "vault.chart.referencedHolding.other": "{currency} · {count} 项参考持有",
+  "vault.chart.allocationAria":
+    "{currency} 中由持有者输入的投资组合参考配置：{details}。",
+  "vault.chart.holding": "持有",
+  "vault.chart.exactReferenceValue": "精确参考价值（{currency}）",
+  "vault.chart.share": "占比",
+
+  "vault.backup.ready":
+    "加密备份已就绪。请在关闭此页面之前检查你的下载文件夹。",
+  "vault.backup.downloadPrepared": "下载已准备好的备份",
+  "vault.backup.blockedNote":
+    "没有下载？请点击上方链接，并检查浏览器是否阻止了下载。这是你导出时的快照。链接将在五分钟后，或在你锁定或离开时失效。在你验证备份之前，请保持此浏览器的保险库完好；另一个浏览器不会自动拥有你的记录。",
+  "vault.backup.blockedTitle": "下载被阻止？改为保存加密文本",
+  "vault.backup.blockedInstructions":
+    "选中下方文本，复制它，并在纯文本编辑器中保存为 {filename}（不是 .txt 或富文本）。在依赖它之前，先还原该文件以进行验证。它包含加密记录和包装密钥，不包含你的口令或可读对话。",
+  "vault.backup.jsonAria": "加密备份 JSON",
+  "vault.backup.keepPrivate": "请对此文件保密。任何持有它的人都可以尝试猜测你的口令。",
+  "vault.backup.exceedsSize": "加密备份超出支持的大小",
+
+  "vault.service.backupTooLarge": "加密保险库备份限制为 32 MB。",
+  "vault.service.invalidJson": "所选文件不是有效的 JSON。",
+
+  "vault.db.conflictUnlock": "此保险库已在另一个标签页中更改。请重新解锁后再继续。",
+  "vault.db.alreadyExists": "此浏览器中已存在一个本地保险库。",
+  "vault.db.uniqueIdentities": "加密记录必须具有唯一标识。",
+  "vault.db.conflictReplace": "此保险库已在另一个标签页中更改。请重新解锁后再替换。",
+  "vault.db.revisionOutOfRange": "加密保险库备份的修订号超出范围。",
+  "vault.db.deletionFailed": "IndexedDB 删除失败",
+  "vault.db.openFailed": "IndexedDB 打开失败",
+  "vault.db.openBlocked": "另一个 ChainScout 标签页正在升级保险库。请关闭它后重试。",
+  "vault.db.conflictSave": "此保险库已在另一个标签页中更改。请锁定并重新解锁后再保存。",
+  "vault.db.requestFailed": "IndexedDB 请求失败",
+  "vault.db.transactionFailed": "IndexedDB 事务失败",
+  "vault.db.transactionAborted": "IndexedDB 事务已中止",
+  "vault.db.unsupportedBrowser":
+    "此浏览器不提供 IndexedDB，因此 ChainScout 无法安全地创建本地保险库。",
+
+  "vault.photo.invalidDimensions": "图片尺寸无效或过大",
+  "vault.photo.tooLarge": "图片尺寸过大",
+  "vault.photo.canvasUnavailable": "画布不可用",
+  "vault.photo.processedTooLarge": "处理后的图片过大",
+  "vault.photo.invalid": "图片无效",
+  "vault.photo.readFailed": "照片读取失败",
+
+  "vault.demo.converted": "由 ChainScout 演示记录转换而来",
+  "vault.demo.note.weth":
+    "用于测试加密手动记录流程的虚构示例批次。它不是钱包余额或价格声明。",
+  "vault.demo.note.charizard":
+    "用于测试收藏品字段和带日期参考图表的虚构持有者记录。它不能证明身份、品相、所有权或价值。",
+  "vault.demo.note.apple":
+    "与 RWA 验证示例所用公开 Robinhood Chain 合约关联的虚构本地批次。不证明所有权或赎回权。",
+  "vault.demo.note.nft":
+    "仅用于布局和工作流测试的合成 NFT 记录。它不是链上代币，也不构成所有权声明。",
+  "vault.demo.ref.manual": "示例手动参考",
+  "vault.demo.ref.followup": "示例后续参考",
+
+  "vault.crypto.wrongPassphrase": "该口令无法解锁此保险库。",
+  "vault.crypto.currentPassphrase": "当前口令与此保险库不匹配。",
+  "vault.crypto.recoveryFailed": "该恢复码无效，或保险库已损坏。",
+  "vault.crypto.notAssetRecord": "此加密记录不是资产记录。",
+  "vault.crypto.corruptRecord": "某条加密保险库记录已损坏，或属于另一个保险库。",
+  "vault.crypto.notCollectibleRecord": "此加密记录不是收藏品记录。",
+  "vault.crypto.corruptCollectibleRecord":
+    "某条加密收藏品记录已损坏，或属于另一个保险库。",
+  "vault.crypto.notMarketRecord": "此加密记录不是市场记录。",
+  "vault.crypto.corruptMarketRecord": "某条加密市场记录已损坏，或属于另一个保险库。",
+  "vault.crypto.notPortfolioRecord": "此加密记录不是投资组合记录。",
+  "vault.crypto.corruptPortfolioRecord":
+    "某条加密投资组合记录已损坏，或属于另一个保险库。",
+  "vault.crypto.invalidConversation":
+    "此对话无效或过大。请开始新对话；原有内容未被覆盖。",
+  "vault.crypto.notConversationRecord": "这不是对话记录。",
+  "vault.crypto.corruptConversation":
+    "某条加密对话已损坏，或属于另一个保险库。",
+  "vault.crypto.unsupportedRecordVersion":
+    "加密保险库备份包含不受支持的记录版本。",
+  "vault.crypto.invalidBackupFormat":
+    "这不是受支持的 ChainScout 加密保险库备份。",
+  "vault.crypto.backupIncomplete": "加密保险库备份不完整。",
+  "vault.crypto.backupDuplicateRecords": "加密保险库备份包含重复记录。",
+  "vault.crypto.capacityRecords": "此保险库最多支持 {max} 条加密记录。",
+  "vault.crypto.capacitySize":
+    "保存此资产会使保险库过大，超出受支持的加密备份范围。请移除或压缩照片后重试。",
+  "vault.crypto.passphraseTooShort": "保险库口令至少需要 12 个字符。",
+  "vault.crypto.passphraseTooLong": "保险库口令限制为 256 个字符。",
+  "vault.crypto.quotaExceeded":
+    "此浏览器存储空间不足。请先导出加密备份，释放空间后再重试。",
+  "vault.crypto.versionError":
+    "此浏览器中的保险库格式比当前版本更新。请不要删除它；请先更新 ChainScout。",
+  "vault.crypto.generic": "本地保险库无法完成该操作。未向服务器发送任何内容。",
+  "vault.crypto.invalidVaultMeta":
+    "本地保险库元数据无效，或使用了不受支持的格式。",
+  "vault.crypto.invalidVaultCrypto": "本地保险库的加密参数无效。",
+  "vault.crypto.invalidBackupRecord": "加密保险库备份包含无效记录。",
+  "vault.crypto.invalidPortfolioContext": "加密投资组合上下文无效。",
+  "vault.crypto.invalidValuations": "一条或多条加密参考估值无效。",
+  "vault.crypto.invalidPrivacyReceipts": "一条或多条加密隐私凭据无效。",
+  "vault.crypto.invalidMarketContext":
+    "加密市场上下文无效，或超出其支持的边界。",
+  "vault.crypto.duplicateCryptoObservations":
+    "加密市场上下文包含重复的加密货币观察。",
+  "vault.crypto.duplicateMerchantObservations":
+    "加密市场上下文包含重复的商家观察。",
+  "vault.crypto.duplicateComparisons": "加密市场上下文包含重复的比较。",
+  "vault.crypto.invalidMarketReceipt": "某条加密市场权限凭据无效。",
+  "vault.crypto.invalidReceiptMapping": "某条加密市场权限凭据的映射证据无效。",
+  "vault.crypto.invalidCryptoObservation": "某条加密加密货币市场观察无效。",
+  "vault.crypto.invalidDexPair": "某条加密 DEX 交易对观察无效。",
+  "vault.crypto.invalidMerchantObservation": "某条加密商家观察无效。",
+  "vault.crypto.merchantOfferConflict": "加密商家观察与其精确报价冲突。",
+  "vault.crypto.invalidMerchantOffer": "某条加密商家报价无效。",
+  "vault.crypto.invalidComparison": "某条加密到手成本比较无效。",
+  "vault.crypto.inconsistentComparison":
+    "某条加密到手成本比较的来源声明不一致。",
+  "vault.crypto.invalidPortfolioSnapshot":
+    "加密投资组合快照无效，或超出其支持的边界。",
+  "vault.crypto.malformedPortfolioSnapshot":
+    "加密投资组合快照包含格式错误或不受支持的字段。",
+  "vault.crypto.invalidBackupIntegrity": "加密保险库备份完整性记录无效。",
+  "vault.crypto.invalidAsset":
+    "请检查资产名称、数量、价格、日期、货币和备注长度。",
+  "vault.crypto.invalidLots": "一个或多个买入批次包含无效值。",
+  "vault.crypto.invalidPhoto":
+    "请使用一张不超过 3 MB、在本地处理过的 JPEG、PNG 或 WebP 图片。",
+  "vault.crypto.invalidCollectibleContext": "加密收藏品查询上下文无效。",
+  "vault.crypto.invalidCollectibleReceipt": "某条加密收藏品权限凭据无效。",
+  "vault.crypto.invalidCollectibleDetails": "加密收藏品详情无效。",
+  "vault.crypto.collectibleIdentifierMismatch":
+    "加密收藏品标识符与其目录身份不匹配。",
+  "vault.crypto.catalogThumbnailProvenance": "加密目录缩略图的来源无效。",
+  "vault.crypto.catalogThumbnailRequiresIdentity": "目录缩略图需要目录身份。",
+  "vault.crypto.photoMetadataMismatch":
+    "持有者提供的照片元数据与加密照片不匹配。",
+  "vault.crypto.gradedCertificate":
+    "评分证书必须恰好描述一份副本，并同时包含评级和证书编号。",
+  "vault.crypto.invalidReferences": "一条或多条手动收藏品参考无效。",
+  "vault.crypto.invalidCatalogIdentity": "加密 TCGdex 目录身份无效。",
+  "vault.crypto.collectibleDetailsRequired": "必须填写收藏品详情。",
+  "vault.crypto.backupManifestDamaged":
+    "加密保险库备份清单已损坏，或与此保险库不匹配。",
+  "vault.crypto.backupRecordSetChanged":
+    "加密保险库备份的记录集不完整或已被更改。",
+  "vault.crypto.malformedBinary": "加密保险库包含格式错误的二进制数据。",
+  "vault.crypto.noWebCrypto":
+    "此浏览器不提供保险库所需的安全加密功能。",
+};

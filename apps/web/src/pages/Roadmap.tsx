@@ -27,36 +27,37 @@ import {
   Zap,
   type LucideIcon,
 } from "lucide-react";
+import { useI18n, type TranslationKey } from "../i18n";
 
 type Release = {
   id: string;
   number: string;
   branch: string;
-  title: string;
-  eyebrow: string;
-  summary: string;
-  outcome: string;
+  titleKey: TranslationKey;
+  eyebrowKey: TranslationKey;
+  summaryKey: TranslationKey;
+  outcomeKey: TranslationKey;
   icon: LucideIcon;
   capabilities: Array<{
-    kicker: string;
-    title: string;
-    signal: string;
+    kickerKey: TranslationKey;
+    titleKey: TranslationKey;
+    signalKey: TranslationKey;
     bars: number[];
   }>;
-  gate: string;
+  gateKey: TranslationKey;
   snapshot: string;
 };
 
 type HorizonIdea = {
   code: string;
-  eyebrow: string;
-  title: string;
-  summary: string;
-  outcome: string;
+  eyebrowKey: TranslationKey;
+  titleKey: TranslationKey;
+  summaryKey: TranslationKey;
+  outcomeKey: TranslationKey;
   icon: LucideIcon;
-  features: string[];
-  signals: string[];
-  boundary: string;
+  featureKeys: TranslationKey[];
+  signalKeys: TranslationKey[];
+  boundaryKey: TranslationKey;
 };
 
 const RELEASES: Release[] = [
@@ -64,288 +65,305 @@ const RELEASES: Release[] = [
     id: "scout-swap",
     number: "01",
     branch: "release/01-scout-swap",
-    title: "Scout Swap",
-    eyebrow: "LIVE ROUTE. CLEAR OUTCOME.",
-    summary: "Preview a current Uniswap route, understand every tradeoff, then continue in the official app.",
-    outcome: "Preview a live swap",
+    titleKey: "roadmap.release.scout-swap.title",
+    eyebrowKey: "roadmap.release.scout-swap.eyebrow",
+    summaryKey: "roadmap.release.scout-swap.summary",
+    outcomeKey: "roadmap.release.scout-swap.outcome",
     icon: Repeat2,
     capabilities: [
-      { kicker: "LIVE QUOTE", title: "Current WETH/USDG route, price impact, gas, and minimum received", signal: "FREE API / FRESH", bars: [32, 48, 40, 66, 58, 88] },
-      { kicker: "SIMULATION", title: "Plain-English predicted balance changes and failure states", signal: "EXPLAIN ONLY", bars: [72, 62, 52, 44, 36, 28] },
-      { kicker: "UNISWAP HANDOFF", title: "Open the official Uniswap app with pair and amount prefilled", signal: "REQUOTES THERE", bars: [24, 31, 46, 55, 74, 92] },
+      { kickerKey: "roadmap.release.scout-swap.cap1.kicker", titleKey: "roadmap.release.scout-swap.cap1.title", signalKey: "roadmap.release.scout-swap.cap1.signal", bars: [32, 48, 40, 66, 58, 88] },
+      { kickerKey: "roadmap.release.scout-swap.cap2.kicker", titleKey: "roadmap.release.scout-swap.cap2.title", signalKey: "roadmap.release.scout-swap.cap2.signal", bars: [72, 62, 52, 44, 36, 28] },
+      { kickerKey: "roadmap.release.scout-swap.cap3.kicker", titleKey: "roadmap.release.scout-swap.cap3.title", signalKey: "roadmap.release.scout-swap.cap3.signal", bars: [24, 31, 46, 55, 74, 92] },
     ],
-    gate: "Fresh quote and successful simulation; all user-paid costs disclosed; no signing method exists.",
+    gateKey: "roadmap.release.scout-swap.gate",
     snapshot: "scout-swap-rc1",
   },
   {
     id: "privacy-foundation",
     number: "02",
     branch: "release/02-privacy-foundation",
-    title: "Privacy Foundation",
-    eyebrow: "USE IT WITHOUT BECOMING A PROFILE",
-    summary: "Make no-account Private Mode the default and remove private details from server storage, logs, and browser-readable credentials.",
-    outcome: "Use ChainScout privately",
+    titleKey: "roadmap.release.privacy-foundation.title",
+    eyebrowKey: "roadmap.release.privacy-foundation.eyebrow",
+    summaryKey: "roadmap.release.privacy-foundation.summary",
+    outcomeKey: "roadmap.release.privacy-foundation.outcome",
     icon: ShieldCheck,
     capabilities: [
-      { kicker: "PRIVATE MODE", title: "Research public assets with no account and no permanent server-side history", signal: "DEFAULT ON", bars: [80, 56, 72, 44, 62, 36] },
-      { kicker: "SAFE SESSION", title: "Host-only secure cookies, bounded logs, and aggregate-only metrics", signal: "NO PROFILE", bars: [30, 38, 52, 66, 76, 88] },
-      { kicker: "PRIVACY RECEIPT", title: "Review the exact public facts approved for optional AI", signal: "CLEAR PERMISSION", bars: [88, 74, 64, 52, 46, 34] },
+      { kickerKey: "roadmap.release.privacy-foundation.cap1.kicker", titleKey: "roadmap.release.privacy-foundation.cap1.title", signalKey: "roadmap.release.privacy-foundation.cap1.signal", bars: [80, 56, 72, 44, 62, 36] },
+      { kickerKey: "roadmap.release.privacy-foundation.cap2.kicker", titleKey: "roadmap.release.privacy-foundation.cap2.title", signalKey: "roadmap.release.privacy-foundation.cap2.signal", bars: [30, 38, 52, 66, 76, 88] },
+      { kickerKey: "roadmap.release.privacy-foundation.cap3.kicker", titleKey: "roadmap.release.privacy-foundation.cap3.title", signalKey: "roadmap.release.privacy-foundation.cap3.signal", bars: [88, 74, 64, 52, 46, 34] },
     ],
-    gate: "Private fields never enter logs, analytics, saved server records, or unapproved network requests.",
+    gateKey: "roadmap.release.privacy-foundation.gate",
     snapshot: "privacy-foundation-rc1",
   },
   {
     id: "encrypted-vault",
     number: "03",
     branch: "release/03-encrypted-vault",
-    title: "Encrypted Asset Vault",
-    eyebrow: "YOUR ASSETS. YOUR DEVICE.",
-    summary: "Track purchase lots, notes, photos, grades, and manual assets in one encrypted browser Vault.",
-    outcome: "Track every asset privately",
+    titleKey: "roadmap.release.encrypted-vault.title",
+    eyebrowKey: "roadmap.release.encrypted-vault.eyebrow",
+    summaryKey: "roadmap.release.encrypted-vault.summary",
+    outcomeKey: "roadmap.release.encrypted-vault.outcome",
     icon: LockKeyhole,
     capabilities: [
-      { kicker: "ENCRYPTED LOCALLY", title: "Protect lots, cost basis, notes, and photos before they enter storage", signal: "AES-GCM", bars: [42, 74, 58, 86, 64, 78] },
-      { kicker: "ANY ASSET", title: "Add crypto, cards, phygitals, or a completely manual item", signal: "ONE VAULT", bars: [82, 70, 62, 54, 48, 40] },
-      { kicker: "BACKUP CONTROL", title: "Lock, export, import, recover, inspect storage health, or delete", signal: "USER OWNED", bars: [34, 46, 38, 62, 72, 92] },
+      { kickerKey: "roadmap.release.encrypted-vault.cap1.kicker", titleKey: "roadmap.release.encrypted-vault.cap1.title", signalKey: "roadmap.release.encrypted-vault.cap1.signal", bars: [42, 74, 58, 86, 64, 78] },
+      { kickerKey: "roadmap.release.encrypted-vault.cap2.kicker", titleKey: "roadmap.release.encrypted-vault.cap2.title", signalKey: "roadmap.release.encrypted-vault.cap2.signal", bars: [82, 70, 62, 54, 48, 40] },
+      { kickerKey: "roadmap.release.encrypted-vault.cap3.kicker", titleKey: "roadmap.release.encrypted-vault.cap3.title", signalKey: "roadmap.release.encrypted-vault.cap3.signal", bars: [34, 46, 38, 62, 72, 92] },
     ],
-    gate: "Plaintext never crosses the network; encryption, recovery, corruption, eviction, and deletion states pass.",
+    gateKey: "roadmap.release.encrypted-vault.gate",
     snapshot: "encrypted-vault-rc1",
   },
   {
     id: "portfolio-intelligence",
     number: "04",
     branch: "release/04-portfolio-intelligence",
-    title: "Portfolio Intelligence",
-    eyebrow: "ONE VIEW. LESS NOISE.",
-    summary: "Combine holdings, cost basis, activity, approvals, performance, and plain-English transaction explanations.",
-    outcome: "Understand the whole portfolio",
+    titleKey: "roadmap.release.portfolio-intelligence.title",
+    eyebrowKey: "roadmap.release.portfolio-intelligence.eyebrow",
+    summaryKey: "roadmap.release.portfolio-intelligence.summary",
+    outcomeKey: "roadmap.release.portfolio-intelligence.outcome",
     icon: WalletCards,
     capabilities: [
-      { kicker: "PORTFOLIO VIEW", title: "Holdings, allocation, cost basis, gain or loss, and freshness in one place", signal: "LOCAL MATH", bars: [30, 34, 46, 58, 76, 92] },
-      { kicker: "TRANSACTION LENS", title: "Reconcile movements, approvals, failures, calls, and net wallet change", signal: "SOURCE MATCHED", bars: [64, 70, 66, 76, 72, 84] },
-      { kicker: "APPROVAL GUARD", title: "Explain who can spend, how much, and where to verify or revoke", signal: "READ ONLY", bars: [26, 52, 38, 70, 48, 86] },
+      { kickerKey: "roadmap.release.portfolio-intelligence.cap1.kicker", titleKey: "roadmap.release.portfolio-intelligence.cap1.title", signalKey: "roadmap.release.portfolio-intelligence.cap1.signal", bars: [30, 34, 46, 58, 76, 92] },
+      { kickerKey: "roadmap.release.portfolio-intelligence.cap2.kicker", titleKey: "roadmap.release.portfolio-intelligence.cap2.title", signalKey: "roadmap.release.portfolio-intelligence.cap2.signal", bars: [64, 70, 66, 76, 72, 84] },
+      { kickerKey: "roadmap.release.portfolio-intelligence.cap3.kicker", titleKey: "roadmap.release.portfolio-intelligence.cap3.title", signalKey: "roadmap.release.portfolio-intelligence.cap3.signal", bars: [26, 52, 38, 70, 48, 86] },
     ],
-    gate: "Balances, NFTs, lots, activity, and approvals reconcile; unsupported intent is never guessed.",
+    gateKey: "roadmap.release.portfolio-intelligence.gate",
     snapshot: "portfolio-intelligence-rc1",
   },
   {
     id: "rwa-phygital-verify",
     number: "05",
     branch: "release/05-rwa-phygital-verify",
-    title: "RWA & Phygital Verify",
-    eyebrow: "VERIFY THE CLAIM, NOT THE HYPE",
-    summary: "Explain Stock Tokens, yield, custody, redemption, and where a physical claim still cannot be proven.",
-    outcome: "Understand RWAs and phygitals",
+    titleKey: "roadmap.release.rwa-phygital-verify.title",
+    eyebrowKey: "roadmap.release.rwa-phygital-verify.eyebrow",
+    summaryKey: "roadmap.release.rwa-phygital-verify.summary",
+    outcomeKey: "roadmap.release.rwa-phygital-verify.outcome",
     icon: Landmark,
     capabilities: [
-      { kicker: "STOCK TOKEN", title: "Canonical contract, multiplier, corporate actions, price timestamp, and trading state", signal: "PRIMARY SOURCES", bars: [28, 42, 54, 66, 78, 90] },
-      { kicker: "ORACLE + YIELD", title: "Chainlink freshness and Morpho vault APY, fees, liquidity, and allocations", signal: "VARIABLE / SOURCED", bars: [84, 74, 64, 56, 48, 42] },
-      { kicker: "PHYGITAL PROOF", title: "Custody, redemption, serial, jurisdiction, rights, and missing evidence", signal: "NO FALSE CERTAINTY", bars: [40, 52, 46, 68, 58, 88] },
+      { kickerKey: "roadmap.release.rwa-phygital-verify.cap1.kicker", titleKey: "roadmap.release.rwa-phygital-verify.cap1.title", signalKey: "roadmap.release.rwa-phygital-verify.cap1.signal", bars: [28, 42, 54, 66, 78, 90] },
+      { kickerKey: "roadmap.release.rwa-phygital-verify.cap2.kicker", titleKey: "roadmap.release.rwa-phygital-verify.cap2.title", signalKey: "roadmap.release.rwa-phygital-verify.cap2.signal", bars: [84, 74, 64, 56, 48, 42] },
+      { kickerKey: "roadmap.release.rwa-phygital-verify.cap3.kicker", titleKey: "roadmap.release.rwa-phygital-verify.cap3.title", signalKey: "roadmap.release.rwa-phygital-verify.cap3.signal", bars: [40, 52, 46, 68, 58, 88] },
     ],
-    gate: "Every claim is source-linked; stale data stops; an image or token is never called proof of the physical object.",
+    gateKey: "roadmap.release.rwa-phygital-verify.gate",
     snapshot: "rwa-phygital-rc1",
   },
   {
     id: "collectible-catalog",
     number: "06",
     branch: "release/06-collectible-catalog",
-    title: "Collectible Catalog",
-    eyebrow: "FROM CARD TO TRACKED ASSET",
-    summary: "Match supported trading-card metadata, sanitize an optional catalog thumbnail locally, then add owner-reported details without uploading ownership data.",
-    outcome: "Add collectibles without a spreadsheet",
+    titleKey: "roadmap.release.collectible-catalog.title",
+    eyebrowKey: "roadmap.release.collectible-catalog.eyebrow",
+    summaryKey: "roadmap.release.collectible-catalog.summary",
+    outcomeKey: "roadmap.release.collectible-catalog.outcome",
     icon: ScanSearch,
     capabilities: [
-      { kicker: "CATALOG MATCH", title: "Resolve English card ID, set, collector number, rarity, and illustrator", signal: "SOURCE LINKED", bars: [32, 48, 64, 58, 76, 92] },
-      { kicker: "OWNER LAYER", title: "Encrypt a sanitized catalog or owner photo, condition, grade, certificate, and dated manual reference", signal: "CLEARLY LABELED", bars: [88, 72, 62, 54, 42, 34] },
-      { kicker: "MANUAL PATH", title: "Track any unsupported card or physical collectible immediately", signal: "NEVER BLOCKED", bars: [24, 36, 50, 64, 78, 94] },
+      { kickerKey: "roadmap.release.collectible-catalog.cap1.kicker", titleKey: "roadmap.release.collectible-catalog.cap1.title", signalKey: "roadmap.release.collectible-catalog.cap1.signal", bars: [32, 48, 64, 58, 76, 92] },
+      { kickerKey: "roadmap.release.collectible-catalog.cap2.kicker", titleKey: "roadmap.release.collectible-catalog.cap2.title", signalKey: "roadmap.release.collectible-catalog.cap2.signal", bars: [88, 72, 62, 54, 42, 34] },
+      { kickerKey: "roadmap.release.collectible-catalog.cap3.kicker", titleKey: "roadmap.release.collectible-catalog.cap3.title", signalKey: "roadmap.release.collectible-catalog.cap3.signal", bars: [24, 36, 50, 64, 78, 94] },
     ],
-    gate: "Catalog facts and visual-reference thumbnails remain distinct from owner claims; no marketplace pricing, authenticity, or inventory is implied.",
+    gateKey: "roadmap.release.collectible-catalog.gate",
     snapshot: "collectible-catalog-rc1",
   },
   {
     id: "market-inventory",
     number: "07",
     branch: "release/07-market-inventory",
-    title: "Market & Inventory",
-    eyebrow: "FIND THE REAL AVAILABLE OPTION",
-    summary: "Compare exact-match crypto liquidity, opt-in retailer stock, landed costs, and available product/source signals.",
-    outcome: "Compare price, stock, and source facts",
+    titleKey: "roadmap.release.market-inventory.title",
+    eyebrowKey: "roadmap.release.market-inventory.eyebrow",
+    summaryKey: "roadmap.release.market-inventory.summary",
+    outcomeKey: "roadmap.release.market-inventory.outcome",
     icon: PackageSearch,
     capabilities: [
-      { kicker: "CRYPTO LIQUIDITY", title: "Match indexed pools by chain and contract, with base-price orientation, volume, liquidity, and freshness", signal: "NOT BY TICKER", bars: [31, 54, 43, 68, 61, 91] },
-      { kicker: "MERCHANT STOCK", title: "Read exact reviewed products from opted-in WooCommerce feeds; keep unapproved Shopify paths off", signal: "PERMISSIONED SOURCES", bars: [76, 61, 70, 53, 44, 32] },
-      { kicker: "REAL OUTCOME", title: "Compare fees, shipping, tax inputs, condition, returns, and disclosed product signals", signal: "MISSING INPUTS SHOWN", bars: [28, 43, 57, 63, 81, 94] },
+      { kickerKey: "roadmap.release.market-inventory.cap1.kicker", titleKey: "roadmap.release.market-inventory.cap1.title", signalKey: "roadmap.release.market-inventory.cap1.signal", bars: [31, 54, 43, 68, 61, 91] },
+      { kickerKey: "roadmap.release.market-inventory.cap2.kicker", titleKey: "roadmap.release.market-inventory.cap2.title", signalKey: "roadmap.release.market-inventory.cap2.signal", bars: [76, 61, 70, 53, 44, 32] },
+      { kickerKey: "roadmap.release.market-inventory.cap3.kicker", titleKey: "roadmap.release.market-inventory.cap3.title", signalKey: "roadmap.release.market-inventory.cap3.signal", bars: [28, 43, 57, 63, 81, 94] },
     ],
-    gate: "Only fresh comparable exact matches are ranked; unsupported venues receive precise search handoffs.",
+    gateKey: "roadmap.release.market-inventory.gate",
     snapshot: "market-inventory-rc1",
   },
   {
     id: "replay-actions",
     number: "08",
     branch: "release/08-replay-actions",
-    title: "Replay & Actions",
-    eyebrow: "LEARN FROM HISTORY. ACT ON TODAY.",
-    summary: "Rebuild a supported trade with a new amount or choose a current offer, then continue safely at the official venue.",
-    outcome: "Rebuild a trade or purchase safely",
+    titleKey: "roadmap.release.replay-actions.title",
+    eyebrowKey: "roadmap.release.replay-actions.eyebrow",
+    summaryKey: "roadmap.release.replay-actions.summary",
+    outcomeKey: "roadmap.release.replay-actions.outcome",
     icon: Copy,
     capabilities: [
-      { kicker: "PATTERN CHECK", title: "Recognize one complete WETH/USDG movement pattern without claiming its historical intent", signal: "LOCAL CONTEXT", bars: [36, 51, 62, 55, 73, 90] },
-      { kicker: "NEW CHOICE", title: "Require a wholly new direction and amount or a freshly reviewed current offer", signal: "USER DEFINED", bars: [87, 74, 63, 50, 41, 33] },
-      { kicker: "OFFICIAL HANDOFF", title: "Let Uniswap or the merchant requote, sign, charge, fulfill, and support", signal: "CHAINSCOUT NEVER EXECUTES", bars: [23, 38, 49, 66, 80, 95] },
+      { kickerKey: "roadmap.release.replay-actions.cap1.kicker", titleKey: "roadmap.release.replay-actions.cap1.title", signalKey: "roadmap.release.replay-actions.cap1.signal", bars: [36, 51, 62, 55, 73, 90] },
+      { kickerKey: "roadmap.release.replay-actions.cap2.kicker", titleKey: "roadmap.release.replay-actions.cap2.title", signalKey: "roadmap.release.replay-actions.cap2.signal", bars: [87, 74, 63, 50, 41, 33] },
+      { kickerKey: "roadmap.release.replay-actions.cap3.kicker", titleKey: "roadmap.release.replay-actions.cap3.title", signalKey: "roadmap.release.replay-actions.cap3.signal", bars: [23, 38, 49, 66, 80, 95] },
     ],
-    gate: "No historic execution payload survives; every action starts fresh and leaves ChainScout before signing or payment.",
+    gateKey: "roadmap.release.replay-actions.gate",
     snapshot: "replay-actions-rc1",
   },
   {
     id: "open-data-api",
     number: "09",
     branch: "release/09-open-data-api",
-    title: "ChainScout Open Data",
-    eyebrow: "PUBLIC FACTS. REUSABLE EVIDENCE.",
-    summary: "Expose one deliberately small, capped static support registry plus independently derived syntax normalization.",
-    outcome: "Reuse ChainScout public intelligence",
+    titleKey: "roadmap.release.open-data-api.title",
+    eyebrowKey: "roadmap.release.open-data-api.eyebrow",
+    summaryKey: "roadmap.release.open-data-api.summary",
+    outcomeKey: "roadmap.release.open-data-api.outcome",
     icon: Code2,
     capabilities: [
-      { kicker: "TWO-ROUTE V1", title: "Read the reviewed WETH/USDG support registry or normalize one EVM address", signal: "OPENAPI", bars: [29, 45, 60, 55, 77, 91] },
-      { kicker: "SAFE DATA CLASS", title: "Separate reviewed static references from ChainScout-derived normalization—never Vault or provider payloads", signal: "HUMAN LINKS", bars: [84, 70, 58, 49, 42, 35] },
-      { kicker: "HARD BUDGET", title: "Use Redis identity and global caps; every API response makes zero provider calls", signal: "$0 OVERAGE", bars: [27, 41, 52, 68, 82, 96] },
+      { kickerKey: "roadmap.release.open-data-api.cap1.kicker", titleKey: "roadmap.release.open-data-api.cap1.title", signalKey: "roadmap.release.open-data-api.cap1.signal", bars: [29, 45, 60, 55, 77, 91] },
+      { kickerKey: "roadmap.release.open-data-api.cap2.kicker", titleKey: "roadmap.release.open-data-api.cap2.title", signalKey: "roadmap.release.open-data-api.cap2.signal", bars: [84, 70, 58, 49, 42, 35] },
+      { kickerKey: "roadmap.release.open-data-api.cap3.kicker", titleKey: "roadmap.release.open-data-api.cap3.title", signalKey: "roadmap.release.open-data-api.cap3.signal", bars: [27, 41, 52, 68, 82, 96] },
     ],
-    gate: "No private or restricted data escapes; static provenance, human links, hard caps, and the kill switch are verified.",
+    gateKey: "roadmap.release.open-data-api.gate",
     snapshot: "open-data-api-rc1",
   },
   {
     id: "launch-hardening",
     number: "10",
     branch: "release/10-launch-hardening",
-    title: "Launch Hardening",
-    eyebrow: "THE ENABLED PRODUCT, PROVEN",
-    summary: "Certify the enabled launch journey under real devices, stale providers, corrupted data, quota pressure, and human confusion; keep upcoming tools clearly marked as coming soon.",
-    outcome: "Certify the enabled command center",
+    titleKey: "roadmap.release.launch-hardening.title",
+    eyebrowKey: "roadmap.release.launch-hardening.eyebrow",
+    summaryKey: "roadmap.release.launch-hardening.summary",
+    outcomeKey: "roadmap.release.launch-hardening.outcome",
     icon: BadgeCheck,
     capabilities: [
-      { kicker: "FULL JOURNEYS", title: "Private onboarding, Vault, portfolio, evidence, handoff, backup, and deletion", signal: "DESKTOP + MOBILE", bars: [34, 48, 57, 69, 83, 97] },
-      { kicker: "BREAK IT SAFELY", title: "Provider chaos, load, quota, security, privacy, migration, and rollback drills", signal: "FAIL CLOSED", bars: [90, 77, 66, 53, 44, 31] },
-      { kicker: "HUMAN READY", title: "Accessibility, beginner comprehension, accurate legal copy, and independent review", signal: "GA GATE", bars: [25, 39, 51, 65, 79, 96] },
+      { kickerKey: "roadmap.release.launch-hardening.cap1.kicker", titleKey: "roadmap.release.launch-hardening.cap1.title", signalKey: "roadmap.release.launch-hardening.cap1.signal", bars: [34, 48, 57, 69, 83, 97] },
+      { kickerKey: "roadmap.release.launch-hardening.cap2.kicker", titleKey: "roadmap.release.launch-hardening.cap2.title", signalKey: "roadmap.release.launch-hardening.cap2.signal", bars: [90, 77, 66, 53, 44, 31] },
+      { kickerKey: "roadmap.release.launch-hardening.cap3.kicker", titleKey: "roadmap.release.launch-hardening.cap3.title", signalKey: "roadmap.release.launch-hardening.cap3.signal", bars: [25, 39, 51, 65, 79, 96] },
     ],
-    gate: "Every launch gate passes on the exact deployed SHA; the private Vault receives independent security review.",
+    gateKey: "roadmap.release.launch-hardening.gate",
     snapshot: "launch-hardening-rc1",
   },
 ];
 
 const RELEASE_LOOP = [
-  { label: "Build", note: "Develop on the next cumulative branch", icon: Blocks },
-  { label: "Deploy", note: "Point the single staging service at it", icon: Zap },
-  { label: "Test", note: "Run UX, data, and transaction checks", icon: Bot },
-  { label: "Freeze", note: "Tag the approved release candidate", icon: ShieldCheck },
-  { label: "Release", note: "Merge to main and move staging ahead", icon: Check },
-];
+  { labelKey: "roadmap.loop.build.label", noteKey: "roadmap.loop.build.note", icon: Blocks },
+  { labelKey: "roadmap.loop.deploy.label", noteKey: "roadmap.loop.deploy.note", icon: Zap },
+  { labelKey: "roadmap.loop.test.label", noteKey: "roadmap.loop.test.note", icon: Bot },
+  { labelKey: "roadmap.loop.freeze.label", noteKey: "roadmap.loop.freeze.note", icon: ShieldCheck },
+  { labelKey: "roadmap.loop.release.label", noteKey: "roadmap.loop.release.note", icon: Check },
+] satisfies Array<{ labelKey: TranslationKey; noteKey: TranslationKey; icon: LucideIcon }>;
 
 const HORIZON_IDEAS: HorizonIdea[] = [
   {
     code: "API",
-    eyebrow: "OPEN INTELLIGENCE LAYER",
-    title: "ChainScout Open Data",
-    summary: "Let another application reuse a tiny, documented set of ChainScout-authored support annotations without proxying provider data.",
-    outcome: "A bounded foundation for reusable public facts",
+    eyebrowKey: "roadmap.horizon.api.eyebrow",
+    titleKey: "roadmap.horizon.api.title",
+    summaryKey: "roadmap.horizon.api.summary",
+    outcomeKey: "roadmap.horizon.api.outcome",
     icon: Code2,
-    features: [
-      "Exactly two credentialless v1 routes: reviewed WETH/USDG support and EVM-address syntax normalization",
-      "OpenAPI documentation, human-verification links, explicit rights exclusions, and deterministic limitations",
-      "No search, wallet or transaction summaries, live prices, bulk snapshots, provider calls, or upstream payloads",
+    featureKeys: [
+      "roadmap.horizon.api.feature1",
+      "roadmap.horizon.api.feature2",
+      "roadmap.horizon.api.feature3",
     ],
-    signals: ["$0 OVERAGE", "NO KYB", "SOURCE LINKED"],
-    boundary: "IP-only Redis limits, a global daily ceiling, and a kill switch prevent public traffic from creating provider or paid-overage spend.",
+    signalKeys: [
+      "roadmap.horizon.api.signal1",
+      "roadmap.horizon.api.signal2",
+      "roadmap.horizon.api.signal3",
+    ],
+    boundaryKey: "roadmap.horizon.api.boundary",
   },
   {
     code: "FIND",
-    eyebrow: "UNIVERSAL OFFER GRAPH",
-    title: "Inventory Everywhere",
-    summary: "Match one exact asset to live crypto liquidity, marketplace listings, retailer stock, and opt-in merchant catalogs.",
-    outcome: "See where the exact asset is actually available",
+    eyebrowKey: "roadmap.horizon.find.eyebrow",
+    titleKey: "roadmap.horizon.find.title",
+    summaryKey: "roadmap.horizon.find.summary",
+    outcomeKey: "roadmap.horizon.find.outcome",
     icon: PackageSearch,
-    features: [
-      "Crypto pools and quotes matched by chain and contract—not ticker or token name",
-      "Cards matched by English catalog set and number, then paired with owner-reported printing, condition, grade, and certificate",
-      "Opted-in WooCommerce feeds, reviewed merchant sources, and click-only searches for supported public venues",
+    featureKeys: [
+      "roadmap.horizon.find.feature1",
+      "roadmap.horizon.find.feature2",
+      "roadmap.horizon.find.feature3",
     ],
-    signals: ["LAST CHECKED", "EXACT MATCH", "STOCK CONFIDENCE"],
-    boundary: "Unsupported stores get a searchable deep link; ChainScout never bypasses logins, CAPTCHA, robots, or marketplace terms.",
+    signalKeys: [
+      "roadmap.horizon.find.signal1",
+      "roadmap.horizon.find.signal2",
+      "roadmap.horizon.find.signal3",
+    ],
+    boundaryKey: "roadmap.horizon.find.boundary",
   },
   {
     code: "BUY",
-    eyebrow: "BEST REAL OUTCOME",
-    title: "Scout Price & Purchase",
-    summary: "Compare the outcome the buyer receives—not the most attractive headline number—then continue through the official venue.",
-    outcome: "Find the best trusted route and open checkout",
+    eyebrowKey: "roadmap.horizon.buy.eyebrow",
+    titleKey: "roadmap.horizon.buy.title",
+    summaryKey: "roadmap.horizon.buy.summary",
+    outcomeKey: "roadmap.horizon.buy.outcome",
     icon: ShoppingCart,
-    features: [
-      "Rank crypto quotes after gas, price impact, slippage, route risk, and minimum received",
-      "Rank physical offers after condition, shipping, taxes, duties, returns, and seller reputation",
-      "Use prefilled deep links or native-feeling merchant carts that redirect to official checkout",
+    featureKeys: [
+      "roadmap.horizon.buy.feature1",
+      "roadmap.horizon.buy.feature2",
+      "roadmap.horizon.buy.feature3",
     ],
-    signals: ["LANDED COST", "REPUTATION", "OFFICIAL HANDOFF"],
-    boundary: "ChainScout prepares and explains. Uniswap or the merchant owns signatures, payment details, fulfillment, and execution.",
+    signalKeys: [
+      "roadmap.horizon.buy.signal1",
+      "roadmap.horizon.buy.signal2",
+      "roadmap.horizon.buy.signal3",
+    ],
+    boundaryKey: "roadmap.horizon.buy.boundary",
   },
   {
     code: "TRUST",
-    eyebrow: "PHYSICAL + DIGITAL PROOF",
-    title: "Trust & Phygital Advisor",
-    summary: "Explain whether a digital claim is connected to a real object, who holds it, how it can be redeemed, and what can fail.",
-    outcome: "Understand the asset before committing money",
+    eyebrowKey: "roadmap.horizon.trust.eyebrow",
+    titleKey: "roadmap.horizon.trust.title",
+    summaryKey: "roadmap.horizon.trust.summary",
+    outcomeKey: "roadmap.horizon.trust.outcome",
     icon: BadgeCheck,
-    features: [
-      "Check contract controls, creator history, holders, liquidity, verified source, and protocol reputation",
-      "Check custody, redemption rights, serial or grader certificate, audits, insurance, fees, and jurisdiction",
-      "Give plain-English buy, verify, store, redeem, and exit checklists with evidence—not invented certainty",
+    featureKeys: [
+      "roadmap.horizon.trust.feature1",
+      "roadmap.horizon.trust.feature2",
+      "roadmap.horizon.trust.feature3",
     ],
-    signals: ["PROOF LEVEL", "CUSTODY", "EXIT PATH"],
-    boundary: "A token or photograph cannot prove physical authenticity or ownership; uncertain claims remain visibly unverified.",
+    signalKeys: [
+      "roadmap.horizon.trust.signal1",
+      "roadmap.horizon.trust.signal2",
+      "roadmap.horizon.trust.signal3",
+    ],
+    boundaryKey: "roadmap.horizon.trust.boundary",
   },
 ];
 
 const COMMERCE_FLOW = [
-  { label: "Identify", note: "Exact contract or collectible", icon: ScanSearch },
-  { label: "Find", note: "Fresh inventory and liquidity", icon: Store },
-  { label: "Compare", note: "True cost and reputation", icon: CircleDollarSign },
-  { label: "Verify", note: "Rights, custody, and risks", icon: ShieldCheck },
-  { label: "Continue", note: "Official protocol or checkout", icon: ArrowRight },
-];
+  { labelKey: "roadmap.commerce.identify.label", noteKey: "roadmap.commerce.identify.note", icon: ScanSearch },
+  { labelKey: "roadmap.commerce.find.label", noteKey: "roadmap.commerce.find.note", icon: Store },
+  { labelKey: "roadmap.commerce.compare.label", noteKey: "roadmap.commerce.compare.note", icon: CircleDollarSign },
+  { labelKey: "roadmap.commerce.verify.label", noteKey: "roadmap.commerce.verify.note", icon: ShieldCheck },
+  { labelKey: "roadmap.commerce.continue.label", noteKey: "roadmap.commerce.continue.note", icon: ArrowRight },
+] satisfies Array<{ labelKey: TranslationKey; noteKey: TranslationKey; icon: LucideIcon }>;
 
 const PRIVACY_PROMISES = [
   {
     number: "01",
-    title: "Encrypted Vault",
-    body: "Purchase prices, wallet groupings, notes, photos, and profit or loss stay encrypted on the device.",
+    titleKey: "roadmap.privacy.promises.encryptedVault.title",
+    bodyKey: "roadmap.privacy.promises.encryptedVault.body",
     icon: LockKeyhole,
   },
   {
     number: "02",
-    title: "Clear permission",
-    body: "Before an AI request, ChainScout shows the exact public facts that will leave the Vault.",
+    titleKey: "roadmap.privacy.promises.clearPermission.title",
+    bodyKey: "roadmap.privacy.promises.clearPermission.body",
     icon: KeyRound,
   },
   {
     number: "03",
-    title: "Minimal footprint",
-    body: "Private Mode needs no account, seed phrase, advertising tracker, or permanent server-side portfolio.",
+    titleKey: "roadmap.privacy.promises.minimalFootprint.title",
+    bodyKey: "roadmap.privacy.promises.minimalFootprint.body",
     icon: EyeOff,
   },
   {
     number: "04",
-    title: "Delete anytime",
-    body: "One clear action removes the local Vault, remembered wallets, photos, caches, and encryption keys.",
+    titleKey: "roadmap.privacy.promises.deleteAnytime.title",
+    bodyKey: "roadmap.privacy.promises.deleteAnytime.body",
     icon: Trash2,
   },
-];
+] satisfies Array<{ number: string; titleKey: TranslationKey; bodyKey: TranslationKey; icon: LucideIcon }>;
 
 function RoadmapSidebar({ active }: { active: string }) {
+  const { t } = useI18n();
   return (
     <aside className="fixed left-0 top-0 z-40 hidden h-screen w-[220px] flex-col border-r border-[#2e2e2e] bg-[#1d1d1d] lg:flex">
       <Link
         to="/"
         className="relative block h-[74px] shrink-0 bg-[#fa6c34]"
         style={{ clipPath: "polygon(0 0,100% 0,100% calc(100% - 16px),calc(100% - 16px) 100%,0 100%)" }}
-        aria-label="Back to ChainScout home"
+        aria-label={t("roadmap.sidebar.homeLabel")}
       >
         <span className="absolute inset-0 flex items-center justify-center">
           <img src="/logo.svg" alt="" className="h-8 w-8" />
@@ -353,8 +371,8 @@ function RoadmapSidebar({ active }: { active: string }) {
       </Link>
 
       <div className="border-b border-[#2e2e2e] px-6 py-7">
-        <p className="font-mono-d text-[10px] tracking-[0.18em] text-[#635d5a]">PRODUCT PATH</p>
-        <p className="mt-2 text-[15px] text-[#d6ccba]">Release roadmap</p>
+        <p className="font-mono-d text-[10px] tracking-[0.18em] text-[#635d5a]">{t("roadmap.sidebar.productPath")}</p>
+        <p className="mt-2 text-[15px] text-[#d6ccba]">{t("roadmap.sidebar.releaseRoadmap")}</p>
       </div>
 
       <nav className="flex flex-1 flex-col overflow-y-auto py-2">
@@ -370,7 +388,7 @@ function RoadmapSidebar({ active }: { active: string }) {
             >
               {isActive && <span className="absolute bottom-0 left-0 top-0 w-[2px] bg-[#fa6c34]" />}
               <span className={isActive ? "text-[#fa6c34]" : ""}>{release.number}</span>
-              <span className="truncate">{release.outcome}</span>
+              <span className="truncate">{t(release.outcomeKey)}</span>
             </a>
           );
         })}
@@ -380,8 +398,8 @@ function RoadmapSidebar({ active }: { active: string }) {
         <div className="flex items-center gap-3">
           <span className="roadmap-live-dot h-2 w-2 rounded-full bg-[#fa6c34]" />
           <div>
-            <p className="font-mono-d text-[10px] tracking-[0.14em] text-[#9a938a]">SEQUENTIAL</p>
-            <p className="mt-1 text-[11px] text-[#635d5a]">One release at a time</p>
+            <p className="font-mono-d text-[10px] tracking-[0.14em] text-[#9a938a]">{t("roadmap.sidebar.sequential")}</p>
+            <p className="mt-1 text-[11px] text-[#635d5a]">{t("roadmap.sidebar.oneAtATime")}</p>
           </div>
         </div>
       </div>
@@ -391,6 +409,7 @@ function RoadmapSidebar({ active }: { active: string }) {
 
 function RoadmapNav() {
   const [open, setOpen] = useState(false);
+  const { t } = useI18n();
 
   return (
     <>
@@ -399,31 +418,31 @@ function RoadmapNav() {
           to="/"
           className="flex h-full w-[60px] shrink-0 items-center justify-center bg-[#fa6c34] lg:hidden"
           style={{ clipPath: "polygon(0 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%)" }}
-          aria-label="ChainScout home"
+          aria-label={t("roadmap.nav.homeLabel")}
         >
           <img src="/logo.svg" alt="" className="h-6 w-6" />
         </Link>
         <Link to="/" className="ml-6 hidden items-center gap-2 font-mono-d text-[11px] text-[#9a938a] transition-colors hover:text-[#e9e0d1] sm:flex">
           <ArrowLeft size={13} />
-          HOME
+          {t("roadmap.nav.home")}
         </Link>
         <div className="flex-1" />
         <nav className="hidden items-center gap-8 pr-8 font-mono-d text-[11px] tracking-wide text-[#9a938a] md:flex">
-          <a href="#releases" className="transition-colors hover:text-[#e9e0d1]">RELEASES</a>
-          <a href="#horizon" className="transition-colors hover:text-[#e9e0d1]">UTILITY</a>
-          <a href="#privacy" className="transition-colors hover:text-[#e9e0d1]">PRIVACY</a>
-          <a href="#protocol" className="transition-colors hover:text-[#e9e0d1]">PROTOCOL</a>
+          <a href="#releases" className="transition-colors hover:text-[#e9e0d1]">{t("roadmap.nav.releases")}</a>
+          <a href="#horizon" className="transition-colors hover:text-[#e9e0d1]">{t("roadmap.nav.utility")}</a>
+          <a href="#privacy" className="transition-colors hover:text-[#e9e0d1]">{t("roadmap.nav.privacy")}</a>
+          <a href="#protocol" className="transition-colors hover:text-[#e9e0d1]">{t("roadmap.nav.protocol")}</a>
         </nav>
         <Link
           to="/app"
           className="clip-btn-sm mr-3 hidden h-full items-center bg-[#fa6c34] px-8 font-mono-d text-[11px] font-medium tracking-wide text-[#1d1d1d] transition-colors hover:bg-[#ff7038] sm:flex md:mr-0"
         >
-          TRY THE EXPLORER
+          {t("roadmap.nav.tryExplorer")}
         </Link>
         <button
           onClick={() => setOpen((value) => !value)}
           className="flex h-full w-[60px] items-center justify-center border-l border-[#2e2e2e] text-[#e9e0d1] md:hidden"
-          aria-label="Toggle navigation"
+          aria-label={t("roadmap.nav.toggle")}
           aria-expanded={open}
         >
           {open ? <X size={20} /> : <Menu size={20} />}
@@ -432,20 +451,20 @@ function RoadmapNav() {
       {open && (
         <div className="fixed inset-x-0 top-[60px] z-40 border-b border-[#2e2e2e] bg-[#1d1d1d] md:hidden">
           <a href="#releases" onClick={() => setOpen(false)} className="flex items-center justify-between border-b border-[#2e2e2e] px-6 py-4 font-mono-d text-[12px] text-[#9a938a]">
-            RELEASES <ArrowRight size={14} />
+            {t("roadmap.nav.releases")} <ArrowRight size={14} />
           </a>
           <a href="#horizon" onClick={() => setOpen(false)} className="flex items-center justify-between border-b border-[#2e2e2e] px-6 py-4 font-mono-d text-[12px] text-[#9a938a]">
-            UTILITY <ArrowRight size={14} />
+            {t("roadmap.nav.utility")} <ArrowRight size={14} />
           </a>
           <a href="#privacy" onClick={() => setOpen(false)} className="flex items-center justify-between border-b border-[#2e2e2e] px-6 py-4 font-mono-d text-[12px] text-[#9a938a]">
-            PRIVACY <ArrowRight size={14} />
+            {t("roadmap.nav.privacy")} <ArrowRight size={14} />
           </a>
           <a href="#protocol" onClick={() => setOpen(false)} className="flex items-center justify-between border-b border-[#2e2e2e] px-6 py-4 font-mono-d text-[12px] text-[#9a938a]">
-            RELEASE PROTOCOL <ArrowRight size={14} />
+            {t("roadmap.nav.releaseProtocol")} <ArrowRight size={14} />
           </a>
           <div className="grid grid-cols-2 gap-3 p-4">
-            <Link to="/" className="clip-btn-sm flex items-center justify-center border border-[#383838] py-3.5 font-mono-d text-[11px] text-[#d6ccba]">HOME</Link>
-            <Link to="/app" className="clip-btn-sm flex items-center justify-center bg-[#fa6c34] py-3.5 font-mono-d text-[11px] font-medium text-[#1d1d1d]">TRY EXPLORER</Link>
+            <Link to="/" className="clip-btn-sm flex items-center justify-center border border-[#383838] py-3.5 font-mono-d text-[11px] text-[#d6ccba]">{t("roadmap.nav.home")}</Link>
+            <Link to="/app" className="clip-btn-sm flex items-center justify-center bg-[#fa6c34] py-3.5 font-mono-d text-[11px] font-medium text-[#1d1d1d]">{t("roadmap.nav.tryExplorerShort")}</Link>
           </div>
         </div>
       )}
@@ -454,6 +473,7 @@ function RoadmapNav() {
 }
 
 function TrajectoryDiagram() {
+  const { t } = useI18n();
   return (
     <div className="roadmap-orbit roadmap-orbit-parallax relative mx-auto aspect-square w-full max-w-[560px]" aria-hidden="true">
       <div className="absolute inset-[8%] rounded-full border border-[#383838]" />
@@ -478,8 +498,8 @@ function TrajectoryDiagram() {
       </svg>
       <div className="absolute left-1/2 top-1/2 flex h-[116px] w-[116px] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-[#383838] bg-[#1d1d1d] text-center">
         <CircleDollarSign size={22} strokeWidth={1.2} className="text-[#fa6c34]" />
-        <span className="mt-2 font-mono-d text-[9px] tracking-[0.18em] text-[#9a938a]">$0 NEW SPEND</span>
-        <span className="font-mono-d text-[9px] tracking-[0.18em] text-[#9a938a]">UTILITY STACK</span>
+        <span className="mt-2 font-mono-d text-[9px] tracking-[0.18em] text-[#9a938a]">{t("roadmap.trajectory.zeroSpend")}</span>
+        <span className="font-mono-d text-[9px] tracking-[0.18em] text-[#9a938a]">{t("roadmap.trajectory.utilityStack")}</span>
       </div>
       {RELEASES.map((release, index) => {
         const positions = [
@@ -509,6 +529,7 @@ function TrajectoryDiagram() {
 }
 
 function ReleaseCard({ release, index }: { release: Release; index: number }) {
+  const { t } = useI18n();
   const Icon = release.icon;
   return (
     <article
@@ -524,38 +545,38 @@ function ReleaseCard({ release, index }: { release: Release; index: number }) {
             <span className="font-serif-d text-[76px] leading-none text-[#383838]">{release.number}</span>
             <Icon size={22} strokeWidth={1.25} className="mt-2 text-[#fa6c34] xl:mt-8" />
           </div>
-          <p className="relative mt-8 font-mono-d text-[9px] tracking-[0.16em] text-[#635d5a]">CUMULATIVE RELEASE</p>
+          <p className="relative mt-8 font-mono-d text-[9px] tracking-[0.16em] text-[#635d5a]">{t("roadmap.release.cumulative")}</p>
         </div>
 
         <div className="border-b border-[#2e2e2e] p-7 sm:p-10 xl:border-b-0 xl:border-r xl:p-12">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="font-mono-d text-[10px] tracking-[0.17em] text-[#fa6c34]">{release.eyebrow}</span>
+            <span className="font-mono-d text-[10px] tracking-[0.17em] text-[#fa6c34]">{t(release.eyebrowKey)}</span>
             <span className="h-px w-8 bg-[#383838]" />
-            <span className="font-mono-d text-[9px] tracking-[0.12em] text-[#635d5a]">BUILDS ON {index === 0 ? "CORE" : `R${RELEASES[index - 1].number}`}</span>
+            <span className="font-mono-d text-[9px] tracking-[0.12em] text-[#635d5a]">{t("roadmap.release.buildsOn", { base: index === 0 ? t("roadmap.release.core") : `R${RELEASES[index - 1].number}` })}</span>
           </div>
           <h2 className="mt-5 max-w-[680px] text-[32px] font-medium leading-[1.03] tracking-[-0.03em] text-[#e9e0d1] sm:text-[42px]">
-            {release.title}
+            {t(release.titleKey)}
           </h2>
-          <p className="mt-5 max-w-[620px] text-[14px] leading-7 text-[#9a938a]">{release.summary}</p>
+          <p className="mt-5 max-w-[620px] text-[14px] leading-7 text-[#9a938a]">{t(release.summaryKey)}</p>
 
           <div className="mt-9 grid gap-px overflow-hidden border border-[#2e2e2e] bg-[#2e2e2e] md:grid-cols-3">
             {release.capabilities.map((capability, capabilityIndex) => (
-              <div key={capability.title} className="roadmap-capability group relative min-h-[205px] overflow-hidden bg-[#1d1d1d] p-5 transition-colors hover:bg-[#242424]">
+              <div key={capability.titleKey} className="roadmap-capability group relative min-h-[205px] overflow-hidden bg-[#1d1d1d] p-5 transition-colors hover:bg-[#242424]">
                 <span className="pointer-events-none absolute -right-1 top-7 font-serif-d text-[62px] leading-none text-[#2b2b2b] transition-colors group-hover:text-[#302823]">
                   0{capabilityIndex + 1}
                 </span>
                 <div className="relative flex items-center justify-between">
-                  <span className="font-mono-d text-[9px] tracking-[0.14em] text-[#fa6c34]">{capability.kicker}</span>
+                  <span className="font-mono-d text-[9px] tracking-[0.14em] text-[#fa6c34]">{t(capability.kickerKey)}</span>
                   <span className="roadmap-point-beacon flex h-5 w-5 items-center justify-center rounded-full border border-[#383838]">
                     <span className="h-1.5 w-1.5 rounded-full bg-[#fa6c34] opacity-60 transition-opacity group-hover:opacity-100" />
                   </span>
                 </div>
-                <p className="relative mt-6 max-w-[190px] text-[13px] leading-[1.65] text-[#c1b8ab]">{capability.title}</p>
+                <p className="relative mt-6 max-w-[190px] text-[13px] leading-[1.65] text-[#c1b8ab]">{t(capability.titleKey)}</p>
 
                 <div className="relative mt-7 flex items-end justify-between gap-5 border-t border-[#2e2e2e] pt-4">
                   <div>
-                    <p className="font-mono-d text-[8px] tracking-[0.13em] text-[#635d5a]">SIGNAL</p>
-                    <p className="mt-1.5 font-mono-d text-[8px] tracking-[0.08em] text-[#9a938a]">{capability.signal}</p>
+                    <p className="font-mono-d text-[8px] tracking-[0.13em] text-[#635d5a]">{t("roadmap.release.signal")}</p>
+                    <p className="mt-1.5 font-mono-d text-[8px] tracking-[0.08em] text-[#9a938a]">{t(capability.signalKey)}</p>
                   </div>
                   <div className="flex h-8 items-end gap-[3px]" aria-hidden="true">
                     {capability.bars.map((height, barIndex) => (
@@ -577,8 +598,8 @@ function ReleaseCard({ release, index }: { release: Release; index: number }) {
 
         <div className="roadmap-release-aside flex flex-col justify-between bg-[#202020] p-7 sm:p-10">
           <div>
-            <p className="font-mono-d text-[9px] tracking-[0.17em] text-[#635d5a]">RELEASE OUTCOME</p>
-            <p className="mt-3 text-[21px] tracking-[-0.02em] text-[#d6ccba]">{release.outcome}</p>
+            <p className="font-mono-d text-[9px] tracking-[0.17em] text-[#635d5a]">{t("roadmap.release.outcomeLabel")}</p>
+            <p className="mt-3 text-[21px] tracking-[-0.02em] text-[#d6ccba]">{t(release.outcomeKey)}</p>
             <div className="mt-7 grid grid-cols-[74px_1fr] items-center gap-5 border border-[#2e2e2e] bg-[#1d1d1d]/45 p-4">
               <div className="roadmap-readiness relative flex h-[74px] w-[74px] items-center justify-center rounded-full border border-[#383838]">
                 <div className="absolute inset-[7px] rounded-full border border-dashed border-[#383838]" />
@@ -586,10 +607,10 @@ function ReleaseCard({ release, index }: { release: Release; index: number }) {
                 <span className="relative font-serif-d text-[19px] text-[#fa6c34]">R{release.number}</span>
               </div>
               <div>
-                <p className="font-mono-d text-[8px] tracking-[0.16em] text-[#635d5a]">CAPABILITY NODE</p>
+                <p className="font-mono-d text-[8px] tracking-[0.16em] text-[#635d5a]">{t("roadmap.release.capabilityNode")}</p>
                 <div className="mt-3 flex items-center gap-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#fa6c34]" />
-                  <span className="font-mono-d text-[9px] tracking-[0.1em] text-[#b1aaa0]">PLANNED / SEQUENTIAL</span>
+                  <span className="font-mono-d text-[9px] tracking-[0.1em] text-[#b1aaa0]">{t("roadmap.release.plannedSequential")}</span>
                 </div>
                 <div className="mt-3 flex gap-1">
                   {RELEASES.map((segmentRelease, segment) => (
@@ -600,10 +621,10 @@ function ReleaseCard({ release, index }: { release: Release; index: number }) {
             </div>
           </div>
           <div className="my-10 border-y border-[#2e2e2e] py-6">
-            <p className="font-mono-d text-[9px] tracking-[0.17em] text-[#635d5a]">SHIP GATE</p>
-            <p className="mt-3 text-[12.5px] leading-6 text-[#9a938a]">{release.gate}</p>
+            <p className="font-mono-d text-[9px] tracking-[0.17em] text-[#635d5a]">{t("roadmap.release.shipGate")}</p>
+            <p className="mt-3 text-[12.5px] leading-6 text-[#9a938a]">{t(release.gateKey)}</p>
             <div className="mt-5 grid grid-cols-3 gap-1.5">
-              {["DATA", "UX", "SAFETY"].map((check) => (
+              {[t("roadmap.release.check.data"), t("roadmap.release.check.ux"), t("roadmap.release.check.safety")].map((check) => (
                 <span key={check} className="flex items-center justify-center gap-1.5 border border-[#383838] py-2 font-mono-d text-[7px] tracking-[0.1em] text-[#635d5a]">
                   <Check size={8} className="text-[#fa6c34]" />
                   {check}
@@ -613,7 +634,7 @@ function ReleaseCard({ release, index }: { release: Release; index: number }) {
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-mono-d text-[9px] tracking-[0.17em] text-[#635d5a]">FROZEN AS</p>
+              <p className="font-mono-d text-[9px] tracking-[0.17em] text-[#635d5a]">{t("roadmap.release.frozenAs")}</p>
               <p className="mt-2 font-mono-d text-[10px] text-[#d6ccba]">{release.snapshot}</p>
               <p className="mt-2 max-w-[210px] truncate font-mono-d text-[8px] text-[#635d5a]">{release.branch}</p>
             </div>
@@ -629,6 +650,7 @@ function ReleaseCard({ release, index }: { release: Release; index: number }) {
 
 export default function Roadmap() {
   const [active, setActive] = useState(RELEASES[0].id);
+  const { t } = useI18n();
 
   useEffect(() => {
     const revealObserver = new IntersectionObserver(
@@ -709,51 +731,49 @@ export default function Roadmap() {
             <div>
               <div className="roadmap-hero-in flex max-w-[620px] items-center gap-3 border-y border-[#2e2e2e] py-3">
                 <span className="roadmap-live-dot h-1.5 w-1.5 rounded-full bg-[#fa6c34]" />
-                <span className="font-mono-d text-[10px] tracking-[0.14em] text-[#9a938a] sm:text-[11px]">CHAINSCOUT PRODUCT ROADMAP</span>
+                <span className="font-mono-d text-[10px] tracking-[0.14em] text-[#9a938a] sm:text-[11px]">{t("roadmap.hero.badge")}</span>
                 <span className="hatch h-3 flex-1 opacity-50" />
-                <span className="font-mono-d text-[9px] text-[#635d5a]">R01-R10 / ENGINEERING TRAIN</span>
+                <span className="font-mono-d text-[9px] text-[#635d5a]">{t("roadmap.hero.train")}</span>
               </div>
 
               <h1 className="roadmap-hero-in roadmap-delay-1 mt-10 max-w-[740px] text-[46px] font-medium leading-[0.98] tracking-[-0.045em] text-[#d6ccba] sm:text-[64px] md:text-[78px] xl:text-[82px]">
-                From explorer
+                {t("roadmap.hero.titleLine1")}
                 <br />
-                <span className="font-serif-d font-normal italic text-[#f0e8da]">to informed action.</span>
+                <span className="font-serif-d font-normal italic text-[#f0e8da]">{t("roadmap.hero.titleLine2")}</span>
               </h1>
               <p className="roadmap-hero-in roadmap-delay-2 mt-8 max-w-[560px] text-[15px] leading-7 text-[#9a938a]">
-                Ten cumulative releases build and harden a private asset command center. The live
-                build labels each tool as available now or coming soon instead of implying every adapter is public.
+                {t("roadmap.hero.intro")}
               </p>
             </div>
 
             <div className="roadmap-hero-in roadmap-delay-3 mt-14 grid max-w-[650px] grid-cols-3 gap-px overflow-hidden border border-[#2e2e2e] bg-[#2e2e2e] xl:mt-10">
-              {[
-                ["$0", "New vendor spend"],
-                ["00", "Public KYB steps*"],
-                ["01", "Official handoff"],
-              ].map(([value, label]) => (
-                <div key={label} className="bg-[#1d1d1d] p-4 sm:p-5">
+              {([
+                { value: "$0", labelKey: "roadmap.hero.stat.vendorLabel" },
+                { value: "00", labelKey: "roadmap.hero.stat.kybLabel" },
+                { value: "01", labelKey: "roadmap.hero.stat.handoffLabel" },
+              ] as const satisfies ReadonlyArray<{ value: string; labelKey: TranslationKey }>).map(({ value, labelKey }) => (
+                <div key={labelKey} className="bg-[#1d1d1d] p-4 sm:p-5">
                   <p className="font-serif-d text-[34px] leading-none text-[#e9e0d1]">{value}</p>
-                  <p className="mt-3 font-mono-d text-[8px] leading-4 tracking-[0.08em] text-[#635d5a] sm:text-[9px] sm:tracking-[0.1em]">{label.toUpperCase()}</p>
+                  <p className="mt-3 font-mono-d text-[8px] leading-4 tracking-[0.08em] text-[#635d5a] sm:text-[9px] sm:tracking-[0.1em]">{t(labelKey).toUpperCase()}</p>
                 </div>
               ))}
             </div>
             <p className="roadmap-hero-in roadmap-delay-3 mt-4 max-w-[650px] font-mono-d text-[8px] leading-4 tracking-[0.06em] text-[#635d5a]">
-              * Selected provider path has no publicly stated KYB/KYC requirement. Ordinary account,
-              API-key, and terms acceptance may apply. User-paid network and liquidity costs remain.
+              {t("roadmap.hero.footnote")}
             </p>
           </div>
 
           <div className="dots relative flex min-h-[520px] items-center justify-center overflow-hidden bg-[#1c1c1c] p-5 sm:p-10 xl:min-h-0">
             <div className="absolute left-0 right-0 top-8 flex items-center gap-3 px-8">
-              <span className="font-mono-d text-[9px] tracking-[0.16em] text-[#635d5a]">RELEASE TRAJECTORY</span>
+              <span className="font-mono-d text-[9px] tracking-[0.16em] text-[#635d5a]">{t("roadmap.hero.trajectory")}</span>
               <span className="h-px flex-1 bg-[#2e2e2e]" />
-              <span className="font-mono-d text-[9px] text-[#635d5a]">4663 / PRODUCT</span>
+              <span className="font-mono-d text-[9px] text-[#635d5a]">{t("roadmap.hero.trajectoryCode")}</span>
             </div>
             <TrajectoryDiagram />
             <div className="absolute bottom-7 left-8 right-8 flex items-center justify-between font-mono-d text-[9px] tracking-[0.12em] text-[#635d5a]">
-              <span>UNDERSTAND</span>
+              <span>{t("roadmap.hero.understand")}</span>
               <span className="mx-4 h-px flex-1 bg-[#4a4541]" />
-              <span>PREPARE</span>
+              <span>{t("roadmap.hero.prepare")}</span>
             </div>
           </div>
         </section>
@@ -761,15 +781,14 @@ export default function Roadmap() {
         <section id="releases" className="scroll-mt-20">
           <div className="grid border-b border-[#2e2e2e] bg-[#e9e0d1] text-[#1d1d1d] md:grid-cols-[1fr_1fr]">
             <div className="border-b border-[#1d1d1d]/15 px-7 py-10 sm:px-10 md:border-b-0 md:border-r md:px-12 md:py-14">
-              <p className="font-mono-d text-[10px] tracking-[0.18em] text-[#1d1d1d]/55">THE RELEASE STACK</p>
+              <p className="font-mono-d text-[10px] tracking-[0.18em] text-[#1d1d1d]/55">{t("roadmap.stack.eyebrow")}</p>
               <h2 className="mt-4 max-w-[580px] text-[34px] font-medium leading-[1.05] tracking-[-0.035em] sm:text-[46px]">
-                Each update makes the next one possible.
+                {t("roadmap.stack.title")}
               </h2>
             </div>
             <div className="dots-dark flex items-end px-7 py-10 sm:px-10 md:px-12 md:py-14">
               <p className="max-w-[570px] text-[14px] leading-7 text-[#1d1d1d]/65">
-                These are cumulative snapshots, not parallel experiments. Release 02 includes 01;
-                release 03 includes both. What passes stays stable while the product moves forward.
+                {t("roadmap.stack.body")}
               </p>
             </div>
           </div>
@@ -788,37 +807,36 @@ export default function Roadmap() {
             <div className="roadmap-reveal border-b border-[#2e2e2e] px-7 py-14 sm:px-10 md:px-12 md:py-20 xl:border-b-0 xl:border-r">
               <div className="flex items-center gap-3">
                 <span className="h-2 w-2 rounded-full bg-[#fa6c34]" />
-                <p className="font-mono-d text-[10px] tracking-[0.18em] text-[#fa6c34]">THE LAUNCH UTILITY</p>
+                <p className="font-mono-d text-[10px] tracking-[0.18em] text-[#fa6c34]">{t("roadmap.utility.eyebrow")}</p>
               </div>
               <h2 className="mt-7 max-w-[620px] text-[42px] font-medium leading-[0.98] tracking-[-0.04em] text-[#e9e0d1] sm:text-[58px]">
-                One lens for
+                {t("roadmap.utility.titleLine1")}
                 <br />
-                <span className="font-serif-d font-normal italic text-[#f0e8da]">anything with value.</span>
+                <span className="font-serif-d font-normal italic text-[#f0e8da]">{t("roadmap.utility.titleLine2")}</span>
               </h2>
               <p className="mt-7 max-w-[550px] text-[14px] leading-7 text-[#9a938a]">
-                Discover it, prove what it is, see every comparable place it is available, understand
-                the real cost and risk, then continue through the official protocol or merchant.
+                {t("roadmap.utility.intro")}
               </p>
               <div className="mt-9 inline-flex items-center gap-3 border border-[#383838] bg-[#1d1d1d] px-4 py-3">
                 <Zap size={14} className="text-[#fa6c34]" />
-                <span className="font-mono-d text-[9px] tracking-[0.12em] text-[#9a938a]">BUILT SEQUENTIALLY INTO RELEASES 05—09</span>
+                <span className="font-mono-d text-[9px] tracking-[0.12em] text-[#9a938a]">{t("roadmap.utility.releaseNote")}</span>
               </div>
             </div>
 
             <div className="roadmap-reveal dots flex flex-col justify-center p-7 sm:p-10 md:p-12">
-              <p className="font-mono-d text-[9px] tracking-[0.17em] text-[#635d5a]">A SINGLE CONSUMER FLOW</p>
+              <p className="font-mono-d text-[9px] tracking-[0.17em] text-[#635d5a]">{t("roadmap.utility.flowEyebrow")}</p>
               <div className="mt-6 grid gap-px overflow-hidden border border-[#2e2e2e] bg-[#2e2e2e] sm:grid-cols-5">
                 {COMMERCE_FLOW.map((step, index) => {
                   const Icon = step.icon;
                   return (
-                    <div key={step.label} className="roadmap-commerce-step group relative min-h-[180px] bg-[#1d1d1d] p-4 transition-colors hover:bg-[#242424]">
+                    <div key={step.labelKey} className="roadmap-commerce-step group relative min-h-[180px] bg-[#1d1d1d] p-4 transition-colors hover:bg-[#242424]">
                       <div className="flex items-center justify-between">
                         <span className="font-mono-d text-[8px] text-[#635d5a]">0{index + 1}</span>
                         <Icon size={16} strokeWidth={1.35} className="text-[#fa6c34]" />
                       </div>
                       <div className="mt-12 sm:mt-16">
-                        <p className="text-[16px] text-[#d6ccba]">{step.label}</p>
-                        <p className="mt-2 text-[10.5px] leading-5 text-[#635d5a]">{step.note}</p>
+                        <p className="text-[16px] text-[#d6ccba]">{t(step.labelKey)}</p>
+                        <p className="mt-2 text-[10.5px] leading-5 text-[#635d5a]">{t(step.noteKey)}</p>
                       </div>
                       <span className="absolute bottom-0 left-0 h-[2px] w-0 bg-[#fa6c34] transition-all duration-500 group-hover:w-full" />
                     </div>
@@ -826,8 +844,7 @@ export default function Roadmap() {
                 })}
               </div>
               <p className="mt-5 font-mono-d text-[8px] leading-5 tracking-[0.08em] text-[#635d5a]">
-                “BEST” MEANS THE STRONGEST OBSERVED COMPARABLE OUTCOME—AFTER FEES, CONDITION,
-                FRESHNESS, REPUTATION, AND RISK. AVAILABILITY CAN CHANGE BEFORE CHECKOUT.
+                {t("roadmap.utility.bestNote")}
               </p>
             </div>
           </div>
@@ -844,44 +861,44 @@ export default function Roadmap() {
                   <div className="roadmap-horizon-scan pointer-events-none absolute inset-0" />
                   <div className="relative flex items-start justify-between gap-6">
                     <div>
-                      <p className="font-mono-d text-[9px] tracking-[0.18em] text-[#fa6c34]">{idea.eyebrow}</p>
-                      <h3 className="mt-5 text-[30px] font-medium leading-none tracking-[-0.03em] text-[#e9e0d1] sm:text-[38px]">{idea.title}</h3>
+                      <p className="font-mono-d text-[9px] tracking-[0.18em] text-[#fa6c34]">{t(idea.eyebrowKey)}</p>
+                      <h3 className="mt-5 text-[30px] font-medium leading-none tracking-[-0.03em] text-[#e9e0d1] sm:text-[38px]">{t(idea.titleKey)}</h3>
                     </div>
                     <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[#383838] bg-[#202020] transition-colors group-hover:border-[#fa6c34]/60">
                       <Icon size={21} strokeWidth={1.25} className="text-[#fa6c34]" />
                     </div>
                   </div>
 
-                  <p className="relative mt-6 max-w-[630px] text-[13.5px] leading-7 text-[#9a938a]">{idea.summary}</p>
+                  <p className="relative mt-6 max-w-[630px] text-[13.5px] leading-7 text-[#9a938a]">{t(idea.summaryKey)}</p>
 
                   <div className="relative mt-8 border border-[#2e2e2e] bg-[#202020]/70">
                     <div className="flex items-center justify-between border-b border-[#2e2e2e] px-5 py-4">
-                      <span className="font-mono-d text-[8px] tracking-[0.15em] text-[#635d5a]">CONSUMER OUTCOME</span>
+                      <span className="font-mono-d text-[8px] tracking-[0.15em] text-[#635d5a]">{t("roadmap.horizon.consumerOutcome")}</span>
                       <span className="font-serif-d text-[24px] text-[#383838]">{idea.code}</span>
                     </div>
-                    <p className="px-5 py-5 text-[18px] leading-7 text-[#d6ccba]">{idea.outcome}</p>
+                    <p className="px-5 py-5 text-[18px] leading-7 text-[#d6ccba]">{t(idea.outcomeKey)}</p>
                   </div>
 
                   <div className="relative mt-7 space-y-0 border-y border-[#2e2e2e]">
-                    {idea.features.map((feature, featureIndex) => (
-                      <div key={feature} className="flex gap-4 border-b border-[#2e2e2e] py-4 last:border-b-0">
+                    {idea.featureKeys.map((featureKey, featureIndex) => (
+                      <div key={featureKey} className="flex gap-4 border-b border-[#2e2e2e] py-4 last:border-b-0">
                         <span className="mt-0.5 font-mono-d text-[9px] text-[#fa6c34]">0{featureIndex + 1}</span>
-                        <p className="text-[12.5px] leading-6 text-[#b1aaa0]">{feature}</p>
+                        <p className="text-[12.5px] leading-6 text-[#b1aaa0]">{t(featureKey)}</p>
                       </div>
                     ))}
                   </div>
 
                   <div className="relative mt-7 flex flex-wrap gap-2">
-                    {idea.signals.map((signal) => (
-                      <span key={signal} className="border border-[#383838] px-3 py-2 font-mono-d text-[8px] tracking-[0.1em] text-[#9a938a] transition-colors group-hover:border-[#4a3a32] group-hover:text-[#d6ccba]">
-                        {signal}
+                    {idea.signalKeys.map((signalKey) => (
+                      <span key={signalKey} className="border border-[#383838] px-3 py-2 font-mono-d text-[8px] tracking-[0.1em] text-[#9a938a] transition-colors group-hover:border-[#4a3a32] group-hover:text-[#d6ccba]">
+                        {t(signalKey)}
                       </span>
                     ))}
                   </div>
 
                   <div className="relative mt-7 flex gap-3 bg-[#171717] p-4">
                     <ShieldCheck size={15} strokeWidth={1.3} className="mt-0.5 shrink-0 text-[#fa6c34]" />
-                    <p className="text-[10.5px] leading-5 text-[#635d5a]">{idea.boundary}</p>
+                    <p className="text-[10.5px] leading-5 text-[#635d5a]">{t(idea.boundaryKey)}</p>
                   </div>
                 </article>
               );
@@ -890,15 +907,12 @@ export default function Roadmap() {
 
           <div className="grid border-t border-[#2e2e2e] bg-[#e9e0d1] text-[#1d1d1d] md:grid-cols-[0.7fr_1.3fr]">
             <div className="border-b border-[#1d1d1d]/15 px-7 py-10 sm:px-10 md:border-b-0 md:border-r md:px-12">
-              <p className="font-mono-d text-[9px] tracking-[0.17em] text-[#1d1d1d]/50">DOABLE BY DESIGN</p>
-              <p className="mt-3 text-[24px] font-medium tracking-[-0.025em]">Adapters, not one giant scraper.</p>
+              <p className="font-mono-d text-[9px] tracking-[0.17em] text-[#1d1d1d]/50">{t("roadmap.utility.doableEyebrow")}</p>
+              <p className="mt-3 text-[24px] font-medium tracking-[-0.025em]">{t("roadmap.utility.doableTitle")}</p>
             </div>
             <div className="px-7 py-10 sm:px-10 md:px-12">
               <p className="max-w-[820px] text-[13px] leading-7 text-[#1d1d1d]/65">
-                Start with onchain state and official APIs. Add approved marketplace integrations,
-                opted-in WooCommerce product data, merchant-submitted feeds, and permitted
-                Product/Offer metadata. Every adapter reports freshness and can fail independently without
-                taking down the rest of ChainScout.
+                {t("roadmap.utility.doableBody")}
               </p>
             </div>
           </div>
@@ -916,22 +930,20 @@ export default function Roadmap() {
               <div className="relative">
                 <div className="flex items-center gap-3">
                   <span className="h-2 w-2 rounded-full bg-[#fa6c34]" />
-                  <p className="font-mono-d text-[10px] tracking-[0.18em] text-[#1d1d1d]/55">RELEASES 02—03 / VAULT PRIVACY MODEL</p>
+                  <p className="font-mono-d text-[10px] tracking-[0.18em] text-[#1d1d1d]/55">{t("roadmap.privacySection.eyebrow")}</p>
                 </div>
                 <h2 className="mt-7 max-w-[610px] text-[44px] font-medium leading-[0.96] tracking-[-0.045em] sm:text-[62px]">
-                  Private by design.
+                  {t("roadmap.privacySection.titleLine1")}
                   <br />
-                  <span className="font-serif-d font-normal italic text-[#fa6c34]">Useful by default.</span>
+                  <span className="font-serif-d font-normal italic text-[#fa6c34]">{t("roadmap.privacySection.titleLine2")}</span>
                 </h2>
                 <p className="mt-7 max-w-[520px] text-[14px] leading-7 text-[#1d1d1d]/65">
-                  A portfolio should make people feel informed and in control—not watched. The Vault
-                  is designed to keep sensitive ownership context on the device while ChainScout works
-                  with public asset facts.
+                  {t("roadmap.privacySection.intro")}
                 </p>
                 <div className="mt-9 inline-flex items-center gap-3 border border-[#1d1d1d]/20 bg-[#e2d9ca] px-4 py-3">
                   <ShieldCheck size={14} className="text-[#fa6c34]" />
                   <span className="font-mono-d text-[8px] leading-4 tracking-[0.1em] text-[#1d1d1d]/60">
-                    DESIGN TARGET / EACH PROTECTION MUST PASS ITS RELEASE GATE
+                    {t("roadmap.privacySection.designTarget")}
                   </span>
                 </div>
               </div>
@@ -940,33 +952,33 @@ export default function Roadmap() {
             <div className="roadmap-reveal dots-dark bg-[#1d1d1d] p-7 text-[#e9e0d1] sm:p-10 md:p-12">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="font-mono-d text-[9px] tracking-[0.18em] text-[#fa6c34]">YOUR PRIVACY RECEIPT</p>
-                  <h3 className="mt-4 text-[27px] font-medium tracking-[-0.025em] sm:text-[34px]">This answer used less than you think.</h3>
+                  <p className="font-mono-d text-[9px] tracking-[0.18em] text-[#fa6c34]">{t("roadmap.privacySection.receiptEyebrow")}</p>
+                  <h3 className="mt-4 text-[27px] font-medium tracking-[-0.025em] sm:text-[34px]">{t("roadmap.privacySection.receiptTitle")}</h3>
                 </div>
-                <span className="border border-[#383838] px-3 py-2 font-mono-d text-[8px] tracking-[0.12em] text-[#635d5a]">PLANNED UX</span>
+                <span className="border border-[#383838] px-3 py-2 font-mono-d text-[8px] tracking-[0.12em] text-[#635d5a]">{t("roadmap.privacySection.receiptBadge")}</span>
               </div>
 
               <div className="mt-9 overflow-hidden border border-[#383838] bg-[#202020]/90">
-                {[
+                {([
                   {
-                    label: "STAYED ON YOUR DEVICE",
-                    body: "Wallet groupings, purchase prices, notes, photos, grades, and profit or loss.",
+                    labelKey: "roadmap.privacySection.row.deviceLabel",
+                    bodyKey: "roadmap.privacySection.row.deviceBody",
                   },
                   {
-                    label: "USED FOR THIS ANSWER",
-                    body: "One public contract address, its network, and the question the user approved.",
+                    labelKey: "roadmap.privacySection.row.answerLabel",
+                    bodyKey: "roadmap.privacySection.row.answerBody",
                   },
                   {
-                    label: "PRIVATE MODE DOES NOT SAVE",
-                    body: "The portfolio, personal context, or private conversation history.",
+                    labelKey: "roadmap.privacySection.row.noSaveLabel",
+                    bodyKey: "roadmap.privacySection.row.noSaveBody",
                   },
-                ].map((row) => (
-                  <div key={row.label} className="roadmap-privacy-row group relative border-b border-[#383838] p-5 last:border-b-0 sm:p-6">
+                ] as const satisfies ReadonlyArray<{ labelKey: TranslationKey; bodyKey: TranslationKey }>).map((row) => (
+                  <div key={row.labelKey} className="roadmap-privacy-row group relative border-b border-[#383838] p-5 last:border-b-0 sm:p-6">
                     <div className="flex items-center gap-3">
                       <span className="h-2 w-2 rounded-full bg-[#fa6c34]" />
-                      <p className="font-mono-d text-[8px] tracking-[0.14em] text-[#fa6c34]">{row.label}</p>
+                      <p className="font-mono-d text-[8px] tracking-[0.14em] text-[#fa6c34]">{t(row.labelKey)}</p>
                     </div>
-                    <p className="mt-3 max-w-[570px] pl-5 text-[12.5px] leading-6 text-[#9a938a]">{row.body}</p>
+                    <p className="mt-3 max-w-[570px] pl-5 text-[12.5px] leading-6 text-[#9a938a]">{t(row.bodyKey)}</p>
                   </div>
                 ))}
               </div>
@@ -974,9 +986,9 @@ export default function Roadmap() {
               <div className="mt-5 flex items-center justify-between gap-5 border border-[#383838] bg-[#171717] p-4">
                 <div className="flex items-center gap-3">
                   <Check size={14} className="text-[#fa6c34]" />
-                  <span className="text-[12px] text-[#d6ccba]">No other Vault fields are approved for this request.</span>
+                  <span className="text-[12px] text-[#d6ccba]">{t("roadmap.privacySection.approvedNote")}</span>
                 </div>
-                <span className="font-mono-d text-[8px] tracking-[0.1em] text-[#635d5a]">CLEAR / REVIEWABLE</span>
+                <span className="font-mono-d text-[8px] tracking-[0.1em] text-[#635d5a]">{t("roadmap.privacySection.reviewable")}</span>
               </div>
             </div>
           </div>
@@ -996,8 +1008,8 @@ export default function Roadmap() {
                       <Icon size={18} strokeWidth={1.3} />
                     </span>
                   </div>
-                  <h3 className="mt-10 text-[23px] font-medium tracking-[-0.025em] text-[#e9e0d1]">{promise.title}</h3>
-                  <p className="mt-4 text-[12.5px] leading-6 text-[#9a938a]">{promise.body}</p>
+                  <h3 className="mt-10 text-[23px] font-medium tracking-[-0.025em] text-[#e9e0d1]">{t(promise.titleKey)}</h3>
+                  <p className="mt-4 text-[12.5px] leading-6 text-[#9a938a]">{t(promise.bodyKey)}</p>
                   <span className="absolute bottom-0 left-0 h-[2px] w-0 bg-[#fa6c34] transition-all duration-500 group-hover:w-full" />
                 </article>
               );
@@ -1006,15 +1018,20 @@ export default function Roadmap() {
 
           <div className="roadmap-reveal grid bg-[#fa6c34] text-[#1d1d1d] xl:grid-cols-[1fr_auto]">
             <div className="border-b border-[#1d1d1d]/20 px-7 py-10 sm:px-10 md:px-12 xl:border-b-0 xl:border-r">
-              <p className="font-mono-d text-[9px] tracking-[0.17em] text-[#1d1d1d]/55">THE TRUST HOOK</p>
+              <p className="font-mono-d text-[9px] tracking-[0.17em] text-[#1d1d1d]/55">{t("roadmap.privacySection.trustEyebrow")}</p>
               <p className="mt-4 max-w-[900px] text-[26px] font-medium leading-tight tracking-[-0.025em] sm:text-[34px]">
-                ChainScout knows the assets. It does not need to know which ones are yours.
+                {t("roadmap.privacySection.trustTitle")}
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2 px-7 py-8 sm:px-10 xl:max-w-[360px] xl:px-10">
-              {["ENCRYPTED VAULT", "NO ACCOUNT", "NO TRACKERS", "NO SEED PHRASES"].map((label) => (
-                <span key={label} className="border border-[#1d1d1d]/25 px-3 py-2 font-mono-d text-[8px] tracking-[0.1em]">
-                  {label}
+              {[
+                "roadmap.privacySection.badge.vault",
+                "roadmap.privacySection.badge.noAccount",
+                "roadmap.privacySection.badge.noTrackers",
+                "roadmap.privacySection.badge.noSeed",
+              ].map((labelKey) => (
+                <span key={labelKey} className="border border-[#1d1d1d]/25 px-3 py-2 font-mono-d text-[8px] tracking-[0.1em]">
+                  {t(labelKey as TranslationKey)}
                 </span>
               ))}
             </div>
@@ -1024,16 +1041,14 @@ export default function Roadmap() {
         <section id="protocol" className="scroll-mt-20 bg-[#fa6c34] text-[#1d1d1d]">
           <div className="grid border-b border-[#1d1d1d]/20 xl:grid-cols-[0.82fr_1.18fr]">
             <div className="border-b border-[#1d1d1d]/20 px-7 py-14 sm:px-10 md:px-12 md:py-20 xl:border-b-0 xl:border-r">
-              <p className="font-mono-d text-[10px] tracking-[0.18em] text-[#1d1d1d]/55">ONE LINK. ZERO NEW SPEND.</p>
+              <p className="font-mono-d text-[10px] tracking-[0.18em] text-[#1d1d1d]/55">{t("roadmap.protocol.eyebrow")}</p>
               <h2 className="mt-5 max-w-[520px] text-[42px] font-medium leading-[0.98] tracking-[-0.04em] sm:text-[56px]">
-                The release
+                {t("roadmap.protocol.titleLine1")}
                 <br />
-                <span className="font-serif-d font-normal italic">protocol.</span>
+                <span className="font-serif-d font-normal italic">{t("roadmap.protocol.titleLine2")}</span>
               </h2>
               <p className="mt-7 max-w-[480px] text-[14px] leading-7 text-[#1d1d1d]/70">
-                Railway staging follows the branch currently under test. Production stays on main
-                until the candidate clears its gate. Provider adapters degrade before a free-tier
-                limit can create a bill.
+                {t("roadmap.protocol.intro")}
               </p>
             </div>
 
@@ -1042,14 +1057,14 @@ export default function Roadmap() {
                 {RELEASE_LOOP.map((step, index) => {
                   const Icon = step.icon;
                   return (
-                    <div key={step.label} className="roadmap-protocol-step relative min-h-[190px] bg-[#fa6c34] p-5 sm:min-h-[260px]">
+                    <div key={step.labelKey} className="roadmap-protocol-step relative min-h-[190px] bg-[#fa6c34] p-5 sm:min-h-[260px]">
                       <div className="flex items-center justify-between">
                         <span className="font-mono-d text-[10px] text-[#1d1d1d]/50">0{index + 1}</span>
                         <Icon size={17} strokeWidth={1.4} />
                       </div>
                       <div className="mt-12 sm:mt-24">
-                        <p className="text-[18px] font-medium">{step.label}</p>
-                        <p className="mt-3 text-[11.5px] leading-5 text-[#1d1d1d]/65">{step.note}</p>
+                        <p className="text-[18px] font-medium">{t(step.labelKey)}</p>
+                        <p className="mt-3 text-[11.5px] leading-5 text-[#1d1d1d]/65">{t(step.noteKey)}</p>
                       </div>
                       {index < RELEASE_LOOP.length - 1 && (
                         <ArrowRight className="absolute -right-2.5 top-1/2 z-10 hidden -translate-y-1/2 sm:block" size={18} />
@@ -1059,41 +1074,41 @@ export default function Roadmap() {
                 })}
               </div>
               <div className="mt-5 flex flex-col justify-between gap-4 border border-[#1d1d1d]/20 bg-[#fa6c34]/80 p-5 font-mono-d text-[10px] sm:flex-row sm:items-center">
-                <span className="tracking-[0.14em]">SNAPSHOT RULE</span>
-                <span className="text-[#1d1d1d]/65">A TAG NEVER MOVES. STAGING DOES.</span>
+                <span className="tracking-[0.14em]">{t("roadmap.protocol.snapshotRule.label")}</span>
+                <span className="text-[#1d1d1d]/65">{t("roadmap.protocol.snapshotRule.value")}</span>
               </div>
               <div className="mt-2 flex flex-col justify-between gap-4 border border-[#1d1d1d]/20 bg-[#fa6c34]/80 p-5 font-mono-d text-[10px] sm:flex-row sm:items-center">
-                <span className="tracking-[0.14em]">ZERO-SPEND RULE</span>
-                <span className="text-[#1d1d1d]/65">CACHE, DEGRADE, THEN DISABLE—NEVER AUTO-UPGRADE.</span>
+                <span className="tracking-[0.14em]">{t("roadmap.protocol.zeroSpendRule.label")}</span>
+                <span className="text-[#1d1d1d]/65">{t("roadmap.protocol.zeroSpendRule.value")}</span>
               </div>
               <div className="mt-2 flex flex-col justify-between gap-4 border border-[#1d1d1d]/20 bg-[#fa6c34]/80 p-5 font-mono-d text-[10px] sm:flex-row sm:items-center">
-                <span className="tracking-[0.14em]">IDENTITY RULE</span>
-                <span className="text-[#1d1d1d]/65">NO SALES-GATED OR KYB-REQUIRED PROVIDERS.</span>
+                <span className="tracking-[0.14em]">{t("roadmap.protocol.identityRule.label")}</span>
+                <span className="text-[#1d1d1d]/65">{t("roadmap.protocol.identityRule.value")}</span>
               </div>
             </div>
           </div>
 
           <div className="flex flex-col items-start justify-between gap-8 px-7 py-10 sm:px-10 md:flex-row md:items-center md:px-12">
             <div>
-              <p className="font-mono-d text-[10px] tracking-[0.17em] text-[#1d1d1d]/55">CHAINSCOUT / ROBINHOOD CHAIN</p>
-              <p className="mt-2 text-[20px] font-medium">Understand here. Execute in official tools.</p>
+              <p className="font-mono-d text-[10px] tracking-[0.17em] text-[#1d1d1d]/55">{t("roadmap.protocol.brand")}</p>
+              <p className="mt-2 text-[20px] font-medium">{t("roadmap.protocol.tagline")}</p>
             </div>
             <Link
               to="/app"
               className="clip-btn flex min-h-[56px] w-full items-center justify-between bg-[#1d1d1d] px-7 font-mono-d text-[11px] tracking-[0.08em] text-[#e9e0d1] transition-transform hover:-translate-y-0.5 sm:w-[280px]"
             >
-              EXPLORE THE CURRENT BUILD
+              {t("roadmap.protocol.cta")}
               <ArrowRight size={15} />
             </Link>
           </div>
         </section>
 
         <footer className="flex flex-col items-start justify-between gap-4 border-t border-[#2e2e2e] bg-[#1d1d1d] px-7 py-6 text-[11px] text-[#635d5a] sm:px-10 md:flex-row md:items-center md:px-12">
-          <span>© ChainScout, 2026</span>
-          <span className="font-mono-d tracking-[0.2em]">BUILD / TEST / TAG / MERGE</span>
+          <span>{t("roadmap.footer.copyright")}</span>
+          <span className="font-mono-d tracking-[0.2em]">{t("roadmap.footer.workflow")}</span>
           <div className="flex gap-6">
-            <Link to="/terms" className="transition-colors hover:text-[#e9e0d1]">Terms</Link>
-            <Link to="/privacy" className="transition-colors hover:text-[#e9e0d1]">Privacy</Link>
+            <Link to="/terms" className="transition-colors hover:text-[#e9e0d1]">{t("roadmap.footer.terms")}</Link>
+            <Link to="/privacy" className="transition-colors hover:text-[#e9e0d1]">{t("roadmap.footer.privacy")}</Link>
           </div>
         </footer>
       </main>

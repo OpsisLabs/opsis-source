@@ -1,95 +1,85 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router";
+import { useI18n, type TranslationKey } from "./i18n";
 
 type RouteMetadataEntry = {
-  title: string;
-  description: string;
+  title: TranslationKey;
+  description: TranslationKey;
   canonicalPath?: string;
   noIndex?: boolean;
 };
 
-const HOME_DESCRIPTION =
-  "Track crypto, NFTs, tokenized assets, Pokémon cards, collectibles, and anything else in one encrypted local Vault—then inspect source-linked Robinhood Chain activity.";
-
 const ROUTE_METADATA: Record<string, RouteMetadataEntry> = {
   "/card-prices": {
-    title: "Card Price Check | ChainScout",
-    description: "Check Pokémon and Yu-Gi-Oh! price references across supported markets. No wallet required. Reference prices, not live offers or graded-card appraisals.",
+    title: "cards.metadata.title",
+    description: "cards.metadata.description",
   },
   "/": {
-    title: "ChainScout — Private Multi-Asset Command Center",
-    description: HOME_DESCRIPTION,
+    title: "metadata.home.title",
+    description: "metadata.home.description",
   },
   "/app": {
-    title: "Private Explorer | ChainScout",
-    description:
-      "Explain a public Robinhood Chain wallet, transaction, token, or contract with source-linked evidence—without connecting a wallet or creating an account.",
+    title: "metadata.explorer.title",
+    description: "metadata.explorer.description",
   },
   "/vault": {
-    title: "Encrypted Asset Vault | ChainScout",
-    description:
-      "Track crypto, NFTs, tokenized assets, cards, collectibles, purchase lots, photos, and dated values in an encrypted browser-local Vault.",
+    title: "metadata.vault.title",
+    description: "metadata.vault.description",
   },
   "/rwa": {
-    title: "RWA Verify | ChainScout",
-    description:
-      "Review source-linked Robinhood Chain tokenized-asset identity, custody, oracle, yield, and redemption evidence with explicit limitations.",
+    title: "metadata.rwa.title",
+    description: "metadata.rwa.description",
   },
   "/swap": {
-    title: "Scout Swap Preview | ChainScout",
-    description:
-      "Preview a current Robinhood Chain swap route, simulation, price impact, and network cost before handing execution to the official Uniswap app.",
+    title: "metadata.swap.title",
+    description: "metadata.swap.description",
+  },
+  "/simulate": {
+    title: "metadata.simulator.title",
+    description: "metadata.simulator.description",
+    noIndex: true,
   },
   "/guide": {
-    title: "Feature Guide | ChainScout",
-    description:
-      "Follow clear workflows for ChainScout's private Explorer, encrypted Vault, portfolio tools, RWA verification, and read-only swap previews.",
+    title: "metadata.guide.title",
+    description: "metadata.guide.description",
   },
   "/docs": {
-    title: "Technical Docs | ChainScout",
-    description:
-      "Read how ChainScout handles public chain data, citations, encrypted browser-local records, provider boundaries, and read-only transaction previews.",
+    title: "metadata.docs.title",
+    description: "metadata.docs.description",
   },
   "/faq": {
-    title: "FAQ | ChainScout",
-    description:
-      "Answers about ChainScout privacy, wallet connections, encrypted Vault storage, public data sources, asset coverage, and safety boundaries.",
+    title: "metadata.faq.title",
+    description: "metadata.faq.description",
   },
   "/roadmap": {
-    title: "Product Roadmap | ChainScout",
-    description:
-      "Explore ChainScout's reviewed product roadmap and the release gates behind its private, read-only multi-asset workspace.",
+    title: "metadata.roadmap.title",
+    description: "metadata.roadmap.description",
   },
   "/privacy": {
-    title: "Privacy Policy | ChainScout",
-    description:
-      "Understand what ChainScout processes, what stays encrypted in your browser, what reaches public providers, and how optional account data can be removed.",
+    title: "metadata.privacy.title",
+    description: "metadata.privacy.description",
   },
   "/terms": {
-    title: "Terms of Use | ChainScout",
-    description:
-      "Review the terms and limitations for ChainScout's informational, read-only, non-custodial tools.",
+    title: "metadata.terms.title",
+    description: "metadata.terms.description",
   },
   "/developers": {
-    title: "Open Data API | ChainScout",
-    description:
-      "Review ChainScout's bounded public support registry and syntax-normalization API when the developer surface is enabled.",
+    title: "metadata.developers.title",
+    description: "metadata.developers.description",
   },
   "/login": {
-    title: "Sign In | ChainScout",
-    description:
-      "Optionally sign in to a ChainScout cloud workspace using a wallet message signature or account credentials.",
+    title: "metadata.login.title",
+    description: "metadata.login.description",
     noIndex: true,
   },
   "/register": {
-    title: "Create Account | ChainScout",
-    description:
-      "Optionally create a ChainScout cloud workspace; the encrypted browser-local Vault remains separate.",
+    title: "metadata.register.title",
+    description: "metadata.register.description",
     noIndex: true,
   },
   "/cloud": {
-    title: "Cloud Workspace | ChainScout",
-    description: "Your optional signed-in ChainScout workspace.",
+    title: "metadata.cloud.title",
+    description: "metadata.cloud.description",
     canonicalPath: "/cloud",
     noIndex: true,
   },
@@ -119,6 +109,7 @@ function setMeta(selector: string, value: string) {
 
 export default function RouteMetadata() {
   const { pathname } = useLocation();
+  const { locale, t } = useI18n();
 
   useEffect(() => {
     const metadata = findMetadata(pathname);
@@ -127,15 +118,17 @@ export default function RouteMetadata() {
       metadata.canonicalPath ?? pathname,
       PUBLIC_ORIGIN,
     ).href;
+    const title = t(metadata.title);
+    const description = t(metadata.description);
 
-    document.title = metadata.title;
+    document.title = title;
     canonicalElement?.setAttribute("href", canonicalUrl);
-    setMeta('meta[name="description"]', metadata.description);
-    setMeta('meta[property="og:title"]', metadata.title);
-    setMeta('meta[property="og:description"]', metadata.description);
+    setMeta('meta[name="description"]', description);
+    setMeta('meta[property="og:title"]', title);
+    setMeta('meta[property="og:description"]', description);
     setMeta('meta[property="og:url"]', canonicalUrl);
-    setMeta('meta[name="twitter:title"]', metadata.title);
-    setMeta('meta[name="twitter:description"]', metadata.description);
+    setMeta('meta[name="twitter:title"]', title);
+    setMeta('meta[name="twitter:description"]', description);
 
     let robots = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
     if (!robots) {
@@ -144,7 +137,7 @@ export default function RouteMetadata() {
       document.head.append(robots);
     }
     robots.content = metadata.noIndex ? "noindex,nofollow" : "index,follow";
-  }, [pathname]);
+  }, [pathname, locale, t]);
 
   return null;
 }

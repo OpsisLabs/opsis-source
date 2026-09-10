@@ -3,30 +3,31 @@ import { Link } from "react-router";
 import { Minus, Plus } from "lucide-react";
 import { SectionHeader } from "./AssetUniverse";
 import { isCollectibleCatalogEnabled } from "../product/availability";
-
-function questions(catalogEnabled: boolean) { return [
-  { q: "Can I track Pokémon cards and physical collectibles?", a: catalogEnabled ? "Yes. This build supports TCGdex-assisted English card and set identity, a locally sanitized catalog thumbnail, encrypted owner-reported printing and condition, graded-certificate details, exact purchase lots, local photos, and dated source-linked reference values." : "Yes. The founder build supports encrypted manual collectible records with identifiers, owner-reported printing and condition, graded-certificate details, exact purchase lots, locally processed photos, and dated source-linked reference values. Catalog-assisted matching is coming soon." },
-  { q: "Where do the dashboard charts get their data?", a: "Vault charts use only your encrypted purchase lots, owner-entered dated references, or a public snapshot that you explicitly refreshed. They are not hidden live feeds, appraisals, or price predictions. Every chart includes an exact-value table." },
-  { q: "Does my Vault sync to ChainScout servers?", a: "No. Vault records are encrypted in this browser with WebCrypto and stored in IndexedDB. Export an encrypted backup because browser storage can be cleared or evicted, and another origin or device cannot see this Vault automatically." },
-  { q: "Do I need to connect a wallet?", a: "No. Private Explorer, Scout Swap, RWA Verify, and the local Vault need no wallet connection. Unlock your local Vault to save new Explorer conversations encrypted in this browser. Cloud research is a future update." },
-  { q: "Does ChainScout trade, buy cards, or move funds?", a: "No. ChainScout is read-only. It can explain public evidence and create an official external handoff where supported, but it never signs, broadcasts, checks out, or stores payment state." },
-  { q: "Can AI or provider data be wrong?", a: "Yes. AI can be wrong, indexers can lag, providers can fail, and a manual reference can become stale. ChainScout preserves citations, privacy receipts, anchor details, and explicit incomplete or unavailable states so you can inspect the evidence." },
-]; }
+import { useI18n } from "../i18n";
 
 export default function Faq() {
-  const qa = questions(isCollectibleCatalogEnabled());
+  const { t } = useI18n();
+  const catalogEnabled = isCollectibleCatalogEnabled();
+  const qa = [
+    { q: t("landing.faq.q1"), a: t(catalogEnabled ? "landing.faq.a1Catalog" : "landing.faq.a1Manual") },
+    { q: t("landing.faq.q2"), a: t("landing.faq.a2") },
+    { q: t("landing.faq.q3"), a: t("landing.faq.a3") },
+    { q: t("landing.faq.q4"), a: t("landing.faq.a4") },
+    { q: t("landing.faq.q5"), a: t("landing.faq.a5") },
+    { q: t("landing.faq.q6"), a: t("landing.faq.a6") },
+  ];
   const [open, setOpen] = useState(0);
   return (
     <section id="faq" data-home-reveal className="border-b border-[#34312f] px-5 py-20 sm:px-8 md:px-12 md:py-24 xl:px-16">
-      <SectionHeader eyebrow="QUICK ANSWERS" title={<>The questions<br />people ask first.</>} copy="The short version is here. The full Guide explains workflows; Technical Docs covers architecture, privacy boundaries, providers, and exact API behavior." />
+      <SectionHeader eyebrow={t("landing.faq.eyebrow")} title={<>{t("landing.faq.titleA")}<br />{t("landing.faq.titleB")}</>} copy={t("landing.faq.copy")} />
       <div className="mt-12 grid gap-6 xl:grid-cols-[0.68fr_1.32fr]">
         <aside className="h-fit rounded-[4px] border border-[#3a3633] bg-[#201e1c] p-6 sm:p-7">
-          <p className="font-mono-d text-[9px] tracking-[0.14em] text-[#fa6c34]">GO DEEPER</p>
-          <p className="mt-4 text-[13px] leading-relaxed text-[#9a938a]">See the current-build matrix, step-by-step workflows, technical internals, privacy constraints, and API contracts.</p>
+          <p className="font-mono-d text-[9px] tracking-[0.14em] text-[#fa6c34]">{t("landing.faq.goDeeper")}</p>
+          <p className="mt-4 text-[13px] leading-relaxed text-[#9a938a]">{t("landing.faq.goDeeperCopy")}</p>
           <div className="mt-6 grid gap-2">
-            <Link to="/guide" className="clip-btn-sm flex min-h-[46px] items-center justify-center bg-[#fa6c34] px-4 font-mono-d text-[9px] font-semibold text-[#1d1d1d]">OPEN FEATURE GUIDE</Link>
-            <Link to="/docs" className="clip-btn-sm flex min-h-[46px] items-center justify-center border border-[#4a4642] px-4 font-mono-d text-[9px] text-[#d6ccba]">READ TECHNICAL DOCS</Link>
-            <Link to="/faq" className="clip-btn-sm flex min-h-[46px] items-center justify-center border border-[#4a4642] px-4 font-mono-d text-[9px] text-[#d6ccba]">VIEW FULL FAQ</Link>
+            <Link to="/guide" className="clip-btn-sm flex min-h-[46px] items-center justify-center bg-[#fa6c34] px-4 font-mono-d text-[9px] font-semibold text-[#1d1d1d]">{t("landing.faq.openGuide")}</Link>
+            <Link to="/docs" className="clip-btn-sm flex min-h-[46px] items-center justify-center border border-[#4a4642] px-4 font-mono-d text-[9px] text-[#d6ccba]">{t("landing.faq.readDocs")}</Link>
+            <Link to="/faq" className="clip-btn-sm flex min-h-[46px] items-center justify-center border border-[#4a4642] px-4 font-mono-d text-[9px] text-[#d6ccba]">{t("landing.faq.viewFullFaq")}</Link>
           </div>
         </aside>
         <div className="space-y-2">

@@ -109,6 +109,29 @@ describe("no-account Private Mode", () => {
     expect(snapshotMemory()).toEqual(before);
   });
 
+  it("returns a Simplified Chinese no-model explanation when locale is zh-CN", async () => {
+    const transaction: NormalizedEntity = {
+      ...entity, type: "transaction", value: `0x${"a".repeat(64)}`,
+      facts: { status: "0x1", valueEth: "0", gasUsed: "0x3074c" },
+    };
+    const env = loadEnv({ NODE_ENV: "test", LOG_LEVEL: "silent", AI_PROVIDER: "fallback" });
+    const ai = new AiService(env);
+    const app = await buildApp(env, undefined, { privateAnalysis: {
+      resolve: async () => ({ entity: transaction, providerDestinations: [], sources: [] }),
+      answer: (question, resolved, locale) => ai.answer(question, resolved, locale ?? "en"),
+    } });
+    apps.push(app);
+    const response = await app.inject({
+      method: "POST",
+      url: "/v1/private/analyze",
+      payload: { entity: transaction.value, locale: "zh-CN" }
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.json().answer.answer).toContain("已成功");
+    expect(response.json().answer.uncertainty.join(" ")).toMatch(/[\u4e00-\u9fff]/);
+    expect(response.json().answer.suggestedQuestions.join(" ")).toMatch(/[\u4e00-\u9fff]/);
+  });
+
   it("fails the complete resolution after its overall provider deadline", async () => {
     const neverResolves = vi.fn(() => new Promise<never>(() => undefined));
 

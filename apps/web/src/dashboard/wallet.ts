@@ -1,4 +1,5 @@
 import { createWalletClient, custom, defineChain, type Address } from "viem";
+import { translateCurrent } from "../i18n/translate";
 
 export const RH_CHAIN_ID = 4663;
 
@@ -45,7 +46,7 @@ export function hasMetaMask(): boolean {
 /** Request accounts and make sure the wallet is on Robinhood Chain (adds it if needed). No signing happens here; see signSignInMessage. */
 export async function connectWallet(): Promise<WalletState> {
   const provider = getProvider();
-  if (!provider) throw new Error("MetaMask not detected. Install the MetaMask Chrome extension to connect.");
+  if (!provider) throw new Error(translateCurrent("cloud.wallet.error.notDetected"));
 
   const client = createWalletClient({ chain: robinhoodChain, transport: custom(provider as never) });
   const [address] = await client.requestAddresses();
@@ -90,13 +91,13 @@ export async function connectWallet(): Promise<WalletState> {
  */
 export async function signSignInMessage(address: Address, message: string): Promise<`0x${string}`> {
   const provider = getProvider();
-  if (!provider) throw new Error("MetaMask not detected. Install the MetaMask Chrome extension to connect.");
+  if (!provider) throw new Error(translateCurrent("cloud.wallet.error.notDetected"));
   const client = createWalletClient({ account: address, chain: robinhoodChain, transport: custom(provider as never) });
   try {
     return await client.signMessage({ message });
   } catch (err) {
     // 4001 is the EIP-1193 user-rejection code.
-    if ((err as { code?: number }).code === 4001) throw new Error("Signature request rejected.");
+    if ((err as { code?: number }).code === 4001) throw new Error(translateCurrent("cloud.wallet.error.signatureRejected"));
     throw err;
   }
 }

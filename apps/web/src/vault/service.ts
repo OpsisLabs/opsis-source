@@ -19,6 +19,7 @@ import {
   verifyBackupWithKey,
   VaultError
 } from "./crypto";
+import { translateCurrent } from "../i18n/translate";
 import {
   deleteLocalVault,
   initializeVault,
@@ -230,12 +231,12 @@ export async function exportVault(unlocked: UnlockedVault): Promise<VaultBackup>
 }
 
 export async function parseVaultBackup(file: File): Promise<VaultBackup> {
-  if (file.size > VAULT_MAX_BACKUP_BYTES) throw backupError("Encrypted vault backups are limited to 32 MB.");
+  if (file.size > VAULT_MAX_BACKUP_BYTES) throw backupError(translateCurrent("vault.service.backupTooLarge"));
   let parsed: unknown;
   try {
     parsed = JSON.parse(await file.text()) as unknown;
   } catch {
-    throw backupError("The selected file is not valid JSON.");
+    throw backupError(translateCurrent("vault.service.invalidJson"));
   }
   return parseBackup(parsed);
 }

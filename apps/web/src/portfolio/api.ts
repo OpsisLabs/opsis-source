@@ -1,5 +1,6 @@
 import type { PortfolioSnapshot } from "@rh-chain/shared";
 import { privateApi } from "../dashboard/http";
+import { translateCurrent } from "../i18n/translate";
 
 export async function requestPortfolioSnapshot(address: string, signal?: AbortSignal, approvalsOnly = false): Promise<PortfolioSnapshot> {
   const response = approvalsOnly
@@ -24,6 +25,6 @@ function assertPortfolioSnapshot(value: PortfolioSnapshot, requestedAddress: str
     || !Array.isArray(value.movements)
     || !Array.isArray(value.approvals)
     || value.privacy?.serverStorage !== "none") {
-    throw new Error("ChainScout returned an invalid portfolio snapshot");
+    throw new Error(translateCurrent("portfolio.error.invalidSnapshot"));
   }
 }

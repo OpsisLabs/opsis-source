@@ -1,4 +1,5 @@
 import type { VaultAsset, VaultAssetDraft } from "./types";
+import { translateCurrent } from "../i18n/translate";
 
 export const VAULT_DEMO_MARKER = "CHAINSCOUT DEMO DATA V1";
 
@@ -11,7 +12,7 @@ export function promoteVaultDemoDraft(draft: VaultAssetDraft): VaultAssetDraft {
   return {
     ...draft,
     name: draft.name.replace(/^\[DEMO\]\s*/u, ""),
-    notes: draft.notes.replace(VAULT_DEMO_MARKER, "Converted from a ChainScout demo record"),
+    notes: draft.notes.replace(VAULT_DEMO_MARKER, translateCurrent("vault.demo.converted")),
   };
 }
 
@@ -29,7 +30,7 @@ export function createVaultDemoDrafts(): VaultAssetDraft[] {
           acquiredAt: "2026-05-18",
         },
       ],
-      notes: `${VAULT_DEMO_MARKER} · Fictional example lot for testing the encrypted manual-record workflow. It is not a wallet balance or price claim.`,
+      notes: `${VAULT_DEMO_MARKER} · ${translateCurrent("vault.demo.note.weth")}`,
     },
     {
       name: "[DEMO] Charizard · Base Set",
@@ -43,7 +44,7 @@ export function createVaultDemoDrafts(): VaultAssetDraft[] {
           acquiredAt: "2025-11-02",
         },
       ],
-      notes: `${VAULT_DEMO_MARKER} · Fictional owner record for testing collectible fields and the dated reference chart. This does not prove identity, condition, ownership, or value.`,
+      notes: `${VAULT_DEMO_MARKER} · ${translateCurrent("vault.demo.note.charizard")}`,
       collectible: {
         catalog: null,
         ownerPrinting: "Holo · owner entered",
@@ -60,7 +61,7 @@ export function createVaultDemoDrafts(): VaultAssetDraft[] {
             currency: "USD",
             observedAt: "2026-05-10",
             sourceUrl: "https://www.pricecharting.com/game/pokemon-base-set/charizard-4",
-            label: "Example manual reference",
+            label: translateCurrent("vault.demo.ref.manual"),
           },
           {
             id: "d63b4f6c-88e8-4738-baaa-da54f79796f0",
@@ -68,7 +69,7 @@ export function createVaultDemoDrafts(): VaultAssetDraft[] {
             currency: "USD",
             observedAt: "2026-08-10",
             sourceUrl: "https://www.pricecharting.com/game/pokemon-base-set/charizard-4",
-            label: "Example follow-up reference",
+            label: translateCurrent("vault.demo.ref.followup"),
           },
         ],
       },
@@ -85,7 +86,7 @@ export function createVaultDemoDrafts(): VaultAssetDraft[] {
           acquiredAt: "2026-03-14",
         },
       ],
-      notes: `${VAULT_DEMO_MARKER} · Fictional local lot linked to the public Robinhood Chain contract used by the RWA Verify sample. Not proof of ownership or redemption rights.`,
+      notes: `${VAULT_DEMO_MARKER} · ${translateCurrent("vault.demo.note.apple")}`,
     },
     {
       name: "[DEMO] Robinhood Chain Collectible #42",
@@ -99,7 +100,7 @@ export function createVaultDemoDrafts(): VaultAssetDraft[] {
           acquiredAt: "2026-01-22",
         },
       ],
-      notes: `${VAULT_DEMO_MARKER} · Synthetic NFT record for layout and workflow testing only. It is not an onchain token or ownership claim.`,
+      notes: `${VAULT_DEMO_MARKER} · ${translateCurrent("vault.demo.note.nft")}`,
     },
   ];
 }

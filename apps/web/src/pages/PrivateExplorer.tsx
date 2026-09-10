@@ -26,14 +26,16 @@ import { useLocalHistory } from "../private/useLocalHistory";
 import { LocalHistory, SavedConversation } from "../private/LocalHistory";
 import type { VaultConversationTurn } from "../vault/types";
 import OfficialContract from "../product/OfficialContract";
+import { useI18n } from "../i18n";
 
 const PROMPTS = [
-  "What stands out to a beginner?",
-  "Show the evidence-based risk notes.",
-  "Explain the recent activity in plain English.",
-];
+  "explorer.prompts.beginner",
+  "explorer.prompts.risk",
+  "explorer.prompts.activity",
+] as const;
 
 export default function PrivateExplorer() {
+  const { t } = useI18n();
   const [entityInput, setEntityInput] = useState("");
   const [question, setQuestion] = useState("");
   const [result, setResult] = useState<PrivateAnalysis | null>(null);
@@ -78,9 +80,7 @@ export default function PrivateExplorer() {
       identified.type === "unknown" ||
       identified.id.toLowerCase() !== value.toLowerCase()
     ) {
-      setError(
-        "Enter one complete wallet or contract address, or one complete transaction hash.",
-      );
+      setError(t("explorer.error.invalidEntity"));
       return;
     }
     pendingRef.current = true;
@@ -131,7 +131,12 @@ export default function PrivateExplorer() {
           if (history.generation.current !== expected) return;
           retryTurn.current = turn;
           setSaveError(
-            `Answer NOT saved. ${cause instanceof Error ? cause.message : "Local storage failed."}`,
+            t("explorer.error.saveFailed", {
+              reason:
+                cause instanceof Error
+                  ? cause.message
+                  : t("explorer.error.localStorageFailed"),
+            }),
           );
         }
       }
@@ -141,7 +146,7 @@ export default function PrivateExplorer() {
       setError(
         requestError instanceof ApiError
           ? requestError.message
-          : "The public chain providers are unavailable right now. Nothing was saved; try again shortly.",
+          : t("explorer.error.providersUnavailable"),
       );
     } finally {
       if (requestRef.current === controller) {
@@ -175,7 +180,7 @@ export default function PrivateExplorer() {
         <Link
           to="/"
           className="flex items-center gap-3"
-          aria-label="ChainScout home"
+          aria-label={t("explorer.header.home")}
         >
           <span
             className="flex h-9 w-9 items-center justify-center bg-[#fa6c34]"
@@ -188,20 +193,20 @@ export default function PrivateExplorer() {
           </span>
         </Link>
         <div className="mx-auto flex items-center gap-2 font-mono-d text-[9.5px] tracking-[0.14em] text-[#7fb069] sm:text-[10.5px]">
-          <ShieldCheck size={13} /> PRIVATE MODE
+          <ShieldCheck size={13} /> {t("explorer.header.privateMode")}
         </div>
         <div className="flex items-center gap-3 sm:gap-5">
           <Link
             to="/vault"
             className="font-mono-d text-[9px] tracking-wider text-[#d6ccba] transition-colors hover:text-[#fa6c34] sm:text-[10px]"
           >
-            LOCAL VAULT
+            {t("explorer.header.localVault")}
           </Link>
           <a
             href="#local-history"
             className="font-mono-d text-[10px] text-[#ff985e]"
           >
-            LOCAL CHATS ↓
+            {t("explorer.header.localChats")}
           </a>
         </div>
       </header>
@@ -212,46 +217,44 @@ export default function PrivateExplorer() {
         <section className="workspace-heading">
           <div>
             <p className="workspace-eyebrow">
-              <Search size={14} /> Private Explorer · Robinhood Chain
+              <Search size={14} /> {t("explorer.eyebrow")}
             </p>
             <h1 className="workspace-title">
-              Understand the chain.
+              {t("explorer.title.line1")}
               <br />
-              <span className="text-[#d6ccba]">Leave no profile behind.</span>
+              <span className="text-[#d6ccba]">
+                {t("explorer.title.line2")}
+              </span>
             </h1>
-            <p className="workspace-description">
-              Paste a wallet address, token contract, or transaction to
-              understand it in plain English, with sources. No account or wallet
-              connection needed.
-            </p>
+            <p className="workspace-description">{t("explorer.description")}</p>
           </div>
           <WorkspaceDisclosure
-            title="How this stays private"
+            title={t("explorer.privacy.title")}
             className="workspace-privacy-details"
           >
             <div className="grid grid-cols-2 gap-px bg-[#383838]">
               <PrivacyTile
                 icon={<LockKeyhole size={14} />}
-                label="ACCOUNT"
-                value="NOT NEEDED"
+                label={t("explorer.privacy.account.label")}
+                value={t("explorer.privacy.account.value")}
               />
               <PrivacyTile
                 icon={<EyeOff size={14} />}
-                label="AI UPLOAD"
-                value="NONE"
+                label={t("explorer.privacy.aiUpload.label")}
+                value={t("explorer.privacy.aiUpload.value")}
               />
               <PrivacyTile
                 icon={<DatabaseZap size={14} />}
-                label="SERVER HISTORY"
-                value="NONE"
+                label={t("explorer.privacy.serverHistory.label")}
+                value={t("explorer.privacy.serverHistory.value")}
               />
               <PrivacyTile
                 icon={<Trash2 size={14} />}
-                label="LOCAL HISTORY"
+                label={t("explorer.privacy.localHistory.label")}
                 value={
                   history.phase === "unlocked"
-                    ? "ENCRYPTED AUTOSAVE"
-                    : "UNSAVED UNTIL UNLOCKED"
+                    ? t("explorer.privacy.localHistory.encrypted")
+                    : t("explorer.privacy.localHistory.unsaved")
                 }
               />
             </div>
@@ -291,16 +294,16 @@ export default function PrivateExplorer() {
               <div className="flex items-center gap-2.5 border-b border-[#383838] px-5 py-4 sm:px-6">
                 <Search size={14} className="text-[#fa6c34]" />
                 <span className="font-mono-d text-[10.5px] tracking-[0.15em] text-[#d6ccba]">
-                  PRIVATE LOOKUP
+                  {t("explorer.form.title")}
                 </span>
                 <span className="ml-auto font-mono-d text-[9px] tracking-wider text-[#635d5a]">
-                  ROBINHOOD CHAIN · 4663
+                  {t("explorer.form.network")}
                 </span>
               </div>
               <div className="grid gap-0 lg:grid-cols-[1fr_0.72fr]">
                 <label className="border-b border-[#383838] p-5 lg:border-b-0 lg:border-r sm:p-6">
                   <span className="font-mono-d text-[9.5px] tracking-[0.14em] text-[#635d5a]">
-                    ADDRESS OR TRANSACTION HASH
+                    {t("explorer.form.addressLabel")}
                   </span>
                   <input
                     value={entityInput}
@@ -312,21 +315,21 @@ export default function PrivateExplorer() {
                     spellCheck={false}
                     placeholder="0x…"
                     className="mt-3 min-h-12 w-full rounded-sm border border-[#514a45] bg-[#1d1d1d] px-3 font-mono-d text-[16px] text-[#e9e0d1] outline-none placeholder:text-[#aaa39b] focus:border-[#fa6c34]"
-                    aria-label="Public chain identifier"
+                    aria-label={t("explorer.form.addressAria")}
                   />
                 </label>
                 <label className="p-5 sm:p-6">
                   <span className="font-mono-d text-[9.5px] tracking-[0.14em] text-[#635d5a]">
-                    OPTIONAL QUESTION
+                    {t("explorer.form.questionLabel")}
                   </span>
                   <input
                     value={question}
                     onChange={(event) => setQuestion(event.target.value)}
                     maxLength={500}
                     autoComplete="off"
-                    placeholder="What should I notice?"
+                    placeholder={t("explorer.form.questionPlaceholder")}
                     className="mt-3 min-h-12 w-full rounded-sm border border-[#514a45] bg-[#1d1d1d] px-3 text-[16px] text-[#e9e0d1] outline-none placeholder:text-[#aaa39b] focus:border-[#fa6c34]"
-                    aria-label="Optional question"
+                    aria-label={t("explorer.form.questionAria")}
                   />
                 </label>
               </div>
@@ -337,14 +340,14 @@ export default function PrivateExplorer() {
                     onClick={() => chooseEntity(SAMPLE_WALLET)}
                     className="border border-[#383838] px-3 py-2 font-mono-d text-[9px] text-[#7f7972] hover:text-[#e9e0d1]"
                   >
-                    SAMPLE WALLET
+                    {t("explorer.form.sampleWallet")}
                   </button>
                   <button
                     type="button"
                     onClick={() => chooseEntity(SAMPLE_TX)}
                     className="border border-[#383838] px-3 py-2 font-mono-d text-[9px] text-[#7f7972] hover:text-[#e9e0d1]"
                   >
-                    SAMPLE TX
+                    {t("explorer.form.sampleTx")}
                   </button>
                 </div>
                 <button
@@ -353,23 +356,27 @@ export default function PrivateExplorer() {
                   className="clip-btn-sm flex min-h-[44px] items-center justify-center gap-2 bg-[#fa6c34] px-6 font-mono-d text-[10.5px] font-medium tracking-wider text-[#1d1d1d] disabled:opacity-50"
                 >
                   <Sparkles size={13} />{" "}
-                  {loading ? "RESOLVING…" : "EXPLAIN PRIVATELY"}
+                  {loading
+                    ? t("explorer.form.submitting")
+                    : t("explorer.form.submit")}
                 </button>
               </div>
             </form>
             <div
               className="mt-4 flex flex-wrap items-center gap-2"
-              aria-label="Example questions"
+              aria-label={t("explorer.form.examplesAria")}
             >
-              <span className="mr-1 text-[14px] text-[#aaa39b]">Or ask:</span>
+              <span className="mr-1 text-[14px] text-[#aaa39b]">
+                {t("explorer.form.orAsk")}
+              </span>
               {PROMPTS.map((prompt) => (
                 <button
                   key={prompt}
                   type="button"
-                  onClick={() => setQuestion(prompt)}
+                  onClick={() => setQuestion(t(prompt))}
                   className="min-h-11 rounded-sm border border-[#514a45] px-3 py-2 text-[14px] text-[#b8b0a7] transition-colors hover:border-[#fa6c34] hover:text-[#e9e0d1]"
                 >
-                  {prompt}
+                  {t(prompt)}
                 </button>
               ))}
             </div>
@@ -414,7 +421,12 @@ export default function PrivateExplorer() {
                     } catch (cause) {
                       if (expected === history.generation.current)
                         setSaveError(
-                          `Answer NOT saved. ${cause instanceof Error ? cause.message : "Local storage failed."}`,
+                          t("explorer.error.saveFailed", {
+                            reason:
+                              cause instanceof Error
+                                ? cause.message
+                                : t("explorer.error.localStorageFailed"),
+                          }),
                         );
                     } finally {
                       pendingRef.current = false;
@@ -422,7 +434,7 @@ export default function PrivateExplorer() {
                     }
                   }}
                 >
-                  Retry encrypted save
+                  {t("explorer.error.retrySave")}
                 </button>
               </div>
             )}
@@ -435,7 +447,7 @@ export default function PrivateExplorer() {
                     ai={result.answer}
                     onPivot={chooseEntity}
                     animateText
-                    eyebrow="DETERMINISTIC ANSWER · CITED"
+                    eyebrow={t("explorer.answer.eyebrow")}
                   />
                   <section
                     data-testid="privacy-receipt"
@@ -449,18 +461,20 @@ export default function PrivateExplorer() {
                         />
                         <div>
                           <p className="font-mono-d text-[10.5px] tracking-[0.14em] text-[#7fb069]">
-                            PRIVACY RECEIPT
+                            {t("explorer.receipt.title")}
                           </p>
                           <p className="mt-2 max-w-[720px] text-[12.5px] leading-relaxed text-[#9a938a]">
                             {result.privacy.disclosure}
                           </p>
                           <p className="mt-2 font-mono-d text-[9.5px] text-[#635d5a]">
-                            DESTINATIONS ·{" "}
-                            {result.privacy.providerDestinations.length
-                              ? result.privacy.providerDestinations
-                                  .join(" · ")
-                                  .toUpperCase()
-                              : "NO LIVE PROVIDER"}
+                            {t("explorer.receipt.destinations", {
+                              destinations:
+                                result.privacy.providerDestinations.length
+                                  ? result.privacy.providerDestinations
+                                      .join(" · ")
+                                      .toUpperCase()
+                                  : t("explorer.receipt.noLiveProvider"),
+                            })}
                           </p>
                         </div>
                       </div>
@@ -469,7 +483,7 @@ export default function PrivateExplorer() {
                         onClick={clear}
                         className="flex shrink-0 items-center gap-2 border border-[#383838] px-4 py-2.5 font-mono-d text-[9.5px] text-[#7f7972] hover:text-[#e9e0d1]"
                       >
-                        <Trash2 size={12} /> CLEAR THIS VIEW
+                        <Trash2 size={12} /> {t("explorer.receipt.clear")}
                       </button>
                     </div>
                   </section>
@@ -479,13 +493,9 @@ export default function PrivateExplorer() {
                 <div className="workspace-empty mt-6">
                   <Search size={26} className="text-[#fa6c34]" />
                   <h2 className="text-[18px] text-[#e9e0d1]">
-                    Your explanation will appear here
+                    {t("explorer.empty.title")}
                   </h2>
-                  <p>
-                    Try a sample wallet or transaction above. Unsaved results
-                    are cleared on reload. Unlock local history to keep new
-                    conversations encrypted on this device.
-                  </p>
+                  <p>{t("explorer.empty.body")}</p>
                 </div>
               )}
             </div>

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { exportVault } from "./service";
 import { VAULT_MAX_BACKUP_BYTES } from "./types";
+import { translateCurrent } from "../i18n/translate";
 
 type Backup = Awaited<ReturnType<typeof exportVault>>;
 type Download = { url: string; filename: string; text: string };
@@ -8,7 +9,7 @@ type Download = { url: string; filename: string; text: string };
 export function backupBlob(backup: Backup): { blob: Blob; text: string } {
   const text = JSON.stringify(backup, null, 2);
   const blob = new Blob([text], { type: "application/json" });
-  if (blob.size > VAULT_MAX_BACKUP_BYTES) throw new Error("Encrypted backup exceeds the supported size");
+  if (blob.size > VAULT_MAX_BACKUP_BYTES) throw new Error(translateCurrent("vault.backup.exceedsSize"));
   return { blob, text };
 }
 

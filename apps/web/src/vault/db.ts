@@ -5,6 +5,7 @@ import type {
   VaultStorageStatus
 } from "./types";
 import { assertVaultCapacity, VaultError } from "./crypto";
+import { translateCurrent } from "../i18n/translate";
 
 export const VAULT_DATABASE_NAME = "chainscout-private-vault";
 const DATABASE_VERSION = 1;
@@ -38,7 +39,7 @@ export async function readVaultSnapshot(expectedVaultId: string, expectedRevisio
     ]);
     await transactionDone(transaction);
     if (!meta || meta.vaultId !== expectedVaultId || meta.revision !== expectedRevision) {
-      throw new VaultError("VAULT_CONFLICT", "This vault changed in another tab. Unlock again before continuing.");
+      throw new VaultError("VAULT_CONFLICT", translateCurrent("vault.db.conflictUnlock"));
     }
     return { meta, records };
   } finally {
@@ -69,7 +70,7 @@ export async function initializeVault(meta: VaultMeta): Promise<void> {
     const existing = await requestResult<VaultMeta | undefined>(metaStore.get("vault"));
     if (existing) {
       transaction.abort();
-      throw new VaultError("VAULT_EXISTS", "A local vault already exists in this browser.");
+      throw new VaultError("VAULT_EXISTS", translateCurrent("vault.db.alreadyExists"));
     }
     metaStore.put(meta);
     await transactionDone(transaction);
@@ -107,7 +108,7 @@ export async function writeEncryptedRecords(
 ): Promise<void> {
   if (recordsToWrite.length === 0) return;
   if (new Set(recordsToWrite.map((record) => record.id)).size !== recordsToWrite.length) {
-    throw new VaultError("INVALID_VAULT", "Encrypted records must have unique identities.");
+    throw new VaultError("INVALID_VAULT", translateCurrent("vault.db.uniqueIdentities"));
   }
   const db = await openVaultDatabase();
   try {
@@ -179,13 +180,13 @@ export async function replaceVault(
     if (!currentMatches) {
       transaction.abort();
       await completion.catch(() => undefined);
-      throw new VaultError("VAULT_CONFLICT", "This vault changed in another tab. Unlock again before replacing it.");
+      throw new VaultError("VAULT_CONFLICT", translateCurrent("vault.db.conflictReplace"));
     }
     const highestRevision = Math.max(current?.revision ?? -1, backup.vault.revision);
     if (highestRevision >= Number.MAX_SAFE_INTEGER) {
       transaction.abort();
       await completion.catch(() => undefined);
-      throw new VaultError("INVALID_BACKUP", "The encrypted-vault backup revision is out of range.");
+      throw new VaultError("INVALID_BACKUP", translateCurrent("vault.db.revisionOutOfRange"));
     }
     const importedMeta: VaultMeta = { ...backup.vault, revision: highestRevision + 1 };
     assertVaultCapacity(importedMeta, backup.records);
@@ -211,7 +212,7 @@ export async function deleteLocalVault(onBlocked?: () => void): Promise<void> {
   await new Promise<void>((resolve, reject) => {
     const request = indexedDB.deleteDatabase(VAULT_DATABASE_NAME);
     request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error ?? new Error("IndexedDB deletion failed"));
+    request.onerror = () => reject(request.error ?? new Error(translateCurrent("vault.db.deletionFailed")));
     // An IndexedDB delete request cannot be cancelled after it becomes blocked.
     // Keep this promise pending and report that it is waiting; claiming failure
     // would be dishonest because closing the blocker can still complete deletion.
@@ -262,10 +263,10 @@ function openVaultDatabase(): Promise<IDBDatabase> {
       db.onversionchange = () => db.close();
       resolve(db);
     };
-    request.onerror = () => reject(request.error ?? new Error("IndexedDB open failed"));
+    request.onerror = () => reject(request.error ?? new Error(translateCurrent("vault.db.openFailed")));
     request.onblocked = () => reject(new VaultError(
       "VAULT_OPEN_BLOCKED",
-      "Another ChainScout tab is upgrading the vault. Close it, then try again."
+      translateCurrent("vault.db.openBlocked")
     ));
   });
 }
@@ -276,7 +277,7 @@ async function assertRevision(store: IDBObjectStore, expectedRevision: number, e
     transaction.abort();
     throw new VaultError(
       "VAULT_CONFLICT",
-      "This vault changed in another tab. Lock and unlock again before saving."
+      translateCurrent("vault.db.conflictSave")
     );
   }
 }
@@ -284,15 +285,15 @@ async function assertRevision(store: IDBObjectStore, expectedRevision: number, e
 function requestResult<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
     request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error ?? new Error("IndexedDB request failed"));
+    request.onerror = () => reject(request.error ?? new Error(translateCurrent("vault.db.requestFailed")));
   });
 }
 
 function transactionDone(transaction: IDBTransaction): Promise<void> {
   return new Promise((resolve, reject) => {
     transaction.oncomplete = () => resolve();
-    transaction.onerror = () => reject(transaction.error ?? new Error("IndexedDB transaction failed"));
-    transaction.onabort = () => reject(transaction.error ?? new Error("IndexedDB transaction aborted"));
+    transaction.onerror = () => reject(transaction.error ?? new Error(translateCurrent("vault.db.transactionFailed")));
+    transaction.onabort = () => reject(transaction.error ?? new Error(translateCurrent("vault.db.transactionAborted")));
   });
 }
 
@@ -300,7 +301,7 @@ function requireIndexedDb(): void {
   if (typeof indexedDB === "undefined") {
     throw new VaultError(
       "UNSUPPORTED_BROWSER",
-      "This browser does not provide IndexedDB, so ChainScout cannot safely create a local vault."
+      translateCurrent("vault.db.unsupportedBrowser")
     );
   }
 }

@@ -7,12 +7,15 @@ import { useWallet } from "./walletStore";
 import { hasMetaMask, shortAddress } from "./wallet";
 import type { ChatSession, Usage, User } from "./types";
 import OfficialContract from "../product/OfficialContract";
+import LanguageSwitcher from "../i18n/LanguageSwitcher";
+import { useI18n } from "../i18n";
 
 function LogoMark({ className = "w-6 h-6" }: { className?: string }) {
   return <img src="/logo.svg" alt="ChainScout" className={className} />;
 }
 
 function WalletButton() {
+  const { t } = useI18n();
   const { wallet, connecting, error, connect, disconnect } = useWallet();
   const [dismissedError, setDismissedError] = useState<string | null>(null);
   const showError = Boolean(error && error !== dismissedError);
@@ -26,8 +29,8 @@ function WalletButton() {
         className="clip-btn-sm flex items-center gap-2 bg-[#2e2e2e] px-4 py-2.5 font-mono-d text-[10.5px] tracking-wider text-[#9a938a] transition-colors hover:text-[#e9e0d1]"
       >
         <Wallet size={13} />
-        <span className="hidden sm:inline">INSTALL METAMASK</span>
-        <span className="sm:hidden">METAMASK</span>
+        <span className="hidden sm:inline">{t("cloud.wallet.install")}</span>
+        <span className="sm:hidden">{t("cloud.wallet.installShort")}</span>
       </a>
     );
   }
@@ -40,14 +43,14 @@ function WalletButton() {
           <span className={`h-1.5 w-1.5 rounded-full ${onChain ? "bg-[#7fb069]" : "bg-[#fa6c34]"}`} />
           <span className="font-mono-d text-[11px] text-[#d6ccba]">{shortAddress(wallet.address)}</span>
           <span className="hidden font-mono-d text-[9.5px] tracking-wider text-[#635d5a] xl:inline">
-            {onChain ? "RH CHAIN · 4663" : "WRONG NETWORK"}
+            {onChain ? t("cloud.wallet.connectedChain") : t("cloud.wallet.wrongNetwork")}
           </span>
         </div>
         <button
           onClick={disconnect}
           className="flex h-[38px] w-[38px] items-center justify-center border border-[#2e2e2e] text-[#635d5a] transition-colors hover:border-[#e0738a]/50 hover:text-[#e0738a]"
-          aria-label="Disconnect wallet"
-          title="Disconnect"
+          aria-label={t("cloud.wallet.disconnectAria")}
+          title={t("cloud.wallet.disconnect")}
         >
           <Unplug size={14} />
         </button>
@@ -63,13 +66,13 @@ function WalletButton() {
         className="clip-btn-sm flex items-center gap-2 bg-[#fa6c34] px-4 py-2.5 font-mono-d text-[10.5px] font-medium tracking-wider text-[#1d1d1d] transition-colors hover:bg-[#ff7038] disabled:opacity-60"
       >
         <Wallet size={13} />
-        {connecting ? "CONNECTING…" : "CONNECT WALLET"}
+        {connecting ? t("cloud.wallet.connecting") : t("cloud.wallet.connect")}
       </button>
       {showError && error && (
         <div className="absolute right-0 top-[46px] z-50 w-[280px] border border-[#e0738a]/40 bg-[#242424] p-3.5 text-[11.5px] leading-relaxed text-[#e0738a]">
           {error}
           <button onClick={() => setDismissedError(error)} className="ml-2 font-mono-d text-[10px] text-[#9a938a] underline">
-            dismiss
+            {t("cloud.wallet.dismiss")}
           </button>
         </div>
       )}
@@ -94,6 +97,7 @@ function RailBody({
   onLogout: () => void;
   onNavigate?: () => void;
 }) {
+  const { t } = useI18n();
   const usagePct = usage ? Math.round((usage.aiMessages / usage.quota.aiMessages) * 100) : 0;
   // Wallet accounts have a username, email accounts have an address.
   const displayName =
@@ -108,7 +112,7 @@ function RailBody({
       >
         <span className="absolute inset-0 flex items-center justify-center gap-2.5">
           <LogoMark />
-          <span className="font-mono-d text-[11px] font-medium tracking-wider text-[#1d1d1d]">CHAINSCOUT</span>
+          <span className="font-mono-d text-[11px] font-medium tracking-wider text-[#1d1d1d]">{t("cloud.rail.brand")}</span>
         </span>
       </Link>
 
@@ -119,7 +123,7 @@ function RailBody({
           className="clip-btn-sm flex w-full items-center justify-center gap-2 bg-[#e9e0d1] py-3 font-mono-d text-[11.5px] font-medium tracking-wide text-[#1d1d1d] transition-colors hover:bg-[#f0e8da] disabled:opacity-60"
         >
           <MessageSquarePlus size={14} />
-          {creating ? "CREATING…" : "NEW SESSION"}
+          {creating ? t("cloud.rail.creating") : t("cloud.rail.newSession")}
         </button>
         <Link
           to="/swap"
@@ -127,25 +131,28 @@ function RailBody({
           className="mt-2 flex w-full items-center justify-center gap-2 border border-[#fa6c34]/40 bg-[#fa6c34]/10 py-3 font-mono-d text-[10.5px] tracking-wide text-[#fa6c34] transition-colors hover:bg-[#fa6c34]/15"
         >
           <Repeat2 size={13} />
-          SCOUT SWAP
+          {t("cloud.rail.scoutSwap")}
         </Link>
         <div className="mt-2 grid grid-cols-2 gap-1">
           <Link to="/app" onClick={onNavigate} className="flex items-center gap-2 border border-[#2e2e2e] px-2.5 py-2.5 font-mono-d text-[9px] text-[#7f7972] hover:text-[#e9e0d1]">
-            <ShieldCheck size={11} /> PRIVATE
+            <ShieldCheck size={11} /> {t("cloud.rail.private")}
           </Link>
           <Link to="/vault?view=portfolio" onClick={onNavigate} className="flex items-center gap-2 border border-[#2e2e2e] px-2.5 py-2.5 font-mono-d text-[9px] text-[#7f7972] hover:text-[#e9e0d1]">
-            <LockKeyhole size={11} /> VAULT
+            <LockKeyhole size={11} /> {t("cloud.rail.vault")}
           </Link>
           <Link to="/rwa" onClick={onNavigate} className="flex items-center gap-2 border border-[#2e2e2e] px-2.5 py-2.5 font-mono-d text-[9px] text-[#7f7972] hover:text-[#e9e0d1]">
-            <BadgeCheck size={11} /> RWA
+            <BadgeCheck size={11} /> {t("cloud.rail.rwa")}
           </Link>
           <Link to="/guide" onClick={onNavigate} className="flex items-center gap-2 border border-[#2e2e2e] px-2.5 py-2.5 font-mono-d text-[9px] text-[#7f7972] hover:text-[#e9e0d1]">
-            <BookOpenText size={11} /> GUIDE
+            <BookOpenText size={11} /> {t("cloud.rail.guide")}
           </Link>
+        </div>
+        <div className="mt-3">
+          <LanguageSwitcher className="w-full justify-center" />
         </div>
       </div>
 
-      <div className="px-5 pb-2 pt-1 font-mono-d text-[10.5px] tracking-wider text-[#635d5a]">SESSIONS</div>
+      <div className="px-5 pb-2 pt-1 font-mono-d text-[10.5px] tracking-wider text-[#635d5a]">{t("cloud.rail.sessions")}</div>
       <div className="no-bar flex-1 overflow-y-auto">
         {sessions.map((s) => (
           <NavLink
@@ -159,8 +166,10 @@ function RailBody({
             }
           >
             <p className="truncate text-[13px]">
-              {s.title === "Untitled session" && s.entity
-                ? `${s.entity.id.slice(0, 8)}…${s.entity.id.slice(-4)}`
+              {s.title === "Untitled session"
+                ? s.entity
+                  ? `${s.entity.id.slice(0, 8)}…${s.entity.id.slice(-4)}`
+                  : t("cloud.sessions.untitled")
                 : s.title}
             </p>
             {s.entity && (
@@ -175,14 +184,14 @@ function RailBody({
       {/* usage */}
       <div className="border-t border-[#2e2e2e] p-5">
         <div className="mb-2 flex items-center justify-between font-mono-d text-[10.5px] tracking-wider text-[#635d5a]">
-          <span>AI MESSAGES</span>
+          <span>{t("cloud.rail.aiMessages")}</span>
           <span className="text-[#9a938a]">{usage ? `${usage.aiMessages}/${usage.quota.aiMessages}` : "-"}</span>
         </div>
         <div className="h-[3px] w-full bg-[#2e2e2e]">
           <div className="h-full bg-[#fa6c34] transition-all" style={{ width: `${usagePct}%` }} />
         </div>
         <div className="mb-2 mt-4 flex items-center justify-between font-mono-d text-[10.5px] tracking-wider text-[#635d5a]">
-          <span>CHAIN LOOKUPS</span>
+          <span>{t("cloud.rail.chainLookups")}</span>
           <span className="text-[#9a938a]">{usage ? `${usage.chainLookups}/${usage.quota.chainLookups}` : "-"}</span>
         </div>
         <div className="h-[3px] w-full bg-[#2e2e2e]">
@@ -199,10 +208,10 @@ function RailBody({
           {displayName?.[0]?.toUpperCase() ?? "?"}
         </span>
         <span className="flex-1 truncate text-[12.5px] text-[#9a938a]">{displayName}</span>
-        <Link to="/cloud/privacy" onClick={onNavigate} className="text-[#635d5a] transition-colors hover:text-[#7fb069]" aria-label="Account privacy" title="Account privacy">
+        <Link to="/cloud/privacy" onClick={onNavigate} className="text-[#635d5a] transition-colors hover:text-[#7fb069]" aria-label={t("cloud.rail.accountPrivacy")} title={t("cloud.rail.accountPrivacy")}>
           <ShieldCheck size={15} />
         </Link>
-        <button onClick={onLogout} className="text-[#635d5a] transition-colors hover:text-[#e0738a]" aria-label="Log out">
+        <button onClick={onLogout} className="text-[#635d5a] transition-colors hover:text-[#e0738a]" aria-label={t("cloud.rail.logOut")}>
           <LogOut size={15} />
         </button>
       </div>
@@ -211,6 +220,7 @@ function RailBody({
 }
 
 export default function AppShell() {
+  const { t } = useI18n();
   const { user, logout } = useAuth();
   const nav = useNavigate();
   const [sessions, setSessions] = useState<ChatSession[]>([]);
@@ -242,7 +252,7 @@ export default function AppShell() {
       nav(`/cloud/chat/${s.id}`);
     } catch (err) {
       console.error("failed to create session", err);
-      setShellError(err instanceof Error ? err.message : "Could not create a new session. Try again.");
+      setShellError(err instanceof Error ? err.message : t("cloud.shell.error.create"));
     } finally {
       setCreating(false);
     }
@@ -254,7 +264,7 @@ export default function AppShell() {
     if (!v || resolvingRef.current) return;
     const identified = classify(v);
     if (identified.type === "unknown" || identified.id.toLowerCase() !== v.toLowerCase()) {
-      setShellError("Enter a complete wallet or contract address, or a complete transaction hash.");
+      setShellError(t("cloud.shell.error.invalidEntity"));
       return;
     }
     resolvingRef.current = true;
@@ -270,7 +280,7 @@ export default function AppShell() {
       nav(`/cloud/chat/${s.id}`, { state: { firstMessage: v } });
     } catch (err) {
       console.error("failed to resolve entity", err);
-      setShellError(err instanceof Error ? err.message : "Could not resolve that entity. Check the address or hash and try again.");
+      setShellError(err instanceof Error ? err.message : t("cloud.shell.error.resolve"));
     } finally {
       resolvingRef.current = false;
       setResolving(false);
@@ -301,7 +311,7 @@ export default function AppShell() {
             <button
               onClick={() => setDrawer(false)}
               className="absolute -right-11 top-3 flex h-9 w-9 items-center justify-center border border-[#2e2e2e] bg-[#1d1d1d] text-[#e9e0d1]"
-              aria-label="Close menu"
+              aria-label={t("cloud.search.closeMenu")}
             >
               <X size={16} />
             </button>
@@ -317,7 +327,7 @@ export default function AppShell() {
           <button
             onClick={() => setDrawer(true)}
             className="flex h-10 w-10 shrink-0 items-center justify-center border border-[#2e2e2e] text-[#e9e0d1] lg:hidden"
-            aria-label="Open menu"
+            aria-label={t("cloud.search.openMenu")}
           >
             <Menu size={17} />
           </button>
@@ -329,9 +339,9 @@ export default function AppShell() {
                 setQ(e.target.value);
                 if (shellError) setShellError("");
               }}
-              aria-label="Wallet, token, contract, or transaction"
+              aria-label={t("cloud.search.ariaLabel")}
               aria-describedby={shellError ? "entity-search-error" : undefined}
-              placeholder="Paste a wallet, tx hash, token, or contract…"
+              placeholder={t("cloud.search.placeholder")}
               className="w-full bg-transparent py-3 text-[13.5px] text-[#e9e0d1] outline-none placeholder:text-[#635d5a]"
             />
             <button
@@ -339,12 +349,12 @@ export default function AppShell() {
               disabled={resolving || !q.trim()}
               className="hidden shrink-0 font-mono-d text-[10.5px] tracking-wider text-[#9a938a] transition-colors hover:text-[#fa6c34] disabled:cursor-not-allowed disabled:opacity-50 sm:block"
             >
-              {resolving ? "OPENING…" : "INSPECT ⏎"}
+              {resolving ? t("cloud.search.opening") : t("cloud.search.inspect")}
             </button>
           </form>
           <div className="hidden items-center gap-2 border border-[#2e2e2e] px-3 py-2 md:flex">
             <ShieldCheck size={13} className="text-[#7fb069]" />
-            <span className="font-mono-d text-[10.5px] tracking-wider text-[#9a938a]">READ-ONLY</span>
+            <span className="font-mono-d text-[10.5px] tracking-wider text-[#9a938a]">{t("cloud.search.readOnly")}</span>
           </div>
           <WalletButton />
           <div className="hidden items-center gap-2 xl:flex">
@@ -352,13 +362,13 @@ export default function AppShell() {
               onClick={() => setQ(SAMPLE_WALLET)}
               className="border border-[#2e2e2e] px-3 py-2 font-mono-d text-[10.5px] text-[#635d5a] transition-colors hover:border-[#383838] hover:text-[#e9e0d1]"
             >
-              SAMPLE WALLET
+              {t("cloud.search.sampleWallet")}
             </button>
             <button
               onClick={() => setQ(SAMPLE_TX)}
               className="border border-[#2e2e2e] px-3 py-2 font-mono-d text-[10.5px] text-[#635d5a] transition-colors hover:border-[#383838] hover:text-[#e9e0d1]"
             >
-              SAMPLE TX
+              {t("cloud.search.sampleTx")}
             </button>
           </div>
         </header>

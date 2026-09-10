@@ -380,3 +380,70 @@ describe("AI answer boundary", () => {
     expect(invalidDecimalsContent).not.toContain("totalSupplyTokens");
   });
 });
+
+describe("AI answer locale", () => {
+  it("keeps the English deterministic fallback unchanged and returns Simplified Chinese for zh-CN", async () => {
+    const service = new AiService(loadEnv({ NODE_ENV: "test", AI_PROVIDER: "fallback" }));
+    const wallet: NormalizedEntity = {
+      ...entity,
+      type: "wallet",
+      value: "0x0000000000000000000000000000000000000042",
+      facts: { nativeBalanceEth: "0.25", transactionsFetched: 3 },
+      riskNotes: []
+    };
+    const en = await service.answer("What stands out to a beginner?", wallet);
+    const zh = await service.answer("What stands out to a beginner?", wallet, "zh-CN");
+
+    expect(en.summaryBullets).toContain("Meaning: public wallet address, not a verified real-world identity.");
+    expect(en.summaryBullets).toContain("Next: open the source panel and verify the cited fields.");
+    expect(en.answer).toContain("native balance of 0.25 ETH");
+
+    expect(zh.summaryBullets.join(" ")).toContain("含义：公开钱包地址");
+    expect(zh.answer).toMatch(/[\u4e00-\u9fff]/);
+    expect(zh.uncertainty.join(" ")).toMatch(/[\u4e00-\u9fff]/);
+    expect(zh.suggestedQuestions.join(" ")).toMatch(/[\u4e00-\u9fff]/);
+    expect(zh.suggestedQuestions).toEqual(zh.suggestedFollowUps);
+    expect(zh.answer).toContain("0.25 ETH");
+    expect(zh.answer).not.toMatch(/public wallet address|Meaning:/);
+
+    const zhBeginner = await service.answer("新手应该注意什么？", wallet, "zh-CN");
+    expect(zhBeginner.summaryBullets.join(" ")).toContain("含义：");
+    expect(zhBeginner.answer).toMatch(/[\u4e00-\u9fff]/);
+  });
+
+  it("localizes transaction prose while keeping hashes, addresses, symbols, and numbers verbatim", async () => {
+    const service = new AiService(loadEnv({ NODE_ENV: "test", AI_PROVIDER: "fallback" }));
+    const zh = await service.answer("Explain", {
+      ...entity,
+      facts: { status: "0x1", valueEth: "0", gasUsed: "0x3074c", from: `0x${"1".repeat(40)}`, to: `0x${"2".repeat(40)}` }
+    }, "zh-CN");
+
+    expect(zh.answer).toContain("已成功");
+    expect(zh.summaryBullets.join(" ")).toContain("198,476 个 gas");
+    expect(zh.summaryBullets.join(" ")).toContain("从 0x1111…1111 到 0x2222…2222");
+    expect(zh.summaryBullets.join(" ")).toContain("0x1111…1111");
+    expect(zh.summaryBullets.join(" ")).toContain("0x2222…2222");
+    expect(zh.summaryBullets.join(" ")).not.toContain("No native ETH was attached");
+  });
+
+  it("sends the requested locale and Chinese writing directive to the provider", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      output_text: JSON.stringify({
+        answer: "这笔交易在 Robinhood Chain 上成功。",
+        summaryBullets: [],
+        inferences: [],
+        uncertainty: [],
+        suggestedFollowUps: []
+      })
+    }), { status: 200, headers: { "content-type": "application/json" } }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const answer = await new AiService(loadEnv({ NODE_ENV: "test", OPENAI_API_KEY: "test-key" }))
+      .answer("Explain", entity, "zh-CN");
+
+    const request = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body));
+    expect(request.input[0].content).toContain("Simplified Chinese");
+    expect(JSON.parse(request.input[1].content).locale).toBe("zh-CN");
+    expect(answer.answer).toBe("这笔交易在 Robinhood Chain 上成功。");
+  });
+});

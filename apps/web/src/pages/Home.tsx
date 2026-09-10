@@ -11,8 +11,10 @@ import OfficialContract from "../product/OfficialContract";
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import { useI18n } from "../i18n";
 
 export default function Home() {
+  const { t } = useI18n();
   const pageRef = useRef<HTMLDivElement>(null);
   useGSAP(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -35,7 +37,7 @@ export default function Home() {
   }, { scope: pageRef });
   return (
     <div ref={pageRef} className="marketing-page min-h-screen bg-[#1d1d1d]">
-      <a href="#marketing-main" onClick={(event) => { event.preventDefault(); document.getElementById("marketing-main")?.focus(); window.history.replaceState(null, "", "#marketing-main"); }} className="fixed left-3 top-3 z-[120] -translate-y-24 bg-[#fa6c34] px-4 py-3 font-mono-d text-[10px] font-semibold text-[#1d1d1d] outline-none transition-transform focus:translate-y-0 focus-visible:ring-2 focus-visible:ring-white">SKIP TO MAIN CONTENT</a>
+      <a href="#marketing-main" onClick={(event) => { event.preventDefault(); document.getElementById("marketing-main")?.focus(); window.history.replaceState(null, "", "#marketing-main"); }} className="fixed left-3 top-3 z-[120] -translate-y-24 bg-[#fa6c34] px-4 py-3 font-mono-d text-[10px] font-semibold text-[#1d1d1d] outline-none transition-transform focus:translate-y-0 focus-visible:ring-2 focus-visible:ring-white">{t("common.skipToContent")}</a>
       <Sidebar />
       <TopNav />
       <main id="marketing-main" tabIndex={-1} className="outline-none lg:pl-[220px]">

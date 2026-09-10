@@ -4,6 +4,7 @@
  */
 
 import { dealPreviewAuthorization } from "../deals/preview-token";
+import { translateCurrent } from "../i18n/translate";
 const BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 const AUTH_REFRESH_LOCK = "chainscout-cookie-refresh";
 let refreshPromise: Promise<boolean> | null = null;
@@ -42,80 +43,80 @@ export function humanize(
 ): string {
   switch (code) {
     case "INVALID_CREDENTIALS":
-      return "Invalid credentials. Check your email and password.";
+      return translateCurrent("cloud.http.invalidCredentials");
     case "EMAIL_ALREADY_REGISTERED":
-      return "That email is already registered. Try signing in instead.";
+      return translateCurrent("cloud.http.emailAlreadyRegistered");
     case "EMAIL_NOT_VERIFIED":
-      return "Verify your email address before signing in.";
+      return translateCurrent("cloud.http.emailNotVerified");
     case "MONTHLY_QUOTA_EXCEEDED":
-      return "Monthly quota reached. Usage resets at the start of next month.";
+      return translateCurrent("cloud.http.monthlyQuotaExceeded");
     case "ENTITY_REQUIRED":
-      return "Add a wallet address or transaction hash to this question.";
+      return translateCurrent("cloud.http.entityRequired");
     case "INVALID_ENTITY":
-      return "Enter a complete Robinhood Chain address or transaction hash.";
+      return translateCurrent("cloud.http.invalidEntity");
     case "PRIVATE_MODE_DISABLED":
-      return "Private Mode is paused right now. Try again shortly.";
+      return translateCurrent("cloud.http.privateModeDisabled");
     case "PORTFOLIO_MODE_DISABLED":
-      return "Portfolio refresh is paused. Your encrypted local snapshot is still available.";
+      return translateCurrent("cloud.http.portfolioModeDisabled");
     case "PORTFOLIO_DAILY_BUDGET_EXCEEDED":
-      return "Today's free portfolio refresh budget has been reached. Your prior encrypted snapshot is unchanged.";
+      return translateCurrent("cloud.http.portfolioDailyBudget");
     case "PORTFOLIO_BUDGET_UNAVAILABLE":
-      return "The free-tier portfolio safety guard is unavailable, so refresh failed closed. Try again shortly.";
+      return translateCurrent("cloud.http.portfolioBudgetUnavailable");
     case "RWA_VERIFY_DISABLED":
-      return "RWA Verify is paused. No contract data was sent or saved.";
+      return translateCurrent("cloud.http.rwaVerifyDisabled");
     case "RWA_DAILY_BUDGET_EXCEEDED":
-      return "Today's free RWA verification budget has been reached. Try again tomorrow.";
+      return translateCurrent("cloud.http.rwaDailyBudget");
     case "RWA_BUDGET_UNAVAILABLE":
-      return "The free-tier RWA safety guard is unavailable, so verification failed closed.";
+      return translateCurrent("cloud.http.rwaBudgetUnavailable");
     case "RWA_ANCHOR_CHANGED":
-      return "The current block changed during verification. Nothing was saved; try again.";
+      return translateCurrent("cloud.http.rwaAnchorChanged");
     case "RWA_DIRECT_VERIFICATION_FAILED":
-      return "The direct contract evidence could not be confirmed at one block. No conclusion was returned.";
+      return translateCurrent("cloud.http.rwaDirectVerificationFailed");
     case "COLLECTIBLE_CATALOG_DISABLED":
-      return "Catalog matching is paused. You can still add the collectible manually to your encrypted Vault.";
+      return translateCurrent("cloud.http.collectibleCatalogDisabled");
     case "COLLECTIBLE_DAILY_BUDGET_EXCEEDED":
-      return "Today's free catalog lookup budget has been reached. You can still add the collectible manually.";
+      return translateCurrent("cloud.http.collectibleDailyBudget");
     case "COLLECTIBLE_BUDGET_UNAVAILABLE":
-      return "The free catalog safety guard is unavailable, so the lookup failed closed. You can still add the collectible manually.";
+      return translateCurrent("cloud.http.collectibleBudgetUnavailable");
     case "COLLECTIBLE_REQUEST_LIMIT_EXCEEDED":
-      return "This lookup exceeded ChainScout's catalog request limit. Refine it or add the collectible manually.";
+      return translateCurrent("cloud.http.collectibleRequestLimit");
     case "COLLECTIBLE_PROVIDER_RATE_LIMITED":
-      return "The free catalog provider is rate-limited. Try again later or add the collectible manually.";
+      return translateCurrent("cloud.http.collectibleProviderRateLimited");
     case "COLLECTIBLE_PROVIDER_UNAVAILABLE":
-      return "The collectible catalog is temporarily unavailable. Your encrypted Vault is unchanged, and manual entry still works.";
+      return translateCurrent("cloud.http.collectibleProviderUnavailable");
     case "COLLECTIBLE_PROVIDER_MALFORMED":
-      return "The catalog returned data ChainScout could not verify safely. Nothing was saved; use manual entry instead.";
+      return translateCurrent("cloud.http.collectibleProviderMalformed");
     case "COLLECTIBLE_NOT_FOUND":
-      return "That exact catalog card was not found. Adjust the match or add the collectible manually.";
+      return translateCurrent("cloud.http.collectibleNotFound");
     case "MARKET_INVENTORY_DISABLED":
-      return "Live Market & Inventory is paused. Your encrypted comparisons and click-only handoffs still work.";
+      return translateCurrent("cloud.http.marketInventoryDisabled");
     case "MARKET_DAILY_BUDGET_EXCEEDED":
-      return "Today's free market-data budget has been reached. Your prior encrypted observations are unchanged.";
+      return translateCurrent("cloud.http.marketDailyBudget");
     case "MARKET_BUDGET_UNAVAILABLE":
-      return "The free market-data safety guard is unavailable, so the lookup failed closed.";
+      return translateCurrent("cloud.http.marketBudgetUnavailable");
     case "MARKET_PROVIDER_RATE_LIMITED":
-      return "The public market provider is rate-limited. Your prior encrypted observation is unchanged.";
+      return translateCurrent("cloud.http.marketProviderRateLimited");
     case "MARKET_PROVIDER_UNAVAILABLE":
-      return "The market provider is unavailable. The approved public identifier may already have been sent; your prior encrypted observation is unchanged.";
+      return translateCurrent("cloud.http.marketProviderUnavailable");
     case "MARKET_PROVIDER_MALFORMED":
-      return "The provider returned data ChainScout could not verify safely. Nothing new was saved.";
+      return translateCurrent("cloud.http.marketProviderMalformed");
     case "MARKET_MERCHANT_NOT_APPROVED":
     case "MARKET_EXACT_MAPPING_UNAVAILABLE":
-      return "No reviewed live merchant mapping exists for that asset. Use the click-only search handoff instead.";
+      return translateCurrent("cloud.http.marketMerchantNotApproved");
     case "MARKET_EXACT_MAPPING_CHANGED":
-      return "That merchant mapping changed after you reviewed it. Reload approved stores and confirm the exact SKU and product ID again.";
+      return translateCurrent("cloud.http.marketMappingChanged");
     case "SNAPSHOT_REORGED":
-      return "The current block anchor changed during verification. Nothing was saved; refresh again.";
+      return translateCurrent("cloud.http.snapshotReorged");
     case "VALIDATION_ERROR":
       return /password/i.test(message)
-        ? "Password must be at least 10 characters."
-        : "That input was not accepted. Check the address or hash and try again.";
+        ? translateCurrent("cloud.http.passwordTooShort")
+        : translateCurrent("cloud.http.validationError");
     default:
       if (status === 429)
-        return "Rate limit reached. Wait a moment and try again.";
+        return translateCurrent("cloud.http.rateLimited");
       if (status >= 500)
-        return "The service is unavailable right now. Try again shortly.";
-      return message || "Request failed.";
+        return translateCurrent("cloud.http.serviceUnavailable");
+      return message || translateCurrent("cloud.http.requestFailed");
   }
 }
 
@@ -186,7 +187,7 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (response.status === 401)
     throw new ApiError(
       "UNAUTHORIZED",
-      "Your session expired. Sign in again.",
+      translateCurrent("cloud.http.sessionExpired"),
       401,
     );
   if (!response.ok) throw await toApiError(response);
@@ -242,7 +243,7 @@ async function downloadAccountExportAttempt(
   if (response.status === 401) {
     throw new ApiError(
       "UNAUTHORIZED",
-      "Your session expired. Sign in again.",
+      translateCurrent("cloud.http.sessionExpired"),
       401,
     );
   }

@@ -1,7 +1,9 @@
+import { translateCurrent } from "../i18n/translate";
+
 export type ShoppingBrief = { name: string; set: string; number: string; printing: string; condition: string; grader: string; grade: string };
 export function shoppingQuery(brief: ShoppingBrief): string {
   const parts = [brief.name, brief.set, brief.number, brief.printing, brief.condition, brief.grader, brief.grade].map(part => part.trim());
-  if (!parts[0] || !parts[1] || !parts[2] || parts.some(part => part.length > 80)) throw new Error("Enter a card name, set and collector number; keep each field under 81 characters.");
+  if (!parts[0] || !parts[1] || !parts[2] || parts.some(part => part.length > 80)) throw new Error(translateCurrent("cloud.deals.model.identityError"));
   return parts.filter(Boolean).join(" ");
 }
 export function shoppingLinks(brief: ShoppingBrief) {

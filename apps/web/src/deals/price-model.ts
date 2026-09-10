@@ -1,4 +1,5 @@
 import type { BenchmarkInput, CardBenchmark } from "@rh-chain/shared";
+import { lookup, translateCurrent, type Locale } from "../i18n";
 
 export const CARD_EXAMPLES = [
   { provider: "tcgdex", cardId: "base1-4", name: "Charizard", detail: "Pokémon · Base Set #4", mark: "04", tone: "#fa6c34" },
@@ -21,7 +22,7 @@ export function checkedPrices(input: BenchmarkInput, value: unknown, now = Date.
     !text(data.name, 200) || !stamp(data.fetchedAt, now) || !Array.isArray(data.rows) || data.rows.length > 100 ||
     data.rows.some(row => !row || !text(row.market, 80) || !text(row.variant, 100) || !text(row.metric, 80) ||
       !Number.isFinite(row.amount) || row.amount <= 0 || row.amount > 1e9 || !["USD", "EUR"].includes(row.currency) ||
-      !(row.updatedAt === null || stamp(row.updatedAt, now)))) throw new Error("These price references could not be verified. Please try another card.");
+      !(row.updatedAt === null || stamp(row.updatedAt, now)))) throw new Error(translateCurrent("cards.error.verify"));
   return data;
 }
 const metricNames: Record<string, string> = {
@@ -29,7 +30,7 @@ const metricNames: Record<string, string> = {
   avg: "Average reference", low: "Low reference", trend: "Price trend reference", avg1: "1-day average", avg7: "7-day average", avg30: "30-day average",
   "avg-holo": "Holo average", "low-holo": "Holo low", "trend-holo": "Holo trend", "avg1-holo": "Holo 1-day average", "avg7-holo": "Holo 7-day average", "avg30-holo": "Holo 30-day average",
 };
-export const metricName = (metric: string) => metricNames[metric] ?? metric;
+export const metricName = (metric: string, locale: Locale = "en") => locale === "zh-CN" ? lookup(locale, `cards.metric.${metric}`) ?? metric : metricNames[metric] ?? metric;
 export const priceText = (amount: number, currency: "USD" | "EUR") => `${currency} ${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}`;
 
 // Select a representative metric, not a cheapest offer across unlike sources.
