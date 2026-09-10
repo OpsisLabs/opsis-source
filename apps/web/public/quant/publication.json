@@ -1,0 +1,22 @@
+{
+  "baseSha": "9c044e95551169a16db0a2092edf931bedb92bfd",
+  "publicationSha": "90dcbe698aaf407ccf3658436b3e3df44e412349",
+  "baseFileCount": 66,
+  "quantHashes": {
+    "app.js": "519d60f85a3fd3b3b64e50e0608c6b16d7d295aafbae6c436b0e13c9b800c89d",
+    "assets/cashcat.svg": "ed592a2cbf88f8b263eabf34cd7fb3fe2cb296249e4acf179357f1fa16a9039f",
+    "assets/cbbtc.svg": "06efde5ab8294fc01f5f4d09c39307feff8d83a1de8a98e5b5cf4c4be28bf9ae",
+    "assets/dogo.svg": "3604b15ceb6ae87ca2a429103150e9239a68a2ac4d5c24482b03e5ddd700337a",
+    "assets/index.svg": "642561617c1b4f790eae3df5f7e657dab889e0da7c448580a168985d02721b7e",
+    "assets/juggernaut.svg": "aedee9462680c911668a7f20dcdc0bcc6fc405040d987db93766357c92204482",
+    "assets/logo.svg": "17c8d90a50b95bf6d7aa3adb397a18c62418a8936e9b57d3403d64f395b7c3e2",
+    "assets/pons.svg": "333afa5c37de0fbddfb9df776403f083df54cf325d36c66d9dd0a9d47b311e5c",
+    "assets/sushi.svg": "401454ed4c4d5380b9d38b4fb9b81182bfe43a08d63eeab5310212d6daa657a4",
+    "assets/ubik.svg": "2561f5415fb5905a38fc2ac81e4cd1ab3b3782be22b5e007912e4a1aa5024d1e",
+    "assets/usdg.svg": "c7105b5faa8f03b8505fec995f858d22a1fb181afa6b13fa5b6e05c34b60429d",
+    "assets/weth.svg": "f117345b083a7f9fc8c1cc3049352a48184c72a78d445838e41aee7f1d083f6d",
+    "crypto-data.json": "8c63e4e45a7f6bced9f2d4393f2fe0b89a8f59a6c49c637fa7380bf80fcefc80",
+    "index.html": "ac4839f33842e3017a4ca4863a88dc4f7c4c15389fe3bee0f0d864bd6f229d2a",
+    "style.css": "e975878117ce719549248e90f8dc9268b6d57b069d9be6774c8d64bd9ea8969b"
+  }
+}

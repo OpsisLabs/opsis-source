@@ -16,6 +16,12 @@ const baseEnv = { ...process.env, PW_APP_PORT: String(port), CHAINSCOUT_FEATURE_
 for (const feature of features) baseEnv[feature.flag] = "false";
 for (const engine of ["chromium", "webkit"]) {
   const config = engine === "webkit" ? ["--config", "playwright.webkit.config.ts"] : [];
+  if (existsSync(join(root, "e2e/quant.mock.spec.ts"))) {
+    const preserved = spawnSync("pnpm", ["exec", "playwright", "test", ...config, "e2e/quant.mock.spec.ts"], {
+      cwd: root, stdio: "inherit", env: baseEnv,
+    });
+    if (preserved.status !== 0) process.exit(preserved.status ?? 1);
+  }
   if (existsSync(join(root, "e2e/card-prices.mock.spec.ts"))) {
     const closed = spawnSync("pnpm", ["exec", "playwright", "test", ...config, "e2e/card-prices.mock.spec.ts", "--grep", "closed by default"], {
       cwd: root, stdio: "inherit", env: baseEnv,
