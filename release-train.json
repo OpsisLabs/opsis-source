@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "13-collectible-deal-finder",
+  "activeRelease": "14-scout-watch",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement",
@@ -125,19 +125,24 @@
       "id": "13-collectible-deal-finder",
       "branch": "release/13-collectible-deal-finder",
       "tagPrefix": "rc/13-collectible-deal-finder/",
-      "status": "active",
+      "status": "released",
       "currentSlice": "Card Price Check: standalone public reference prices only. Automatic live offers and sold-listing aggregation remain access-restricted and unshipped; the listing ship gate below is not claimed complete.",
-      "outcome": "Compare exact collectible offers and evidence without confusing asking prices with value",
-      "shipGate": "Supported authorized free-tier sources distinguish printing, condition and grade, list known landed costs and timestamp every offer. Sold-price evidence is independently labeled and never fabricated; unknown shipping and weak matches cannot rank as guaranteed cheapest. Provider limits fail closed without overage; unsupported venues use explicit search handoffs rather than claimed live listings."
+      "outcome": "Check source-linked collectible reference prices without confusing references with live offers",
+      "shipGate": "The shipped Card Price Check slice keeps exact card identity, timestamps, currencies and source links visible; stale, missing and failed prices remain explicit. Optional artwork is click-only. Reference prices are not appraisals, available inventory or executable offers. English/Chinese and desktop/mobile checks pass; automatic offer aggregation remains disabled.",
+      "deferredScope": "Automatic offers and sold-listing aggregation remain unshipped and access-restricted. Advancing Scout Watch does not enable or certify them.",
+      "deferredShipGate": "Supported authorized free-tier sources distinguish printing, condition and grade, list known landed costs and timestamp every offer. Sold-price evidence is independently labeled and never fabricated; unknown shipping and weak matches cannot rank as guaranteed cheapest. Provider limits fail closed without overage; unsupported venues use explicit search handoffs rather than claimed live listings."
     },
     {
       "order": 14,
       "id": "14-scout-watch",
       "branch": "codex/14-scout-watch",
       "tagPrefix": "rc/14-scout-watch/",
-      "status": "queued",
+      "status": "active",
       "outcome": "Save wallets privately and see what changed between checks",
-      "dependencies": ["04-portfolio-intelligence", "03-encrypted-vault"],
+      "dependencies": [
+        "04-portfolio-intelligence",
+        "03-encrypted-vault"
+      ],
       "shipGate": "Wallet labels and bounded snapshot history are encrypted locally. User-triggered public-address refreshes show exact comparable balance changes and newly observed activity with block anchors, source links and coverage gaps; missing is never zero, transfers are not inferred trades, and no background monitoring or profit claims are made. Persistence, backup/restore, deletion, stale/reorg/provider errors, concurrency, accessibility and English/Chinese mobile flows are tested. No signing, new provider, recurring vendor cost or private-data upload is introduced."
     }
   ]
