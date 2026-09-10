@@ -73,7 +73,7 @@ import {
   type VaultStorageStatus,
 } from "../vault/types";
 import { PortfolioPanel } from "../portfolio/PortfolioPanel";
-import { isApprovalManagerEnabled } from "../product/availability";
+import { isApprovalManagerEnabled, isDealFinderEnabled } from "../product/availability";
 import { CollectibleCatalogPanel } from "../collectibles/CollectibleCatalogPanel";
 import { MarketInventoryPanel } from "../market/MarketInventoryPanel";
 import { ReplayActionsPanel } from "../replay/ReplayActionsPanel";
@@ -141,7 +141,7 @@ function emptyAssetDraft(): VaultAssetDraft {
   };
 }
 
-export default function VaultPage() {
+export default function VaultPage({ previewDeals = false }: { previewDeals?: boolean }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const platformSupported = isVaultPlatformSupported();
   const [phase, setPhase] = useState<Phase>(
@@ -154,7 +154,7 @@ export default function VaultPage() {
     UnlockedVault["collectibles"]
   >([]);
   const [markets, setMarkets] = useState<UnlockedVault["markets"]>([]);
-  const workspace = workspaceFromSearch(searchParams);
+  const workspace = previewDeals ? "deals" : workspaceFromSearch(searchParams);
   const [storage, setStorage] = useState<VaultStorageStatus>({
     supported: platformSupported,
     persistent: null,
@@ -1035,7 +1035,8 @@ export default function VaultPage() {
               </div>
             )}
             {isApprovalManagerEnabled() && <button type="button" className="mt-4 min-h-[44px] border border-[#fa6c34] px-4 text-[#fa6c34]" onClick={() => selectWorkspace("approvals")}>APPROVAL MANAGER</button>}
-            {workspace === "market" &&
+            {isDealFinderEnabled() && <button type="button" className="mt-4 min-h-[44px] border border-[#fa6c34] px-4 text-[#fa6c34]" onClick={() => selectWorkspace("deals")}>COLLECTIBLE DEAL FINDER</button>}
+            {workspace === "deals" && (previewDeals || isDealFinderEnabled()) ? <MarketInventoryPanel key={`${meta.vaultId}:${sessionGeneration}:deals`} dealsOnly assets={assets.filter(asset => asset.assetType === "collectible")} context={markets[0]} sessionId={sessionGeneration} onSaveContext={saveMarketContext} /> : workspace === "market" &&
             MARKET_INVENTORY_ENABLED ? null : workspace === "portfolio" || workspace === "approvals" ? (
               <PortfolioPanel
                 key={`${meta.vaultId}:${sessionGeneration}:${workspace}`}

@@ -1,3 +1,4 @@
+export type { BenchmarkInput, CardBenchmark } from "./benchmarks.js";
 export const CHAIN_IDS = {
   robinhoodMainnet: 4663,
   robinhoodTestnet: 46630,

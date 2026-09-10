@@ -15,6 +15,7 @@ export type ProductFeature = {
 };
 
 export const PRODUCT_FEATURES: ProductFeature[] = [
+  { id: "collectible-deal-finder", group: "vault", label: "Collectible Deal Finder", shortLabel: "Deal Finder", helpLabel: "About collectible comparisons", path: "/vault?view=deals", eyebrow: "PRIVATE SHOPPING RESEARCH", navHint: "Find and compare exact cards", summary: "Build precise collectible searches and compare saved offer costs.", bestFor: "Separating asking prices, sold evidence and complete landed costs.", privacy: "Your shopping brief stays local until you open a named marketplace. Saved offers are encrypted in your Vault.", boundary: "No live feed is implied; only reviewed opted-in merchants supply provider offers. Search handoffs and owner-entered prices are labeled separately.", steps: ["Unlock your Vault and identify the collectible.", "Specify printing, condition and grade.", "Inspect supported searches or reviewed merchant offers.", "Save exact comparable offers with all known costs."] },
   {
     id: "approval-manager", group: "vault", label: "Approval Manager", shortLabel: "Approvals",
     helpLabel: "About spending permissions", path: "/vault?view=approvals",

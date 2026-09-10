@@ -34,6 +34,7 @@ import { collectibleRoutes } from "./routes/collectibles.js";
 import { CollectibleCatalogService, type CollectibleCatalogSource } from "./collectibles/service.js";
 import { createCollectibleBudget } from "./collectibles/budget.js";
 import { marketRoutes } from "./routes/market.js";
+import { BenchmarkService } from "./market/benchmarks.js";
 import { MarketInventoryService, type MarketInventorySource } from "./market/service.js";
 import { createMarketBudget } from "./market/budget.js";
 import { openDataRoutes } from "./routes/open-data.js";
@@ -166,7 +167,8 @@ export async function buildApp(
   await marketRoutes(
     app,
     env,
-    dependencies?.marketInventory ?? new MarketInventoryService(env, { budget: createMarketBudget(env, redis) })
+    dependencies?.marketInventory ?? new MarketInventoryService(env, { budget: createMarketBudget(env, redis) }),
+    new BenchmarkService(env, { budget: createCollectibleBudget(env, redis) })
   );
   await authRoutes(app, env, prisma);
   await accountRoutes(app, env, prisma);

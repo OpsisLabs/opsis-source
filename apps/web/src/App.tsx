@@ -8,6 +8,7 @@ const Roadmap = lazy(() => import("./pages/Roadmap"));
 const ScoutSwap = lazy(() => import("./pages/ScoutSwap"));
 const PrivateExplorer = lazy(() => import("./pages/PrivateExplorer"));
 const VaultPage = lazy(() => import("./pages/Vault"));
+const PrivateDealPreview = lazy(() => import("./deals/PrivatePreview"));
 const RwaVerify = lazy(() => import("./pages/RwaVerify"));
 const FeatureGuide = lazy(() => import("./pages/FeatureGuide"));
 const TechnicalDocs = lazy(() => import("./pages/TechnicalDocs"));
@@ -73,6 +74,7 @@ export default function App() {
     <>
       <RouteMetadata />
       <Routes>
+        <Route path="/_preview/deals" element={<DeferredPage><PrivateDealPreview /></DeferredPage>} />
         <Route path="/" element={<Home />} />
         <Route
           path="/roadmap"

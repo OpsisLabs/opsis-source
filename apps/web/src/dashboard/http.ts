@@ -3,6 +3,7 @@
  * cookies; JavaScript never reads, stores, or serializes either token.
  */
 
+import { dealPreviewAuthorization } from "../deals/preview-token";
 const BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 const AUTH_REFRESH_LOCK = "chainscout-cookie-refresh";
 let refreshPromise: Promise<boolean> | null = null;
@@ -203,7 +204,7 @@ export async function publicApi<T>(path: string, body: unknown): Promise<T> {
   return (await response.json()) as T;
 }
 
-/** Anonymous, same-origin request that never enters the cookie refresh path. */
+/** Cookie-free same-origin request; only the explicit operator-preview scope may attach its temporary test credential. */
 export async function privateApi<T>(
   path: string,
   body: unknown,
@@ -213,6 +214,8 @@ export async function privateApi<T>(
     "content-type": "application/json",
     "x-chainscout-csrf": "1",
   });
+  const previewAuthorization = dealPreviewAuthorization(path);
+  if (previewAuthorization) headers.set("authorization", previewAuthorization);
   const response = await fetch(`${BASE}${path}`, {
     method: "POST",
     body: JSON.stringify(body),
