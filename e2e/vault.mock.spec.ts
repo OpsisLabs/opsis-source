@@ -14,6 +14,55 @@ const portfolioAddress = "0x1111111111111111111111111111111111111111";
 const secondPortfolioAddress = "0x2222222222222222222222222222222222222222";
 const portfolioToken = "0x3333333333333333333333333333333333333333";
 
+test("deal finder builds exact click-only searches without a background marketplace request", async ({ page }) => {
+  test.skip(process.env.VITE_COLLECTIBLE_DEAL_FINDER_ENABLED !== "true", "preview flag required");
+  const external: string[] = [];
+  page.on("request", request => { if (new URL(request.url()).hostname.endsWith("ebay.com")) external.push(request.url()); });
+  await page.goto("/vault?view=deals");
+  await page.getByLabel("VAULT PASSPHRASE").fill(passphrase);
+  await page.getByLabel("CONFIRM PASSPHRASE").fill(passphrase);
+  await page.getByRole("button", { name: "CREATE ENCRYPTED VAULT" }).click();
+  await page.getByRole("button", { name: /I SAVED IT/i }).click();
+  const brief = page.getByRole("region", { name: "Collectible shopping brief" });
+  await brief.getByLabel("name", { exact: true }).fill("Charizard");
+  await brief.getByLabel("set", { exact: true }).fill("Base Set");
+  await brief.getByLabel("Collector number").fill("4/102");
+  await brief.getByLabel("grader", { exact: true }).fill("PSA");
+  await brief.getByLabel("grade", { exact: true }).fill("9");
+  await expect(brief.getByRole("link", { name: "Inspect sold listings on eBay" })).toHaveAttribute("href", /LH_Sold=1/);
+  expect(external).toEqual([]);
+  const prices = page.getByRole("region", { name: "Free card price references" });
+  await page.route("**/v1/private/deals/benchmark", async route => {
+    if (route.request().postDataJSON().provider === "ygoprodeck") {
+      expect(route.request().postDataJSON()).toEqual({ provider: "ygoprodeck", cardId: "46986414" });
+      await route.fulfill({ status: 503, json: { error: { code: "BENCHMARK_UNAVAILABLE", message: "Reference source temporarily unavailable" } } });
+      return;
+    }
+    expect(route.request().postDataJSON()).toEqual({ provider: "tcgdex", cardId: "base1-4" });
+    await route.fulfill({ json: { provider: "tcgdex", cardId: "base1-4", name: "Charizard", fetchedAt: "2026-09-09T12:00:00Z", sourceUrl: "https://api.tcgdex.net/v2/en/cards/base1-4", rows: [{ market: "TCGplayer", variant: "holofoil", metric: "marketPrice", amount: 42, currency: "USD", updatedAt: null }] } });
+  });
+  await prices.getByRole("button", { name: "Use example: Charizard · Base Set 4" }).click();
+  await prices.getByRole("button", { name: "Fetch public price references" }).click();
+  await expect(prices.getByText("USD 42", { exact: true })).toBeVisible();
+  await expect(prices.getByText("Provider price timestamp unknown—not certified current")).toBeVisible();
+  if (process.env.CHAINSCOUT_PREVIEW_SHOT) await page.screenshot({ path: process.env.CHAINSCOUT_PREVIEW_SHOT, fullPage: true });
+  for (const width of [320, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow, `preview must reflow at ${width}px`).toBeLessThanOrEqual(1);
+  }
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await expect(page.getByText("Robinhood token pools", { exact: true })).toBeHidden();
+  await prices.getByLabel("Card game", { exact: true }).selectOption("ygoprodeck");
+  await expect(prices.getByText("USD 42", { exact: true })).toHaveCount(0);
+  await prices.getByRole("button", { name: "Use example: Dark Magician" }).click();
+  await prices.getByRole("button", { name: "Fetch public price references" }).click();
+  await expect(prices.getByRole("alert")).toBeVisible();
+  await page.getByRole("button", { name: "LOCK", exact: true }).click();
+  await expect(brief).toHaveCount(0);
+  await expect(prices).toHaveCount(0);
+});
+
 async function downloadBuffer(download: Download): Promise<Buffer> {
   const stream = await download.createReadStream();
   const chunks: Buffer[] = [];

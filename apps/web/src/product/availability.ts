@@ -51,6 +51,7 @@ export function isOpenDataApiEnabled() {
 
 export function isProductFeatureEnabled(id: string) {
   if (id === "trade-simulator") return import.meta.env.VITE_TRADE_SIMULATOR_ENABLED === "true";
+  if (id === "collectible-deal-finder") return isDealFinderEnabled();
   if (id === "collectible-catalog") return isCollectibleCatalogEnabled();
   if (id === "market-inventory") return isMarketInventoryEnabled();
   if (id === "replay-actions") return isReplayActionsEnabled();
@@ -58,7 +59,8 @@ export function isProductFeatureEnabled(id: string) {
   return true;
 }
 
-export type VaultWorkspace = "assets" | "portfolio" | "collectibles" | "market" | "replay";
+export function isDealFinderEnabled() { return import.meta.env.VITE_COLLECTIBLE_DEAL_FINDER_ENABLED === "true"; }
+export type VaultWorkspace = "assets" | "portfolio" | "collectibles" | "market" | "replay" | "deals";
 
 type VaultAvailability = Pick<ReturnType<typeof productAvailability>, "collectibleCatalog" | "marketInventory" | "replayActions">;
 
@@ -67,6 +69,7 @@ export function vaultWorkspaceFromSearch(
   availability: VaultAvailability = currentAvailability(),
 ): VaultWorkspace {
   const requested = searchParams.get("view");
+  if (requested === "deals" && isDealFinderEnabled()) return requested;
   if (requested === "portfolio") return requested;
   if (requested === "collectibles" && availability.collectibleCatalog)
     return requested;

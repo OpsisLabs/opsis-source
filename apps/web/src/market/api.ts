@@ -21,9 +21,10 @@ export function fetchMerchantInventory(
   canonicalAssetId: string,
   expected: { sku: string; productId: string; reviewedAt: string },
   signal?: AbortSignal,
+  deals = false,
 ): Promise<MerchantInventoryResponse> {
   return privateApi<MerchantInventoryResponse>(
-    "/v1/private/market/merchant",
+    deals ? "/v1/private/deals/offer" : "/v1/private/market/merchant",
     {
       merchantId,
       canonicalAssetId,
@@ -37,9 +38,10 @@ export function fetchMerchantInventory(
 
 export function fetchApprovedMerchants(
   signal?: AbortSignal,
+  deals = false,
 ): Promise<ApprovedMerchantDirectoryResponse> {
   return privateApi<ApprovedMerchantDirectoryResponse>(
-    "/v1/private/market/merchants",
+    deals ? "/v1/private/deals/merchants" : "/v1/private/market/merchants",
     {},
     signal,
   );
