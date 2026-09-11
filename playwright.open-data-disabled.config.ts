@@ -17,7 +17,7 @@ export default defineConfig({
   use: {
     baseURL: disabledOrigin,
     browserName: webkit ? "webkit" : "chromium",
-    ...(webkit ? {} : { channel: "chrome" }),
+    ...(webkit ? {} : { channel: process.env.PW_BROWSER_CHANNEL ?? "chrome" }),
     headless: true,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",

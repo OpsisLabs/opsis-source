@@ -18,7 +18,7 @@ export default defineConfig({
   ],
   use: {
     baseURL: appOrigin,
-    channel: "chrome",
+    channel: process.env.PW_BROWSER_CHANNEL ?? "chrome",
     headless: process.env.HEADED !== "1",
     trace: "retain-on-failure",
     screenshot: "only-on-failure"

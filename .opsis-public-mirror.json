@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "8faee7412e9a75e490522d561df6109b67725121237f3bc7415e7146eae495f7",
+  "sourceTreeDigest": "a22afcf725ad660aef6843ed0c89c131500316a699e890b0133fe4ce39736274",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "b5200443bdb61a9dc68050fa8a3e34b0c0e75ce51aa182c81efc07149be363bb",
@@ -488,8 +488,8 @@
     "packages/shared/src/benchmarks.ts": "45abac4db1bca9a55677647ee15a742d5344d960959a64fe3d07ae00efa530a1",
     "packages/shared/src/index.ts": "6e32f5377f44663ad61d9bc48aabac45506d9cc289fbd44effda2b66763ce369",
     "packages/shared/tsconfig.json": "3543b1e7b426d5b65115ebff7122a5e79298db33c9f366b3c89f8d575a27fc1e",
-    "playwright.config.ts": "a1ffa90f6ebbfb7bd737365973d08c9dbdf4f10be43550658dd57711cdcd222e",
-    "playwright.open-data-disabled.config.ts": "2315fca3bdd6e119c166fe6f8efae2a488d51bd4211abef70c89bb5e394c01a6",
+    "playwright.config.ts": "87fd9ac34df8df32c0e84bd02d2133878bd420199fe1827f0bcae226f584d129",
+    "playwright.open-data-disabled.config.ts": "3ff9f84bb34f386c8c5095b35734666af0d9a87dda5f34e9b1a5eea43771ea4a",
     "playwright.webkit.config.ts": "776147ab329eae611f341185517424e9d14b11b56d371b09f84ddf578936791e",
     "pnpm-lock.yaml": "d82c179ab80a88d45e671ce7e90f82609d11e663b17b00cf11560ef0c936f906",
     "pnpm-workspace.yaml": "08d75840c97ab0e72d1d9b5b84a17e47a2e06cb159a5fbec5ee0a6a56682dad7",
