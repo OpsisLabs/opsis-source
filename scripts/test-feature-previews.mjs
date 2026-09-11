@@ -7,6 +7,7 @@ const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const port = Number(process.env.PW_FEATURE_PORT ?? "5383");
 if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error("Invalid PW_FEATURE_PORT");
 const features = [
+  { source: "apps/web/src/stress/StressTest.tsx", flag: "VITE_PORTFOLIO_STRESS_TEST_ENABLED", file: "e2e/stress-test.mock.spec.ts", grep: "portfolio stress test" },
   { source: "apps/web/src/situation/SituationRoom.tsx", flag: "VITE_SITUATION_ROOM_ENABLED", file: "e2e/situation-room.mock.spec.ts", grep: "situation room" },
   { source: "apps/web/src/watch/ScoutWatch.tsx", flag: "VITE_SCOUT_WATCH_ENABLED", file: "e2e/scout-watch.mock.spec.ts", grep: "scout watch" },
   { source: "apps/web/src/deals/CardPriceCheck.tsx", flag: "VITE_CARD_PRICE_CHECK_ENABLED", file: "e2e/card-prices.mock.spec.ts", grep: "card price check" },
@@ -18,6 +19,8 @@ const baseEnv = { ...process.env, PW_APP_PORT: String(port), CHAINSCOUT_FEATURE_
 for (const feature of features) baseEnv[feature.flag] = "false";
 for (const engine of ["chromium", "webkit"]) {
   const config = engine === "webkit" ? ["--config", "playwright.webkit.config.ts"] : [];
+  const stressClosed = spawnSync("pnpm", ["exec", "playwright", "test", ...config, "e2e/stress-test.mock.spec.ts", "--grep", "closed by default"], {cwd: root, stdio: "inherit", env: baseEnv});
+  if (stressClosed.status !== 0) process.exit(stressClosed.status ?? 1);
   if (existsSync(join(root, "e2e/quant.mock.spec.ts"))) {
     const preserved = spawnSync("pnpm", ["exec", "playwright", "test", ...config, "e2e/quant.mock.spec.ts"], {
       cwd: root, stdio: "inherit", env: baseEnv,
