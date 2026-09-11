@@ -45,6 +45,8 @@ import {
   formatPercent,
   paperPnl,
   formatMoney,
+  matchesScoringFilter,
+  type ScoringFilter,
 } from "./performance";
 import "./kol.css";
 import { encryptWorkspace, decryptWorkspace } from "./workspace";
@@ -54,7 +56,12 @@ import {
   workspaceChannel,
   workspaceSource,
 } from "./workspace";
-import { ComparePanel, CoveragePanel, ScoutBrief } from "./ResearchPanels";
+import {
+  ComparePanel,
+  CoveragePanel,
+  ScoutBrief,
+  ScoringSummary,
+} from "./ResearchPanels";
 import { sourceLabel } from "./research";
 const PerformanceChart = lazy(() => import("./PerformanceChart"));
 type Translate = (en: string, zh: string) => string;
@@ -507,7 +514,7 @@ export default function Tracker() {
   const [watched, setWatched] = useState<string[]>([]),
     [saved, setSaved] = useState<string[]>([]);
   const [selected, setSelected] = useState(""),
-    [historyFilter, setHistoryFilter] = useState("all");
+    [historyFilter, setHistoryFilter] = useState<ScoringFilter>("all");
   const [insight, setInsight] = useState(false),
     [stake, setStake] = useState(1000),
     [compare, setCompare] = useState(false);
@@ -626,13 +633,7 @@ export default function Tracker() {
   }).filter(
     (c) =>
       (!activityDate || !profile || c.publishedAt.startsWith(activityDate)) &&
-      (historyFilter === "all" ||
-        (historyFilter === "scored"
-          ? callPerformance(c).percent !== null
-          : historyFilter === "unscored"
-            ? callPerformance(c).observation.status === "excluded" ||
-              callPerformance(c).observation.status === "unavailable"
-            : callPerformance(c).observation.status === "pending")),
+      matchesScoringFilter(c, historyFilter),
   );
   const pageKey = [
     view,
@@ -1007,6 +1008,21 @@ export default function Tracker() {
               </select>
             </div>
           </div>
+          {(view === "all" || view === "feed") && (
+            <ScoringSummary
+              items={filteredCalls.filter(
+                (c) =>
+                  view !== "feed" || !feedAuthor || c.profile === feedAuthor,
+              )}
+              active={historyFilter}
+              onSelect={(filter) => {
+                setView("feed");
+                setHistoryFilter(filter);
+                setSelected("");
+              }}
+              L={L}
+            />
+          )}
           {view === "compare" ? (
             <ComparePanel items={filteredCalls} onOpen={openProfile} L={L} />
           ) : view !== "saved" && view !== "feed" ? (
@@ -1138,7 +1154,8 @@ export default function Tracker() {
                         </strong>
                         <small>
                           {s.complete.length} {L("scored", "已评分")} ·{" "}
-                          {s.history.length} {L("reviewed", "已审阅")}
+                          {s.history.length}{" "}
+                          {L("posts tracked", "篇已收集帖子")}
                         </small>
                       </div>
                       <div role="cell" className="kol-row-tokens">
@@ -1298,17 +1315,27 @@ export default function Tracker() {
                 <select
                   value={historyFilter}
                   onChange={(e) => {
-                    setHistoryFilter(e.target.value);
+                    setHistoryFilter(e.target.value as ScoringFilter);
                     setSelected("");
                   }}
                   aria-label={L("Filter feed status", "筛选动态状态")}
                 >
                   <option value="all">{L("All posts", "全部帖子")}</option>
+                  <option value="eligible">
+                    {L("Eligible calls", "符合条件的观点")}
+                  </option>
                   <option value="scored">
                     {L("Scored calls", "已评分观点")}
                   </option>
-                  <option value="pending">{L("Pending", "观察中")}</option>
-                  <option value="unscored">{L("Unscored", "未评分")}</option>
+                  <option value="pending">
+                    {L("Awaiting results", "等待结果")}
+                  </option>
+                  <option value="unscored">
+                    {L("Unscored posts", "未评分帖子")}
+                  </option>
+                  <option value="unavailable">
+                    {L("Missing price evidence", "缺少价格证据")}
+                  </option>
                 </select>
                 {view === "feed" && (
                   <select
@@ -1549,11 +1576,8 @@ export default function Tracker() {
                   </small>
                 </div>
                 <div>
-                  <span>{L("Source coverage", "来源覆盖")}</span>
-                  <strong>
-                    {stats.complete.length}
-                    <em> / {stats.history.length}</em>
-                  </strong>
+                  <span>{L("Scored calls", "已评分观点")}</span>
+                  <strong>{stats.complete.length}</strong>
                   <small>
                     {stats.pending} {L("pending", "观察中")} ·{" "}
                     {stats.excluded + stats.unavailable}{" "}
@@ -1574,7 +1598,7 @@ export default function Tracker() {
                   </small>
                 </div>
                 <div>
-                  <span>{L("Reviewed sources", "已审阅来源")}</span>
+                  <span>{L("Posts tracked", "已收集帖子")}</span>
                   <strong>{stats.history.length}</strong>
                   <small>
                     {L("Original, timestamped X posts", "带时间戳的 X 原帖")}
@@ -1603,6 +1627,22 @@ export default function Tracker() {
                 </div>
               </div>
             )}
+            <ScoringSummary
+              items={stats.history.filter(
+                (c) => !activityDate || c.publishedAt.startsWith(activityDate),
+              )}
+              active={historyFilter}
+              onSelect={(filter) => {
+                setHistoryFilter(filter);
+                setSelected("");
+                requestAnimationFrame(() =>
+                  document
+                    .querySelector(".kol-profile-history")
+                    ?.scrollIntoView({ behavior: "smooth", block: "start" }),
+                );
+              }}
+              L={L}
+            />
             {insight && (
               <ScoutBrief
                 items={stats.history}
@@ -1751,8 +1791,8 @@ export default function Tracker() {
                   <h3>{L("Call history", "观点历史")}</h3>
                   <p>
                     {L(
-                      "Every reviewed post, including the ones we cannot score.",
-                      "保留所有已审阅帖子，包括无法评分的内容。",
+                      "Selected source posts, with a separate status for every call.",
+                      "选定来源帖子，每条观点均显示独立状态。",
                     )}
                   </p>
                 </div>
@@ -1779,17 +1819,27 @@ export default function Tracker() {
                   <select
                     value={historyFilter}
                     onChange={(e) => {
-                      setHistoryFilter(e.target.value);
+                      setHistoryFilter(e.target.value as ScoringFilter);
                       setSelected("");
                     }}
                     aria-label={L("Filter call status", "筛选观点状态")}
                   >
                     <option value="all">{L("All posts", "全部帖子")}</option>
+                    <option value="eligible">
+                      {L("Eligible calls", "符合条件的观点")}
+                    </option>
                     <option value="scored">
                       {L("Scored calls", "已评分观点")}
                     </option>
-                    <option value="pending">{L("Pending", "观察中")}</option>
-                    <option value="unscored">{L("Unscored", "未评分")}</option>
+                    <option value="pending">
+                      {L("Awaiting results", "等待结果")}
+                    </option>
+                    <option value="unscored">
+                      {L("Unscored posts", "未评分帖子")}
+                    </option>
+                    <option value="unavailable">
+                      {L("Missing price evidence", "缺少价格证据")}
+                    </option>
                   </select>
                 </div>
               </div>

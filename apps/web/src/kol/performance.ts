@@ -122,6 +122,44 @@ export function callPerformance(call: Call) {
   };
 }
 
+export type ScoringFilter =
+  "all" | "eligible" | "scored" | "pending" | "unscored" | "unavailable";
+
+export function scoringStatus(call: Call) {
+  if (call.scoringDirection !== "long") return "excluded";
+  const observation = observationFor(call);
+  if (observation.status === "complete") return "scored";
+  if (observation.status === "pending") return "pending";
+  if (observation.status === "excluded") return "excluded";
+  return "unavailable";
+}
+
+export function matchesScoringFilter(call: Call, filter: ScoringFilter) {
+  const status = scoringStatus(call);
+  if (filter === "all") return true;
+  if (filter === "eligible") return status !== "excluded";
+  if (filter === "unscored")
+    return status === "excluded" || status === "unavailable";
+  return status === filter;
+}
+
+export function scoringSummary(items: Call[]) {
+  const counts = {
+    tracked: items.length,
+    eligible: 0,
+    scored: 0,
+    pending: 0,
+    excluded: 0,
+    unavailable: 0,
+  };
+  for (const call of items) {
+    const status = scoringStatus(call);
+    counts[status]++;
+    if (status !== "excluded") counts.eligible++;
+  }
+  return counts;
+}
+
 export function profilePerformance(id: string, items: Call[] = calls) {
   const history = items.filter((c) => c.profile === id);
   const measured = history.map((call) => ({ call, ...callPerformance(call) }));

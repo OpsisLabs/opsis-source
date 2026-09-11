@@ -15,6 +15,67 @@ test("kol tracker closed by default", async ({ page }) => {
   await expect(page).toHaveURL(/\/guide$/);
   await expect(page.locator(".kol-surface")).toHaveCount(0);
 });
+test("kol tracker distinguishes tracked posts from scoreable calls and drills into exclusions", async ({
+  page,
+}) => {
+  test.skip(!enabled);
+  await page.goto("/kol-tracker");
+  const summary = page.getByRole("region", {
+    name: "Scoring coverage",
+    exact: true,
+  });
+  await expect(summary.locator('[data-status="all"] strong')).toHaveText("204");
+  await expect(summary.locator('[data-status="eligible"] strong')).toHaveText(
+    "34",
+  );
+  await expect(summary.locator('[data-status="pending"] strong')).toHaveText(
+    "15",
+  );
+  await expect(summary.locator('[data-status="scored"] strong')).toHaveText(
+    "19",
+  );
+  await summary.locator('[data-status="eligible"]').click();
+  await expect(
+    page.getByLabel("Filter feed status", { exact: true }),
+  ).toHaveValue("eligible");
+  await expect(page.locator(".kol-feed-filters [role=status]")).toContainText(
+    "34 matching sources",
+  );
+  await summary
+    .getByText("Why aren't all posts scored?", { exact: true })
+    .click();
+  await expect(summary).toContainText("170 posts are outside");
+  await summary.getByRole("button", { name: "Inspect unscored posts" }).click();
+  await expect(page.locator(".kol-feed-filters [role=status]")).toContainText(
+    "170 matching sources",
+  );
+  await page
+    .getByLabel("Filter feed author", { exact: true })
+    .selectOption("adam");
+  await expect(summary.locator('[data-status="scored"] strong')).toHaveText(
+    "0",
+  );
+  await summary.locator('[data-status="scored"]').click();
+  await expect(page.locator(".kol-history-item")).toHaveCount(0);
+  await expect(page.locator(".kol-feed-filters [role=status]")).toContainText(
+    "0 matching sources",
+  );
+  await page.getByLabel("Filter feed author", { exact: true }).selectOption("");
+  await page
+    .getByLabel("Filter feed status", { exact: true })
+    .selectOption("unavailable");
+  await expect(page.locator(".kol-history-item")).toHaveCount(0);
+  await page.locator("#kol-tab-all").click();
+  await page.getByRole("button", { name: "View KALEO", exact: true }).click();
+  await expect(summary.locator('[data-status="pending"] strong')).toHaveText(
+    "9",
+  );
+  await summary.locator('[data-status="pending"]').click();
+  await expect(
+    page.getByLabel("Filter call status", { exact: true }),
+  ).toHaveValue("pending");
+  await expect(page.locator(".kol-history-item")).toHaveCount(9);
+});
 test("kol tracker coherent leaderboard to profile to source, paper P&L and receipts", async ({
   page,
 }) => {
@@ -277,7 +338,7 @@ test("kol tracker Robinhood priority, month filtering, empty profile and encrypt
   );
   await expect(page.locator(".kol-history-item")).toHaveCount(6);
   await expect(page.locator(".kol-profile-metrics")).toContainText(
-    "Reviewed sources",
+    "Posts tracked",
   );
   await expect(page.locator(".kol-no-score")).toContainText("No complete");
   await page.getByRole("button", { name: "Watch KOL", exact: true }).click();
@@ -344,7 +405,7 @@ test("kol tracker Robinhood priority, month filtering, empty profile and encrypt
   await expect(page.locator(".kol-history-item")).toHaveCount(11);
 });
 
-test("premium call feed, chosen comparisons and activity drilldown are complete", async ({
+test("kol tracker premium call feed, chosen comparisons and activity drilldown are complete", async ({
   page,
 }) => {
   test.skip(!enabled);
@@ -426,9 +487,15 @@ test("premium call feed, chosen comparisons and activity drilldown are complete"
     "none is a zero return",
   );
   expect(day).toBe("2026-09-07");
-  await page.getByLabel("Filter profile coins", {exact:true}).selectOption("LONG");
-  await expect(page.locator(".kol-activity-bars button:not(:disabled)")).toHaveCount(1);
-  await page.getByLabel("Filter profile coins", {exact:true}).selectOption("");
+  await page
+    .getByLabel("Filter profile coins", { exact: true })
+    .selectOption("LONG");
+  await expect(
+    page.locator(".kol-activity-bars button:not(:disabled)"),
+  ).toHaveCount(1);
+  await page
+    .getByLabel("Filter profile coins", { exact: true })
+    .selectOption("");
   await page.setViewportSize({ width: 390, height: 844 });
   expect(
     await page.evaluate(
@@ -445,7 +512,7 @@ test("premium call feed, chosen comparisons and activity drilldown are complete"
   ).toEqual([]);
 });
 
-test("premium encrypted device save survives reload and rejects wrong passwords and stale tabs", async ({
+test("kol tracker premium encrypted device save survives reload and rejects wrong passwords and stale tabs", async ({
   page,
   context,
 }) => {
@@ -535,7 +602,7 @@ test("premium encrypted device save survives reload and rejects wrong passwords 
   );
 });
 
-test("premium storage failure preserves file backup and makes no persistence claim", async ({
+test("kol tracker premium storage failure preserves file backup and makes no persistence claim", async ({
   page,
 }) => {
   test.skip(!enabled);

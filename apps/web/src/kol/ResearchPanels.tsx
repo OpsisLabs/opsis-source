@@ -1,10 +1,119 @@
 import { lazy, Suspense, useState } from "react";
 import { ArrowUpRight, Check, Plus, X } from "lucide-react";
 import { profiles, profileFor, type Call } from "./model";
-import { profilePerformance, formatPercent } from "./performance";
+import {
+  profilePerformance,
+  formatPercent,
+  scoringSummary,
+  priceEdition,
+  type ScoringFilter,
+} from "./performance";
 import { activityDays, distribution, topicCounts } from "./research";
 const PerformanceChart = lazy(() => import("./PerformanceChart"));
 type Translate = (en: string, zh: string) => string;
+
+export function ScoringSummary({
+  items,
+  active,
+  onSelect,
+  L,
+}: {
+  items: Call[];
+  active: ScoringFilter;
+  onSelect: (filter: ScoringFilter) => void;
+  L: Translate;
+}) {
+  const counts = scoringSummary(items);
+  const metrics = [
+    {
+      id: "all",
+      label: L("Posts tracked", "已收集帖子"),
+      count: counts.tracked,
+      hint: L("All selected source posts", "全部选定来源帖子"),
+    },
+    {
+      id: "eligible",
+      label: L("Eligible calls", "符合条件的观点"),
+      count: counts.eligible,
+      hint: L("Clear long calls with resolved assets", "明确看多且资产已确认"),
+    },
+    {
+      id: "pending",
+      label: L("Awaiting results", "等待结果"),
+      count: counts.pending,
+      hint: L(
+        "Seven-day window still open at capture",
+        "收集时七日观察尚未结束",
+      ),
+    },
+    {
+      id: "scored",
+      label: L("Scored calls", "已评分观点"),
+      count: counts.scored,
+      hint: L("Complete, validated 7-day prices", "完整且已验证的七日价格"),
+    },
+  ] as const;
+  return (
+    <section
+      className="kol-scoring-summary"
+      aria-label={L("Scoring coverage", "评分覆盖")}
+    >
+      <div className="kol-scoring-counts">
+        {metrics.map((metric) => (
+          <button
+            key={metric.id}
+            data-status={metric.id}
+            aria-pressed={active === metric.id}
+            onClick={() => onSelect(metric.id)}
+          >
+            <span>{metric.label}</span>
+            <strong>{metric.count}</strong>
+            <small>{metric.hint}</small>
+          </button>
+        ))}
+      </div>
+      <details className="kol-scoring-explanation">
+        <summary>
+          {L("Why aren't all posts scored?", "为什么不是所有帖子都有评分？")}
+        </summary>
+        <p>
+          {L(
+            `${counts.eligible} of ${counts.tracked} tracked posts qualify for the long-call method. Of those, ${counts.scored} are scored and ${counts.pending} are awaiting the full seven-day window. Tracking a post does not make it a trade call.`,
+            `${counts.tracked} 篇已收集帖子中，${counts.eligible} 条符合看多观点计算条件，其中 ${counts.scored} 条已评分，${counts.pending} 条仍等待完整七日观察。收集帖子不代表将其认定为交易观点。`,
+          )}
+        </p>
+        <p>
+          {L(
+            `${counts.excluded} posts are outside the current scoring set: commentary, conditional or mixed forecasts, incomplete source context, or unresolved asset identity. Bearish calls are not yet scored. Each receipt explains its own exclusion.`,
+            `${counts.excluded} 篇不在当前评分范围：评论、条件或多方向预测、原文不完整、或资产身份未确认。目前尚不为看空观点评分。每条凭据均说明具体原因。`,
+          )}
+        </p>
+        {counts.unavailable > 0 && (
+          <p role="status">
+            {L(
+              `${counts.unavailable} eligible calls lack valid price evidence. They are neither pending windows nor zero returns.`,
+              `${counts.unavailable} 条符合条件的观点缺少有效价格证据；不属于等待期，也不代表零收益。`,
+            )}
+          </p>
+        )}
+        <div>
+          <button
+            className="kol-text-button"
+            onClick={() => onSelect("unscored")}
+          >
+            {L("Inspect unscored posts", "查看未评分帖子")}{" "}
+            <ArrowUpRight size={14} />
+          </button>
+          <small>
+            {L("Dated edition", "历史版本")} ·{" "}
+            {priceEdition.asOf.replace("T", " ").slice(0, 16)} UTC ·{" "}
+            {L("Selected history, not a live feed", "选定历史，非实时动态")}
+          </small>
+        </div>
+      </details>
+    </section>
+  );
+}
 
 export function CoveragePanel({
   items,
@@ -189,10 +298,8 @@ export function ComparePanel({
                 <p>{L("Average 7D call return", "平均 7 日观点收益")}</p>
                 <dl>
                   <div>
-                    <dt>{L("Complete / reviewed", "完整 / 已审阅")}</dt>
-                    <dd>
-                      {stats.complete.length} / {stats.history.length}
-                    </dd>
+                    <dt>{L("Scored calls", "已评分观点")}</dt>
+                    <dd>{stats.complete.length}</dd>
                   </div>
                   <div>
                     <dt>{L("Median call", "观点中位数")}</dt>
@@ -313,7 +420,7 @@ export function ScoutBrief({
       {section === "focus" ? (
         <p>
           {L(
-            `${name} has ${items.length} reviewed posts in this view; ${items.filter((c) => c.chainTopic).length} discuss Robinhood Chain. ${
+            `${name} has ${items.length} tracked posts in this view; ${items.filter((c) => c.chainTopic).length} discuss Robinhood Chain. ${
               topics.length
                 ? `The most-mentioned topics are ${topics
                     .slice(0, 3)
