@@ -35,7 +35,7 @@ export function ScoringSummary({
       id: "eligible",
       label: L("Eligible calls", "符合条件的观点"),
       count: counts.eligible,
-      hint: L("Clear long calls with resolved assets", "明确看多且资产已确认"),
+      hint: L("Verified directional asset legs", "已核验方向和资产"),
     },
     {
       id: "pending",
@@ -78,14 +78,14 @@ export function ScoringSummary({
         </summary>
         <p>
           {L(
-            `${counts.eligible} of ${counts.tracked} tracked posts qualify for the long-call method. Of those, ${counts.scored} are scored and ${counts.pending} are awaiting the full seven-day window. Tracking a post does not make it a trade call.`,
-            `${counts.tracked} 篇已收集帖子中，${counts.eligible} 条符合看多观点计算条件，其中 ${counts.scored} 条已评分，${counts.pending} 条仍等待完整七日观察。收集帖子不代表将其认定为交易观点。`,
+            `${counts.eligible} of ${counts.tracked} tracked posts qualify for a directional paper checkpoint. Of those, ${counts.scored} are scored and ${counts.pending} are awaiting the full seven-day window. Tracking a post does not make it a trade call.`,
+            `${counts.tracked} 篇已收集帖子中，${counts.eligible} 条符合方向性模拟观察条件，其中 ${counts.scored} 条已评分，${counts.pending} 条仍等待完整七日观察。收集帖子不代表将其认定为交易观点。`,
           )}
         </p>
         <p>
           {L(
-            `${counts.excluded} posts are outside the current scoring set: commentary, conditional or mixed forecasts, incomplete source context, or unresolved asset identity. Bearish calls are not yet scored. Each receipt explains its own exclusion.`,
-            `${counts.excluded} 篇不在当前评分范围：评论、条件或多方向预测、原文不完整、或资产身份未确认。目前尚不为看空观点评分。每条凭据均说明具体原因。`,
+            `${counts.excluded} posts are outside the current scoring set: neutral commentary, contradictory or unverified conditions, incomplete source context, or unresolved asset identity. Clear bearish views use a separately identified paper-short leg. Each receipt explains its own exclusion.`,
+            `${counts.excluded} 篇不在当前评分范围：中性评论、矛盾或未经核验的条件、原文不完整、或资产身份未确认。明确的看空观点使用单独标注的模拟做空方向。每条凭据均说明具体原因。`,
           )}
         </p>
         {counts.unavailable > 0 && (

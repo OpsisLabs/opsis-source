@@ -8,6 +8,8 @@ import {
   validateObservation,
   scoringSummary,
   matchesScoringFilter,
+  assetReturnCurve,
+  scoringLegs,
 } from "./performance";
 
 const find = (id: string) => calls.find((c) => c.id === id)!;
@@ -16,10 +18,10 @@ describe("source-backed seven-day paper call performance", () => {
     const totals = scoringSummary(calls);
     expect(totals).toEqual({
       tracked: 204,
-      eligible: 34,
-      scored: 19,
-      pending: 15,
-      excluded: 170,
+      eligible: 56,
+      scored: 35,
+      pending: 21,
+      excluded: 148,
       unavailable: 0,
     });
     expect(totals.eligible).toBe(
@@ -108,7 +110,7 @@ describe("source-backed seven-day paper call performance", () => {
     );
     expect(callPerformance(find("2093361315876102605")).percent).toBeNull();
     expect(profilePerformance("kaleo").pending).toBe(9);
-    expect(profilePerformance("ansem").complete).toHaveLength(5);
+    expect(profilePerformance("ansem").complete).toHaveLength(7);
     expect(profilePerformance("pentoshi").complete).toHaveLength(2);
     expect(profilePerformance("missing").percent).toBeNull();
   });
@@ -117,7 +119,6 @@ describe("source-backed seven-day paper call performance", () => {
       "2075511840483017194",
       "2097775925492433022",
       "2095670712551780813",
-      "2061772822565834859",
     ]) {
       expect(observationFor(find(id)).status).toBe("excluded");
       expect(callPerformance(find(id)).percent).toBeNull();
@@ -151,7 +152,7 @@ describe("source-backed seven-day paper call performance", () => {
       r.assets[0].prices[0].price = NaN;
     });
     mutated((r) => {
-      r.assets[0].prices[3].timestamp = r.entryAt! + 3 * 86400 + 121;
+      r.assets[0].prices[3].timestamp = r.entryAt! + 3 * 86400 + 601;
     });
     mutated((r) => {
       r.assets[0].prices[3].timestamp = r.assets[0].prices[2].timestamp;
@@ -178,5 +179,74 @@ describe("source-backed seven-day paper call performance", () => {
       r.assets.push(structuredClone(r.assets[0]));
     });
     expect(validateObservation(valid, find("2097697759365116405"))).toBe(false);
+  });
+  it("scores bearish and mixed views by each reviewed direction, never by a reciprocal short price", () => {
+    const call = find("2061772822565834859");
+    const result = callPerformance(call);
+    expect(result.observation.status).toBe("complete");
+    expect(scoringLegs(call)).toEqual([
+      { symbol: "BTC", direction: "short" },
+      { symbol: "HYPE", direction: "long" },
+    ]);
+    const [btc, hype] = result.observation.assets;
+    const expected =
+      (1 -
+        btc.prices[7].price / btc.prices[0].price +
+        (hype.prices[7].price / hype.prices[0].price - 1)) *
+      50;
+    expect(result.percent).toBeCloseTo(expected, 10);
+    expect(
+      assetReturnCurve({
+        ...btc,
+        prices: [
+          { timestamp: 1, price: 100 },
+          { timestamp: 2, price: 80 },
+        ],
+      })[1],
+    ).toBeCloseTo(20, 10);
+    const wrongDirection = structuredClone(result.observation);
+    wrongDirection.assets[0].direction = "long";
+    expect(validateObservation(wrongDirection, call)).toBe(false);
+    expect(
+      scoringLegs({
+        ...call,
+        scoringLegs: [{ symbol: "NOT-IN-POST", direction: "long" }],
+      }),
+    ).toEqual([]);
+    expect(
+      scoringLegs({
+        ...call,
+        scoringLegs: [
+          { symbol: "BTC", direction: "short" },
+          { symbol: "BTC", direction: "long" },
+        ],
+      }),
+    ).toEqual([]);
+  });
+  it("uses verified Robinhood token identities, retains real sample times and rejects prepublication prices", () => {
+    const call = find("2090205325013991448");
+    const observation = observationFor(call);
+    expect(observation.status).toBe("complete");
+    expect(observation.assets[0].id).toBe("coingecko:pons");
+    expect(
+      Math.abs(
+        observation.assets[0].prices[0].timestamp - observation.entryAt!,
+      ),
+    ).toBeGreaterThan(120);
+    expect(callPerformance(call).percent).toBeCloseTo(246.5076969, 6);
+    const boundary = find("2078283614362419394");
+    const valid = observationFor(boundary);
+    expect(valid.entryAt).toBe(Date.parse(boundary.publishedAt) / 1000 + 3600);
+    expect(validateObservation(valid, boundary)).toBe(true);
+    const invalid = structuredClone(valid);
+    invalid.assets[0].prices[0].timestamp =
+      Date.parse(boundary.publishedAt) / 1000 - 1;
+    expect(validateObservation(invalid, boundary)).toBe(false);
+    const robinhoodAssets = calls.filter((item) =>
+      scoringLegs(item).some((leg) =>
+        ["PONS", "NET", "STONKBROKER"].includes(leg.symbol),
+      ),
+    );
+    expect(scoringSummary(robinhoodAssets).scored).toBe(7);
   });
 });

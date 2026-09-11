@@ -26,28 +26,28 @@ test("kol tracker distinguishes tracked posts from scoreable calls and drills in
   });
   await expect(summary.locator('[data-status="all"] strong')).toHaveText("204");
   await expect(summary.locator('[data-status="eligible"] strong')).toHaveText(
-    "34",
+    "56",
   );
   await expect(summary.locator('[data-status="pending"] strong')).toHaveText(
-    "15",
+    "21",
   );
   await expect(summary.locator('[data-status="scored"] strong')).toHaveText(
-    "19",
+    "35",
   );
   await summary.locator('[data-status="eligible"]').click();
   await expect(
     page.getByLabel("Filter feed status", { exact: true }),
   ).toHaveValue("eligible");
   await expect(page.locator(".kol-feed-filters [role=status]")).toContainText(
-    "34 matching sources",
+    "56 matching sources",
   );
   await summary
     .getByText("Why aren't all posts scored?", { exact: true })
     .click();
-  await expect(summary).toContainText("170 posts are outside");
+  await expect(summary).toContainText("148 posts are outside");
   await summary.getByRole("button", { name: "Inspect unscored posts" }).click();
   await expect(page.locator(".kol-feed-filters [role=status]")).toContainText(
-    "170 matching sources",
+    "148 matching sources",
   );
   await page
     .getByLabel("Filter feed author", { exact: true })
@@ -95,13 +95,13 @@ test("kol tracker coherent leaderboard to profile to source, paper P&L and recei
   await expect(page.locator(".kol-performance-chart")).toHaveCount(0);
   await expect(
     page.locator('[data-kol="ansem"] .kol-leader-pnl'),
-  ).toContainText("+$120.51");
+  ).toContainText("+$84.43");
   await expect(
     page.locator('[data-kol="pentoshi"] .kol-leader-pnl'),
   ).toContainText("+10.16%");
   await expect(
     page.locator('[data-kol="kaleo"] .kol-leader-pnl'),
-  ).toContainText("−$14.85");
+  ).toContainText("−$4.12");
   expect(
     await page
       .locator(".kol-avatar")
@@ -130,7 +130,7 @@ test("kol tracker coherent leaderboard to profile to source, paper P&L and recei
   await page.getByLabel("Sort KOLs").selectOption("return");
   await page.getByRole("button", { name: "View Ansem", exact: true }).click();
   await expect(page.locator(".kol-profile-header h2")).toBeFocused();
-  await expect(page.locator(".kol-profile-metrics")).toContainText("+12.05%");
+  await expect(page.locator(".kol-profile-metrics")).toContainText("+8.44%");
   await expect(page.locator(".kol-history-item")).toHaveCount(18);
   await expect(page.locator(".kol-profile-header a")).toHaveAttribute(
     "href",
@@ -149,14 +149,14 @@ test("kol tracker coherent leaderboard to profile to source, paper P&L and recei
     /Ansem.*KALEO.*Pentoshi/,
   );
   await page.getByLabel("Paper stake per call").selectOption("100");
-  await expect(page.locator(".kol-profile-metrics")).toContainText("+$12.05");
+  await expect(page.locator(".kol-profile-metrics")).toContainText("+$8.44");
   await page.getByRole("button", { name: "Scout brief", exact: true }).click();
   await page
     .getByRole("button", { name: "What can I measure?", exact: true })
     .click();
   await expect(page.locator(".kol-profile-insight")).toContainText("too small");
   await page.getByLabel("Filter call status").selectOption("scored");
-  await expect(page.locator(".kol-history-item")).toHaveCount(5);
+  await expect(page.locator(".kol-history-item")).toHaveCount(7);
   await page
     .getByRole("button", {
       name: "Inspect call 2090108668930830569",
@@ -236,7 +236,7 @@ test("kol tracker pending and unscored states do not invent P&L", async ({
     })
     .click();
   await expect(page.locator(".kol-call-detail")).toContainText(
-    "ANSEM has no verified token identifier",
+    "ANSEM, whose token identity is not verified",
   );
   await expect(page.locator(".kol-call-detail .kol-call-result")).toHaveCount(
     0,
@@ -250,6 +250,89 @@ test("kol tracker pending and unscored states do not invent P&L", async ({
   await expect(page.locator(".kol-call-detail")).toHaveCount(1);
   await expect(page.locator(".kol-call-detail")).toContainText(
     "weekly-close entry condition",
+  );
+});
+test("kol tracker separates token moves from directional scores and exposes Robinhood token evidence", async ({
+  page,
+}) => {
+  test.skip(!enabled);
+  await page.goto("/kol-tracker");
+  await page.locator("#kol-tab-moves").click();
+  await expect(page.locator(".kol-context-meta [role=status]")).toHaveText(
+    "91 posts with measured prices / 204 tracked",
+  );
+  await expect(page.locator(".kol-context-post")).toHaveCount(12);
+  await page.getByLabel("Filter price-context author").selectOption("adam");
+  await expect(page.locator(".kol-context-post")).toHaveCount(1);
+  await expect(page.locator(".kol-context-post")).toContainText("PONS");
+  await expect(page.locator(".kol-context-post")).toContainText(
+    "Not measured: LONG",
+  );
+  await page.getByText("Exact observations", { exact: true }).click();
+  await expect(page.locator(".kol-mention-assets details")).toContainText(
+    "UTC",
+  );
+  await page.getByLabel("With prices only").uncheck();
+  await expect(page.locator(".kol-context-post")).toHaveCount(11);
+  await expect(
+    page.getByText("No named token to measure").first(),
+  ).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth + 1,
+    ),
+  ).toBe(true);
+  expect(
+    (
+      await new AxeBuilder({ page })
+        .include(".kol-surface")
+        .withTags(["wcag2a", "wcag2aa"])
+        .analyze()
+    ).violations,
+  ).toEqual([]);
+  await page.locator("#kol-tab-all").click();
+  await page.getByRole("button", { name: "View Ansem", exact: true }).click();
+  await page
+    .getByRole("button", {
+      name: "Inspect call 2061772822565834859",
+      exact: true,
+    })
+    .click();
+  await expect(page.locator(".kol-call-detail")).toContainText("BTC");
+  await page.getByText("See prices & calculation", { exact: true }).click();
+  await expect(page.locator(".kol-price-pair").first()).toContainText(
+    "Paper short",
+  );
+  await expect(page.locator(".kol-price-pair").nth(1)).toContainText(
+    "Paper long",
+  );
+  await page.getByRole("button", { name: "All KOLs", exact: true }).click();
+  await page.getByRole("button", { name: "View AJC", exact: true }).click();
+  await page
+    .getByRole("button", {
+      name: "Inspect call 2090205325013991448",
+      exact: true,
+    })
+    .click();
+  await expect(page.locator(".kol-call-result")).toContainText("+246.51%");
+  await page.getByText("See prices & calculation", { exact: true }).click();
+  await expect(page.locator(".kol-identity-proof")).toContainText(
+    "0x39dbed3a2bd333467115de45665cc57f813c4571",
+  );
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth + 1,
+    ),
+  ).toBe(true);
+  await page
+    .getByRole("button", { name: "Switch language to 简体中文" })
+    .first()
+    .click();
+  await page.getByRole("button", { name: "全部 KOL", exact: true }).click();
+  await page.locator("#kol-tab-moves").click();
+  await expect(page.locator(".kol-context-panel h2")).toHaveText(
+    "发帖后发生了什么？",
   );
 });
 test("kol tracker mobile, Chinese, methodology focus and accessible disclosure", async ({

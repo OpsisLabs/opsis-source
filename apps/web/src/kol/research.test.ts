@@ -45,9 +45,8 @@ describe("KOL research views", () => {
     expect(one.median).toBeCloseTo(20.025075, 5);
     expect(one.best).toBe(one.worst);
   });
-  it("keeps conflicting assets, inverted-chart satire and mixed forecasts unscored", () => {
+  it("keeps unresolved assets, inverted-chart satire and contradictory forecasts unscored", () => {
     for (const id of [
-      "2094486672205341129",
       "2096297884736004478",
       "2093774937362403386",
       "2093719075856007652",

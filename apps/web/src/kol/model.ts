@@ -17,7 +17,10 @@ import rekt from "./assets/rekt.jpg";
 import five63 from "./assets/563.jpg";
 
 export type KolId = string;
-export type Call = (typeof source.posts)[number];
+export type Call = Omit<(typeof source.posts)[number], "scoringLegs" | "scoringCoverage"> & {
+  scoringLegs?: { symbol: string; direction: string }[];
+  scoringCoverage?: string;
+};
 export type Profile = (typeof source.profiles)[number] & { avatar: string };
 const avatars: Record<string, string> = {
   kaleo,

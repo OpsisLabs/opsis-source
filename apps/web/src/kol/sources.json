@@ -1,6 +1,6 @@
 {
   "capturedDate": "2026-09-11",
-  "coverage": "204 original X posts across 15 profiles, each spanning at least 31 days. Selected source history, not comprehensive account history or continuous daily coverage. Robinhood priority reflects explicit discussion in the captured posts, not endorsement or technical expertise. Seven-day paper returns are neither wallet P&L nor prediction accuracy.",
+  "coverage": "204 original X posts across 15 profiles, each spanning at least 31 days. Selected source history, not comprehensive or continuous daily coverage. Directional forecasts and explicit hold endorsements use standardized seven-day paper checkpoints with stated asset directions and coverage; they are not wallet P&L or prediction accuracy. Other token mentions have separate neutral price context.",
   "profiles": [
     {
       "id": "kaleo",
@@ -336,19 +336,26 @@
       "tokens": [
         "BTC"
       ],
-      "type": "Market commentary",
+      "type": "Bearish technical warning",
       "summary": "Crypto Rover warns Bitcoin holders about bearish divergence.",
       "target": null,
       "deadline": null,
-      "interpretation": "Technical risk warning without a definite short entry, trigger, target or holding period.",
+      "interpretation": "Clear bearish BTC stance with chart confirming non-inverted price axis and falling RSI divergence. This is a directional warning checkpoint, not an asserted short entry. Enable only if bearish outlooks are a supported labeled scoring class.",
       "chainTopic": false,
-      "sourceTextStatus": "post-text",
-      "quote": "🚨 WARNING TO $BTC HOLDERS! Bitcoin bearish divergence in play.",
-      "scoringDirection": "unscored",
-      "exclusionReason": "Technical risk warning without a definite short entry, trigger, target or holding period.",
+      "sourceTextStatus": "reviewed-post",
+      "quote": "Bitcoin bearish divergence in play.",
+      "scoringDirection": "short",
+      "exclusionReason": "",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2098098174619443408&lang=en&token=x",
       "sourceSha256": "2a42a159a1307af20e21923e7038cd6686b0b097eda658822f6cd978275aba11",
-      "disclosedAffiliation": ""
+      "disclosedAffiliation": "",
+      "scoringLegs": [
+        {
+          "symbol": "BTC",
+          "direction": "short"
+        }
+      ],
+      "scoringCoverage": "Clear bearish BTC stance with chart confirming non-inverted price axis and falling RSI divergence. This is a directional warning checkpoint, not an asserted short entry. Enable only if bearish outlooks are a supported labeled scoring class."
     },
     {
       "id": "2098071246974152955",
@@ -456,15 +463,22 @@
       "summary": "Crypto Rover expects Bitcoin upside and speculates that unidentified altcoins could outperform over later years.",
       "target": null,
       "deadline": null,
-      "interpretation": "This broad forecast also names unspecified altcoins or memecoins. The complete set of called assets cannot be resolved, so the call is excluded in full.",
+      "interpretation": "Track the independently identifiable BTC bullish call with partial coverage; do not invent an altcoin basket from replies. Fixed seven-day paper checkpoint is not the author's explicit horizon and remains pending at current cutoff.",
       "chainTopic": false,
-      "sourceTextStatus": "post-text",
-      "quote": "Bitcoin will pump. But Altcoins will go parabolic. What are some tickers that 10X-100X during 2027-2029?",
-      "scoringDirection": "unscored",
-      "exclusionReason": "This broad forecast also names unspecified altcoins or memecoins. The complete set of called assets cannot be resolved, so the call is excluded in full.",
+      "sourceTextStatus": "reviewed-post",
+      "quote": "Bitcoin will pump.",
+      "scoringDirection": "long",
+      "exclusionReason": "",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2097990968008130908&lang=en&token=x",
       "sourceSha256": "27a555c94b30a89a0342a310b4f03cfd52d5618acc13d3e306fd4ad2c1100f24",
-      "disclosedAffiliation": ""
+      "disclosedAffiliation": "",
+      "scoringLegs": [
+        {
+          "symbol": "BTC",
+          "direction": "long"
+        }
+      ],
+      "scoringCoverage": "Track the independently identifiable BTC bullish call with partial coverage; do not invent an altcoin basket from replies. Fixed seven-day paper checkpoint is not the author's explicit horizon and remains pending at current cutoff."
     },
     {
       "profile": "nick",
@@ -587,15 +601,26 @@
       "summary": "Crypto Rover predicts Bitcoin doubling and Ethereum gaining fivefold; other altcoin claims are nonspecific.",
       "target": "BTC 2×; ETH 5×",
       "deadline": null,
-      "interpretation": "This broad forecast also names unspecified altcoins or memecoins. The complete set of called assets cannot be resolved, so the call is excluded in full.",
+      "interpretation": "Score only the separately explicit named BTC and ETH forecasts, with partial-asset-coverage status that excludes unnamed altcoin/memecoin claims. Equal-weight named-asset paper performance is not the complete post or the author's portfolio. As of the current September 11 data cutoff, the seven-day window is still pending.",
       "chainTopic": false,
-      "sourceTextStatus": "post-text",
-      "quote": "Bitcoin will go 2x. Ethereum will go 5x. Altcoins will go 100x. Memecoins will go 1000x. You will retire your",
-      "scoringDirection": "unscored",
-      "exclusionReason": "This broad forecast also names unspecified altcoins or memecoins. The complete set of called assets cannot be resolved, so the call is excluded in full.",
+      "sourceTextStatus": "reviewed-post",
+      "quote": "Bitcoin will go 2x. Ethereum will go 5x.",
+      "scoringDirection": "long",
+      "exclusionReason": "",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2097767495436583364&lang=en&token=x",
       "sourceSha256": "ab0963fec693295ef0aeee5ef4ba06cf05097473e02f9ac3430d959a6aaa2e64",
-      "disclosedAffiliation": ""
+      "disclosedAffiliation": "",
+      "scoringLegs": [
+        {
+          "symbol": "BTC",
+          "direction": "long"
+        },
+        {
+          "symbol": "ETH",
+          "direction": "long"
+        }
+      ],
+      "scoringCoverage": "Score only the separately explicit named BTC and ETH forecasts, with partial-asset-coverage status that excludes unnamed altcoin/memecoin claims. Equal-weight named-asset paper performance is not the complete post or the author's portfolio. As of the current September 11 data cutoff, the seven-day window is still pending."
     },
     {
       "id": "2097758180151325081",
@@ -979,15 +1004,22 @@
       "summary": "Kook expresses a bullish outlook for NET without specifying a price or time horizon.",
       "target": null,
       "deadline": null,
-      "interpretation": "Bullish statement, but ticker-only identity is unresolved. Do not map NET to Cloudflare stock or any similarly named token.",
+      "interpretation": "Same author explicitly names NetNet, Robinhood DeFi, NET and reserve-backed USDG/RWA architecture in this selected source series. Official contract and provider metadata agree. Positive multi-cycle thesis or explicit new-high/price-growth statement; no fill or deadline necessary for the fixed-window method. No target-hit claim.",
       "chainTopic": false,
-      "sourceTextStatus": "post-text",
+      "sourceTextStatus": "reviewed-post",
       "quote": "$NET is headed places you could not even imagine",
-      "scoringDirection": "unscored",
-      "exclusionReason": "Bullish statement, but ticker-only identity is unresolved. Do not map NET to Cloudflare stock or any similarly named token.",
+      "scoringDirection": "long",
+      "exclusionReason": "",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2097419033616228660&lang=en&token=x",
       "sourceSha256": "5b87fed7b0ccd929c7eccb9dbf44be58357c8f0295ee4f4876fd1a3d67569ec4",
-      "disclosedAffiliation": ""
+      "disclosedAffiliation": "",
+      "scoringLegs": [
+        {
+          "symbol": "NET",
+          "direction": "long"
+        }
+      ],
+      "scoringCoverage": "Directional thesis checkpoint from publication; not a verified trade fill or target achievement. Gross price return excludes the protocol trading fee, staking and rebases."
     },
     {
       "profile": "dan",
@@ -1346,17 +1378,24 @@
       "summary": "netnet teasing something big ath coming sooner than later imo next rotation is into robinhood defi rwa ponzi…",
       "target": null,
       "deadline": null,
-      "interpretation": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance.",
+      "interpretation": "Same author explicitly names NetNet, Robinhood DeFi, NET and reserve-backed USDG/RWA architecture in this selected source series. Official contract and provider metadata agree. Positive multi-cycle thesis or explicit new-high/price-growth statement; no fill or deadline necessary for the fixed-window method. No target-hit claim.",
       "id": "2096610153285972308",
       "publishedAt": "2026-09-06T14:43:08.000Z",
       "chainTopic": true,
-      "sourceTextStatus": "post-text",
+      "sourceTextStatus": "reviewed-post",
       "quote": "netnet teasing something big ath coming sooner than later imo next rotation is into robinhood defi rwa ponzi…",
-      "scoringDirection": "unscored",
-      "exclusionReason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance.",
+      "scoringDirection": "long",
+      "exclusionReason": "",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2096610153285972308&lang=en&token=x",
       "sourceSha256": "d35c357b0bad5e7e2fcb97e916d712e0de37d1a70832fe71711b8ad2cfe635f2",
-      "disclosedAffiliation": ""
+      "disclosedAffiliation": "",
+      "scoringLegs": [
+        {
+          "symbol": "NET",
+          "direction": "long"
+        }
+      ],
+      "scoringCoverage": "Directional thesis checkpoint from publication; not a verified trade fill or target achievement. Gross price return excludes the protocol trading fee, staking and rebases."
     },
     {
       "profile": "rekt",
@@ -1440,12 +1479,12 @@
       "summary": "Pentoshi reviews previously shared revenue-focused projects and their earlier stated entry levels.",
       "target": null,
       "deadline": null,
-      "interpretation": "Retrospective selection recap; original earlier calls would be needed to score those entries. PONS contract identity is not verified.",
+      "interpretation": "Retrospective selection recap; original earlier calls would be needed to score those entries. Verified token price context is available separately.",
       "chainTopic": false,
       "sourceTextStatus": "reviewed-post",
       "quote": "This year, I only shared revenue projects I believe. Pretty boring, but intentionally. have tried to go for the quality",
       "scoringDirection": "unscored",
-      "exclusionReason": "Retrospective selection recap; original earlier calls would be needed to score those entries. PONS contract identity is not verified.",
+      "exclusionReason": "Retrospective selection recap; original earlier calls would be needed to score those entries. Verified token price context is available separately.",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2096413111528173781&lang=en&token=x",
       "sourceSha256": "5e19cb6318f7ec8a24355ea1a629fef3cbf74a89c582fd6007c6c1de766248fa",
       "disclosedAffiliation": ""
@@ -1463,12 +1502,12 @@
       "summary": "SimpleFarmer reports STONKBROKER marketing distributions and token burns.",
       "target": null,
       "deadline": null,
-      "interpretation": "Builder-reported historical token economics. A syndication cashtag maps to Solana despite Robinhood context; identity is conflicted and cannot support pricing.",
+      "interpretation": "Builder-reported historical token economics, not a forward directional call. The Robinhood STONKBROKER identity is independently resolved from official documentation; historical price context is separate.",
       "chainTopic": true,
       "sourceTextStatus": "excerpt",
       "quote": "Now officially over $1.65 million in marketing rewards distributed to the real people who bag and work every day in",
       "scoringDirection": "unscored",
-      "exclusionReason": "Builder-reported historical token economics. A syndication cashtag maps to Solana despite Robinhood context; identity is conflicted and cannot support pricing.",
+      "exclusionReason": "Builder-reported historical token economics, not a forward directional call. The Robinhood STONKBROKER identity is independently resolved from official documentation; historical price context is separate.",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2096348015825125382&lang=en&token=x",
       "sourceSha256": "68b8392febaba33cf3925984937ce19f7d532e319a744150805f2ee81749fd17",
       "disclosedAffiliation": ""
@@ -1507,15 +1546,22 @@
       "summary": "Kook predicts new highs and near-term repricing for NetNet.",
       "target": "New all-time high (level unspecified)",
       "deadline": null,
-      "interpretation": "Explicit bullish thesis; no deadline and no independently verified chain/contract in the source. Hold price scoring until identity is resolved.",
+      "interpretation": "Same author explicitly names NetNet, Robinhood DeFi, NET and reserve-backed USDG/RWA architecture in this selected source series. Official contract and provider metadata agree. Positive multi-cycle thesis or explicit new-high/price-growth statement; no fill or deadline necessary for the fixed-window method. No target-hit claim.",
       "chainTopic": false,
-      "sourceTextStatus": "post-text",
+      "sourceTextStatus": "reviewed-post",
       "quote": "netnet is going to make new highs soon violent repricing imminent $NET",
-      "scoringDirection": "unscored",
-      "exclusionReason": "Explicit bullish thesis; no deadline and no independently verified chain/contract in the source. Hold price scoring until identity is resolved.",
+      "scoringDirection": "long",
+      "exclusionReason": "",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2096312152667644158&lang=en&token=x",
       "sourceSha256": "987e64d667a8817d8dd14347ad4dfa4c825ee7a438a336006acc8434030d2a49",
-      "disclosedAffiliation": ""
+      "disclosedAffiliation": "",
+      "scoringLegs": [
+        {
+          "symbol": "NET",
+          "direction": "long"
+        }
+      ],
+      "scoringCoverage": "Directional thesis checkpoint from publication; not a verified trade fill or target achievement. Gross price return excludes the protocol trading fee, staking and rebases."
     },
     {
       "profile": "dan",
@@ -1918,12 +1964,12 @@
       "summary": "Adam reports $592 million of Robinhood Chain RWA trading, with almost half in memecoin–stock pairs.",
       "target": null,
       "deadline": null,
-      "interpretation": "Historical volume report; pair names are not entry recommendations or verified asset identities.",
+      "interpretation": "Historical volume report; pair names are not entry recommendations. PONS price context is available; LONG identity remains unverified.",
       "chainTopic": true,
       "sourceTextStatus": "post-text",
       "quote": "RWA trading on robinhood chain did $592m yesterday almost half of it was memecoin × stock pairs pons pairs did",
       "scoringDirection": "unscored",
-      "exclusionReason": "Historical volume report; pair names are not entry recommendations or verified asset identities.",
+      "exclusionReason": "Historical volume report; pair names are not entry recommendations. PONS price context is available; LONG identity remains unverified.",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2095601724631482547&lang=en&token=x",
       "sourceSha256": "349d26a4aed2b57ba4995f89e49a25c40ebab946d1e53747d4cc05f6795d03c9",
       "disclosedAffiliation": ""
@@ -2159,10 +2205,10 @@
       "summary": "KALEO favors rotating from AI exposure toward Bitcoin after comparing its relative valuation with Nvidia.",
       "target": null,
       "deadline": null,
-      "interpretation": "Relative BTC-versus-NVDA rotation thesis; not an equal-weight long BTC/NVDA basket or a separately timed spot entry.",
+      "interpretation": "Measure BTC relative to NVDA only in a separate relative-performance view when both prices at valid comparable timestamps are verified. Do not turn contextual NVDA into a crypto long basket or assign a short NVDA trade the author did not state.",
       "chainTopic": false,
-      "sourceTextStatus": "post-text",
-      "quote": "bitcoin:native vs. $NVDA Bitcoin is currently retesting lows of its relative price to Nvidia it hasn't seen since January of",
+      "sourceTextStatus": "reviewed-post",
+      "quote": "If you're in AI, it's time to pivot back to crypto.",
       "scoringDirection": "unscored",
       "exclusionReason": "Relative BTC-versus-NVDA rotation thesis; not an equal-weight long BTC/NVDA basket or a separately timed spot entry.",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2095254344710881562&lang=en&token=x",
@@ -2316,15 +2362,22 @@
       "summary": "Kook forecasts a return to all-time highs for NET.",
       "target": "New all-time high (level unspecified)",
       "deadline": null,
-      "interpretation": "Explicit bullish thesis, but exact asset identity and the referenced historical high remain unverified.",
+      "interpretation": "Same author explicitly names NetNet, Robinhood DeFi, NET and reserve-backed USDG/RWA architecture in this selected source series. Official contract and provider metadata agree. Positive multi-cycle thesis or explicit new-high/price-growth statement; no fill or deadline necessary for the fixed-window method. No target-hit claim.",
       "chainTopic": false,
-      "sourceTextStatus": "post-text",
+      "sourceTextStatus": "reviewed-post",
       "quote": "$NET headed to ath",
-      "scoringDirection": "unscored",
-      "exclusionReason": "Explicit bullish thesis, but exact asset identity and the referenced historical high remain unverified.",
+      "scoringDirection": "long",
+      "exclusionReason": "",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2094927979197468862&lang=en&token=x",
       "sourceSha256": "7b5ee8b84c32b9fde2aae46a6c43770274eb279b45409d99999c3cb279a9d4b7",
-      "disclosedAffiliation": ""
+      "disclosedAffiliation": "",
+      "scoringLegs": [
+        {
+          "symbol": "NET",
+          "direction": "long"
+        }
+      ],
+      "scoringCoverage": "Directional thesis checkpoint from publication; not a verified trade fill or target achievement. Gross price return excludes the protocol trading fee, staking and rebases."
     },
     {
       "id": "2094894484353957984",
@@ -2475,15 +2528,22 @@
       "summary": "Kook predicts STONKBROKER will become Robinhood Chain’s first token valued at $1 billion.",
       "target": "$1 billion valuation",
       "deadline": null,
-      "interpretation": "Visible original names STONKBROKER on Robinhood, while syndication substitutes a Solana contract. Conflicting identity evidence: do not score or use that contract.",
+      "interpretation": "Explicit bullish STONKBROKER call in author’s Robinhood series. Canonical token confirmed by official docs and official GitHub. $500M/$1B are valuation targets, not token prices; seven-day paper return does not measure target accuracy.",
       "chainTopic": true,
       "sourceTextStatus": "reviewed-post",
       "quote": "$STONKBROKER will be the fist $1b coin on robinhood chain trust",
-      "scoringDirection": "unscored",
-      "exclusionReason": "Visible original names STONKBROKER on Robinhood, while syndication substitutes a Solana contract. Conflicting identity evidence: do not score or use that contract.",
+      "scoringDirection": "long",
+      "exclusionReason": "",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2094486672205341129&lang=en&token=x",
       "sourceSha256": "f4c82e0b2ea915ccd4e0e452a7098945e132aa3db023532b6ace2c8c80543edf",
-      "disclosedAffiliation": ""
+      "disclosedAffiliation": "",
+      "scoringLegs": [
+        {
+          "symbol": "STONKBROKER",
+          "direction": "long"
+        }
+      ],
+      "scoringCoverage": "Directional thesis checkpoint from publication; not a verified trade fill or target achievement."
     },
     {
       "id": "2094373180794102102",
@@ -2498,15 +2558,22 @@
       "summary": "Kook anticipates another upward move in STONKBROKER.",
       "target": null,
       "deadline": null,
-      "interpretation": "Explicit bullish thesis, but ticker alone does not independently resolve a chain or contract.",
+      "interpretation": "Explicit bullish STONKBROKER call in author’s Robinhood series. Canonical token confirmed by official docs and official GitHub. $500M/$1B are valuation targets, not token prices; seven-day paper return does not measure target accuracy.",
       "chainTopic": false,
-      "sourceTextStatus": "post-text",
+      "sourceTextStatus": "reviewed-post",
       "quote": "looks like next leg up on $stonkbroker",
-      "scoringDirection": "unscored",
-      "exclusionReason": "Explicit bullish thesis, but ticker alone does not independently resolve a chain or contract.",
+      "scoringDirection": "long",
+      "exclusionReason": "",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2094373180794102102&lang=en&token=x",
       "sourceSha256": "84d1dc1c8ccaef25d56e3b13697753c2f50c28b3c540dc602196230763291656",
-      "disclosedAffiliation": ""
+      "disclosedAffiliation": "",
+      "scoringLegs": [
+        {
+          "symbol": "STONKBROKER",
+          "direction": "long"
+        }
+      ],
+      "scoringCoverage": "Directional thesis checkpoint from publication; not a verified trade fill or target achievement."
     },
     {
       "id": "2094306973760053521",
@@ -2566,12 +2633,12 @@
       "summary": "AJC asks Lighter to list PONS and AI as Robinhood Chain-related assets.",
       "target": null,
       "deadline": null,
-      "interpretation": "A listing suggestion is not a listing confirmation or an entry. Both asset identities need independent verification.",
+      "interpretation": "A listing suggestion is not a listing confirmation or a forward directional call. PONS is independently resolved; AI token identity remains unverified.",
       "chainTopic": true,
       "sourceTextStatus": "post-text",
       "quote": "How come @Lighter_xyz hasn’t listed $PONS or $AI yet? They should be first movers on anything Robinhood Chain related IMO",
       "scoringDirection": "unscored",
-      "exclusionReason": "A listing suggestion is not a listing confirmation or an entry. Both asset identities need independent verification.",
+      "exclusionReason": "A listing suggestion is not a listing confirmation or a forward directional call. PONS is independently resolved; AI token identity remains unverified.",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2094120557897769363&lang=en&token=x",
       "sourceSha256": "20740e644c26c505d190da67fa15972024fec2a81a5c2d9313a26437c94ddbd3",
       "disclosedAffiliation": ""
@@ -2589,9 +2656,9 @@
       "summary": "Ansem quotes Zcash commentary and gives a target of 0.1 BTC per ZEC.",
       "target": "0.1 BTC per ZEC",
       "deadline": null,
-      "interpretation": "BTC-denominated relative target whose asset context comes from a quoted post; not a USD spot entry or a BTC long.",
+      "interpretation": "Eligible for a separately labeled seven-day change in ZEC/BTC ratio once both synchronized prices are available. Ratio change = (ZECexit/BTCexit)/(ZECentry/BTCentry)-1. This is relative performance, not an equal-dollar long-ZEC/short-BTC trading return and not USD spot performance.",
       "chainTopic": false,
-      "sourceTextStatus": "post-text",
+      "sourceTextStatus": "reviewed-post",
       "quote": ".1BTC is the target",
       "scoringDirection": "unscored",
       "exclusionReason": "BTC-denominated relative target whose asset context comes from a quoted post; not a USD spot entry or a BTC long.",
@@ -2635,15 +2702,22 @@
       "summary": "Kook sets a $500 million valuation target for STONKBROKER while sharing a stock-token infrastructure article.",
       "target": "$500 million valuation",
       "deadline": null,
-      "interpretation": "Bullish valuation target, not a $500 million token price. Exact asset identity and target unit interpretation require confirmation before scoring.",
+      "interpretation": "Explicit bullish STONKBROKER call in author’s Robinhood series. Canonical token confirmed by official docs and official GitHub. $500M/$1B are valuation targets, not token prices; seven-day paper return does not measure target accuracy.",
       "chainTopic": false,
-      "sourceTextStatus": "post-text",
+      "sourceTextStatus": "reviewed-post",
       "quote": "this is bigger than anyone on ct will understand this is for tradfi $stonkbroker to $500m",
-      "scoringDirection": "unscored",
-      "exclusionReason": "Bullish valuation target, not a $500 million token price. Exact asset identity and target unit interpretation require confirmation before scoring.",
+      "scoringDirection": "long",
+      "exclusionReason": "",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2093786406116089934&lang=en&token=x",
       "sourceSha256": "d0e2e744f91e061d57f11218d01328642bbbcfa061b9ec7f37eae4390a4e19dc",
-      "disclosedAffiliation": ""
+      "disclosedAffiliation": "",
+      "scoringLegs": [
+        {
+          "symbol": "STONKBROKER",
+          "direction": "long"
+        }
+      ],
+      "scoringCoverage": "Directional thesis checkpoint from publication; not a verified trade fill or target achievement."
     },
     {
       "id": "2093774937362403386",
@@ -2771,14 +2845,14 @@
       "summary": "A SOL breakout thesis with PUMP activity and ANSEM outperformance commentary.",
       "target": null,
       "deadline": null,
-      "interpretation": "The source mentions several assets but gives no fixed deadline. Revenue and activity claims here are attributed to the author, not independently verified.",
+      "interpretation": "SOL breakout and PUMP revenue are retrospective context; the explicit forward outperformance claim concerns ANSEM, whose token identity is not verified. SOL and PUMP price context is available separately.",
       "id": "2093361315876102605",
       "publishedAt": "2026-08-28T15:33:25.000Z",
       "chainTopic": false,
       "sourceTextStatus": "reviewed-post",
       "quote": "",
       "scoringDirection": "unscored",
-      "exclusionReason": "The source mentions several assets but gives no fixed deadline. Revenue and activity claims here are attributed to the author, not independently verified.",
+      "exclusionReason": "SOL breakout and PUMP revenue are retrospective context; the explicit forward outperformance claim concerns ANSEM, whose token identity is not verified. SOL and PUMP price context is available separately.",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2093361315876102605&lang=en&token=x",
       "sourceSha256": "6198b30cc669c248c0729e9b1ee359a2d3ae7a6f69c19a0422a9870296469a40",
       "disclosedAffiliation": ""
@@ -2793,21 +2867,40 @@
         "ZEC",
         "BTC"
       ],
-      "type": "Self-reported holdings",
+      "type": "Hold endorsement",
       "summary": "Describes PUMP, HYPE, ZEC and BTC as part of a long-term portfolio allocation.",
       "target": null,
       "deadline": null,
-      "interpretation": "This is a self-reported allocation, not evidence of wallet ownership, trade execution, or a timed prediction.",
+      "interpretation": "Current long-hold endorsement for the four explicitly named tokens. Equal-weight post-publication paper performance measures the stated endorsement from publication; it does not infer original purchase price, actual wallet ownership, individual asset weights, 70% portfolio replication, or total-portfolio return.",
       "id": "2093110596522697054",
       "publishedAt": "2026-08-27T22:57:08.000Z",
       "chainTopic": false,
       "sourceTextStatus": "reviewed-post",
-      "quote": "",
-      "scoringDirection": "unscored",
-      "exclusionReason": "This is a self-reported allocation, not evidence of wallet ownership, trade execution, or a timed prediction.",
+      "quote": "part of my portfolio's 70% \"don't touch\" bucket, updated",
+      "scoringDirection": "long",
+      "exclusionReason": "",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2093110596522697054&lang=en&token=x",
       "sourceSha256": "03d9d0dd1d3edf9d3a0c9e9cc4802f5e302d1069f0c71e54b02371b6e848a60f",
-      "disclosedAffiliation": ""
+      "disclosedAffiliation": "",
+      "scoringLegs": [
+        {
+          "symbol": "PUMP",
+          "direction": "long"
+        },
+        {
+          "symbol": "HYPE",
+          "direction": "long"
+        },
+        {
+          "symbol": "ZEC",
+          "direction": "long"
+        },
+        {
+          "symbol": "BTC",
+          "direction": "long"
+        }
+      ],
+      "scoringCoverage": "Current long-hold endorsement for the four explicitly named tokens. Equal-weight post-publication paper performance measures the stated endorsement from publication; it does not infer original purchase price, actual wallet ownership, individual asset weights, 70% portfolio replication, or total-portfolio return."
     },
     {
       "profile": "dan",
@@ -2864,17 +2957,24 @@
       "summary": "when was the last time you saw everyone smart in crypto agree on something?????? $net is not a…",
       "target": null,
       "deadline": null,
-      "interpretation": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance.",
+      "interpretation": "Same author explicitly names NetNet, Robinhood DeFi, NET and reserve-backed USDG/RWA architecture in this selected source series. Official contract and provider metadata agree. Positive multi-cycle thesis or explicit new-high/price-growth statement; no fill or deadline necessary for the fixed-window method. No target-hit claim.",
       "id": "2092558815338074516",
       "publishedAt": "2026-08-26T10:24:34.000Z",
       "chainTopic": false,
-      "sourceTextStatus": "post-text",
+      "sourceTextStatus": "reviewed-post",
       "quote": "when was the last time you saw everyone smart in crypto agree on something?????? $net is not a…",
-      "scoringDirection": "unscored",
-      "exclusionReason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance.",
+      "scoringDirection": "long",
+      "exclusionReason": "",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2092558815338074516&lang=en&token=x",
       "sourceSha256": "9e78e02095e8901809efa61705c7521a5f895b7039b1dc668a4404c8b63a95b8",
-      "disclosedAffiliation": ""
+      "disclosedAffiliation": "",
+      "scoringLegs": [
+        {
+          "symbol": "NET",
+          "direction": "long"
+        }
+      ],
+      "scoringCoverage": "Directional thesis checkpoint from publication; not a verified trade fill or target achievement. Gross price return excludes the protocol trading fee, staking and rebases."
     },
     {
       "profile": "pentoshi",
@@ -3025,14 +3125,14 @@
       "summary": "Bullish HYPE and HyperEVM ecosystem commentary.",
       "target": null,
       "deadline": null,
-      "interpretation": "This is an attributed interpretation of the post. The underlying political and market claims have not been independently verified.",
+      "interpretation": "Retrospective HYPE all-time-high and ecosystem commentary. No separate forward directional statement; neutral token price context is available.",
       "id": "2091494107063394503",
       "publishedAt": "2026-08-23T11:53:47.000Z",
       "chainTopic": false,
       "sourceTextStatus": "reviewed-post",
-      "quote": "",
+      "quote": "$HYPE just broke new ATHs",
       "scoringDirection": "unscored",
-      "exclusionReason": "This is an attributed interpretation of the post. The underlying political and market claims have not been independently verified.",
+      "exclusionReason": "Retrospective HYPE all-time-high and ecosystem commentary. No separate forward directional statement; neutral token price context is available.",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2091494107063394503&lang=en&token=x",
       "sourceSha256": "c57f5cd8be81f4cef1356007a3209bb37f704209d42d4350d93ff45bad15f3e7",
       "disclosedAffiliation": ""
@@ -3050,15 +3150,22 @@
       "summary": "AJC argues PONS fundamentals remain strong, comparing buybacks and launchpad activity with PUMP.",
       "target": "Above $50 million FDV, conditional on valuation multiple expansion",
       "deadline": null,
-      "interpretation": "Bullish thesis; a valuation above $50 million is conditional on multiple expansion, not a guaranteed target. Exact PONS contract and prices remain unverified.",
+      "interpretation": "Positive PONS fundamental thesis and conditional valuation expansion case. Fixed seven-day directional return is eligible without a deadline or a stated trade fill; this does NOT score whether the conditional $50M FDV forecast was fulfilled. Complete original was reviewed in earlier UI evidence; @ponsdotfamily links exact project.",
       "chainTopic": true,
       "sourceTextStatus": "reviewed-post",
       "quote": "Fundamentals for $PONS are still as strong as ever! Over the last 7 days, @ponsdotfamily has accrued $350K of revenue",
-      "scoringDirection": "unscored",
-      "exclusionReason": "Bullish thesis; a valuation above $50 million is conditional on multiple expansion, not a guaranteed target. Exact PONS contract and prices remain unverified.",
+      "scoringDirection": "long",
+      "exclusionReason": "",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2091181282965270707&lang=en&token=x",
       "sourceSha256": "7abfbe98ec92fc794cd4741154c0110d393e87d3bd785bce863d6eaa3b5663f0",
-      "disclosedAffiliation": ""
+      "disclosedAffiliation": "",
+      "scoringLegs": [
+        {
+          "symbol": "PONS",
+          "direction": "long"
+        }
+      ],
+      "scoringCoverage": "Directional thesis checkpoint from publication; not a verified trade fill or target achievement."
     },
     {
       "profile": "wendy",
@@ -3111,21 +3218,28 @@
       "tokens": [
         "BTC"
       ],
-      "type": "Source excerpt",
+      "type": "Bullish endorsement",
       "summary": "Clarity won’t damage the banking system Clarity forces the banks to pay you to use your money and…",
       "target": null,
       "deadline": null,
-      "interpretation": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance.",
+      "interpretation": "The author explicitly endorses Bitcoin as an alternative to banks. A BTC post-publication paper checkpoint is permitted under an endorsement metric; no transaction, holding size or market timing is claimed.",
       "id": "2090806961998876880",
       "publishedAt": "2026-08-21T14:23:19.000Z",
       "chainTopic": false,
-      "sourceTextStatus": "post-text",
-      "quote": "Clarity won’t damage the banking system Clarity forces the banks to pay you to use your money and…",
-      "scoringDirection": "unscored",
-      "exclusionReason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance.",
+      "sourceTextStatus": "reviewed-post",
+      "quote": "Opt out with Bitcoin",
+      "scoringDirection": "long",
+      "exclusionReason": "",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2090806961998876880&lang=en&token=x",
       "sourceSha256": "abeb1865e6838a8006e2acf534f149b77dc1fd928d1beaaf338c77f6ca71ba0e",
-      "disclosedAffiliation": ""
+      "disclosedAffiliation": "",
+      "scoringLegs": [
+        {
+          "symbol": "BTC",
+          "direction": "long"
+        }
+      ],
+      "scoringCoverage": "The author explicitly endorses Bitcoin as an alternative to banks. A BTC post-publication paper checkpoint is permitted under an endorsement metric; no transaction, holding size or market timing is claimed."
     },
     {
       "id": "2090636175593935253",
@@ -3207,15 +3321,22 @@
       "summary": "AJC calls PONS his preferred way to express a bullish Robinhood Chain view, citing revenue, buybacks and launchpad leadership.",
       "target": null,
       "deadline": null,
-      "interpretation": "Explicit PONS bullish thesis confirmed from the complete original post. ETH and PUMP are contextual comparisons, not basket entries. Exact PONS asset identity still unresolved.",
+      "interpretation": "Complete original was reviewed in earlier UI evidence; concludes PONS is the best way to express a bullish Robinhood Chain view. Exact project identified by @ponsdotfamily and its revenue/launchpad subject. ETH and PUMP are contextual comparisons, not basket entries.",
       "chainTopic": true,
       "sourceTextStatus": "reviewed-post",
       "quote": "Could not ask for a better setup for $PONS: - ethereum:native is finally breaking out and is one of the",
-      "scoringDirection": "unscored",
-      "exclusionReason": "Explicit PONS bullish thesis confirmed from the complete original post. ETH and PUMP are contextual comparisons, not basket entries. Exact PONS asset identity still unresolved.",
+      "scoringDirection": "long",
+      "exclusionReason": "",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2090205325013991448&lang=en&token=x",
       "sourceSha256": "a461379b6b8de5aa1ef8a61772f48dd306cda751015605efcfaa1c1b8ffbb986",
-      "disclosedAffiliation": ""
+      "disclosedAffiliation": "",
+      "scoringLegs": [
+        {
+          "symbol": "PONS",
+          "direction": "long"
+        }
+      ],
+      "scoringCoverage": "Directional thesis checkpoint from publication; not a verified trade fill or target achievement."
     },
     {
       "profile": "rover",
@@ -3251,14 +3372,14 @@
       "summary": "A potential BTC retest near $83K by end of Q3, conditional on the weekly close holding.",
       "target": "~$83K",
       "deadline": "2026-09-30",
-      "interpretation": "The call depends on price holding through Sunday. That condition has not been checked, and the forecast window was still open at capture.",
+      "interpretation": "The weekly-close entry condition has not been independently checked. A post-publication price move does not establish that the conditional entry triggered.",
       "id": "2090175223530209549",
       "publishedAt": "2026-08-19T20:33:01.000Z",
       "chainTopic": false,
       "sourceTextStatus": "reviewed-post",
       "quote": "",
       "scoringDirection": "unscored",
-      "exclusionReason": "The call depends on price holding through Sunday. That condition has not been checked, and the forecast window was still open at capture.",
+      "exclusionReason": "The weekly-close entry condition has not been independently checked. A post-publication price move does not establish that the conditional entry triggered.",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2090175223530209549&lang=en&token=x",
       "sourceSha256": "b297b366637973aac167cec35c2e54f734843bd63d5c137c34414d8dedf339e6",
       "disclosedAffiliation": ""
@@ -3701,12 +3822,12 @@
       "summary": "Discusses underside retests and relative rebounds in SOL, BTC and ETH.",
       "target": null,
       "deadline": null,
-      "interpretation": "Only the visible portion of this longer post was reviewed. Its return figures are the author's statements and have not been independently recomputed.",
+      "interpretation": "Neutral market commentary and retrospective relative rebounds, not a short basket or long basket. Replace the incomplete-source exclusion with verified neutral-commentary explanation.",
       "id": "2083219921555857858",
       "publishedAt": "2026-07-31T15:55:08.000Z",
       "chainTopic": false,
       "sourceTextStatus": "reviewed-post",
-      "quote": "",
+      "quote": "I do think downside is quite limited, but again, this next cycle upside is too.",
       "scoringDirection": "unscored",
       "exclusionReason": "Only the visible portion of this longer post was reviewed. Its return figures are the author's statements and have not been independently recomputed.",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2083219921555857858&lang=en&token=x",
@@ -3850,21 +3971,28 @@
       "tokens": [
         "BTC"
       ],
-      "type": "Source excerpt",
+      "type": "Bullish cycle outlook",
       "summary": "🚨 BITMEX IS SHUTTING DOWN AFTER 11 YEARS Every bear market kills one big CEX. Then $BTC starts…",
       "target": null,
       "deadline": null,
-      "interpretation": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance.",
+      "interpretation": "The author links prior exchange failures to subsequent BTC upside and says the next cycle is approaching. Score only a bullish BTC post-publication checkpoint. Historical percentages and BitMEX shutdown claim are not independently verified facts and should be attributed to the author.",
       "id": "2080293654229614791",
       "publishedAt": "2026-07-23T14:07:11.000Z",
       "chainTopic": false,
-      "sourceTextStatus": "post-text",
-      "quote": "🚨 BITMEX IS SHUTTING DOWN AFTER 11 YEARS Every bear market kills one big CEX. Then $BTC starts…",
-      "scoringDirection": "unscored",
-      "exclusionReason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance.",
+      "sourceTextStatus": "reviewed-post",
+      "quote": "Then $BTC starts a new cycle.",
+      "scoringDirection": "long",
+      "exclusionReason": "",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2080293654229614791&lang=en&token=x",
       "sourceSha256": "983682b498604dd5cc12b95d26eba2917d4caaa176d42ef24931216b155afd83",
-      "disclosedAffiliation": ""
+      "disclosedAffiliation": "",
+      "scoringLegs": [
+        {
+          "symbol": "BTC",
+          "direction": "long"
+        }
+      ],
+      "scoringCoverage": "The author links prior exchange failures to subsequent BTC upside and says the next cycle is approaching. Score only a bullish BTC post-publication checkpoint. Historical percentages and BitMEX shutdown claim are not independently verified facts and should be attributed to the author."
     },
     {
       "profile": "rover",
@@ -3873,21 +4001,28 @@
       "tokens": [
         "BTC"
       ],
-      "type": "Source excerpt",
+      "type": "Bearish risk outlook",
       "summary": "🚨 THE BIGGEST BITCOIN BULL TRAP OF THIS ENTIRE BEAR MARKET MAY BE FORMING RIGHT NOW... The July…",
       "target": null,
       "deadline": null,
-      "interpretation": "Only the public excerpt is available; the full statement and conditions have not been verified.",
+      "interpretation": "Full original X text reviewed. Consistently bearish but explicitly probabilistic outlook for August following a July rally; no binary trigger. If included, label bearish outlook with an author horizon of August, and make clear the standardized 7D observation does not judge that horizon.",
       "id": "2079864528322330745",
       "publishedAt": "2026-07-22T09:42:00.000Z",
       "chainTopic": false,
-      "sourceTextStatus": "excerpt",
-      "quote": "🚨 THE BIGGEST BITCOIN BULL TRAP OF THIS ENTIRE BEAR MARKET MAY BE FORMING RIGHT NOW... The July…",
-      "scoringDirection": "unscored",
-      "exclusionReason": "Only the public excerpt is available; the full statement and conditions have not been verified.",
+      "sourceTextStatus": "reviewed-post",
+      "quote": "THE BIGGEST BITCOIN BULL TRAP OF THIS ENTIRE BEAR MARKET MAY BE FORMING RIGHT NOW...",
+      "scoringDirection": "short",
+      "exclusionReason": "",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2079864528322330745&lang=en&token=x",
       "sourceSha256": "b73927c9411c2a1e69ba9dd64b8ba8b251ee4c6193132241ca70e17b456b425e",
-      "disclosedAffiliation": ""
+      "disclosedAffiliation": "",
+      "scoringLegs": [
+        {
+          "symbol": "BTC",
+          "direction": "short"
+        }
+      ],
+      "scoringCoverage": "Full original X text reviewed. Consistently bearish but explicitly probabilistic outlook for August following a July rally; no binary trigger. If included, label bearish outlook with an author horizon of August, and make clear the standardized 7D observation does not judge that horizon."
     },
     {
       "profile": "wendy",
@@ -3980,21 +4115,28 @@
       "tokens": [
         "BTC"
       ],
-      "type": "Source excerpt",
+      "type": "Bullish endorsement",
       "summary": "AI is taking jobs, but the uncertainty, inflation, and crypto getting absorbed by TradFi in this 2026 transition…",
       "target": null,
       "deadline": null,
-      "interpretation": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance.",
+      "interpretation": "The complete caption explicitly makes a favorable Bitcoin thesis. Score the named BTC endorsement only. Attached video was not transcribed and no additional video claims are incorporated.",
       "id": "2078283614362419394",
       "publishedAt": "2026-07-18T01:00:00.000Z",
       "chainTopic": false,
-      "sourceTextStatus": "post-text",
-      "quote": "AI is taking jobs, but the uncertainty, inflation, and crypto getting absorbed by TradFi in this 2026 transition…",
-      "scoringDirection": "unscored",
-      "exclusionReason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance.",
+      "sourceTextStatus": "reviewed-post",
+      "quote": "actually strengthens the case for Bitcoin.",
+      "scoringDirection": "long",
+      "exclusionReason": "",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2078283614362419394&lang=en&token=x",
       "sourceSha256": "ab63ca8fd3246531e95b1eedea808e18d33ec4b1a44ce25ee4bd7ec83e34dd36",
-      "disclosedAffiliation": ""
+      "disclosedAffiliation": "",
+      "scoringLegs": [
+        {
+          "symbol": "BTC",
+          "direction": "long"
+        }
+      ],
+      "scoringCoverage": "The complete caption explicitly makes a favorable Bitcoin thesis. Score the named BTC endorsement only. Attached video was not transcribed and no additional video claims are incorporated."
     },
     {
       "id": "2078159148248654310",
@@ -4298,14 +4440,14 @@
       "summary": "🚨 THIS IS NOT LOOKING GOOD IT'S SO OVER FOR $ETH",
       "target": null,
       "deadline": null,
-      "interpretation": "Bearish wording with attached context; no verified short entry. Never scored as a long recommendation.",
+      "interpretation": "The attached ETH/USD chart has an inverted price axis and the caption quotes a bullish ETH/BTC post. Treat as ambiguous or satirical context, not a literal short entry.",
       "id": "2075511840483017194",
       "publishedAt": "2026-07-10T09:25:58.000Z",
       "chainTopic": false,
       "sourceTextStatus": "post-text",
       "quote": "🚨 THIS IS NOT LOOKING GOOD IT'S SO OVER FOR $ETH",
       "scoringDirection": "unscored",
-      "exclusionReason": "Bearish wording with attached context; no verified short entry. Never scored as a long recommendation.",
+      "exclusionReason": "The attached ETH/USD chart has an inverted price axis and the caption quotes a bullish ETH/BTC post. Treat as ambiguous or satirical context, not a literal short entry.",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2075511840483017194&lang=en&token=x",
       "sourceSha256": "1e6e284bf4c5e84a673702737172dc4074367ef5ea26cd79ebba014061cca09d",
       "disclosedAffiliation": ""
@@ -4424,20 +4566,21 @@
       "date": "2026-07-02",
       "url": "https://x.com/CryptoWendyO/status/2072727002499445209",
       "tokens": [
+        "BTC",
         "XRP"
       ],
       "type": "Source excerpt",
       "summary": "Crypto things you might have missed: -Kash Patel fails to disclose BTC-linked investment -Trump discloses $1.4B across 22K…",
       "target": null,
       "deadline": null,
-      "interpretation": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance.",
+      "interpretation": "Full original news roundup explicitly names BTC and XRP. Add BTC for neutral post-publication price context; Citi BTC target cut and XRP bull activity are attributed news, not Wendy personal buy/sell calls. STRC is an equity security, and Venice AI reference is company valuation, so neither becomes a token leg.",
       "id": "2072727002499445209",
       "publishedAt": "2026-07-02T17:00:01.000Z",
       "chainTopic": false,
-      "sourceTextStatus": "post-text",
+      "sourceTextStatus": "reviewed-post",
       "quote": "Crypto things you might have missed: -Kash Patel fails to disclose BTC-linked investment -Trump discloses $1.4B across 22K…",
       "scoringDirection": "unscored",
-      "exclusionReason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance.",
+      "exclusionReason": "Full original news roundup explicitly names BTC and XRP. Add BTC for neutral post-publication price context; Citi BTC target cut and XRP bull activity are attributed news, not Wendy personal buy/sell calls. STRC is an equity security, and Venice AI reference is company valuation, so neither becomes a token leg.",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2072727002499445209&lang=en&token=x",
       "sourceSha256": "42e57d46a32a64bbdb1d9efc456118bc29f7c516201cf972490d7afbfec09f3a",
       "disclosedAffiliation": ""
@@ -4449,21 +4592,28 @@
       "tokens": [
         "BTC"
       ],
-      "type": "Source excerpt",
+      "type": "Bearish structural outlook",
       "summary": "🚨 FOR 14 YEARS, BITCOIN NEVER LOST THIS TRENDLINE. Not in the 2014 collapse. Not in the 2018…",
       "target": null,
       "deadline": null,
-      "interpretation": "Only the public excerpt is available; the full statement and conditions have not been verified.",
+      "interpretation": "Full original X text reviewed. The statement consistently describes an ongoing bearish structural break; there is no pending if/then entry trigger. A bearish post-publication sentiment checkpoint is distinct from forecast accuracy or an actual short.",
       "id": "2071215789818921113",
       "publishedAt": "2026-06-28T12:55:00.000Z",
       "chainTopic": false,
-      "sourceTextStatus": "excerpt",
-      "quote": "🚨 FOR 14 YEARS, BITCOIN NEVER LOST THIS TRENDLINE. Not in the 2014 collapse. Not in the 2018…",
-      "scoringDirection": "unscored",
-      "exclusionReason": "Only the public excerpt is available; the full statement and conditions have not been verified.",
+      "sourceTextStatus": "reviewed-post",
+      "quote": "Bitcoin is starting to break below the same long-term support that held every previous cycle together.",
+      "scoringDirection": "short",
+      "exclusionReason": "",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2071215789818921113&lang=en&token=x",
       "sourceSha256": "6147a2862018bedaa4ce8b7a1c4d5fec9182474e6c6f1cdb1ee46132037ed2c1",
-      "disclosedAffiliation": ""
+      "disclosedAffiliation": "",
+      "scoringLegs": [
+        {
+          "symbol": "BTC",
+          "direction": "short"
+        }
+      ],
+      "scoringCoverage": "Full original X text reviewed. The statement consistently describes an ongoing bearish structural break; there is no pending if/then entry trigger. A bearish post-publication sentiment checkpoint is distinct from forecast accuracy or an actual short."
     },
     {
       "profile": "kaleo",
@@ -4476,17 +4626,24 @@
       "summary": "#Bitcoin / $BTC Honestly would think the odds would be way higher than 60% we see $50K before…",
       "target": null,
       "deadline": null,
-      "interpretation": "Only the public excerpt is available; the full statement and conditions have not been verified.",
+      "interpretation": "Bearish first-phase BTC thesis with later bullish recovery. A fixed seven-day short paper observation can represent the first directional phase only; it does not evaluate the $50K-before-$100K barrier forecast or the eventual recovery.",
       "id": "2067363663049028087",
       "publishedAt": "2026-06-17T21:48:01.000Z",
       "chainTopic": false,
-      "sourceTextStatus": "excerpt",
-      "quote": "#Bitcoin / $BTC Honestly would think the odds would be way higher than 60% we see $50K before…",
-      "scoringDirection": "unscored",
-      "exclusionReason": "Only the public excerpt is available; the full statement and conditions have not been verified.",
+      "sourceTextStatus": "reviewed-post",
+      "quote": "Still believe the market sees one last leg lower associated with MSTR / STRC panic before it hits a real bottom.",
+      "scoringDirection": "short",
+      "exclusionReason": "",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2067363663049028087&lang=en&token=x",
       "sourceSha256": "1043ed01f75172afde65753fabac7e7e4f1fc06704b779c66eaca52729fccdfd",
-      "disclosedAffiliation": ""
+      "disclosedAffiliation": "",
+      "scoringLegs": [
+        {
+          "symbol": "BTC",
+          "direction": "short"
+        }
+      ],
+      "scoringCoverage": "Bearish first-phase BTC thesis with later bullish recovery. A fixed seven-day short paper observation can represent the first directional phase only; it does not evaluate the $50K-before-$100K barrier forecast or the eventual recovery."
     },
     {
       "profile": "ansem",
@@ -4545,12 +4702,12 @@
       "summary": "#Bitcoin / $BTC $40K before $100K. Only a few months away from what we've seen as the traditional…",
       "target": null,
       "deadline": null,
-      "interpretation": "Only the public excerpt is available; the full statement and conditions have not been verified.",
+      "interpretation": "Opposing short-term price and long-term purchase recommendations for the same asset. A single signed seven-day return would arbitrarily choose one. Keep out of directional P&L; show neutral market change after mention and both horizons, or use a separately specified event-barrier evaluator.",
       "id": "2066220533289783493",
       "publishedAt": "2026-06-14T18:05:38.000Z",
       "chainTopic": false,
-      "sourceTextStatus": "excerpt",
-      "quote": "#Bitcoin / $BTC $40K before $100K. Only a few months away from what we've seen as the traditional…",
+      "sourceTextStatus": "reviewed-post",
+      "quote": "Still believe now is a good time to be stacking BTC if you're patient enough.",
       "scoringDirection": "unscored",
       "exclusionReason": "Only the public excerpt is available; the full statement and conditions have not been verified.",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2066220533289783493&lang=en&token=x",
@@ -4561,22 +4718,36 @@
       "profile": "ansem",
       "date": "2026-06-02",
       "url": "https://x.com/blknoiz06/status/2061772822565834859",
-      "tokens": [],
+      "tokens": [
+        "BTC",
+        "HYPE"
+      ],
       "type": "Source excerpt",
       "summary": "June 2nd, 2026 BTC: $69,492 HYPE: $72.57 predicting btc will be lower ~1 month from now & hype…",
       "target": null,
       "deadline": null,
-      "interpretation": "The post expresses opposite directions for BTC and HYPE. A single long basket would misrepresent the statement.",
+      "interpretation": "Mixed-direction thesis: BTC bearish and HYPE bullish. Compute each leg from the first full UTC hour after publication, then equal-weight the two gross directional paper returns. Seven-day observation is a standardized checkpoint, not the author's roughly one-month forecast result.",
       "id": "2061772822565834859",
       "publishedAt": "2026-06-02T11:32:01.000Z",
       "chainTopic": false,
-      "sourceTextStatus": "post-text",
-      "quote": "June 2nd, 2026 BTC: $69,492 HYPE: $72.57 predicting btc will be lower ~1 month from now & hype…",
-      "scoringDirection": "unscored",
-      "exclusionReason": "The post expresses opposite directions for BTC and HYPE. A single long basket would misrepresent the statement.",
+      "sourceTextStatus": "reviewed-post",
+      "quote": "predicting btc will be lower ~1 month from now & hype will be higher ~1 month from now",
+      "scoringDirection": "mixed",
+      "exclusionReason": "",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2061772822565834859&lang=en&token=x",
       "sourceSha256": "b17e6bd516e5d5a055910ce001a07d2e7983ca81ec456ba18c9cc5bb54431212",
-      "disclosedAffiliation": ""
+      "disclosedAffiliation": "",
+      "scoringLegs": [
+        {
+          "symbol": "BTC",
+          "direction": "short"
+        },
+        {
+          "symbol": "HYPE",
+          "direction": "long"
+        }
+      ],
+      "scoringCoverage": "Mixed-direction thesis: BTC bearish and HYPE bullish. Compute each leg from the first full UTC hour after publication, then equal-weight the two gross directional paper returns. Seven-day observation is a standardized checkpoint, not the author's roughly one-month forecast result."
     },
     {
       "profile": "ansem",
@@ -4677,21 +4848,28 @@
       "tokens": [
         "BTC"
       ],
-      "type": "Source excerpt",
+      "type": "Bearish technical warning",
       "summary": "WARNING: Bitcoin breaks major up trending trendline.",
       "target": null,
       "deadline": null,
-      "interpretation": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance.",
+      "interpretation": "Direct bearish warning with a normal-axis chart highlighting support breakdown. Score as bearish stance checkpoint only; no actual short or future target is claimed.",
       "id": "2048830042172711013",
       "publishedAt": "2026-04-27T18:22:02.000Z",
       "chainTopic": false,
-      "sourceTextStatus": "post-text",
+      "sourceTextStatus": "reviewed-post",
       "quote": "WARNING: Bitcoin breaks major up trending trendline.",
-      "scoringDirection": "unscored",
-      "exclusionReason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance.",
+      "scoringDirection": "short",
+      "exclusionReason": "",
       "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2048830042172711013&lang=en&token=x",
       "sourceSha256": "589e389f68da001e2ba6620935edc98bdeb10b30854e453db17d00fe7a233322",
-      "disclosedAffiliation": ""
+      "disclosedAffiliation": "",
+      "scoringLegs": [
+        {
+          "symbol": "BTC",
+          "direction": "short"
+        }
+      ],
+      "scoringCoverage": "Direct bearish warning with a normal-axis chart highlighting support breakdown. Score as bearish stance checkpoint only; no actual short or future target is claimed."
     },
     {
       "profile": "rover",
@@ -4810,6 +4988,6 @@
       "disclosedAffiliation": ""
     }
   ],
-  "version": 3,
+  "version": 4,
   "capturedAt": "2026-09-11T04:00:00.000Z"
 }

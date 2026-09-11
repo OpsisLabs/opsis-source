@@ -45,6 +45,7 @@ import {
   formatPercent,
   paperPnl,
   formatMoney,
+  assetReturnCurve,
   matchesScoringFilter,
   type ScoringFilter,
 } from "./performance";
@@ -63,9 +64,12 @@ import {
   ScoringSummary,
 } from "./ResearchPanels";
 import { sourceLabel } from "./research";
+import { MentionPrices, PriceContextPanel } from "./PriceContext";
+import { priceContext } from "./reactions";
+import tokenIdentities from "./token-identities.json";
 const PerformanceChart = lazy(() => import("./PerformanceChart"));
 type Translate = (en: string, zh: string) => string;
-type View = "all" | "feed" | "compare" | "watchlist" | "saved";
+type View = "all" | "feed" | "moves" | "compare" | "watchlist" | "saved";
 const dateLabel = (date: string) =>
   new Date(date).toLocaleDateString("en-US", {
     month: "short",
@@ -141,8 +145,8 @@ function MethodContent({ L }: { L: Translate }) {
         <li>
           <strong>{L("Measure seven days.", "观察七天。")}</strong>{" "}
           {L(
-            "Hold long on paper for seven days. The eight daily observations must fall within two minutes of their targets; actual timestamps stay in the receipt.",
-            "模拟做多持有七天。八个每日观测点与目标时间偏差不超过两分钟，实际时间保留在记录中。",
+            "Apply each stated direction on paper for seven days. Daily observations may be up to ten minutes from target hours, always after publication. Actual timestamps stay in the receipt.",
+            "按各资产声明方向模拟观察七天。每日价格与目标整点偏差最多十分钟，且均在原帖发布后；记录保留实际时间。",
           )}
         </li>
         <li>
@@ -155,8 +159,8 @@ function MethodContent({ L }: { L: Translate }) {
         <li>
           <strong>{L("Keep the gaps visible.", "保留数据缺口。")}</strong>{" "}
           {L(
-            "Pending windows, unverified conditions, unclear token identities and retrospective comments are excluded. Incomplete multi-token calls are excluded in full.",
-            "未结束窗口、未核验条件、身份不明代币和回顾性评论不计入平均值。多代币观点数据不全时整条排除。",
+            "Open observation windows are pending. Unverified conditions and unclear asset identities are excluded. Independently stated named-asset legs may be measured with explicit partial coverage; unidentified assets are never substituted.",
+            "观察期未结束时标为等待。未经核验的条件和身份不明的资产不计分。独立且明确的资产观点可以单独衡量，并标明覆盖不完整；不替换未确认资产。",
           )}
         </li>
       </ol>
@@ -200,6 +204,7 @@ function CallDetail({
     const payload = {
       ...receipt(call),
       actualWalletPnl: null,
+      tokenPriceContext: priceContext(call),
       paperPerformance: {
         ...result,
         stakePerCall: stake,
@@ -247,6 +252,9 @@ function CallDetail({
           {L("Read original post", "阅读原帖")}
         </SourceLink>
       </details>
+      {call.scoringCoverage && (
+        <p className="kol-affiliation">{call.scoringCoverage}</p>
+      )}
       {call.disclosedAffiliation && (
         <p className="kol-affiliation">{call.disclosedAffiliation}</p>
       )}
@@ -300,10 +308,8 @@ function CallDetail({
           >
             <PerformanceChart
               series={result.observation.assets.map((a) => ({
-                name: a.symbol,
-                values: a.prices.map(
-                  (point) => (point.price / a.prices[0].price - 1) * 100,
-                ),
+                name: `${a.symbol} · ${a.direction === "short" ? L("short", "模拟做空") : L("long", "模拟做多")}`,
+                values: assetReturnCurve(a),
               }))}
               label={L(
                 "Token returns during the seven days after this call",
@@ -319,7 +325,14 @@ function CallDetail({
             <div>
               {result.observation.assets.map((a) => (
                 <div className="kol-price-pair" key={a.id}>
-                  <strong>{a.symbol}</strong>
+                  <strong>
+                    {a.symbol}{" "}
+                    <small>
+                      {a.direction === "short"
+                        ? L("Paper short", "模拟做空")
+                        : L("Paper long", "模拟做多")}
+                    </small>
+                  </strong>
                   <span>
                     $
                     {a.prices[0].price.toLocaleString("en-US", {
@@ -339,10 +352,29 @@ function CallDetail({
               ))}
               <p>
                 {L(
-                  "Return = (day 7 price ÷ entry observation − 1) × 100. Multi-token calls use equal weights. Gross of fees and execution costs.",
-                  "收益 =（第 7 天价格 ÷ 初始观测价格 − 1）×100。多代币等权，不含费用及执行成本。",
+                  "Long return = (day 7 price ÷ first observation − 1) × 100. Paper short return is its negative. Verified asset legs use equal weights. No leverage; excludes fees, slippage, funding and borrow costs.",
+                  "看多收益 =（第七天价格 ÷ 首次价格 − 1）×100；模拟做空收益取其负值。已核验资产等权。不加杠杆，未扣除手续费、滑点、资金费及借币成本。",
                 )}
               </p>
+              {result.observation.assets.map((asset) => {
+                const identity = (
+                  tokenIdentities as Record<
+                    string,
+                    { chain: string; contract: string; official: string }
+                  >
+                )[asset.symbol];
+                return identity ? (
+                  <p key={asset.id} className="kol-identity-proof">
+                    <strong>
+                      {asset.symbol} · {identity.chain}
+                    </strong>
+                    <code>{identity.contract}</code>
+                    <SourceLink href={identity.official}>
+                      {L("Official token identity", "官方代币身份")}
+                    </SourceLink>
+                  </p>
+                ) : null;
+              })}
               {result.observation.url && (
                 <SourceLink href={result.observation.url}>
                   {L("Price source", "价格来源")}
@@ -370,6 +402,7 @@ function CallDetail({
           </div>
         </div>
       )}
+      {result.percent === null && <MentionPrices call={call} L={L} />}
       <div className="kol-detail-actions">
         <button
           className="kol-ai-button"
@@ -963,6 +996,7 @@ export default function Tracker() {
                 [
                   ["all", "All KOLs", "全部 KOL"],
                   ["feed", "Call feed", "观点动态"],
+                  ["moves", "Token moves", "代币走势"],
                   ["compare", "Compare", "比较"],
                   ["watchlist", "Watchlist", "关注列表"],
                   ["saved", "Saved calls", "已存观点"],
@@ -1023,7 +1057,9 @@ export default function Tracker() {
               L={L}
             />
           )}
-          {view === "compare" ? (
+          {view === "moves" ? (
+            <PriceContextPanel items={filteredCalls} L={L} />
+          ) : view === "compare" ? (
             <ComparePanel items={filteredCalls} onOpen={openProfile} L={L} />
           ) : view !== "saved" && view !== "feed" ? (
             <div className="kol-board">

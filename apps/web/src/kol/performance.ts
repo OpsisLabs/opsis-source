@@ -7,6 +7,7 @@ export type PriceAsset = {
   id: string;
   confidence: number;
   prices: PricePoint[];
+  direction?: string;
 };
 export type Observation = {
   callId: string;
@@ -25,27 +26,61 @@ const records: Observation[] = edition.records;
 const asOf = Date.parse(edition.asOf) / 1000;
 const mean = (values: number[]) =>
   values.reduce((a, b) => a + b, 0) / values.length;
-const assetIds: Record<string, string> = {
+export const maxPriceDeviationSeconds = 600;
+export const assetIds: Record<string, string> = {
   BTC: "coingecko:bitcoin",
   ETH: "coingecko:ethereum",
   SOL: "coingecko:solana",
   HYPE: "coingecko:hyperliquid",
   ZEC: "coingecko:zcash",
+  PONS: "coingecko:pons",
+  NET: "coingecko:netnet",
+  STONKBROKER: "coingecko:stonkbroker",
+  PUMP: "coingecko:pump-fun",
+  XRP: "coingecko:ripple",
+  DOGE: "coingecko:dogecoin",
 };
 
+export function scoringLegs(call: Call) {
+  if (!["long", "short", "mixed"].includes(call.scoringDirection)) return [];
+  const legs =
+    call.scoringLegs ??
+    call.tokens.map((symbol) => ({ symbol, direction: call.scoringDirection }));
+  if (
+    !legs.length ||
+    new Set(legs.map((leg) => leg.symbol)).size !== legs.length ||
+    legs.some(
+      (leg) =>
+        !call.tokens.includes(leg.symbol) ||
+        !assetIds[leg.symbol] ||
+        !["long", "short"].includes(leg.direction),
+    )
+  )
+    return [];
+  return legs;
+}
+
+export function assetReturnCurve(asset: PriceAsset) {
+  const sign = asset.direction === "short" ? -1 : 1;
+  return asset.prices.map(
+    (point) => sign * (point.price / asset.prices[0].price - 1) * 100,
+  );
+}
+
 export function validateObservation(record: Observation, call: Call) {
+  const legs = scoringLegs(call);
   if (
     record.status !== "complete" ||
     record.callId !== call.id ||
-    record.direction !== "long" ||
-    call.scoringDirection !== "long" ||
+    !legs.length ||
+    record.direction !== call.scoringDirection ||
     !record.assets.length ||
     !record.entryAt ||
     !record.endAt
   )
     return false;
   const expectedEntry =
-    Math.ceil(Date.parse(call.publishedAt) / 3_600_000) * 3600;
+    (Math.floor(Date.parse(call.publishedAt) / 3_600_000) + 1) * 3600;
   if (
     record.entryAt !== expectedEntry ||
     record.endAt !== expectedEntry + 604800 ||
@@ -55,8 +90,13 @@ export function validateObservation(record: Observation, call: Call) {
   if (new Set(record.assets.map((a) => a.id)).size !== record.assets.length)
     return false;
   if (
-    record.assets.length !== call.tokens.length ||
-    !call.tokens.every((t) => record.assets.some((a) => a.symbol === t))
+    record.assets.length !== legs.length ||
+    !legs.every((leg) =>
+      record.assets.some(
+        (a) =>
+          a.symbol === leg.symbol && (a.direction ?? "long") === leg.direction,
+      ),
+    )
   )
     return false;
   return record.assets.every(
@@ -70,7 +110,8 @@ export function validateObservation(record: Observation, call: Call) {
           Number.isFinite(p.price) &&
           p.price > 0 &&
           Number.isFinite(p.timestamp) &&
-          Math.abs(p.timestamp - (expectedEntry + i * 86400)) <= 120 &&
+          Math.abs(p.timestamp - (expectedEntry + i * 86400)) <=
+            maxPriceDeviationSeconds &&
           p.timestamp >= Date.parse(call.publishedAt) / 1000 &&
           p.timestamp <= asOf &&
           (i === 0 || p.timestamp > points[i - 1].timestamp),
@@ -108,11 +149,7 @@ export function callPerformance(call: Call) {
   if (observation.status !== "complete")
     return { observation, percent: null, curve: null, worstDay: null };
   const curve = Array.from({ length: 8 }, (_, day) =>
-    mean(
-      observation.assets.map(
-        (a) => (a.prices[day].price / a.prices[0].price - 1) * 100,
-      ),
-    ),
+    mean(observation.assets.map((a) => assetReturnCurve(a)[day])),
   );
   return {
     observation,
@@ -126,7 +163,7 @@ export type ScoringFilter =
   "all" | "eligible" | "scored" | "pending" | "unscored" | "unavailable";
 
 export function scoringStatus(call: Call) {
-  if (call.scoringDirection !== "long") return "excluded";
+  if (!scoringLegs(call).length) return "excluded";
   const observation = observationFor(call);
   if (observation.status === "complete") return "scored";
   if (observation.status === "pending") return "pending";
