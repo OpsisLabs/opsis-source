@@ -180,6 +180,19 @@
       ],
       "outcome": "Compare exact token holdings shared by selected watched wallets",
       "shipGate": "Local latest snapshots group positive ERC20 holdings by exact chain and contract, never symbol. Different capture times, partial coverage, incompatible decimals and unavailable prior holdings remain visible. Per-wallet exact changes never imply buys, identity, coordination or profit. Disabled/locked, selection, precision, persistence, Chinese and mobile tests pass."
+    },
+    {
+      "order": 18,
+      "id": "18-kol-tracker",
+      "branch": "codex/18-kol-tracker",
+      "tagPrefix": "rc/18-kol-tracker/",
+      "status": "queued",
+      "dependencies": [
+        "17-watch-wallet-overlap",
+        "15-situation-room"
+      ],
+      "outcome": "Inspect original KOL posts, compare stated targets and curate a private source watchlist",
+      "shipGate": "Real profile images and original post links retain provenance. Dated selected coverage, conditional forecasts, opinions, holdings and unavailable outcomes remain distinct. Filters, saved receipts, comparison, source explanations, mobile and disabled states are tested. No invented accuracy, performance, wallet attribution, live coverage, new paid provider, external execution or recurring spend."
     }
   ]
 }
