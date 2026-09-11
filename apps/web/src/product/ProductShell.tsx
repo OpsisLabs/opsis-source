@@ -55,6 +55,7 @@ function rememberTourSeen() {
 }
 
 const ICONS: Record<string, ComponentType<{ size?: number; className?: string }>> = {
+  "kol-tracker": MessageCircleQuestion,
   "situation-room": Globe2,
   "scout-watch": Eye,
   "card-price-check": WalletCards,

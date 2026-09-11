@@ -1,0 +1,57 @@
+{
+  "retrievedAt": "2026-09-11T01:39:26.362092+00:00",
+  "verification": "Screen names verified against X first-party tweet syndication user metadata; image bytes downloaded directly from the indicated pbs.twimg.com profile image path, using its 400x400 variant. These are source-attributed profile images, not AI portraits.",
+  "profiles": [
+    {
+      "id": "kaleo",
+      "handle": "CryptoKaleo",
+      "name": "K A L E O",
+      "profileUrl": "https://x.com/CryptoKaleo",
+      "postUrl": "https://x.com/CryptoKaleo/status/2098146613646577929",
+      "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2098146613646577929&lang=en&token=x",
+      "metadataImageUrl": "https://pbs.twimg.com/profile_images/2085104966117560320/isU8gV_x_normal.jpg",
+      "downloadedImageUrl": "https://pbs.twimg.com/profile_images/2085104966117560320/isU8gV_x_400x400.jpg",
+      "localPath": "./kaleo.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 51086,
+      "sha256": "b8e440c343373c232ab569aee8f371ce1755688786daa231b0426046b8c04479",
+      "verifiedFormat": "jpeg",
+      "width": 400,
+      "height": 400
+    },
+    {
+      "id": "ansem",
+      "handle": "blknoiz06",
+      "name": "Ansem \ud83d\udc02\ud83c\udc04\ufe0f",
+      "profileUrl": "https://x.com/blknoiz06",
+      "postUrl": "https://x.com/blknoiz06/status/2093361315876102605",
+      "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2093361315876102605&lang=en&token=x",
+      "metadataImageUrl": "https://pbs.twimg.com/profile_images/2052070109758226438/xlyPdLmn_normal.jpg",
+      "downloadedImageUrl": "https://pbs.twimg.com/profile_images/2052070109758226438/xlyPdLmn_400x400.jpg",
+      "localPath": "./ansem.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 32863,
+      "sha256": "0078f6ec56569e788a2b8537a30991aa164266a0ce4ce601635dbd995ffb5f80",
+      "verifiedFormat": "jpeg",
+      "width": 400,
+      "height": 400
+    },
+    {
+      "id": "pentoshi",
+      "handle": "Pentosh1",
+      "name": "\ud83d\udc27",
+      "profileUrl": "https://x.com/Pentosh1",
+      "postUrl": "https://x.com/Pentosh1/status/2092301424424350043",
+      "metadataUrl": "https://cdn.syndication.twimg.com/tweet-result?id=2092301424424350043&lang=en&token=x",
+      "metadataImageUrl": "https://pbs.twimg.com/profile_images/2095507700398587904/TOfOsTF3_normal.jpg",
+      "downloadedImageUrl": "https://pbs.twimg.com/profile_images/2095507700398587904/TOfOsTF3_400x400.jpg",
+      "localPath": "./pentoshi.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 51096,
+      "sha256": "a0872582d1a0f162c8cfdb981bc470b979d4e59278fbb8f8c7b2f69bc5cbe3f1",
+      "verifiedFormat": "jpeg",
+      "width": 400,
+      "height": 400
+    }
+  ]
+}

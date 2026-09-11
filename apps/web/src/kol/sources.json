@@ -1,0 +1,220 @@
+{
+  "capturedDate": "2026-09-10",
+  "coverage": "13 manually reviewed original posts; selected source history, not comprehensive account history. No market prices or outcomes have been calculated. Dates and text were read from original X search results. Classifications are editorial interpretations.",
+  "profiles": [
+    {
+      "id": "kaleo",
+      "name": "KALEO",
+      "handle": "CryptoKaleo",
+      "url": "https://x.com/CryptoKaleo",
+      "initial": "K"
+    },
+    {
+      "id": "ansem",
+      "name": "Ansem",
+      "handle": "blknoiz06",
+      "url": "https://x.com/blknoiz06",
+      "initial": "A"
+    },
+    {
+      "id": "pentoshi",
+      "name": "Pentoshi",
+      "handle": "Pentosh1",
+      "url": "https://x.com/Pentosh1",
+      "initial": "P"
+    }
+  ],
+  "posts": [
+    {
+      "profile": "kaleo",
+      "date": "2026-09-10",
+      "url": "https://x.com/CryptoKaleo/status/2098146613646577929",
+      "tokens": [
+        "BTC"
+      ],
+      "type": "Bullish opinion",
+      "summary": "Bullish on buying the BTC dip.",
+      "target": null,
+      "deadline": null,
+      "interpretation": "No deadline is specified; this is directional opinion, not a time-bound forecast.",
+      "id": "2098146613646577929"
+    },
+    {
+      "profile": "kaleo",
+      "date": "2026-09-09",
+      "url": "https://x.com/CryptoKaleo/status/2097697759365116405",
+      "tokens": [
+        "BTC"
+      ],
+      "type": "Explicit target",
+      "summary": "BTC above $100K by the end of September.",
+      "target": "$100K+",
+      "deadline": "2026-09-30",
+      "interpretation": "The target and deadline are explicit. The evaluation window was still open at the capture date. No outcome has been calculated.",
+      "id": "2097697759365116405"
+    },
+    {
+      "profile": "kaleo",
+      "date": "2026-09-07",
+      "url": "https://x.com/CryptoKaleo/status/2097041123080376785",
+      "tokens": [
+        "ETH"
+      ],
+      "type": "Open-ended target",
+      "summary": "ETH toward $3K+, with expected strength in ETH-based pairs.",
+      "target": "$3K+",
+      "deadline": null,
+      "interpretation": "The post uses \u201csoon,\u201d which is not a fixed deadline. No hit rate is assigned.",
+      "id": "2097041123080376785"
+    },
+    {
+      "profile": "kaleo",
+      "date": "2026-09-06",
+      "url": "https://x.com/CryptoKaleo/status/2096628491479298359",
+      "tokens": [
+        "BTC"
+      ],
+      "type": "Bullish opinion",
+      "summary": "A brief bullish directional statement on BTC.",
+      "target": null,
+      "deadline": null,
+      "interpretation": "No numerical target or fixed evaluation deadline.",
+      "id": "2096628491479298359"
+    },
+    {
+      "profile": "ansem",
+      "date": "2026-08-28",
+      "url": "https://x.com/blknoiz06/status/2093361315876102605",
+      "tokens": [
+        "SOL",
+        "PUMP",
+        "ANSEM"
+      ],
+      "type": "Bullish thesis",
+      "summary": "A SOL breakout thesis with PUMP activity and ANSEM outperformance commentary.",
+      "target": null,
+      "deadline": null,
+      "interpretation": "The source mentions several assets but gives no fixed deadline. Revenue and activity claims here are attributed to the author, not independently verified.",
+      "id": "2093361315876102605"
+    },
+    {
+      "profile": "ansem",
+      "date": "2026-08-27",
+      "url": "https://x.com/blknoiz06/status/2093110596522697054",
+      "tokens": [
+        "PUMP",
+        "HYPE",
+        "ZEC",
+        "BTC"
+      ],
+      "type": "Self-reported holdings",
+      "summary": "Describes PUMP, HYPE, ZEC and BTC as part of a long-term portfolio allocation.",
+      "target": null,
+      "deadline": null,
+      "interpretation": "This is a self-reported allocation, not evidence of wallet ownership, trade execution, or a timed prediction.",
+      "id": "2093110596522697054"
+    },
+    {
+      "profile": "ansem",
+      "date": "2026-08-23",
+      "url": "https://x.com/blknoiz06/status/2091494107063394503",
+      "tokens": [
+        "HYPE"
+      ],
+      "type": "Bullish commentary",
+      "summary": "Bullish HYPE and HyperEVM ecosystem commentary.",
+      "target": null,
+      "deadline": null,
+      "interpretation": "This is an attributed interpretation of the post. The underlying political and market claims have not been independently verified.",
+      "id": "2091494107063394503"
+    },
+    {
+      "profile": "ansem",
+      "date": "2026-08-19",
+      "url": "https://x.com/blknoiz06/status/2090175223530209549",
+      "tokens": [
+        "BTC"
+      ],
+      "type": "Conditional target",
+      "summary": "A potential BTC retest near $83K by end of Q3, conditional on the weekly close holding.",
+      "target": "~$83K",
+      "deadline": "2026-09-30",
+      "interpretation": "The call depends on price holding through Sunday. That condition has not been checked, and the forecast window was still open at capture.",
+      "id": "2090175223530209549"
+    },
+    {
+      "profile": "ansem",
+      "date": "2026-08-19",
+      "url": "https://x.com/blknoiz06/status/2090108668930830569",
+      "tokens": [
+        "BTC",
+        "HYPE",
+        "SOL"
+      ],
+      "type": "Long-term thesis",
+      "summary": "A long-term thesis for BTC, HYPE and SOL with aspirational market-cap levels.",
+      "target": null,
+      "deadline": null,
+      "interpretation": "The original levels concern market capitalization, not token prices. No fixed deadline is supplied.",
+      "id": "2090108668930830569"
+    },
+    {
+      "profile": "pentoshi",
+      "date": "2026-08-25",
+      "url": "https://x.com/Pentosh1/status/2092301424424350043",
+      "tokens": [
+        "BTC"
+      ],
+      "type": "General commentary",
+      "summary": "A thought experiment about BTC ownership distribution over decades.",
+      "target": null,
+      "deadline": null,
+      "interpretation": "This is general commentary rather than a directional trading call. Exclude it from prediction accuracy.",
+      "id": "2092301424424350043"
+    },
+    {
+      "profile": "pentoshi",
+      "date": "2026-08-19",
+      "url": "https://x.com/Pentosh1/status/2090219546028503168",
+      "tokens": [
+        "ETH"
+      ],
+      "type": "Retrospective commentary",
+      "summary": "Describes ETH as outperforming the other major assets.",
+      "target": null,
+      "deadline": null,
+      "interpretation": "This is retrospective relative-strength commentary, not a new measurable forecast.",
+      "id": "2090219546028503168"
+    },
+    {
+      "profile": "pentoshi",
+      "date": "2026-07-31",
+      "url": "https://x.com/Pentosh1/status/2083219921555857858",
+      "tokens": [
+        "SOL",
+        "BTC",
+        "ETH"
+      ],
+      "type": "Market commentary",
+      "summary": "Discusses underside retests and relative rebounds in SOL, BTC and ETH.",
+      "target": null,
+      "deadline": null,
+      "interpretation": "Only the visible portion of this longer post was reviewed. Its return figures are the author's statements and have not been independently recomputed.",
+      "id": "2083219921555857858"
+    },
+    {
+      "profile": "pentoshi",
+      "date": "2026-07-28",
+      "url": "https://x.com/Pentosh1/status/2082138971807822102",
+      "tokens": [
+        "ETH"
+      ],
+      "type": "Conditional setup",
+      "summary": "Discusses a possible ETH entry in the $1,700s if revisited the following month, with short-term upside in the low $2,000s.",
+      "target": null,
+      "deadline": null,
+      "interpretation": "Only the visible portion of this longer post was reviewed. Entry is conditional and the exit timing is vague; no accuracy or realized return is assigned.",
+      "id": "2082138971807822102"
+    }
+  ]
+}
