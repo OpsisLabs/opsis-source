@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "22-eth-market-brief",
+  "activeRelease": "23-follow-wallet",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement",
@@ -250,7 +250,7 @@
       "id": "22-eth-market-brief",
       "branch": "codex/22-eth-market-brief",
       "tagPrefix": "rc/22-eth-market-brief/",
-      "status": "active",
+      "status": "released",
       "dependencies": [
         "21-explorer-answers"
       ],
@@ -262,7 +262,7 @@
       "id": "23-follow-wallet",
       "branch": "codex/23-follow-wallet",
       "tagPrefix": "rc/23-follow-wallet/",
-      "status": "queued",
+      "status": "active",
       "dependencies": [
         "21-explorer-answers",
         "14-scout-watch"
