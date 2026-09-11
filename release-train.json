@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "15-situation-room",
+  "activeRelease": "16-watch-activity-feed",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement",
@@ -150,7 +150,7 @@
       "id": "15-situation-room",
       "branch": "codex/15-situation-room",
       "tagPrefix": "rc/15-situation-room/",
-      "status": "active",
+      "status": "released",
       "outcome": "Explore source-linked world events and observed crypto prices around publication",
       "dependencies": [
         "14-scout-watch"
@@ -162,7 +162,7 @@
       "id": "16-watch-activity-feed",
       "branch": "codex/16-watch-activity-feed",
       "tagPrefix": "rc/16-watch-activity-feed/",
-      "status": "queued",
+      "status": "active",
       "dependencies": [
         "14-scout-watch"
       ],
