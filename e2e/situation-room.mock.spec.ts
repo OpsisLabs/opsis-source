@@ -64,6 +64,7 @@ test("situation room selects reports, compares windows, opens insight and export
   await page.keyboard.press("Shift+Tab");
   await expect(page.locator("#save-event")).toBeFocused();
   await page.keyboard.press("Escape");
+  await expect(page.locator("#investigate")).toBeFocused();
   await page.locator("#brief").click();
   const download = page.waitForEvent("download");
   await page.locator("#download-brief").click();

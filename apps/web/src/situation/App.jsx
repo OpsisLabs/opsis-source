@@ -49,7 +49,12 @@ export default function App() {
     [saved, setSaved] = useState([]);
   const globeEl = useRef(),
     globe = useRef(),
-    chart = useRef();
+    chart = useRef(),
+    modalTrigger = useRef();
+  const openModal = (value) => {
+    modalTrigger.current = document.activeElement;
+    setModal(value);
+  };
   const select = (i) => {
     setSelected(i);
     setAuto(false);
@@ -109,7 +114,7 @@ export default function App() {
   }, [data, series, enabled, minutes, hover, wide]);
   useEffect(() => {
     if (!modal && !insight) return;
-    const trigger = document.activeElement;
+    const trigger = modal ? modalTrigger.current : document.activeElement;
     const backgrounds = modal
       ? [
           ...document.querySelectorAll(
@@ -241,7 +246,7 @@ export default function App() {
             <button
               className="sr-primary"
               id="brief"
-              onClick={() => setModal("brief")}
+              onClick={() => openModal("brief")}
             >
               <FileText size={17} /> Situation brief{" "}
               {saved.length > 0 && <span>{saved.length}</span>}
@@ -392,7 +397,7 @@ export default function App() {
                 <span>
                   Change from T0 sample · USDG pools · 5-minute observations
                 </span>
-                <button id="method" onClick={() => setModal("sources")}>
+                <button id="method" onClick={() => openModal("sources")}>
                   Sources & method <ArrowUpRight size={12} />
                 </button>
               </div>
@@ -558,7 +563,7 @@ export default function App() {
               <button
                 className="sr-investigate"
                 id="investigate"
-                onClick={() => setModal("event")}
+                onClick={() => openModal("event")}
               >
                 <BookOpen size={16} /> Source details
               </button>
@@ -653,7 +658,7 @@ export default function App() {
             News and price changes share a timeline. Proximity does not
             establish causation.
           </p>
-          <button onClick={() => setModal("sources")}>
+          <button onClick={() => openModal("sources")}>
             View provenance <ArrowUpRight size={13} />
           </button>
         </div>
