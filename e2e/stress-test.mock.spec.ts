@@ -794,6 +794,10 @@ test("portfolio stress test clears imported values when the Vault locks in anoth
   ).toHaveCount(0);
   await expect(page.getByText(importedAsset)).toHaveCount(0);
 
+  // Close the extra tab before the simulated-hidden subsection: WebKit can
+  // abort natively during context teardown if the second tab is still open.
+  await other.close();
+
   // A hidden tab must also drop imported values after a fresh selection.
   const importerAgain = await unlockImporter(page);
   await importerAgain.getByLabel(`Include ${importedAsset}`).check();
