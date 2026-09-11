@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "ee428d1f9321fb05ae3b6d8abfd52e0bf10a10fd6c850e230583a2b770484393",
+  "sourceTreeDigest": "5e77f8c6f3f7fe79d080d31d3e5112642bd3c03fb3f8804ed4576733619978c3",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "4671743dacec805f68d9532dc93863ea751d26b6097bbc1389b61201e11661d2",
@@ -25,7 +25,7 @@
     "apps/api/src/account/repository.ts": "c4374f14a4c1caa3680b7f41955e983e9d21970e24f8b1d1bc09ee3c42332700",
     "apps/api/src/ai/provider.ts": "174da159571bb2e73b9c34ef5274d1d51e72e944dca6172664682a254d8aea1a",
     "apps/api/src/ai/service.ts": "3cea95146caa476a754563b36c99587b25d50429c14aaf23e6d5ef36718cfd9f",
-    "apps/api/src/app.ts": "37cdbd9436e1dadd526650a130644ed16d235b4c4631dc15a97d74b8bf2bb77a",
+    "apps/api/src/app.ts": "968079cd559ff24340bb4652f2ef524093466b669fd4be23f4185e8be7d2745c",
     "apps/api/src/audit/service.ts": "1a216179fdc48e728eac4b9a7cc3b4a8e2497991047f66771b944d928b0edb6e",
     "apps/api/src/auth/cookies.ts": "6b514180e7a929353c0568fdaa5e077a4762bd94298f2236703c8b195940db38",
     "apps/api/src/auth/email.ts": "0d902bcc071cd0da209811e7d22d7080986b7fab16757c15b56dc99d31e25491",
@@ -116,6 +116,7 @@
     "apps/api/test/deal-preview.test.ts": "e216c1772fd723aa37b4cad082889636acd1f41e175b3fe09f65e152413b5729",
     "apps/api/test/deployment-schema-policy.test.ts": "516f537fee9c433bb3bd5b26da75335664b988261c505baf08d46a305a9e79b9",
     "apps/api/test/email-dependency.test.ts": "7fb9cf829ac7ce343c704012d55129eca2a072d4042da1da9f1c3c39c203a164",
+    "apps/api/test/exit-check-wiring.test.ts": "dff5e524676cddf584c3756c08d0ef67896edfcedb67ffd8561ac247449e4d5e",
     "apps/api/test/exit-check.test.ts": "432e57d0d05e52398d8a9e83ae9d5a3ac615005c1bc0136067add8de9c196555",
     "apps/api/test/explorer-answers.test.ts": "4ef18c0b1c7b34471672e791fb55ea6c8d874fbedeb64eff7501b3505a4d3486",
     "apps/api/test/fixtures/alchemy-transaction.json": "ada19ddb8e07de842978574237d5b3826ffce36ad604695ffeec6ad26fac6319",

@@ -21,7 +21,8 @@ import { healthRoutes } from "./routes/health.js";
 import { usageRoutes } from "./routes/usage.js";
 import { swapRoutes } from "./routes/swaps.js";
 import { exitCheckRoutes } from "./routes/exit-check.js";
-import type { ExitCheckSource } from "./exit-check/service.js";
+import { ExitCheckService, type ExitCheckSource } from "./exit-check/service.js";
+import { createExitCheckBudget } from "./exit-check/budget.js";
 import { privateRoutes, type PrivateAnalysisDependencies } from "./routes/private.js";
 import { accountRoutes } from "./routes/account.js";
 import { rateLimitKey } from "./http/authenticate.js";
@@ -183,7 +184,12 @@ export async function buildApp(
   await chatRoutes(app, env, prisma, cache);
   await usageRoutes(app, env, prisma);
   await swapRoutes(app, env, cache);
-  await exitCheckRoutes(app, env, cache, dependencies?.exitCheck);
+  await exitCheckRoutes(
+    app,
+    env,
+    cache,
+    dependencies?.exitCheck ?? new ExitCheckService(env, cache, { budget: createExitCheckBudget(env, redis) })
+  );
   await adminRoutes(app, env, prisma);
   if (prisma && env.RETENTION_ENABLED) installRetention(app, prisma, env);
   return app;
