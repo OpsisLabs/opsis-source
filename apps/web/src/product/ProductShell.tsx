@@ -19,6 +19,7 @@ import {
   CodeXml,
   FilePenLine,
   Eye,
+  Globe2,
   House,
   Menu,
   MessageCircleQuestion,
@@ -54,6 +55,7 @@ function rememberTourSeen() {
 }
 
 const ICONS: Record<string, ComponentType<{ size?: number; className?: string }>> = {
+  "situation-room": Globe2,
   "scout-watch": Eye,
   "card-price-check": WalletCards,
   "private-explorer": Search,
