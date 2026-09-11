@@ -2,53 +2,83 @@ import {
   lazy,
   Suspense,
   useEffect,
-  useCallback,
+  useMemo,
   useRef,
   useState,
   type ReactNode,
 } from "react";
 import {
-  ArrowDownUp,
+  ArrowLeft,
   ArrowRight,
   ArrowUpRight,
   Bookmark,
   Check,
   ChevronDown,
-  Clock3,
+  ChevronRight,
   Download,
-  ExternalLink,
-  Globe2,
   Info,
   Search,
-  ShieldCheck,
   Sparkles,
   Star,
-  Users,
-  X,
   UserRound,
-  Plus,
-  ListFilter,
-  Network,
-  History,
+  X,
 } from "lucide-react";
 import { useI18n } from "../i18n";
 import {
   calls,
   profiles,
   tokens,
-  capturedDate,
   filterCalls,
-  outcome,
   profileFor,
   receipt,
-  tokenCoverage,
+  windowCalls,
+  chainCount,
+  capturedDate,
+  type HistoryWindow,
   type Call,
   type Profile,
 } from "./model";
-const CallTimeline = lazy(() => import("./CallTimeline"));
+import {
+  callPerformance,
+  profilePerformance,
+  priceEdition,
+  formatPercent,
+  paperPnl,
+  formatMoney,
+} from "./performance";
 import "./kol.css";
+import { encryptWorkspace, decryptWorkspace } from "./workspace";
+import {
+  readDeviceWorkspace,
+  writeDeviceWorkspace,
+  workspaceChannel,
+  workspaceSource,
+} from "./workspace";
+import { ComparePanel, CoveragePanel, ScoutBrief } from "./ResearchPanels";
+import { sourceLabel } from "./research";
+const PerformanceChart = lazy(() => import("./PerformanceChart"));
+type Translate = (en: string, zh: string) => string;
+type View = "all" | "feed" | "compare" | "watchlist" | "saved";
+const dateLabel = (date: string) =>
+  new Date(date).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+const timestamp = (seconds: number) =>
+  new Date(seconds * 1000)
+    .toISOString()
+    .replace("T", " ")
+    .replace(".000Z", " UTC");
+const toggle = (items: string[], id: string) =>
+  items.includes(id) ? items.filter((i) => i !== id) : [...items, id];
+const tone = (value: number | null) =>
+  value === null || value === 0
+    ? ""
+    : value > 0
+      ? "is-positive"
+      : "is-negative";
 
-type Tab = "Feed" | "KOLs" | "Coins" | "Timeline" | "Compare" | "Saved";
 function Avatar({
   profile,
   large = false,
@@ -74,1031 +104,1896 @@ function Avatar({
 function SourceLink({ href, children }: { href: string; children: ReactNode }) {
   return (
     <a
+      className="kol-source-link"
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="kol-source-link"
     >
       {children}
-      <ArrowUpRight size={13} />
+      <ArrowUpRight size={14} />
     </a>
   );
 }
-const dateLabel = (date: string) =>
-  new Date(date + "T12:00:00Z").toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    timeZone: "UTC",
-  });
-const toggle = (items: string[], id: string) =>
-  items.includes(id) ? items.filter((i) => i !== id) : [...items, id];
-
-function CallCard({
-  call,
-  L,
-  selected,
-  saved,
-  save,
-  selectProfile,
-  inspect,
-}: {
-  call: Call;
-  L: (en: string, zh: string) => string;
-  selected: Call;
-  saved: string[];
-  save: (call: Call) => void;
-  selectProfile: (id: string) => void;
-  inspect: (call: Call) => void;
-}) {
-  const p = profileFor(call.profile);
+function MethodContent({ L }: { L: Translate }) {
   return (
-    <article
-      className={"kol-call " + (call.id === selected.id ? "selected" : "")}
-      data-call-id={call.id}
-    >
-      <div className="kol-call-top">
-        <button
-          className="kol-author"
-          onClick={() => selectProfile(p.id)}
-          aria-label={L("Filter " + p.name, "筛选 " + p.name)}
-        >
-          <Avatar profile={p} />
-          <span>
-            <strong>{p.name}</strong>
-            <span className="kol-handle">@{p.handle}</span>
-          </span>
-        </button>
-        <time dateTime={call.date}>{dateLabel(call.date)}</time>
-        <button
-          className={"kol-icon " + (saved.includes(call.id) ? "active" : "")}
-          aria-pressed={saved.includes(call.id)}
-          aria-label={L("Save receipt " + call.id, "保存记录 " + call.id)}
-          onClick={() => save(call)}
-        >
-          <Bookmark
-            size={16}
-            fill={saved.includes(call.id) ? "currentColor" : "none"}
-          />
-        </button>
-      </div>
-      <button
-        className="kol-call-body"
-        onClick={() => inspect(call)}
-        aria-label={L("Inspect call " + call.id, "查看记录 " + call.id)}
-      >
-        <div className="kol-token-list">
-          {call.tokens.map((t) => (
-            <span className="kol-token" key={t}>
-              {t}
-            </span>
-          ))}
-        </div>
-        <p>
-          {call.id === "2097697759365116405"
-            ? "“$100K+ by the end of September.”"
-            : call.summary}
-        </p>
-      </button>
-      <div className="kol-call-foot">
-        <span className={"kol-badge " + (call.target ? "amber" : "mint")}>
-          {call.type}
+    <div className="kol-method-copy">
+      <p>
+        {L(
+          "A consistent seven-day check on selected public calls. This is hypothetical call performance, not the KOL’s wallet P&L.",
+          "对选定公开观点进行统一的七天观察。这是模拟观点表现，不是 KOL 钱包的实际盈亏。",
+        )}
+      </p>
+      <ol>
+        <li>
+          <strong>{L("Start after the post.", "从发帖之后开始。")}</strong>{" "}
+          {L(
+            "Use an observed USD price near the first whole UTC hour after publication. Never use an earlier claimed fill.",
+            "使用发帖后首个 UTC 整点附近的美元观测价格，不使用作者声称的更早成交价。",
+          )}
+        </li>
+        <li>
+          <strong>{L("Measure seven days.", "观察七天。")}</strong>{" "}
+          {L(
+            "Hold long on paper for seven days. The eight daily observations must fall within two minutes of their targets; actual timestamps stay in the receipt.",
+            "模拟做多持有七天。八个每日观测点与目标时间偏差不超过两分钟，实际时间保留在记录中。",
+          )}
+        </li>
+        <li>
+          <strong>{L("Weight calls equally.", "每条观点等权。")}</strong>{" "}
+          {L(
+            "Average token returns within each call, then average complete calls. No leverage. Dollar P&L is the average return on the chosen paper stake per call.",
+            "先对同一观点中的代币收益等权平均，再对完整观点平均。不使用杠杆。美元盈亏按每条观点的模拟本金计算。",
+          )}
+        </li>
+        <li>
+          <strong>{L("Keep the gaps visible.", "保留数据缺口。")}</strong>{" "}
+          {L(
+            "Pending windows, unverified conditions, unclear token identities and retrospective comments are excluded. Incomplete multi-token calls are excluded in full.",
+            "未结束窗口、未核验条件、身份不明代币和回顾性评论不计入平均值。多代币观点数据不全时整条排除。",
+          )}
+        </li>
+      </ol>
+      <p>
+        {L(
+          "Gross returns exclude fees, spread, slippage and funding. Positive calls counts returns above zero, not fulfilled predictions. This selected sample is not a full track record or a current-week portfolio return. Commentary, bearish statements without verified short entries, satire and unresolved token identities remain unscored.",
+          "毛收益不包含手续费、价差、滑点和资金费。正收益观点仅表示收益大于零，不代表预测命中。选定样本不是完整交易业绩或本周组合收益。评论、未核验的做空观点、讽刺和身份不明代币不评分。",
+        )}
+      </p>
+      <div className="kol-method-source">
+        <SourceLink href={priceEdition.providerDocs}>
+          DefiLlama price data
+        </SourceLink>
+        <span>
+          {L(
+            "Cutoff: Sep 11, 2026 · 04:00 UTC",
+            "截止：2026 年 9 月 11 日 04:00 UTC",
+          )}
         </span>
-        <span className="kol-deadline">
-          {call.deadline
-            ? L("Due ", "截止 ") + dateLabel(call.deadline)
-            : L("No fixed deadline", "无固定期限")}
-        </span>
-        <SourceLink href={call.url}>{L("Open post", "原帖")}</SourceLink>
-        <button
-          className="kol-inspect-link"
-          onClick={() => inspect(call)}
-          aria-label={L("Inspect source " + call.id, "查看来源 " + call.id)}
-        >
-          <ArrowRight size={15} />
-        </button>
       </div>
-    </article>
+    </div>
   );
 }
-
-export default function Tracker() {
-  const { locale } = useI18n();
-  const L = (en: string, zh: string) => (locale === "zh-CN" ? zh : en);
-  const [tab, setTab] = useState<Tab>("Feed");
-  const [who, setWho] = useState("");
-  const [token, setToken] = useState("");
-  const [query, setQuery] = useState("");
-  const [type, setType] = useState("");
-  const [oldest, setOldest] = useState(false);
-  const [selected, setSelected] = useState<Call>(
-    calls.find((c) => c.id === "2097697759365116405")!,
-  );
-  const [saved, setSaved] = useState<string[]>([]);
-  const [watched, setWatched] = useState<string[]>(profiles.map((p) => p.id));
+function CallDetail({
+  call,
+  saved,
+  onSave,
+  stake,
+  L,
+}: {
+  call: Call;
+  saved: boolean;
+  onSave: () => void;
+  stake: number;
+  L: Translate;
+}) {
   const [insight, setInsight] = useState(false);
-  const [notice, setNotice] = useState("");
-  const [manageQuery, setManageQuery] = useState("");
-  const manage = useRef<HTMLDialogElement>(null);
-  const searchInput = useRef<HTMLInputElement>(null);
-  useEffect(() => {
-    const focusSearch = (event: KeyboardEvent) => {
-      if (
-        event.key === "/" &&
-        !(event.target instanceof HTMLInputElement) &&
-        !(event.target instanceof HTMLTextAreaElement) &&
-        !manage.current?.open
-      ) {
-        event.preventDefault();
-        searchInput.current?.focus();
-      }
+  const result = callPerformance(call),
+    p = profileFor(call.profile);
+  function download() {
+    const payload = {
+      ...receipt(call),
+      actualWalletPnl: null,
+      paperPerformance: {
+        ...result,
+        stakePerCall: stake,
+        pnl: result.percent === null ? null : paperPnl(result.percent, stake),
+        method: priceEdition.method,
+        priceCutoff: priceEdition.asOf,
+      },
     };
-    document.addEventListener("keydown", focusSearch);
-    return () => document.removeEventListener("keydown", focusSearch);
-  }, []);
-  const compareCalls = calls.filter((c) => c.target && c.deadline);
-  const person = profileFor(selected.profile);
-  const visible = filterCalls(calls, {
-    profile: who,
-    token,
-    query,
-    type,
-    saved: tab === "Saved" ? saved : undefined,
-    oldest,
-  });
-  const inspect = useCallback((call: Call) => {
-    setSelected(call);
-    setInsight(false);
-  }, []);
-  const selectProfile = (id: string) => {
-    setWho(who === id ? "" : id);
-    setToken("");
-    setQuery("");
-    setType("");
-    setTab("Feed");
-    const call = calls.find((c) => c.profile === id);
-    if (call) inspect(call);
-  };
-  const selectCoin = (symbol: string) => {
-    setToken(symbol === token ? "" : symbol);
-    setWho("");
-    setQuery("");
-    setType("");
-    if (tab !== "Coins" && tab !== "Timeline") setTab("Feed");
-  };
-  const reset = () => {
-    setWho("");
-    setToken("");
-    setQuery("");
-    setType("");
-    setOldest(false);
-  };
-  const save = (call: Call) => {
-    setSaved((s) => toggle(s, call.id));
-    setNotice(
-      saved.includes(call.id)
-        ? L("Receipt removed", "已移除记录")
-        : L("Receipt saved for this session", "本次会话中已保存"),
-    );
-  };
-  const exportCall = () => {
     const url = URL.createObjectURL(
-      new Blob([JSON.stringify(receipt(selected), null, 2)], {
+      new Blob([JSON.stringify(payload, null, 2)], {
         type: "application/json",
       }),
     );
     const a = document.createElement("a");
     a.href = url;
-    a.download = "chainscout-call-" + selected.id + ".json";
+    a.download = `chainscout-call-${call.id}.json`;
     a.click();
-    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-    setNotice(L("Source receipt downloaded", "已下载来源记录"));
-  };
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
   return (
-    <div className="kol-surface">
+    <div className="kol-call-detail">
+      <div className="kol-detail-source">
+        <span>
+          {L("Source summary / excerpt", "来源摘要 / 节选")} · {p.name}
+        </span>
+        <SourceLink href={call.url}>{L("Open on X", "在 X 打开")}</SourceLink>
+      </div>
+      <p className="kol-statement">{call.summary}</p>
+      <details className="kol-source-context">
+        <summary>
+          {L("Inspect source evidence", "查看来源证据")} ·{" "}
+          {L(
+            sourceLabel(call),
+            sourceLabel(call) === "Partial text" ? "部分文字" : "已审阅原帖",
+          )}
+        </summary>
+        {call.quote && <blockquote>{call.quote}</blockquote>}
+        <p>
+          {L(
+            "Summary and classification are ChainScout's interpretation. Check the original wording, attached charts and any stated conditions before drawing a conclusion.",
+            "摘要及分类属于 ChainScout 的解读。请核验原文、附图及声明的条件，再作判断。",
+          )}
+        </p>
+        <SourceLink href={call.url}>
+          {L("Read original post", "阅读原帖")}
+        </SourceLink>
+      </details>
+      {call.disclosedAffiliation && (
+        <p className="kol-affiliation">{call.disclosedAffiliation}</p>
+      )}
+      <div className="kol-facts">
+        <span>{call.type}</span>
+        {call.chainTopic && (
+          <span className="kol-chain-badge">Robinhood Chain</span>
+        )}
+        <span>
+          {L("Posted ", "发布于 ")}
+          {dateLabel(call.publishedAt)} ·{" "}
+          {new Date(call.publishedAt).toISOString().slice(11, 16)} UTC
+        </span>
+        {call.deadline && (
+          <span>
+            {L("Target deadline ", "目标截止 ")}
+            {dateLabel(call.deadline)}
+          </span>
+        )}
+      </div>
+      {result.percent !== null ? (
+        <>
+          <div className="kol-call-result">
+            <div>
+              <span>{L("7D call return", "7 日观点收益")}</span>
+              <strong className={tone(result.percent)}>
+                {formatPercent(result.percent)}
+              </strong>
+            </div>
+            <div>
+              <span>
+                {L("Paper P&L on ", "模拟盈亏，本金 ")}${stake.toLocaleString()}
+              </span>
+              <strong className={tone(result.percent)}>
+                {formatMoney(paperPnl(result.percent, stake))}
+              </strong>
+            </div>
+            <p>
+              {L(
+                "Observed after publication. This does not verify the author’s entry or whether their target was met.",
+                "发帖后的观测表现，不验证作者成交，也不判定目标是否命中。",
+              )}
+            </p>
+          </div>
+          <Suspense
+            fallback={
+              <div className="kol-chart-loading">
+                {L("Loading price observations…", "正在加载价格观测…")}
+              </div>
+            }
+          >
+            <PerformanceChart
+              series={result.observation.assets.map((a) => ({
+                name: a.symbol,
+                values: a.prices.map(
+                  (point) => (point.price / a.prices[0].price - 1) * 100,
+                ),
+              }))}
+              label={L(
+                "Token returns during the seven days after this call",
+                "该观点发布后七天的代币收益",
+              )}
+            />
+          </Suspense>
+          <details className="kol-receipt-data">
+            <summary>
+              {L("See prices & calculation", "查看价格和计算方式")}
+              <ChevronDown size={15} />
+            </summary>
+            <div>
+              {result.observation.assets.map((a) => (
+                <div className="kol-price-pair" key={a.id}>
+                  <strong>{a.symbol}</strong>
+                  <span>
+                    $
+                    {a.prices[0].price.toLocaleString("en-US", {
+                      maximumFractionDigits: 4,
+                    })}
+                    <small>{timestamp(a.prices[0].timestamp)}</small>
+                  </span>
+                  <ArrowRight size={15} />
+                  <span>
+                    $
+                    {a.prices[7].price.toLocaleString("en-US", {
+                      maximumFractionDigits: 4,
+                    })}
+                    <small>{timestamp(a.prices[7].timestamp)}</small>
+                  </span>
+                </div>
+              ))}
+              <p>
+                {L(
+                  "Return = (day 7 price ÷ entry observation − 1) × 100. Multi-token calls use equal weights. Gross of fees and execution costs.",
+                  "收益 =（第 7 天价格 ÷ 初始观测价格 − 1）×100。多代币等权，不含费用及执行成本。",
+                )}
+              </p>
+              {result.observation.url && (
+                <SourceLink href={result.observation.url}>
+                  {L("Price source", "价格来源")}
+                </SourceLink>
+              )}
+            </div>
+          </details>
+        </>
+      ) : (
+        <div className="kol-observation-state">
+          <Info size={19} />
+          <div>
+            <strong>
+              {result.observation.status === "pending"
+                ? L("Seven-day window still open", "七天观察窗口尚未结束")
+                : L("Not included in the performance score", "未计入表现评分")}
+            </strong>
+            <p>{result.observation.reason}</p>
+            {result.observation.endAt && (
+              <small>
+                {L("Window ends ", "窗口结束于 ")}
+                {timestamp(result.observation.endAt)}
+              </small>
+            )}
+          </div>
+        </div>
+      )}
+      <div className="kol-detail-actions">
+        <button
+          className="kol-ai-button"
+          onClick={() => setInsight(!insight)}
+          aria-expanded={insight}
+        >
+          <Sparkles size={16} />
+          {L("Explain this call", "解读此观点")}
+          <ChevronDown size={15} />
+        </button>
+        <button
+          className="kol-text-button"
+          onClick={onSave}
+          aria-pressed={saved}
+        >
+          <Bookmark size={15} fill={saved ? "currentColor" : "none"} />
+          {saved ? L("Saved", "已保存") : L("Save receipt", "保存记录")}
+        </button>
+        <button className="kol-text-button" onClick={download}>
+          <Download size={15} />
+          {L("Export", "导出")}
+        </button>
+      </div>
+      {insight && (
+        <div
+          className="kol-insight"
+          role="region"
+          aria-label={L("Call explanation", "观点解读")}
+        >
+          <span>
+            <Sparkles size={14} />
+            {L("Scout insight", "Scout 洞察")}
+          </span>
+          <p>{call.interpretation}</p>
+          <small>
+            {L(
+              "Prepared AI context · based on the reviewed source",
+              "预先准备的 AI 解读 · 基于已审阅来源",
+            )}
+          </small>
+        </div>
+      )}
+    </div>
+  );
+}
+function HistoryList({
+  items,
+  selected,
+  onSelect,
+  saved,
+  onSave,
+  stake,
+  showAuthor = false,
+  L,
+}: {
+  items: Call[];
+  selected: string;
+  onSelect: (id: string) => void;
+  saved: string[];
+  onSave: (id: string) => void;
+  stake: number;
+  showAuthor?: boolean;
+  L: Translate;
+}) {
+  return (
+    <div className="kol-history-list">
+      {items.map((call) => {
+        const result = callPerformance(call),
+          open = selected === call.id;
+        return (
+          <article
+            className={"kol-history-item " + (open ? "is-open" : "")}
+            key={call.id}
+          >
+            <button
+              className="kol-history-row"
+              onClick={() => onSelect(open ? "" : call.id)}
+              aria-expanded={open}
+              aria-controls={`call-${call.id}`}
+              aria-label={L("Inspect call ", "查看观点 ") + call.id}
+            >
+              {showAuthor && <Avatar profile={profileFor(call.profile)} />}
+              <span className="kol-history-main">
+                {showAuthor && (
+                  <small>
+                    {profileFor(call.profile).name} · {dateLabel(call.date)}
+                  </small>
+                )}
+                <strong>{call.summary}</strong>
+                <span>
+                  {call.tokens.join(" · ")}
+                  {!showAuthor && <> · {dateLabel(call.date)}</>}
+                </span>
+              </span>
+              <span className={"kol-history-return " + tone(result.percent)}>
+                {result.percent !== null
+                  ? formatPercent(result.percent)
+                  : result.observation.status === "pending"
+                    ? L("Pending", "观察中")
+                    : L("Unscored", "未评分")}
+                <small>
+                  {result.percent !== null
+                    ? L("7D return", "7 日收益")
+                    : result.observation.status === "pending"
+                      ? L("7-day window", "7 天窗口")
+                      : call.type}
+                </small>
+              </span>
+              <ChevronDown size={17} />
+            </button>
+            {open && (
+              <div id={`call-${call.id}`}>
+                <CallDetail
+                  call={call}
+                  saved={saved.includes(call.id)}
+                  onSave={() => onSave(call.id)}
+                  stake={stake}
+                  L={L}
+                />
+              </div>
+            )}
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+export default function Tracker() {
+  const { locale } = useI18n();
+  const L: Translate = (en, zh) => (locale === "zh-CN" ? zh : en);
+  const [view, setView] = useState<View>("all"),
+    [profile, setProfile] = useState("");
+  const [query, setQuery] = useState(""),
+    [token, setToken] = useState(""),
+    [sort, setSort] = useState("chain");
+  const [historyWindow, setHistoryWindow] = useState<HistoryWindow>("all");
+  const [chainOnly, setChainOnly] = useState(false);
+  const [activityDate, setActivityDate] = useState("");
+  const [feedAuthor, setFeedAuthor] = useState("");
+  const [oldest, setOldest] = useState(false);
+  const [pagination, setPagination] = useState({ key: "", page: 0 });
+  const [watched, setWatched] = useState<string[]>([]),
+    [saved, setSaved] = useState<string[]>([]);
+  const [selected, setSelected] = useState(""),
+    [historyFilter, setHistoryFilter] = useState("all");
+  const [insight, setInsight] = useState(false),
+    [stake, setStake] = useState(1000),
+    [compare, setCompare] = useState(false);
+  const [backupPassphrase, setBackupPassphrase] = useState("");
+  const [backupStatus, setBackupStatus] = useState("");
+  const [backupBusy, setBackupBusy] = useState(false);
+  const [deviceEnvelope, setDeviceEnvelope] = useState<string | null>(null);
+  const [deviceUnlocked, setDeviceUnlocked] = useState(false);
+  const [deviceUnavailable, setDeviceUnavailable] = useState(false);
+  const [deviceLoading, setDeviceLoading] = useState(true);
+  const [deviceSnapshot, setDeviceSnapshot] = useState("");
+  useEffect(() => {
+    let active = true;
+    void readDeviceWorkspace().then(
+      (value) => {
+        if (active) {
+          setDeviceEnvelope(value);
+          setDeviceLoading(false);
+        }
+      },
+      () => {
+        if (active) {
+          setDeviceUnavailable(true);
+          setDeviceLoading(false);
+        }
+      },
+    );
+    const channel =
+      typeof BroadcastChannel === "undefined"
+        ? null
+        : new BroadcastChannel(workspaceChannel);
+    if (channel)
+      channel.onmessage = (event) => {
+        if (event.data?.source === workspaceSource) return;
+        setDeviceUnlocked(false);
+        setDeviceSnapshot("");
+        void readDeviceWorkspace().then(
+          (value) => {
+            if (active) setDeviceEnvelope(value);
+          },
+          () => {
+            if (active) setDeviceUnavailable(true);
+          },
+        );
+      };
+    return () => {
+      active = false;
+      channel?.close();
+    };
+  }, []);
+  const methodTrigger = useRef<HTMLButtonElement | null>(null);
+  const method = useRef<HTMLDialogElement>(null),
+    search = useRef<HTMLInputElement>(null),
+    heading = useRef<HTMLHeadingElement>(null),
+    returnFocus = useRef("");
+  useEffect(() => {
+    const key = (e: KeyboardEvent) => {
+      if (
+        e.key === "/" &&
+        !(e.target instanceof HTMLInputElement) &&
+        !(e.target instanceof HTMLTextAreaElement) &&
+        !method.current?.open
+      ) {
+        e.preventDefault();
+        search.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", key);
+    return () => document.removeEventListener("keydown", key);
+  }, []);
+  const scopedCalls = useMemo(
+    () => windowCalls(calls, historyWindow, chainOnly),
+    [historyWindow, chainOnly],
+  );
+  const filteredCalls = useMemo(
+    () => filterCalls(scopedCalls, { token, query }),
+    [scopedCalls, token, query],
+  );
+  const summaries = useMemo(
+    () =>
+      new Map(
+        profiles.map((p) => [p.id, profilePerformance(p.id, filteredCalls)]),
+      ),
+    [filteredCalls],
+  );
+  const statsFor = (id: string) => summaries.get(id)!;
+  const ranked = [...profiles].sort((a, b) => {
+    const ap = statsFor(a.id),
+      bp = statsFor(b.id);
+    if (sort === "name") return a.name.localeCompare(b.name);
+    if (sort === "recent")
+      return (bp.history[0]?.publishedAt ?? "").localeCompare(
+        ap.history[0]?.publishedAt ?? "",
+      );
+    if (sort === "chain") {
+      const delta =
+        chainCount(b.id, filteredCalls) - chainCount(a.id, filteredCalls);
+      if (delta) return delta;
+    }
+    return (
+      (bp.percent ?? -Infinity) - (ap.percent ?? -Infinity) ||
+      a.name.localeCompare(b.name)
+    );
+  });
+  const visibleProfiles = ranked.filter(
+    (p) =>
+      (view !== "watchlist" || watched.includes(p.id)) &&
+      statsFor(p.id).history.length > 0,
+  );
+  const person = profile ? profileFor(profile) : null,
+    stats = person ? statsFor(person.id) : null;
+  const visibleHistory = filterCalls(filteredCalls, {
+    profile: profile || (view === "feed" ? feedAuthor : ""),
+    saved: view === "saved" ? saved : undefined,
+    oldest: view === "feed" && oldest,
+  }).filter(
+    (c) =>
+      (!activityDate || !profile || c.publishedAt.startsWith(activityDate)) &&
+      (historyFilter === "all" ||
+        (historyFilter === "scored"
+          ? callPerformance(c).percent !== null
+          : historyFilter === "unscored"
+            ? callPerformance(c).observation.status === "excluded" ||
+              callPerformance(c).observation.status === "unavailable"
+            : callPerformance(c).observation.status === "pending")),
+  );
+  const pageKey = [
+    view,
+    query,
+    token,
+    feedAuthor,
+    historyFilter,
+    oldest,
+    historyWindow,
+    chainOnly,
+    saved.join(","),
+  ].join("|");
+  const currentPage =
+    pagination.key === pageKey
+      ? Math.min(
+          pagination.page,
+          Math.max(0, Math.ceil(visibleHistory.length / 12) - 1),
+        )
+      : 0;
+  const sessionSnapshot = JSON.stringify({ watched, saved });
+  const unsavedDevice = deviceUnlocked && sessionSnapshot !== deviceSnapshot;
+  const save = (id: string) => setSaved((prev) => toggle(prev, id));
+  function openProfile(id: string) {
+    returnFocus.current = `kol-profile-${id}`;
+    setProfile(id);
+    setSelected("");
+    setQuery("");
+    setToken("");
+    setHistoryFilter("all");
+    setInsight(false);
+    setCompare(false);
+    setActivityDate("");
+    window.scrollTo({ top: 0, behavior: "instant" });
+    requestAnimationFrame(() => heading.current?.focus());
+  }
+  function back() {
+    setProfile("");
+    setSelected("");
+    setQuery("");
+    setToken("");
+    setHistoryFilter("all");
+    setActivityDate("");
+    requestAnimationFrame(() =>
+      document.getElementById(returnFocus.current)?.focus(),
+    );
+  }
+  function changeView(next: View) {
+    setView(next);
+    setProfile("");
+    setSelected("");
+    setQuery("");
+    setToken("");
+    setHistoryFilter("all");
+    setFeedAuthor("");
+    setActivityDate("");
+  }
+  function inspectFromBrief(id: string) {
+    setHistoryFilter("all");
+    setActivityDate("");
+    setSelected(id);
+    requestAnimationFrame(() =>
+      document.getElementById(`call-${id}`)?.scrollIntoView({
+        behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "instant"
+          : "smooth",
+        block: "center",
+      }),
+    );
+  }
+  async function saveDevice() {
+    setBackupBusy(true);
+    setBackupStatus("");
+    try {
+      const snapshot = JSON.stringify({ watched, saved });
+      const encrypted = await encryptWorkspace(
+        { watched, saved },
+        backupPassphrase,
+      );
+      await writeDeviceWorkspace(encrypted, deviceEnvelope);
+      setDeviceEnvelope(encrypted);
+      setDeviceUnlocked(true);
+      setDeviceSnapshot(snapshot);
+      setBackupStatus(
+        L(
+          "Saved encrypted on this device. Unlock with this passphrase on your next visit.",
+          "已在本设备加密保存。下次访问请使用此口令解锁。",
+        ),
+      );
+      setBackupPassphrase("");
+    } catch {
+      setBackupStatus(
+        L(
+          "Could not save. Storage may be unavailable or another tab changed this workspace. Unlock the latest copy before saving again.",
+          "无法保存。存储可能不可用，或其他标签页已修改工作区。请先解锁最新副本。",
+        ),
+      );
+    } finally {
+      setBackupBusy(false);
+    }
+  }
+  async function unlockDevice() {
+    setBackupBusy(true);
+    setBackupStatus("");
+    try {
+      const encrypted = await readDeviceWorkspace();
+      if (!encrypted) throw new Error("Missing workspace");
+      const restored = await decryptWorkspace(encrypted, backupPassphrase);
+      setWatched((w) => [...new Set([...w, ...restored.watched])]);
+      setSaved((s) => [...new Set([...s, ...restored.saved])]);
+      setDeviceSnapshot(JSON.stringify(restored));
+      setDeviceEnvelope(encrypted);
+      setDeviceUnlocked(true);
+      setBackupPassphrase("");
+      setBackupStatus(
+        L(
+          "Workspace unlocked. Your current selections are merged; save again to keep new changes.",
+          "工作区已解锁，已合并当前选择；再次保存可保留新更改。",
+        ),
+      );
+    } catch {
+      setBackupStatus(
+        L(
+          "Could not unlock. Check your passphrase; your saved workspace has not changed.",
+          "无法解锁。请检查口令；已存工作区没有变化。",
+        ),
+      );
+    } finally {
+      setBackupBusy(false);
+    }
+  }
+  function exportResults() {
+    const url = URL.createObjectURL(
+      new Blob(
+        [
+          JSON.stringify(
+            {
+              capturedDate,
+              filters: {
+                historyWindow,
+                chainOnly,
+                token,
+                query,
+                profile: feedAuthor,
+                status: historyFilter,
+              },
+              sources: visibleHistory.map(receipt),
+            },
+            null,
+            2,
+          ),
+        ],
+        { type: "application/json" },
+      ),
+    );
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "chainscout-selected-sources.json";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+  async function backup() {
+    setBackupBusy(true);
+    setBackupStatus("");
+    try {
+      const content = await encryptWorkspace(
+        { watched, saved },
+        backupPassphrase,
+      );
+      const url = URL.createObjectURL(
+        new Blob([content], { type: "application/json" }),
+      );
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "chainscout-kol-workspace.encrypted.json";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setBackupStatus(
+        L(
+          "Encrypted backup downloaded. Keep your passphrase to restore it.",
+          "已下载加密备份，请保留口令以便恢复。",
+        ),
+      );
+      setBackupPassphrase("");
+    } catch {
+      setBackupStatus(
+        L(
+          "Use a passphrase of 12–1,024 characters.",
+          "请使用 12 至 1,024 个字符的口令。",
+        ),
+      );
+    } finally {
+      setBackupBusy(false);
+    }
+  }
+  async function restore(file: File) {
+    setBackupBusy(true);
+    setBackupStatus("");
+    try {
+      if (file.size > 100_000) throw new Error("file too large");
+      const restored = await decryptWorkspace(
+        await file.text(),
+        backupPassphrase,
+      );
+      setWatched((w) => [...new Set([...w, ...restored.watched])]);
+      setSaved((s) => [...new Set([...s, ...restored.saved])]);
+      setBackupStatus(
+        L(
+          "Watchlist and saved calls restored and merged with this session.",
+          "关注列表和已存观点已恢复并合并到本次会话。",
+        ),
+      );
+      setBackupPassphrase("");
+    } catch {
+      setBackupStatus(
+        L(
+          "Could not restore: check your passphrase and use a valid KOL backup. Your current selections are unchanged.",
+          "恢复失败：请检查口令和 KOL 备份文件。当前选择未改变。",
+        ),
+      );
+    } finally {
+      setBackupBusy(false);
+    }
+  }
+  return (
+    <section className="kol-surface">
       <div className="kol-breadcrumb">
         <span>
-          <Globe2 size={13} /> QUANT LAB <ArrowRight size={11} /> KOL TRACKER
+          QUANT LAB <ChevronRight size={12} /> KOL TRACKER
         </span>
-        <span>{L("SOURCE EDITION", "来源版本")} · 10 SEP 2026</span>
+        <span>
+          {L("Source edition", "来源版本")} · {capturedDate}
+        </span>
       </div>
       <header className="kol-header">
         <div>
           <h1>
-            {L("KOL Tracker", "KOL 追踪器")}
+            KOL {L("Tracker", "追踪器")}
             <span>.</span>
           </h1>
           <p>
             {L(
-              "The timeline behind the conviction.",
-              "洞察每一份观点背后的时间线。",
+              "Follow the calls. See what happened next.",
+              "追踪观点，查看后续表现。",
             )}
           </p>
         </div>
         <div className="kol-header-actions">
-          <label className="kol-search">
-            <Search size={16} />
-            <input
-              ref={searchInput}
-              aria-label={L("Search KOL or token", "搜索 KOL 或代币")}
-              placeholder={L("Search @handle or token…", "搜索账号或代币…")}
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-                setTab("Feed");
-              }}
-            />
-            <kbd>/</kbd>
-          </label>
           <button
-            className="kol-primary"
+            className="kol-outline-button"
             onClick={() => {
-              setManageQuery("");
-              manage.current?.showModal();
+              const node = document.getElementById(
+                "kol-device-workspace",
+              ) as HTMLDetailsElement;
+              node.open = true;
+              node.scrollIntoView({
+                block: "center",
+                behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
+                  ? "instant"
+                  : "smooth",
+              });
+              node.querySelector("summary")?.focus();
             }}
           >
-            <Plus size={17} />
-            {L("Watch KOL", "关注 KOL")}
+            <Bookmark size={14} />
+            {L("Workspace", "工作区")}
+            {watched.length + saved.length > 0 && (
+              <span>{watched.length + saved.length}</span>
+            )}
+          </button>
+          <button
+            className="kol-method-button"
+            onClick={(e) => {
+              methodTrigger.current = e.currentTarget;
+              method.current?.showModal();
+            }}
+          >
+            <Info size={16} />
+            {L("How we measure", "计算方式")}
           </button>
         </div>
       </header>
-      <nav
-        className="kol-tabs"
-        aria-label={L("KOL Tracker views", "KOL 追踪视图")}
-      >
-        {(
-          ["Feed", "KOLs", "Coins", "Timeline", "Compare", "Saved"] as Tab[]
-        ).map((t, i) => (
-          <button
-            key={t}
-            id={"kol-tab-" + t.toLowerCase()}
-            aria-pressed={tab === t}
-            onClick={() => {
-              setTab(t);
-              reset();
-            }}
-          >
-            {
-              [
-                L("Feed", "动态"),
-                "KOLs",
-                L("Coins", "代币"),
-                L("Timeline", "时间线"),
-                L("Compare", "比较"),
-                L("Saved", "已保存"),
-              ][i]
-            }
-            {t === "Saved" && saved.length > 0 && (
-              <span className="kol-counter">{saved.length}</span>
-            )}
-          </button>
-        ))}
-        <span className="kol-coverage">
-          <ShieldCheck size={13} />
-          {L("13 reviewed posts · 3 KOLs", "13 条已审阅帖子 · 3 位 KOL")}
-        </span>
-      </nav>
-      <div className="kol-filter-bar">
-        <div className="kol-token-filters">
-          <button
-            className={!token ? "active" : ""}
-            aria-pressed={!token}
-            onClick={() => setToken("")}
-          >
-            {L("All", "全部")}
-          </button>
-          {tokens.map((t) => (
-            <button
-              key={t}
-              className={token === t ? "active" : ""}
-              aria-pressed={token === t}
-              onClick={() => selectCoin(t)}
-            >
-              {t}
-            </button>
-          ))}
+      <div className="kol-coverage-bar">
+        <div>
+          <strong>
+            {profiles.length} {L("profiles", "个账号")}
+          </strong>
+          <span>
+            {calls.length} {L("source posts", "篇原帖")} ·{" "}
+            {calls.filter((c) => c.chainTopic).length}{" "}
+            {L("on Robinhood Chain", "篇关于 Robinhood Chain")}
+          </span>
         </div>
-        <span className="kol-session">
-          <Clock3 size={12} />
-          {L("Saved for this session", "仅在本次会话中保存")}
-        </span>
+        <div className="kol-coverage-controls">
+          <select
+            aria-label={L("History window", "历史时间范围")}
+            value={historyWindow}
+            onChange={(e) => {
+              setHistoryWindow(e.target.value as HistoryWindow);
+              setSelected("");
+              setActivityDate("");
+            }}
+          >
+            <option value="all">
+              {L("All captured history", "全部已收集历史")}
+            </option>
+            <option value="31">{L("Last 31 days", "最近 31 天")}</option>
+            <option value="90">{L("Last 90 days", "最近 90 天")}</option>
+          </select>
+          <button
+            className={"kol-outline-button " + (chainOnly ? "active" : "")}
+            aria-pressed={chainOnly}
+            onClick={() => {
+              setChainOnly(!chainOnly);
+              setSelected("");
+              setActivityDate("");
+            }}
+          >
+            {L("Robinhood Chain only", "仅 Robinhood Chain")}
+          </button>
+        </div>
       </div>
-      <main className="kol-workspace">
-        <aside className="kol-left">
-          <section className="kol-panel">
-            <div className="kol-panel-title">
-              <h2>{L("Your KOL list", "KOL 列表")}</h2>
-              <span>
-                {watched.length}
-                <Users size={13} />
-              </span>
-            </div>
-            {profiles.map((p) => (
-              <div
-                className={
-                  "kol-profile-row " + (who === p.id ? "selected" : "")
-                }
-                key={p.id}
+      {!person ? (
+        <>
+          <div className="kol-toolbar">
+            <nav aria-label={L("KOL Tracker views", "KOL 追踪视图")}>
+              {(
+                [
+                  ["all", "All KOLs", "全部 KOL"],
+                  ["feed", "Call feed", "观点动态"],
+                  ["compare", "Compare", "比较"],
+                  ["watchlist", "Watchlist", "关注列表"],
+                  ["saved", "Saved calls", "已存观点"],
+                ] as const
+              ).map(([id, en, zh]) => (
+                <button
+                  key={id}
+                  id={`kol-tab-${id}`}
+                  onClick={() => changeView(id)}
+                  aria-current={view === id ? "page" : undefined}
+                >
+                  {L(en, zh)}
+                  {id === "watchlist" && watched.length > 0 && (
+                    <span>{watched.length}</span>
+                  )}
+                  {id === "saved" && saved.length > 0 && (
+                    <span>{saved.length}</span>
+                  )}
+                </button>
+              ))}
+            </nav>
+            <div className="kol-filter-controls">
+              <label className="kol-search">
+                <Search size={16} />
+                <input
+                  ref={search}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  aria-label={L("Search KOL or token", "搜索 KOL 或代币")}
+                  placeholder={L("Search KOL or token", "搜索 KOL 或代币")}
+                />
+                <kbd>/</kbd>
+              </label>
+              <select
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+                aria-label={L("Filter token", "筛选代币")}
               >
-                <button
-                  className="kol-profile-main"
-                  id={"kol-profile-" + p.id}
-                  aria-pressed={who === p.id}
-                  onClick={() => selectProfile(p.id)}
-                >
-                  <Avatar profile={p} large />
-                  <span>
-                    <strong>{p.name}</strong>
-                    <span className="kol-handle">@{p.handle}</span>
-                    <small>
-                      {calls.filter((c) => c.profile === p.id).length}{" "}
-                      {L("reviewed posts", "条已审阅帖子")}
-                    </small>
-                  </span>
-                </button>
-                <button
-                  className={
-                    "kol-icon kol-star " +
-                    (watched.includes(p.id) ? "active" : "")
-                  }
-                  aria-label={L("Watch " + p.name, "关注 " + p.name)}
-                  aria-pressed={watched.includes(p.id)}
-                  onClick={() => setWatched((w) => toggle(w, p.id))}
-                >
-                  <Star
-                    size={16}
-                    fill={watched.includes(p.id) ? "currentColor" : "none"}
-                  />
-                </button>
-                <div className="kol-profile-coins">
-                  {tokens
-                    .filter((t) =>
-                      calls.some(
-                        (c) => c.profile === p.id && c.tokens.includes(t),
-                      ),
-                    )
-                    .map((t) => (
-                      <button
-                        className="kol-token"
-                        key={t}
-                        onClick={() => {
-                          setWho(p.id);
-                          setToken(t);
-                          setTab("Feed");
-                        }}
-                      >
-                        {t}
-                      </button>
-                    ))}
-                  <SourceLink href={p.url}>X</SourceLink>
-                </div>
-              </div>
-            ))}
-          </section>
-          <section className="kol-panel kol-overlap">
-            <div className="kol-panel-title">
-              <h2>{L("Coins mentioned", "提及的代币")}</h2>
-              <Network size={14} />
-            </div>
-            <table>
-              <caption className="sr-only">
-                Token mentions within the 13 reviewed posts
-              </caption>
-              <thead>
-                <tr>
-                  <th>KOL</th>
-                  {tokens.slice(0, 5).map((t) => (
-                    <th key={t}>{t}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {profiles.map((p) => (
-                  <tr key={p.id}>
-                    <th>{p.name}</th>
-                    {tokens.slice(0, 5).map((t) => {
-                      const n = calls.filter(
-                        (c) => c.profile === p.id && c.tokens.includes(t),
-                      ).length;
-                      return (
-                        <td key={t}>
-                          <button
-                            className={
-                              "kol-mention " + (n ? "has-mention" : "")
-                            }
-                            aria-label={
-                              p.name + " " + t + ": " + n + " reviewed posts"
-                            }
-                            onClick={() => {
-                              setWho(p.id);
-                              setToken(t);
-                              setTab("Feed");
-                            }}
-                          >
-                            {n || "—"}
-                          </button>
-                        </td>
-                      );
-                    })}
-                  </tr>
+                <option value="">{L("All coins", "全部代币")}</option>
+                {tokens.map((t) => (
+                  <option key={t}>{t}</option>
                 ))}
-              </tbody>
-            </table>
-            <p>{L("Within this selected post set", "仅统计所选帖子")}</p>
-          </section>
-          <button
-            className="kol-shortcut"
-            onClick={() => {
-              setTab("Compare");
-              reset();
-            }}
-          >
-            <Users size={16} />
-            {L("Compare KOL calls", "比较 KOL 观点")}
-            <ArrowRight size={15} />
-          </button>
-          <button
-            className="kol-shortcut"
-            onClick={() => {
-              setTab("Saved");
-              reset();
-            }}
-          >
-            <Bookmark size={16} />
-            {L("Saved receipts", "保存的记录")}
-            <span>{saved.length}</span>
-          </button>
-        </aside>
-        <section className="kol-center">
-          {(tab === "Feed" || tab === "Saved") && (
-            <div className="kol-panel kol-feed-panel">
-              <div className="kol-panel-title">
-                <h2>
-                  {tab === "Saved"
-                    ? L("Saved receipts", "保存的记录")
-                    : who
-                      ? profileFor(who).name + L(" · history", " · 历史")
-                      : L("Call feed", "观点动态")}
-                </h2>
-                <div className="kol-feed-filters">
-                  <label>
-                    <ListFilter size={13} />
-                    <select
-                      aria-label={L("Call type", "观点类型")}
-                      value={type}
-                      onChange={(e) => setType(e.target.value)}
-                    >
-                      <option value="">{L("All types", "全部类型")}</option>
-                      <option value="targets">
-                        {L("Price targets", "价格目标")}
-                      </option>
-                      <option value="Self-reported holdings">
-                        {L("Holdings", "自述持仓")}
-                      </option>
-                      <option value="Bullish opinion">
-                        {L("Opinions", "观点")}
-                      </option>
-                    </select>
-                  </label>
-                  <button
-                    className="kol-icon"
-                    aria-label={L("Reverse date order", "反转日期排序")}
-                    onClick={() => setOldest((v) => !v)}
-                  >
-                    <ArrowDownUp size={14} />
-                  </button>
+              </select>
+            </div>
+          </div>
+          {view === "compare" ? (
+            <ComparePanel items={filteredCalls} onOpen={openProfile} L={L} />
+          ) : view !== "saved" && view !== "feed" ? (
+            <div className="kol-board">
+              <div className="kol-section-heading">
+                <div>
+                  <h2>
+                    {view === "watchlist"
+                      ? L("Your watchlist", "你的关注列表")
+                      : L("The research leaderboard", "研究排行榜")}
+                  </h2>
+                  <p>
+                    {L(
+                      "Robinhood coverage first · seven-day paper results where measurable",
+                      "优先 Robinhood 覆盖 · 可衡量观点的七日模拟结果",
+                    )}{" "}
+                    · {L("$1,000 paper stake", "模拟本金 $1,000")}
+                  </p>
                 </div>
+                <label className="kol-sort">
+                  <span>{L("Sort", "排序")}</span>
+                  <select
+                    value={sort}
+                    onChange={(e) => setSort(e.target.value)}
+                    aria-label={L("Sort KOLs", "KOL 排序")}
+                  >
+                    <option value="chain">
+                      {L("Robinhood coverage", "Robinhood 覆盖")}
+                    </option>
+                    <option value="return">{L("7D return", "7 日收益")}</option>
+                    <option value="recent">
+                      {L("Latest post", "最新发帖")}
+                    </option>
+                    <option value="name">{L("Name", "名称")}</option>
+                  </select>
+                </label>
               </div>
-              {(who || token || query || type) && (
-                <div className="kol-filter-status">
-                  <span>
-                    {visible.length} {L("matching posts", "条匹配帖子")}
+              <div
+                className="kol-leader-table"
+                role="table"
+                aria-label={L(
+                  "KOL seven-day call performance",
+                  "KOL 七日观点表现",
+                )}
+              >
+                <div className="kol-leader-head" role="row">
+                  <span role="columnheader">KOL</span>
+                  <span role="columnheader">
+                    {L("Avg. 7D call P&L", "平均 7 日模拟盈亏")}
                   </span>
-                  <button onClick={reset}>
-                    {L("Clear filters", "清除筛选")}
-                    <X size={12} />
+                  <span role="columnheader">
+                    {L("Positive calls", "正收益观点")}
+                  </span>
+                  <span role="columnheader">
+                    {L("Coins mentioned", "提及代币")}
+                  </span>
+                  <span role="columnheader">
+                    {L("Latest post", "最新发帖")}
+                  </span>
+                  <span role="columnheader" className="sr-only">
+                    {L("Actions", "操作")}
+                  </span>
+                </div>
+                {visibleProfiles.map((p) => {
+                  const s = statsFor(p.id),
+                    pts = [...new Set(s.history.flatMap((c) => c.tokens))];
+                  return (
+                    <div
+                      className="kol-leader-row"
+                      role="row"
+                      key={p.id}
+                      data-kol={p.id}
+                    >
+                      <div role="cell" className="kol-leader-identity">
+                        <span className="kol-rank">
+                          {String(
+                            ranked.findIndex((x) => x.id === p.id) + 1,
+                          ).padStart(2, "0")}
+                        </span>
+                        <button
+                          id={`kol-profile-${p.id}`}
+                          className="kol-profile-button"
+                          onClick={() => openProfile(p.id)}
+                          aria-label={L("View ", "查看 ") + p.name}
+                        >
+                          <Avatar profile={p} />
+                          <span>
+                            <strong>{p.name}</strong>
+                            <small>@{p.handle}</small>
+                            {chainCount(p.id, scopedCalls) > 0 && (
+                              <small className="kol-chain-badge">
+                                RH · {chainCount(p.id, scopedCalls)}{" "}
+                                {L("posts", "篇")}
+                              </small>
+                            )}
+                          </span>
+                        </button>
+                      </div>
+                      <div role="cell" className="kol-leader-pnl">
+                        <button
+                          onClick={() => openProfile(p.id)}
+                          aria-label={
+                            L("View performance for ", "查看表现 ") + p.name
+                          }
+                        >
+                          <strong className={tone(s.percent)}>
+                            {s.percent === null ? (
+                              <span className="kol-coverage-only">
+                                {L("Coverage only", "仅内容覆盖")}
+                              </span>
+                            ) : (
+                              formatMoney(paperPnl(s.percent, 1000))
+                            )}
+                          </strong>
+                          <small className={tone(s.percent)}>
+                            {s.percent === null
+                              ? L("No scored calls", "暂无评分观点")
+                              : formatPercent(s.percent)}{" "}
+                            {s.percent !== null && (
+                              <span>{L("average return", "平均收益")}</span>
+                            )}
+                          </small>
+                        </button>
+                      </div>
+                      <div role="cell" className="kol-leader-count">
+                        <strong>
+                          {s.complete.length ? s.positive : "—"}
+                          <span> / {s.complete.length}</span>
+                        </strong>
+                        <small>
+                          {s.complete.length} {L("scored", "已评分")} ·{" "}
+                          {s.history.length} {L("reviewed", "已审阅")}
+                        </small>
+                      </div>
+                      <div role="cell" className="kol-row-tokens">
+                        {pts.length === 0 && (
+                          <small className="kol-muted">
+                            {L("Ecosystem", "生态")}
+                          </small>
+                        )}
+                        {pts.slice(0, 3).map((t) => (
+                          <button
+                            key={t}
+                            onClick={() => {
+                              setView("feed");
+                              setToken(t);
+                              setSelected("");
+                            }}
+                            aria-label={L("Explore ", "探索 ") + t}
+                          >
+                            {t}
+                          </button>
+                        ))}
+                        {pts.length > 3 && <span>+{pts.length - 3}</span>}
+                      </div>
+                      <div role="cell" className="kol-latest-date">
+                        <time dateTime={s.history[0].date}>
+                          {dateLabel(s.history[0].date)}
+                        </time>
+                        <small>
+                          {s.pending
+                            ? `${s.pending} ${L("awaiting 7D", "等待七天")}`
+                            : L("History available", "可查看历史")}
+                        </small>
+                      </div>
+                      <div role="cell" className="kol-row-actions">
+                        <button
+                          className={
+                            "kol-icon " +
+                            (watched.includes(p.id) ? "active" : "")
+                          }
+                          onClick={() => setWatched((w) => toggle(w, p.id))}
+                          aria-label={L("Watch ", "关注 ") + p.name}
+                          aria-pressed={watched.includes(p.id)}
+                        >
+                          <Star
+                            size={17}
+                            fill={
+                              watched.includes(p.id) ? "currentColor" : "none"
+                            }
+                          />
+                        </button>
+                        <button
+                          className="kol-icon"
+                          onClick={() => openProfile(p.id)}
+                          aria-label={L("Open ", "打开 ") + p.name}
+                        >
+                          <ArrowRight size={18} />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              {visibleProfiles.length === 0 && (
+                <div className="kol-empty">
+                  <UserRound size={25} />
+                  <h3>
+                    {view === "watchlist" && !watched.length
+                      ? L("Your shortlist starts here", "从这里创建关注列表")
+                      : L("No matching KOLs", "没有匹配的 KOL")}
+                  </h3>
+                  <p>
+                    {view === "watchlist" && !watched.length
+                      ? L(
+                          "Star a KOL to start a shortlist. Use Workspace to keep it between visits.",
+                          "为 KOL 加星以创建精选列表。使用工作区保留以供下次访问。",
+                        )
+                      : L(
+                          "Try a name, handle or another coin.",
+                          "尝试名称、账号或其他代币。",
+                        )}
+                  </p>
+                  <button
+                    className="kol-text-button"
+                    onClick={() => changeView("all")}
+                  >
+                    {L("Show all KOLs", "显示全部 KOL")}
+                    <ArrowRight size={15} />
                   </button>
                 </div>
               )}
-              <div className="kol-feed-scroll">
-                {visible.length ? (
-                  visible.map((c) => (
-                    <CallCard
-                      call={c}
-                      key={c.id}
-                      L={L}
-                      selected={selected}
-                      saved={saved}
-                      save={save}
-                      selectProfile={selectProfile}
-                      inspect={inspect}
-                    />
-                  ))
-                ) : (
-                  <div className="kol-empty">
-                    <Bookmark size={28} />
-                    <h3>
-                      {tab === "Saved"
-                        ? L("Build your receipt collection", "建立您的记录集")
-                        : L("No matching source posts", "没有匹配的来源帖子")}
-                    </h3>
-                    <p>
-                      {tab === "Saved"
-                        ? L(
-                            "Save an original call to return to its context.",
-                            "保存观点以便再次查看背景。",
-                          )
-                        : L(
-                            "Try another KOL, coin or search term.",
-                            "请尝试其他 KOL、代币或关键词。",
-                          )}
-                    </p>
-                    <button
-                      onClick={() => {
-                        reset();
-                        setTab("Feed");
-                      }}
-                    >
-                      {L("Explore the feed", "浏览动态")}
-                      <ArrowRight size={14} />
-                    </button>
-                  </div>
-                )}
-              </div>
-              <div className="kol-feed-end">
-                <ShieldCheck size={13} />
-                {visible.length}{" "}
-                {L(
-                  "source-linked posts · curated history",
-                  "条带有来源的帖子 · 精选历史",
-                )}
-              </div>
-            </div>
-          )}
-          {tab === "KOLs" && (
-            <div className="kol-panel kol-explore-panel">
-              <div className="kol-panel-title">
-                <h2>{L("Meet the voices", "认识这些作者")}</h2>
-                <Users size={16} />
-              </div>
-              <p className="kol-subcopy">
-                {L(
-                  "Real profiles. Inspect the history before following the thesis.",
-                  "真实账号。先查看历史，再判断观点。",
-                )}
-              </p>
-              {profiles.map((p) => (
-                <article className="kol-directory-card" key={p.id}>
-                  <Avatar profile={p} large />
-                  <div>
-                    <h3>{p.name}</h3>
-                    <SourceLink href={p.url}>@{p.handle}</SourceLink>
-                    <p>
-                      {calls.filter((c) => c.profile === p.id).length}{" "}
-                      {L("reviewed posts", "条已审阅帖子")}
-                    </p>
-                  </div>
-                  <button
-                    className="kol-primary"
-                    onClick={() => selectProfile(p.id)}
-                  >
-                    {L("History", "历史")}
-                    <ArrowRight size={14} />
-                  </button>
-                </article>
-              ))}
-            </div>
-          )}
-          {tab === "Coins" && (
-            <div className="kol-panel kol-explore-panel">
-              <div className="kol-panel-title">
-                <h2>{L("Who's talking about what", "谁在讨论什么")}</h2>
-                <Network size={16} />
-              </div>
-              <p className="kol-subcopy">
-                {L(
-                  "Explore mentions across this reviewed source set.",
-                  "探索此来源集中的代币讨论。",
-                )}
-              </p>
-              <div className="kol-coin-board">
-                {tokens
-                  .filter((t) => !token || t === token)
-                  .map((t) => {
-                    const coverage = tokenCoverage(t);
-                    return (
-                      <button
-                        className="kol-coin-card"
-                        key={t}
-                        onClick={() => {
-                          setToken(t);
-                          setWho("");
-                          setTab("Feed");
-                        }}
-                      >
-                        <span className="kol-coin-head">
-                          <strong>{t}</strong>
-                          <ArrowUpRight size={16} />
-                        </span>
-                        <span className="kol-coin-count">
-                          {coverage.mentions.length}
-                          <small>{L("reviewed mentions", "次提及")}</small>
-                        </span>
-                        <div className="kol-avatar-stack">
-                          {coverage.profiles.map((p) => (
-                            <Avatar profile={p} key={p.id} />
-                          ))}
-                          <span>{coverage.profiles.length} KOLs</span>
-                        </div>
-                        <span className="kol-coin-bottom">
-                          {L("Inspect calls", "查看观点")}
-                          <ArrowRight size={13} />
-                        </span>
-                      </button>
-                    );
-                  })}
-              </div>
-            </div>
-          )}
-          {tab === "Timeline" && (
-            <div className="kol-panel kol-explore-panel">
-              <div className="kol-panel-title">
-                <h2>{L("Call timeline", "观点时间线")}</h2>
-                <History size={16} />
-              </div>
-              <p className="kol-subcopy">
-                {L(
-                  "Every marker is an original post. Select one to inspect it.",
-                  "每个标记都对应原帖，点击即可查看。",
-                )}
-              </p>
-              <Suspense
-                fallback={
-                  <div className="kol-timeline-chart kol-empty" role="status">
-                    {L("Loading source timeline…", "正在加载来源时间线…")}
-                  </div>
-                }
-              >
-                <CallTimeline onSelect={inspect} token={token} />
-              </Suspense>
-              <p className="kol-chart-note">
-                {L(
-                  "Dates only · same-day posts can overlap · source activity, not price performance",
-                  "仅显示日期 · 同日帖子可能重叠 · 这是来源活动，不是价格表现",
-                )}
-              </p>
-              <div className="kol-timeline-list">
-                {filterCalls(calls, { token }).map((c) => (
-                  <button
-                    key={c.id}
-                    onClick={() => inspect(c)}
-                    className={selected.id === c.id ? "selected" : ""}
-                  >
-                    <Avatar profile={profileFor(c.profile)} />
-                    <span>
-                      <strong>{profileFor(c.profile).name}</strong>
-                      <small>{c.tokens.join(" · ")}</small>
-                    </span>
-                    <time>{dateLabel(c.date)}</time>
-                    <ArrowRight size={14} />
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-          {tab === "Compare" && (
-            <div className="kol-panel kol-explore-panel">
-              <div className="kol-panel-title">
-                <h2>
-                  {L("Same token. Different calls.", "同一代币，不同观点。")}
-                </h2>
-                <Users size={16} />
-              </div>
-              <p className="kol-subcopy">
-                {L(
-                  "Compare what was actually said, with conditions intact.",
-                  "比较原始观点，同时保留完整条件。",
-                )}
-              </p>
-              <div className="kol-compare-cards">
-                {compareCalls.map((c) => (
-                  <article
-                    className={
-                      "kol-compare-card " +
-                      (selected.id === c.id ? "selected" : "")
-                    }
-                    key={c.id}
-                  >
-                    <div className="kol-person">
-                      <Avatar profile={profileFor(c.profile)} />
-                      <div>
-                        <strong>{profileFor(c.profile).name}</strong>
-                        <span className="kol-handle">
-                          @{profileFor(c.profile).handle}
-                        </span>
-                      </div>
-                    </div>
-                    <span className="kol-badge amber">{outcome(c)}</span>
-                    <div className="kol-compare-target">
-                      BTC <ArrowRight size={20} />
-                      <strong>{c.target}</strong>
-                    </div>
-                    <p>{c.summary}</p>
-                    <dl>
-                      <div>
-                        <dt>{L("Posted", "发布")}</dt>
-                        <dd>{dateLabel(c.date)}</dd>
-                      </div>
-                      <div>
-                        <dt>{L("Deadline", "截止")}</dt>
-                        <dd>{dateLabel(c.deadline!)}</dd>
-                      </div>
-                      <div>
-                        <dt>{L("Accuracy", "准确率")}</dt>
-                        <dd>{L("Not graded", "未评分")}</dd>
-                      </div>
-                    </dl>
-                    <button className="kol-primary" onClick={() => inspect(c)}>
-                      {L("Inspect conditions", "查看条件")}
-                      <ArrowRight size={14} />
-                    </button>
-                    <SourceLink href={c.url}>
-                      {L("Original post", "原帖")}
-                    </SourceLink>
-                  </article>
-                ))}
-              </div>
-              <div className="kol-method-note">
-                <Info size={17} />
-                <p>
+              <footer className="kol-board-footer">
+                <span>
+                  {L("In this view", "当前视图")} · {visibleProfiles.length}{" "}
+                  KOLs · {filteredCalls.length} {L("posts", "帖子")} ·{" "}
+                  {
+                    filteredCalls.filter(
+                      (c) => callPerformance(c).percent !== null,
+                    ).length
+                  }{" "}
+                  {L("complete calls", "完整观点")}
+                </span>
+                <span>
                   {L(
-                    "These calls were posted on different dates. Ansem's call also depends on a weekly-close condition. Neither is assigned a win rate or trading P&L.",
-                    "两条观点的发布日期不同，Ansem 的观点还取决于周线收盘条件。两者均未计算胜率或交易盈亏。",
+                    "Paper performance · no verified wallet P&L",
+                    "模拟表现 · 无核验钱包盈亏",
                   )}
-                </p>
-              </div>
+                </span>
+              </footer>
             </div>
-          )}
-        </section>
-        <aside className="kol-right">
-          <section className="kol-panel kol-inspector" key={selected.id}>
-            <div className="kol-panel-title">
-              <h2>{L("Call inspector", "观点检查器")}</h2>
-              <span className="kol-micro">
-                {L("SOURCE RECEIPT", "来源记录")}
-              </span>
-            </div>
-            <div className="kol-person">
-              <Avatar profile={person} />
-              <div>
-                <strong>{person.name}</strong>
-                <SourceLink href={person.url}>@{person.handle}</SourceLink>
-              </div>
-              <button
-                className={
-                  "kol-icon " + (saved.includes(selected.id) ? "active" : "")
-                }
-                aria-label={L("Save selected receipt", "保存所选记录")}
-                aria-pressed={saved.includes(selected.id)}
-                onClick={() => save(selected)}
-              >
-                <Bookmark
-                  size={16}
-                  fill={saved.includes(selected.id) ? "currentColor" : "none"}
-                />
-              </button>
-            </div>
-            <div className="kol-target-block">
-              <div className="kol-target-eyebrow">
-                {selected.tokens.join(" / ")}{" "}
-                <span
-                  className={
-                    "kol-badge " +
-                    (outcome(selected) !== "Unscored" ? "amber" : "")
-                  }
+          ) : (
+            <div className="kol-board">
+              <div className="kol-section-heading">
+                <div>
+                  <h2>
+                    {view === "feed"
+                      ? L("Every call, with the context", "每条观点及其背景")
+                      : L("Saved source receipts", "已保存来源记录")}
+                  </h2>
+                  <p>
+                    {L(
+                      view === "feed"
+                        ? "Search the archive, narrow a thesis, then inspect its evidence."
+                        : "Your research shortlist. Save an encrypted workspace below to keep it.",
+                      view === "feed"
+                        ? "搜索档案、筛选论点，再核验其证据。"
+                        : "你的研究精选。请在下方加密保存工作区以便保留。",
+                    )}
+                  </p>
+                </div>
+                <button
+                  className="kol-outline-button"
+                  disabled={!visibleHistory.length}
+                  onClick={exportResults}
                 >
-                  {outcome(selected)}
+                  <Download size={14} />
+                  {L("Export sources", "导出来源")}
+                </button>
+              </div>
+              <div className="kol-feed-filters">
+                {view === "feed" && (
+                  <select
+                    value={feedAuthor}
+                    onChange={(e) => {
+                      setFeedAuthor(e.target.value);
+                      setSelected("");
+                    }}
+                    aria-label={L("Filter feed author", "筛选动态作者")}
+                  >
+                    <option value="">{L("All authors", "所有作者")}</option>
+                    {profiles.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                <select
+                  value={historyFilter}
+                  onChange={(e) => {
+                    setHistoryFilter(e.target.value);
+                    setSelected("");
+                  }}
+                  aria-label={L("Filter feed status", "筛选动态状态")}
+                >
+                  <option value="all">{L("All posts", "全部帖子")}</option>
+                  <option value="scored">
+                    {L("Scored calls", "已评分观点")}
+                  </option>
+                  <option value="pending">{L("Pending", "观察中")}</option>
+                  <option value="unscored">{L("Unscored", "未评分")}</option>
+                </select>
+                {view === "feed" && (
+                  <select
+                    value={oldest ? "oldest" : "newest"}
+                    onChange={(e) => {
+                      setOldest(e.target.value === "oldest");
+                      setSelected("");
+                    }}
+                    aria-label={L("Feed order", "动态排序")}
+                  >
+                    <option value="newest">
+                      {L("Newest first", "最新优先")}
+                    </option>
+                    <option value="oldest">
+                      {L("Oldest first", "最早优先")}
+                    </option>
+                  </select>
+                )}
+                <span role="status">
+                  {visibleHistory.length} {L("matching sources", "个匹配来源")}
                 </span>
               </div>
-              <div
-                className={
-                  "kol-target " + (!selected.target ? "kol-target-text" : "")
-                }
-              >
-                {selected.target || selected.type}
-              </div>
-              <p>
-                {L("Published", "发布于")} {dateLabel(selected.date)}, 2026
-              </p>
-            </div>
-            <p className="kol-selected-summary">{selected.summary}</p>
-            <SourceLink href={selected.url}>
-              {L("Open original on X", "在 X 查看原帖")}
-            </SourceLink>
-            {selected.deadline && (
-              <div className="kol-deadline-track">
-                <div>
-                  <span>{dateLabel(selected.date)}</span>
-                  <small>{L("Posted", "发布")}</small>
+              {visibleHistory.length ? (
+                <HistoryList
+                  items={visibleHistory.slice(
+                    currentPage * 12,
+                    (currentPage + 1) * 12,
+                  )}
+                  selected={selected}
+                  onSelect={setSelected}
+                  saved={saved}
+                  onSave={save}
+                  stake={1000}
+                  showAuthor
+                  L={L}
+                />
+              ) : (
+                <div className="kol-empty">
+                  <Bookmark size={25} />
+                  <h3>
+                    {view === "feed"
+                      ? L("No matching sources", "没有匹配来源")
+                      : L("No saved calls in this view", "当前视图无已存观点")}
+                  </h3>
+                  <p>
+                    {L(
+                      view === "feed"
+                        ? "Clear a filter or try a different coin."
+                        : "Open a call and save its source receipt, or clear your filters.",
+                      "请清除筛选，或打开观点并保存来源记录。",
+                    )}
+                  </p>
+                  <button
+                    className="kol-text-button"
+                    onClick={() => {
+                      setQuery("");
+                      setToken("");
+                      setFeedAuthor("");
+                      setHistoryFilter("all");
+                      setHistoryWindow("all");
+                      setChainOnly(false);
+                    }}
+                  >
+                    {L("Clear filters", "清除筛选")}
+                  </button>
                 </div>
-                <Clock3 size={21} />
+              )}
+              {visibleHistory.length > 12 && (
+                <div className="kol-pagination">
+                  <span>
+                    {currentPage * 12 + 1}–
+                    {Math.min((currentPage + 1) * 12, visibleHistory.length)} /{" "}
+                    {visibleHistory.length}
+                  </span>
+                  <button
+                    className="kol-outline-button"
+                    disabled={currentPage === 0}
+                    onClick={() => {
+                      setPagination({ key: pageKey, page: currentPage - 1 });
+                      setSelected("");
+                    }}
+                  >
+                    {L("Previous", "上一页")}
+                  </button>
+                  <button
+                    className="kol-outline-button"
+                    disabled={(currentPage + 1) * 12 >= visibleHistory.length}
+                    onClick={() => {
+                      setPagination({ key: pageKey, page: currentPage + 1 });
+                      setSelected("");
+                    }}
+                  >
+                    {L("Next", "下一页")}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+          {view === "all" && (
+            <section className="kol-recent">
+              <div className="kol-section-heading">
                 <div>
-                  <span>{dateLabel(selected.deadline)}</span>
-                  <small>{L("Deadline", "截止")}</small>
+                  <h2>{L("Latest from the watch desk", "最新观点")}</h2>
+                  <p>
+                    {L(
+                      "Start with a statement. Open it for the context.",
+                      "从观点出发，点击查看背景。",
+                    )}
+                  </p>
+                </div>
+                <button
+                  className="kol-text-button"
+                  onClick={() => changeView("feed")}
+                >
+                  {L("Explore all calls", "浏览全部观点")}
+                  <ArrowRight size={14} />
+                </button>
+              </div>
+              <HistoryList
+                items={filteredCalls.slice(0, 3)}
+                selected={selected}
+                onSelect={setSelected}
+                saved={saved}
+                onSave={save}
+                stake={1000}
+                showAuthor
+                L={L}
+              />
+            </section>
+          )}
+        </>
+      ) : (
+        stats && (
+          <div className="kol-profile-view">
+            <button className="kol-back" onClick={back}>
+              <ArrowLeft size={16} />
+              {L("All KOLs", "全部 KOL")}
+            </button>
+            <div className="kol-profile-header">
+              <Avatar profile={person} large />
+              <div>
+                <h2 ref={heading} tabIndex={-1}>
+                  {person.name}
+                </h2>
+                <SourceLink href={person.url}>@{person.handle}</SourceLink>
+              </div>
+              <div className="kol-profile-header-actions">
+                <button
+                  className={
+                    "kol-outline-button " +
+                    (watched.includes(person.id) ? "active" : "")
+                  }
+                  onClick={() => setWatched((w) => toggle(w, person.id))}
+                  aria-pressed={watched.includes(person.id)}
+                >
+                  {watched.includes(person.id) ? (
+                    <Check size={16} />
+                  ) : (
+                    <Star size={16} />
+                  )}
+                  {watched.includes(person.id)
+                    ? L("Watching", "已关注")
+                    : L("Watch KOL", "关注 KOL")}
+                </button>
+                <button
+                  className="kol-ai-button"
+                  onClick={() => setInsight(!insight)}
+                  aria-expanded={insight}
+                >
+                  <Sparkles size={16} />
+                  {L("Scout brief", "Scout 简报")}
+                </button>
+              </div>
+            </div>
+            <div className="kol-profile-coverage">
+              <span>
+                {L("Selected archive", "选定档案")}:{" "}
+                {dateLabel(person.firstPostAt)} – {dateLabel(person.lastPostAt)}{" "}
+                · {person.spanDays} {L("day span", "天跨度")} ·{" "}
+                {person.postCount} {L("posts", "篇帖子")}
+              </span>
+              <span>
+                {person.chainPostCount}{" "}
+                {L("Robinhood Chain posts", "篇 Robinhood Chain 帖子")} ·{" "}
+                {person.activeDays} {L("dates represented", "个发帖日期")}
+              </span>
+              {person.affiliation && (
+                <span>
+                  {L(
+                    "Builder affiliation: discusses own ecosystem products.",
+                    "开发者关联：讨论自己的生态产品。",
+                  )}
+                </span>
+              )}
+              <small>
+                {L(
+                  "Selected posts, not a complete daily archive. Metrics below follow your date, chain and coin filters.",
+                  "选定帖子，非完整每日档案。下方指标遵循日期、公链和代币筛选。",
+                )}
+              </small>
+            </div>
+            {stats.percent !== null ? (
+              <div className="kol-profile-metrics">
+                <div>
+                  <span>{L("7D call return", "7 日观点收益")}</span>
+                  <strong className={tone(stats.percent)}>
+                    {formatPercent(stats.percent)}
+                  </strong>
+                  <small>
+                    {stats.percent === null
+                      ? L(
+                          "No scored calls in this selection",
+                          "本次筛选暂无评分观点",
+                        )
+                      : L("Average after publication", "发帖后的平均表现")}
+                  </small>
+                </div>
+                <div>
+                  <span>{L("Paper P&L / call", "每条观点模拟盈亏")}</span>
+                  <strong className={tone(stats.percent)}>
+                    {stats.percent === null
+                      ? "—"
+                      : formatMoney(paperPnl(stats.percent, stake))}
+                  </strong>
+                  <small>
+                    {L("On a ", "按 ")}${stake.toLocaleString()}
+                    {L(" paper stake", " 模拟本金")}
+                  </small>
+                </div>
+                <div>
+                  <span>{L("Positive calls", "正收益观点")}</span>
+                  <strong>
+                    {stats.positive}
+                    <em> / {stats.complete.length}</em>
+                  </strong>
+                  <small>
+                    {L("Completed 7-day observations", "完整七日观察")}
+                  </small>
+                </div>
+                <div>
+                  <span>{L("Source coverage", "来源覆盖")}</span>
+                  <strong>
+                    {stats.complete.length}
+                    <em> / {stats.history.length}</em>
+                  </strong>
+                  <small>
+                    {stats.pending} {L("pending", "观察中")} ·{" "}
+                    {stats.excluded + stats.unavailable}{" "}
+                    {L("unscored", "未评分")}
+                  </small>
+                </div>
+              </div>
+            ) : (
+              <div className="kol-profile-metrics">
+                <div>
+                  <span>{L("7D call return", "7 日观点收益")}</span>
+                  <strong>—</strong>
+                  <small>
+                    {L(
+                      "No scored calls in this selection",
+                      "本次筛选暂无评分观点",
+                    )}
+                  </small>
+                </div>
+                <div>
+                  <span>{L("Reviewed sources", "已审阅来源")}</span>
+                  <strong>{stats.history.length}</strong>
+                  <small>
+                    {L("Original, timestamped X posts", "带时间戳的 X 原帖")}
+                  </small>
+                </div>
+                <div>
+                  <span>{L("Robinhood coverage", "Robinhood 覆盖")}</span>
+                  <strong>
+                    {stats.history.filter((c) => c.chainTopic).length}
+                  </strong>
+                  <small>
+                    {L("Explicit chain discussion", "明确讨论公链")}
+                  </small>
+                </div>
+                <div>
+                  <span>{L("Active dates", "活动日期")}</span>
+                  <strong>
+                    {new Set(stats.history.map((c) => c.date)).size}
+                  </strong>
+                  <small>
+                    {L(
+                      "Dates represented in this selection",
+                      "当前筛选涵盖的发帖日期",
+                    )}
+                  </small>
                 </div>
               </div>
             )}
-            <dl className="kol-facts">
-              <div>
-                <dt>{L("Classification", "分类")}</dt>
-                <dd>{selected.type}</dd>
-              </div>
-              <div>
-                <dt>{L("Deadline", "期限")}</dt>
-                <dd>
-                  {selected.deadline
-                    ? dateLabel(selected.deadline) + ", 2026"
-                    : L("Not fixed", "未固定")}
-                </dd>
-              </div>
-              <div>
-                <dt>{L("Outcome", "结果")}</dt>
-                <dd>{L("Not evaluated", "尚未评估")}</dd>
-              </div>
-              <div>
-                <dt>{L("Accuracy", "准确率")}</dt>
-                <dd>{L("Not yet graded", "尚未评分")}</dd>
-              </div>
-            </dl>
-            <details className="kol-price-details">
-              <summary>
-                <ArrowDownUp size={14} />
-                {L("Price reaction", "价格变化")}
-                <ChevronDown size={14} />
-              </summary>
-              <p>
-                {L(
-                  "No historical price series is attached to this edition. Returns and outcomes remain unknown, rather than inferred from a bullish post.",
-                  "此版本未附历史价格序列。收益和结果保持未知，不根据看涨帖子推断。",
-                )}
-              </p>
-            </details>
-            <button
-              className="kol-primary kol-explain"
-              id="kol-explain"
-              aria-expanded={insight}
-              onClick={() => setInsight((v) => !v)}
-            >
-              <Sparkles size={16} />
-              {L("Explain this call", "解释此观点")}
-              <ChevronDown size={14} />
-            </button>
             {insight && (
-              <div className="kol-insight" id="kol-insight">
-                <h3>
-                  <Sparkles size={14} />
-                  {L("Scout insight", "Scout 洞察")}
-                </h3>
-                <p>{selected.interpretation}</p>
-                <div className="kol-insight-check">
-                  <ShieldCheck size={14} />
+              <ScoutBrief
+                items={stats.history}
+                name={person.name}
+                onInspect={inspectFromBrief}
+                L={L}
+              />
+            )}
+            <CoveragePanel
+              items={stats.history}
+              date={activityDate}
+              token={token}
+              onDate={(date) => {
+                setActivityDate(date);
+                setSelected("");
+              }}
+              onToken={(token) => {
+                setToken(token);
+                setActivityDate("");
+                setSelected("");
+              }}
+              L={L}
+            />
+            {stats.curve ? (
+              <section className="kol-performance-panel">
+                <div className="kol-section-heading">
+                  <div>
+                    <h3>
+                      {L("What happened after the call", "发帖之后发生了什么")}
+                    </h3>
+                    <p>
+                      {L(
+                        "Average price change · day 0 to day 7 after publication",
+                        "平均价格变化 · 发布后第 0 天至第 7 天",
+                      )}
+                    </p>
+                  </div>
+                  <div className="kol-chart-controls">
+                    <button
+                      className={
+                        "kol-outline-button " + (compare ? "active" : "")
+                      }
+                      onClick={() => setCompare(!compare)}
+                      aria-pressed={compare}
+                    >
+                      {L("Compare KOLs", "比较 KOL")}
+                    </button>
+                    <label>
+                      {L("Paper stake", "模拟本金")}
+                      <select
+                        value={stake}
+                        onChange={(e) => setStake(Number(e.target.value))}
+                        aria-label={L(
+                          "Paper stake per call",
+                          "每条观点模拟本金",
+                        )}
+                      >
+                        <option value={100}>$100</option>
+                        <option value={1000}>$1,000</option>
+                        <option value={10000}>$10,000</option>
+                      </select>
+                    </label>
+                  </div>
+                </div>
+                {compare ? (
+                  <ComparePanel
+                    key={person.id}
+                    items={filteredCalls}
+                    initial={[person.id]}
+                    onOpen={openProfile}
+                    L={L}
+                  />
+                ) : (
+                  <Suspense
+                    fallback={
+                      <div className="kol-chart-loading">
+                        {L("Loading observations…", "正在加载观测…")}
+                      </div>
+                    }
+                  >
+                    <PerformanceChart
+                      series={
+                        stats.curve
+                          ? [{ name: person.name, values: stats.curve }]
+                          : []
+                      }
+                      label={L(
+                        "Average seven-day call return, normalized by days after publication",
+                        "按发布后天数归一化的平均七日观点收益",
+                      )}
+                    />
+                  </Suspense>
+                )}
+                <div className="kol-chart-note">
                   <span>
                     {L(
-                      "Check the target, deadline and conditions against the original post.",
-                      "请对照原帖检查目标、期限和条件。",
+                      compare
+                        ? "Up to 3 profiles · same filters · equal call weights · gross of costs"
+                        : "Different publication dates · equal call weights · gross of costs",
+                      "发布日期不同 · 观点等权 · 未扣除成本",
                     )}
                   </span>
+                  <button
+                    className="kol-text-button"
+                    onClick={(e) => {
+                      methodTrigger.current = e.currentTarget;
+                      method.current?.showModal();
+                    }}
+                  >
+                    {L("Methodology", "计算方法")}
+                    <ArrowUpRight size={13} />
+                  </button>
                 </div>
-                <small>
-                  {L(
-                    "Prepared AI context · source-based interpretation",
-                    "预先准备的 AI 背景 · 基于来源的解读",
-                  )}
-                </small>
+              </section>
+            ) : (
+              <div className="kol-no-score">
+                <Info size={18} />
+                <div>
+                  <strong>
+                    {L(
+                      "Coverage without a performance score",
+                      "内容覆盖暂无表现评分",
+                    )}
+                  </strong>
+                  <p>
+                    {L(
+                      "Explore the reporting and original sources below. No complete seven-day price observations are available for this selection.",
+                      "在下方查看报道和原始来源。本次筛选暂无完整七日价格观察。",
+                    )}
+                  </p>
+                </div>
+                <button
+                  className="kol-text-button"
+                  onClick={() => {
+                    changeView("compare");
+                  }}
+                >
+                  {L("Compare coverage", "比较覆盖")}
+                  <ArrowRight size={14} />
+                </button>
               </div>
             )}
-            <button className="kol-export" onClick={exportCall}>
-              <Download size={14} />
-              {L("Download source receipt", "下载来源记录")}
-              <ExternalLink size={12} />
-            </button>
-          </section>
-          <section className="kol-panel kol-compact-compare">
-            <div className="kol-panel-title">
-              <h2>{L("Compare BTC targets", "比较 BTC 目标")}</h2>
-              <button
-                className="kol-icon"
-                aria-label="Open comparison"
-                onClick={() => {
-                  setTab("Compare");
-                  reset();
-                }}
-              >
-                <ArrowUpRight size={14} />
-              </button>
-            </div>
-            {compareCalls.map((c) => (
-              <button key={c.id} onClick={() => inspect(c)}>
-                <Avatar profile={profileFor(c.profile)} />
-                <strong>{profileFor(c.profile).name}</strong>
-                <span>{c.target}</span>
-                <small>{outcome(c)}</small>
-              </button>
-            ))}
-            <p>
-              {L("Different dates and conditions.", "发布日期和条件不同。")}
-            </p>
-          </section>
-        </aside>
-      </main>
-      <footer className="kol-footer">
-        <span>
-          <ShieldCheck size={13} />
-          {L("Original posts linked", "附有原帖链接")}
-        </span>
-        <span>
-          {L(
-            "Curated history · opinions are not scored as predictions",
-            "精选历史 · 观点不作为预测评分",
-          )}
-        </span>
-        <span>
-          {L("Captured", "采集于")} {capturedDate}
-        </span>
-      </footer>
-      <div
-        className={"kol-toast " + (notice ? "visible" : "")}
-        role="status"
-        onAnimationEnd={() => setNotice("")}
-      >
-        {notice && <Check size={15} />} {notice}
-      </div>
-      <dialog ref={manage} className="kol-dialog">
-        <div className="kol-panel-title">
-          <h2>{L("Your source watchlist", "来源关注列表")}</h2>
-          <button
-            className="kol-icon"
-            aria-label={L("Close watchlist", "关闭关注列表")}
-            onClick={() => manage.current?.close()}
-          >
-            <X size={19} />
-          </button>
-        </div>
+            <section className="kol-profile-history">
+              <div className="kol-section-heading">
+                <div>
+                  <h3>{L("Call history", "观点历史")}</h3>
+                  <p>
+                    {L(
+                      "Every reviewed post, including the ones we cannot score.",
+                      "保留所有已审阅帖子，包括无法评分的内容。",
+                    )}
+                  </p>
+                </div>
+                <div className="kol-history-controls">
+                  <select
+                    value={token}
+                    onChange={(e) => {
+                      setToken(e.target.value);
+                      setSelected("");
+                    }}
+                    aria-label={L("Filter profile coins", "筛选个人代币")}
+                  >
+                    <option value="">{L("All coins", "全部代币")}</option>
+                    {[
+                      ...new Set(
+                        calls
+                          .filter((c) => c.profile === person.id)
+                          .flatMap((c) => c.tokens),
+                      ),
+                    ].map((t) => (
+                      <option key={t}>{t}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={historyFilter}
+                    onChange={(e) => {
+                      setHistoryFilter(e.target.value);
+                      setSelected("");
+                    }}
+                    aria-label={L("Filter call status", "筛选观点状态")}
+                  >
+                    <option value="all">{L("All posts", "全部帖子")}</option>
+                    <option value="scored">
+                      {L("Scored calls", "已评分观点")}
+                    </option>
+                    <option value="pending">{L("Pending", "观察中")}</option>
+                    <option value="unscored">{L("Unscored", "未评分")}</option>
+                  </select>
+                </div>
+              </div>
+              {activityDate && (
+                <div className="kol-date-filter">
+                  <span>
+                    {L("History on", "历史日期")} {activityDate} UTC
+                  </span>
+                  <button
+                    className="kol-text-button"
+                    onClick={() => setActivityDate("")}
+                  >
+                    {L("Clear date", "清除日期")}
+                    <X size={13} />
+                  </button>
+                </div>
+              )}
+              {visibleHistory.length ? (
+                <HistoryList
+                  items={visibleHistory}
+                  selected={selected}
+                  onSelect={setSelected}
+                  saved={saved}
+                  onSave={save}
+                  stake={stake}
+                  L={L}
+                />
+              ) : (
+                <div className="kol-empty">
+                  <h3>{L("No calls in this view", "此视图没有观点")}</h3>
+                  <button
+                    className="kol-text-button"
+                    onClick={() => {
+                      setToken("");
+                      setActivityDate("");
+                      setHistoryFilter("all");
+                      setHistoryWindow("all");
+                      setChainOnly(false);
+                    }}
+                  >
+                    {L("Show all posts", "显示全部帖子")}
+                  </button>
+                </div>
+              )}
+            </section>
+          </div>
+        )
+      )}
+      <details className="kol-backup" id="kol-device-workspace">
+        <summary>
+          {L("Research workspace", "研究工作区")} ·{" "}
+          {deviceEnvelope
+            ? deviceUnlocked
+              ? L("Unlocked", "已解锁")
+              : L("Encrypted copy on this device", "本设备有加密副本")
+            : L("Keep your watchlist & receipts", "保留关注列表及记录")}{" "}
+          {unsavedDevice ? L("· Unsaved changes", "· 有未保存更改") : ""}
+        </summary>
         <p>
           {L(
-            "Choose from the profiles with reviewed source history. Selections stay in this session.",
-            "从已审阅历史的账号中选择。选择仅保留在本次会话中。",
+            "Save encrypted on this device to keep your watchlist and receipts across visits, or download a portable backup. Use a passphrase of at least 12 characters; you need it to unlock again. New changes require Save. Nothing is uploaded.",
+            "在本设备加密保存关注列表和记录，或下载便携备份。口令至少 12 个字符，下次解锁仍需使用。新更改需要点击保存。不会上传数据。",
           )}
         </p>
-        <label className="kol-search">
-          <Search size={15} />
+        <div className="kol-backup-form">
           <input
-            autoFocus
-            aria-label={L("Find reviewed KOL", "查找已审阅 KOL")}
-            placeholder={L("Search reviewed profiles…", "搜索已审阅账号…")}
-            value={manageQuery}
-            onChange={(e) => setManageQuery(e.target.value)}
+            type="password"
+            autoComplete="new-password"
+            minLength={12}
+            maxLength={1024}
+            aria-label={L("Backup passphrase", "备份口令")}
+            placeholder={L(
+              "Passphrase · at least 12 characters",
+              "口令 · 至少 12 个字符",
+            )}
+            value={backupPassphrase}
+            onChange={(e) => setBackupPassphrase(e.target.value)}
           />
-        </label>
-        {profiles
-          .filter((p) =>
-            (p.name + p.handle)
-              .toLowerCase()
-              .includes(manageQuery.toLowerCase()),
-          )
-          .map((p) => (
+          {deviceEnvelope && !deviceUnlocked ? (
             <button
-              className="kol-watch-option"
-              key={p.id}
-              onClick={() => setWatched((w) => toggle(w, p.id))}
-              aria-pressed={watched.includes(p.id)}
+              className="kol-ai-button"
+              disabled={
+                backupBusy ||
+                deviceLoading ||
+                backupPassphrase.length < 12 ||
+                deviceUnavailable
+              }
+              onClick={unlockDevice}
             >
-              <Avatar profile={p} />
-              <span>
-                <strong>{p.name}</strong>
-                <small>@{p.handle}</small>
-              </span>
-              {watched.includes(p.id) ? (
-                <Check size={18} />
-              ) : (
-                <Plus size={18} />
-              )}
+              {L("Unlock saved workspace", "解锁已存工作区")}
             </button>
-          ))}
-        {!profiles.some((p) =>
-          (p.name + p.handle).toLowerCase().includes(manageQuery.toLowerCase()),
-        ) && (
-          <p className="kol-empty">
+          ) : (
+            <button
+              className="kol-ai-button"
+              disabled={
+                backupBusy ||
+                deviceLoading ||
+                backupPassphrase.length < 12 ||
+                deviceUnavailable
+              }
+              onClick={saveDevice}
+            >
+              {L("Save on this device", "保存在本设备")}
+            </button>
+          )}
+          {deviceUnlocked && (
+            <button
+              className="kol-outline-button"
+              disabled={backupBusy}
+              onClick={() => {
+                setWatched([]);
+                setSaved([]);
+                setDeviceUnlocked(false);
+                setDeviceSnapshot("");
+                setBackupPassphrase("");
+                setBackupStatus(
+                  L(
+                    "Locked. The encrypted copy stays on this device.",
+                    "已锁定。加密副本仍保留在本设备。",
+                  ),
+                );
+              }}
+            >
+              {unsavedDevice
+                ? L("Lock without saving changes", "锁定且不保存更改")
+                : L("Lock workspace", "锁定工作区")}
+            </button>
+          )}
+          <button
+            className="kol-outline-button"
+            disabled={backupBusy || backupPassphrase.length < 12}
+            onClick={backup}
+          >
+            {L("Download backup", "下载备份")}
+          </button>
+          <input
+            type="file"
+            aria-label={L("Restore encrypted backup", "恢复加密备份")}
+            accept="application/json,.json"
+            disabled={backupBusy || backupPassphrase.length < 12}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              e.target.value = "";
+              if (file) void restore(file);
+            }}
+          />
+        </div>
+        {deviceUnavailable && (
+          <p>
             {L(
-              "No reviewed profile found. This edition covers KALEO, Ansem and Pentoshi.",
-              "未找到已审阅账号。此版本覆盖 KALEO、Ansem 和 Pentoshi。",
+              "Browser storage is unavailable. You can still download and restore encrypted files.",
+              "浏览器存储不可用，仍可下载及恢复加密文件。",
             )}
           </p>
         )}
-        <button className="kol-primary" onClick={() => manage.current?.close()}>
-          {L("Done", "完成")}
-          <ArrowRight size={15} />
-        </button>
+        {unsavedDevice && (
+          <p>
+            {L(
+              "Save your changes or download a backup before locking.",
+              "锁定前请保存更改或下载备份。",
+            )}
+          </p>
+        )}
+        <p role="status">{backupStatus}</p>
+      </details>
+      <footer className="kol-page-footer">
+        <span>
+          {L(
+            "Real profiles. Original posts. Inspectable calculations.",
+            "真实账号、原始帖子、可核验计算。",
+          )}
+        </span>
+        <span>
+          {L("Selected history · not a live feed", "选定历史 · 非实时信息流")}
+        </span>
+      </footer>
+      <dialog
+        ref={method}
+        className="kol-method-dialog"
+        onClose={() => methodTrigger.current?.focus()}
+        aria-labelledby="kol-method-title"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) method.current?.close();
+        }}
+      >
+        <div className="kol-dialog-heading">
+          <div>
+            <small>
+              {L("THE RECEIPTS BEHIND THE NUMBER", "数字背后的记录")}
+            </small>
+            <h2 id="kol-method-title">
+              {L("How 7-day performance works", "七日表现如何计算")}
+            </h2>
+          </div>
+          <button
+            className="kol-icon"
+            aria-label={L("Close methodology", "关闭计算方法")}
+            onClick={() => method.current?.close()}
+          >
+            <X size={20} />
+          </button>
+        </div>
+        <MethodContent L={L} />
       </dialog>
-    </div>
+    </section>
   );
 }
