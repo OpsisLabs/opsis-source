@@ -282,7 +282,7 @@
         "23-follow-wallet"
       ],
       "outcome": "See whether an observed position could realistically be exited and what it would cost",
-      "shipGate": "Exit views are built only from already-fetched, source-linked chain data; liquidity depth, holder concentration, transfer restrictions and known network or protocol costs stay explicit, and missing coverage is never reported as zero or as a safety verdict. No price prediction, executable quote or guaranteed exit is claimed; ChainScout never signs or broadcasts and the official app owns execution. Fresh, empty, locked and disabled ownership states plus English/Chinese mobile flows are tested with no new provider, paid path, account or recurring spend."
+      "shipGate": "One fresh read-only exit estimate per request from the official Uniswap V3 factory and QuoterV2 on chain 4663. Only factory-verified standard fee-tier pools are quoted; the best successful pool is selected, arbitrary V3 tokens require validated on-chain decimals, and v4-only or unknown-decimal tokens fail closed as unsupported. A captured latest block is rechecked by hash; stale, reorged, rate-limited, malformed and over-budget states fail closed within a reviewed low RPC cap with no aggressive retry. Fee and price impact use exact BigInt math against the same-block pool spot quote, coverage lists tested/quoted/missing/failed pools, and active V3 liquidity is shown only as a raw parameter that is not cash capacity or a safety verdict. A quote is explicitly not proof of transferability, sellability, or guaranteed execution. Default-off API and web flags, English/Chinese, desktop/mobile, no signing or broadcast, no new provider, paid path, account or recurring spend."
     },
     {
       "order": 26,
@@ -296,7 +296,7 @@
         "04-portfolio-intelligence"
       ],
       "outcome": "Compare the largest observed trades for a token or wallet and follow the public addresses involved",
-      "shipGate": "Largest observed amounts come from bounded, timestamped, source-linked transfer records and never infer buys, sells, identity, coordination or profit; partial coverage, failed transactions, unknown counterparties and missing records remain distinct. Public participant addresses reuse the release 23 chain-aware follow action with no automatic lookup or save, and ranking is deterministic, excluding zero, dead and classified-contract addresses. Locked/disabled ownership, English/Chinese and mobile are tested; no signing, new provider, polling or recurring spend."
+      "shipGate": "Largest observed amounts come from bounded, timestamped, source-linked decoded Uniswap V3 Swap logs with signed amount0/amount1 for explicit pools and an explicit block window, not from raw ERC-20 transfer records. Matched-log caps, partial coverage, missing or out-of-window records, failed transactions and unknown counterparties remain distinct; ranking never infers buys, sells, identity, coordination or profit. Public participant addresses reuse the release 23 chain-aware follow action with no automatic lookup or save, and ranking is deterministic, excluding zero, dead and classified-contract addresses. Locked/disabled ownership, English/Chinese and mobile are tested; no signing, new provider, polling or recurring spend."
     }
   ]
 }

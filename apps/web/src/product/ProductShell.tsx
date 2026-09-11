@@ -60,6 +60,7 @@ const ICONS: Record<string, ComponentType<{ size?: number; className?: string }>
   "situation-room": Globe2,
   "scout-watch": Eye,
   "card-price-check": WalletCards,
+  "exit-check": ChartNoAxesCombined,
   "private-explorer": Search,
   "scout-swap": ArrowLeftRight,
   "rwa-verify": BadgeCheck,

@@ -14,6 +14,7 @@ const features = [
   { source: "apps/web/src/deals/CardPriceCheck.tsx", flag: "VITE_CARD_PRICE_CHECK_ENABLED", file: "e2e/card-prices.mock.spec.ts", grep: "card price check" },
   { source: "apps/web/src/approvals/ApprovalManager.tsx", flag: "VITE_APPROVAL_MANAGER_ENABLED", file: "e2e/vault.mock.spec.ts", grep: "approval manager" },
   { source: "apps/web/src/simulator/TradeSimulator.tsx", flag: "VITE_TRADE_SIMULATOR_ENABLED", file: "e2e/scout-swap.mock.spec.ts", grep: "trade simulator" },
+  { source: "apps/web/src/exit-check/ExitCheck.tsx", flag: "VITE_EXIT_CHECK_ENABLED", file: "e2e/exit-check.mock.spec.ts", grep: "exit check" },
   { source: "apps/web/src/deals/DealBrief.tsx", flag: "VITE_COLLECTIBLE_DEAL_FINDER_ENABLED", file: "e2e/vault.mock.spec.ts", grep: "deal finder" },
 ];
 const baseEnv = { ...process.env, PW_APP_PORT: String(port), CHAINSCOUT_FEATURE_PREVIEW: "1" };
@@ -44,6 +45,10 @@ for (const engine of ["chromium", "webkit"]) {
   if (kolClosed.status !== 0) process.exit(kolClosed.status ?? 1);
   const situationClosed = spawnSync("pnpm", ["exec", "playwright", "test", ...config, "e2e/situation-room.mock.spec.ts", "--grep", "closed by default"], {cwd: root, stdio: "inherit", env: baseEnv});
   if (situationClosed.status !== 0) process.exit(situationClosed.status ?? 1);
+  if (existsSync(join(root, "e2e/exit-check.mock.spec.ts"))) {
+    const exitClosed = spawnSync("pnpm", ["exec", "playwright", "test", ...config, "e2e/exit-check.mock.spec.ts", "--grep", "closed by default"], { cwd: root, stdio: "inherit", env: baseEnv });
+    if (exitClosed.status !== 0) process.exit(exitClosed.status ?? 1);
+  }
   for (const feature of features.filter(item => existsSync(join(root, item.source)))) {
     const result = spawnSync("pnpm", ["exec", "playwright", "test", ...config, feature.file, "--grep", feature.grep], {
       cwd: root, stdio: "inherit", env: { ...baseEnv, [feature.flag]: "true" },

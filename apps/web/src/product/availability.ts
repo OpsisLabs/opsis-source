@@ -56,6 +56,7 @@ export function isProductFeatureEnabled(id: string) {
   if (id === "scout-watch") return import.meta.env.VITE_SCOUT_WATCH_ENABLED === "true";
   if (id === "card-price-check") return import.meta.env.VITE_CARD_PRICE_CHECK_ENABLED === "true";
   if (id === "trade-simulator") return import.meta.env.VITE_TRADE_SIMULATOR_ENABLED === "true";
+  if (id === "exit-check") return isExitCheckEnabled();
   if (id === "approval-manager") return isApprovalManagerEnabled();
   if (id === "collectible-deal-finder") return isDealFinderEnabled();
   if (id === "collectible-catalog") return isCollectibleCatalogEnabled();
@@ -67,6 +68,10 @@ export function isProductFeatureEnabled(id: string) {
 
 export function isApprovalManagerEnabled() {
   return import.meta.env.VITE_APPROVAL_MANAGER_ENABLED === "true";
+}
+
+export function isExitCheckEnabled() {
+  return import.meta.env.VITE_EXIT_CHECK_ENABLED === "true";
 }
 
 export function isDealFinderEnabled() { return import.meta.env.VITE_COLLECTIBLE_DEAL_FINDER_ENABLED === "true"; }

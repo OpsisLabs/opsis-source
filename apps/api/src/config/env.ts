@@ -71,6 +71,9 @@ const envSchema = z.object({
   RWA_VERIFY_ENABLED: envBoolean.default(false),
   RWA_DAILY_RPC_UNIT_BUDGET: z.coerce.number().int().min(100).max(100_000).default(3_000),
   RWA_MAX_RPC_SUBCALLS: z.coerce.number().int().min(8).max(50).default(24),
+  EXIT_CHECK_ENABLED: envBoolean.default(false),
+  EXIT_CHECK_DAILY_RPC_UNIT_BUDGET: z.coerce.number().int().min(100).max(100_000).default(2_000),
+  EXIT_CHECK_MAX_RPC_SUBCALLS: z.coerce.number().int().min(4).max(50).default(24),
   COLLECTIBLE_CATALOG_ENABLED: envBoolean.default(false),
   TCGDEX_API_BASE_URL: z.string().url().default("https://api.tcgdex.net/v2"),
   COLLECTIBLE_DAILY_REQUEST_BUDGET: z.coerce.number().int().min(50).max(10_000).default(500),
@@ -104,6 +107,7 @@ const envSchema = z.object({
   RATE_LIMIT_PUBLIC_PER_HOUR: z.coerce.number().int().positive().default(20),
   RATE_LIMIT_PORTFOLIO_PER_HOUR: z.coerce.number().int().min(1).max(60).default(10),
   RATE_LIMIT_RWA_PER_HOUR: z.coerce.number().int().min(1).max(60).default(10),
+  RATE_LIMIT_EXIT_CHECK_PER_HOUR: z.coerce.number().int().min(1).max(60).default(10),
   RATE_LIMIT_COLLECTIBLE_PER_HOUR: z.coerce.number().int().min(1).max(60).default(10),
   RATE_LIMIT_MARKET_PER_HOUR: z.coerce.number().int().min(1).max(60).default(12),
   RATE_LIMIT_OPEN_DATA_PER_HOUR: z.coerce.number().int().min(1).max(1_000).default(60),
@@ -201,6 +205,23 @@ const envSchema = z.object({
         code: z.ZodIssueCode.custom,
         path: ["ROBINHOOD_PUBLIC_RPC_URL"],
         message: "Enabled RWA Verify requires the official Robinhood Chain public RPC and chain ID 4663"
+      });
+    }
+  }
+  if (env.EXIT_CHECK_ENABLED && env.NODE_ENV !== "test") {
+    const publicRpc = new URL(env.ROBINHOOD_PUBLIC_RPC_URL);
+    const isOfficialRobinhoodRpc = publicRpc.protocol === "https:"
+      && publicRpc.origin === "https://rpc.mainnet.chain.robinhood.com"
+      && (publicRpc.pathname === "" || publicRpc.pathname === "/")
+      && publicRpc.search === ""
+      && publicRpc.hash === ""
+      && publicRpc.username === ""
+      && publicRpc.password === "";
+    if (!isOfficialRobinhoodRpc || env.ROBINHOOD_CHAIN_ID !== 4663) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["ROBINHOOD_PUBLIC_RPC_URL"],
+        message: "Enabled Exit Check requires the official Robinhood Chain public RPC and chain ID 4663"
       });
     }
   }

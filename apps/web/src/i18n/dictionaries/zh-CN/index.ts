@@ -19,6 +19,7 @@ import { watch } from "./watch";
 import { feed } from "./feed";
 import { overlap } from "./overlap";
 import { stress } from "./stress";
+import { exit } from "./exit";
 
 export const zhCN: Record<string, string> = {
   ...common,
@@ -42,4 +43,5 @@ export const zhCN: Record<string, string> = {
   ...feed,
   ...overlap,
   ...stress,
+  ...exit,
 };
