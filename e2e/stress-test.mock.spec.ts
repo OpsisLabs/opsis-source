@@ -63,15 +63,25 @@ test("portfolio stress test validates manual values and clears them without pers
     name: "Use my own values",
     exact: true,
   });
-  await primary.hover();
-  await expect(primary).toHaveCSS("background-color", "rgb(255, 141, 95)");
+  // WebKit may still be completing its smooth scroll after hover() returns.
+  // Reposition the pointer before each sample; keep the exact contrast assertion.
+  await expect
+    .poll(async () => {
+      await primary.hover();
+      return primary.evaluate((el) => getComputedStyle(el).backgroundColor);
+    })
+    .toBe("rgb(255, 141, 95)");
   await expect(primary).toHaveCSS("color", "rgb(32, 27, 24)");
   const selected = page.getByRole("button", {
     name: "One position",
     exact: true,
   });
-  await selected.hover();
-  await expect(selected).toHaveCSS("background-color", "rgb(255, 141, 95)");
+  await expect
+    .poll(async () => {
+      await selected.hover();
+      return selected.evaluate((el) => getComputedStyle(el).backgroundColor);
+    })
+    .toBe("rgb(255, 141, 95)");
   await expect(selected).toHaveCSS("color", "rgb(32, 27, 24)");
   await page
     .getByRole("button", { name: "Use my own values", exact: true })
