@@ -56,6 +56,7 @@ function rememberTourSeen() {
 
 const ICONS: Record<string, ComponentType<{ size?: number; className?: string }>> = {
   "kol-tracker": MessageCircleQuestion,
+  "portfolio-stress-test": ChartNoAxesCombined,
   "situation-room": Globe2,
   "scout-watch": Eye,
   "card-price-check": WalletCards,
@@ -282,6 +283,8 @@ export default function ProductShell() {
   const [open, setOpen] = useState(false);
   const [tourOpen, setTourOpen] = useState(() => {
     const forced = new URLSearchParams(window.location.search).get("tour") === "1";
+    // The instant calculator must be usable before optional onboarding.
+    if (window.location.pathname === "/stress-test" && !forced) return false;
     if (!import.meta.env.PROD && !forced) return false;
     return forced || !tourWasSeen();
   });

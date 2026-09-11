@@ -155,6 +155,17 @@ test("scout watch combined feed filters locally, deduplicates and clears on lock
   await page
     .getByRole("button", { name: "Activity feed", exact: true })
     .click();
+  // Axe reads colours in separate passes. Let the real tab colour transitions
+  // finish first so it measures the settled state, not mismatched animation frames.
+  await page
+    .getByRole("group", { name: "Watch views" })
+    .evaluate(async (tabs) => {
+      await Promise.all(
+        tabs
+          .getAnimations({ subtree: true })
+          .map((animation) => animation.finished.catch(() => {})),
+      );
+    });
   const a11y = await new AxeBuilder({ page }).analyze();
   expect(
     a11y.violations.filter((v) =>
