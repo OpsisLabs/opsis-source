@@ -5,34 +5,21 @@ export const EXPLORER_ORIGIN = "https://robinhoodchain.blockscout.com";
 
 const ADDRESS = /^0x[0-9a-fA-F]{40}$/;
 const HASH = /^0x[0-9a-fA-F]{64}$/;
-const ZERO = "0x0000000000000000000000000000000000000000";
-const DEAD = "0x000000000000000000000000000000000000dead";
 
 export type ObservedTradeSide = "buy" | "sell";
 export type SenderType = "eoa" | "contract" | "unknown";
 
-export type FollowableTrade = {
-  transactionSender: string | null;
-  transactionSenderType: SenderType;
-};
-
 /**
- * Release 25 ships a plain public-address handoff. Release 23's shared
- * chain-aware Follow Wallet Action replaces this link once merged; until then
- * only a verified EOA receives a link and no address is looked up or saved.
+ * Maps the observed transaction-sender type onto the shared release 23
+ * follow-wallet classification. Only a verified EOA becomes "wallet"; the
+ * shared component fails closed for contracts and unknowns.
  */
-export function followHref(address: string | null | undefined): string | null {
-  if (!address || !ADDRESS.test(address)) return null;
-  const normalized = address.toLowerCase();
-  if (normalized === ZERO || normalized === DEAD) return null;
-  return `/watch?address=${normalized}`;
-}
-
-export function canFollow(observation: FollowableTrade): boolean {
-  return (
-    observation.transactionSenderType === "eoa" &&
-    followHref(observation.transactionSender) !== null
-  );
+export function followClassification(
+  type: SenderType,
+): "wallet" | "contract" | "unknown" {
+  if (type === "eoa") return "wallet";
+  if (type === "contract") return "contract";
+  return "unknown";
 }
 
 export function shortAddress(

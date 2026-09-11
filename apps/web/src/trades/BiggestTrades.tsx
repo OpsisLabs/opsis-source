@@ -1,19 +1,19 @@
-import { useRef, useState, type FormEvent } from "react";
-import { Link } from "react-router";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useI18n } from "../i18n";
 import { ApiError } from "../dashboard/http";
 import { isObservedTradesEnabled } from "../product/availability";
+import { FollowWalletAction } from "../watch/FollowWalletAction";
 import {
   fetchObservedTrades,
   type ObservedTradeObservation,
   type ObservedTradesResponse,
 } from "./api";
 import {
-  canFollow,
   explorerAddressUrl,
   explorerTxUrl,
-  followHref,
+  followClassification,
   formatTimestamp,
+  OBSERVED_TRADES_CHAIN_ID,
   OBSERVED_TRADES_FEE_OPTIONS,
   OBSERVED_TRADES_WINDOW_OPTIONS,
   senderTypeKey,
@@ -39,6 +39,18 @@ export default function BiggestTrades() {
   const [data, setData] = useState<ObservedTradesResponse | null>(null);
   const [message, setMessage] = useState("");
   const abort = useRef<AbortController | null>(null);
+
+  useEffect(() => () => abort.current?.abort(), []);
+
+  // Any changed input is new consent: drop the stale abortable request and its
+  // result so an observed window can never be attributed to the wrong inputs.
+  const resetResult = () => {
+    abort.current?.abort();
+    abort.current = null;
+    setStatus("idle");
+    setData(null);
+    setMessage("");
+  };
 
   if (!isObservedTradesEnabled()) {
     return (
@@ -110,7 +122,10 @@ export default function BiggestTrades() {
             <input
               type="text"
               value={token}
-              onChange={(event) => setToken(event.target.value)}
+              onChange={(event) => {
+                setToken(event.target.value);
+                resetResult();
+              }}
               placeholder={t("trades.form.tokenPlaceholder")}
               spellCheck={false}
               autoComplete="off"
@@ -125,13 +140,14 @@ export default function BiggestTrades() {
               <span className={LABEL}>{t("trades.form.feeLabel")}</span>
               <select
                 value={String(fee)}
-                onChange={(event) =>
+                onChange={(event) => {
                   setFee(
                     event.target.value === "auto"
                       ? "auto"
                       : (Number(event.target.value) as FeeChoice),
-                  )
-                }
+                  );
+                  resetResult();
+                }}
                 className="mt-2 w-full rounded-sm border border-[#4a443f] bg-[#171615] px-3 py-2 text-[13px] text-[#f4ece4] outline-none focus-visible:ring-2 focus-visible:ring-[#fa6c34]"
               >
                 <option value="auto">{t("trades.form.feeAuto")}</option>
@@ -149,7 +165,10 @@ export default function BiggestTrades() {
               <span className={LABEL}>{t("trades.form.windowLabel")}</span>
               <select
                 value={String(windowBlocks)}
-                onChange={(event) => setWindowBlocks(Number(event.target.value))}
+                onChange={(event) => {
+                  setWindowBlocks(Number(event.target.value));
+                  resetResult();
+                }}
                 className="mt-2 w-full rounded-sm border border-[#4a443f] bg-[#171615] px-3 py-2 text-[13px] text-[#f4ece4] outline-none focus-visible:ring-2 focus-visible:ring-[#fa6c34]"
               >
                 {OBSERVED_TRADES_WINDOW_OPTIONS.map((option) => (
@@ -347,9 +366,6 @@ function Observation({
 }) {
   const { t } = useI18n();
   const txUrl = explorerTxUrl(observation.txHash);
-  const follow = canFollow(observation)
-    ? followHref(observation.transactionSender)
-    : null;
   return (
     <li className="rounded-sm border border-[#34312f] bg-[#1b1a19] p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -420,16 +436,18 @@ function Observation({
             {t("trades.table.viewTx")}
           </a>
         )}
-        {follow && (
-          // TODO(25 -> 23): swap this plain public-address handoff for the
-          // shared chain-aware Follow Wallet Action once release 23 merges.
-          <Link
-            to={follow}
-            className="min-h-[40px] inline-flex items-center text-[#fa6c34] hover:text-[#ff8a5c]"
-          >
-            {t("trades.table.follow")}
-          </Link>
-        )}
+        {observation.transactionSenderType === "eoa" &&
+          observation.transactionSender && (
+            <FollowWalletAction
+              address={observation.transactionSender}
+              chainId={OBSERVED_TRADES_CHAIN_ID}
+              classification={followClassification(
+                observation.transactionSenderType,
+              )}
+              variant="row"
+              className="min-h-[40px]"
+            />
+          )}
       </div>
     </li>
   );

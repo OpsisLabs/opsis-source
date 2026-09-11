@@ -1,9 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
-  canFollow,
   explorerAddressUrl,
   explorerTxUrl,
-  followHref,
+  followClassification,
   formatTimestamp,
   senderTypeKey,
   shortAddress,
@@ -11,31 +10,12 @@ import {
 } from "./model";
 
 const EOA = `0x${"aa".repeat(20)}`;
-const ZERO = `0x${"00".repeat(20)}`;
-const DEAD = `0x${"00".repeat(18)}dead`;
 
-describe("biggest trades follow handoff", () => {
-  it("links only a valid public address through the plain watch handoff", () => {
-    expect(followHref(EOA)).toBe(`/watch?address=${EOA.toLowerCase()}`);
-    expect(followHref(ZERO)).toBeNull();
-    expect(followHref(DEAD)).toBeNull();
-    expect(followHref("0x123")).toBeNull();
-    expect(followHref(null)).toBeNull();
-  });
-
-  it("never offers follow for contracts, unknown senders, or excluded addresses", () => {
-    expect(
-      canFollow({ transactionSender: EOA, transactionSenderType: "eoa" }),
-    ).toBe(true);
-    expect(
-      canFollow({ transactionSender: EOA, transactionSenderType: "contract" }),
-    ).toBe(false);
-    expect(
-      canFollow({ transactionSender: null, transactionSenderType: "unknown" }),
-    ).toBe(false);
-    expect(
-      canFollow({ transactionSender: ZERO, transactionSenderType: "eoa" }),
-    ).toBe(false);
+describe("biggest trades helpers", () => {
+  it("maps only a verified EOA to the shared wallet classification", () => {
+    expect(followClassification("eoa")).toBe("wallet");
+    expect(followClassification("contract")).toBe("contract");
+    expect(followClassification("unknown")).toBe("unknown");
   });
 
   it("keeps explorer links and labels deterministic", () => {

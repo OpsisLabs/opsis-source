@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
 const enabled = process.env.VITE_OBSERVED_TRADES_ENABLED === "true";
+const followEnabled = process.env.VITE_SCOUT_WATCH_ENABLED === "true";
 const EOA = `0x${"aa".repeat(20)}`;
 const CONTRACT = `0x${"bb".repeat(20)}`;
 const POOL = `0x${"5a".repeat(20)}`;
@@ -159,8 +160,12 @@ test("biggest observed trades fetches only after the explicit consent click", as
 
   await expect(page.getByText("5100").first()).toBeVisible();
   expect(calls).toHaveLength(1);
-  const follow = page.getByRole("link", { name: /Follow this public address/i });
-  await expect(follow).toHaveAttribute("href", `/watch?address=${EOA}`);
+  const follow = page.getByRole("link", { name: /FOLLOW THIS WALLET/i });
+  if (followEnabled) {
+    await expect(follow).toHaveAttribute("href", `/watch?address=${EOA}`);
+  } else {
+    await expect(follow).toHaveCount(0);
+  }
   const explorer = page.getByRole("link", { name: /View transaction/i }).first();
   await expect(explorer).toHaveAttribute(
     "href",
@@ -207,4 +212,55 @@ test("biggest observed trades surfaces a bounded error with a retry", async ({
   await page.getByRole("button", { name: /OBSERVE RECENT SWAPS/i }).click();
   await expect(page.getByRole("alert")).toBeVisible();
   await expect(page.getByRole("button", { name: /TRY AGAIN/i })).toBeVisible();
+});
+
+test("biggest observed trades hides the shared follow action when Scout Watch is disabled", async ({
+  page,
+}) => {
+  test.skip(!enabled || followEnabled);
+  await mockObservedTrades(page);
+  await page.goto("/biggest-trades");
+  await page.getByRole("button", { name: /OBSERVE RECENT SWAPS/i }).click();
+  await expect(page.getByText("5100").first()).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: /FOLLOW THIS WALLET/i }),
+  ).toHaveCount(0);
+});
+
+test("biggest observed trades clears stale results on input change and unmount", async ({
+  page,
+}) => {
+  test.skip(!enabled);
+  const calls: string[] = [];
+  page.on("request", (request) => {
+    if (request.url().includes("/v1/private/market/observed-trades")) {
+      calls.push(request.url());
+    }
+  });
+  await mockObservedTrades(page);
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto("/biggest-trades");
+  await page.getByRole("button", { name: /OBSERVE RECENT SWAPS/i }).click();
+  await expect(page.getByText("5100").first()).toBeVisible();
+  expect(calls).toHaveLength(1);
+
+  await page.getByLabel(/Token contract/i).fill(`0x${"12".repeat(20)}`);
+  await expect(page.getByText("5100")).toHaveCount(0);
+  expect(calls).toHaveLength(1);
+
+  await page.getByRole("button", { name: /OBSERVE RECENT SWAPS/i }).click();
+  await expect(page.getByText("5100").first()).toBeVisible();
+  expect(calls).toHaveLength(2);
+
+  await page.getByRole("link", { name: "Guide" }).first().click();
+  await expect(page).toHaveURL(/\/guide$/);
+  await expect(
+    page.getByRole("heading", { name: /largest swaps ChainScout actually observed/i }),
+  ).toHaveCount(0);
+  await page
+    .getByRole("link", { name: /Biggest Observed Trades/i })
+    .first()
+    .click();
+  await expect(page).toHaveURL(/\/biggest-trades$/);
+  await expect(page.getByText("5100")).toHaveCount(0);
 });

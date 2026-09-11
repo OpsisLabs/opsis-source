@@ -1,7 +1,6 @@
 import {
   decodeAbiParameters,
   decodeEventLog,
-  decodeFunctionResult,
   encodeFunctionData,
   formatUnits,
   isAddress,
@@ -23,8 +22,6 @@ import {
 export const OBSERVED_TRADES_CHAIN_ID = 4663 as const;
 export const OBSERVED_TRADES_FACTORY =
   "0x1f7d7550b1b028f7571e69a784071f0205fd2efa";
-export const OBSERVED_TRADES_MULTICALL3 =
-  "0x282a3c4d320cc7f0d5eaf56b8029e4b88338f0a3";
 export const OBSERVED_TRADES_SWAP_TOPIC =
   "0xc42079f94a6350d7e6235f29174924f928cc2ac818eb64fed8004e115fbcca67";
 export const OBSERVED_TRADES_FEES = [100, 500, 3000, 10000] as const;
@@ -75,35 +72,6 @@ const erc20Abi = [
     stateMutability: "view",
     inputs: [],
     outputs: [{ type: "uint8" }],
-  },
-] as const satisfies Abi;
-
-const multicall3Abi = [
-  {
-    type: "function",
-    name: "aggregate3",
-    stateMutability: "payable",
-    inputs: [
-      {
-        name: "calls",
-        type: "tuple[]",
-        components: [
-          { name: "target", type: "address" },
-          { name: "allowFailure", type: "bool" },
-          { name: "callData", type: "bytes" },
-        ],
-      },
-    ],
-    outputs: [
-      {
-        name: "returnData",
-        type: "tuple[]",
-        components: [
-          { name: "success", type: "bool" },
-          { name: "returnData", type: "bytes" },
-        ],
-      },
-    ],
   },
 ] as const satisfies Abi;
 
@@ -425,20 +393,32 @@ export class ObservedTradesService implements ObservedTradesSource {
     run: RpcRun,
   ): Promise<{ address: string; fee: number; poolsRequested: number }> {
     const fees = fee ? [fee] : [...OBSERVED_TRADES_FEES];
-    const calls = fees.map((candidate) => ({
-      target: OBSERVED_TRADES_FACTORY as Address,
-      allowFailure: true,
-      callData: encodeFunctionData({
-        abi: factoryAbi,
-        functionName: "getPool",
-        args: [pair.base.address as Address, pair.quote.address as Address, candidate],
-      }),
+    // One JSON-RPC batch of direct eth_call reads, never a contract multicall:
+    // the SDK's Robinhood multicall address does not implement aggregate3.
+    const calls: RpcCall[] = fees.map((candidate) => ({
+      id: `pool:${candidate}`,
+      method: "eth_call",
+      params: [
+        {
+          to: OBSERVED_TRADES_FACTORY,
+          data: encodeFunctionData({
+            abi: factoryAbi,
+            functionName: "getPool",
+            args: [
+              pair.base.address as Address,
+              pair.quote.address as Address,
+              candidate,
+            ],
+          }),
+        },
+        anchor.hex,
+      ],
     }));
-    const results = await this.multicall(calls, anchor.hex, run);
-    for (let index = 0; index < fees.length; index += 1) {
-      const candidateFee = fees[index] ?? OBSERVED_TRADES_FEES[0];
-      const entry = results[index];
-      const selected = decodePoolAddress(entry);
+    const results = await this.rpcBatch(calls, run);
+    for (const candidateFee of fees) {
+      const selected = decodeCallAddress(
+        results.get(`pool:${candidateFee}`)?.result,
+      );
       if (!selected) continue;
       const code = await this.rpcSingle(
         "eth_getCode",
@@ -467,35 +447,36 @@ export class ObservedTradesService implements ObservedTradesSource {
     anchor: CapturedAnchor,
     run: RpcRun,
   ): Promise<ResolvedTokens> {
-    const calls: Array<{ target: Address; allowFailure: boolean; callData: Hex }> = [
-      {
-        target: pool as Address,
-        allowFailure: true,
-        callData: encodeFunctionData({ abi: poolAbi, functionName: "token0" }),
-      },
-      {
-        target: pool as Address,
-        allowFailure: true,
-        callData: encodeFunctionData({ abi: poolAbi, functionName: "token1" }),
-      },
+    const call = (id: string, to: string, data: Hex): RpcCall => ({
+      id,
+      method: "eth_call",
+      params: [{ to, data }, anchor.hex],
+    });
+    const calls: RpcCall[] = [
+      call("token0", pool, encodeFunctionData({ abi: poolAbi, functionName: "token0" })),
+      call("token1", pool, encodeFunctionData({ abi: poolAbi, functionName: "token1" })),
     ];
     if (!pair.base.reviewed) {
-      calls.push({
-        target: pair.base.address as Address,
-        allowFailure: true,
-        callData: encodeFunctionData({ abi: erc20Abi, functionName: "decimals" }),
-      });
+      calls.push(
+        call(
+          "decimals:base",
+          pair.base.address,
+          encodeFunctionData({ abi: erc20Abi, functionName: "decimals" }),
+        ),
+      );
     }
     if (!pair.quote.reviewed) {
-      calls.push({
-        target: pair.quote.address as Address,
-        allowFailure: true,
-        callData: encodeFunctionData({ abi: erc20Abi, functionName: "decimals" }),
-      });
+      calls.push(
+        call(
+          "decimals:quote",
+          pair.quote.address,
+          encodeFunctionData({ abi: erc20Abi, functionName: "decimals" }),
+        ),
+      );
     }
-    const results = await this.multicall(calls, anchor.hex, run);
-    const token0 = decodeAddress(results[0]);
-    const token1 = decodeAddress(results[1]);
+    const results = await this.rpcBatch(calls, run);
+    const token0 = decodeCallAddress(results.get("token0")?.result);
+    const token1 = decodeCallAddress(results.get("token1")?.result);
     if (!token0 || !token1) {
       throw new AppError(
         "OBSERVED_TRADES_MALFORMED",
@@ -503,13 +484,12 @@ export class ObservedTradesService implements ObservedTradesSource {
         "The pool did not return readable token addresses at the captured block",
       );
     }
-    let cursor = 2;
     const baseDecimals = pair.base.reviewed
       ? pair.base.decimals
-      : decodeDecimals(results[cursor++]);
+      : decodeCallDecimals(results.get("decimals:base")?.result);
     const quoteDecimals = pair.quote.reviewed
       ? pair.quote.decimals
-      : decodeDecimals(results[cursor++]);
+      : decodeCallDecimals(results.get("decimals:quote")?.result);
     if (baseDecimals === null || quoteDecimals === null) {
       throw new AppError(
         "OBSERVED_TRADES_MALFORMED",
@@ -794,47 +774,6 @@ export class ObservedTradesService implements ObservedTradesSource {
         row.blockNumber === anchor.number
           ? new Date(anchor.timestamp * 1_000).toISOString()
           : verifiedBlockTime.get(row.blockNumber) ?? null;
-    }
-  }
-
-  private async multicall(
-    calls: Array<{ target: Address; allowFailure: boolean; callData: Hex }>,
-    blockHex: string,
-    run: RpcRun,
-  ): Promise<Array<{ success: boolean; returnData: Hex }>> {
-    const data = encodeFunctionData({
-      abi: multicall3Abi,
-      functionName: "aggregate3",
-      args: [calls],
-    });
-    const result = await this.rpcSingle(
-      "eth_call",
-      [{ to: OBSERVED_TRADES_MULTICALL3, data }, blockHex],
-      run,
-    );
-    if (typeof result !== "string" || !HEX.test(result)) {
-      throw new AppError(
-        "OBSERVED_TRADES_MALFORMED",
-        503,
-        "The batched contract read returned a malformed result",
-      );
-    }
-    try {
-      const decoded = decodeFunctionResult({
-        abi: multicall3Abi,
-        functionName: "aggregate3",
-        data: result as Hex,
-      });
-      return decoded.map((entry) => ({
-        success: entry.success,
-        returnData: entry.returnData,
-      }));
-    } catch {
-      throw new AppError(
-        "OBSERVED_TRADES_MALFORMED",
-        503,
-        "The batched contract read could not be decoded",
-      );
     }
   }
 
@@ -1134,39 +1073,24 @@ function decodeObservation(
   };
 }
 
-function decodePoolAddress(
-  entry?: { success: boolean; returnData: Hex },
-): string | null {
-  if (!entry || !entry.success || entry.returnData.length < 42) return null;
-  const decoded = decodeAbiParameters(
-    [{ type: "address" }],
-    entry.returnData,
-  )[0];
-  if (typeof decoded !== "string" || !ADDRESS.test(decoded)) return null;
-  const address = decoded.toLowerCase();
-  if (address === OBSERVED_TRADES_ZERO_ADDRESS) return null;
-  return address;
-}
-
-function decodeAddress(
-  entry?: { success: boolean; returnData: Hex },
-): string | null {
-  if (!entry || !entry.success || entry.returnData.length < 42) return null;
-  const decoded = decodeAbiParameters([{ type: "address" }], entry.returnData)[0];
-  return typeof decoded === "string" && ADDRESS.test(decoded)
-    ? decoded.toLowerCase()
-    : null;
-}
-
-function decodeDecimals(
-  entry?: { success: boolean; returnData: Hex },
-): number | null {
-  if (!entry || !entry.success) return null;
+function decodeCallAddress(result: unknown): string | null {
+  if (typeof result !== "string" || !HEX.test(result) || result.length < 42) {
+    return null;
+  }
   try {
-    const decoded = decodeAbiParameters(
-      [{ type: "uint8" }],
-      entry.returnData,
-    )[0];
+    const decoded = decodeAbiParameters([{ type: "address" }], result as Hex)[0];
+    if (typeof decoded !== "string" || !ADDRESS.test(decoded)) return null;
+    const address = decoded.toLowerCase();
+    return address === OBSERVED_TRADES_ZERO_ADDRESS ? null : address;
+  } catch {
+    return null;
+  }
+}
+
+function decodeCallDecimals(result: unknown): number | null {
+  if (typeof result !== "string" || !HEX.test(result)) return null;
+  try {
+    const decoded = decodeAbiParameters([{ type: "uint8" }], result as Hex)[0];
     return typeof decoded === "number" &&
       Number.isInteger(decoded) &&
       decoded >= 0 &&

@@ -15,7 +15,7 @@ const features = [
   { source: "apps/web/src/approvals/ApprovalManager.tsx", flag: "VITE_APPROVAL_MANAGER_ENABLED", file: "e2e/vault.mock.spec.ts", grep: "approval manager" },
   { source: "apps/web/src/simulator/TradeSimulator.tsx", flag: "VITE_TRADE_SIMULATOR_ENABLED", file: "e2e/scout-swap.mock.spec.ts", grep: "trade simulator" },
   { source: "apps/web/src/deals/DealBrief.tsx", flag: "VITE_COLLECTIBLE_DEAL_FINDER_ENABLED", file: "e2e/vault.mock.spec.ts", grep: "deal finder" },
-  { source: "apps/web/src/trades/BiggestTrades.tsx", flag: "VITE_OBSERVED_TRADES_ENABLED", file: "e2e/biggest-trades.mock.spec.ts", grep: "biggest observed trades" },
+  { source: "apps/web/src/trades/BiggestTrades.tsx", flag: "VITE_OBSERVED_TRADES_ENABLED", also: ["VITE_SCOUT_WATCH_ENABLED"], file: "e2e/biggest-trades.mock.spec.ts", grep: "biggest observed trades" },
 ];
 const baseEnv = { ...process.env, PW_APP_PORT: String(port), CHAINSCOUT_FEATURE_PREVIEW: "1" };
 for (const feature of features) baseEnv[feature.flag] = "false";
@@ -52,10 +52,18 @@ for (const engine of ["chromium", "webkit"]) {
   const situationClosed = spawnSync("pnpm", ["exec", "playwright", "test", ...config, "e2e/situation-room.mock.spec.ts", "--grep", "closed by default"], {cwd: root, stdio: "inherit", env: baseEnv});
   if (situationClosed.status !== 0) process.exit(situationClosed.status ?? 1);
   for (const feature of features.filter(item => existsSync(join(root, item.source)))) {
+    const featureEnv = { ...baseEnv, [feature.flag]: "true" };
+    for (const extraFlag of feature.also ?? []) featureEnv[extraFlag] = "true";
     const result = spawnSync("pnpm", ["exec", "playwright", "test", ...config, feature.file, "--grep", feature.grep], {
-      cwd: root, stdio: "inherit", env: { ...baseEnv, [feature.flag]: "true" },
+      cwd: root, stdio: "inherit", env: featureEnv,
     });
     if (result.status !== 0) process.exit(result.status ?? 1);
+  }
+  if (existsSync(join(root, "e2e/biggest-trades.mock.spec.ts"))) {
+    const followClosed = spawnSync("pnpm", ["exec", "playwright", "test", ...config, "e2e/biggest-trades.mock.spec.ts", "--grep", "hides the shared follow action"], {
+      cwd: root, stdio: "inherit", env: { ...baseEnv, VITE_OBSERVED_TRADES_ENABLED: "true" },
+    });
+    if (followClosed.status !== 0) process.exit(followClosed.status ?? 1);
   }
   if (existsSync(join(root, "e2e/deal-preview.mock.spec.ts"))) {
     const result = spawnSync("pnpm", ["exec", "playwright", "test", ...config, "e2e/deal-preview.mock.spec.ts"], {

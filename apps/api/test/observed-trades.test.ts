@@ -7,7 +7,7 @@ import { installErrorHandler, AppError } from "../src/http/errors.js";
 import type { ProviderHttp } from "../src/chain/provider-http.js";
 import {
   ObservedTradesService,
-  OBSERVED_TRADES_FEES,
+  OBSERVED_TRADES_FACTORY,
   OBSERVED_TRADES_SWAP_TOPIC,
   clampWindowBlocks,
   isCapError,
@@ -35,16 +35,6 @@ const swapDataAbi = [
   { type: "uint128" },
   { type: "int24" },
 ] as const;
-const multicallOutputAbi = [
-  {
-    type: "tuple[]",
-    components: [
-      { name: "success", type: "bool" },
-      { name: "returnData", type: "bytes" },
-    ],
-  },
-] as const;
-
 function topicFor(address: string): string {
   return `0x${address.slice(2).toLowerCase().padStart(64, "0")}`;
 }
@@ -59,10 +49,6 @@ function header(number: number, hash: string) {
 
 function addressReturn(address: string): Hex {
   return encodeAbiParameters([{ type: "address" }], [address as `0x${string}`]);
-}
-
-function aggregate(entries: Array<{ success: boolean; returnData: Hex }>): Hex {
-  return encodeAbiParameters(multicallOutputAbi, [entries]);
 }
 
 function txHash(seed: string): string {
@@ -126,11 +112,35 @@ function createHarness(options: {
   budgetUnits?: number;
   env?: Record<string, string>;
 }) {
-  let ethCallRound = 0;
   let logAttempt = 0;
   let consumed = 0;
   const selectedPool =
     options.poolAddress === null ? null : options.poolAddress ?? POOL;
+  const ethCalls: Array<{ to: string; data: string }> = [];
+  const ethCallResult = (params: unknown[]): Hex => {
+    const call = (params[0] ?? {}) as { to?: unknown; data?: unknown };
+    const to = String(call.to ?? "").toLowerCase();
+    const data = String(call.data ?? "").toLowerCase();
+    ethCalls.push({ to, data });
+    if (to === OBSERVED_TRADES_FACTORY.toLowerCase()) {
+      return addressReturn(selectedPool ?? ZERO);
+    }
+    if (to === POOL.toLowerCase()) {
+      if (data.startsWith("0x0dfe1681")) {
+        return addressReturn(options.token0 ?? TOKEN0);
+      }
+      if (data.startsWith("0xd21220a7")) {
+        return addressReturn(options.token1 ?? TOKEN1);
+      }
+    }
+    if (to === TOKEN0.toLowerCase()) {
+      return encodeAbiParameters([{ type: "uint8" }], [18]);
+    }
+    if (to === TOKEN1.toLowerCase()) {
+      return encodeAbiParameters([{ type: "uint8" }], [6]);
+    }
+    return encodeAbiParameters([{ type: "uint8" }], [18]);
+  };
   const rpc: ProviderHttp = {
     async requestJson(_url: string, init?: RequestInit): Promise<unknown> {
       const body = JSON.parse(String(init?.body ?? "null"));
@@ -185,6 +195,13 @@ function createHarness(options: {
                 result: options.codes?.[address] ?? "0x",
               };
             }
+            if (entry.method === "eth_call") {
+              return {
+                jsonrpc: "2.0",
+                id: entry.id,
+                result: ethCallResult(entry.params),
+              };
+            }
             return { jsonrpc: "2.0", id: entry.id, result: null };
           },
         );
@@ -217,25 +234,7 @@ function createHarness(options: {
         return { jsonrpc: "2.0", id: 1, result: options.codes?.[address] ?? "0x" };
       }
       if (method === "eth_call") {
-        ethCallRound += 1;
-        if (ethCallRound === 1) {
-          const entries = OBSERVED_TRADES_FEES.map((_, index) => ({
-            success: true,
-            returnData:
-              index === 0 && selectedPool
-                ? addressReturn(selectedPool)
-                : addressReturn(ZERO),
-          }));
-          return { jsonrpc: "2.0", id: 1, result: aggregate(entries) };
-        }
-        return {
-          jsonrpc: "2.0",
-          id: 1,
-          result: aggregate([
-            { success: true, returnData: addressReturn(options.token0 ?? TOKEN0) },
-            { success: true, returnData: addressReturn(options.token1 ?? TOKEN1) },
-          ]),
-        };
+        return { jsonrpc: "2.0", id: 1, result: ethCallResult(body.params) };
       }
       if (method === "eth_getLogs") {
         logAttempt += 1;
@@ -278,7 +277,7 @@ function createHarness(options: {
     budget,
     now: () => new Date("2026-09-11T00:00:00.000Z"),
   });
-  return { service, env, rpc, attempts: () => logAttempt };
+  return { service, env, rpc, attempts: () => logAttempt, ethCalls };
 }
 
 describe("observed trades pure helpers", () => {
@@ -400,6 +399,21 @@ describe("observed trades service", () => {
     const result = await service.observe({ chainId: 4663, fee: 500 });
     expect(result.coverage.poolsRequested).toBe(1);
     expect(result.pair.fee).toBe(500);
+  });
+
+  it("uses direct per-target eth_call reads and never a contract multicall", async () => {
+    const { service, ethCalls } = createHarness({ logs: [] });
+    await service.observe({ chainId: 4663 });
+    const factory = OBSERVED_TRADES_FACTORY.toLowerCase();
+    expect(ethCalls.filter((call) => call.to === factory)).toHaveLength(4);
+    expect(
+      ethCalls.every(
+        (call) => call.to !== "0x282a3c4d320cc7f0d5eaf56b8029e4b88338f0a3",
+      ),
+    ).toBe(true);
+    expect(ethCalls.some((call) => call.data.startsWith("0x82ad56cb"))).toBe(
+      false,
+    );
   });
 
   it("returns only verified top rows while preserving the matched count", async () => {
