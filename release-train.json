@@ -144,6 +144,18 @@
         "03-encrypted-vault"
       ],
       "shipGate": "Wallet labels and bounded snapshot history are encrypted locally. User-triggered public-address refreshes show exact comparable balance changes and newly observed activity with block anchors, source links and coverage gaps; missing is never zero, transfers are not inferred trades, and no background monitoring or profit claims are made. Persistence, backup/restore, deletion, stale/reorg/provider errors, concurrency, accessibility and English/Chinese mobile flows are tested. No signing, new provider, recurring vendor cost or private-data upload is introduced."
+    },
+    {
+      "order": 15,
+      "id": "15-situation-room",
+      "branch": "codex/15-situation-room",
+      "tagPrefix": "rc/15-situation-room/",
+      "status": "queued",
+      "outcome": "Explore source-linked world events and observed crypto prices around publication",
+      "dependencies": [
+        "14-scout-watch"
+      ],
+      "shipGate": "Preserve the current shared shell and shipped routes. Verify exact publication-aligned samples, missing-data gaps, dated capture and prepared AI context, real photo/source credits, keyboard controls, modal focus, mobile layouts, WebGL fallback and default-off behavior. No continuous-feed claims, causal attribution, transactions, new paid providers or incremental recurring vendor spend."
     }
   ]
 }
