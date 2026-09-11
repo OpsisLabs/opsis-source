@@ -7,6 +7,7 @@ const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const port = Number(process.env.PW_FEATURE_PORT ?? "5383");
 if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error("Invalid PW_FEATURE_PORT");
 const features = [
+  { source: "apps/web/src/situation/SituationRoom.tsx", flag: "VITE_SITUATION_ROOM_ENABLED", file: "e2e/situation-room.mock.spec.ts", grep: "situation room" },
   { source: "apps/web/src/watch/ScoutWatch.tsx", flag: "VITE_SCOUT_WATCH_ENABLED", file: "e2e/scout-watch.mock.spec.ts", grep: "scout watch" },
   { source: "apps/web/src/deals/CardPriceCheck.tsx", flag: "VITE_CARD_PRICE_CHECK_ENABLED", file: "e2e/card-prices.mock.spec.ts", grep: "card price check" },
   { source: "apps/web/src/approvals/ApprovalManager.tsx", flag: "VITE_APPROVAL_MANAGER_ENABLED", file: "e2e/vault.mock.spec.ts", grep: "approval manager" },
@@ -35,6 +36,8 @@ for (const engine of ["chromium", "webkit"]) {
     });
     if (closed.status !== 0) process.exit(closed.status ?? 1);
   }
+  const situationClosed = spawnSync("pnpm", ["exec", "playwright", "test", ...config, "e2e/situation-room.mock.spec.ts", "--grep", "closed by default"], {cwd: root, stdio: "inherit", env: baseEnv});
+  if (situationClosed.status !== 0) process.exit(situationClosed.status ?? 1);
   for (const feature of features.filter(item => existsSync(join(root, item.source)))) {
     const result = spawnSync("pnpm", ["exec", "playwright", "test", ...config, feature.file, "--grep", feature.grep], {
       cwd: root, stdio: "inherit", env: { ...baseEnv, [feature.flag]: "true" },
