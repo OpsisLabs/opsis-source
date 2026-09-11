@@ -51,8 +51,8 @@ export default function App() {
     globe = useRef(),
     chart = useRef(),
     modalTrigger = useRef();
-  const openModal = (value) => {
-    modalTrigger.current = document.activeElement;
+  const openModal = (value, trigger) => {
+    modalTrigger.current = trigger ?? document.activeElement;
     setModal(value);
   };
   const select = (i) => {
@@ -155,7 +155,7 @@ export default function App() {
         node.inert = previous[i];
       });
       if (trigger instanceof HTMLElement && trigger.isConnected)
-        trigger.focus();
+        trigger.focus({ preventScroll: true });
     };
   }, [modal, insight]);
   if (!data)
@@ -246,7 +246,7 @@ export default function App() {
             <button
               className="sr-primary"
               id="brief"
-              onClick={() => openModal("brief")}
+              onClick={(event) => openModal("brief", event.currentTarget)}
             >
               <FileText size={17} /> Situation brief{" "}
               {saved.length > 0 && <span>{saved.length}</span>}
@@ -397,7 +397,10 @@ export default function App() {
                 <span>
                   Change from T0 sample · USDG pools · 5-minute observations
                 </span>
-                <button id="method" onClick={() => openModal("sources")}>
+                <button
+                  id="method"
+                  onClick={(event) => openModal("sources", event.currentTarget)}
+                >
                   Sources & method <ArrowUpRight size={12} />
                 </button>
               </div>
@@ -563,7 +566,7 @@ export default function App() {
               <button
                 className="sr-investigate"
                 id="investigate"
-                onClick={() => openModal("event")}
+                onClick={(event) => openModal("event", event.currentTarget)}
               >
                 <BookOpen size={16} /> Source details
               </button>
@@ -658,7 +661,9 @@ export default function App() {
             News and price changes share a timeline. Proximity does not
             establish causation.
           </p>
-          <button onClick={() => openModal("sources")}>
+          <button
+            onClick={(event) => openModal("sources", event.currentTarget)}
+          >
             View provenance <ArrowUpRight size={13} />
           </button>
         </div>

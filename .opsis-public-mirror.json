@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "fb6c6100b52fcc11d3661900910d7d02299f92f9077ebf7928d1d13a2fd2cbb9",
+  "sourceTreeDigest": "bcc7d514bcde6535745ee4ac7b9fe20113bc1e542c3eadf91abbbd1ea926db2e",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "9ca89c4a4436bce9b94bb1825b32b51ebef1070d6465b8781379d862ced4c722",
@@ -332,7 +332,7 @@
     "apps/web/src/situation/analysis.js": "66053211783953275585545050ddfcb7dca62b7134db9f2d2aea4c9e36126130",
     "apps/web/src/situation/analysis.test.js": "eb3b548a5961995ee46fd974ee2eebc71651ae512244348b4f0eb8e1d6dc4613",
     "apps/web/src/situation/App.d.ts": "addc2b6d9ced3dba29b7a40ccdf16bea47287fee4d1bcb514d273c0498b22a60",
-    "apps/web/src/situation/App.jsx": "44bc2d974e2c44d14b4ca67084f2cae39041dea34d9fc507e977796b9eae7152",
+    "apps/web/src/situation/App.jsx": "77cc60cb1d4276ca200eacaa35a1aecc2673b11660a4e63b76180a7ee746b612",
     "apps/web/src/situation/assets/earth-day.jpg": "228deba2e4b600146bdcb6cfa359b8ead6aacc2b1c13550a29cd82824cfa1c01",
     "apps/web/src/situation/assets/earth.jpg": "355ab23dd1323315b393d7b91dd2d7ee223a1cbaaba2b48dc72ba90d371ced24",
     "apps/web/src/situation/chart.js": "6ed7ffdd6588ad01849934e960a94900ee18f3a659711a8de4e7e22ff5c68459",
