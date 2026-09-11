@@ -46,7 +46,15 @@ export const explorer = {
   "explorer.goal.token": "What is this token?",
   "explorer.goal.verify": "What can be verified?",
   "explorer.next.title": "Ask next",
-  "explorer.next.watch": "OPEN IN SCOUT WATCH",
+  "explorer.follow.title": "Follow on Scout Watch",
+  "explorer.follow.body":
+    "Open Scout Watch with this public address pre-filled. Nothing is looked up or saved until you consent, and any label you add stays encrypted in your local Vault.",
+  "explorer.follow.participants": "Public addresses in this transaction",
+  "explorer.follow.from": "from",
+  "explorer.follow.to": "to",
+  "explorer.follow.more":
+    "Showing the first {shown} of {total} public addresses.",
+  "explorer.follow.source": "Open the full transaction evidence",
   "explorer.error.invalidEntity":
     "Enter one complete wallet or contract address, or one complete transaction hash.",
   "explorer.error.saveFailed": "Answer NOT saved. {reason}",

@@ -44,6 +44,12 @@ function evidenceUrl(value: string) {
 
 function Access({ session }: { session: WatchSession }) {
   const { t } = useI18n();
+  const [searchParams] = useSearchParams();
+  // A Follow handoff must survive the locked/create states. The address lives in
+  // the URL only; it is shown here as a guide and consumed after unlock.
+  const requested = searchParams.get("address")?.trim() ?? "";
+  const pendingAddress =
+    requested && isAddress(requested, { strict: true }) ? requested : "";
   const [passphrase, setPassphrase] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
@@ -57,6 +63,14 @@ function Access({ session }: { session: WatchSession }) {
       <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#bbb2a8]">
         {t("watch.accessBody")}
       </p>
+      {pendingAddress && (
+        <p
+          role="status"
+          className="mt-4 border-l-2 border-[#fa6c34] bg-[#241d18] px-3 py-2 text-sm text-[#ffd0a8]"
+        >
+          {t("watch.prefill.waiting", { address: short(pendingAddress) })}
+        </p>
+      )}
       {session.phase === "loading" ? (
         <p role="status" className="mt-4">
           {t("watch.checking")}

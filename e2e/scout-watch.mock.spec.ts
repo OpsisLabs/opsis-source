@@ -926,3 +926,138 @@ test("scout watch briefing keeps two missing NFT ids from one contract distinct"
   await expect(unknownPanel.getByText("#7").first()).toBeVisible();
   await expect(unknownPanel.getByText("#8").first()).toBeVisible();
 });
+
+test("private explorer follows a public wallet and transaction participants without auto lookup", async ({
+  page,
+}) => {
+  test.skip(!enabled);
+  test.setTimeout(90_000);
+  const watchRequests: string[] = [];
+  page.on("request", (request) => {
+    if (request.url().includes("/v1/private/watch")) watchRequests.push(request.url());
+  });
+  const zero = `0x${"0".repeat(40)}`;
+  const contract = `0x${"c".repeat(40)}`;
+  const txHash = `0x${"b".repeat(64)}`;
+  // Ten distinct participants exercise the panel bound (first eight shown).
+  const many = Array.from(
+    { length: 10 },
+    (_, index) => `0x${(index + 1).toString(16).padStart(2, "0").repeat(20)}`,
+  );
+  const privacy = {
+    accountRequired: false,
+    walletConnectionRequired: false,
+    serverStorage: "none",
+    browserStorage: "memory_only",
+    clearsOnReload: true,
+    modelProvider: "none",
+    providerDestinations: ["blockscout"],
+    disclosure: "Only the public chain identifier was sent to Blockscout.",
+  };
+  await page.route("**/v1/private/analyze", async (route) => {
+    const body = route.request().postDataJSON() as { entity: string };
+    if (body.entity.toLowerCase() === txHash) {
+      const facts = {
+        hash: txHash,
+        status: "0x1",
+        valueEth: "1.25",
+        // Mirrors the normalized API shape: top-level and token transfers are
+        // address strings; internal calls keep the Blockscout { hash, is_contract }.
+        from: WATCH_TEST_ADDRESS,
+        to: many[0],
+        tokenTransfers: many
+          .slice(1)
+          .map((address) => ({ from: address, to: zero })),
+        internalTransactions: [
+          {
+            from: { hash: many[1], is_contract: false },
+            to: { hash: contract, is_contract: true },
+          },
+        ],
+      };
+      await route.fulfill({
+        json: {
+          mode: "private",
+          entity: { chainId: 4663, type: "transaction", value: txHash, facts, citations: [], riskNotes: [] },
+          answer: {
+            answer: "This transaction succeeded.",
+            facts,
+            summaryBullets: [],
+            confirmedFacts: [],
+            inferences: [],
+            riskNotes: [],
+            citations: [],
+            suggestedQuestions: [],
+          },
+          privacy,
+        },
+      });
+      return;
+    }
+    const facts = {
+      address: WATCH_TEST_ADDRESS,
+      nativeBalanceEth: "0.25",
+      tokenBalances: [],
+    };
+    await route.fulfill({
+      json: {
+        mode: "private",
+        entity: { chainId: 4663, type: "wallet", value: WATCH_TEST_ADDRESS, facts, citations: [], riskNotes: [] },
+        answer: {
+          answer: "A bounded direct check found 0.25 ETH native.",
+          facts,
+          summaryBullets: [],
+          confirmedFacts: [],
+          inferences: [],
+          riskNotes: [],
+          citations: [],
+          suggestedQuestions: [],
+        },
+        privacy,
+      },
+    });
+  });
+  await page.goto("/app");
+  await page.getByLabel("Public chain identifier").fill(WATCH_TEST_ADDRESS);
+  await page.getByRole("button", { name: "EXPLAIN PRIVATELY", exact: true }).click();
+  await expect(
+    page.getByRole("link", { name: /FOLLOW THIS WALLET/ }),
+  ).toBeVisible();
+  // A transaction result shows its distinct non-zero participants only, bounded
+  // to eight with a visible remainder count and a source reference.
+  await page.getByLabel("Public chain identifier").fill(txHash);
+  await page.getByRole("button", { name: "EXPLAIN PRIVATELY", exact: true }).click();
+  const panel = page.getByRole("region", { name: "Follow on Scout Watch" });
+  const participantLinks = panel.getByRole("link", {
+    name: /FOLLOW THIS PUBLIC ADDRESS/,
+  });
+  await expect(participantLinks).toHaveCount(8);
+  await expect(panel.getByText("0x1111…1111")).toBeVisible();
+  await expect(panel.getByText("from", { exact: true }).first()).toBeVisible();
+  await expect(panel.getByText("to", { exact: true }).first()).toBeVisible();
+  await expect(
+    panel.getByText("Showing the first 8 of 11 public addresses."),
+  ).toBeVisible();
+  await expect(panel.getByText(/0xcccc/)).toHaveCount(0);
+  await expect(
+    panel.getByRole("link", { name: "Open the full transaction evidence" }),
+  ).toBeVisible();
+  await participantLinks.first().click();
+  await expect(page).toHaveURL(/\/watch\?address=/);
+  // The locked/create guide keeps the handed-off address and performs nothing.
+  await expect(
+    page.getByText(/is waiting to follow/),
+  ).toBeVisible();
+  await page.getByLabel("Vault passphrase", { exact: true }).fill(passphrase);
+  await page.getByLabel("Confirm passphrase", { exact: true }).fill(passphrase);
+  await page.getByRole("button", { name: "Create encrypted watchlist" }).click();
+  await page.getByRole("button", { name: "I saved my recovery key" }).click();
+  const form = page.getByRole("region", { name: "Add a wallet to watch" });
+  await expect(form.getByLabel("Public Robinhood wallet address")).toHaveValue(
+    WATCH_TEST_ADDRESS,
+  );
+  await expect(
+    form.getByLabel("Allow this public-address lookup"),
+  ).not.toBeChecked();
+  expect(watchRequests).toEqual([]);
+});
