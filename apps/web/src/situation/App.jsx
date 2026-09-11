@@ -26,6 +26,113 @@ import {
 import { createGlobe } from "./globe.js";
 import { drawChart } from "./chart.js";
 import { eventSeries, eventTime, signed } from "./analysis.js";
+import {
+  evaluateEthMarketSnapshot,
+  formatDuration,
+  formatUsd,
+  formatEthChange,
+  formatUtcRange,
+} from "./eth-market-brief.js";
+
+const CANDLE_VIEW_INTERVAL_MS = 3600 * 1000;
+const drawEthHourlyChart = (canvas, candles) => {
+  const context = canvas?.getContext("2d");
+  if (!context) return;
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = Math.max(1, rect.width * dpr);
+  canvas.height = Math.max(1, rect.height * dpr);
+  context.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const width = rect.width,
+    height = rect.height,
+    left = 64,
+    right = width - 10,
+    top = 12,
+    bottom = height - 22;
+  context.clearRect(0, 0, width, height);
+  context.fillStyle = "#171717";
+  context.fillRect(0, 0, width, height);
+
+  if (!candles.length) {
+    context.fillStyle = "#a99f96";
+    context.font = "11px monospace";
+    context.fillText("No complete hourly candles available", left, top + 4);
+    return;
+  }
+
+  const points = candles.map((candle) => ({
+    time: candle.start + CANDLE_VIEW_INTERVAL_MS,
+    value: candle.close,
+  }));
+  const values = points.map((point) => point.value);
+  const minValue = Math.min(...values);
+  const maxValue = Math.max(...values);
+  const pad = Math.max((maxValue - minValue) * 0.12, 1);
+  const min = minValue - pad;
+  const max = maxValue + pad;
+  const domainStart = candles[0].start;
+  const domainEnd = points.at(-1).time;
+  const x = (time) => left + ((time - domainStart) / (domainEnd - domainStart)) * (right - left);
+  const y = (v) => bottom - ((v - min) / (max - min)) * (bottom - top);
+
+  context.strokeStyle = "#393633";
+  context.beginPath();
+  context.moveTo(left, top);
+  context.lineTo(left, bottom);
+  context.lineTo(right, bottom);
+  context.stroke();
+
+  context.strokeStyle = "#6f6660";
+  context.setLineDash([4, 4]);
+  context.beginPath();
+  context.moveTo(left, y(min));
+  context.lineTo(right, y(min));
+  context.moveTo(left, y(max));
+  context.lineTo(right, y(max));
+  context.stroke();
+  context.setLineDash([]);
+
+  context.fillStyle = "#a8a19a";
+  context.font = "10px monospace";
+  context.textBaseline = "middle";
+  context.fillText(formatUsd(max), 6, y(max));
+  context.fillText(formatUsd(min), 6, y(min));
+  context.textBaseline = "alphabetic";
+
+  context.strokeStyle = "#fa6c34";
+  context.lineWidth = 2;
+  context.beginPath();
+  let previousTime = null;
+  for (const point of points) {
+    const cx = x(point.time);
+    const cy = y(point.value);
+    if (previousTime === null || point.time - previousTime > CANDLE_VIEW_INTERVAL_MS) {
+      context.moveTo(cx, cy);
+    } else {
+      context.lineTo(cx, cy);
+    }
+    previousTime = point.time;
+  }
+  context.stroke();
+
+  const targetTicks = Math.max(2, Math.min(6, Math.floor((right - left) / 80)));
+  const step = Math.max(1, Math.ceil(points.length / targetTicks));
+  context.fillStyle = "#ed8c51";
+  context.textAlign = "center";
+  for (let index = 0; index < points.length; index += 1) {
+    const point = points[index];
+    context.beginPath();
+    context.arc(x(point.time), y(point.value), 2.6, 0, Math.PI * 2);
+    context.fill();
+    if (index % step !== 0 && index !== points.length - 1) continue;
+    context.fillText(
+      new Date(point.time).toISOString().slice(11, 16) + "Z",
+      Math.min(Math.max(x(point.time), left + 16), right - 16),
+      bottom + 14,
+    );
+  }
+  context.textAlign = "start";
+};
 const photoFailed = (event) => {
   event.currentTarget.style.visibility = "hidden";
   event.currentTarget.parentElement.dataset.photoUnavailable =
@@ -50,6 +157,7 @@ export default function App() {
   const globeEl = useRef(),
     globe = useRef(),
     chart = useRef(),
+    ethBriefChart = useRef(),
     modalTrigger = useRef();
   const openModal = (value, trigger) => {
     modalTrigger.current = trigger ?? document.activeElement;
@@ -94,10 +202,47 @@ export default function App() {
     return () => clearInterval(id);
   }, [sweep, data]);
   const e = data?.news.events[selected];
+  const ethBrief = evaluateEthMarketSnapshot(data?.ethMarketBrief);
+  const ethCandles =
+    ethBrief.status === "valid" || ethBrief.status === "stale" ? ethBrief.hourlyCandles : [];
+  const ethDailyChange =
+    ethBrief.status === "valid" || ethBrief.status === "stale"
+      ? formatEthChange(ethBrief.statsChangePercent)
+      : "—";
+  const ethPrice = ethBrief.status === "valid" || ethBrief.status === "stale" ? ethBrief.stats.last : null;
+  const ethHeadline =
+    ethPrice != null && ethPrice > 2600
+      ? `ETH above ${formatUsd(2600)}. What can we verify?`
+      : "ETH market brief";
+  const ethUnavailableReason = ethBrief.notLiveReason || "Captured snapshot unavailable";
   const series = useMemo(
     () => (data ? eventSeries(data.market, e, minutes) : []),
     [data, e, minutes],
   );
+  const ethBriefTime = ethBrief.capturedAt
+    ? new Date(ethBrief.capturedAt).toLocaleString("en-GB", {
+        timeZone: "UTC",
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+      }) + " UTC"
+    : "No captured time available";
+  const ethStatusLabel =
+    ethBrief.status === "valid"
+      ? "NOT LIVE · SNAPSHOT"
+      : ethBrief.status === "stale"
+        ? "NOT LIVE · STALE"
+        : ethBrief.status === "invalid"
+          ? "NOT LIVE · INVALID SNAPSHOT"
+          : "NOT LIVE · NO SNAPSHOT";
+  const ethSnapshotAge =
+    ethBrief.ageMinutes == null ? null : formatDuration(ethBrief.ageMinutes);
+  const ethGlobal =
+    ethBrief.status === "valid" || ethBrief.status === "stale" ? ethBrief : null;
   useEffect(() => {
     if (!data || !chart.current) return;
     const render = () =>
@@ -112,6 +257,16 @@ export default function App() {
     ro.observe(chart.current);
     return () => ro.disconnect();
   }, [data, series, enabled, minutes, hover, wide]);
+
+  useEffect(() => {
+    if (!ethBriefChart.current) return;
+    drawEthHourlyChart(ethBriefChart.current, ethCandles);
+    const ro = new ResizeObserver(() =>
+      drawEthHourlyChart(ethBriefChart.current, ethCandles),
+    );
+    ro.observe(ethBriefChart.current);
+    return () => ro.disconnect();
+  }, [ethCandles, ethBrief.status]);
   useEffect(() => {
     if (!modal && !insight) return;
     const trigger = modal ? modalTrigger.current : document.activeElement;
@@ -208,6 +363,117 @@ export default function App() {
   return (
     <div className="situation-surface" lang="en">
       <main className={"situation-room " + (wide ? "focus-room" : "")}>
+        <section
+          className="sr-eth-brief"
+          data-testid="eth-market-brief"
+          aria-label="ETH market brief"
+        >
+          <div className="sr-eth-brief-head">
+            <div>
+              <p className="sr-overline">ETH MARKET BRIEF</p>
+              <h2>{ethHeadline}</h2>
+              <small>
+                Captured {ethBriefTime} · not live
+                {ethBrief.status === "stale" && ethSnapshotAge
+                  ? ` · ${ethSnapshotAge} old (older captured data)`
+                  : ""}
+              </small>
+            </div>
+            <span className={`sr-eth-status ${ethBrief.status}`}>{ethStatusLabel}</span>
+          </div>
+          <p className="sr-eth-summary" data-testid="eth-market-price">
+            {ethGlobal ? (
+              <>
+                Last {formatUsd(ethPrice)} · 24h {ethDailyChange}
+              </>
+            ) : (
+              ethUnavailableReason
+            )}
+          </p>
+          <p className="sr-eth-bridge-note">
+            Coinbase ETH/USD capture only. Timing is provided for context and does not establish a causal link.
+          </p>
+          <div className="sr-eth-panels">
+            <article className="sr-eth-card" aria-label="ETH market snapshot">
+              <div className="sr-eth-card-head">
+                <h3>Single-venue snapshot</h3>
+                <small>Coinbase ETH/USD, not live</small>
+              </div>
+              {ethGlobal ? (
+                <>
+                  <p>
+                    {ethGlobal.pair} · {ethGlobal.scope}
+                  </p>
+                  <p>
+                    Open: {formatUsd(ethGlobal.stats.open)} · High: {formatUsd(ethGlobal.stats.high)} ·
+                    Low: {formatUsd(ethGlobal.stats.low)} · Last: {formatUsd(ethGlobal.stats.last)}
+                  </p>
+                  <a
+                    className="sr-source-link"
+                    href={ethGlobal.sourceUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Coinbase endpoint <ArrowUpRight size={12} />
+                  </a>
+                </>
+              ) : (
+                <p>{ethUnavailableReason}</p>
+              )}
+            </article>
+            <article className="sr-eth-card" aria-label="ETH hourly line chart">
+              <div className="sr-eth-card-head">
+                <h3>Hourly close history</h3>
+                <small>Complete candles only, no gap interpolation</small>
+              </div>
+              <canvas ref={ethBriefChart} aria-label="ETH hourly close chart" />
+              <small>
+                {formatUtcRange(
+                  ethCandles[0]?.start,
+                  (ethCandles.at(-1)?.start ?? 0) + CANDLE_VIEW_INTERVAL_MS,
+                )}
+              </small>
+              <small className="sr-eth-gap-note">
+                {ethGlobal
+                  ? `${ethCandles.length} complete hourly candles · ${
+                      ethGlobal.candleGaps.length
+                        ? `${ethGlobal.candleGaps.length} gap(s) disclosed, not bridged`
+                        : "no gaps in captured window"
+                    }${
+                      ethGlobal.candleConflicts?.length
+                        ? ` · ${ethGlobal.candleConflicts.length} conflicted bucket(s) rejected`
+                        : ""
+                    }`
+                  : "No complete hourly candles available"}
+              </small>
+            </article>
+          </div>
+          <section
+            className="sr-eth-context"
+            data-testid="eth-market-context"
+            aria-label="ETH macro context"
+          >
+            {ethBrief.newsContext?.length
+              ? ethBrief.newsContext.slice(0, 2).map((source, index) => (
+                  <article className="sr-eth-context-card" key={source.url + index}>
+                    <h4>{source.source}</h4>
+                    <p>{source.summary}</p>
+                    <a
+                      className="sr-source-link"
+                      href={source.url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Source ({source.date}) <ArrowUpRight size={12} />
+                    </a>
+                  </article>
+                ))
+              : null}
+          </section>
+          <a href="/stress-test" className="sr-eth-action" aria-label="Test your ETH exposure">
+            Test your ETH exposure in the Portfolio Stress Test <ArrowUpRight size={12} />
+          </a>
+        </section>
         <div className="sr-breadcrumb">
           <span>
             <GlobeHemisphereWest size={14} /> QUANT LAB <CaretRight size={11} />{" "}

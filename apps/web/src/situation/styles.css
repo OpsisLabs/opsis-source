@@ -77,6 +77,161 @@
   color: var(--sr-orange);
   margin: 0 0 12px;
 }
+.situation-surface .sr-eth-brief {
+  margin: 22px 0 18px;
+  border: 1px solid #383431;
+  border-radius: 5px;
+  padding: 17px;
+  background: #1b1b1b;
+}
+.situation-surface .sr-eth-brief-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px 20px;
+  align-items: baseline;
+}
+.situation-surface .sr-eth-brief-head h2 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -0.7px;
+}
+.situation-surface .sr-eth-brief-head small {
+  color: #bdb4aa;
+  display: inline-block;
+  margin-top: 10px;
+}
+.situation-surface .sr-eth-status {
+  border: 1px solid #474039;
+  border-radius: 3px;
+  padding: 7px 10px;
+  color: #f0e8da;
+  font: 10px monospace;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+.situation-surface .sr-eth-status.valid {
+  color: #8cff9a;
+  border-color: #2c6b44;
+}
+.situation-surface .sr-eth-status.stale {
+  color: #f8ca67;
+  border-color: #7b6024;
+}
+.situation-surface .sr-eth-status.invalid,
+.situation-surface .sr-eth-status.missing {
+  color: #f0a8a8;
+  border-color: #7f3d3d;
+}
+.situation-surface .sr-eth-panels {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.situation-surface .sr-eth-card {
+  min-width: 0;
+  border: 1px solid #35312e;
+  border-radius: 4px;
+  padding: 12px;
+  background: #171616;
+}
+.situation-surface .sr-eth-card canvas {
+  display: block;
+  width: 100%;
+  height: 140px;
+}
+.situation-surface .sr-eth-card-head {
+  border-bottom: 1px solid #35312e;
+  padding-bottom: 9px;
+  margin-bottom: 10px;
+}
+.situation-surface .sr-eth-card-head h3 {
+  font-size: 14px;
+  margin: 0;
+  font-weight: 500;
+}
+.situation-surface .sr-eth-card-head small {
+  color: #a59b8e;
+  margin-top: 4px;
+  display: block;
+  font-size: 11px;
+}
+.situation-surface .sr-eth-card p {
+  margin: 8px 0;
+  color: #d7cfc4;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.situation-surface .sr-eth-bridge-note {
+  margin: 10px 0 7px;
+  color: #b4aa9f;
+  font-size: 12px;
+}
+.situation-surface .sr-eth-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  margin: 0 0 8px;
+  color: #fa6c34;
+  text-decoration: none;
+}
+.situation-surface .sr-eth-gap-note {
+  display: block;
+  margin-top: 6px;
+  color: #a59b8e;
+  font-size: 10px;
+}
+.situation-surface .sr-eth-context {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+.situation-surface .sr-eth-context-card {
+  min-width: 0;
+  border: 1px solid #35312e;
+  border-radius: 4px;
+  padding: 12px;
+  background: #171616;
+}
+.situation-surface .sr-eth-context-card h4 {
+  margin: 0 0 6px;
+  color: #f0e8da;
+  font-size: 12px;
+  font-weight: 500;
+}
+.situation-surface .sr-eth-context-card p {
+  margin: 0 0 8px;
+  color: #d7cfc4;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.situation-surface .sr-eth-card .sr-source-link,
+.situation-surface .sr-eth-context-card .sr-source-link {
+  color: #f0e8da;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-size: 11px;
+}
+@media (max-width: 720px) {
+  .situation-surface .sr-eth-brief-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .situation-surface .sr-eth-brief-head h2 {
+    font-size: 22px;
+  }
+  .situation-surface .sr-eth-panels,
+  .situation-surface .sr-eth-context {
+    grid-template-columns: 1fr;
+  }
+  .situation-surface .sr-eth-card canvas {
+    height: 120px;
+  }
+}
 .situation-surface .sr-title h1 {
   font-size: clamp(31px, 3.25vw, 58px);
   font-weight: 500;

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "21-explorer-answers",
+  "activeRelease": "22-eth-market-brief",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement",
@@ -238,7 +238,7 @@
       "id": "21-explorer-answers",
       "branch": "codex/21-explorer-answers",
       "tagPrefix": "rc/21-explorer-answers/",
-      "status": "active",
+      "status": "released",
       "dependencies": [
         "20-watch-briefing"
       ],
@@ -250,10 +250,12 @@
       "id": "22-eth-market-brief",
       "branch": "codex/22-eth-market-brief",
       "tagPrefix": "rc/22-eth-market-brief/",
-      "status": "queued",
-      "dependencies": ["21-explorer-answers"],
-      "outcome": "Show a compact ETH market brief in Situation Room using captured global and Robinhood WETH/USDG data",
-      "shipGate": "Contextualized static ETH snapshot only, explicit stale/not-live/freshness states, single-venue global and Robinhood-chain source-separation, source links, and a stress-test hypothesis handoff. No new providers, polling, or claims of causation."
+      "status": "active",
+      "dependencies": [
+        "21-explorer-answers"
+      ],
+      "outcome": "Show a compact captured Coinbase ETH/USD market brief in Situation Room",
+      "shipGate": "Contextualized static single-venue Coinbase ETH/USD snapshot only; explicit captured/not-live/stale states; complete hourly candles with disclosed gaps and strict HTTPS/no-credential source validation; source-linked dated macro context without causal claims; and a stress-test hypothesis handoff. No new providers, polling, or invented reference venues."
     }
   ]
 }

@@ -91,6 +91,51 @@ test("situation room selects reports, compares windows, opens insight and export
   expect(external).toEqual([]);
   expect(errors).toEqual([]);
 });
+test("situation room eth market brief shows captured single-venue data, dated sources and stress-test handoff", async ({
+  page,
+}) => {
+  test.skip(!enabled);
+  await page.goto("/situation-room");
+  const brief = page.getByTestId("eth-market-brief");
+  await expect(brief).toBeVisible();
+  await expect(brief).toContainText("Captured");
+  await expect(brief).toContainText("not live");
+  await expect(brief).toContainText("Coinbase ETH/USD capture only");
+  await expect(page.getByTestId("eth-market-price")).toContainText("Last $2,606.31");
+  await expect(page.getByTestId("eth-market-price")).toContainText("24h +6.67%");
+  const context = page.getByTestId("eth-market-context");
+  await expect(context).toContainText("Calendar context · 11 Sep");
+  await expect(context).toContainText("Earlier policy context · 3 Sep");
+  await expect(
+    context.getByRole("link", { name: "Source (2026-09-11)" }),
+  ).toHaveAttribute(
+    "href",
+    "https://fred.stlouisfed.org/releases/calendar?rid=10&y=2026",
+  );
+  const cta = brief.getByRole("link", { name: "Test your ETH exposure" });
+  await expect(cta).toHaveAttribute("href", "/stress-test");
+  await expect(cta).not.toHaveAttribute("target", "_blank");
+
+  const canvas = brief.locator("canvas");
+  const desktopBox = await canvas.boundingBox();
+  expect(desktopBox?.height).toBeGreaterThanOrEqual(139);
+  expect(desktopBox?.height).toBeLessThanOrEqual(151);
+
+  await page.setViewportSize({ width: 390, height: 900 });
+  const columns = await brief
+    .locator(".sr-eth-panels")
+    .evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(" ").filter(Boolean).length);
+  expect(columns).toBe(1);
+  const mobileBox = await canvas.boundingBox();
+  expect(mobileBox?.height).toBeGreaterThanOrEqual(119);
+  expect(mobileBox?.height).toBeLessThanOrEqual(151);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth + 1,
+    ),
+  ).toBe(true);
+});
+
 test("situation room preserves shared navigation, mobile layout and accessible controls", async ({
   page,
 }) => {
