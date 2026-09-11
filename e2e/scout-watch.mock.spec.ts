@@ -4,6 +4,7 @@ import { APP_ORIGIN } from "./support/origin";
 import {
   watchFixture,
   WATCH_TEST_ADDRESS,
+  WATCH_TEST_TOKEN,
 } from "../apps/web/src/watch/fixture";
 
 const passphrase = "test-only-watch-passphrase";
@@ -545,4 +546,355 @@ test("scout watch rejects transaction hashes, supports multiple wallets and reta
       .getByRole("navigation", { name: "Your watchlist" })
       .getByRole("button"),
   ).toHaveCount(1);
+});
+
+test("scout watch briefing summarizes saved changes, filters locally and drills into wallet detail", async ({
+  page,
+}) => {
+  test.skip(!enabled);
+  test.setTimeout(90_000);
+  const bodies: unknown[] = [];
+  const counts = new Map<string, number>();
+  await page.route("**/v1/private/watch/snapshot", async (route) => {
+    const body = route.request().postDataJSON();
+    bodies.push(body);
+    const block = 100 + (counts.get(body.address) ?? 0);
+    counts.set(body.address, block - 99);
+    const value = watchFixture(block);
+    value.address = body.address;
+    value.tokens.push({
+      kind: "erc20",
+      contract: `0x${"4".repeat(40)}`,
+      name: "Second token",
+      symbol: "SEC",
+      decimals: 6,
+      quantity: block === 100 ? "1" : "2",
+      rawBalance: block === 100 ? "1000000" : "2000000",
+      sourceIds: ["rpc"],
+    });
+    await route.fulfill({ json: value });
+  });
+  await create(page);
+  const briefing = page.locator(
+    'section[aria-labelledby="watch-briefing-title"]',
+  );
+  await expect(
+    briefing.getByRole("button", { name: "Add a wallet above" }),
+  ).toBeVisible();
+  await add(page, WATCH_TEST_ADDRESS, "Wallet Alpha");
+  await expect(
+    briefing.getByRole("heading", { name: "Not enough saved data to compare" }),
+  ).toBeVisible();
+  await refresh(page);
+  await expect(
+    briefing.getByText("ETH balance decreased by 0.1 between the two checks"),
+  ).toBeVisible();
+  await expect(
+    briefing.getByText("TEST balance increased by 3 between the two checks"),
+  ).toBeVisible();
+  await briefing
+    .getByRole("button", { name: "View all changes (4)" })
+    .click();
+  await expect(
+    briefing.getByText(
+      "A successful transaction was newly observed after the previous saved check",
+    ),
+  ).toBeVisible();
+  const requests = bodies.length;
+  await briefing
+    .getByLabel("Briefing wallet filter")
+    .selectOption({ label: "Wallet Alpha" });
+  await expect(
+    briefing.getByText("TEST balance increased by 3 between the two checks"),
+  ).toBeVisible();
+  await briefing
+    .getByText("Evidence detail", { exact: true })
+    .first()
+    .click();
+  await expect(briefing.getByText("Why this row exists").first()).toBeVisible();
+  await briefing
+    .getByRole("button", { name: "Open wallet detail" })
+    .first()
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Wallet Alpha", exact: true }),
+  ).toBeVisible();
+  expect(bodies).toHaveLength(requests);
+});
+
+test("scout watch briefing keeps gaps, failed and older evidence explicit", async ({
+  page,
+}) => {
+  test.skip(!enabled);
+  test.setTimeout(90_000);
+  let count = 0;
+  await page.route("**/v1/private/watch/snapshot", async (route) => {
+    const body = route.request().postDataJSON();
+    const value = watchFixture(count++ ? 101 : 100);
+    value.address = body.address;
+    if (count > 1) {
+      value.reconciliation.degradedSources = ["Token discovery unavailable"];
+      value.transactions.push({
+        hash: `0x${"d".repeat(64)}`,
+        blockNumber: 101,
+        timestamp: value.anchor.timestamp,
+        status: "failed",
+        method: "transfer",
+        direction: "out",
+        counterparty: WATCH_TEST_TOKEN,
+        nativeValueEth: "0",
+        movementCount: 0,
+        movementCoverage: "partial",
+        sourceIds: ["rpc"],
+      });
+      value.transactions.push({
+        hash: `0x${"e".repeat(64)}`,
+        blockNumber: 98,
+        timestamp: value.anchor.timestamp,
+        status: "success",
+        method: "transfer",
+        direction: "in",
+        counterparty: WATCH_TEST_TOKEN,
+        nativeValueEth: "0",
+        movementCount: 0,
+        movementCoverage: "complete",
+        sourceIds: ["rpc"],
+      });
+    }
+    await route.fulfill({ json: value });
+  });
+  await create(page);
+  await add(page);
+  await refresh(page);
+  const briefing = page.locator(
+    'section[aria-labelledby="watch-briefing-title"]',
+  );
+  await expect(
+    briefing.getByText("Token discovery unavailable"),
+  ).toBeVisible();
+  await briefing.getByRole("button", { name: /View all changes/ }).click();
+  await expect(
+    briefing.getByText("Failed transaction observed"),
+  ).toBeVisible();
+  await expect(
+    briefing.getByText("Older transaction newly discovered"),
+  ).toBeVisible();
+  await expect(
+    briefing.getByText(
+      "A transaction failed in this window. No asset movement is implied",
+    ),
+  ).toBeVisible();
+  await expect(
+    briefing.getByText(
+      "An older transaction was newly discovered. It is not recent activity",
+    ),
+  ).toBeVisible();
+});
+
+test("scout watch briefing clears on lock and supports Chinese and mobile", async ({
+  page,
+}) => {
+  test.skip(!enabled);
+  test.setTimeout(90_000);
+  let count = 0;
+  await page.route("**/v1/private/watch/snapshot", async (route) => {
+    const body = route.request().postDataJSON();
+    const value = watchFixture(count++ ? 101 : 100);
+    value.address = body.address;
+    await route.fulfill({ json: value });
+  });
+  await create(page);
+  await add(page);
+  await refresh(page);
+  const briefing = page.locator(
+    'section[aria-labelledby="watch-briefing-title"]',
+  );
+  await expect(briefing).toBeVisible();
+  const a11y = await new AxeBuilder({ page }).analyze();
+  expect(
+    a11y.violations.filter((v) =>
+      ["critical", "serious"].includes(v.impact ?? ""),
+    ),
+  ).toEqual([]);
+  await page
+    .getByRole("button", { name: "Switch language to 简体中文", exact: true })
+    .filter({ visible: true })
+    .click();
+  await expect(
+    page
+      .locator('section[aria-labelledby="watch-briefing-title"]')
+      .getByRole("heading", { name: "关注列表概览" }),
+  ).toBeVisible();
+  await expect(
+    page
+      .locator('section[aria-labelledby="watch-briefing-title"]')
+      .getByText("ETH 余额在两次查询之间减少 0.1"),
+  ).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 1000 });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth - innerWidth,
+    ),
+  ).toBeLessThanOrEqual(1);
+  await page.getByRole("button", { name: "锁定关注列表" }).click();
+  await expect(
+    page.locator('section[aria-labelledby="watch-briefing-title"]'),
+  ).toHaveCount(0);
+});
+
+test("scout watch briefing keeps the filter reachable across comparable, baseline and deleted wallets", async ({
+  page,
+}) => {
+  test.skip(!enabled);
+  test.setTimeout(90_000);
+  const counts = new Map<string, number>();
+  await page.route("**/v1/private/watch/snapshot", async (route) => {
+    const body = route.request().postDataJSON();
+    const block = 100 + (counts.get(body.address) ?? 0);
+    counts.set(body.address, block - 99);
+    const value = watchFixture(block);
+    value.address = body.address;
+    await route.fulfill({ json: value });
+  });
+  await create(page);
+  await add(page, WATCH_TEST_ADDRESS, "Wallet Alpha");
+  await refresh(page);
+  await add(page, `0x${"2".repeat(40)}`, "Wallet Beta");
+  const briefing = page.locator(
+    'section[aria-labelledby="watch-briefing-title"]',
+  );
+  const filter = briefing.getByLabel("Briefing wallet filter");
+  await expect(filter).toBeVisible();
+  await filter.selectOption({ label: "Wallet Beta" });
+  await expect(
+    briefing.getByRole("heading", {
+      name: "Not enough saved data to compare",
+    }),
+  ).toBeVisible();
+  await expect(filter).toBeVisible();
+  await filter.selectOption("");
+  await expect(
+    briefing.getByText("TEST balance increased by 3 between the two checks"),
+  ).toBeVisible();
+  await filter.selectOption({ label: "Wallet Alpha" });
+  await page
+    .getByRole("navigation", { name: "Your watchlist" })
+    .getByRole("button", { name: /Wallet Alpha/ })
+    .click();
+  await page.getByText("Rename locally / Remove wallet", { exact: true }).click();
+  await page.getByRole("button", { name: "Remove wallet", exact: true }).click();
+  await page.getByRole("button", { name: "Yes, remove wallet" }).click();
+  await expect(filter).toHaveValue("");
+  await expect(briefing.getByLabel("Briefing wallet filter")).toBeVisible();
+});
+
+test("scout watch briefing refocuses the selected wallet on repeated drill-down and stays compact in other tabs", async ({
+  page,
+}) => {
+  test.skip(!enabled);
+  test.setTimeout(90_000);
+  let count = 0;
+  await page.route("**/v1/private/watch/snapshot", async (route) => {
+    const body = route.request().postDataJSON();
+    const value = watchFixture(count++ ? 101 : 100);
+    value.address = body.address;
+    await route.fulfill({ json: value });
+  });
+  await create(page);
+  await add(page, WATCH_TEST_ADDRESS, "Wallet Alpha");
+  await refresh(page);
+  const briefing = page.locator(
+    'section[aria-labelledby="watch-briefing-title"]',
+  );
+  const detail = page.locator('[id^="watch-detail-"]').first();
+  const detailId = await detail.getAttribute("id");
+  expect(detailId).toBeTruthy();
+  await briefing.getByText("Evidence detail", { exact: true }).first().click();
+  const openWallet = briefing.getByRole("button", {
+    name: "Open wallet detail",
+  });
+  await openWallet.first().click();
+  await expect(page.locator(`#${detailId}`)).toBeFocused();
+  await openWallet.first().click();
+  await expect(page.locator(`#${detailId}`)).toBeFocused();
+
+  await page.getByRole("button", { name: "Activity feed", exact: true }).click();
+  await expect(
+    briefing.getByRole("button", { name: "Show briefing" }),
+  ).toBeVisible();
+  await expect(
+    briefing.getByText("TEST balance increased by 3 between the two checks"),
+  ).toHaveCount(0);
+  await briefing.getByRole("button", { name: "Show briefing" }).first().click();
+  await expect(
+    briefing.getByText("TEST balance increased by 3 between the two checks"),
+  ).toBeVisible();
+  await briefing.getByRole("button", { name: "Hide briefing" }).click();
+  await expect(
+    briefing.getByRole("button", { name: "Show briefing" }),
+  ).toBeVisible();
+});
+
+test("scout watch briefing empty action focuses the add form", async ({
+  page,
+}) => {
+  test.skip(!enabled);
+  test.setTimeout(90_000);
+  await create(page);
+  const briefing = page.locator(
+    'section[aria-labelledby="watch-briefing-title"]',
+  );
+  await briefing
+    .getByRole("button", { name: "Add a wallet above" })
+    .click();
+  await expect(page.locator("#watch-address-input")).toBeFocused();
+});
+
+test("scout watch briefing keeps two missing NFT ids from one contract distinct", async ({
+  page,
+}) => {
+  test.skip(!enabled);
+  test.setTimeout(90_000);
+  let count = 0;
+  await page.route("**/v1/private/watch/snapshot", async (route) => {
+    const body = route.request().postDataJSON();
+    const value = watchFixture(count++ ? 101 : 100);
+    value.address = body.address;
+    value.nfts =
+      count > 1
+        ? []
+        : [
+            {
+              kind: "erc1155",
+              contract: WATCH_TEST_TOKEN,
+              tokenId: "7",
+              quantity: "1",
+              name: "Edition",
+              symbol: "NFT",
+              sourceIds: ["rpc"],
+            },
+            {
+              kind: "erc1155",
+              contract: WATCH_TEST_TOKEN,
+              tokenId: "8",
+              quantity: "1",
+              name: "Edition",
+              symbol: "NFT",
+              sourceIds: ["rpc"],
+            },
+          ];
+    await route.fulfill({ json: value });
+  });
+  await create(page);
+  await add(page);
+  await refresh(page);
+  const briefing = page.locator(
+    'section[aria-labelledby="watch-briefing-title"]',
+  );
+  const unknownPanel = briefing
+    .getByRole("heading", { name: "Not comparable in these checks" })
+    .locator("..");
+  await expect(unknownPanel.locator("ul li")).toHaveCount(2);
+  await expect(unknownPanel.getByText("#7").first()).toBeVisible();
+  await expect(unknownPanel.getByText("#8").first()).toBeVisible();
 });

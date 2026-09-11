@@ -156,4 +156,108 @@ export const watch = {
     "Refresh later to compare exact balances, or open Activity feed and Wallet overlap to explore your saved checks together.",
   "product.feature.scout-watch.step.4":
     "Export an encrypted backup; your watchlist is local to this browser and site.",
+  "watch.briefing.title": "Across your watchlist",
+  "watch.briefing.badge": "LOCAL · ON DEMAND",
+  "watch.briefing.eyebrow": "Since the previous saved check",
+  "watch.briefing.intro":
+    "A short summary of the latest two retained checks for each followed wallet. Local, manual and bounded; no background monitoring.",
+  "watch.briefing.window":
+    "Comparing block {fromBlock} ({from}) with block {toBlock} ({to})",
+  "watch.briefing.limits":
+    "Bounded sample from saved checks. Missing entries are unknown, not zero; transfers are not buys or sells. No continuous alerts, profit, identity or safety claims.",
+  "watch.briefing.partial":
+    "Some sections are incomplete. A missing entry is not a confirmed exit.",
+  "watch.briefing.gaps": "Provider reported gaps:",
+  "watch.briefing.filter": "Briefing wallet filter",
+  "watch.briefing.filterAll": "All wallets",
+  "watch.briefing.showing": "Showing {shown} of {total} change(s)",
+  "watch.briefing.noChanges": "No comparable changes found",
+  "watch.briefing.noChangesBody":
+    "Balances and observed activity match between the latest two checks. This reflects the bounded saved sample, not proof that nothing happened.",
+  "watch.briefing.viewAll": "View all changes ({count})",
+  "watch.briefing.showFewer": "Show fewer changes",
+  "watch.briefing.emptyTitle": "No wallets saved yet",
+  "watch.briefing.emptyBody":
+    "Save a wallet and take a baseline check. The briefing appears once a second check reaches a newer block.",
+  "watch.briefing.emptyAction": "Add a wallet above",
+  "watch.briefing.baselineTitle": "Not enough saved data to compare",
+  "watch.briefing.baselineBody":
+    "You have {count} wallet(s) with only a baseline. Refresh a wallet after a newer block to build a briefing.",
+  "watch.briefing.baselineAction": "Open a wallet to refresh",
+  "watch.briefing.unsupported": "{count} wallet(s) could not be compared",
+  "watch.briefing.unsupportedBody":
+    "Some saved checks were invalid or not comparable. They are excluded from the findings and listed below.",
+  "watch.briefing.reason.invalid": "A saved check was invalid or damaged",
+  "watch.briefing.reason.baseline": "Only a baseline is saved",
+  "watch.briefing.reason.order":
+    "The newer check is not after the earlier one",
+  "watch.briefing.reason.same-check":
+    "Both retained checks are the same block",
+  "watch.briefing.reason.conflict": "The same block has a different hash",
+  "watch.briefing.status.comparable": "Compared",
+  "watch.briefing.status.baseline": "Baseline only",
+  "watch.briefing.status.unsupported": "Not compared",
+  "watch.briefing.category.balance-decrease": "Balance decreased",
+  "watch.briefing.category.balance-increase": "Balance increased",
+  "watch.briefing.category.new-activity": "New successful activity",
+  "watch.briefing.category.failed-activity": "Failed transaction observed",
+  "watch.briefing.category.older-activity":
+    "Older transaction newly discovered",
+  "watch.briefing.observe.balance":
+    "{label} balance {direction} by {delta} between the two checks",
+  "watch.briefing.increased": "increased",
+  "watch.briefing.decreased": "decreased",
+  "watch.briefing.observe.new-activity":
+    "A successful transaction was newly observed after the previous saved check",
+  "watch.briefing.observe.failed-activity":
+    "A transaction failed in this window. No asset movement is implied",
+  "watch.briefing.observe.older-activity":
+    "An older transaction was newly discovered. It is not recent activity",
+  "watch.briefing.walletContext": "{label} · {address}",
+  "watch.briefing.between":
+    "{before} (block {beforeBlock}) → {after} (block {afterBlock})",
+  "watch.briefing.observation.window":
+    "Previous saved check {before} (block {beforeBlock}) → {after} (block {afterBlock})",
+  "watch.briefing.windowMixed":
+    "This transaction was after the previous saved check for some wallets and already older for others.",
+  "watch.briefing.shared.note":
+    "The same exact contract is also held by {count} other followed wallet(s).",
+  "watch.briefing.shared.incompatible":
+    "Decimals differ across these wallets, so cross-wallet quantities are not compared.",
+  "watch.briefing.unknown.title": "Not comparable in these checks",
+  "watch.briefing.unknown.body":
+    "These balance rows could not be compared. Newly observed, missing and changed-decimal entries are shown separately from confirmed changes.",
+  "watch.briefing.unknown.newly-observed":
+    "Newly observed in this check—not a proven purchase",
+  "watch.briefing.unknown.unavailable":
+    "Missing from this check—not a confirmed exit",
+  "watch.briefing.unknown.metadata-changed":
+    "Decimals differ—cannot compare",
+  "watch.briefing.compact.show": "Show briefing",
+  "watch.briefing.compact.hide": "Hide briefing",
+  "watch.briefing.evidence": "Evidence detail",
+  "watch.briefing.why": "Why this row exists",
+  "watch.briefing.why.balance":
+    "Exact before/after quantities for the same chain and exact token contract.",
+  "watch.briefing.why.new-activity":
+    "The transaction hash was absent from the earlier saved check.",
+  "watch.briefing.why.failed-activity":
+    "The provider reported this transaction as failed, so no movement is shown.",
+  "watch.briefing.why.older-activity":
+    "The transaction block predates the earlier saved check, so it is a discovery, not a recent change.",
+  "watch.briefing.before": "Before",
+  "watch.briefing.after": "After",
+  "watch.briefing.delta": "Difference",
+  "watch.briefing.notReturned": "Not returned",
+  "watch.briefing.sources": "Source evidence",
+  "watch.briefing.transaction": "Transaction",
+  "watch.briefing.movements": "Decoded movements",
+  "watch.briefing.noMovements":
+    "No asset movement is implied for this transaction.",
+  "watch.briefing.openWallet": "Open wallet detail",
+  "watch.briefing.openTx": "Open transaction evidence",
+  "watch.briefing.captured": "Captured {time}",
+  "watch.briefing.conflict":
+    "Saved observations disagree. The retained evidence is shown without treating one as complete truth.",
+  "watch.briefing.failed": "Failed",
 } as const;

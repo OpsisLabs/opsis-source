@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { isAddress } from "viem";
 import {
@@ -16,6 +16,7 @@ import { useWatchVault } from "./useWatchVault";
 import { compareSnapshots } from "./model";
 import { ActivityFeed } from "./ActivityFeed";
 import { WalletOverlap } from "./WalletOverlap";
+import { WatchBriefing } from "./WatchBriefing";
 
 const button =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-sm border border-[#63564c] px-4 py-2 text-sm text-[#e9e0d1] transition-colors hover:border-[#fa6c34] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff985e] disabled:cursor-not-allowed disabled:opacity-50";
@@ -154,6 +155,38 @@ function Workspace({ session }: { session: WatchSession }) {
   const [view, setView] = useState<"wallets" | "feed" | "overlap">("wallets");
   const item =
     session.watches.find((row) => row.id === selected) ?? session.watches[0];
+  const addDetails = useRef<HTMLDetailsElement | null>(null);
+  const [focusRequest, setFocusRequest] = useState<{
+    id: string;
+    nonce: number;
+  } | null>(null);
+  const openWallet = (id: string) => {
+    setSelected(id);
+    setView("wallets");
+    setFocusRequest((current) => ({
+      id,
+      nonce: (current?.nonce ?? 0) + 1,
+    }));
+  };
+  const focusAdd = () => {
+    if (addDetails.current) addDetails.current.open = true;
+    window.requestAnimationFrame(() => {
+      const node = document.getElementById("watch-address-input");
+      if (node instanceof HTMLElement) {
+        node.scrollIntoView({ block: "center" });
+        node.focus({ preventScroll: true });
+      }
+    });
+  };
+  useEffect(() => {
+    if (!focusRequest || view !== "wallets") return;
+    const node = document.getElementById(
+      `watch-detail-${focusRequest.id}`,
+    );
+    if (!node) return;
+    node.scrollIntoView({ block: "start" });
+    node.focus({ preventScroll: true });
+  }, [focusRequest, view]);
   return (
     <div className="space-y-6">
       <div
@@ -183,8 +216,11 @@ function Workspace({ session }: { session: WatchSession }) {
           {t("overlap.open")}
         </button>
       </div>
-      <section className={panel} aria-labelledby="watch-add-title">
-        <details open={session.watches.length === 0}>
+      <section
+        className={`${panel} scroll-mt-24`}
+        aria-labelledby="watch-add-title"
+      >
+        <details ref={addDetails} open={session.watches.length === 0}>
           <summary className="min-h-11 cursor-pointer py-2">
             <h2 id="watch-add-title" className="inline text-xl">
               {t("watch.add")}
@@ -225,6 +261,7 @@ function Workspace({ session }: { session: WatchSession }) {
               <label className="min-w-0 text-sm">
                 {t("watch.address")}
                 <input
+                  id="watch-address-input"
                   className={`${input} font-mono text-sm`}
                   value={address}
                   maxLength={128}
@@ -271,6 +308,13 @@ function Workspace({ session }: { session: WatchSession }) {
           </form>
         </details>
       </section>
+      <WatchBriefing
+        key={view}
+        watches={session.watches}
+        onWallet={openWallet}
+        onAdd={focusAdd}
+        compact={view !== "wallets"}
+      />
       {view === "wallets" && (
         <section aria-labelledby="watch-list-title">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -323,22 +367,10 @@ function Workspace({ session }: { session: WatchSession }) {
         </section>
       )}
       {view === "feed" && (
-        <ActivityFeed
-          watches={session.watches}
-          onWallet={(id) => {
-            setSelected(id);
-            setView("wallets");
-          }}
-        />
+        <ActivityFeed watches={session.watches} onWallet={openWallet} />
       )}
       {view === "overlap" && (
-        <WalletOverlap
-          watches={session.watches}
-          onWallet={(id) => {
-            setSelected(id);
-            setView("wallets");
-          }}
-        />
+        <WalletOverlap watches={session.watches} onWallet={openWallet} />
       )}
       {item && view === "wallets" && (
         <WatchDetail
@@ -372,7 +404,12 @@ function WatchDetail({
   ];
   const date = (value: string) => new Date(value).toLocaleString(locale);
   return (
-    <section className="space-y-5" aria-label={t("watch.latest")}>
+    <section
+      id={`watch-detail-${item.id}`}
+      tabIndex={-1}
+      className="scroll-mt-24 space-y-5 outline-none"
+      aria-label={t("watch.latest")}
+    >
       <div className={panel}>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
