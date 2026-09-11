@@ -256,6 +256,47 @@
       ],
       "outcome": "Show a compact captured Coinbase ETH/USD market brief in Situation Room",
       "shipGate": "Contextualized static single-venue Coinbase ETH/USD snapshot only; explicit captured/not-live/stale states; complete hourly candles with disclosed gaps and strict HTTPS/no-credential source validation; source-linked dated macro context without causal claims; and a stress-test hypothesis handoff. No new providers, polling, or invented reference venues."
+    },
+    {
+      "order": 24,
+      "id": "23-follow-wallet",
+      "branch": "codex/23-follow-wallet",
+      "tagPrefix": "rc/23-follow-wallet/",
+      "status": "queued",
+      "dependencies": [
+        "21-explorer-answers",
+        "14-scout-watch"
+      ],
+      "outcome": "Follow a verified public wallet into Scout Watch from any result that shows one",
+      "shipGate": "One reusable chain-aware follow action appears only for a supported-chain public address that is not the zero, dead or a classified-contract address; unknown classification is labelled a public address, never an EOA or proven wallet. The action links to Scout Watch carrying the public address only, pre-fills it without automatic consent, lookup or save, and guides locked/create/unlocked states without losing the address. Encrypted Vault labels never enter a URL. Wallet-result, transaction-participant, invalid/zero/dead/contract, feature-disabled and locked/unlocked flows are tested with no new provider, key, signing, payment or recurring spend."
+    },
+    {
+      "order": 25,
+      "id": "24-exit-check",
+      "branch": "codex/24-exit-check",
+      "tagPrefix": "rc/24-exit-check/",
+      "status": "queued",
+      "dependencies": [
+        "04-portfolio-intelligence",
+        "05-rwa-phygital-verify",
+        "23-follow-wallet"
+      ],
+      "outcome": "See whether an observed position could realistically be exited and what it would cost",
+      "shipGate": "Exit views are built only from already-fetched, source-linked chain data; liquidity depth, holder concentration, transfer restrictions and known network or protocol costs stay explicit, and missing coverage is never reported as zero or as a safety verdict. No price prediction, executable quote or guaranteed exit is claimed; ChainScout never signs or broadcasts and the official app owns execution. Fresh, empty, locked and disabled ownership states plus English/Chinese mobile flows are tested with no new provider, paid path, account or recurring spend."
+    },
+    {
+      "order": 26,
+      "id": "25-biggest-trades",
+      "branch": "codex/25-biggest-trades",
+      "tagPrefix": "rc/25-biggest-trades/",
+      "status": "queued",
+      "dependencies": [
+        "23-follow-wallet",
+        "21-explorer-answers",
+        "04-portfolio-intelligence"
+      ],
+      "outcome": "Compare the largest observed trades for a token or wallet and follow the public addresses involved",
+      "shipGate": "Largest observed amounts come from bounded, timestamped, source-linked transfer records and never infer buys, sells, identity, coordination or profit; partial coverage, failed transactions, unknown counterparties and missing records remain distinct. Public participant addresses reuse the release 23 chain-aware follow action with no automatic lookup or save, and ranking is deterministic, excluding zero, dead and classified-contract addresses. Locked/disabled ownership, English/Chinese and mobile are tested; no signing, new provider, polling or recurring spend."
     }
   ]
 }
