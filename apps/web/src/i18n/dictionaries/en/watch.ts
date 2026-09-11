@@ -141,7 +141,7 @@ export const watch = {
   "product.feature.scout-watch.eyebrow": "PRIVATE WATCHLIST · ON DEMAND",
   "product.feature.scout-watch.navHint": "See what changed in a wallet",
   "product.feature.scout-watch.summary":
-    "Save wallets locally and compare balances and newly observed activity between checks.",
+    "Save wallets locally, compare changes, browse a combined activity feed and find shared token holdings.",
   "product.feature.scout-watch.bestFor":
     "Returning to wallets you follow without reconstructing the last view.",
   "product.feature.scout-watch.privacy":
@@ -153,7 +153,7 @@ export const watch = {
   "product.feature.scout-watch.step.2":
     "Paste a Robinhood wallet address, review the public lookup and save a baseline.",
   "product.feature.scout-watch.step.3":
-    "Refresh later and compare exact balances, missing entries and newly observed transactions.",
+    "Refresh later to compare exact balances, or open Activity feed and Wallet overlap to explore your saved checks together.",
   "product.feature.scout-watch.step.4":
     "Export an encrypted backup; your watchlist is local to this browser and site.",
 } as const;

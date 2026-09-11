@@ -129,7 +129,7 @@ export const watch = {
   "product.feature.scout-watch.eyebrow": "私密关注列表 · 手动查询",
   "product.feature.scout-watch.navHint": "查看钱包发生了什么变化",
   "product.feature.scout-watch.summary":
-    "在本地保存钱包，对比查询之间的余额和新发现的活动。",
+    "在本地保存钱包，对比变化、浏览动态汇总并发现共同持有的代币。",
   "product.feature.scout-watch.bestFor":
     "再次查看关注的钱包，无需重新整理之前的信息。",
   "product.feature.scout-watch.privacy":
@@ -141,7 +141,7 @@ export const watch = {
   "product.feature.scout-watch.step.2":
     "粘贴 Robinhood 钱包地址，查看公开查询说明并保存基准。",
   "product.feature.scout-watch.step.3":
-    "稍后刷新，对比精确余额、未返回的条目和新发现的交易。",
+    "稍后刷新以对比精确余额，或打开动态汇总和共同持仓，一起查看已保存的检查。",
   "product.feature.scout-watch.step.4":
     "导出加密备份；关注列表仅保存在当前浏览器和网站。",
 } as const;
