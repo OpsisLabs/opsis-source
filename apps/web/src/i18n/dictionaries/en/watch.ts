@@ -160,11 +160,11 @@ export const watch = {
   "watch.briefing.badge": "LOCAL · ON DEMAND",
   "watch.briefing.eyebrow": "Since the previous saved check",
   "watch.briefing.intro":
-    "A short summary of the latest two retained checks for each followed wallet. Local, manual and bounded; no background monitoring.",
+    "See what changed between each wallet's last two saved checks.",
   "watch.briefing.window":
-    "Comparing block {fromBlock} ({from}) with block {toBlock} ({to})",
+    "Saved checks from {from} to {to}. Different wallets can cover different time ranges.",
   "watch.briefing.limits":
-    "Bounded sample from saved checks. Missing entries are unknown, not zero; transfers are not buys or sells. No continuous alerts, profit, identity or safety claims.",
+    "Manual refresh only. Only returned data is compared, so anything missing stays unknown.",
   "watch.briefing.partial":
     "Some sections are incomplete. A missing entry is not a confirmed exit.",
   "watch.briefing.gaps": "Provider reported gaps:",

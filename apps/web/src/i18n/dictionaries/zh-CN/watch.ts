@@ -147,12 +147,11 @@ export const watch = {
   "watch.briefing.title": "关注列表概览",
   "watch.briefing.badge": "本地 · 手动",
   "watch.briefing.eyebrow": "自上次保存的查询以来",
-  "watch.briefing.intro":
-    "针对每个关注钱包，汇总最近两次已保存查询的简要变化。仅在本地手动进行，范围有限，不会在后台监控。",
+  "watch.briefing.intro": "查看每个钱包最近两次已保存查询之间的变化。",
   "watch.briefing.window":
-    "正在对比区块 {fromBlock}（{from}）与区块 {toBlock}（{to}）",
+    "已保存查询：{from} 至 {to}。不同钱包的查询时间范围可能不同。",
   "watch.briefing.limits":
-    "基于已保存查询的有限样本。缺失条目是未知，不等于零；转账不代表买入或卖出。不提供持续提醒、利润、身份或安全结论。",
+    "仅手动刷新。只对比查询返回的数据，缺失的项目保持未知。",
   "watch.briefing.partial": "部分区域不完整。缺失条目不代表已确认转出。",
   "watch.briefing.gaps": "提供方报告的缺口：",
   "watch.briefing.filter": "概览钱包筛选",
