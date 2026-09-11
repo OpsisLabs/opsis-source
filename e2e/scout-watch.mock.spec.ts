@@ -936,9 +936,14 @@ test("private explorer follows a public wallet and transaction participants with
   page.on("request", (request) => {
     if (request.url().includes("/v1/private/watch")) watchRequests.push(request.url());
   });
-  const participant = WATCH_TEST_TOKEN;
   const zero = `0x${"0".repeat(40)}`;
+  const contract = `0x${"c".repeat(40)}`;
   const txHash = `0x${"b".repeat(64)}`;
+  // Ten distinct participants exercise the panel bound (first eight shown).
+  const many = Array.from(
+    { length: 10 },
+    (_, index) => `0x${(index + 1).toString(16).padStart(2, "0").repeat(20)}`,
+  );
   const privacy = {
     accountRequired: false,
     walletConnectionRequired: false,
@@ -956,9 +961,19 @@ test("private explorer follows a public wallet and transaction participants with
         hash: txHash,
         status: "0x1",
         valueEth: "1.25",
+        // Mirrors the normalized API shape: top-level and token transfers are
+        // address strings; internal calls keep the Blockscout { hash, is_contract }.
         from: WATCH_TEST_ADDRESS,
-        to: participant,
-        tokenTransfers: [{ from: participant, to: zero }],
+        to: many[0],
+        tokenTransfers: many
+          .slice(1)
+          .map((address) => ({ from: address, to: zero })),
+        internalTransactions: [
+          {
+            from: { hash: many[1], is_contract: false },
+            to: { hash: contract, is_contract: true },
+          },
+        ],
       };
       await route.fulfill({
         json: {
@@ -1008,13 +1023,25 @@ test("private explorer follows a public wallet and transaction participants with
   await expect(
     page.getByRole("link", { name: /FOLLOW THIS WALLET/ }),
   ).toBeVisible();
-  // A transaction result shows its distinct non-zero participants only.
+  // A transaction result shows its distinct non-zero participants only, bounded
+  // to eight with a visible remainder count and a source reference.
   await page.getByLabel("Public chain identifier").fill(txHash);
   await page.getByRole("button", { name: "EXPLAIN PRIVATELY", exact: true }).click();
-  const participantLinks = page.getByRole("link", {
+  const panel = page.getByRole("region", { name: "Follow on Scout Watch" });
+  const participantLinks = panel.getByRole("link", {
     name: /FOLLOW THIS PUBLIC ADDRESS/,
   });
-  await expect(participantLinks).toHaveCount(2);
+  await expect(participantLinks).toHaveCount(8);
+  await expect(panel.getByText("0x1111…1111")).toBeVisible();
+  await expect(panel.getByText("from", { exact: true }).first()).toBeVisible();
+  await expect(panel.getByText("to", { exact: true }).first()).toBeVisible();
+  await expect(
+    panel.getByText("Showing the first 8 of 11 public addresses."),
+  ).toBeVisible();
+  await expect(panel.getByText(/0xcccc/)).toHaveCount(0);
+  await expect(
+    panel.getByRole("link", { name: "Open the full transaction evidence" }),
+  ).toBeVisible();
   await participantLinks.first().click();
   await expect(page).toHaveURL(/\/watch\?address=/);
   // The locked/create guide keeps the handed-off address and performs nothing.

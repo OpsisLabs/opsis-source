@@ -50,6 +50,10 @@ export const explorer: Record<string, string> = {
   "explorer.follow.body":
     "打开 Scout Watch 并预填此公开地址。在您同意之前不会查询或保存任何内容，您添加的标签会加密保存在本地保险库中。",
   "explorer.follow.participants": "此交易中的公开地址",
+  "explorer.follow.from": "来自",
+  "explorer.follow.to": "发送至",
+  "explorer.follow.more": "显示前 {shown} 个，共 {total} 个公开地址。",
+  "explorer.follow.source": "打开完整交易证据",
   "explorer.error.invalidEntity":
     "请输入一个完整的钱包或合约地址，或一个完整的交易哈希。",
   "explorer.error.saveFailed": "回答未保存。{reason}",

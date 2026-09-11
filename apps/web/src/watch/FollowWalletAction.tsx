@@ -30,7 +30,7 @@ export type FollowWalletActionProps = {
 };
 
 const PRIMARY =
-  "clip-btn-sm inline-flex min-h-11 items-center justify-center gap-2 bg-[#fa6c34] px-4 py-2 font-mono-d text-[10.5px] font-medium tracking-wider text-[#1d1d1d] transition-colors hover:bg-[#ff8655] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff985e]";
+  "clip-btn-sm inline-flex min-h-11 items-center justify-center gap-2 bg-[#fa6c34] px-4 py-2 font-mono-d text-[14px] font-medium tracking-wider text-[#1d1d1d] transition-colors hover:bg-[#ff8655] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff985e]";
 const ROW =
   "inline-flex min-h-11 items-center gap-2 rounded-sm border border-[#fa6c34] px-3 py-2 text-[14px] text-[#ff985e] transition-colors hover:bg-[#fa6c34]/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff985e]";
 

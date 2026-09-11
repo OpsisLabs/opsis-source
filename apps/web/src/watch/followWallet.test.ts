@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   DEAD_ADDRESS,
+  FOLLOW_PARTICIPANT_LIMIT,
   WATCH_SUPPORTED_CHAIN_IDS,
   ZERO_ADDRESS,
+  classificationFromAddressObject,
   collectTransactionParticipants,
   isFollowableWallet,
   normalizePublicAddress,
@@ -78,6 +80,46 @@ describe("transaction participants", () => {
       { chainId: CHAIN },
     );
     expect(participants.map((row) => row.address)).toEqual([WALLET]);
+  });
+
+  it("honors an explicit is_contract classification instead of dropping it", () => {
+    const contract = `0x${"c".repeat(40)}`;
+    const eoa = `0x${"e".repeat(40)}`;
+    expect(classificationFromAddressObject({ is_contract: true })).toBe("contract");
+    expect(classificationFromAddressObject({ is_contract: false })).toBe("wallet");
+    expect(classificationFromAddressObject("0xabc")).toBeUndefined();
+    const participants = collectTransactionParticipants(
+      {
+        internalTransactions: [
+          {
+            from: { hash: contract, is_contract: true },
+            to: { hash: eoa, is_contract: false },
+          },
+        ],
+      },
+      { chainId: CHAIN },
+    );
+    expect(participants.map((row) => row.address)).toEqual([eoa]);
+    expect(participants[0]?.classification).toBe("wallet");
+  });
+
+  it("records both sides once when an address appears as from and to", () => {
+    const participants = collectTransactionParticipants(
+      { tokenTransfers: [{ from: WALLET, to: WALLET }] },
+      { chainId: CHAIN },
+    );
+    expect(participants).toEqual([
+      {
+        address: WALLET,
+        chainId: CHAIN,
+        classification: "unknown",
+        sides: ["from", "to"],
+      },
+    ]);
+  });
+
+  it("exports a bounded participant limit for the panel", () => {
+    expect(FOLLOW_PARTICIPANT_LIMIT).toBeGreaterThan(0);
   });
 
   it("returns nothing without facts or on an unsupported chain", () => {

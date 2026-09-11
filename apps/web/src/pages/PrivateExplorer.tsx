@@ -17,15 +17,17 @@ import {
   Trash2,
 } from "lucide-react";
 import { AnswerCard, ResolvingAnswerCard } from "../dashboard/ChatPage";
-import { classify, SAMPLE_TX, SAMPLE_WALLET } from "../dashboard/api";
+import { classify, EXPLORER, SAMPLE_TX, SAMPLE_WALLET } from "../dashboard/api";
 import { ApiError } from "../dashboard/http";
 import type { ChainEntityType, ChatSession, ExplorerAnswerTask } from "../dashboard/types";
 import { analyzePrivate, type PrivateAnalysis } from "../private/api";
 import { goalsForEntity, type ExplorerGoal } from "../private/goals";
 import { FollowWalletAction } from "../watch/FollowWalletAction";
 import {
+  FOLLOW_PARTICIPANT_LIMIT,
   collectTransactionParticipants,
   toFollowableWallet,
+  type FollowableParticipant,
   type FollowableWallet,
 } from "../watch/followWallet";
 import { isProductFeatureEnabled } from "../product/availability";
@@ -39,11 +41,13 @@ import { useI18n } from "../i18n";
 /**
  * The followable public addresses the current answer actually shows: the wallet
  * entity itself, or the participants of a transaction. Contract-typed results
- * are excluded by the reusable follow contract.
+ * and explicitly contract-classified addresses are excluded by the follow
+ * contract, and unknown participants stay honest public addresses.
  */
-function followTargetsFor(
-  result: PrivateAnalysis,
-): (FollowableWallet & { primary: boolean })[] {
+function followTargetsFor(result: PrivateAnalysis): {
+  primary: FollowableWallet | null;
+  participants: FollowableParticipant[];
+} {
   const kind = result.answer.card?.kind ?? result.entity.type;
   const classification =
     kind === "wallet" ? "wallet" : kind === "contract" ? "contract" : "unknown";
@@ -61,15 +65,16 @@ function followTargetsFor(
           chainId: result.entity.chainId,
         })
       : [];
-  const targets: (FollowableWallet & { primary: boolean })[] = [];
-  if (primary) targets.push({ ...primary, primary: true });
-  for (const participant of participants)
-    targets.push({ ...participant, primary: false });
-  return targets;
+  return { primary, participants };
+}
+
+function shortAddress(address: string): string {
+  return `${address.slice(0, 6)}…${address.slice(-4)}`;
 }
 
 export default function PrivateExplorer() {
-  const { t } = useI18n();  const [entityInput, setEntityInput] = useState("");
+  const { t } = useI18n();
+  const [entityInput, setEntityInput] = useState("");
   const [question, setQuestion] = useState("");
   const [questionSource, setQuestionSource] = useState<"goal" | "freeform">("freeform");
   const [task, setTask] = useState<ExplorerAnswerTask | undefined>(undefined);
@@ -274,8 +279,19 @@ export default function PrivateExplorer() {
     resolvedMatchesInput && resolved ? resolved.type : classify(entityInput).type,
   );
   const nextGoals = result ? goalsForEntity(result.entity.type) : [];
-  const followTargets =
-    result && isProductFeatureEnabled("scout-watch") ? followTargetsFor(result) : [];
+  const follow =
+    result && isProductFeatureEnabled("scout-watch")
+      ? followTargetsFor(result)
+      : { primary: null, participants: [] };
+  const visibleParticipants = follow.participants.slice(
+    0,
+    FOLLOW_PARTICIPANT_LIMIT,
+  );
+  const hasFollow = Boolean(follow.primary) || follow.participants.length > 0;
+  const transactionExplorer =
+    result && result.entity.type === "transaction"
+      ? `${EXPLORER}/tx/${result.entity.value}`
+      : null;
 
   return (
     <div className="min-h-screen bg-[#1d1d1d] text-[#e9e0d1]">
@@ -572,33 +588,83 @@ export default function PrivateExplorer() {
               {loading && <ResolvingAnswerCard entity={pendingEntity} />}
               {result && (
                 <div className="space-y-4">
-                  {followTargets.length > 0 && (
+                  {hasFollow && (
                     <section
                       aria-label={t("explorer.follow.title")}
                       className="clip-panel border border-[#fa6c34]/40 bg-[#241d18] p-4 sm:p-5"
                     >
-                      <p className="font-mono-d text-[10px] tracking-[0.15em] text-[#ff985e]">
+                      <p className="font-mono-d text-[12px] tracking-[0.15em] text-[#ff985e]">
                         {t("explorer.follow.title").toUpperCase()}
                       </p>
-                      <p className="mt-2 max-w-[720px] text-[12.5px] leading-relaxed text-[#b8b0a7]">
+                      <p className="mt-2 max-w-[720px] text-[14px] leading-relaxed text-[#b8b0a7]">
                         {t("explorer.follow.body")}
                       </p>
-                      {followTargets.some((target) => !target.primary) && (
-                        <p className="mt-3 font-mono-d text-[9px] tracking-wider text-[#7f7972]">
-                          {t("explorer.follow.participants").toUpperCase()}
-                        </p>
-                      )}
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {followTargets.map((target) => (
+                      {follow.primary && (
+                        <div className="mt-3 flex flex-wrap gap-2">
                           <FollowWalletAction
-                            key={target.address.toLowerCase()}
-                            address={target.address}
-                            chainId={target.chainId}
-                            classification={target.classification}
-                            variant={target.primary ? "primary" : "row"}
+                            address={follow.primary.address}
+                            chainId={follow.primary.chainId}
+                            classification={follow.primary.classification}
                           />
-                        ))}
-                      </div>
+                        </div>
+                      )}
+                      {follow.participants.length > 0 && (
+                        <>
+                          <p className="mt-4 font-mono-d text-[12px] tracking-wider text-[#7f7972]">
+                            {t("explorer.follow.participants").toUpperCase()}
+                          </p>
+                          <ul className="mt-2 space-y-1">
+                            {visibleParticipants.map((participant) => (
+                              <li
+                                key={participant.address.toLowerCase()}
+                                className="flex min-h-11 flex-wrap items-center gap-x-3 gap-y-1"
+                              >
+                                <span
+                                  className="font-mono-d text-[14px] text-[#d6ccba]"
+                                  title={participant.address}
+                                >
+                                  {shortAddress(participant.address)}
+                                </span>
+                                <span className="font-mono-d text-[12px] text-[#7f7972]">
+                                  {participant.sides
+                                    .map((side) =>
+                                      side === "from"
+                                        ? t("explorer.follow.from")
+                                        : t("explorer.follow.to"),
+                                    )
+                                    .join(" · ")}
+                                </span>
+                                <FollowWalletAction
+                                  address={participant.address}
+                                  chainId={participant.chainId}
+                                  classification={participant.classification}
+                                  variant="row"
+                                />
+                              </li>
+                            ))}
+                          </ul>
+                          {follow.participants.length >
+                            visibleParticipants.length && (
+                            <p className="mt-2 text-[12px] text-[#7f7972]">
+                              {t("explorer.follow.more", {
+                                shown: visibleParticipants.length,
+                                total: follow.participants.length,
+                              })}
+                            </p>
+                          )}
+                          {transactionExplorer && (
+                            <a
+                              className="mt-2 inline-flex min-h-11 items-center text-[12px] text-[#ff985e] underline"
+                              href={transactionExplorer}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              referrerPolicy="no-referrer"
+                            >
+                              {t("explorer.follow.source")}
+                            </a>
+                          )}
+                        </>
+                      )}
                     </section>
                   )}
                   <AnswerCard
