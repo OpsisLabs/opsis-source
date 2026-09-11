@@ -18,6 +18,11 @@ const ROUTE_METADATA: Record<string, RouteMetadataEntry> = {
     title: "cards.metadata.title",
     description: "cards.metadata.description",
   },
+  "/biggest-trades": {
+    title: "trades.metadata.title",
+    description: "trades.metadata.description",
+    noIndex: true,
+  },
   "/": {
     title: "metadata.home.title",
     description: "metadata.home.description",

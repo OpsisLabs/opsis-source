@@ -37,6 +37,8 @@ import { marketRoutes } from "./routes/market.js";
 import { BenchmarkService } from "./market/benchmarks.js";
 import { MarketInventoryService, type MarketInventorySource } from "./market/service.js";
 import { createMarketBudget } from "./market/budget.js";
+import { ObservedTradesService, type ObservedTradesSource } from "./market/observed-trades.js";
+import { createObservedTradesBudget } from "./market/observed-trades-budget.js";
 import { openDataRoutes } from "./routes/open-data.js";
 import type { OpenDataLimiter } from "./open-data/limiter.js";
 import { corsOptionsForRequest } from "./http/cors.js";
@@ -51,6 +53,7 @@ export async function buildApp(
     rwaVerification?: RwaVerificationSource;
     collectibleCatalog?: CollectibleCatalogSource;
     marketInventory?: MarketInventorySource;
+    observedTrades?: ObservedTradesSource;
     openDataLimiter?: OpenDataLimiter;
   }
 ) {
@@ -168,7 +171,8 @@ export async function buildApp(
     app,
     env,
     dependencies?.marketInventory ?? new MarketInventoryService(env, { budget: createMarketBudget(env, redis) }),
-    new BenchmarkService(env, { budget: createCollectibleBudget(env, redis) })
+    new BenchmarkService(env, { budget: createCollectibleBudget(env, redis) }),
+    dependencies?.observedTrades ?? new ObservedTradesService(env, { budget: createObservedTradesBudget(env, redis) })
   );
   await authRoutes(app, env, prisma);
   await accountRoutes(app, env, prisma);

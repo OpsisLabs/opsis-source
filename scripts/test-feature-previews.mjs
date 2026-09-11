@@ -15,6 +15,7 @@ const features = [
   { source: "apps/web/src/approvals/ApprovalManager.tsx", flag: "VITE_APPROVAL_MANAGER_ENABLED", file: "e2e/vault.mock.spec.ts", grep: "approval manager" },
   { source: "apps/web/src/simulator/TradeSimulator.tsx", flag: "VITE_TRADE_SIMULATOR_ENABLED", file: "e2e/scout-swap.mock.spec.ts", grep: "trade simulator" },
   { source: "apps/web/src/deals/DealBrief.tsx", flag: "VITE_COLLECTIBLE_DEAL_FINDER_ENABLED", file: "e2e/vault.mock.spec.ts", grep: "deal finder" },
+  { source: "apps/web/src/trades/BiggestTrades.tsx", flag: "VITE_OBSERVED_TRADES_ENABLED", file: "e2e/biggest-trades.mock.spec.ts", grep: "biggest observed trades" },
 ];
 const baseEnv = { ...process.env, PW_APP_PORT: String(port), CHAINSCOUT_FEATURE_PREVIEW: "1" };
 for (const feature of features) baseEnv[feature.flag] = "false";
@@ -36,6 +37,12 @@ for (const engine of ["chromium", "webkit"]) {
   }
   if (existsSync(join(root, "e2e/scout-watch.mock.spec.ts"))) {
     const closed = spawnSync("pnpm", ["exec", "playwright", "test", ...config, "e2e/scout-watch.mock.spec.ts", "--grep", "closed by default"], {
+      cwd: root, stdio: "inherit", env: baseEnv,
+    });
+    if (closed.status !== 0) process.exit(closed.status ?? 1);
+  }
+  if (existsSync(join(root, "e2e/biggest-trades.mock.spec.ts"))) {
+    const closed = spawnSync("pnpm", ["exec", "playwright", "test", ...config, "e2e/biggest-trades.mock.spec.ts", "--grep", "closed by default"], {
       cwd: root, stdio: "inherit", env: baseEnv,
     });
     if (closed.status !== 0) process.exit(closed.status ?? 1);

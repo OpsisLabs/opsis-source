@@ -80,6 +80,13 @@ const envSchema = z.object({
   DEAL_FINDER_PREVIEW_HASH: optionalString,
   DEAL_FINDER_PREVIEW_EXPIRES_AT: optionalString,
   MARKET_DAILY_REQUEST_BUDGET: z.coerce.number().int().min(50).max(25_000).default(1_000),
+  OBSERVED_TRADES_ENABLED: envBoolean.default(false),
+  OBSERVED_TRADES_DAILY_RPC_UNIT_BUDGET: z.coerce.number().int().min(100).max(100_000).default(3_000),
+  OBSERVED_TRADES_MAX_RPC_SUBCALLS: z.coerce.number().int().min(8).max(100).default(40),
+  OBSERVED_TRADES_MAX_BLOCKS: z.coerce.number().int().min(50).max(1_000).default(1_000),
+  OBSERVED_TRADES_MIN_BLOCKS: z.coerce.number().int().min(10).max(500).default(50),
+  OBSERVED_TRADES_MAX_LOGS: z.coerce.number().int().min(10).max(10_000).default(1_000),
+  OBSERVED_TRADES_TOP_ROWS: z.coerce.number().int().min(1).max(6).default(6),
   OPEN_DATA_API_ENABLED: envBoolean.default(false),
   OPEN_DATA_DAILY_REQUEST_BUDGET: z.coerce.number().int().min(100).max(100_000).default(10_000),
   // The browser sends a custom header and exact Origin on state-changing
@@ -106,6 +113,7 @@ const envSchema = z.object({
   RATE_LIMIT_RWA_PER_HOUR: z.coerce.number().int().min(1).max(60).default(10),
   RATE_LIMIT_COLLECTIBLE_PER_HOUR: z.coerce.number().int().min(1).max(60).default(10),
   RATE_LIMIT_MARKET_PER_HOUR: z.coerce.number().int().min(1).max(60).default(12),
+  RATE_LIMIT_OBSERVED_TRADES_PER_HOUR: z.coerce.number().int().min(1).max(60).default(12),
   RATE_LIMIT_OPEN_DATA_PER_HOUR: z.coerce.number().int().min(1).max(1_000).default(60),
   QUOTA_AI_MESSAGES_PER_MONTH: z.coerce.number().int().positive().default(500),
   QUOTA_CHAIN_LOOKUPS_PER_MONTH: z.coerce.number().int().positive().default(5000),
@@ -201,6 +209,23 @@ const envSchema = z.object({
         code: z.ZodIssueCode.custom,
         path: ["ROBINHOOD_PUBLIC_RPC_URL"],
         message: "Enabled RWA Verify requires the official Robinhood Chain public RPC and chain ID 4663"
+      });
+    }
+  }
+  if (env.OBSERVED_TRADES_ENABLED && env.NODE_ENV !== "test") {
+    const publicRpc = new URL(env.ROBINHOOD_PUBLIC_RPC_URL);
+    const isOfficialRobinhoodRpc = publicRpc.protocol === "https:"
+      && publicRpc.origin === "https://rpc.mainnet.chain.robinhood.com"
+      && (publicRpc.pathname === "" || publicRpc.pathname === "/")
+      && publicRpc.search === ""
+      && publicRpc.hash === ""
+      && publicRpc.username === ""
+      && publicRpc.password === "";
+    if (!isOfficialRobinhoodRpc || env.ROBINHOOD_CHAIN_ID !== 4663) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["ROBINHOOD_PUBLIC_RPC_URL"],
+        message: "Enabled Biggest Observed Trades require the official Robinhood Chain public RPC and chain ID 4663"
       });
     }
   }

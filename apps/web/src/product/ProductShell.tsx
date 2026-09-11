@@ -28,6 +28,7 @@ import {
   Search,
   ShieldCheck,
   Sparkles,
+  TrendingUp,
   WalletCards,
   X,
 } from "lucide-react";
@@ -60,6 +61,7 @@ const ICONS: Record<string, ComponentType<{ size?: number; className?: string }>
   "situation-room": Globe2,
   "scout-watch": Eye,
   "card-price-check": WalletCards,
+  "biggest-trades": TrendingUp,
   "private-explorer": Search,
   "scout-swap": ArrowLeftRight,
   "rwa-verify": BadgeCheck,

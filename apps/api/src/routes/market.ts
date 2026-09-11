@@ -8,6 +8,11 @@ import {
   MarketInventoryService,
   type MarketInventorySource,
 } from "../market/service.js";
+import {
+  ObservedTradesService,
+  type ObservedTradesSource,
+} from "../market/observed-trades.js";
+import { createObservedTradesBudget } from "../market/observed-trades-budget.js";
 
 const cryptoBody = z
   .object({
@@ -16,6 +21,21 @@ const cryptoBody = z
       .string()
       .trim()
       .regex(/^0x[0-9a-fA-F]{40}$/),
+  })
+  .strict();
+
+const observedTradesBody = z
+  .object({
+    chainId: z.literal(4663),
+    contract: z
+      .string()
+      .trim()
+      .regex(/^0x[0-9a-fA-F]{40}$/)
+      .optional(),
+    fee: z
+      .union([z.literal(100), z.literal(500), z.literal(3000), z.literal(10000)])
+      .optional(),
+    windowBlocks: z.number().int().min(1).max(1000).optional(),
   })
   .strict();
 
@@ -39,10 +59,32 @@ export async function marketRoutes(
   env: Env,
   source: MarketInventorySource = new MarketInventoryService(env),
   benchmarks: Pick<BenchmarkService, "lookup"> = new BenchmarkService(env),
+  observedTrades: ObservedTradesSource = new ObservedTradesService(env, {
+    budget: createObservedTradesBudget(env),
+  }),
 ): Promise<void> {
   const config = {
     rateLimit: { max: env.RATE_LIMIT_MARKET_PER_HOUR, timeWindow: "1 hour" },
   };
+  app.post(
+    "/v1/private/market/observed-trades",
+    {
+      config: {
+        rateLimit: {
+          max: env.RATE_LIMIT_OBSERVED_TRADES_PER_HOUR,
+          timeWindow: "1 hour",
+        },
+      },
+    },
+    async (request, reply) => {
+      noStore(reply);
+      if (!env.OBSERVED_TRADES_ENABLED) {
+        throw new AppError("NOT_FOUND", 404, "Not found");
+      }
+      const input = observedTradesBody.parse(request.body);
+      return observedTrades.observe(input);
+    },
+  );
   app.post("/v1/private/deals/access", { config }, async (request, reply) => {
     noStore(reply);
     authorizeDealPreview(env, request.headers.authorization);

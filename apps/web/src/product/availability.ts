@@ -56,6 +56,7 @@ export function isProductFeatureEnabled(id: string) {
   if (id === "scout-watch") return import.meta.env.VITE_SCOUT_WATCH_ENABLED === "true";
   if (id === "card-price-check") return import.meta.env.VITE_CARD_PRICE_CHECK_ENABLED === "true";
   if (id === "trade-simulator") return import.meta.env.VITE_TRADE_SIMULATOR_ENABLED === "true";
+  if (id === "biggest-trades") return isObservedTradesEnabled();
   if (id === "approval-manager") return isApprovalManagerEnabled();
   if (id === "collectible-deal-finder") return isDealFinderEnabled();
   if (id === "collectible-catalog") return isCollectibleCatalogEnabled();
@@ -70,6 +71,7 @@ export function isApprovalManagerEnabled() {
 }
 
 export function isDealFinderEnabled() { return import.meta.env.VITE_COLLECTIBLE_DEAL_FINDER_ENABLED === "true"; }
+export function isObservedTradesEnabled() { return import.meta.env.VITE_OBSERVED_TRADES_ENABLED === "true"; }
 export type VaultWorkspace = "assets" | "portfolio" | "collectibles" | "market" | "replay" | "approvals" | "deals";
 
 type VaultAvailability = Pick<ReturnType<typeof productAvailability>, "collectibleCatalog" | "marketInventory" | "replayActions">;

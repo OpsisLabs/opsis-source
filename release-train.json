@@ -282,7 +282,7 @@
         "23-follow-wallet"
       ],
       "outcome": "See whether an observed position could realistically be exited and what it would cost",
-      "shipGate": "Exit views are built only from already-fetched, source-linked chain data; liquidity depth, holder concentration, transfer restrictions and known network or protocol costs stay explicit, and missing coverage is never reported as zero or as a safety verdict. No price prediction, executable quote or guaranteed exit is claimed; ChainScout never signs or broadcasts and the official app owns execution. Fresh, empty, locked and disabled ownership states plus English/Chinese mobile flows are tested with no new provider, paid path, account or recurring spend."
+      "shipGate": "Exit views are built only from already-fetched, source-linked chain data plus, where reviewed assets and a factory-verified pool exist, a fresh single-pool Uniswap V3 QuoterV2 estimate; liquidity depth, holder concentration, transfer restrictions and known network or protocol costs stay explicit, and missing coverage is never reported as zero or as a safety verdict. The fresh quote is estimated, single-pool, and not guaranteed; no price prediction, executable transaction or guaranteed exit is claimed, and ChainScout never signs or broadcasts while the official app owns execution. Fresh, empty, locked and disabled ownership states plus English/Chinese mobile flows are tested with no new provider, paid path, account or recurring spend."
     },
     {
       "order": 26,
@@ -296,7 +296,7 @@
         "04-portfolio-intelligence"
       ],
       "outcome": "Compare the largest observed trades for a token or wallet and follow the public addresses involved",
-      "shipGate": "Largest observed amounts come from bounded, timestamped, source-linked transfer records and never infer buys, sells, identity, coordination or profit; partial coverage, failed transactions, unknown counterparties and missing records remain distinct. Public participant addresses reuse the release 23 chain-aware follow action with no automatic lookup or save, and ranking is deterministic, excluding zero, dead and classified-contract addresses. Locked/disabled ownership, English/Chinese and mobile are tested; no signing, new provider, polling or recurring spend."
+      "shipGate": "Largest observed amounts come from bounded, timestamped, source-linked signed Uniswap V3 Swap logs decoded from one factory-verified pool, classified from amount0/amount1 only and never from token transfers; they never infer buys, sells, identity, coordination or profit; partial coverage, capped or narrowed windows, malformed logs and missing records remain distinct, and an incomplete window is never labeled a chain-wide daily total. Multiple Swaps per transaction, flash loans and multi-hop routes stay explicit. Public participant addresses reuse the release 23 chain-aware follow action with no automatic lookup or save, and ranking is deterministic, excluding zero, dead and classified-contract addresses. Locked/disabled ownership, English/Chinese and mobile are tested; no signing, new provider, polling or recurring spend."
     }
   ]
 }

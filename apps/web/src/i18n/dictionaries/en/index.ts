@@ -19,6 +19,7 @@ import { watch } from "./watch";
 import { feed } from "./feed";
 import { overlap } from "./overlap";
 import { stress } from "./stress";
+import { trades } from "./trades";
 
 export const en = {
   ...common,
@@ -42,6 +43,7 @@ export const en = {
   ...feed,
   ...overlap,
   ...stress,
+  ...trades,
 };
 
 export type TranslationKey = keyof typeof en;
