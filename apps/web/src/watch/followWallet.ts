@@ -107,20 +107,34 @@ function rows(value: unknown): Record<string, unknown>[] {
     : [];
 }
 
-/** Adds one from/to side, honoring any explicit is_contract classification. */
+/**
+ * Adds one from/to side. An explicit `is_contract: true` is sticky: it records
+ * the address so a later bare string observation can never re-introduce it, and
+ * it removes any earlier unknown entry added before the contract was known.
+ */
 function addSide(
   out: Map<string, FollowableParticipant>,
+  contractKeys: Set<string>,
   value: unknown,
   side: ParticipantSide,
   chainId: number,
 ): void {
-  const wallet = toFollowableWallet({
-    address: addressOf(value),
-    chainId,
-    classification: classificationFromAddressObject(value),
-  });
+  const address = addressOf(value);
+  const classification = classificationFromAddressObject(value);
+
+  if (classification === "contract") {
+    const key = normalizePublicAddress(address)?.toLowerCase();
+    if (key) {
+      contractKeys.add(key);
+      out.delete(key);
+    }
+    return;
+  }
+
+  const wallet = toFollowableWallet({ address, chainId, classification });
   if (!wallet) return;
   const key = wallet.address.toLowerCase();
+  if (contractKeys.has(key)) return;
   const existing = out.get(key);
   if (existing) {
     if (!existing.sides.includes(side)) existing.sides.push(side);
@@ -132,12 +146,13 @@ function addSide(
 /** Reads from/to pairs out of a fact list without inventing fields. */
 function addPairs(
   out: Map<string, FollowableParticipant>,
+  contractKeys: Set<string>,
   list: unknown,
   chainId: number,
 ): void {
   for (const row of rows(list)) {
-    addSide(out, row.from, "from", chainId);
-    addSide(out, row.to, "to", chainId);
+    addSide(out, contractKeys, row.from, "from", chainId);
+    addSide(out, contractKeys, row.to, "to", chainId);
   }
 }
 
@@ -145,7 +160,9 @@ function addPairs(
  * Collects the distinct, followable public addresses observed in a transaction
  * result's facts: the top-level from/to plus token transfers and internal calls.
  * Ordering is deterministic (top-level first, then transfer, then internal) and
- * an address seen on both sides records both sides once.
+ * an address seen on both sides records both sides once. A known contract wins
+ * over any earlier or later observation of the same address as an unknown
+ * string, so classification never depends on observation order.
  */
 export function collectTransactionParticipants(
   facts: Record<string, unknown> | undefined,
@@ -153,8 +170,9 @@ export function collectTransactionParticipants(
 ): FollowableParticipant[] {
   if (!facts) return [];
   const found = new Map<string, FollowableParticipant>();
-  addPairs(found, [facts], options.chainId);
-  addPairs(found, facts.tokenTransfers, options.chainId);
-  addPairs(found, facts.internalTransactions, options.chainId);
+  const contractKeys = new Set<string>();
+  addPairs(found, contractKeys, [facts], options.chainId);
+  addPairs(found, contractKeys, facts.tokenTransfers, options.chainId);
+  addPairs(found, contractKeys, facts.internalTransactions, options.chainId);
   return [...found.values()];
 }

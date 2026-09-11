@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "e22cb8e3f273f6ef8a84b736a97ce2e8dfa924f8fda2679f018f16af58505ca9",
+  "sourceTreeDigest": "796794518fdd46a42322acc3b2ec6f0f7a7d57f8d4e1a2631290eb0d1f826e32",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "b5200443bdb61a9dc68050fa8a3e34b0c0e75ce51aa182c81efc07149be363bb",
@@ -442,8 +442,8 @@
     "apps/web/src/watch/briefing.test.ts": "2ee0f899d8a7990a57557e4f5d6d48ab0a6bce1b0b13373b56dbb0a226f64ec8",
     "apps/web/src/watch/briefing.ts": "9efa6436ccc02468509fa66338fcdab35a0688e655d6156e1fdd798c018f4a5d",
     "apps/web/src/watch/fixture.ts": "4510df179976bafaaf22a2ec3334180fb13d36012fc9c1828fe979cb72e8f794",
-    "apps/web/src/watch/followWallet.test.ts": "4977a9c171a2295115943109c574e8e9d17f951cefe39a6f11b5dc61bcd7df0f",
-    "apps/web/src/watch/followWallet.ts": "d9a390c2478a79c6666ea6fa9ae75375f53abbac6558f20ee1a50d7626143509",
+    "apps/web/src/watch/followWallet.test.ts": "9862d52289614ce76a983fc4a976fb33a3404634fe8cac3ee5e168a4383fff44",
+    "apps/web/src/watch/followWallet.ts": "5649e7d4dc10338e159225d77ed33b83280ff6e432316447f64aafa8a6c67b9c",
     "apps/web/src/watch/FollowWalletAction.tsx": "1d6f48be4a37b13dc40655c90b362b1969e0adda42c8a338c4ed01fa77e5aab2",
     "apps/web/src/watch/model.test.ts": "7bc53fddf91379fbfe40487425f7f80cf15b90cfd7a934ae49cca079527afdd6",
     "apps/web/src/watch/model.ts": "b4569a3717cee3887fb40ab27beaa19e79c3ccde832cb2936bc86f0031572c5f",

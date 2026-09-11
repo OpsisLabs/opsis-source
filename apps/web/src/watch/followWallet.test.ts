@@ -13,6 +13,7 @@ import {
 
 const WALLET = "0x9c34Fb7b54f05eba5D28Af3fF18f8dD9D66f7292";
 const OTHER = "0x1111111111111111111111111111111111111111";
+const CONTRACT = `0x${"c".repeat(40)}`;
 const CHAIN = WATCH_SUPPORTED_CHAIN_IDS[0];
 const TX_HASH = `0x${"a".repeat(64)}`;
 
@@ -83,7 +84,6 @@ describe("transaction participants", () => {
   });
 
   it("honors an explicit is_contract classification instead of dropping it", () => {
-    const contract = `0x${"c".repeat(40)}`;
     const eoa = `0x${"e".repeat(40)}`;
     expect(classificationFromAddressObject({ is_contract: true })).toBe("contract");
     expect(classificationFromAddressObject({ is_contract: false })).toBe("wallet");
@@ -92,7 +92,7 @@ describe("transaction participants", () => {
       {
         internalTransactions: [
           {
-            from: { hash: contract, is_contract: true },
+            from: { hash: CONTRACT, is_contract: true },
             to: { hash: eoa, is_contract: false },
           },
         ],
@@ -101,6 +101,31 @@ describe("transaction participants", () => {
     );
     expect(participants.map((row) => row.address)).toEqual([eoa]);
     expect(participants[0]?.classification).toBe("wallet");
+  });
+
+  it("lets a known contract win when the bare string was observed first", () => {
+    const participants = collectTransactionParticipants(
+      {
+        from: CONTRACT,
+        internalTransactions: [
+          { from: { hash: CONTRACT, is_contract: true }, to: { hash: WALLET } },
+        ],
+      },
+      { chainId: CHAIN },
+    );
+    expect(participants.map((row) => row.address)).toEqual([WALLET]);
+  });
+
+  it("lets a known contract win when the contract object is observed first", () => {
+    const participants = collectTransactionParticipants(
+      {
+        from: { hash: CONTRACT, is_contract: true },
+        // The bare string reappears later and must not re-introduce the contract.
+        tokenTransfers: [{ from: CONTRACT, to: WALLET }],
+      },
+      { chainId: CHAIN },
+    );
+    expect(participants.map((row) => row.address)).toEqual([WALLET]);
   });
 
   it("records both sides once when an address appears as from and to", () => {
