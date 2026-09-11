@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "24-exit-check",
+  "activeRelease": "25-biggest-trades",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement",
@@ -275,7 +275,7 @@
       "id": "24-exit-check",
       "branch": "codex/24-exit-check",
       "tagPrefix": "rc/24-exit-check/",
-      "status": "active",
+      "status": "released",
       "dependencies": [
         "04-portfolio-intelligence",
         "05-rwa-phygital-verify",
@@ -289,14 +289,14 @@
       "id": "25-biggest-trades",
       "branch": "codex/25-biggest-trades",
       "tagPrefix": "rc/25-biggest-trades/",
-      "status": "queued",
+      "status": "active",
       "dependencies": [
         "23-follow-wallet",
         "21-explorer-answers",
         "04-portfolio-intelligence"
       ],
       "outcome": "Compare the largest observed trades for a token or wallet and follow the public addresses involved",
-      "shipGate": "Largest observed amounts come from bounded, timestamped, source-linked signed Uniswap V3 Swap logs decoded from one factory-verified pool, classified from amount0/amount1 only and never from token transfers; they never infer buys, sells, identity, coordination or profit; partial coverage, capped or narrowed windows, malformed logs and missing records remain distinct, and an incomplete window is never labeled a chain-wide daily total. Multiple Swaps per transaction, flash loans and multi-hop routes stay explicit. Public participant addresses reuse the release 23 chain-aware follow action with no automatic lookup or save, and ranking is deterministic, excluding zero, dead and classified-contract addresses. Locked/disabled ownership, English/Chinese and mobile are tested; no signing, new provider, polling or recurring spend."
+      "shipGate": "Largest observed amounts come from bounded, timestamped, source-linked decoded Uniswap V3 Swap logs with signed amount0/amount1 for explicit pools and an explicit block window, not from raw ERC-20 transfer records. Matched-log caps, partial coverage, missing or out-of-window records, failed transactions and unknown counterparties remain distinct; ranking never infers buys, sells, identity, coordination or profit. Public participant addresses reuse the release 23 chain-aware follow action with no automatic lookup or save, and ranking is deterministic, excluding zero, dead and classified-contract addresses. Locked/disabled ownership, English/Chinese and mobile are tested; no signing, new provider, polling or recurring spend."
     }
   ]
 }
