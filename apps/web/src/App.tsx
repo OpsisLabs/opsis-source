@@ -9,6 +9,7 @@ const Roadmap = lazy(() => import("./pages/Roadmap"));
 const ScoutSwap = lazy(() => import("./pages/ScoutSwap"));
 const TradeSimulator = lazy(() => import("./simulator/TradeSimulator"));
 const CardPriceCheck = lazy(() => import("./deals/CardPriceCheck"));
+const KolTracker = lazy(() => import("./kol/KolTracker"));
 const SituationRoom = lazy(() => import("./situation/SituationRoom"));
 const ScoutWatch = lazy(() => import("./watch/ScoutWatch"));
 const StressTest = lazy(() => import("./stress/StressTest"));
@@ -108,6 +109,7 @@ export default function App() {
           />
           <Route path="/simulate" element={import.meta.env.VITE_TRADE_SIMULATOR_ENABLED === "true" ? <DeferredPage><TradeSimulator /></DeferredPage> : <Navigate to="/guide" replace />} />
           <Route path="/card-prices" element={import.meta.env.VITE_CARD_PRICE_CHECK_ENABLED === "true" ? <DeferredPage><CardPriceCheck /></DeferredPage> : <Navigate to="/guide" replace />} />
+          <Route path="/kol-tracker" element={import.meta.env.VITE_KOL_TRACKER_ENABLED === "true" ? <DeferredPage><KolTracker /></DeferredPage> : <Navigate to="/guide" replace />} />
           <Route path="/situation-room" element={import.meta.env.VITE_SITUATION_ROOM_ENABLED === "true" ? <DeferredPage><SituationRoom /></DeferredPage> : <Navigate to="/guide" replace />} />
           <Route path="/watch" element={import.meta.env.VITE_SCOUT_WATCH_ENABLED === "true" ? <DeferredPage><ScoutWatch /></DeferredPage> : <Navigate to="/guide" replace />} />
           <Route path="/stress-test" element={import.meta.env.VITE_PORTFOLIO_STRESS_TEST_ENABLED === "true" ? <DeferredPage><StressTest /></DeferredPage> : <Navigate to="/guide" replace />} />

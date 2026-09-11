@@ -1,0 +1,88 @@
+{
+  "PONS": {
+    "symbol": "PONS",
+    "chain": "Robinhood",
+    "chainId": 4663,
+    "contract": "0x39dbed3a2bd333467115de45665cc57f813c4571",
+    "providerCoinId": "coingecko:pons",
+    "official": "https://www.ponsfamily.com/launchpad/0x39dbed3a2bd333467115de45665cc57f813c4571",
+    "pool": "0x10cc6bd38112cac182db90b6a71d8bb5939526ba",
+    "evidence": [
+      {
+        "url": "https://www.ponsfamily.com/launchpad/0x39dBED3a2bd333467115dE45665cC57F813C4571",
+        "status": 200,
+        "sha256": "ccdde17a090196390693a7fb2cf8538ac53a6d2f407fa0d5fb26426b69587ef2",
+        "capturedAt": "2026-09-11T12:10:01.951565+00:00"
+      },
+      {
+        "url": "https://api.coingecko.com/api/v3/coins/pons?localization=false&tickers=false&market_data=false&community_data=false&developer_data=false",
+        "status": 200,
+        "sha256": "13b8533a60eec0d3e3e49afef8a1167d3e09936c64cfa97afb7f6911e4fdb5f1",
+        "capturedAt": "2026-09-11T12:09:00.193194+00:00"
+      },
+      {
+        "url": "https://api.geckoterminal.com/api/v2/networks/robinhood/pools/0x10cc6bd38112cac182db90b6a71d8bb5939526ba?include=base_token,quote_token",
+        "status": 200,
+        "sha256": "a17f2b7251a23c075cf0901d7fa688013028d614bdae6ba93d54186f0b69dd88",
+        "capturedAt": "2026-09-11T12:09:00.180416+00:00"
+      },
+      {
+        "url": "https://api.dexscreener.com/latest/dex/pairs/robinhood/0x10CC6BD38112cAc182db90B6a71d8Bb5939526bA",
+        "status": 200,
+        "sha256": "c7ea207fa4fc1ee1b986803961b37c63c707bb825715d837acaae5feb9edd192",
+        "capturedAt": "2026-09-11T12:09:00.164208+00:00"
+      }
+    ]
+  },
+  "NET": {
+    "symbol": "NET",
+    "chain": "Robinhood",
+    "chainId": 4663,
+    "contract": "0xca9c78dd337a67f6e0077f65f5e9218719d30edf",
+    "providerCoinId": "coingecko:netnet",
+    "official": "https://docs.netnet.capital/official-channels",
+    "evidence": [
+      {
+        "url": "https://docs.netnet.capital/official-channels",
+        "status": 200,
+        "sha256": "2e8249f287e968a117b952c2a9c56fce9ca1a7b52b2c13a7f57c770585486976",
+        "capturedAt": "2026-09-11T12:10:46.520956+00:00"
+      },
+      {
+        "url": "https://api.coingecko.com/api/v3/coins/netnet?localization=false&tickers=false&market_data=false&community_data=false&developer_data=false",
+        "status": 200,
+        "sha256": "94bacebbc1db6bec8fcc18d24345f3494557173d1e137b2d1059d9e25bc86c6d",
+        "capturedAt": "2026-09-11T12:10:16.992105+00:00"
+      }
+    ],
+    "costCaveat": "Official fee schedule states 5% trading fee; net performance cannot be represented by gross price-only return. Staking/rebase returns excluded."
+  },
+  "STONKBROKER": {
+    "symbol": "STONKBROKER",
+    "chain": "Robinhood",
+    "chainId": 4663,
+    "contract": "0xe934e36a439c94017b64a3fece66af12099abf50",
+    "providerCoinId": "coingecko:stonkbroker",
+    "official": "https://www.stonkbrokers.io/docs",
+    "evidence": [
+      {
+        "url": "https://www.stonkbrokers.io/docs",
+        "status": 200,
+        "sha256": "d8751a68037380a6963c4d40a4d72ffea9bd9251c9b1cb81a7f7a09936457d52",
+        "capturedAt": "2026-09-11T12:10:16.830393+00:00"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/Clutch-L4bs/stonkbroker-erc20/main/README.md",
+        "status": 200,
+        "sha256": "d196fb3b39bf5e1283ebfeb4b017771e59127617439495cd975f9b387edc52b8",
+        "capturedAt": "2026-09-11T12:10:46.653510+00:00"
+      },
+      {
+        "url": "https://api.coingecko.com/api/v3/coins/stonkbroker?localization=false&tickers=false&market_data=false&community_data=false&developer_data=false",
+        "status": 200,
+        "sha256": "19d8ca4291156916ad04276854719927c60bbd5cfdd4a5bd293612d7f003a3fb",
+        "capturedAt": "2026-09-11T12:10:46.859492+00:00"
+      }
+    ]
+  }
+}

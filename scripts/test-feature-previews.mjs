@@ -7,6 +7,7 @@ const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const port = Number(process.env.PW_FEATURE_PORT ?? "5383");
 if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error("Invalid PW_FEATURE_PORT");
 const features = [
+  { source: "apps/web/src/kol/KolTracker.tsx", flag: "VITE_KOL_TRACKER_ENABLED", file: "e2e/kol-tracker.mock.spec.ts", grep: "kol tracker" },
   { source: "apps/web/src/stress/StressTest.tsx", flag: "VITE_PORTFOLIO_STRESS_TEST_ENABLED", file: "e2e/stress-test.mock.spec.ts", grep: "portfolio stress test" },
   { source: "apps/web/src/situation/SituationRoom.tsx", flag: "VITE_SITUATION_ROOM_ENABLED", file: "e2e/situation-room.mock.spec.ts", grep: "situation room" },
   { source: "apps/web/src/watch/ScoutWatch.tsx", flag: "VITE_SCOUT_WATCH_ENABLED", file: "e2e/scout-watch.mock.spec.ts", grep: "scout watch" },
@@ -39,6 +40,8 @@ for (const engine of ["chromium", "webkit"]) {
     });
     if (closed.status !== 0) process.exit(closed.status ?? 1);
   }
+  const kolClosed = spawnSync("pnpm", ["exec", "playwright", "test", ...config, "e2e/kol-tracker.mock.spec.ts", "--grep", "closed by default"], {cwd: root, stdio: "inherit", env: baseEnv});
+  if (kolClosed.status !== 0) process.exit(kolClosed.status ?? 1);
   const situationClosed = spawnSync("pnpm", ["exec", "playwright", "test", ...config, "e2e/situation-room.mock.spec.ts", "--grep", "closed by default"], {cwd: root, stdio: "inherit", env: baseEnv});
   if (situationClosed.status !== 0) process.exit(situationClosed.status ?? 1);
   for (const feature of features.filter(item => existsSync(join(root, item.source)))) {

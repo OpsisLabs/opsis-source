@@ -195,19 +195,33 @@
     },
     {
       "order": 19,
+      "id": "19-kol-tracker",
+      "branch": "codex/19-kol-tracker",
+      "tagPrefix": "rc/19-kol-tracker/",
+      "status": "released",
+      "dependencies": [
+        "18-portfolio-stress-test",
+        "15-situation-room"
+      ],
+      "outcome": "Inspect original KOL posts, compare stated targets and curate a private source watchlist",
+      "shipGate": "Real profile images and original post links retain provenance. Dated selected coverage, conditional forecasts, opinions, holdings and unavailable outcomes remain distinct. Filters, saved receipts, comparison, source explanations, mobile and disabled states are tested. No invented accuracy, performance, wallet attribution, live coverage, new paid provider, external execution or recurring spend."
+    },
+    {
+      "order": 20,
       "id": "19-stress-comparison",
       "branch": "codex/19-stress-comparison",
       "tagPrefix": "rc/19-stress-comparison/",
       "status": "released",
       "dependencies": [
         "18-portfolio-stress-test",
-        "03-encrypted-vault"
+        "03-encrypted-vault",
+        "19-kol-tracker"
       ],
       "outcome": "Compare current and proposed allocations under explicit hypothetical per-position shocks",
       "shipGate": "Exact local cents math, same-total fair comparisons, input validation, local selected Vault value import with missing/date/currency boundaries, responsive English/Chinese, keyboard, lock cleanup, no private uploads, providers, predictions or trading."
     },
     {
-      "order": 20,
+      "order": 21,
       "id": "20-watch-briefing",
       "branch": "codex/20-watch-briefing",
       "tagPrefix": "rc/20-watch-briefing/",
@@ -220,7 +234,7 @@
       "shipGate": "Bounded deterministic local briefing from retained snapshots, evidence links, baseline/gaps/reorg/failure states explicit; no buy/sell inference, background monitoring or new providers; locked/disabled/privacy and English/Chinese/mobile tests."
     },
     {
-      "order": 21,
+      "order": 22,
       "id": "21-explorer-answers",
       "branch": "codex/21-explorer-answers",
       "tagPrefix": "rc/21-explorer-answers/",

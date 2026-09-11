@@ -1,0 +1,4448 @@
+{
+  "version": 1,
+  "asOf": "2026-09-11T04:00:00.000Z",
+  "capturedAt": "2026-09-11T12:20:54.848703+00:00",
+  "provider": "DefiLlama",
+  "providerDocs": "https://api-docs.defillama.com/",
+  "method": "First whole UTC hour after each original post; a seven-day directional paper checkpoint. Long legs use price change; short legs use its negative, without leverage. This does not verify a borrow, fill, holding period or target achievement. Daily USD observations within ten minutes of each target; actual timestamps retained. Equal weight within each complete multi-token call, then equal weight across complete calls. Gross of fees, spread, slippage and funding; no leverage. Selected source set, not a complete trading record. Not wallet P&L or forecast accuracy.",
+  "records": [
+    {
+      "callId": "2098256540381700533",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Original X labels DOG (Bitcoin), but syndication substitutes a Solana contract. Conflicting asset identity prevents scoring; never use that substituted contract."
+    },
+    {
+      "callId": "2098214577943253287",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Builder research and a video preview. No transaction performance claim or token entry; metadata is an excerpt."
+    },
+    {
+      "callId": "2098148912800370967",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Bullish endorsement with an author-supplied contract. Contract provenance, chain and historical price availability still require independent validation; do not price PUMP as the recommended asset."
+    },
+    {
+      "callId": "2098146613646577929",
+      "direction": "long",
+      "assets": [],
+      "url": null,
+      "entryAt": 1789074000,
+      "endAt": 1789678800,
+      "requested": [],
+      "sha256": null,
+      "status": "pending",
+      "reason": "The full seven-day observation window has not elapsed at the edition cutoff."
+    },
+    {
+      "callId": "2098140201713648093",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Conditional downside warning, not an unconditional short entry."
+    },
+    {
+      "callId": "2098098174619443408",
+      "direction": "short",
+      "assets": [],
+      "url": null,
+      "entryAt": 1789063200,
+      "endAt": 1789668000,
+      "requested": [],
+      "sha256": null,
+      "status": "pending",
+      "reason": "The full seven-day observation window has not elapsed at the edition cutoff."
+    },
+    {
+      "callId": "2098071246974152955",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Conditional scenarios in both directions. Neither is an unconditional entry; do not score a long or short automatically."
+    },
+    {
+      "callId": "2098055481738588452",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "The full original post combines a near-term pullback scenario, conditional support failure and a longer recovery view. Do not score as an unconditional long or short. The attached video was not reviewed."
+    },
+    {
+      "callId": "2098005395856113782",
+      "direction": "long",
+      "assets": [],
+      "url": null,
+      "entryAt": 1789041600,
+      "endAt": 1789646400,
+      "requested": [],
+      "sha256": null,
+      "status": "pending",
+      "reason": "The full seven-day observation window has not elapsed at the edition cutoff."
+    },
+    {
+      "callId": "2097991974825439495",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "A retrospective liquidity question, not a dated price forecast; LAPTOP contract is not verified."
+    },
+    {
+      "callId": "2097990968008130908",
+      "direction": "long",
+      "assets": [],
+      "url": null,
+      "entryAt": 1789038000,
+      "endAt": 1789642800,
+      "requested": [],
+      "sha256": null,
+      "status": "pending",
+      "reason": "The full seven-day observation window has not elapsed at the edition cutoff."
+    },
+    {
+      "callId": "2097866271475810592",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2097840599277916639",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Conditional macro scenario with unnamed infrastructure assets and no entry trigger. The source visibly discloses a paid partnership."
+    },
+    {
+      "callId": "2097825320095080750",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Illustrative community commentary, not a verified wallet loss or forecast. SPY refers to an equity ETF reward."
+    },
+    {
+      "callId": "2097790012062331218",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Upcoming-project commentary from a partial post. Not verified launches, deadlines or token entries."
+    },
+    {
+      "callId": "2097775925492433022",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "This is an explicitly unverified rumor, not confirmation of a chain event or a scored trade."
+    },
+    {
+      "callId": "2097767495436583364",
+      "direction": "long",
+      "assets": [],
+      "url": null,
+      "entryAt": 1788984000,
+      "endAt": 1789588800,
+      "requested": [],
+      "sha256": null,
+      "status": "pending",
+      "reason": "The full seven-day observation window has not elapsed at the edition cutoff."
+    },
+    {
+      "callId": "2097758180151325081",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Market-reaction commentary with no named asset or actionable direction."
+    },
+    {
+      "callId": "2097750873334005895",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Ecosystem thesis, not an exact-asset entry; volume and adoption statements are author claims."
+    },
+    {
+      "callId": "2097733773315993680",
+      "direction": "long",
+      "assets": [],
+      "url": null,
+      "entryAt": 1788976800,
+      "endAt": 1789581600,
+      "requested": [],
+      "sha256": null,
+      "status": "pending",
+      "reason": "The full seven-day observation window has not elapsed at the edition cutoff."
+    },
+    {
+      "callId": "2097731184402759902",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Article headline and preview verified; a research article is not a directional trade call."
+    },
+    {
+      "callId": "2097722720809066556",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Critical reaction, not an explicit short entry. Quoted project supplies a contract, but the KOL has not independently verified it."
+    },
+    {
+      "callId": "2097716661692580025",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Reported news and third-party views; the fee figure is an author report, not independently verified here. No personal trade call."
+    },
+    {
+      "callId": "2097704329318641965",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Only the text excerpt was reviewed; it mixes a conditional bullish break with short-term downside. Insufficient for a single direction."
+    },
+    {
+      "callId": "2097697759365116405",
+      "direction": "long",
+      "assets": [],
+      "url": null,
+      "entryAt": 1788966000,
+      "endAt": 1789570800,
+      "requested": [],
+      "sha256": null,
+      "status": "pending",
+      "reason": "The full seven-day observation window has not elapsed at the edition cutoff."
+    },
+    {
+      "callId": "2097694766771146962",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Two conditional paths; neither is an unconditional spot-long or short entry."
+    },
+    {
+      "callId": "2097672989860876557",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Original X displays DOG (Bitcoin), while syndication substitutes a Solana contract. Contract identity is unresolved, so this promotion remains unscored."
+    },
+    {
+      "callId": "2097656268970229864",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Retrospective ETF-flow reporting, not a forecast of token returns; amounts not independently verified here."
+    },
+    {
+      "callId": "2097588829213389207",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Builder\u2019s product/deposit update, not recommended token entries. Exact token contracts and full post context remain unverified."
+    },
+    {
+      "callId": "2097517207492178124",
+      "direction": "long",
+      "assets": [],
+      "url": null,
+      "entryAt": 1788922800,
+      "endAt": 1789527600,
+      "requested": [],
+      "sha256": null,
+      "status": "pending",
+      "reason": "The full seven-day observation window has not elapsed at the edition cutoff."
+    },
+    {
+      "callId": "2097486059382706645",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Broad market-structure opinion with no tradable asset or measurable target."
+    },
+    {
+      "callId": "2097455430611968495",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2097443711433007171",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Broad crypto thesis with no named asset, target or entry. Do not assign BTC or altcoins automatically."
+    },
+    {
+      "callId": "2097419033616228660",
+      "direction": "long",
+      "assets": [],
+      "url": null,
+      "entryAt": 1788901200,
+      "endAt": 1789506000,
+      "requested": [],
+      "sha256": null,
+      "status": "pending",
+      "reason": "The full seven-day observation window has not elapsed at the edition cutoff."
+    },
+    {
+      "callId": "2097393148473340040",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2097354273788944581",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "News roundup containing reported figures and a separately attributed equity view; HOOD denotes Robinhood stock, not a chain token."
+    },
+    {
+      "callId": "2097324079820734671",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "The $160 target is attributed to Bernstein and concerns equity. It is not Wendy\u2019s own crypto price target."
+    },
+    {
+      "callId": "2097321166163591355",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Builder product endorsement, not a token entry or verified yield claim. Metadata is an excerpt."
+    },
+    {
+      "callId": "2097317906665148435",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Opinion about KOL influence, not a statistically measured success rate or a named token call."
+    },
+    {
+      "callId": "2097298631053234445",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2097041123080376785",
+      "direction": "long",
+      "assets": [],
+      "url": null,
+      "entryAt": 1788811200,
+      "endAt": 1789416000,
+      "requested": [],
+      "sha256": null,
+      "status": "pending",
+      "reason": "The full seven-day observation window has not elapsed at the edition cutoff."
+    },
+    {
+      "callId": "2096991636530098325",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2096946683393290275",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2096761892249215183",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Historical platform revenue claim; not token performance or an entry."
+    },
+    {
+      "callId": "2096713935810355416",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2096706170824085520",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2096698565527548047",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Only the public excerpt is available; the full statement and conditions have not been verified."
+    },
+    {
+      "callId": "2096655932893569259",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Bullish statement, but the source does not establish an exact network and contract for ZCAT or specify the valuation measure. Do not map by ticker."
+    },
+    {
+      "callId": "2096640132270972960",
+      "direction": "long",
+      "assets": [],
+      "url": null,
+      "entryAt": 1788714000,
+      "endAt": 1789318800,
+      "requested": [],
+      "sha256": null,
+      "status": "pending",
+      "reason": "The full seven-day observation window has not elapsed at the edition cutoff."
+    },
+    {
+      "callId": "2096628491479298359",
+      "direction": "long",
+      "assets": [],
+      "url": null,
+      "entryAt": 1788710400,
+      "endAt": 1789315200,
+      "requested": [],
+      "sha256": null,
+      "status": "pending",
+      "reason": "The full seven-day observation window has not elapsed at the edition cutoff."
+    },
+    {
+      "callId": "2096610153285972308",
+      "direction": "long",
+      "assets": [],
+      "url": null,
+      "entryAt": 1788706800,
+      "endAt": 1789311600,
+      "requested": [],
+      "sha256": null,
+      "status": "pending",
+      "reason": "The full seven-day observation window has not elapsed at the edition cutoff."
+    },
+    {
+      "callId": "2096533221945012555",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2096476447439225243",
+      "direction": "long",
+      "assets": [],
+      "url": null,
+      "entryAt": 1788674400,
+      "endAt": 1789279200,
+      "requested": [],
+      "sha256": null,
+      "status": "pending",
+      "reason": "The full seven-day observation window has not elapsed at the edition cutoff."
+    },
+    {
+      "callId": "2096475228885098691",
+      "direction": "long",
+      "assets": [],
+      "url": null,
+      "entryAt": 1788674400,
+      "endAt": 1789279200,
+      "requested": [],
+      "sha256": null,
+      "status": "pending",
+      "reason": "The full seven-day observation window has not elapsed at the edition cutoff."
+    },
+    {
+      "callId": "2096413111528173781",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Retrospective selection recap; original earlier calls would be needed to score those entries. Verified token price context is available separately."
+    },
+    {
+      "callId": "2096348015825125382",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Builder-reported historical token economics, not a forward directional call. The Robinhood STONKBROKER identity is independently resolved from official documentation; historical price context is separate."
+    },
+    {
+      "callId": "2096342607987195976",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2096312152667644158",
+      "direction": "long",
+      "assets": [],
+      "url": null,
+      "entryAt": 1788634800,
+      "endAt": 1789239600,
+      "requested": [],
+      "sha256": null,
+      "status": "pending",
+      "reason": "The full seven-day observation window has not elapsed at the edition cutoff."
+    },
+    {
+      "callId": "2096297884736004478",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Original X identifies DOG (Bitcoin), while syndication inserts a Solana contract. Conflicting asset identity; no proxy asset or price score."
+    },
+    {
+      "callId": "2096265947799511367",
+      "direction": "long",
+      "assets": [],
+      "url": null,
+      "entryAt": 1788624000,
+      "endAt": 1789228800,
+      "requested": [],
+      "sha256": null,
+      "status": "pending",
+      "reason": "The full seven-day observation window has not elapsed at the edition cutoff."
+    },
+    {
+      "callId": "2096230609005740335",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Bullish sector view; ZCAT network and contract are not independently established in the source. Solana is a network comparison, not an explicit SOL call."
+    },
+    {
+      "callId": "2096226966361801170",
+      "direction": "long",
+      "assets": [],
+      "url": null,
+      "entryAt": 1788616800,
+      "endAt": 1789221600,
+      "requested": [],
+      "sha256": null,
+      "status": "pending",
+      "reason": "The full seven-day observation window has not elapsed at the edition cutoff."
+    },
+    {
+      "callId": "2096222435733373270",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Ecosystem commentary without an identified token entry."
+    },
+    {
+      "callId": "2096096407861998027",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2095977184221409399",
+      "direction": "long",
+      "assets": [],
+      "url": null,
+      "entryAt": 1788555600,
+      "endAt": 1789160400,
+      "requested": [],
+      "sha256": null,
+      "status": "pending",
+      "reason": "The full seven-day observation window has not elapsed at the edition cutoff."
+    },
+    {
+      "callId": "2095919674751914068",
+      "direction": "long",
+      "assets": [],
+      "url": null,
+      "entryAt": 1788541200,
+      "endAt": 1789146000,
+      "requested": [],
+      "sha256": null,
+      "status": "pending",
+      "reason": "The full seven-day observation window has not elapsed at the edition cutoff."
+    },
+    {
+      "callId": "2095916659542200783",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Edited long-form post. Original pre-edit wording was not verified; not eligible for an unedited entry observation."
+    },
+    {
+      "callId": "2095907835196387491",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Retrospective video headline. The video was not reviewed and the headline does not establish an actionable forward target."
+    },
+    {
+      "callId": "2095872470485967343",
+      "direction": "long",
+      "assets": [],
+      "url": null,
+      "entryAt": 1788530400,
+      "endAt": 1789135200,
+      "requested": [],
+      "sha256": null,
+      "status": "pending",
+      "reason": "The full seven-day observation window has not elapsed at the edition cutoff."
+    },
+    {
+      "callId": "2095862822886396142",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2095861035483971890",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2095682692696199215",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Edited post with a sequence-dependent rally/crash thesis and price floors, not five unconditional long entries."
+    },
+    {
+      "callId": "2095670712551780813",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "The source mixes a Solana identifier and Bitcoin wording. Asset identity is unresolved; no token or chain performance is inferred."
+    },
+    {
+      "callId": "2095645858154844310",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Ecosystem commentary in a note excerpt; historical ETH mention is not an ETH trade call."
+    },
+    {
+      "callId": "2095602885543481586",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "An aspirational price comment does not establish a definite entry, conviction or deadline."
+    },
+    {
+      "callId": "2095601724631482547",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Historical volume report; pair names are not entry recommendations. PONS price context is available; LONG identity remains unverified."
+    },
+    {
+      "callId": "2095574830464537085",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Self-reported builder activity; not a token entry or independently audited volume metric."
+    },
+    {
+      "callId": "2095572792817209676",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Historical aggregate valuation claim; no specific token entry."
+    },
+    {
+      "callId": "2095560386237845728",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "ZEC",
+          "id": "coingecko:zcash",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1788458400,
+              "price": 948.7143194906346
+            },
+            {
+              "timestamp": 1788544800,
+              "price": 1008.3737979954789
+            },
+            {
+              "timestamp": 1788631200,
+              "price": 1028.4308895014383
+            },
+            {
+              "timestamp": 1788717600,
+              "price": 1206.9239177071004
+            },
+            {
+              "timestamp": 1788804000,
+              "price": 1168.8911457314625
+            },
+            {
+              "timestamp": 1788890400,
+              "price": 1176.462301867221
+            },
+            {
+              "timestamp": 1788976800,
+              "price": 1266.691192428571
+            },
+            {
+              "timestamp": 1789063200,
+              "price": 1143.2375345649066
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:zcash?start=1788458400&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1788458400,
+      "endAt": 1789063200,
+      "requested": [
+        1788458400,
+        1788544800,
+        1788631200,
+        1788717600,
+        1788804000,
+        1788890400,
+        1788976800,
+        1789063200
+      ],
+      "sha256": "5f3647894411391c7a227bc4f0725da399c705e1da7c4b4c74033275a60cda7b",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2095527476336177458",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "An author\u2019s tentative revenue comparison. One-day annualization and the stated percentage are not independently verified or a forward token forecast."
+    },
+    {
+      "callId": "2095526277662777431",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2095508361345179754",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Original note excerpt; no verified Robinhood Chain token contract or priced asset identity. BTC, SOL, WIF, BONK and CASHCAT comparisons must not become basket entries."
+    },
+    {
+      "callId": "2095499169884418324",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "BTC",
+          "id": "coingecko:bitcoin",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1788444000,
+              "price": 78780.20188484156
+            },
+            {
+              "timestamp": 1788530400,
+              "price": 79362.52222701395
+            },
+            {
+              "timestamp": 1788616800,
+              "price": 79617.56064482199
+            },
+            {
+              "timestamp": 1788703200,
+              "price": 79806.90665184474
+            },
+            {
+              "timestamp": 1788789600,
+              "price": 79334.9461697575
+            },
+            {
+              "timestamp": 1788876000,
+              "price": 77957.69056757812
+            },
+            {
+              "timestamp": 1788962400,
+              "price": 79156.59892992607
+            },
+            {
+              "timestamp": 1789048800,
+              "price": 77159.74831061267
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:bitcoin?start=1788444000&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1788444000,
+      "endAt": 1789048800,
+      "requested": [
+        1788444000,
+        1788530400,
+        1788616800,
+        1788703200,
+        1788789600,
+        1788876000,
+        1788962400,
+        1789048800
+      ],
+      "sha256": "d3034c8a09501d01475cf1e74de5b24e5bcd73f5155cffcb57b16d991666ec8c",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2095388066873528626",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Historical RWA balance report; not a directional call."
+    },
+    {
+      "callId": "2095367616923660749",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Historical chain-volume report; not a token entry."
+    },
+    {
+      "callId": "2095280284958666789",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2095254344710881562",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Relative BTC-versus-NVDA rotation thesis; not an equal-weight long BTC/NVDA basket or a separately timed spot entry."
+    },
+    {
+      "callId": "2095253662326985079",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "General ecosystem outlook; no single token entry. Underlying network figures belong to the quoted official update."
+    },
+    {
+      "callId": "2095185134714507503",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "General market-timing advice with no asset-specific entry."
+    },
+    {
+      "callId": "2095181837798625716",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2095138449661768044",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2095129751799075103",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Stream headline only; the broadcast was not reviewed. A headline is insufficient to assign a trade or entry."
+    },
+    {
+      "callId": "2095115022875976028",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "BTC",
+          "id": "coingecko:bitcoin",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1788350400,
+              "price": 76772.82018721351
+            },
+            {
+              "timestamp": 1788436800,
+              "price": 77913.14094439356
+            },
+            {
+              "timestamp": 1788523200,
+              "price": 81222.97676673981
+            },
+            {
+              "timestamp": 1788609600,
+              "price": 79616.72878630973
+            },
+            {
+              "timestamp": 1788696000,
+              "price": 79911.77981667651
+            },
+            {
+              "timestamp": 1788782400,
+              "price": 79414.25257135955
+            },
+            {
+              "timestamp": 1788868800,
+              "price": 78386.13393931472
+            },
+            {
+              "timestamp": 1788955200,
+              "price": 79334.90005615221
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:bitcoin?start=1788350400&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1788350400,
+      "endAt": 1788955200,
+      "requested": [
+        1788350400,
+        1788436800,
+        1788523200,
+        1788609600,
+        1788696000,
+        1788782400,
+        1788868800,
+        1788955200
+      ],
+      "sha256": "9cc103e8c7bf9da283686c3ffacb0f4cf8bc040bcbda1384f9f912e654f34c26",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2094927979197468862",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "NET",
+          "id": "coingecko:netnet",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1788306710,
+              "price": 1529.1336751897902
+            },
+            {
+              "timestamp": 1788393120,
+              "price": 1376.1586745212658
+            },
+            {
+              "timestamp": 1788479510,
+              "price": 1159.71433329645
+            },
+            {
+              "timestamp": 1788565910,
+              "price": 984.7494726249105
+            },
+            {
+              "timestamp": 1788652310,
+              "price": 795.2645658484433
+            },
+            {
+              "timestamp": 1788738710,
+              "price": 744.5336719372609
+            },
+            {
+              "timestamp": 1788825110,
+              "price": 711.1937357226999
+            },
+            {
+              "timestamp": 1788911510,
+              "price": 747.4669305784608
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:netnet?start=1788307200&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1788307200,
+      "endAt": 1788912000,
+      "requested": [
+        1788307200,
+        1788393600,
+        1788480000,
+        1788566400,
+        1788652800,
+        1788739200,
+        1788825600,
+        1788912000
+      ],
+      "sha256": "0c52183bfb2e38c7b415c601b0f7c1beb27f8655b6b68c243ea9ae69022624c8",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2094894484353957984",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Broad opinion about Robinhood and crypto funding without a specific asset or price target. The post does not explicitly distinguish the chain from the company."
+    },
+    {
+      "callId": "2094837131843682371",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2094812375299838114",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "BTC",
+          "id": "coingecko:bitcoin",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1788278400,
+              "price": 77901.28356473117
+            },
+            {
+              "timestamp": 1788364800,
+              "price": 77243.74217047928
+            },
+            {
+              "timestamp": 1788451200,
+              "price": 81321.7073624723
+            },
+            {
+              "timestamp": 1788537600,
+              "price": 79411.2566301278
+            },
+            {
+              "timestamp": 1788624000,
+              "price": 79803.39493926977
+            },
+            {
+              "timestamp": 1788710400,
+              "price": 79707.92574611641
+            },
+            {
+              "timestamp": 1788796800,
+              "price": 78808.82566960008
+            },
+            {
+              "timestamp": 1788883200,
+              "price": 78852.01355888146
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:bitcoin?start=1788278400&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1788278400,
+      "endAt": 1788883200,
+      "requested": [
+        1788278400,
+        1788364800,
+        1788451200,
+        1788537600,
+        1788624000,
+        1788710400,
+        1788796800,
+        1788883200
+      ],
+      "sha256": "d5cbb3a55767d3ded6abd402d90a1f1be70f2b9c2f46cbd98c5b172f501b2624",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2094776169283334540",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "BTC",
+          "id": "coingecko:bitcoin",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1788271200,
+              "price": 78045.63777896867
+            },
+            {
+              "timestamp": 1788357600,
+              "price": 77070.68654324919
+            },
+            {
+              "timestamp": 1788444000,
+              "price": 78780.20188484156
+            },
+            {
+              "timestamp": 1788530400,
+              "price": 79362.52222701395
+            },
+            {
+              "timestamp": 1788616800,
+              "price": 79617.56064482199
+            },
+            {
+              "timestamp": 1788703200,
+              "price": 79806.90665184474
+            },
+            {
+              "timestamp": 1788789600,
+              "price": 79334.9461697575
+            },
+            {
+              "timestamp": 1788876000,
+              "price": 77957.69056757812
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:bitcoin?start=1788271200&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1788271200,
+      "endAt": 1788876000,
+      "requested": [
+        1788271200,
+        1788357600,
+        1788444000,
+        1788530400,
+        1788616800,
+        1788703200,
+        1788789600,
+        1788876000
+      ],
+      "sha256": "a762341b30357bd2b400003c82534795df95bf9866975bb885f9980933b7374d",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2094626612285165678",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2094506021737627739",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "BTC",
+          "id": "coingecko:bitcoin",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1788206400,
+              "price": 78899.17790827646
+            },
+            {
+              "timestamp": 1788292800,
+              "price": 77269.91226365861
+            },
+            {
+              "timestamp": 1788379200,
+              "price": 77285.9454900689
+            },
+            {
+              "timestamp": 1788465600,
+              "price": 81731.27627363407
+            },
+            {
+              "timestamp": 1788552000,
+              "price": 79779.29611442194
+            },
+            {
+              "timestamp": 1788638400,
+              "price": 79757.93033702066
+            },
+            {
+              "timestamp": 1788724800,
+              "price": 79814.59046924824
+            },
+            {
+              "timestamp": 1788811200,
+              "price": 79350.27915508901
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:bitcoin?start=1788206400&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1788206400,
+      "endAt": 1788811200,
+      "requested": [
+        1788206400,
+        1788292800,
+        1788379200,
+        1788465600,
+        1788552000,
+        1788638400,
+        1788724800,
+        1788811200
+      ],
+      "sha256": "d69ffcff56f4670192ee109e365cf74fb19b73c119f80c00bffc2e26e53fd496",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2094486672205341129",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "STONKBROKER",
+          "id": "coingecko:stonkbroker",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1788202910,
+              "price": 0.03200748978297665
+            },
+            {
+              "timestamp": 1788289310,
+              "price": 0.025116111378058466
+            },
+            {
+              "timestamp": 1788375710,
+              "price": 0.02128342525194496
+            },
+            {
+              "timestamp": 1788461510,
+              "price": 0.020289867912825027
+            },
+            {
+              "timestamp": 1788547910,
+              "price": 0.01615945843453361
+            },
+            {
+              "timestamp": 1788634320,
+              "price": 0.016457671025259184
+            },
+            {
+              "timestamp": 1788721360,
+              "price": 0.012894850296830943
+            },
+            {
+              "timestamp": 1788808000,
+              "price": 0.014765885537443508
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:stonkbroker?start=1788202800&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1788202800,
+      "endAt": 1788807600,
+      "requested": [
+        1788202800,
+        1788289200,
+        1788375600,
+        1788462000,
+        1788548400,
+        1788634800,
+        1788721200,
+        1788807600
+      ],
+      "sha256": "0f3e91bdb7ad4803c92094f8c1ceb25fea66744f100811944aa9a7da6ab69164",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2094373180794102102",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "STONKBROKER",
+          "id": "coingecko:stonkbroker",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1788174120,
+              "price": 0.027690608419850025
+            },
+            {
+              "timestamp": 1788260510,
+              "price": 0.032200384316980066
+            },
+            {
+              "timestamp": 1788347100,
+              "price": 0.01999977553551178
+            },
+            {
+              "timestamp": 1788433310,
+              "price": 0.022062509763620626
+            },
+            {
+              "timestamp": 1788519110,
+              "price": 0.01853925606059851
+            },
+            {
+              "timestamp": 1788605510,
+              "price": 0.015332363740453585
+            },
+            {
+              "timestamp": 1788691910,
+              "price": 0.014383920493713249
+            },
+            {
+              "timestamp": 1788778930,
+              "price": 0.01614260570146367
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:stonkbroker?start=1788174000&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1788174000,
+      "endAt": 1788778800,
+      "requested": [
+        1788174000,
+        1788260400,
+        1788346800,
+        1788433200,
+        1788519600,
+        1788606000,
+        1788692400,
+        1788778800
+      ],
+      "sha256": "c6c17c53ad1a03b189c0c5fe6acbe1b4e9feabb4a7f0158954862265528cbb26",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2094306973760053521",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "BTC",
+          "id": "coingecko:bitcoin",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1788159600,
+              "price": 78077.85980076663
+            },
+            {
+              "timestamp": 1788246000,
+              "price": 78720.23655912721
+            },
+            {
+              "timestamp": 1788332400,
+              "price": 77561.76741171286
+            },
+            {
+              "timestamp": 1788418800,
+              "price": 77792.64435816841
+            },
+            {
+              "timestamp": 1788505200,
+              "price": 80775.9080604573
+            },
+            {
+              "timestamp": 1788591600,
+              "price": 79657.8072660828
+            },
+            {
+              "timestamp": 1788678000,
+              "price": 79772.81701990326
+            },
+            {
+              "timestamp": 1788764400,
+              "price": 79647.51433159942
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:bitcoin?start=1788159600&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1788159600,
+      "endAt": 1788764400,
+      "requested": [
+        1788159600,
+        1788246000,
+        1788332400,
+        1788418800,
+        1788505200,
+        1788591600,
+        1788678000,
+        1788764400
+      ],
+      "sha256": "f355d53c7d7aea0878a18a5bf7bafdb45eb292170da560bca92be056a98d4e97",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2094208326418436307",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Only the public excerpt is available; the full statement and conditions have not been verified."
+    },
+    {
+      "callId": "2094120557897769363",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "A listing suggestion is not a listing confirmation or a forward directional call. PONS is independently resolved; AI token identity remains unverified."
+    },
+    {
+      "callId": "2094095465549558079",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "BTC-denominated relative target whose asset context comes from a quoted post; not a USD spot entry or a BTC long."
+    },
+    {
+      "callId": "2094063596548563292",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "BTC",
+          "id": "coingecko:bitcoin",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1788102000,
+              "price": 78776.41086229906
+            },
+            {
+              "timestamp": 1788188400,
+              "price": 78590.3128650354
+            },
+            {
+              "timestamp": 1788274800,
+              "price": 78137.78899466433
+            },
+            {
+              "timestamp": 1788361200,
+              "price": 77019.25544923359
+            },
+            {
+              "timestamp": 1788447600,
+              "price": 80503.98990012161
+            },
+            {
+              "timestamp": 1788534000,
+              "price": 78918.77058040584
+            },
+            {
+              "timestamp": 1788620400,
+              "price": 79730.88136501185
+            },
+            {
+              "timestamp": 1788706800,
+              "price": 79526.7967398626
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:bitcoin?start=1788102000&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1788102000,
+      "endAt": 1788706800,
+      "requested": [
+        1788102000,
+        1788188400,
+        1788274800,
+        1788361200,
+        1788447600,
+        1788534000,
+        1788620400,
+        1788706800
+      ],
+      "sha256": "ae3fb110028cc0cfa229e786c89323bdb536469f5e17396d563eae56bd5715e3",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2093786406116089934",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "STONKBROKER",
+          "id": "coingecko:stonkbroker",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1788033110,
+              "price": 0.023591607492446327
+            },
+            {
+              "timestamp": 1788120110,
+              "price": 0.025059824144763623
+            },
+            {
+              "timestamp": 1788206490,
+              "price": 0.032881917622105454
+            },
+            {
+              "timestamp": 1788292910,
+              "price": 0.026430949629368275
+            },
+            {
+              "timestamp": 1788379310,
+              "price": 0.01992312709829931
+            },
+            {
+              "timestamp": 1788465100,
+              "price": 0.0205634523041234
+            },
+            {
+              "timestamp": 1788551500,
+              "price": 0.015995321785925123
+            },
+            {
+              "timestamp": 1788637910,
+              "price": 0.016160414995336343
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:stonkbroker?start=1788033600&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1788033600,
+      "endAt": 1788638400,
+      "requested": [
+        1788033600,
+        1788120000,
+        1788206400,
+        1788292800,
+        1788379200,
+        1788465600,
+        1788552000,
+        1788638400
+      ],
+      "sha256": "13723e16098e1bb2dab79f14bafc2af3c1bb5541596a3d83c7a719fd5fff8fb4",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2093774937362403386",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Original chart visually inspected: price axis increases downward. Caption and chart direction conflict; exclude ambiguous or satirical material from directional returns."
+    },
+    {
+      "callId": "2093742731004969198",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "BTC",
+          "id": "coingecko:bitcoin",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1788022800,
+              "price": 78020.82329523691
+            },
+            {
+              "timestamp": 1788109200,
+              "price": 79316.04886350794
+            },
+            {
+              "timestamp": 1788195600,
+              "price": 78623.47336005233
+            },
+            {
+              "timestamp": 1788282000,
+              "price": 77571.78044504458
+            },
+            {
+              "timestamp": 1788368400,
+              "price": 77155.47647840958
+            },
+            {
+              "timestamp": 1788454800,
+              "price": 80958.76413522735
+            },
+            {
+              "timestamp": 1788541200,
+              "price": 79753.14168349805
+            },
+            {
+              "timestamp": 1788627600,
+              "price": 80053.61256468344
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:bitcoin?start=1788022800&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1788022800,
+      "endAt": 1788627600,
+      "requested": [
+        1788022800,
+        1788109200,
+        1788195600,
+        1788282000,
+        1788368400,
+        1788454800,
+        1788541200,
+        1788627600
+      ],
+      "sha256": "569b1b372ccb351224ac0f3f61fc4e66deae6244cfb985fb6cb4581660de362c",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2093719075856007652",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Original chart visually inspected: price axis increases downward. Treat as ambiguous or satirical commentary, not an authenticated short entry."
+    },
+    {
+      "callId": "2093707378042470818",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "ZEC",
+          "id": "coingecko:zcash",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1788015600,
+              "price": 840.4891789942768
+            },
+            {
+              "timestamp": 1788102000,
+              "price": 851.7673348985038
+            },
+            {
+              "timestamp": 1788188400,
+              "price": 834.5962505765084
+            },
+            {
+              "timestamp": 1788274800,
+              "price": 853.8379161098609
+            },
+            {
+              "timestamp": 1788361200,
+              "price": 811.045276098095
+            },
+            {
+              "timestamp": 1788447600,
+              "price": 872.4928287120053
+            },
+            {
+              "timestamp": 1788534000,
+              "price": 974.8309066242075
+            },
+            {
+              "timestamp": 1788620400,
+              "price": 1013.7898443459775
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:zcash?start=1788015600&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1788015600,
+      "endAt": 1788620400,
+      "requested": [
+        1788015600,
+        1788102000,
+        1788188400,
+        1788274800,
+        1788361200,
+        1788447600,
+        1788534000,
+        1788620400
+      ],
+      "sha256": "e0211e15d50285384edb145798ff21ea492fc7ae90d418cc29c5b9129e186b9e",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2093411777354539233",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Only the public excerpt is available; the full statement and conditions have not been verified."
+    },
+    {
+      "callId": "2093361315876102605",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "SOL breakout and PUMP revenue are retrospective context; the explicit forward outperformance claim concerns ANSEM, whose token identity is not verified. SOL and PUMP price context is available separately."
+    },
+    {
+      "callId": "2093110596522697054",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "PUMP",
+          "id": "coingecko:pump-fun",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1787871600,
+              "price": 0.004912979262284963
+            },
+            {
+              "timestamp": 1787958000,
+              "price": 0.004576955580432023
+            },
+            {
+              "timestamp": 1788044400,
+              "price": 0.004999904405272982
+            },
+            {
+              "timestamp": 1788130800,
+              "price": 0.004607370652677554
+            },
+            {
+              "timestamp": 1788217200,
+              "price": 0.004441897116815028
+            },
+            {
+              "timestamp": 1788303600,
+              "price": 0.004361118942750771
+            },
+            {
+              "timestamp": 1788390000,
+              "price": 0.00401511989688692
+            },
+            {
+              "timestamp": 1788476400,
+              "price": 0.004280200907237731
+            }
+          ]
+        },
+        {
+          "symbol": "HYPE",
+          "id": "coingecko:hyperliquid",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1787871600,
+              "price": 84.95648732340841
+            },
+            {
+              "timestamp": 1787958000,
+              "price": 81.04903156762391
+            },
+            {
+              "timestamp": 1788044400,
+              "price": 83.48213556364863
+            },
+            {
+              "timestamp": 1788130800,
+              "price": 80.8409544564412
+            },
+            {
+              "timestamp": 1788217200,
+              "price": 84.41766373739408
+            },
+            {
+              "timestamp": 1788303600,
+              "price": 82.4209307973956
+            },
+            {
+              "timestamp": 1788390000,
+              "price": 81.266550289095
+            },
+            {
+              "timestamp": 1788476400,
+              "price": 85.9001094194837
+            }
+          ]
+        },
+        {
+          "symbol": "ZEC",
+          "id": "coingecko:zcash",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1787871600,
+              "price": 813.9536681427701
+            },
+            {
+              "timestamp": 1787958000,
+              "price": 802.5977881695376
+            },
+            {
+              "timestamp": 1788044400,
+              "price": 840.9380755919009
+            },
+            {
+              "timestamp": 1788130800,
+              "price": 862.8767615362276
+            },
+            {
+              "timestamp": 1788217200,
+              "price": 848.4519822246907
+            },
+            {
+              "timestamp": 1788303600,
+              "price": 827.2386915216799
+            },
+            {
+              "timestamp": 1788390000,
+              "price": 809.2740241071745
+            },
+            {
+              "timestamp": 1788476400,
+              "price": 952.5742100364242
+            }
+          ]
+        },
+        {
+          "symbol": "BTC",
+          "id": "coingecko:bitcoin",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1787871600,
+              "price": 80297.0041788454
+            },
+            {
+              "timestamp": 1787958000,
+              "price": 77738.78291524075
+            },
+            {
+              "timestamp": 1788044400,
+              "price": 78221.78563841502
+            },
+            {
+              "timestamp": 1788130800,
+              "price": 78415.92036320959
+            },
+            {
+              "timestamp": 1788217200,
+              "price": 78557.79779181909
+            },
+            {
+              "timestamp": 1788303600,
+              "price": 77240.801579754
+            },
+            {
+              "timestamp": 1788390000,
+              "price": 77004.75414720885
+            },
+            {
+              "timestamp": 1788476400,
+              "price": 81142.27254272846
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:pump-fun,coingecko:hyperliquid,coingecko:zcash,coingecko:bitcoin?start=1787871600&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1787871600,
+      "endAt": 1788476400,
+      "requested": [
+        1787871600,
+        1787958000,
+        1788044400,
+        1788130800,
+        1788217200,
+        1788303600,
+        1788390000,
+        1788476400
+      ],
+      "sha256": "3b1ba8fe2b62821d657d18adf63a37c450318b81274c73259d90e3a4a93e306f",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2093107236096684335",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Original X identifies DOG (Bitcoin), while syndication inserts a Solana contract. Conflicting asset identity; no proxy asset or price score."
+    },
+    {
+      "callId": "2093027756389089490",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Product idea, not a working protocol announcement or directional trade call. Metadata is an excerpt."
+    },
+    {
+      "callId": "2092558815338074516",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "NET",
+          "id": "coingecko:netnet",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1787741510,
+              "price": 1330.652949497885
+            },
+            {
+              "timestamp": 1787827910,
+              "price": 955.3751225968388
+            },
+            {
+              "timestamp": 1787914310,
+              "price": 981.1704571082748
+            },
+            {
+              "timestamp": 1788000710,
+              "price": 1134.6544793346989
+            },
+            {
+              "timestamp": 1788087120,
+              "price": 1461.2534928609136
+            },
+            {
+              "timestamp": 1788173510,
+              "price": 1156.1531572222777
+            },
+            {
+              "timestamp": 1788259920,
+              "price": 1186.754528169282
+            },
+            {
+              "timestamp": 1788346310,
+              "price": 1381.6445076874224
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:netnet?start=1787742000&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1787742000,
+      "endAt": 1788346800,
+      "requested": [
+        1787742000,
+        1787828400,
+        1787914800,
+        1788001200,
+        1788087600,
+        1788174000,
+        1788260400,
+        1788346800
+      ],
+      "sha256": "0d9e841f1d1725a382d74d6b3c769e4baa05f66f57f68523ed04082825f67acd",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2092301424424350043",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "This is general commentary rather than a directional trading call. Exclude it from prediction accuracy."
+    },
+    {
+      "callId": "2092147269952790617",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2091846625467441551",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2091658290828624029",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Original X identifies DOG (Bitcoin), while syndication inserts a Solana contract. Conflicting asset identity; no proxy asset or price score."
+    },
+    {
+      "callId": "2091620671369642234",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2091578762714341561",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Relative valuation research without an explicit entry or deadline. Comparison assets are not recommendations, and figures are author-reported."
+    },
+    {
+      "callId": "2091494107063394503",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Retrospective HYPE all-time-high and ecosystem commentary. No separate forward directional statement; neutral token price context is available."
+    },
+    {
+      "callId": "2091181282965270707",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "PONS",
+          "id": "coingecko:pons",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1787413900,
+              "price": 0.036295116393950375
+            },
+            {
+              "timestamp": 1787500310,
+              "price": 0.042280881930350615
+            },
+            {
+              "timestamp": 1787587310,
+              "price": 0.07645229121871058
+            },
+            {
+              "timestamp": 1787673700,
+              "price": 0.09976288789187147
+            },
+            {
+              "timestamp": 1787760110,
+              "price": 0.10819189800741372
+            },
+            {
+              "timestamp": 1787846510,
+              "price": 0.12997917085486085
+            },
+            {
+              "timestamp": 1787932920,
+              "price": 0.13531409162238664
+            },
+            {
+              "timestamp": 1788019310,
+              "price": 0.20272388587105214
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:pons?start=1787414400&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1787414400,
+      "endAt": 1788019200,
+      "requested": [
+        1787414400,
+        1787500800,
+        1787587200,
+        1787673600,
+        1787760000,
+        1787846400,
+        1787932800,
+        1788019200
+      ],
+      "sha256": "83268b46f5d9bd85df980d940b6486452fe63343cd42c7c17ec4d84351bce483",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2090964937279741975",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2090879699169821176",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2090806961998876880",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "BTC",
+          "id": "coingecko:bitcoin",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1787324400,
+              "price": 77342.40360768468
+            },
+            {
+              "timestamp": 1787410800,
+              "price": 76987.90262084498
+            },
+            {
+              "timestamp": 1787497200,
+              "price": 77164.3936869177
+            },
+            {
+              "timestamp": 1787583600,
+              "price": 79458.02372190669
+            },
+            {
+              "timestamp": 1787670000,
+              "price": 79223.1721233044
+            },
+            {
+              "timestamp": 1787756400,
+              "price": 77778.81759411356
+            },
+            {
+              "timestamp": 1787842800,
+              "price": 80190.32101475948
+            },
+            {
+              "timestamp": 1787929200,
+              "price": 79607.76745531596
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:bitcoin?start=1787324400&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1787324400,
+      "endAt": 1787929200,
+      "requested": [
+        1787324400,
+        1787410800,
+        1787497200,
+        1787583600,
+        1787670000,
+        1787756400,
+        1787842800,
+        1787929200
+      ],
+      "sha256": "4a36b5ca6a93f667224a2174cc44a4559e3aeeab268dd982a09182cc81866354",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2090636175593935253",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "HYPE",
+          "id": "coingecko:hyperliquid",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1787284800,
+              "price": 72.28103867646703
+            },
+            {
+              "timestamp": 1787371200,
+              "price": 82.1852222281034
+            },
+            {
+              "timestamp": 1787457600,
+              "price": 77.92182197847242
+            },
+            {
+              "timestamp": 1787544000,
+              "price": 79.52090542098068
+            },
+            {
+              "timestamp": 1787630400,
+              "price": 80.61961863102951
+            },
+            {
+              "timestamp": 1787716800,
+              "price": 81.65952888714948
+            },
+            {
+              "timestamp": 1787803200,
+              "price": 80.75277312611496
+            },
+            {
+              "timestamp": 1787889600,
+              "price": 83.66808716022507
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:hyperliquid?start=1787284800&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1787284800,
+      "endAt": 1787889600,
+      "requested": [
+        1787284800,
+        1787371200,
+        1787457600,
+        1787544000,
+        1787630400,
+        1787716800,
+        1787803200,
+        1787889600
+      ],
+      "sha256": "846c46c3a41404ef94510bdbc3901aa371661b175b4662aa8c73213b1d739df4",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2090504681650901034",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2090219546028503168",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "This is retrospective relative-strength commentary, not a new measurable forecast."
+    },
+    {
+      "callId": "2090205325013991448",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "PONS",
+          "id": "coingecko:pons",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1787179900,
+              "price": 0.03885380354113193
+            },
+            {
+              "timestamp": 1787266310,
+              "price": 0.03574213518144805
+            },
+            {
+              "timestamp": 1787352700,
+              "price": 0.036575903575394905
+            },
+            {
+              "timestamp": 1787439110,
+              "price": 0.03881553832908676
+            },
+            {
+              "timestamp": 1787526110,
+              "price": 0.06257937178078804
+            },
+            {
+              "timestamp": 1787612510,
+              "price": 0.07555913418141401
+            },
+            {
+              "timestamp": 1787698910,
+              "price": 0.10213889135264433
+            },
+            {
+              "timestamp": 1787785310,
+              "price": 0.134631419804414
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:pons?start=1787180400&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1787180400,
+      "endAt": 1787785200,
+      "requested": [
+        1787180400,
+        1787266800,
+        1787353200,
+        1787439600,
+        1787526000,
+        1787612400,
+        1787698800,
+        1787785200
+      ],
+      "sha256": "8f85145908f363f7074dea0f3af04a4b4467fe6628c7b1d2dac84caed285b225",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2090180892782133682",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "ETH",
+          "id": "coingecko:ethereum",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1787173200,
+              "price": 2218.315205040845
+            },
+            {
+              "timestamp": 1787259600,
+              "price": 2317.808055394318
+            },
+            {
+              "timestamp": 1787346000,
+              "price": 2440.243645264155
+            },
+            {
+              "timestamp": 1787432400,
+              "price": 2431.897277946677
+            },
+            {
+              "timestamp": 1787518800,
+              "price": 2449.8629979892266
+            },
+            {
+              "timestamp": 1787605200,
+              "price": 2474.191241391115
+            },
+            {
+              "timestamp": 1787691600,
+              "price": 2436.3901175506903
+            },
+            {
+              "timestamp": 1787778000,
+              "price": 2471.7863530895333
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:ethereum?start=1787173200&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1787173200,
+      "endAt": 1787778000,
+      "requested": [
+        1787173200,
+        1787259600,
+        1787346000,
+        1787432400,
+        1787518800,
+        1787605200,
+        1787691600,
+        1787778000
+      ],
+      "sha256": "586a789869a50d5c6e483309c4cc69b1790b78e17c0c93517879ecc09160e618",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2090175223530209549",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "The weekly-close entry condition has not been independently checked. A post-publication price move does not establish that the conditional entry triggered."
+    },
+    {
+      "callId": "2090159178455080960",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2090157081152348612",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2090114821983244738",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2090108668930830569",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "BTC",
+          "id": "coingecko:bitcoin",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1787158800,
+              "price": 68446.0506654718
+            },
+            {
+              "timestamp": 1787245200,
+              "price": 72784.72068116134
+            },
+            {
+              "timestamp": 1787331600,
+              "price": 77463.76264787953
+            },
+            {
+              "timestamp": 1787418000,
+              "price": 77292.8831428596
+            },
+            {
+              "timestamp": 1787504400,
+              "price": 77413.88248105405
+            },
+            {
+              "timestamp": 1787590800,
+              "price": 79041.8506333722
+            },
+            {
+              "timestamp": 1787677200,
+              "price": 79140.47886151345
+            },
+            {
+              "timestamp": 1787763600,
+              "price": 77992.9645061395
+            }
+          ]
+        },
+        {
+          "symbol": "HYPE",
+          "id": "coingecko:hyperliquid",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1787158800,
+              "price": 62.003742857686795
+            },
+            {
+              "timestamp": 1787245200,
+              "price": 73.74563821494874
+            },
+            {
+              "timestamp": 1787331600,
+              "price": 76.39934752959861
+            },
+            {
+              "timestamp": 1787418000,
+              "price": 78.07647612201121
+            },
+            {
+              "timestamp": 1787504400,
+              "price": 80.126660009819
+            },
+            {
+              "timestamp": 1787590800,
+              "price": 78.37069140236216
+            },
+            {
+              "timestamp": 1787677200,
+              "price": 81.56327267639395
+            },
+            {
+              "timestamp": 1787763600,
+              "price": 79.65819597904542
+            }
+          ]
+        },
+        {
+          "symbol": "SOL",
+          "id": "coingecko:solana",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1787158800,
+              "price": 81.56453512787287
+            },
+            {
+              "timestamp": 1787245200,
+              "price": 87.68147337248712
+            },
+            {
+              "timestamp": 1787331600,
+              "price": 91.59413828173827
+            },
+            {
+              "timestamp": 1787418000,
+              "price": 94.30974691567803
+            },
+            {
+              "timestamp": 1787504400,
+              "price": 95.41455577329252
+            },
+            {
+              "timestamp": 1787590800,
+              "price": 96.05417102846761
+            },
+            {
+              "timestamp": 1787677200,
+              "price": 98.16940853563409
+            },
+            {
+              "timestamp": 1787763600,
+              "price": 95.96388413000183
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:bitcoin,coingecko:hyperliquid,coingecko:solana?start=1787158800&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1787158800,
+      "endAt": 1787763600,
+      "requested": [
+        1787158800,
+        1787245200,
+        1787331600,
+        1787418000,
+        1787504400,
+        1787590800,
+        1787677200,
+        1787763600
+      ],
+      "sha256": "bdf8e29ab67066af9aff604084902b2c5d8a8f2ef206cfe9059da368176731fb",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2089778952898523304",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2089378522498281610",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Retrospective commentary, not a forward short call."
+    },
+    {
+      "callId": "2088382757000872423",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2088318311201476967",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2088060493692842253",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2087636261091545204",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2087158107504091179",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "BTC",
+          "id": "coingecko:bitcoin",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1786453200,
+              "price": 64299.68705896488
+            },
+            {
+              "timestamp": 1786539600,
+              "price": 64070.60628088705
+            },
+            {
+              "timestamp": 1786626000,
+              "price": 63634.86677886916
+            },
+            {
+              "timestamp": 1786712400,
+              "price": 62675.53203107954
+            },
+            {
+              "timestamp": 1786798800,
+              "price": 62986.960981818425
+            },
+            {
+              "timestamp": 1786885200,
+              "price": 62964.78297594083
+            },
+            {
+              "timestamp": 1786971600,
+              "price": 63496.76290564356
+            },
+            {
+              "timestamp": 1787058000,
+              "price": 64157.62131397192
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:bitcoin?start=1786453200&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1786453200,
+      "endAt": 1787058000,
+      "requested": [
+        1786453200,
+        1786539600,
+        1786626000,
+        1786712400,
+        1786798800,
+        1786885200,
+        1786971600,
+        1787058000
+      ],
+      "sha256": "91e2ee982589253cee4a94b49eca82ca92245a4014c527291f79f6bd9980dc51",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2086889992035717166",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Only the public excerpt is available; the full statement and conditions have not been verified."
+    },
+    {
+      "callId": "2086882747570585729",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Article headline and preview verified; a research article is not a directional trade call."
+    },
+    {
+      "callId": "2086467040261648727",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "BTC",
+          "id": "coingecko:bitcoin",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1786287600,
+              "price": 65211.91638656913
+            },
+            {
+              "timestamp": 1786374000,
+              "price": 64580.08513698282
+            },
+            {
+              "timestamp": 1786460400,
+              "price": 63717.8101572953
+            },
+            {
+              "timestamp": 1786546800,
+              "price": 63317.67085189585
+            },
+            {
+              "timestamp": 1786633200,
+              "price": 63815.453359095525
+            },
+            {
+              "timestamp": 1786719600,
+              "price": 62575.05117640368
+            },
+            {
+              "timestamp": 1786806000,
+              "price": 62981.664765813024
+            },
+            {
+              "timestamp": 1786892400,
+              "price": 63045.45440142677
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:bitcoin?start=1786287600&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1786287600,
+      "endAt": 1786892400,
+      "requested": [
+        1786287600,
+        1786374000,
+        1786460400,
+        1786546800,
+        1786633200,
+        1786719600,
+        1786806000,
+        1786892400
+      ],
+      "sha256": "40aae6d9b73f9a7befdc25e7b914c1bdaace3e5dd7864409f8306a0c8a5778be",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2085783114597466218",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2085654580482769065",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2085264862305804442",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2085095536303157754",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2083639568884998632",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2083219921555857858",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Only the visible portion of this longer post was reviewed. Its return figures are the author's statements and have not been independently recomputed."
+    },
+    {
+      "callId": "2082570658857328908",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2082138971807822102",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Only the visible portion of this longer post was reviewed. Entry is conditional and the exit timing is vague; no accuracy or realized return is assigned."
+    },
+    {
+      "callId": "2081874050805060082",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2081832419489894708",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Historical protocol activity claim; not a HYPE entry."
+    },
+    {
+      "callId": "2081568775485186487",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2080302818980757725",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2080293654229614791",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "BTC",
+          "id": "coingecko:bitcoin",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1784818800,
+              "price": 64839.58455908049
+            },
+            {
+              "timestamp": 1784905206,
+              "price": 63970.25641912747
+            },
+            {
+              "timestamp": 1784991603,
+              "price": 64151.9758184826
+            },
+            {
+              "timestamp": 1785078004,
+              "price": 64646.86968898469
+            },
+            {
+              "timestamp": 1785164400,
+              "price": 64595.90403653255
+            },
+            {
+              "timestamp": 1785250804,
+              "price": 63357.036106297244
+            },
+            {
+              "timestamp": 1785337196,
+              "price": 64055.037032899745
+            },
+            {
+              "timestamp": 1785423598,
+              "price": 64616.81044723832
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:bitcoin?start=1784818800&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1784818800,
+      "endAt": 1785423600,
+      "requested": [
+        1784818800,
+        1784905200,
+        1784991600,
+        1785078000,
+        1785164400,
+        1785250800,
+        1785337200,
+        1785423600
+      ],
+      "sha256": "446efbbf6ec0cd84474d441d144fb41985800f5ab6f1970c41edf132382593be",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2079864528322330745",
+      "direction": "short",
+      "assets": [
+        {
+          "symbol": "BTC",
+          "id": "coingecko:bitcoin",
+          "direction": "short",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1784714398,
+              "price": 65891.78123975456
+            },
+            {
+              "timestamp": 1784800799,
+              "price": 65605.7322176311
+            },
+            {
+              "timestamp": 1784887199,
+              "price": 65061.50903739611
+            },
+            {
+              "timestamp": 1784973602,
+              "price": 63931.19415234937
+            },
+            {
+              "timestamp": 1785059998,
+              "price": 64478.85522200439
+            },
+            {
+              "timestamp": 1785146399,
+              "price": 65209.37229540302
+            },
+            {
+              "timestamp": 1785232804,
+              "price": 63322.075924202836
+            },
+            {
+              "timestamp": 1785319201,
+              "price": 64640.10260247563
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:bitcoin?start=1784714400&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1784714400,
+      "endAt": 1785319200,
+      "requested": [
+        1784714400,
+        1784800800,
+        1784887200,
+        1784973600,
+        1785060000,
+        1785146400,
+        1785232800,
+        1785319200
+      ],
+      "sha256": "5782dd3ecd58d48a40b23d4a859798e18cade7195d072d14bc58a846d8f817ef",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2079733167494508818",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2079626883151360138",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Article title and preview verified; full article has not been captured. No asset-specific call."
+    },
+    {
+      "callId": "2079434418817802679",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2078587671920984128",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2078283614362419394",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "BTC",
+          "id": "coingecko:bitcoin",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1784339996,
+              "price": 63928.03203027629
+            },
+            {
+              "timestamp": 1784426400,
+              "price": 64731.66304128921
+            },
+            {
+              "timestamp": 1784512798,
+              "price": 64554.3484001062
+            },
+            {
+              "timestamp": 1784599202,
+              "price": 65190.49646232211
+            },
+            {
+              "timestamp": 1784685603,
+              "price": 66355.64299152237
+            },
+            {
+              "timestamp": 1784772007,
+              "price": 65800.29338250986
+            },
+            {
+              "timestamp": 1784858403,
+              "price": 65029.13985921066
+            },
+            {
+              "timestamp": 1784944799,
+              "price": 64017.9691004106
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:bitcoin?start=1784340000&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1784340000,
+      "endAt": 1784944800,
+      "requested": [
+        1784340000,
+        1784426400,
+        1784512800,
+        1784599200,
+        1784685600,
+        1784772000,
+        1784858400,
+        1784944800
+      ],
+      "sha256": "93881ce043807e8c4f97ceb074a7ca629f76ea539ba969cd058b961c80652bef",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2078159148248654310",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Full original describes opposing sequential price paths across multiple horizons, without a single unconditional entry. Excluded consistently as a mixed forecast."
+    },
+    {
+      "callId": "2077928628285788614",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2077650187728847153",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Only the public excerpt is available; the full statement and conditions have not been verified."
+    },
+    {
+      "callId": "2077557137728053266",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2077184273858039886",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2077078732842418459",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Full original describes opposing sequential price paths across multiple horizons, without a single unconditional entry. Excluded consistently as a mixed forecast."
+    },
+    {
+      "callId": "2077005971411575286",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "ETH",
+          "id": "coingecko:ethereum",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1784033997,
+              "price": 1856.3438678612558
+            },
+            {
+              "timestamp": 1784120399,
+              "price": 1924.7004229907548
+            },
+            {
+              "timestamp": 1784206798,
+              "price": 1872.2940839408448
+            },
+            {
+              "timestamp": 1784293196,
+              "price": 1828.3597412004005
+            },
+            {
+              "timestamp": 1784379600,
+              "price": 1844.4774016635108
+            },
+            {
+              "timestamp": 1784465999,
+              "price": 1869.5383256904245
+            },
+            {
+              "timestamp": 1784552401,
+              "price": 1870.8353769380944
+            },
+            {
+              "timestamp": 1784638801,
+              "price": 1941.0277188126502
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:ethereum?start=1784034000&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1784034000,
+      "endAt": 1784638800,
+      "requested": [
+        1784034000,
+        1784120400,
+        1784206800,
+        1784293200,
+        1784379600,
+        1784466000,
+        1784552400,
+        1784638800
+      ],
+      "sha256": "293e53c50e00b7dc77811995d1c04868648c50dc6c5d7d56ee6705fe937dc416",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2076737615189905716",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2076666309236981953",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2076286802315424219",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "SOL",
+          "id": "coingecko:solana",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1783861205,
+              "price": 77.07881562649034
+            },
+            {
+              "timestamp": 1783947607,
+              "price": 75.77777762180739
+            },
+            {
+              "timestamp": 1784034005,
+              "price": 76.6637068947819
+            },
+            {
+              "timestamp": 1784120399,
+              "price": 78.15330729157155
+            },
+            {
+              "timestamp": 1784206804,
+              "price": 75.89627403136163
+            },
+            {
+              "timestamp": 1784293191,
+              "price": 74.39234736428507
+            },
+            {
+              "timestamp": 1784379605,
+              "price": 74.96773301788394
+            },
+            {
+              "timestamp": 1784465998,
+              "price": 75.94885334343184
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:solana?start=1783861200&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1783861200,
+      "endAt": 1784466000,
+      "requested": [
+        1783861200,
+        1783947600,
+        1784034000,
+        1784120400,
+        1784206800,
+        1784293200,
+        1784379600,
+        1784466000
+      ],
+      "sha256": "701beaf0f738198fd99723657ae259b41964dc87283620dc164398905c88fd6f",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2075950091710378051",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2075943516551917802",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2075654239339020730",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2075511840483017194",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "The attached ETH/USD chart has an inverted price axis and the caption quotes a bullish ETH/BTC post. Treat as ambiguous or satirical context, not a literal short entry."
+    },
+    {
+      "callId": "2075313413824381031",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2074895453452136555",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2074815428065464475",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2073462789465661813",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2072735728065216596",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Article headline and preview verified; a research article is not a directional trade call."
+    },
+    {
+      "callId": "2072727002499445209",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Full original news roundup explicitly names BTC and XRP. Add BTC for neutral post-publication price context; Citi BTC target cut and XRP bull activity are attributed news, not Wendy personal buy/sell calls. STRC is an equity security, and Venice AI reference is company valuation, so neither becomes a token leg."
+    },
+    {
+      "callId": "2071215789818921113",
+      "direction": "short",
+      "assets": [
+        {
+          "symbol": "BTC",
+          "id": "coingecko:bitcoin",
+          "direction": "short",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1782651598,
+              "price": 60209.826283247254
+            },
+            {
+              "timestamp": 1782738000,
+              "price": 59879.185745244955
+            },
+            {
+              "timestamp": 1782824400,
+              "price": 58361.62212387054
+            },
+            {
+              "timestamp": 1782910796,
+              "price": 58448.22896692919
+            },
+            {
+              "timestamp": 1782997197,
+              "price": 61467.82857696401
+            },
+            {
+              "timestamp": 1783083599,
+              "price": 61907.5900261029
+            },
+            {
+              "timestamp": 1783170005,
+              "price": 62614.58299309072
+            },
+            {
+              "timestamp": 1783256400,
+              "price": 62677.224459595
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:bitcoin?start=1782651600&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1782651600,
+      "endAt": 1783256400,
+      "requested": [
+        1782651600,
+        1782738000,
+        1782824400,
+        1782910800,
+        1782997200,
+        1783083600,
+        1783170000,
+        1783256400
+      ],
+      "sha256": "7fe0a77b21e5d403f86808f3db18dd07bad7242027202837060cf42cb2f2e29b",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2067363663049028087",
+      "direction": "short",
+      "assets": [
+        {
+          "symbol": "BTC",
+          "id": "coingecko:bitcoin",
+          "direction": "short",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1781733601,
+              "price": 64186.29677084133
+            },
+            {
+              "timestamp": 1781820000,
+              "price": 62923.544491029694
+            },
+            {
+              "timestamp": 1781906400,
+              "price": 63012.32825754403
+            },
+            {
+              "timestamp": 1781992797,
+              "price": 63934.59027569325
+            },
+            {
+              "timestamp": 1782079198,
+              "price": 63736.59228664353
+            },
+            {
+              "timestamp": 1782165601,
+              "price": 64235.021031055294
+            },
+            {
+              "timestamp": 1782252005,
+              "price": 62530.694745212335
+            },
+            {
+              "timestamp": 1782338397,
+              "price": 61005.378953134474
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:bitcoin?start=1781733600&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1781733600,
+      "endAt": 1782338400,
+      "requested": [
+        1781733600,
+        1781820000,
+        1781906400,
+        1781992800,
+        1782079200,
+        1782165600,
+        1782252000,
+        1782338400
+      ],
+      "sha256": "0e57432e5e6ba0dc7727bab5545049976f557dcffdcc0194dad63ec96cb01c68",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2067252365997019457",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Only the public excerpt is available; the full statement and conditions have not been verified."
+    },
+    {
+      "callId": "2066617852128383032",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Only the public excerpt is available; the full statement and conditions have not been verified."
+    },
+    {
+      "callId": "2066220533289783493",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Only the public excerpt is available; the full statement and conditions have not been verified."
+    },
+    {
+      "callId": "2061772822565834859",
+      "direction": "mixed",
+      "assets": [
+        {
+          "symbol": "BTC",
+          "id": "coingecko:bitcoin",
+          "direction": "short",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1780401604,
+              "price": 69420.66662968055
+            },
+            {
+              "timestamp": 1780488001,
+              "price": 66977.29313650142
+            },
+            {
+              "timestamp": 1780574398,
+              "price": 62450.80905208616
+            },
+            {
+              "timestamp": 1780660802,
+              "price": 61969.807787743215
+            },
+            {
+              "timestamp": 1780747203,
+              "price": 60766.81020092876
+            },
+            {
+              "timestamp": 1780833602,
+              "price": 62592.24803571717
+            },
+            {
+              "timestamp": 1780919997,
+              "price": 63416.52653265283
+            },
+            {
+              "timestamp": 1781006403,
+              "price": 62683.4320706276
+            }
+          ]
+        },
+        {
+          "symbol": "HYPE",
+          "id": "coingecko:hyperliquid",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1780401587,
+              "price": 72.8394187793444
+            },
+            {
+              "timestamp": 1780488007,
+              "price": 72.14281833227191
+            },
+            {
+              "timestamp": 1780574406,
+              "price": 66.49985007831485
+            },
+            {
+              "timestamp": 1780660805,
+              "price": 61.690584350191784
+            },
+            {
+              "timestamp": 1780747202,
+              "price": 59.61220649013304
+            },
+            {
+              "timestamp": 1780833605,
+              "price": 58.86632525246092
+            },
+            {
+              "timestamp": 1780919993,
+              "price": 62.16140276765678
+            },
+            {
+              "timestamp": 1781006406,
+              "price": 61.7886622880168
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:bitcoin,coingecko:hyperliquid?start=1780401600&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1780401600,
+      "endAt": 1781006400,
+      "requested": [
+        1780401600,
+        1780488000,
+        1780574400,
+        1780660800,
+        1780747200,
+        1780833600,
+        1780920000,
+        1781006400
+      ],
+      "sha256": "4e66676eaedcae42f4f865056d3ab2aef3ad61b04dfca6dbf305e1cc395db6b1",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2061576883993444693",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2061445183305052615",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2051317445684506677",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Only the public excerpt is available; the full statement and conditions have not been verified."
+    },
+    {
+      "callId": "2049130648909021655",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Only the public excerpt is available; the full statement and conditions have not been verified."
+    },
+    {
+      "callId": "2048830042172711013",
+      "direction": "short",
+      "assets": [
+        {
+          "symbol": "BTC",
+          "id": "coingecko:bitcoin",
+          "direction": "short",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1777316404,
+              "price": 76840.39571328202
+            },
+            {
+              "timestamp": 1777402799,
+              "price": 76223.05617004436
+            },
+            {
+              "timestamp": 1777489199,
+              "price": 75436.56581067356
+            },
+            {
+              "timestamp": 1777575598,
+              "price": 76343.14131925348
+            },
+            {
+              "timestamp": 1777662003,
+              "price": 78387.74796550468
+            },
+            {
+              "timestamp": 1777748400,
+              "price": 78457.5389191646
+            },
+            {
+              "timestamp": 1777834799,
+              "price": 78723.71597574794
+            },
+            {
+              "timestamp": 1777921196,
+              "price": 80114.39169381397
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:bitcoin?start=1777316400&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1777316400,
+      "endAt": 1777921200,
+      "requested": [
+        1777316400,
+        1777402800,
+        1777489200,
+        1777575600,
+        1777662000,
+        1777748400,
+        1777834800,
+        1777921200
+      ],
+      "sha256": "3786dec9644c1e1b572404862622185bd6d8c73442a09b056fceea1785dad7c0",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2047571994691129580",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Commentary or a context-dependent statement; no unambiguous, independently evaluable long entry. Not included in paper performance."
+    },
+    {
+      "callId": "2047337548029050886",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Only the public excerpt is available; the full statement and conditions have not been verified."
+    },
+    {
+      "callId": "2047335107237642738",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "BTC",
+          "id": "coingecko:bitcoin",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1776960003,
+              "price": 78400.43342515995
+            },
+            {
+              "timestamp": 1777046396,
+              "price": 78047.3380693329
+            },
+            {
+              "timestamp": 1777132798,
+              "price": 77369.37427037527
+            },
+            {
+              "timestamp": 1777219197,
+              "price": 78050.75607592058
+            },
+            {
+              "timestamp": 1777305597,
+              "price": 76772.56122738226
+            },
+            {
+              "timestamp": 1777391998,
+              "price": 76040.86480284185
+            },
+            {
+              "timestamp": 1777478398,
+              "price": 75858.12862387307
+            },
+            {
+              "timestamp": 1777564798,
+              "price": 76455.76704590907
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:bitcoin?start=1776960000&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1776960000,
+      "endAt": 1777564800,
+      "requested": [
+        1776960000,
+        1777046400,
+        1777132800,
+        1777219200,
+        1777305600,
+        1777392000,
+        1777478400,
+        1777564800
+      ],
+      "sha256": "de0b577dce4e6134f1d22156e5a47e7cfe37d84c224ac526815b97f949a02f87",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    },
+    {
+      "callId": "2044426348500791396",
+      "direction": "unscored",
+      "assets": [],
+      "url": null,
+      "entryAt": null,
+      "endAt": null,
+      "requested": [],
+      "sha256": null,
+      "status": "excluded",
+      "reason": "Only the public excerpt is available; the full statement and conditions have not been verified."
+    },
+    {
+      "callId": "2023450522364113300",
+      "direction": "long",
+      "assets": [
+        {
+          "symbol": "BTC",
+          "id": "coingecko:bitcoin",
+          "direction": "long",
+          "confidence": 0.99,
+          "prices": [
+            {
+              "timestamp": 1771264802,
+              "price": 67923.76594093628
+            },
+            {
+              "timestamp": 1771351201,
+              "price": 67206.73471607006
+            },
+            {
+              "timestamp": 1771437600,
+              "price": 67144.7736253373
+            },
+            {
+              "timestamp": 1771524004,
+              "price": 66289.24613601994
+            },
+            {
+              "timestamp": 1771610401,
+              "price": 67582.98218706367
+            },
+            {
+              "timestamp": 1771696805,
+              "price": 68394.39537508183
+            },
+            {
+              "timestamp": 1771783202,
+              "price": 67342.89109296401
+            },
+            {
+              "timestamp": 1771869602,
+              "price": 64672.10137417326
+            }
+          ]
+        }
+      ],
+      "url": "https://coins.llama.fi/chart/coingecko:bitcoin?start=1771264800&span=8&period=1d&searchWidth=1h",
+      "entryAt": 1771264800,
+      "endAt": 1771869600,
+      "requested": [
+        1771264800,
+        1771351200,
+        1771437600,
+        1771524000,
+        1771610400,
+        1771696800,
+        1771783200,
+        1771869600
+      ],
+      "sha256": "0376b9fb92e759c380cc27216a978de946aac358d83c7a21c42b0490883dfe9d",
+      "status": "complete",
+      "reason": "Eight observed daily prices near the first whole UTC hour after publication and the following seven days. Maximum timestamp deviation: ten minutes. Actual timestamps are retained."
+    }
+  ]
+}
