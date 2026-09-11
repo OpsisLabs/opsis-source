@@ -87,6 +87,11 @@ export const watch = {
   "watch.flow.mixed": "混合活动",
   "watch.txLink": "查看交易证据",
   "watch.addressLink": "查看地址证据",
+  "watch.follow.wallet": "关注此钱包",
+  "watch.follow.publicAddress": "关注此公开地址",
+  "watch.follow.aria": "在 Scout Watch 中关注 {address}",
+  "watch.prefill.waiting":
+    "有一个公开地址（{address}）等待关注。解锁或创建您的保险库以继续——目前不会查询或保存任何内容。",
   "watch.explore": "解读此钱包",
   "watch.coverage": "本次查询的覆盖范围",
   "watch.partialTitle": "覆盖不完整",

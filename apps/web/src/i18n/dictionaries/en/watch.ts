@@ -91,6 +91,11 @@ export const watch = {
   "watch.flow.mixed": "Mixed activity",
   "watch.txLink": "Open transaction evidence",
   "watch.addressLink": "Open address evidence",
+  "watch.follow.wallet": "FOLLOW THIS WALLET",
+  "watch.follow.publicAddress": "FOLLOW THIS PUBLIC ADDRESS",
+  "watch.follow.aria": "Follow {address} in Scout Watch",
+  "watch.prefill.waiting":
+    "A public address ({address}) is waiting to follow. Unlock or create your Vault to continue—nothing is looked up or saved yet.",
   "watch.explore": "Explain this wallet",
   "watch.coverage": "What this check covers",
   "watch.partialTitle": "Partial coverage",
