@@ -109,11 +109,13 @@ function createHarness(options: {
   senders?: Record<string, string>;
   codes?: Record<string, string>;
   txEvidence?: Record<string, TxEvidence>;
+  poolRead?: "error" | "malformed" | "first-error";
   budgetUnits?: number;
   env?: Record<string, string>;
 }) {
   let logAttempt = 0;
   let consumed = 0;
+  let factoryReads = 0;
   const selectedPool =
     options.poolAddress === null ? null : options.poolAddress ?? POOL;
   const ethCalls: Array<{ to: string; data: string }> = [];
@@ -196,6 +198,40 @@ function createHarness(options: {
               };
             }
             if (entry.method === "eth_call") {
+              const call = (entry.params[0] ?? {}) as {
+                to?: unknown;
+                data?: unknown;
+              };
+              const to = String(call.to ?? "").toLowerCase();
+              if (to === OBSERVED_TRADES_FACTORY.toLowerCase()) {
+                factoryReads += 1;
+                if (
+                  options.poolRead === "error" ||
+                  (options.poolRead === "first-error" && factoryReads === 1)
+                ) {
+                  ethCalls.push({
+                    to,
+                    data: String(call.data ?? "").toLowerCase(),
+                  });
+                  return {
+                    jsonrpc: "2.0",
+                    id: entry.id,
+                    error: { code: 3, message: "execution reverted" },
+                  };
+                }
+                if (options.poolRead === "malformed") {
+                  ethCalls.push({
+                    to,
+                    data: String(call.data ?? "").toLowerCase(),
+                  });
+                  return { jsonrpc: "2.0", id: entry.id, result: "0x1234" };
+                }
+                return {
+                  jsonrpc: "2.0",
+                  id: entry.id,
+                  result: ethCallResult(entry.params),
+                };
+              }
               return {
                 jsonrpc: "2.0",
                 id: entry.id,
@@ -414,6 +450,37 @@ describe("observed trades service", () => {
     expect(ethCalls.some((call) => call.data.startsWith("0x82ad56cb"))).toBe(
       false,
     );
+  });
+
+  it("reports discovery unavailable, not a missing pool, when every getPool read fails", async () => {
+    for (const poolRead of ["error", "malformed"] as const) {
+      const { service } = createHarness({ logs: [], poolRead });
+      await expect(service.observe({ chainId: 4663 })).rejects.toMatchObject({
+        code: "OBSERVED_TRADES_PROVIDER_UNAVAILABLE",
+      });
+    }
+  });
+
+  it("reports discovery unavailable for a failed requested single fee tier", async () => {
+    const { service } = createHarness({ logs: [], poolRead: "error" });
+    await expect(
+      service.observe({ chainId: 4663, fee: 500 }),
+    ).rejects.toMatchObject({ code: "OBSERVED_TRADES_PROVIDER_UNAVAILABLE" });
+  });
+
+  it("still finds a valid pool after an earlier failed fee-tier read", async () => {
+    const { service, ethCalls } = createHarness({
+      logs: [],
+      poolRead: "first-error",
+    });
+    const result = await service.observe({ chainId: 4663 });
+    expect(result.pair.fee).toBe(500);
+    expect(result.coverage.poolsRequested).toBe(4);
+    expect(
+      ethCalls.filter(
+        (call) => call.to === OBSERVED_TRADES_FACTORY.toLowerCase(),
+      ),
+    ).toHaveLength(4);
   });
 
   it("returns only verified top rows while preserving the matched count", async () => {

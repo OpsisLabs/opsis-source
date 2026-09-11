@@ -86,6 +86,9 @@ export default function BiggestTrades() {
         },
         controller.signal,
       );
+      // A response that resolves after the inputs changed (or after unmount)
+      // must never repopulate a cleared result.
+      if (controller.signal.aborted) return;
       setData(response);
       setStatus("ready");
     } catch (error) {

@@ -415,24 +415,41 @@ export class ObservedTradesService implements ObservedTradesSource {
       ],
     }));
     const results = await this.rpcBatch(calls, run);
+    let failedRead = false;
     for (const candidateFee of fees) {
-      const selected = decodeCallAddress(
-        results.get(`pool:${candidateFee}`)?.result,
-      );
-      if (!selected) continue;
+      const read = readGetPoolResult(results.get(`pool:${candidateFee}`)?.result);
+      if (read.state === "zero") continue;
+      if (read.state === "failed") {
+        // A missing, errored, or malformed result is an unavailable read, not
+        // proof that no pool exists. Keep checking the remaining fee tiers.
+        failedRead = true;
+        continue;
+      }
       const code = await this.rpcSingle(
         "eth_getCode",
-        [selected, anchor.hex],
+        [read.address, anchor.hex],
         run,
       );
-      if (typeof code !== "string" || code === "0x" || !HEX.test(code)) {
-        throw new AppError(
-          "OBSERVED_TRADES_POOL_UNVERIFIED",
-          503,
-          "The factory returned a pool address without contract code at the captured block",
-        );
+      if (typeof code !== "string" || !HEX.test(code)) {
+        failedRead = true;
+        continue;
       }
-      return { address: selected, fee: candidateFee, poolsRequested: fees.length };
+      if (code === "0x" || code === "0x0") {
+        failedRead = true;
+        continue;
+      }
+      return {
+        address: read.address,
+        fee: candidateFee,
+        poolsRequested: fees.length,
+      };
+    }
+    if (failedRead) {
+      throw new AppError(
+        "OBSERVED_TRADES_PROVIDER_UNAVAILABLE",
+        503,
+        "One or more factory pool reads failed at the captured block; this is not proof that no pool exists",
+      );
     }
     throw new AppError(
       "OBSERVED_TRADES_POOL_NOT_FOUND",
@@ -1071,6 +1088,34 @@ function decodeObservation(
     transactionSenderType: "unknown",
     blockTime: null,
   };
+}
+
+type GetPoolRead =
+  | { state: "pool"; address: string }
+  | { state: "zero" }
+  | { state: "failed" };
+
+/**
+ * Distinguishes a valid ABI-encoded zero address (this fee tier has no pool)
+ * from a missing, errored, or malformed read (discovery unavailable). Without
+ * this split a provider failure would be misreported as "no pool exists".
+ */
+function readGetPoolResult(result: unknown): GetPoolRead {
+  if (typeof result !== "string" || !HEX.test(result) || result.length < 42) {
+    return { state: "failed" };
+  }
+  try {
+    const decoded = decodeAbiParameters([{ type: "address" }], result as Hex)[0];
+    if (typeof decoded !== "string" || !ADDRESS.test(decoded)) {
+      return { state: "failed" };
+    }
+    const address = decoded.toLowerCase();
+    return address === OBSERVED_TRADES_ZERO_ADDRESS
+      ? { state: "zero" }
+      : { state: "pool", address };
+  } catch {
+    return { state: "failed" };
+  }
 }
 
 function decodeCallAddress(result: unknown): string | null {
