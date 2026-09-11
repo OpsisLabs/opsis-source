@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "c7feeeb07c06d2ce0475f0c8a9defc738f1c226d8a3dc9655fc9b00d5093b2ad",
+  "sourceTreeDigest": "af8854af12d5545ec554972d96f13eac6dae255a90c48a6eda898032d6ddcd9d",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "b5200443bdb61a9dc68050fa8a3e34b0c0e75ce51aa182c81efc07149be363bb",
@@ -240,7 +240,7 @@
     "apps/web/src/i18n/dictionaries/en/stress.ts": "b0372eab04b0f6ae56415f038e727d9c25632b3dd31b516ed823b4912097de79",
     "apps/web/src/i18n/dictionaries/en/trade.ts": "3e9b92bc55da9f11047b15011e0445758518c28b2e533d634ce01aa52c16f09c",
     "apps/web/src/i18n/dictionaries/en/vault.ts": "5de1b7a9e007b719a03b2275476b74aebec9c01403e85b54a9ed158c03ed51fc",
-    "apps/web/src/i18n/dictionaries/en/watch.ts": "0b8b0d1996356119852cb968a803fadf3d3105b9374f400573951ad30e64c420",
+    "apps/web/src/i18n/dictionaries/en/watch.ts": "225d9b1713011cf7f93dea1b9de4646fd0112f01a7194717eb4a27226cf1ca2e",
     "apps/web/src/i18n/dictionaries/zh-CN/actions.ts": "d0f92993d00443e67671ed9838cd305d76c50984ef3c2854d6c505b84af183b8",
     "apps/web/src/i18n/dictionaries/zh-CN/cards.ts": "a3acd429c48e4e435db92fb4ecc2ec1be613edb0559562b4b92b718de24838d0",
     "apps/web/src/i18n/dictionaries/zh-CN/cloud.ts": "b874b88415ccf47ea1ab66fb4b81e8256f05946fad7b4252144e48cc5fd89303",
@@ -262,7 +262,7 @@
     "apps/web/src/i18n/dictionaries/zh-CN/stress.ts": "cadf7c9e6a82c64e6e56cf16dc40d0a1cb6a3f67b26f8ce20240837b5cab94c6",
     "apps/web/src/i18n/dictionaries/zh-CN/trade.ts": "7084e3b3273b894e6c35765f33750cf947c357b3c018a8eb2f87ee71947a430d",
     "apps/web/src/i18n/dictionaries/zh-CN/vault.ts": "20d74a6bedbc92231250daa8fbcbf7715b519bcbb756a66c23bc95a46d1eeeb5",
-    "apps/web/src/i18n/dictionaries/zh-CN/watch.ts": "22eefcffed2956af3311955030c5e8c7076711127b7bbb5103bcaccddf041696",
+    "apps/web/src/i18n/dictionaries/zh-CN/watch.ts": "29bbd0e2ed4c2a631d32e78e4e4354d24acc76106b248f94642c1e98cdb6ee1c",
     "apps/web/src/i18n/i18n.test.ts": "7ec7761899f83e176ae464697bfc561169ce6f8b27ac02419566479735917d3c",
     "apps/web/src/i18n/I18nProvider.tsx": "4b62d46c3fe81936a6c374598f51e0ec069a329b07ce53c3e40ef0cf11916245",
     "apps/web/src/i18n/index.ts": "1a17d8a9162045f5aea19978bb55bea4f6d9977c483c3534f7e67a8518b9154a",

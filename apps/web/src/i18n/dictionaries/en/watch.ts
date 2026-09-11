@@ -238,7 +238,7 @@ export const watch = {
   "watch.briefing.evidence": "Evidence detail",
   "watch.briefing.why": "Why this row exists",
   "watch.briefing.why.balance":
-    "Exact before/after quantities for the same chain and exact token contract.",
+    "Exact before/after quantities for the same asset on the same chain.",
   "watch.briefing.why.new-activity":
     "The transaction hash was absent from the earlier saved check.",
   "watch.briefing.why.failed-activity":

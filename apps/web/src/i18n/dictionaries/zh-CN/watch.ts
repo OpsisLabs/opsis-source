@@ -217,7 +217,7 @@ export const watch = {
   "watch.briefing.compact.hide": "收起概览",
   "watch.briefing.evidence": "证据详情",
   "watch.briefing.why": "为何显示此行",
-  "watch.briefing.why.balance": "同一链、同一代币合约下的精确前后数量。",
+  "watch.briefing.why.balance": "同一链上同一资产的精确前后数量。",
   "watch.briefing.why.new-activity": "该交易哈希未出现在较早保存的查询中。",
   "watch.briefing.why.failed-activity":
     "提供方将此交易报告为失败，因此不显示资产转移。",
