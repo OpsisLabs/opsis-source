@@ -116,4 +116,107 @@ export const stress = {
   "stress.why.math":
     "受影响价值 {affected} × 变动 {percent}% ≈ 金额变化 {amount}",
   "stress.why.rounding": "每个持仓金额四舍五入到分；显示的百分比也经过舍入。",
+  "stress.compare.open": "比较配置",
+  "stress.compare.close": "关闭比较",
+  "stress.compare.eyebrow": "当前 vs 提议",
+  "stress.compare.title": "比较配置",
+  "stress.compare.intro":
+    "起始总值相同、持仓相同、价格假设相同，只有权重不同。",
+  "stress.compare.current": "当前配置",
+  "stress.compare.proposed": "提议配置",
+  "stress.compare.weight": "{asset} 的提议权重（%）",
+  "stress.compare.shift": "权重变化",
+  "stress.compare.value": "起始价值",
+  "stress.compare.allocChange": "配置变化",
+  "stress.compare.even": "平均分配",
+  "stress.compare.reset": "与当前一致",
+  "stress.compare.error.positions": "请使用 1 到 10 个持仓。",
+  "stress.compare.error.identity": "提议权重必须与当前持仓完全对应。",
+  "stress.compare.error.weightValue":
+    "请输入 0 到 100 之间的权重，最多两位小数。",
+  "stress.compare.error.weightSum": "提议权重之和必须正好为 100%。",
+  "stress.compare.error.value": "这些数值无法比较。",
+  "stress.compare.outcome": "在此情景下",
+  "stress.compare.currentEnds": "当前配置最终为",
+  "stress.compare.proposedEnds": "提议配置最终为",
+  "stress.compare.difference": "差额",
+  "stress.compare.differenceUp": "在此情景下，提议配置最终高出 {amount}。",
+  "stress.compare.differenceDown": "在此情景下，提议配置最终低出 {amount}。",
+  "stress.compare.differenceFlat": "在此情景下，提议配置最终总值相同。",
+  "stress.compare.reason": "{asset} 对情景结果的影响最大（{amount}）。",
+  "stress.compare.reasonFlat":
+    "此情景中没有持仓发生变动，因此仅调整配置不会改变结果。",
+  "stress.compare.reasonFlatAllFlat":
+    "此情景中没有持仓发生变动，因此两种配置的结果都不变。",
+  "stress.compare.reasonFlatIdentical":
+    "两种配置完全相同，因此在此情景下同步变动、结果相同。",
+  "stress.compare.reasonFlatEqual":
+    "尽管各持仓变动不同，两种配置的情景结果相同。",
+  "stress.compare.details": "逐项配置明细",
+  "stress.compare.heldConstant":
+    "起始总值固定为 {amount}。两种配置采用相同情景。",
+  "stress.compare.notAdvice":
+    "仅为假设性算术。不是建议、预测、最优方案或安全评级。",
+  "stress.moves.advanced": "高级：逐项变动",
+  "stress.moves.toggle": "为每个持仓设置不同的变动",
+  "stress.moves.label": "{asset} 的变动（%）",
+  "stress.moves.assumptions":
+    "每个持仓保持相同起始价值。只有下列整数百分比变动会影响结果。",
+  "stress.moves.contributions": "对总变动的贡献",
+  "stress.moves.none": "此情景中没有持仓发生变动。",
+  "stress.error.moves": "情景变动必须与当前持仓对应。",
+  "stress.error.moveValue":
+    "请为每个持仓输入 −100% 到 +100% 之间的整数变动。",
+  "stress.import.open": "从本地 Vault 导入所选数值",
+  "stress.import.intro":
+    "以只读方式解锁本地加密 Vault，并导入特定持仓总值。仅为你选择的数值——并非完整的实时组合。",
+  "stress.import.badge": "已选 Vault 数值 · 非完整实时组合",
+  "stress.import.loading": "正在检查此设备上的本地 Vault……",
+  "stress.import.empty": "此设备上未找到本地 Vault。",
+  "stress.import.emptyLink": "创建 Vault",
+  "stress.import.passphrase": "Vault 口令",
+  "stress.import.unlock": "解锁并选择",
+  "stress.import.unlocking": "正在解锁……",
+  "stress.import.select": "包含 {asset}",
+  "stress.import.selectedValue": "美元 · 所选总值",
+  "stress.import.included": "已选 {count}",
+  "stress.import.excluded": "未选 {count}",
+  "stress.import.value": "{asset} 的已确认美元总值",
+  "stress.import.date": "{asset} 的观测日期",
+  "stress.import.tooMany": "最多选择 10 个持仓。",
+  "stress.import.none": "请至少选择一个持仓总值。",
+  "stress.import.confirm": "使用所选数值",
+  "stress.import.clear": "清除私密数据",
+  "stress.import.confirmed": "已将 {count} 个所选数值导入本页。",
+  "stress.import.confirmedValue": "已确认总值：{value} 美元 · 观测 {date}",
+  "stress.import.clearImported": "清除已导入的私密数据",
+  "stress.import.stale": "超过一年",
+  "stress.import.evidence.reference":
+    "已保存的美元参考：{value} {currency} · {date}",
+  "stress.import.evidence.valuation":
+    "已保存的美元单位估值：{value} {currency} · {date}",
+  "stress.import.evidence.unit": "保存的是单位参考值，并非持仓总值。",
+  "stress.import.reason.missingReference":
+    "没有已保存的美元参考。请输入已确认的总值后再包含。",
+  "stress.import.reason.foreignCurrency":
+    "已保存的参考使用其他货币，无法视为美元。请输入已确认的美元总值。",
+  "stress.import.reason.missingDate":
+    "已保存数值没有可用的观测日期。请输入已确认的总值与日期。",
+  "stress.import.reason.futureDate":
+    "已保存日期在未来，不能作为历史观测。请输入已确认的总值与日期。",
+  "stress.import.reason.missingValue":
+    "已保存数值缺失或无法读取。请输入已确认的总值与日期。",
+  "stress.import.reason.unitValue":
+    "已保存的参考是单位价值，并非持仓总值。请输入已确认的总值。",
+  "stress.import.reason.quantityMismatch":
+    "无法确认已保存单位估值的精确数量。请输入已确认的总值。",
+  "stress.import.reason.purchaseCostOnly":
+    "仅保存了购买成本。购买成本并非当前价值。请输入已确认的总值。",
+  "stress.import.reason.overLimit":
+    "已保存数值超过单个持仓 1,000,000,000 美元的上限。请输入更小的已确认总值。",
+  "stress.import.error.missing": "此设备上未找到本地 Vault。",
+  "stress.import.error.unlock": "无法使用该口令解锁 Vault。",
+  "stress.import.error.storage": "此浏览器不支持本地 Vault 存储。",
+  "stress.receipt.disabledAdvanced":
+    "当逐项变动或配置比较处于打开状态时无法导出图片，因为简单的分享卡片与该情景不符。关闭后即可导出简单情景。",
 };
