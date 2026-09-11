@@ -1,5 +1,6 @@
 import type { FastifyInstance } from "fastify";
-import type { AiExplorerAnswer, ChainEntityType, NormalizedEntity } from "@rh-chain/shared";
+import { EXPLORER_ANSWER_TASKS } from "@rh-chain/shared";
+import type { AiExplorerAnswer, ChainEntityType, ExplorerAnswerTask, NormalizedEntity } from "@rh-chain/shared";
 import type { Env } from "../config/env.js";
 import type { JsonCache } from "../cache/service.js";
 import type { PrismaClient } from "@prisma/client";
@@ -10,10 +11,16 @@ import type { ResolvedEntity } from "../chain/types.js";
 import type { ResolveOptions } from "../chain/types.js";
 import { AppError } from "../http/errors.js";
 
+const answerTaskSchema = z.enum(
+  EXPLORER_ANSWER_TASKS as unknown as [ExplorerAnswerTask, ...ExplorerAnswerTask[]]
+);
+
 const analyzeBody = z.object({
   entity: z.string().trim().min(1).max(200),
   entityType: z.enum(["wallet", "transaction", "token", "contract", "block", "unknown"]).default("unknown"),
   question: z.string().trim().min(1).max(500).optional(),
+  // Goal chips send a bounded task. Freeform questions omit it and keep working.
+  task: answerTaskSchema.optional(),
   locale: z.enum(["en", "zh-CN"]).optional().default("en")
 }).strict();
 
@@ -21,7 +28,7 @@ export const PRIVATE_RESOLUTION_TIMEOUT_MS = 15_000;
 
 export type PrivateAnalysisDependencies = {
   resolve(type: ChainEntityType, value: string, options: ResolveOptions): Promise<ResolvedEntity>;
-  answer(question: string, entity: NormalizedEntity, locale?: AiLocale): Promise<AiExplorerAnswer>;
+  answer(question: string, entity: NormalizedEntity, locale?: AiLocale, task?: ExplorerAnswerTask): Promise<AiExplorerAnswer>;
   resolutionTimeoutMs?: number;
 };
 
@@ -120,7 +127,7 @@ export async function privateRoutes(
   const ai = new AiService({ ...env, AI_PROVIDER: "fallback", OPENAI_API_KEY: undefined });
   const privateAnalysis = dependencies ?? {
     resolve: (type: ChainEntityType, value: string, options: ResolveOptions) => resolver.resolveWithSources(type, value, options),
-    answer: (question: string, entity: NormalizedEntity, locale: AiLocale) => ai.answer(question, entity, locale)
+    answer: (question: string, entity: NormalizedEntity, locale: AiLocale, task?: ExplorerAnswerTask) => ai.answer(question, entity, locale, task)
   };
 
   app.post(
@@ -150,9 +157,13 @@ export async function privateRoutes(
         throw new AppError("PROVIDER_UNAVAILABLE", 503, "Public chain data providers are temporarily unavailable");
       }
       const question = body.question ?? defaultQuestion(resolution.entity.type);
-      const answer = body.locale === "en"
-        ? await privateAnalysis.answer(question, resolution.entity)
-        : await privateAnalysis.answer(question, resolution.entity, body.locale);
+      // Preserve the historical two-argument call when there is no goal task so
+      // existing callers and tests keep observing the same invocation shape.
+      const answer = body.task
+        ? await privateAnalysis.answer(question, resolution.entity, body.locale === "en" ? undefined : body.locale, body.task)
+        : body.locale === "en"
+          ? await privateAnalysis.answer(question, resolution.entity)
+          : await privateAnalysis.answer(question, resolution.entity, body.locale);
       return {
         mode: "private" as const,
         entity: resolution.entity,

@@ -108,8 +108,8 @@ describe("AI answer boundary", () => {
     expect(risk.summaryBullets.join(" ")).toContain("Concentrated activity");
     expect(evidence.answer).toContain("evidence view");
     expect(evidence.summaryBullets.join(" ")).toContain("blockscout");
-    expect(activity.answer).toContain("activity view");
-    expect(activity.summaryBullets).toContain("9 recent transactions in the available activity window.");
+    expect(activity.answer).toContain("The available records contain 9 transactions");
+    expect(activity.summaryBullets.join(" ")).toContain("observed records; they do not prove buys, sells, or intent");
   });
 
   it("describes unavailable wallet coverage without manufacturing zero activity", async () => {

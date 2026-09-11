@@ -7,6 +7,28 @@ export const CHAIN_IDS = {
 export type ChainEntityType =
   "wallet" | "transaction" | "token" | "contract" | "block" | "unknown";
 
+/**
+ * Optional, user-chosen goal for a Private Explorer question. It only selects a
+ * deterministic presentation path; it is never sent to a model provider and it
+ * never changes which provider facts are fetched. An absent task keeps the
+ * freeform question working exactly as before.
+ */
+export const EXPLORER_ANSWER_TASKS = [
+  "overview",
+  "explain",
+  "risk",
+  "evidence",
+  "holdings",
+  "activity",
+  "moved",
+  "success",
+  "fees",
+  "token",
+  "verify"
+] as const;
+
+export type ExplorerAnswerTask = (typeof EXPLORER_ANSWER_TASKS)[number];
+
 export type Citation = {
   id: string;
   provider: string;

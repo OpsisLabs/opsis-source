@@ -1,6 +1,6 @@
 import { adaptAnswer, type BackendAnswer, type BackendEntity } from "../dashboard/adapters";
 import { privateApi } from "../dashboard/http";
-import type { AiExplorerAnswer, ChainEntityType } from "../dashboard/types";
+import type { AiExplorerAnswer, ChainEntityType, ExplorerAnswerTask } from "../dashboard/types";
 import { readLocaleCookie } from "../i18n/locale";
 
 export type PrivatePrivacyReceipt = {
@@ -24,6 +24,7 @@ export async function analyzePrivate(input: {
   entity: string;
   entityType?: ChainEntityType;
   question?: string;
+  task?: ExplorerAnswerTask;
 }, signal?: AbortSignal): Promise<PrivateAnalysis> {
   const response = await privateApi<{
     mode: "private";
@@ -34,7 +35,8 @@ export async function analyzePrivate(input: {
     entity: input.entity,
     entityType: input.entityType ?? "unknown",
     locale: readLocaleCookie(),
-    ...(input.question ? { question: input.question } : {})
+    ...(input.question ? { question: input.question } : {}),
+    ...(input.task ? { task: input.task } : {})
   }, signal);
   return {
     entity: response.entity,

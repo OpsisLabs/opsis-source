@@ -242,6 +242,34 @@ async function refresh(page: Page) {
   await detail.getByLabel("Allow this public-address lookup").check();
   await detail.getByRole("button", { name: "Refresh public data" }).click();
 }
+test("scout watch prefills a handed-off public address without auto lookup or consent", async ({
+  page,
+}) => {
+  test.skip(!enabled);
+  const requests: string[] = [];
+  page.on("request", (request) => {
+    if (request.url().includes("/v1/private/watch")) requests.push(request.url());
+  });
+  await page.route("**/v1/private/watch/snapshot", (route) =>
+    route.fulfill({ json: watchFixture(100) }),
+  );
+  await create(page);
+  await add(page, WATCH_TEST_ADDRESS, "Existing wallet");
+  const afterExisting = requests.length;
+  // An existing watchlist keeps the add form collapsed by default; a valid
+  // handoff must still open it and show the prefill after unlock.
+  await page.goto(`/watch?address=${`0x${"2".repeat(40)}`}`);
+  await page.getByLabel("Vault passphrase", { exact: true }).fill(passphrase);
+  await page.getByRole("button", { name: "Unlock watchlist" }).click();
+  const form = page.getByRole("region", { name: "Add a wallet to watch" });
+  await expect(form.getByLabel("Public Robinhood wallet address")).toHaveValue(
+    `0x${"2".repeat(40)}`,
+  );
+  await expect(
+    form.getByLabel("Allow this public-address lookup"),
+  ).not.toBeChecked();
+  expect(requests).toHaveLength(afterExisting);
+});
 test("scout watch closed by default does not mount a Vault or call data providers", async ({
   page,
 }) => {

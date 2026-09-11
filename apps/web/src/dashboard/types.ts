@@ -1,6 +1,26 @@
 export type ChainEntityType = "wallet" | "transaction" | "token" | "contract" | "block" | "unknown";
 export type Severity = "info" | "low" | "medium" | "high";
 
+/**
+ * Mirrors the API's bounded goal metadata for the Private Explorer. A task only
+ * selects a deterministic presentation path; freeform questions omit it.
+ */
+export const EXPLORER_ANSWER_TASKS = [
+  "overview",
+  "explain",
+  "risk",
+  "evidence",
+  "holdings",
+  "activity",
+  "moved",
+  "success",
+  "fees",
+  "token",
+  "verify"
+] as const;
+
+export type ExplorerAnswerTask = (typeof EXPLORER_ANSWER_TASKS)[number];
+
 export interface User {
   id: string;
   /** Email accounts have no username; wallet accounts have no email. */

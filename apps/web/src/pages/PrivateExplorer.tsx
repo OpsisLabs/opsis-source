@@ -19,8 +19,10 @@ import {
 import { AnswerCard, ResolvingAnswerCard } from "../dashboard/ChatPage";
 import { classify, SAMPLE_TX, SAMPLE_WALLET } from "../dashboard/api";
 import { ApiError } from "../dashboard/http";
-import type { ChatSession } from "../dashboard/types";
+import type { ChainEntityType, ChatSession, ExplorerAnswerTask } from "../dashboard/types";
 import { analyzePrivate, type PrivateAnalysis } from "../private/api";
+import { goalsForEntity, type ExplorerGoal } from "../private/goals";
+import { isProductFeatureEnabled } from "../product/availability";
 import { WorkspaceDisclosure } from "../product/WorkspaceDisclosure";
 import { useLocalHistory } from "../private/useLocalHistory";
 import { LocalHistory, SavedConversation } from "../private/LocalHistory";
@@ -28,17 +30,16 @@ import type { VaultConversationTurn } from "../vault/types";
 import OfficialContract from "../product/OfficialContract";
 import { useI18n } from "../i18n";
 
-const PROMPTS = [
-  "explorer.prompts.beginner",
-  "explorer.prompts.risk",
-  "explorer.prompts.activity",
-] as const;
-
 export default function PrivateExplorer() {
   const { t } = useI18n();
   const [entityInput, setEntityInput] = useState("");
   const [question, setQuestion] = useState("");
+  const [questionSource, setQuestionSource] = useState<"goal" | "freeform">("freeform");
+  const [task, setTask] = useState<ExplorerAnswerTask | undefined>(undefined);
   const [result, setResult] = useState<PrivateAnalysis | null>(null);
+  // Kept independently of `result` so resolved-type goals survive a goal pick
+  // that clears the displayed answer, and are dropped when the identifier changes.
+  const [resolved, setResolved] = useState<{ value: string; type: ChainEntityType } | null>(null);
   const [pendingEntity, setPendingEntity] = useState<ChatSession["entity"]>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -51,7 +52,10 @@ export default function PrivateExplorer() {
     requestRef.current?.abort();
     setEntityInput("");
     setQuestion("");
+    setQuestionSource("freeform");
+    setTask(undefined);
     setResult(null);
+    setResolved(null);
     setPendingEntity(undefined);
     setConversationId(null);
     setSaveError("");
@@ -61,6 +65,13 @@ export default function PrivateExplorer() {
     retryTurn.current = null;
   }, []);
   const history = useLocalHistory(clearPrivateMemory);
+  const cancelPending = useCallback(() => {
+    requestRef.current?.abort();
+    requestRef.current = null;
+    pendingRef.current = false;
+    setLoading(false);
+    setPendingEntity(undefined);
+  }, []);
   useEffect(
     () => () => {
       requestRef.current?.abort();
@@ -71,9 +82,12 @@ export default function PrivateExplorer() {
     (item) => item.id === conversationId,
   );
 
-  const run = async (event?: FormEvent) => {
+  const run = async (
+    event?: FormEvent,
+    override?: { value?: string; asked?: string; task?: ExplorerAnswerTask },
+  ) => {
     event?.preventDefault();
-    const value = entityInput.trim();
+    const value = (override?.value ?? entityInput).trim();
     if (!value || pendingRef.current) return;
     const identified = classify(value);
     if (
@@ -88,7 +102,8 @@ export default function PrivateExplorer() {
     requestRef.current = controller;
     const expected = history.generation.current;
     const shouldSave = history.phase === "unlocked";
-    const submittedQuestion = question.trim();
+    const submittedQuestion = (override?.asked ?? question).trim();
+    const submittedTask = override?.task ?? task;
     setSaveError("");
     retryTurn.current = null;
     setLoading(true);
@@ -106,12 +121,20 @@ export default function PrivateExplorer() {
           entityType:
             identified.type === "transaction" ? "transaction" : "unknown",
           ...(submittedQuestion ? { question: submittedQuestion } : {}),
+          ...(submittedTask ? { task: submittedTask } : {}),
         },
         controller.signal,
       );
-      if (controller.signal.aborted || history.generation.current !== expected)
-        return;
+      const stale = () =>
+        controller.signal.aborted ||
+        requestRef.current !== controller ||
+        history.generation.current !== expected;
+      if (stale()) return;
       setResult(response);
+      setResolved({
+        value: response.entity.value.toLowerCase(),
+        type: response.entity.type,
+      });
       if (shouldSave) {
         const turn: VaultConversationTurn = {
           question: submittedQuestion,
@@ -126,9 +149,13 @@ export default function PrivateExplorer() {
           savedAt: new Date().toISOString(),
         };
         try {
-          setConversationId(await history.save(turn, conversationId, expected));
+          const id = await history.save(turn, conversationId, expected);
+          // A clear or entity edit may have completed while the encrypted write
+          // was in flight; the turn is kept, but stale UI state must not return.
+          if (stale()) return;
+          setConversationId(id);
         } catch (cause) {
-          if (history.generation.current !== expected) return;
+          if (stale()) return;
           retryTurn.current = turn;
           setSaveError(
             t("explorer.error.saveFailed", {
@@ -158,21 +185,58 @@ export default function PrivateExplorer() {
   };
 
   const chooseEntity = (value: string) => {
+    cancelPending();
     setEntityInput(value);
+    setQuestion("");
+    setQuestionSource("freeform");
+    setTask(undefined);
     setResult(null);
+    setResolved(null);
     setError("");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const chooseGoal = (goal: ExplorerGoal) => {
+    cancelPending();
+    setResult(null);
+    setTask(goal.task);
+    setQuestion(t(goal.labelKey));
+    setQuestionSource("goal");
+    setError("");
+    setSaveError("");
+  };
+
+  const runGoal = (goal: ExplorerGoal) => {
+    cancelPending();
+    setTask(goal.task);
+    const asked = t(goal.labelKey);
+    setQuestion(asked);
+    setQuestionSource("goal");
+    void run(undefined, { value: result?.entity.value ?? entityInput, asked, task: goal.task });
+  };
+
   const clear = () => {
+    cancelPending();
     setEntityInput("");
     setQuestion("");
+    setQuestionSource("freeform");
+    setTask(undefined);
     setResult(null);
+    setResolved(null);
     setError("");
     setConversationId(null);
     setSaveError("");
     retryTurn.current = null;
   };
+
+  const trimmedInput = entityInput.trim().toLowerCase();
+  // Resolved-type goals stay active while the identifier still matches, even
+  // after picking a goal cleared the displayed answer.
+  const resolvedMatchesInput = resolved !== null && resolved.value === trimmedInput;
+  const inputGoals = goalsForEntity(
+    resolvedMatchesInput && resolved ? resolved.type : classify(entityInput).type,
+  );
+  const nextGoals = result ? goalsForEntity(result.entity.type) : [];
 
   return (
     <div className="min-h-screen bg-[#1d1d1d] text-[#e9e0d1]">
@@ -275,6 +339,9 @@ export default function PrivateExplorer() {
               onSelect={(conversation) => {
                 setConversationId(conversation.id);
                 setResult(null);
+                setResolved(null);
+                setQuestionSource("freeform");
+                setTask(undefined);
                 setError("");
                 setSaveError("");
                 retryTurn.current = null;
@@ -308,7 +375,18 @@ export default function PrivateExplorer() {
                   <input
                     value={entityInput}
                     onChange={(event) => {
-                      setEntityInput(event.target.value);
+                      const next = event.target.value;
+                      cancelPending();
+                      setEntityInput(next);
+                      setTask(undefined);
+                      setResult(null);
+                      if (questionSource === "goal") {
+                        setQuestion("");
+                        setQuestionSource("freeform");
+                      }
+                      if (resolved && resolved.value !== next.trim().toLowerCase()) {
+                        setResolved(null);
+                      }
                       if (error) setError("");
                     }}
                     autoComplete="off"
@@ -324,7 +402,13 @@ export default function PrivateExplorer() {
                   </span>
                   <input
                     value={question}
-                    onChange={(event) => setQuestion(event.target.value)}
+                    onChange={(event) => {
+                      cancelPending();
+                      setQuestion(event.target.value);
+                      setQuestionSource("freeform");
+                      setTask(undefined);
+                      setResult(null);
+                    }}
                     maxLength={500}
                     autoComplete="off"
                     placeholder={t("explorer.form.questionPlaceholder")}
@@ -365,18 +449,24 @@ export default function PrivateExplorer() {
             <div
               className="mt-4 flex flex-wrap items-center gap-2"
               aria-label={t("explorer.form.examplesAria")}
+              role="group"
             >
               <span className="mr-1 text-[14px] text-[#aaa39b]">
                 {t("explorer.form.orAsk")}
               </span>
-              {PROMPTS.map((prompt) => (
+              {inputGoals.map((goal) => (
                 <button
-                  key={prompt}
+                  key={goal.task}
                   type="button"
-                  onClick={() => setQuestion(t(prompt))}
-                  className="min-h-11 rounded-sm border border-[#514a45] px-3 py-2 text-[14px] text-[#b8b0a7] transition-colors hover:border-[#fa6c34] hover:text-[#e9e0d1]"
+                  onClick={() => chooseGoal(goal)}
+                  aria-pressed={task === goal.task}
+                  className={`min-h-11 rounded-sm border px-3 py-2 text-[14px] transition-colors hover:border-[#fa6c34] hover:text-[#e9e0d1] ${
+                    task === goal.task
+                      ? "border-[#fa6c34] text-[#e9e0d1]"
+                      : "border-[#514a45] text-[#b8b0a7]"
+                  }`}
                 >
-                  {t(prompt)}
+                  {t(goal.labelKey)}
                 </button>
               ))}
             </div>
@@ -447,8 +537,39 @@ export default function PrivateExplorer() {
                     ai={result.answer}
                     onPivot={chooseEntity}
                     animateText
+                    layout="answer-first"
                     eyebrow={t("explorer.answer.eyebrow")}
                   />
+                  <section
+                    aria-label={t("explorer.next.title")}
+                    className="clip-panel border border-[#383838] bg-[#202020] p-4 sm:p-5"
+                  >
+                    <p className="font-mono-d text-[10px] tracking-[0.15em] text-[#7f7972]">
+                      {t("explorer.next.title").toUpperCase()}
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {nextGoals.map((goal) => (
+                        <button
+                          key={goal.task}
+                          type="button"
+                          disabled={loading}
+                          onClick={() => runGoal(goal)}
+                          className="min-h-11 rounded-sm border border-[#514a45] px-3 py-2 text-[14px] text-[#b8b0a7] transition-colors hover:border-[#fa6c34] hover:text-[#e9e0d1] disabled:opacity-50"
+                        >
+                          {t(goal.labelKey)}
+                        </button>
+                      ))}
+                      {result.entity.type === "wallet" &&
+                        isProductFeatureEnabled("scout-watch") && (
+                          <Link
+                            to={`/watch?address=${encodeURIComponent(result.entity.value)}`}
+                            className="flex min-h-11 items-center rounded-sm border border-[#fa6c34] px-3 py-2 text-[14px] text-[#ff985e] transition-colors hover:bg-[#fa6c34]/10"
+                          >
+                            {t("explorer.next.watch")}
+                          </Link>
+                        )}
+                    </div>
+                  </section>
                   <section
                     data-testid="privacy-receipt"
                     className="clip-panel border border-[#7fb069]/35 bg-[#7fb069]/5 p-5 sm:p-6"

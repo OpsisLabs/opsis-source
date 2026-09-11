@@ -37,6 +37,52 @@ function localHistoryResponse() {
   };
 }
 
+function walletGoalResponse() {
+  const citations = [{ id: "goal-source", provider: "blockscout", url: `https://robinhoodchain.blockscout.com/address/${address}`, fetchedAt: timestamp, fieldsUsed: ["nativeBalanceEth", "tokenBalances"], description: "Public wallet data" }];
+  const facts = { address, nativeBalanceEth: "0.803388", activityCoverage: "unavailable", tokenBalanceCoverage: "reviewed_asset_sample", tokenBalanceContractsChecked: 12, tokenBalances: [{ tokenSymbol: "USDG", tokenName: "Global Dollar", formattedValue: "10" }] };
+  return {
+    mode: "private", entity: { chainId: 4663, type: "wallet", value: address, facts, citations, riskNotes: [] },
+    answer: {
+      answer: "A bounded direct check found 1 positive token balance across 12 reviewed contracts, plus 0.803388 ETH native. This is useful holdings context, not the wallet's complete portfolio.",
+      facts,
+      summaryBullets: ["Native balance: 0.803388 ETH; it covers network fees and is not a full portfolio value.", "Global Dollar (USDG) 10 (0x5555…5555)"],
+      confirmedFacts: [], inferences: [], uncertainty: [], riskNotes: [], citations, suggestedQuestions: []
+    },
+    privacy: { accountRequired: false, walletConnectionRequired: false, serverStorage: "none", browserStorage: "memory_only", clearsOnReload: true, modelProvider: "none", providerDestinations: ["blockscout"], disclosure: "Only the public chain identifier was sent to Blockscout." }
+  };
+}
+
+function tokenGoalResponse() {
+  const citations = [{ id: "token-source", provider: "blockscout", url: `https://robinhoodchain.blockscout.com/token/${address}`, fetchedAt: timestamp, fieldsUsed: ["symbol", "decimals", "totalSupply"], description: "Token metadata" }];
+  const facts = { address, name: "Example Dollar", symbol: "EXD", decimals: 18, totalSupply: "1000000000000000000000", verified: false };
+  return {
+    mode: "private", entity: { chainId: 4663, type: "token", value: address, facts, citations, riskNotes: [] },
+    answer: {
+      answer: "This contract's returned metadata labels it Example Dollar (EXD). That identifies code at this address; it does not prove the real-world project.",
+      facts,
+      summaryBullets: ["Contract: 0x0000…0042; the address is the durable identifier, not the label."],
+      confirmedFacts: [], inferences: [], uncertainty: [], riskNotes: [], citations, suggestedQuestions: []
+    },
+    privacy: { accountRequired: false, walletConnectionRequired: false, serverStorage: "none", browserStorage: "memory_only", clearsOnReload: true, modelProvider: "none", providerDestinations: ["blockscout"], disclosure: "Only the public chain identifier was sent to Blockscout." }
+  };
+}
+
+function transactionGoalResponse() {
+  const hash = `0x${"a".repeat(64)}`;
+  const citations = [{ id: "tx-source", provider: "blockscout", url: `https://robinhoodchain.blockscout.com/tx/${hash}`, fetchedAt: timestamp, fieldsUsed: ["status", "valueEth"], description: "Public transaction" }];
+  const facts = { hash, status: "0x1", valueEth: "1.25", gasUsed: "0x5208" };
+  return {
+    mode: "private", entity: { chainId: 4663, type: "transaction", value: hash, facts, citations, riskNotes: [] },
+    answer: {
+      answer: "This transaction succeeded on Robinhood Chain, so the network accepted it.",
+      facts,
+      summaryBullets: ["1.25 ETH was attached to the transaction; that is the amount sent, not the network fee."],
+      confirmedFacts: [], inferences: [], uncertainty: [], riskNotes: [], citations, suggestedQuestions: []
+    },
+    privacy: { accountRequired: false, walletConnectionRequired: false, serverStorage: "none", browserStorage: "memory_only", clearsOnReload: true, modelProvider: "none", providerDestinations: ["blockscout"], disclosure: "Only the public chain identifier was sent to Blockscout." }
+  };
+}
+
 async function rawHistoryRecords(page: Page) {
   return page.evaluate(async () => {
     const db = await new Promise<IDBDatabase>((resolve, reject) => { const request = indexedDB.open("chainscout-private-vault"); request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error); });
@@ -339,4 +385,200 @@ test("Private Mode validates locally and shows bounded provider failures on mobi
   await page.getByRole("button", { name: /EXPLAIN PRIVATELY/i }).click();
   await expect(page.getByRole("alert")).toContainText("Private Mode is paused right now");
   expect(calls).toBe(1);
+});
+
+test("Private Explorer goal chips match the identifier and send a bounded task", async ({ page }) => {
+  const submitted: Array<Record<string, unknown>> = [];
+  await page.route("**/v1/private/analyze", async (route) => {
+    submitted.push(route.request().postDataJSON());
+    await route.fulfill({ json: walletGoalResponse() });
+  });
+
+  await page.goto("/app");
+  const field = page.getByLabel("Public chain identifier");
+  await field.fill(address);
+  await expect(page.getByRole("button", { name: "What does it hold?" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "What changed recently?" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "What moved?" })).toHaveCount(0);
+
+  await field.fill(`0x${"a".repeat(64)}`);
+  await expect(page.getByRole("button", { name: "What moved?" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Did it succeed?" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "What were the fees?" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "What does it hold?" })).toHaveCount(0);
+
+  await field.fill(address);
+  await page.getByRole("button", { name: "What does it hold?" }).click();
+  await expect(page.getByLabel("Optional question")).toHaveValue("What does it hold?");
+  await page.getByRole("button", { name: /EXPLAIN PRIVATELY/i }).click();
+  await expect(page.getByTestId("answer-card")).toBeVisible();
+  expect(submitted[0]).toMatchObject({ entity: address, entityType: "unknown", task: "holdings" });
+  await expect(page.getByText("not the wallet's complete portfolio", { exact: false })).toBeVisible();
+
+  // Editing the freeform question clears the goal metadata so detection wins.
+  await page.getByLabel("Optional question").fill("Just curious");
+  await page.getByRole("button", { name: /EXPLAIN PRIVATELY/i }).click();
+  await expect.poll(() => submitted.length).toBe(2);
+  expect(submitted[1]).toMatchObject({ entity: address, entityType: "unknown", question: "Just curious" });
+  expect(submitted[1]?.task).toBeUndefined();
+});
+
+test("Private Explorer offers resolved token goals and runs a verification task", async ({ page }) => {
+  const submitted: Array<Record<string, unknown>> = [];
+  await page.route("**/v1/private/analyze", async (route) => {
+    submitted.push(route.request().postDataJSON());
+    await route.fulfill({ json: tokenGoalResponse() });
+  });
+
+  await page.goto("/app");
+  await page.getByLabel("Public chain identifier").fill(address);
+  await page.getByRole("button", { name: /EXPLAIN PRIVATELY/i }).click();
+  await expect(page.getByTestId("answer-card")).toBeVisible();
+
+  const next = page.getByRole("region", { name: "Ask next" });
+  await expect(next.getByRole("button", { name: "What is this token?" })).toBeVisible();
+  await expect(next.getByRole("button", { name: "What can be verified?" })).toBeVisible();
+  await expect(next.getByRole("button", { name: "What does it hold?" })).toHaveCount(0);
+
+  await next.getByRole("button", { name: "What can be verified?" }).click();
+  await expect.poll(() => submitted.length).toBe(2);
+  expect(submitted[1]).toMatchObject({
+    entity: address,
+    entityType: "unknown",
+    question: "What can be verified?",
+    task: "verify"
+  });
+});
+
+test("Private Explorer localizes goal chips into Simplified Chinese", async ({ page, context }) => {
+  await context.addCookies([{ name: "chainscout_locale_v1", value: "zh-CN", url: APP_ORIGIN }]);
+  await page.goto("/app");
+  await page.getByLabel("公开链标识符").fill(address);
+  await expect(page.getByRole("button", { name: "它持有什么？" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "最近有什么变化？" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "What does it hold?" })).toHaveCount(0);
+});
+
+test("Private Explorer never renders an unsafe provider URL as a link", async ({ page }) => {
+  const response = walletGoalResponse();
+  response.entity.citations = [{
+    id: "unsafe-source",
+    provider: "blockscout",
+    url: "javascript:alert(1)",
+    fetchedAt: timestamp,
+    fieldsUsed: ["nativeBalanceEth"],
+    description: "Public wallet data"
+  }];
+  response.answer.citations = response.entity.citations;
+  await page.route("**/v1/private/analyze", (route) => route.fulfill({ json: response }));
+
+  await page.goto("/app");
+  await page.getByLabel("Public chain identifier").fill(address);
+  await page.getByRole("button", { name: /EXPLAIN PRIVATELY/i }).click();
+  await expect(page.getByTestId("answer-card")).toBeVisible();
+  await page.getByRole("button", { name: /SOURCES/ }).click();
+  await expect(page.locator('a[href^="javascript:"]')).toHaveCount(0);
+});
+
+test("Private Explorer leads with the answer and keeps evidence behind an expander", async ({ page }) => {
+  await page.route("**/v1/private/analyze", (route) => route.fulfill({ json: walletGoalResponse() }));
+
+  await page.goto("/app");
+  await page.getByLabel("Public chain identifier").fill(address);
+  await page.getByRole("button", { name: /EXPLAIN PRIVATELY/i }).click();
+
+  const card = page.getByTestId("answer-card");
+  const prose = card.getByTestId("answer-prose");
+  await expect(prose).toBeVisible();
+  await expect(prose).toContainText("not the wallet's complete portfolio");
+  // The dense stats header is inside the labelled expander, not above the lead.
+  const evidence = card.locator("details");
+  await expect(evidence.getByText("Supporting facts & evidence")).toBeVisible();
+  await expect(card.getByText("Sample matches", { exact: false })).toBeHidden();
+
+  // Prose precedes the expander in document order.
+  const positions = await card.evaluate((node) => {
+    const lead = node.querySelector('[data-testid="answer-prose"]');
+    const facts = node.querySelector("details");
+    return Boolean(lead && facts && (lead.compareDocumentPosition(facts) & Node.DOCUMENT_POSITION_FOLLOWING));
+  });
+  expect(positions).toBe(true);
+});
+
+test("Private Explorer discards a stale reply when the identifier changes mid-request", async ({ page }) => {
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => { release = resolve; });
+  let calls = 0;
+  await page.route("**/v1/private/analyze", async (route) => {
+    calls += 1;
+    if (calls === 1) await gate;
+    await route.fulfill({ json: walletGoalResponse() }).catch(() => undefined);
+  });
+
+  await page.goto("/app");
+  const field = page.getByLabel("Public chain identifier");
+  await field.fill(address);
+  await page.getByRole("button", { name: /EXPLAIN PRIVATELY/i }).click();
+  await expect(page.getByTestId("resolving-answer-card")).toBeVisible();
+
+  await field.fill(`0x${"2".repeat(40)}`);
+  release();
+
+  await expect(page.getByTestId("resolving-answer-card")).toHaveCount(0);
+  await expect(page.getByTestId("answer-card")).toHaveCount(0);
+  expect(calls).toBe(1);
+});
+
+test("local history saves the submitted question, not text edited afterwards", async ({ page }) => {
+  await prepareLocalHistory(page);
+  await page.route("**/v1/private/analyze", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    await route.fulfill({ json: localHistoryResponse() }).catch(() => undefined);
+  });
+  await page.getByLabel("Public chain identifier").fill(address);
+  await page.getByLabel("Optional question").fill(historyQuestion);
+  await page.getByRole("button", { name: /EXPLAIN PRIVATELY/i }).click();
+  await expect(page.getByText("Saved encrypted on this device.", { exact: true })).toBeVisible();
+
+  await page.getByLabel("Optional question").fill("EDITED-AFTER-SAVE-CANARY");
+  await page
+    .getByRole("navigation", { name: "Saved conversations" })
+    .getByRole("button", { name: new RegExp(`^${historyQuestion}`) })
+    .click();
+  const transcript = page.getByRole("region", { name: "Saved conversation transcript" });
+  await expect(transcript).toContainText(historyQuestion);
+  await expect(transcript).not.toContainText("EDITED-AFTER-SAVE-CANARY");
+});
+
+test("Private Explorer keeps resolved-type goals across a goal pick and resets them on identifier change", async ({ page }) => {
+  await page.route("**/v1/private/analyze", (route) => {
+    const entity = String(route.request().postDataJSON().entity ?? "");
+    return route.fulfill({ json: entity.length === 66 ? transactionGoalResponse() : tokenGoalResponse() });
+  });
+
+  await page.goto("/app");
+  const field = page.getByLabel("Public chain identifier");
+  await field.fill(address);
+  // Before resolution an address is only a wallet guess.
+  await expect(page.getByRole("button", { name: "What does it hold?" })).toBeVisible();
+  await page.getByRole("button", { name: /EXPLAIN PRIVATELY/i }).click();
+  await expect(page.getByTestId("answer-card")).toBeVisible();
+
+  // Resolved token goals replace the wallet guess at the top of the form.
+  await expect(page.getByRole("button", { name: "What is this token?" }).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: "What does it hold?" })).toHaveCount(0);
+
+  // Picking a goal clears the displayed answer but must not fall back to wallet chips.
+  await page.getByRole("button", { name: "What can be verified?" }).first().click();
+  await expect(page.getByTestId("answer-card")).toHaveCount(0);
+  await expect(page.getByLabel("Optional question")).toHaveValue("What can be verified?");
+  await expect(page.getByRole("button", { name: "What is this token?" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "What does it hold?" })).toHaveCount(0);
+
+  // Changing to a transaction hash clears the goal-derived question and task.
+  await field.fill(`0x${"a".repeat(64)}`);
+  await expect(page.getByLabel("Optional question")).toHaveValue("");
+  await expect(page.getByRole("button", { name: "What moved?" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "What is this token?" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "What does it hold?" })).toHaveCount(0);
 });

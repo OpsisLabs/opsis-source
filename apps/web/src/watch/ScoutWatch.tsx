@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { isAddress } from "viem";
 import {
   ArrowDownUp,
@@ -146,7 +146,14 @@ function LookupConsent({
 
 function Workspace({ session }: { session: WatchSession }) {
   const { t } = useI18n();
-  const [address, setAddress] = useState("");
+  const [searchParams] = useSearchParams();
+  // Optional handoff from the Private Explorer: prefill a validated public
+  // address only. Consent, lookup and saving stay explicit user actions.
+  const [prefillAddress] = useState(() => {
+    const requested = searchParams.get("address")?.trim() ?? "";
+    return requested && isAddress(requested, { strict: true }) ? requested : "";
+  });
+  const [address, setAddress] = useState(prefillAddress);
   const [label, setLabel] = useState("");
   const [consent, setConsent] = useState(false);
   const [error, setError] = useState("");
@@ -184,7 +191,7 @@ function Workspace({ session }: { session: WatchSession }) {
         </button>
       </div>
       <section className={panel} aria-labelledby="watch-add-title">
-        <details open={session.watches.length === 0}>
+        <details open={session.watches.length === 0 || Boolean(prefillAddress)}>
           <summary className="min-h-11 cursor-pointer py-2">
             <h2 id="watch-add-title" className="inline text-xl">
               {t("watch.add")}

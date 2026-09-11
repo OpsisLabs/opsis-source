@@ -66,6 +66,7 @@ export const cloud: Record<string, string> = {
   "cloud.chat.riskDisclaimer":
     "风险提示是基于证据的观察，而非定论或建议。",
   "cloud.chat.sources": "{count} 个来源 · {providers}",
+  "cloud.chat.supportingFacts": "支持事实与证据",
   "cloud.chat.verifyLink": "在 Blockscout 上验证 {id}",
   "cloud.chat.copyHash": "复制哈希",
   "cloud.chat.copyAddressAction": "复制地址",

@@ -85,6 +85,21 @@ export interface BackendMessage {
 const str = (value: unknown): string | undefined =>
   typeof value === "string" ? value : typeof value === "number" ? String(value) : undefined;
 
+/**
+ * Provider-controlled URLs are rendered as links, so only allow the two web
+ * schemes. `javascript:`, `data:` and malformed values degrade to no link
+ * rather than becoming an executable href.
+ */
+export function safeHttpUrl(value: string | null | undefined): string | null {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:" ? url.href : null;
+  } catch {
+    return null;
+  }
+}
+
 const rows = (value: unknown): Record<string, unknown>[] =>
   Array.isArray(value) ? (value.filter((item) => item && typeof item === "object") as Record<string, unknown>[]) : [];
 
@@ -207,7 +222,7 @@ export function adaptAnswer(
       translateCurrent("cloud.adapters.errorInvalidEntity"),
     );
   }
-  const explorerUrl = str(facts?.explorerUrl);
+  const explorerUrl = safeHttpUrl(str(facts?.explorerUrl));
 
   // Source ids arrive as UUIDs. The answer card renders them inline next to
   // every fact and risk note in a narrow column, so alias them to short
@@ -253,7 +268,7 @@ export function adaptAnswer(
       label: citation.description ?? translateCurrent("cloud.adapters.sourceData", { provider: citation.provider }),
       // Older saved answers may contain raw provider API/RPC URLs. Prefer the
       // normalized human explorer URL so those citations remain verifiable.
-      url: explorerUrl ?? citation.url ?? null,
+      url: explorerUrl ?? safeHttpUrl(citation.url),
       fetchedAt: citation.fetchedAt,
       entityType,
       entityId,
@@ -754,7 +769,7 @@ export function adaptEntitySummary(entity: BackendEntity): EntitySummary {
       title: note.title,
     })),
     explorerUrl:
-      str(facts.explorerUrl) ??
+      safeHttpUrl(str(facts.explorerUrl)) ??
       `${EXPLORER}/${isTransaction ? "tx" : "address"}/${entity.value}`,
   };
 }

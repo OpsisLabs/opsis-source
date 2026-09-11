@@ -67,6 +67,7 @@ export const cloud = {
   "cloud.chat.riskDisclaimer":
     "RISK NOTES ARE EVIDENCE-BASED OBSERVATIONS, NOT VERDICTS OR ADVICE.",
   "cloud.chat.sources": "{count} SOURCES · {providers}",
+  "cloud.chat.supportingFacts": "Supporting facts & evidence",
   "cloud.chat.verifyLink": "Verify {id} on Blockscout",
   "cloud.chat.copyHash": "COPY HASH",
   "cloud.chat.copyAddressAction": "COPY ADDRESS",

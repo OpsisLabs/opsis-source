@@ -472,11 +472,14 @@ export function AnswerCard({
   onPivot,
   animateText = false,
   eyebrow,
+  layout = "default",
 }: {
   ai: AiExplorerAnswer;
   onPivot: (v: string) => void;
   animateText?: boolean;
   eyebrow?: string;
+  /** "answer-first" leads with the prose takeaway; the default keeps the original order. */
+  layout?: "default" | "answer-first";
 }) {
   const { t } = useI18n();
   const resolvedEyebrow = eyebrow ?? t("cloud.chat.eyebrow");
@@ -484,172 +487,206 @@ export function AnswerCard({
   const [showSources, setShowSources] = useState(false);
   const streamedAnswer = useStreamedText(ai.answer, animateText);
   const monogram = (ai.card?.subtitle?.replace(/^\$/, "") ?? ai.card?.title ?? "?").slice(0, 2).toUpperCase();
-  return (
-    <div data-testid="answer-card" className={`clip-panel border border-[#2e2e2e] bg-[#242424] ${animateText ? "result-materialize" : ""}`}>
-      <div className="flex items-center gap-2 border-b border-[#2e2e2e] px-6 py-3.5">
-        <Sparkles size={13} className="text-[#fa6c34]" />
-        <span className="font-mono-d text-[10.5px] tracking-wider text-[#9a938a]">{resolvedEyebrow}</span>
-      </div>
+  const answerFirst = layout === "answer-first";
 
-      {ai.card && (
-        <div className="deck-rise relative overflow-hidden border-b border-[#2e2e2e] px-6 py-6">
-          <div className="relative flex items-start gap-4">
-            <div className="clip-btn-sm flex h-14 w-14 shrink-0 items-center justify-center bg-[#fa6c34] font-mono-d text-[19px] font-bold text-[#1d1d1d]">
-              {monogram}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <span className="border border-[#fa6c34]/40 bg-[#fa6c34]/10 px-2 py-0.5 font-mono-d text-[9.5px] tracking-wider text-[#fa6c34]">
-                  {t(KIND_LABEL_KEYS[ai.card.kind] ?? "cloud.kind.unknown")}
-                </span>
-                <h3 className="text-[24px] font-medium tracking-[-0.02em] text-[#f0e8da]">{ai.card.title}</h3>
-                {ai.card.subtitle && <span className="font-mono-d text-[12px] text-[#9a938a]">{ai.card.subtitle}</span>}
-              </div>
-              {ai.card.badges.length > 0 && (
-                <div className="mt-2.5 flex flex-wrap gap-1.5">
-                  {ai.card.badges.map((badge) => (
-                    <span
-                      key={badge.label}
-                      className={`border px-2 py-0.5 font-mono-d text-[9.5px] tracking-wider ${BADGE_TONE[badge.tone ?? "neutral"]}`}
-                    >
-                      {badge.label}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
+  const header = (
+    <div className="flex items-center gap-2 border-b border-[#2e2e2e] px-6 py-3.5">
+      <Sparkles size={13} className="text-[#fa6c34]" />
+      <span className="font-mono-d text-[10.5px] tracking-wider text-[#9a938a]">{resolvedEyebrow}</span>
+    </div>
+  );
+
+  const cardBlock = ai.card ? (
+    <div className="deck-rise relative overflow-hidden border-b border-[#2e2e2e] px-6 py-6">
+      <div className="relative flex items-start gap-4">
+        <div className="clip-btn-sm flex h-14 w-14 shrink-0 items-center justify-center bg-[#fa6c34] font-mono-d text-[19px] font-bold text-[#1d1d1d]">
+          {monogram}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <span className="border border-[#fa6c34]/40 bg-[#fa6c34]/10 px-2 py-0.5 font-mono-d text-[9.5px] tracking-wider text-[#fa6c34]">
+              {t(KIND_LABEL_KEYS[ai.card.kind] ?? "cloud.kind.unknown")}
+            </span>
+            <h3 className="text-[24px] font-medium tracking-[-0.02em] text-[#f0e8da]">{ai.card.title}</h3>
+            {ai.card.subtitle && <span className="font-mono-d text-[12px] text-[#9a938a]">{ai.card.subtitle}</span>}
           </div>
-
-          {ai.card.stats.length > 0 && (
-            <div className="relative mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
-              {ai.card.stats.map((stat, i) => (
-                <div
-                  key={stat.label}
-                  className="deck-rise border border-[#2e2e2e] bg-[#1d1d1d]/80 px-3.5 py-3 transition-colors hover:border-[#383838]"
-                  style={{ animationDelay: `${90 + i * 70}ms` }}
+          {ai.card.badges.length > 0 && (
+            <div className="mt-2.5 flex flex-wrap gap-1.5">
+              {ai.card.badges.map((badge) => (
+                <span
+                  key={badge.label}
+                  className={`border px-2 py-0.5 font-mono-d text-[9.5px] tracking-wider ${BADGE_TONE[badge.tone ?? "neutral"]}`}
                 >
-                  <p className="font-mono-d text-[9px] tracking-wider text-[#635d5a]">{stat.label.toUpperCase()}</p>
-                  <p className={`font-num mt-1.5 truncate text-[21px] leading-none ${STAT_TONE[stat.tone ?? "neutral"]}`}>
-                    <StatValue text={stat.value} />
-                  </p>
-                </div>
+                  {badge.label}
+                </span>
               ))}
             </div>
           )}
-          <CardActions card={ai.card} answer={ai.answer} />
         </div>
-      )}
-
-      {ai.riskNotes.length > 0 && (
-        <button
-          onClick={() => setExpanded((v) => !v)}
-          className={`flex w-full items-center gap-2.5 border-b border-[#2e2e2e] px-6 py-3 text-left transition-colors hover:bg-[#2a2a2a] ${
-            ai.riskNotes.some((r) => r.severity === "high")
-              ? "bg-[#e0738a]/10"
-              : ai.riskNotes.some((r) => r.severity === "medium")
-                ? "bg-[#fa6c34]/10"
-                : "bg-transparent"
-          }`}
-        >
-          <span className={`pulse-dot ${SEV_STYLE[ai.riskNotes[0]!.severity].text}`}>
-            <ShieldAlert size={13} />
-          </span>
-          <span className="flex-1 truncate text-[12.5px] text-[#d6ccba]">{ai.riskNotes[0]!.note}</span>
-          <span className="shrink-0 font-mono-d text-[10px] text-[#635d5a]">
-            {expanded ? t("cloud.chat.hide") : ai.riskNotes.length > 1 ? t("cloud.chat.more", { count: ai.riskNotes.length - 1 }) : t("cloud.chat.detail")}
-          </span>
-        </button>
-      )}
-
-      <div className="deck-rise px-6 py-5" style={{ animationDelay: "150ms" }}>
-        <p
-          data-testid="answer-prose"
-          data-streaming={animateText && !streamedAnswer.complete ? "true" : "false"}
-          aria-label={animateText ? ai.answer : undefined}
-          className="text-[14.5px] leading-relaxed text-[#e9e0d1]"
-        >
-          <span aria-hidden={animateText ? "true" : undefined}>
-            <Linkified text={streamedAnswer.visible} onPivot={onPivot} />
-            {animateText && !streamedAnswer.complete && <span className="stream-cursor" aria-hidden="true" />}
-          </span>
-        </p>
-        {streamedAnswer.complete && ai.summaryBullets.length > 0 && (
-          <ul className="mt-4 space-y-2">
-            {ai.summaryBullets.map((b, index) => (
-              <li
-                key={b}
-                className="result-materialize flex items-start gap-2.5 text-[13px] text-[#9a938a]"
-                style={{ animationDelay: `${index * 70}ms` }}
-              >
-                <CheckCircle2 size={13} className="mt-0.5 shrink-0 text-[#7fb069]" />
-                {b}
-              </li>
-            ))}
-          </ul>
-        )}
       </div>
 
-      {ai.widgets && ai.widgets.length > 0 && (
-        <div className="grid gap-3 border-t border-[#2e2e2e] px-6 py-5 sm:grid-cols-2">
-          {ai.widgets.map((w, i) => (
-            <WidgetPanel key={w.title} w={w} onPivot={onPivot} delay={200 + i * 90} />
+      {ai.card.stats.length > 0 && (
+        <div className="relative mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
+          {ai.card.stats.map((stat, i) => (
+            <div
+              key={stat.label}
+              className="deck-rise border border-[#2e2e2e] bg-[#1d1d1d]/80 px-3.5 py-3 transition-colors hover:border-[#383838]"
+              style={{ animationDelay: `${90 + i * 70}ms` }}
+            >
+              <p className="font-mono-d text-[9px] tracking-wider text-[#635d5a]">{stat.label.toUpperCase()}</p>
+              <p className={`font-num mt-1.5 truncate text-[21px] leading-none ${STAT_TONE[stat.tone ?? "neutral"]}`}>
+                <StatValue text={stat.value} />
+              </p>
+            </div>
           ))}
         </div>
       )}
+      <CardActions card={ai.card} answer={ai.answer} />
+    </div>
+  ) : null;
 
-      {/* risk detail: expanded from the banner rather than parked in a tab */}
-      {expanded && ai.riskNotes.length > 0 && (
-        <div className="border-t border-[#2e2e2e] bg-[#1f1f1f] px-6 py-4">
-          <div className="space-y-3">
-            {ai.riskNotes.map((r) => (
-              <div key={r.note} className="flex items-start gap-3 text-[12.5px]">
-                <span className={`mt-0.5 shrink-0 ${SEV_STYLE[r.severity].text}`}>{SEV_STYLE[r.severity].icon}</span>
-                <div>
-                  <span className={`mr-2 font-mono-d text-[10px] uppercase ${SEV_STYLE[r.severity].text}`}>{r.severity}</span>
-                  <span className="text-[#9a938a]">{r.note}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-          <p className="mt-3 border-t border-[#2e2e2e] pt-3 font-mono-d text-[10px] leading-relaxed text-[#635d5a]">
-            {t("cloud.chat.riskDisclaimer")}
-          </p>
-        </div>
+  const riskBanner = ai.riskNotes.length > 0 ? (
+    <button
+      onClick={() => setExpanded((v) => !v)}
+      className={`flex w-full items-center gap-2.5 border-b border-[#2e2e2e] px-6 py-3 text-left transition-colors hover:bg-[#2a2a2a] ${
+        ai.riskNotes.some((r) => r.severity === "high")
+          ? "bg-[#e0738a]/10"
+          : ai.riskNotes.some((r) => r.severity === "medium")
+            ? "bg-[#fa6c34]/10"
+            : "bg-transparent"
+      }`}
+    >
+      <span className={`pulse-dot ${SEV_STYLE[ai.riskNotes[0]!.severity].text}`}>
+        <ShieldAlert size={13} />
+      </span>
+      <span className="flex-1 truncate text-[12.5px] text-[#d6ccba]">{ai.riskNotes[0]!.note}</span>
+      <span className="shrink-0 font-mono-d text-[10px] text-[#635d5a]">
+        {expanded ? t("cloud.chat.hide") : ai.riskNotes.length > 1 ? t("cloud.chat.more", { count: ai.riskNotes.length - 1 }) : t("cloud.chat.detail")}
+      </span>
+    </button>
+  ) : null;
+
+  const proseBlock = (
+    <div className="deck-rise px-6 py-5" style={{ animationDelay: "150ms" }}>
+      <p
+        data-testid="answer-prose"
+        data-streaming={animateText && !streamedAnswer.complete ? "true" : "false"}
+        aria-label={animateText ? ai.answer : undefined}
+        className="text-[14.5px] leading-relaxed text-[#e9e0d1]"
+      >
+        <span aria-hidden={animateText ? "true" : undefined}>
+          <Linkified text={streamedAnswer.visible} onPivot={onPivot} />
+          {animateText && !streamedAnswer.complete && <span className="stream-cursor" aria-hidden="true" />}
+        </span>
+      </p>
+      {streamedAnswer.complete && ai.summaryBullets.length > 0 && (
+        <ul className="mt-4 space-y-2">
+          {ai.summaryBullets.map((b, index) => (
+            <li
+              key={b}
+              className="result-materialize flex items-start gap-2.5 text-[13px] text-[#9a938a]"
+              style={{ animationDelay: `${index * 70}ms` }}
+            >
+              <CheckCircle2 size={13} className="mt-0.5 shrink-0 text-[#7fb069]" />
+              {b}
+            </li>
+          ))}
+        </ul>
       )}
+    </div>
+  );
 
-      {/* provenance stays available but out of the way */}
-      {ai.citations.length > 0 && (
-        <div className="border-t border-[#2e2e2e] px-6 py-3">
-          <button
-            onClick={() => setShowSources((v) => !v)}
-            className="flex items-center gap-2 font-mono-d text-[10px] tracking-wider text-[#635d5a] transition-colors hover:text-[#9a938a]"
-          >
-            {showSources ? <ChevronDown size={11} /> : <ChevronRight size={11} />}
-            {t("cloud.chat.sources", { count: ai.citations.length, providers: [...new Set(ai.citations.map((c) => c.provider))].join(", ").toUpperCase() })}
-          </button>
-          {showSources && (
-            <div className="mt-3 space-y-1.5">
-              {ai.citations.map((c) => (
-                <div key={c.id} className="flex items-center gap-3 text-[12px]">
-                  <span className="w-10 shrink-0 font-mono-d text-[10px] text-[#635d5a]">{c.id}</span>
-                  <span className="min-w-0 flex-1 break-words text-[#9a938a]">{c.label}</span>
-                  {c.url && (
-                    <a
-                      href={c.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label={t("cloud.chat.verifyLink", { id: c.id })}
-                      className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center text-[#9a938a] transition-colors hover:text-[#fa6c34]"
-                    >
-                      <ExternalLink size={11} />
-                    </a>
-                  )}
-                </div>
-              ))}
+  const widgetsBlock = ai.widgets && ai.widgets.length > 0 ? (
+    <div className="grid gap-3 border-t border-[#2e2e2e] px-6 py-5 sm:grid-cols-2">
+      {ai.widgets.map((w, i) => (
+        <WidgetPanel key={w.title} w={w} onPivot={onPivot} delay={200 + i * 90} />
+      ))}
+    </div>
+  ) : null;
+
+  const riskDetail = expanded && ai.riskNotes.length > 0 ? (
+    <div className="border-t border-[#2e2e2e] bg-[#1f1f1f] px-6 py-4">
+      <div className="space-y-3">
+        {ai.riskNotes.map((r) => (
+          <div key={r.note} className="flex items-start gap-3 text-[12.5px]">
+            <span className={`mt-0.5 shrink-0 ${SEV_STYLE[r.severity].text}`}>{SEV_STYLE[r.severity].icon}</span>
+            <div>
+              <span className={`mr-2 font-mono-d text-[10px] uppercase ${SEV_STYLE[r.severity].text}`}>{r.severity}</span>
+              <span className="text-[#9a938a]">{r.note}</span>
             </div>
-          )}
+          </div>
+        ))}
+      </div>
+      <p className="mt-3 border-t border-[#2e2e2e] pt-3 font-mono-d text-[10px] leading-relaxed text-[#635d5a]">
+        {t("cloud.chat.riskDisclaimer")}
+      </p>
+    </div>
+  ) : null;
+
+  const sourcesBlock = ai.citations.length > 0 ? (
+    <div className="border-t border-[#2e2e2e] px-6 py-3">
+      <button
+        onClick={() => setShowSources((v) => !v)}
+        className="flex items-center gap-2 font-mono-d text-[10px] tracking-wider text-[#635d5a] transition-colors hover:text-[#9a938a]"
+      >
+        {showSources ? <ChevronDown size={11} /> : <ChevronRight size={11} />}
+        {t("cloud.chat.sources", { count: ai.citations.length, providers: [...new Set(ai.citations.map((c) => c.provider))].join(", ").toUpperCase() })}
+      </button>
+      {showSources && (
+        <div className="mt-3 space-y-1.5">
+          {ai.citations.map((c) => (
+            <div key={c.id} className="flex items-center gap-3 text-[12px]">
+              <span className="w-10 shrink-0 font-mono-d text-[10px] text-[#635d5a]">{c.id}</span>
+              <span className="min-w-0 flex-1 break-words text-[#9a938a]">{c.label}</span>
+              {c.url && (
+                <a
+                  href={c.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={t("cloud.chat.verifyLink", { id: c.id })}
+                  className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center text-[#9a938a] transition-colors hover:text-[#fa6c34]"
+                >
+                  <ExternalLink size={11} />
+                </a>
+              )}
+            </div>
+          ))}
         </div>
       )}
+    </div>
+  ) : null;
+
+  if (answerFirst) {
+    return (
+      <div data-testid="answer-card" className={`clip-panel border border-[#2e2e2e] bg-[#242424] ${animateText ? "result-materialize" : ""}`}>
+        {header}
+        {proseBlock}
+        {riskBanner}
+        {riskDetail}
+        {(ai.card || widgetsBlock) && (
+          <details className="group border-t border-[#2e2e2e]">
+            <summary className="flex min-h-11 cursor-pointer items-center gap-2 px-6 py-3 font-mono-d text-[10px] tracking-wider text-[#635d5a] transition-colors hover:text-[#9a938a]">
+              <ChevronRight size={11} className="transition-transform group-open:rotate-90" />
+              {t("cloud.chat.supportingFacts")}
+            </summary>
+            {cardBlock}
+            {widgetsBlock}
+          </details>
+        )}
+        {sourcesBlock}
+      </div>
+    );
+  }
+
+  return (
+    <div data-testid="answer-card" className={`clip-panel border border-[#2e2e2e] bg-[#242424] ${animateText ? "result-materialize" : ""}`}>
+      {header}
+      {cardBlock}
+      {riskBanner}
+      {proseBlock}
+      {widgetsBlock}
+      {riskDetail}
+      {sourcesBlock}
     </div>
   );
 }
