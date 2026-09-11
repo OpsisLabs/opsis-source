@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "14-scout-watch",
+  "activeRelease": "15-situation-room",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement",
@@ -137,7 +137,7 @@
       "id": "14-scout-watch",
       "branch": "codex/14-scout-watch",
       "tagPrefix": "rc/14-scout-watch/",
-      "status": "active",
+      "status": "released",
       "outcome": "Save wallets privately and see what changed between checks",
       "dependencies": [
         "04-portfolio-intelligence",
@@ -150,7 +150,7 @@
       "id": "15-situation-room",
       "branch": "codex/15-situation-room",
       "tagPrefix": "rc/15-situation-room/",
-      "status": "queued",
+      "status": "active",
       "outcome": "Explore source-linked world events and observed crypto prices around publication",
       "dependencies": [
         "14-scout-watch"
