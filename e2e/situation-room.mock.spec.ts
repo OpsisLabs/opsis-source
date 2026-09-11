@@ -30,6 +30,15 @@ test("situation room selects reports, compares windows, opens insight and export
     "Situation Room.",
   );
   await expect(page.locator(".sr-edition")).toContainText("captured data");
+  await expect(page.getByTestId("eth-market-brief")).toBeVisible();
+  await expect(page.locator(".sr-event")).toHaveCount(0);
+  await page.locator("#edition-archive").click();
+  await expect(page.locator("#edition-archive")).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
+  await expect(page.getByTestId("eth-market-brief")).toHaveCount(0);
+  await expect(page.locator(".sr-world")).toBeVisible();
   expect(await page.locator(".sr-event").count()).toBe(7);
   await page.locator("#sequence-ecb").click();
   await expect(page.locator("#event-ecb")).toHaveAttribute(
@@ -104,13 +113,34 @@ test("situation room eth market brief shows captured single-venue data, dated so
   await expect(page.getByTestId("eth-market-price")).toContainText("Last $2,606.31");
   await expect(page.getByTestId("eth-market-price")).toContainText("24h +6.67%");
   const context = page.getByTestId("eth-market-context");
-  await expect(context).toContainText("Calendar context · 11 Sep");
-  await expect(context).toContainText("Earlier policy context · 3 Sep");
+  await expect(context).toContainText("CHAINSCOUT SUMMARY");
+  await expect(context).toContainText(
+    "Ether ETF flows reverse before today's rally",
+  );
+  await expect(context).toContainText(
+    "Today's institutional outlook includes an ETH target",
+  );
+  await expect(context.getByTestId("eth-context-card")).toHaveCount(2);
+  await expect(context).toContainText("Published 2026-09-11");
   await expect(
-    context.getByRole("link", { name: "Source (2026-09-11)" }),
-  ).toHaveAttribute(
-    "href",
-    "https://fred.stlouisfed.org/releases/calendar?rid=10&y=2026",
+    context.locator(
+      'a[href="https://ct.com/markets/bitcoin-etfs-282m-biggest-outflow-july"]',
+    ),
+  ).toHaveCount(1);
+  await expect(
+    context.locator(
+      'a[href="https://ct.com/news/sky-value-token-holders-standard-chartered"]',
+    ),
+  ).toHaveCount(1);
+  const firstCard = context.getByTestId("eth-context-card").first();
+  await expect(firstCard.locator("details")).not.toHaveAttribute("open", "");
+  await firstCard.locator("summary").click();
+  await expect(firstCard.locator("details")).toHaveAttribute("open", "");
+  await expect(firstCard.locator("details p")).toContainText(
+    "ETF flows and an intraday ETH rally can point in different directions",
+  );
+  await expect(firstCard.locator("details p")).toContainText(
+    "not support an ETF-inflow explanation",
   );
   const cta = brief.getByRole("link", { name: "Test your ETH exposure" });
   await expect(cta).toHaveAttribute("href", "/stress-test");
@@ -126,6 +156,11 @@ test("situation room eth market brief shows captured single-venue data, dated so
     .locator(".sr-eth-panels")
     .evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(" ").filter(Boolean).length);
   expect(columns).toBe(1);
+  const contextColumns = await brief
+    .locator(".sr-eth-context")
+    .evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(" ").filter(Boolean).length);
+  expect(contextColumns).toBe(1);
+  await expect(context.getByTestId("eth-context-card")).toHaveCount(2);
   const mobileBox = await canvas.boundingBox();
   expect(mobileBox?.height).toBeGreaterThanOrEqual(119);
   expect(mobileBox?.height).toBeLessThanOrEqual(151);
@@ -134,6 +169,52 @@ test("situation room eth market brief shows captured single-venue data, dated so
       () => document.documentElement.scrollWidth <= innerWidth + 1,
     ),
   ).toBe(true);
+});
+
+test("situation room keeps the 10 September world feed archive behind an explicit toggle", async ({
+  page,
+}) => {
+  test.skip(!enabled);
+  test.setTimeout(90000);
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("/situation-room");
+  await expect(page.locator("#edition-eth")).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
+  await expect(page.locator("#edition-archive")).toHaveAttribute(
+    "aria-selected",
+    "false",
+  );
+  await expect(page.getByTestId("eth-market-brief")).toBeVisible();
+  await expect(page.locator(".sr-world")).toHaveCount(0);
+  await expect(page.locator(".sr-event")).toHaveCount(0);
+
+  await page.locator("#edition-archive").click();
+  await expect(page.locator("#edition-archive")).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
+  await expect(page.getByTestId("eth-market-brief")).toHaveCount(0);
+  await expect(page.locator(".sr-world")).toBeVisible();
+  await expect(page.locator(".sr-event")).toHaveCount(7);
+  const globe = page.locator(".sr-globe canvas");
+  await expect(globe).toHaveCount(1);
+  const desktopBox = await globe.boundingBox();
+  expect(desktopBox?.width).toBeGreaterThan(0);
+  expect(desktopBox?.height).toBeGreaterThan(0);
+
+  await page.setViewportSize({ width: 1100, height: 900 });
+  await expect
+    .poll(async () => (await globe.boundingBox())?.width ?? 0)
+    .toBeGreaterThan(0);
+  await expect(page.locator(".sr-event")).toHaveCount(7);
+
+  await page.locator("#edition-eth").click();
+  await expect(page.getByTestId("eth-market-brief")).toBeVisible();
+  await expect(page.locator(".sr-world")).toHaveCount(0);
+  expect(errors).toEqual([]);
 });
 
 test("situation room preserves shared navigation, mobile layout and accessible controls", async ({
@@ -160,6 +241,9 @@ test("situation room preserves shared navigation, mobile layout and accessible c
       (v) => v.impact === "critical" || v.impact === "serious",
     ),
   ).toEqual([]);
+  await page.locator("#edition-archive").click();
+  await expect(page.locator(".sr-world")).toBeVisible();
+  await expect(page.locator(".sr-events")).toBeVisible();
   await page.locator("#sweep").click();
   await expect(page.locator("#sweep")).toContainText("Pause");
   await page.locator("#sweep").click();
@@ -185,6 +269,8 @@ test("situation room retains reports when WebGL is unavailable", async ({
     } as typeof original;
   });
   await page.goto("/situation-room");
+  await page.locator("#edition-archive").click();
+  await expect(page.locator(".sr-world")).toBeVisible();
   await expect(page.locator(".sr-error")).toContainText("globe is unavailable");
   await page.locator("#sequence-ecb").click();
   await page.locator("#rotate").click();

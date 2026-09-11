@@ -141,6 +141,7 @@ const photoFailed = (event) => {
 const stamp = (s) => new Date(s * 1000).toISOString().slice(11, 16);
 export default function App() {
   const [error, setError] = useState(""),
+    [edition, setEdition] = useState("eth"),
     [selected, setSelected] = useState(0),
     [filter, setFilter] = useState("All"),
     [minutes, setMinutes] = useState(30),
@@ -175,19 +176,23 @@ export default function App() {
     selectRef.current = select;
   });
   useEffect(() => {
-    if (!data || !globeEl.current) return;
+    if (!data || edition !== "archive" || !globeEl.current) return;
     try {
       globe.current = createGlobe(globeEl.current, data.news.events, (i) =>
         selectRef.current(i),
       );
       globe.current?.reset();
+      setError("");
     } catch {
       setError(
         "The globe is unavailable. News and chart controls remain accessible.",
       );
     }
-    return () => globe.current?.dispose();
-  }, [data]);
+    return () => {
+      globe.current?.dispose();
+      globe.current = undefined;
+    };
+  }, [data, edition]);
   useEffect(() => {
     if (!sweep || !data) return;
     const id = setInterval(
@@ -256,7 +261,7 @@ export default function App() {
     const ro = new ResizeObserver(render);
     ro.observe(chart.current);
     return () => ro.disconnect();
-  }, [data, series, enabled, minutes, hover, wide]);
+  }, [data, series, enabled, minutes, hover, wide, edition]);
 
   useEffect(() => {
     if (!ethBriefChart.current) return;
@@ -266,7 +271,7 @@ export default function App() {
     );
     ro.observe(ethBriefChart.current);
     return () => ro.disconnect();
-  }, [ethCandles, ethBrief.status]);
+  }, [ethCandles, ethBrief.status, edition]);
   useEffect(() => {
     if (!modal && !insight) return;
     const trigger = modal ? modalTrigger.current : document.activeElement;
@@ -363,11 +368,53 @@ export default function App() {
   return (
     <div className="situation-surface" lang="en">
       <main className={"situation-room " + (wide ? "focus-room" : "")}>
-        <section
-          className="sr-eth-brief"
-          data-testid="eth-market-brief"
-          aria-label="ETH market brief"
+        <nav
+          className="sr-edition-switch"
+          role="tablist"
+          aria-label="Situation Room edition"
         >
+          <button
+            role="tab"
+            id="edition-eth"
+            aria-selected={edition === "eth"}
+            className={edition === "eth" ? "active" : ""}
+            onClick={() => setEdition("eth")}
+          >
+            ETH edition · 11 Sep 2026
+          </button>
+          <button
+            role="tab"
+            id="edition-archive"
+            aria-selected={edition === "archive"}
+            className={edition === "archive" ? "active" : ""}
+            onClick={() => setEdition("archive")}
+          >
+            10 Sep world feed archive
+          </button>
+        </nav>
+        {edition === "eth" && (
+          <>
+            <section className="sr-title" data-testid="eth-edition-title">
+              <div>
+                <p className="sr-overline">SITUATION ROOM / ETH EDITION</p>
+                <h1>
+                  Situation Room<span>.</span>
+                </h1>
+                <p>
+                  Ethereum market brief: captured Coinbase ETH/USD data with
+                  dated source-linked context.
+                </p>
+                <small className="sr-edition">
+                  11 September 2026 ETH edition · captured data · ChainScout
+                  summaries of publisher reporting
+                </small>
+              </div>
+            </section>
+            <section
+              className="sr-eth-brief"
+              data-testid="eth-market-brief"
+              aria-label="ETH market brief"
+            >
           <div className="sr-eth-brief-head">
             <div>
               <p className="sr-overline">ETH MARKET BRIEF</p>
@@ -451,20 +498,34 @@ export default function App() {
           <section
             className="sr-eth-context"
             data-testid="eth-market-context"
-            aria-label="ETH macro context"
+            aria-label="ETH source context"
           >
             {ethBrief.newsContext?.length
-              ? ethBrief.newsContext.slice(0, 2).map((source, index) => (
-                  <article className="sr-eth-context-card" key={source.url + index}>
-                    <h4>{source.source}</h4>
+              ? ethBrief.newsContext.slice(0, 2).map((source) => (
+                  <article
+                    className="sr-eth-context-card"
+                    key={source.url}
+                    data-testid="eth-context-card"
+                  >
+                    <p className="sr-eth-context-label">
+                      CHAINSCOUT SUMMARY · {source.source}
+                    </p>
+                    <h4>{source.title}</h4>
+                    <p className="sr-eth-context-date">
+                      Published {source.date}
+                    </p>
                     <p>{source.summary}</p>
+                    <details className="sr-eth-why">
+                      <summary>Why this matters for ETH</summary>
+                      <p>{source.whyItMatters}</p>
+                    </details>
                     <a
                       className="sr-source-link"
                       href={source.url}
                       target="_blank"
                       rel="noreferrer"
                     >
-                      Source ({source.date}) <ArrowUpRight size={12} />
+                      Original: {source.originalTitle} <ArrowUpRight size={12} />
                     </a>
                   </article>
                 ))
@@ -474,6 +535,10 @@ export default function App() {
             Test your ETH exposure in the Portfolio Stress Test <ArrowUpRight size={12} />
           </a>
         </section>
+          </>
+        )}
+        {edition === "archive" && (
+          <>
         <div className="sr-breadcrumb">
           <span>
             <GlobeHemisphereWest size={14} /> QUANT LAB <CaretRight size={11} />{" "}
@@ -933,6 +998,8 @@ export default function App() {
             View provenance <ArrowUpRight size={13} />
           </button>
         </div>
+          </>
+        )}
         {error && <p className="sr-error">{error}</p>}
       </main>
       {modal && (

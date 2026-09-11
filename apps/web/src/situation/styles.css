@@ -232,6 +232,55 @@
     height: 120px;
   }
 }
+.situation-surface .sr-edition-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 0 0;
+}
+.situation-surface .sr-edition-switch button {
+  border: 1px solid #383431;
+  border-radius: 3px;
+  background: #1b1b1b;
+  color: #b8aca1;
+  padding: 8px 12px;
+  font: 10px monospace;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.situation-surface .sr-edition-switch button.active {
+  border-color: #fa6c34;
+  background: #24211f;
+  color: #f0e8da;
+}
+.situation-surface .sr-eth-context-card .sr-eth-context-label {
+  margin: 0 0 6px;
+  color: #fa6c34;
+  font: 10px monospace;
+  letter-spacing: 1px;
+}
+.situation-surface .sr-eth-context-card .sr-eth-context-date {
+  margin: 0 0 8px;
+  color: #a59b8e;
+  font-size: 11px;
+}
+.situation-surface .sr-eth-context-card .sr-eth-why {
+  margin: 8px 0;
+  border-top: 1px solid #35312e;
+  padding-top: 8px;
+}
+.situation-surface .sr-eth-why summary {
+  cursor: pointer;
+  color: #f0e8da;
+  font-size: 12px;
+}
+.situation-surface .sr-eth-why summary:focus-visible {
+  outline: 2px solid #ffd2b9;
+  outline-offset: 3px;
+}
+.situation-surface .sr-eth-context-card .sr-eth-why p {
+  margin: 8px 0 0;
+}
 .situation-surface .sr-title h1 {
   font-size: clamp(31px, 3.25vw, 58px);
   font-weight: 500;

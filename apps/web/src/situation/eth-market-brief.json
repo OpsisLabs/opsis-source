@@ -49,18 +49,22 @@
   ],
   "newsContext": [
     {
-      "title": "CPI was on the 11 September calendar",
-      "source": "Calendar context · 11 Sep",
+      "title": "Ether ETF flows reverse before today's rally",
+      "source": "Cointelegraph · Zoltan Vardai",
       "date": "2026-09-11",
-      "summary": "CPI was on the public calendar for 11 September at 12:30 UTC. Timing alone cannot establish what drove ETH.",
-      "url": "https://fred.stlouisfed.org/releases/calendar?rid=10&y=2026"
+      "summary": "Cointelegraph reports $29.8m left spot Ether ETFs in Thursday's session, after $34.8m entered on Wednesday. This is a report published today about prior-session flows, not today's completed ETF total.",
+      "originalTitle": "Bitcoin ETF outflows accelerate as investors pull $449M in three days",
+      "whyItMatters": "ETF flows and an intraday ETH rally can point in different directions. This report does not support an ETF-inflow explanation for today's move. Today's full ETF session is not complete.",
+      "url": "https://ct.com/markets/bitcoin-etfs-282m-biggest-outflow-july"
     },
     {
-      "title": "Conditional policy guidance from Governor Waller",
-      "source": "Earlier policy context · 3 Sep",
-      "date": "2026-09-03",
-      "summary": "Waller linked his September policy preference to incoming inflation data: continued progress could support a hold; hotter inflation could support a hike.",
-      "url": "https://www.federalreserve.gov/newsevents/speech/waller20260903a.htm"
+      "title": "Today's institutional outlook includes an ETH target",
+      "source": "Cointelegraph · Zoltan Vardai",
+      "date": "2026-09-11",
+      "summary": "A Friday report covered by Cointelegraph cites Standard Chartered's $18,000 Ether forecast for end-2028 while discussing Sky's DeFi outlook. This is the bank's long-term forecast, not ChainScout's prediction or evidence explaining today's price move.",
+      "originalTitle": "Standard Chartered forecasts SKY rising fivefold to $0.325 by 2028",
+      "whyItMatters": "Separate a long-term institutional thesis from a near-term catalyst. A target is not a guaranteed outcome or a trade signal.",
+      "url": "https://ct.com/news/sky-value-token-holders-standard-chartered"
     }
   ]
 }

@@ -25,6 +25,27 @@ test("accepts the real captured Coinbase dataset while fresh", () => {
   assert.equal(fresh.candleGaps.length, 0);
   assert.ok(Math.abs(fresh.statsChangePercent - 6.67) < 0.01);
   assert.equal(fresh.ageMinutes, 6.983333333333333);
+  assert.equal(fresh.newsContext.length, 2);
+  assert.equal(
+    fresh.newsContext[0].url,
+    "https://ct.com/markets/bitcoin-etfs-282m-biggest-outflow-july",
+  );
+  assert.equal(fresh.newsContext[0].date, "2026-09-11");
+  assert.equal(
+    fresh.newsContext[0].originalTitle,
+    "Bitcoin ETF outflows accelerate as investors pull $449M in three days",
+  );
+  assert.ok(fresh.newsContext[0].whyItMatters.length > 0);
+  assert.equal(
+    fresh.newsContext[1].url,
+    "https://ct.com/news/sky-value-token-holders-standard-chartered",
+  );
+  assert.equal(fresh.newsContext[1].date, "2026-09-11");
+  assert.equal(
+    fresh.newsContext[1].originalTitle,
+    "Standard Chartered forecasts SKY rising fivefold to $0.325 by 2028",
+  );
+  assert.ok(fresh.newsContext[1].whyItMatters.length > 0);
 });
 
 test("marks the capture as stale after the freshness window", () => {
@@ -182,6 +203,70 @@ test("rejects unknown context and out-of-scope candles", () => {
   const noCandles = clone(captured);
   noCandles.hourlyCandles = [[1789135200, 2598.41, 2667.01, 2629, 2605.69, 48053.46]];
   assert.equal(parseEthMarketSnapshot(noCandles, CAPTURE_MS).status, "invalid");
+});
+
+test("accepts only the reviewed exact ct.com context paths over HTTPS", () => {
+  for (const url of [
+    "https://ct.com/markets/bitcoin-etfs-282m-biggest-outflow-july",
+    "https://ct.com/news/sky-value-token-holders-standard-chartered",
+  ]) {
+    const payload = clone(captured);
+    payload.newsContext[0].url = url;
+    assert.equal(parseEthMarketSnapshot(payload, CAPTURE_MS).status, "valid", url);
+  }
+
+  for (const url of [
+    "https://ct.com/markets/some-other-article",
+    "https://ct.com/news",
+    "https://cointelegraph.com/markets/bitcoin-etfs-282m-biggest-outflow-july",
+    "https://ct.com.evil.example/news/sky-value-token-holders-standard-chartered",
+    "http://ct.com/markets/bitcoin-etfs-282m-biggest-outflow-july",
+    "https://user:pass@ct.com/markets/bitcoin-etfs-282m-biggest-outflow-july",
+    "https://ct.com/markets/bitcoin-etfs-282m-biggest-outflow-july?ref=today",
+  ]) {
+    const payload = clone(captured);
+    payload.newsContext[0].url = url;
+    assert.equal(parseEthMarketSnapshot(payload, CAPTURE_MS).status, "invalid", url);
+  }
+});
+
+test("enforces exact ISO publish dates on each context source", () => {
+  for (const date of [
+    "2026-9-11",
+    "2026-13-01",
+    "2026-02-30",
+    "September 11, 2026",
+    "2026-09-11T00:00:00Z",
+    "",
+  ]) {
+    const payload = clone(captured);
+    payload.newsContext[0].date = date;
+    assert.equal(parseEthMarketSnapshot(payload, CAPTURE_MS).status, "invalid", date);
+  }
+
+  const accepted = clone(captured);
+  accepted.newsContext[0].date = "2026-09-11";
+  assert.equal(parseEthMarketSnapshot(accepted, CAPTURE_MS).status, "valid");
+});
+
+test("requires each context card to disclose its source and ChainScout summary fields", () => {
+  for (const field of ["source", "summary", "originalTitle", "whyItMatters"]) {
+    const payload = clone(captured);
+    delete payload.newsContext[1][field];
+    assert.equal(
+      parseEthMarketSnapshot(payload, CAPTURE_MS).status,
+      "invalid",
+      field,
+    );
+
+    const blank = clone(captured);
+    blank.newsContext[1][field] = "   ";
+    assert.equal(
+      parseEthMarketSnapshot(blank, CAPTURE_MS).status,
+      "invalid",
+      `${field} blank`,
+    );
+  }
 });
 
 test("formats positive, zero and negative 24h changes", () => {

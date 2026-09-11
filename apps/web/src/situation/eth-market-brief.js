@@ -1,10 +1,10 @@
 const COINBASE_HOST = "api.exchange.coinbase.com";
 const COINBASE_STATS_PATH = "/products/ETH-USD/stats";
-const COINBASE_CANDLES_PATH = "/products/ETH-USD/candles";
-const FRED_HOST = "fred.stlouisfed.org";
-const FRED_CALENDAR_PATH = "/releases/calendar";
-const FED_SPEECH_HOSTS = new Set(["www.federalreserve.gov", "federalreserve.gov"]);
-const FED_SPEECH_PATH_PREFIX = "/newsevents/speech/";
+const CONTEXT_HOST = "ct.com";
+const REVIEWED_CONTEXT_PATHS = new Set([
+  "/markets/bitcoin-etfs-282m-biggest-outflow-july",
+  "/news/sky-value-token-holders-standard-chartered",
+]);
 
 const NORMALIZED_PAIR = "ETH/USD";
 const CANDLE_SECONDS = 3600;
@@ -34,12 +34,24 @@ const isStatsSourceUrl = (value) => {
 const isAllowedContextUrl = (value) => {
   const parsed = safeUrl(value);
   if (!parsed || !isSecureUrl(parsed)) return false;
-  const { hostname, pathname } = parsed;
-  if (hostname === COINBASE_HOST)
-    return pathname === COINBASE_STATS_PATH || pathname === COINBASE_CANDLES_PATH;
-  if (hostname === FRED_HOST) return pathname === FRED_CALENDAR_PATH;
-  if (FED_SPEECH_HOSTS.has(hostname)) return pathname.startsWith(FED_SPEECH_PATH_PREFIX);
-  return false;
+  return (
+    parsed.hostname === CONTEXT_HOST &&
+    parsed.pathname &&
+    !parsed.search &&
+    !parsed.hash &&
+    REVIEWED_CONTEXT_PATHS.has(parsed.pathname)
+  );
+};
+
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+const isExactIsoDate = (value) => {
+  if (typeof value !== "string" || !ISO_DATE.test(value)) return false;
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return (
+    !Number.isNaN(date.valueOf()) &&
+    date.toISOString().slice(0, 10) === value
+  );
 };
 
 const isFinitePositive = (value) => Number.isFinite(value) && value > 0;
@@ -157,14 +169,20 @@ const parseContext = (input) => {
       url: typeof item?.url === "string" ? item.url : "",
       date: typeof item?.date === "string" ? item.date : "",
       summary: typeof item?.summary === "string" ? item.summary : "",
+      originalTitle:
+        typeof item?.originalTitle === "string" ? item.originalTitle : "",
+      whyItMatters:
+        typeof item?.whyItMatters === "string" ? item.whyItMatters : "",
     }))
     .filter(
       (item) =>
-        item.title &&
-        item.source &&
-        item.url &&
-        item.date &&
-        item.summary &&
+        item.title.trim() &&
+        item.source.trim() &&
+        item.url.trim() &&
+        isExactIsoDate(item.date) &&
+        item.summary.trim() &&
+        item.originalTitle.trim() &&
+        item.whyItMatters.trim() &&
         isAllowedContextUrl(item.url),
     );
 };
