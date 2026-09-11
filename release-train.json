@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "23-follow-wallet",
+  "activeRelease": "24-exit-check",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement",
@@ -262,7 +262,7 @@
       "id": "23-follow-wallet",
       "branch": "codex/23-follow-wallet",
       "tagPrefix": "rc/23-follow-wallet/",
-      "status": "active",
+      "status": "released",
       "dependencies": [
         "21-explorer-answers",
         "14-scout-watch"
@@ -275,7 +275,7 @@
       "id": "24-exit-check",
       "branch": "codex/24-exit-check",
       "tagPrefix": "rc/24-exit-check/",
-      "status": "queued",
+      "status": "active",
       "dependencies": [
         "04-portfolio-intelligence",
         "05-rwa-phygital-verify",
