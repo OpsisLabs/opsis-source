@@ -20,6 +20,7 @@ import { feed } from "./feed";
 import { overlap } from "./overlap";
 import { stress } from "./stress";
 import { trades } from "./trades";
+import { exit } from "./exit";
 
 export const zhCN: Record<string, string> = {
   ...common,
@@ -44,4 +45,5 @@ export const zhCN: Record<string, string> = {
   ...overlap,
   ...stress,
   ...trades,
+  ...exit,
 };

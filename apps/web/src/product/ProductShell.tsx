@@ -62,6 +62,7 @@ const ICONS: Record<string, ComponentType<{ size?: number; className?: string }>
   "scout-watch": Eye,
   "card-price-check": WalletCards,
   "biggest-trades": TrendingUp,
+  "exit-check": ChartNoAxesCombined,
   "private-explorer": Search,
   "scout-swap": ArrowLeftRight,
   "rwa-verify": BadgeCheck,

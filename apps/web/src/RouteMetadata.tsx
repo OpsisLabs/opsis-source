@@ -43,6 +43,11 @@ const ROUTE_METADATA: Record<string, RouteMetadataEntry> = {
     title: "metadata.swap.title",
     description: "metadata.swap.description",
   },
+  "/exit-check": {
+    title: "metadata.exitCheck.title",
+    description: "metadata.exitCheck.description",
+    noIndex: true,
+  },
   "/simulate": {
     title: "metadata.simulator.title",
     description: "metadata.simulator.description",

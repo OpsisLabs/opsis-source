@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "23-follow-wallet",
+  "activeRelease": "24-exit-check",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement",
@@ -262,7 +262,7 @@
       "id": "23-follow-wallet",
       "branch": "codex/23-follow-wallet",
       "tagPrefix": "rc/23-follow-wallet/",
-      "status": "active",
+      "status": "released",
       "dependencies": [
         "21-explorer-answers",
         "14-scout-watch"
@@ -275,14 +275,14 @@
       "id": "24-exit-check",
       "branch": "codex/24-exit-check",
       "tagPrefix": "rc/24-exit-check/",
-      "status": "queued",
+      "status": "active",
       "dependencies": [
         "04-portfolio-intelligence",
         "05-rwa-phygital-verify",
         "23-follow-wallet"
       ],
       "outcome": "See whether an observed position could realistically be exited and what it would cost",
-      "shipGate": "Exit views are built only from already-fetched, source-linked chain data plus, where reviewed assets and a factory-verified pool exist, a fresh single-pool Uniswap V3 QuoterV2 estimate; liquidity depth, holder concentration, transfer restrictions and known network or protocol costs stay explicit, and missing coverage is never reported as zero or as a safety verdict. The fresh quote is estimated, single-pool, and not guaranteed; no price prediction, executable transaction or guaranteed exit is claimed, and ChainScout never signs or broadcasts while the official app owns execution. Fresh, empty, locked and disabled ownership states plus English/Chinese mobile flows are tested with no new provider, paid path, account or recurring spend."
+      "shipGate": "One fresh read-only exit estimate per request from the official Uniswap V3 factory and QuoterV2 on chain 4663. Only factory-verified standard fee-tier pools are quoted; the best successful pool is selected, arbitrary V3 tokens require validated on-chain decimals, and v4-only or unknown-decimal tokens fail closed as unsupported. A captured latest block is rechecked by hash; stale, reorged, rate-limited, malformed and over-budget states fail closed within a reviewed low RPC cap with no aggressive retry. Fee and price impact use exact BigInt math against the same-block pool spot quote, coverage lists tested/quoted/missing/failed pools, and active V3 liquidity is shown only as a raw parameter that is not cash capacity or a safety verdict. A quote is explicitly not proof of transferability, sellability, or guaranteed execution. Default-off API and web flags, English/Chinese, desktop/mobile, no signing or broadcast, no new provider, paid path, account or recurring spend."
     },
     {
       "order": 26,

@@ -20,6 +20,8 @@ import { entityRoutes } from "./routes/entities.js";
 import { healthRoutes } from "./routes/health.js";
 import { usageRoutes } from "./routes/usage.js";
 import { swapRoutes } from "./routes/swaps.js";
+import { exitCheckRoutes } from "./routes/exit-check.js";
+import type { ExitCheckSource } from "./exit-check/service.js";
 import { privateRoutes, type PrivateAnalysisDependencies } from "./routes/private.js";
 import { accountRoutes } from "./routes/account.js";
 import { rateLimitKey } from "./http/authenticate.js";
@@ -55,6 +57,7 @@ export async function buildApp(
     marketInventory?: MarketInventorySource;
     observedTrades?: ObservedTradesSource;
     openDataLimiter?: OpenDataLimiter;
+    exitCheck?: ExitCheckSource;
   }
 ) {
   const app = Fastify({
@@ -180,6 +183,7 @@ export async function buildApp(
   await chatRoutes(app, env, prisma, cache);
   await usageRoutes(app, env, prisma);
   await swapRoutes(app, env, cache);
+  await exitCheckRoutes(app, env, cache, dependencies?.exitCheck);
   await adminRoutes(app, env, prisma);
   if (prisma && env.RETENTION_ENABLED) installRetention(app, prisma, env);
   return app;
