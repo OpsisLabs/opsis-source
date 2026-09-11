@@ -192,6 +192,44 @@
       ],
       "outcome": "Try a portfolio shock instantly and understand concentration without connecting a wallet",
       "shipGate": "Clearly hypothetical presets and editable USD reference values drive exact local-only single-position and all-position scenarios. Concentration is not a correlation or safety rating. Accessible responsive visuals, English/Chinese, invalid inputs, default-off routing and privacy-safe previewed image export pass automated browser and unit tests. No provider, storage migration, account, signing or recurring spend."
+    },
+    {
+      "order": 19,
+      "id": "19-stress-comparison",
+      "branch": "codex/19-stress-comparison",
+      "tagPrefix": "rc/19-stress-comparison/",
+      "status": "queued",
+      "dependencies": [
+        "18-portfolio-stress-test",
+        "03-encrypted-vault"
+      ],
+      "outcome": "Compare current and proposed allocations under explicit hypothetical per-position shocks",
+      "shipGate": "Exact local cents math, same-total fair comparisons, input validation, local selected Vault value import with missing/date/currency boundaries, responsive English/Chinese, keyboard, lock cleanup, no private uploads, providers, predictions or trading."
+    },
+    {
+      "order": 20,
+      "id": "20-watch-briefing",
+      "branch": "codex/20-watch-briefing",
+      "tagPrefix": "rc/20-watch-briefing/",
+      "status": "queued",
+      "dependencies": [
+        "19-stress-comparison",
+        "17-watch-wallet-overlap"
+      ],
+      "outcome": "Understand material changes across watched wallets since comparable saved checks",
+      "shipGate": "Bounded deterministic local briefing from retained snapshots, evidence links, baseline/gaps/reorg/failure states explicit; no buy/sell inference, background monitoring or new providers; locked/disabled/privacy and English/Chinese/mobile tests."
+    },
+    {
+      "order": 21,
+      "id": "21-explorer-answers",
+      "branch": "codex/21-explorer-answers",
+      "tagPrefix": "rc/21-explorer-answers/",
+      "status": "queued",
+      "dependencies": [
+        "20-watch-briefing"
+      ],
+      "outcome": "Get question-specific wallet, transaction and token answers with clear evidence and relevant next actions",
+      "shipGate": "Deterministic factual task-specific presentation, uncertainty visible when material, no invented safety/identity/holdings, sources and private persistence preserved, optional English/Chinese goals tested and no new providers."
     }
   ]
 }
