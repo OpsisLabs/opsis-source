@@ -10,6 +10,102 @@ const passphrase = "test-only-watch-passphrase";
 const label = "PRIVATE-WATCH-LABEL-私密";
 const enabled = process.env.VITE_SCOUT_WATCH_ENABLED === "true";
 
+test("scout watch overlap selects exact saved holdings, filters locally and persists securely", async ({
+  page,
+}) => {
+  test.skip(!enabled);
+  test.setTimeout(90_000);
+  const bodies: unknown[] = [];
+  const counts = new Map<string, number>();
+  await page.route("**/v1/private/watch/snapshot", async (route) => {
+    const body = route.request().postDataJSON();
+    bodies.push(body);
+    const block = 100 + (counts.get(body.address) ?? 0);
+    counts.set(body.address, block - 99);
+    const value = watchFixture(block);
+    value.address = body.address;
+    await route.fulfill({ json: value });
+  });
+  await create(page);
+  await page
+    .getByRole("button", { name: "Wallet overlap", exact: true })
+    .click();
+  await expect(
+    page.getByText("Choose at least two saved wallets."),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Wallet details", exact: true })
+    .click();
+  await add(page, WATCH_TEST_ADDRESS, "Wallet Alpha");
+  await refresh(page);
+  await expect(page.getByRole("status")).toContainText("New check saved");
+  await add(page, `0x${"2".repeat(40)}`, "Wallet Beta");
+  await page
+    .getByRole("button", { name: "Wallet overlap", exact: true })
+    .click();
+  const area = page.getByRole("region", {
+    name: "What do your wallets have in common?",
+  });
+  await expect(area.getByText("2 of 2 selected wallets")).toBeVisible();
+  await expect(area.getByText("+3", { exact: true })).toBeVisible();
+  const choices = area.getByRole("group", {
+    name: "Choose wallets to compare",
+  });
+  await choices.getByLabel(/Wallet Beta/).uncheck();
+  await expect(
+    area.getByText("Choose at least two saved wallets."),
+  ).toBeVisible();
+  await area.getByRole("button", { name: "Select all wallets" }).click();
+  await area
+    .getByLabel("Search shared token or exact contract")
+    .fill("not-an-asset");
+  await expect(
+    area.getByText("No shared tokens found in these checks."),
+  ).toBeVisible();
+  await area.getByLabel("Search shared token or exact contract").fill("0x3333");
+  await expect(area.getByText("2 of 2 selected wallets")).toBeVisible();
+  expect(bodies).toHaveLength(3);
+  const a11y = await new AxeBuilder({ page }).analyze();
+  expect(
+    a11y.violations.filter((v) =>
+      ["critical", "serious"].includes(v.impact ?? ""),
+    ),
+  ).toEqual([]);
+  await page
+    .getByRole("button", { name: "Switch language to 简体中文", exact: true })
+    .filter({ visible: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "关注的钱包持有哪些相同代币？" }),
+  ).toBeVisible();
+  for (const width of [320, 390, 768, 1440]) {
+    await page.setViewportSize({ width, height: 1000 });
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth - innerWidth,
+      ),
+    ).toBeLessThanOrEqual(1);
+  }
+  await page
+    .getByRole("button", { name: "切换语言为English", exact: true })
+    .filter({ visible: true })
+    .click();
+  await area.getByRole("button", { name: /Wallet Alpha/ }).click();
+  await expect(
+    page.getByRole("heading", { name: "Wallet Alpha", exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Lock watchlist" }).click();
+  await page.reload();
+  await expect(page.getByText("Wallet Alpha", { exact: true })).toHaveCount(0);
+  await page.getByLabel("Vault passphrase", { exact: true }).fill(passphrase);
+  await page.getByRole("button", { name: "Unlock watchlist" }).click();
+  await page
+    .getByRole("button", { name: "Wallet overlap", exact: true })
+    .click();
+  await expect(area.getByText("2 of 2 selected wallets")).toBeVisible();
+  expect(bodies).toHaveLength(3);
+});
+
 test("scout watch combined feed filters locally, deduplicates and clears on lock", async ({
   page,
 }) => {

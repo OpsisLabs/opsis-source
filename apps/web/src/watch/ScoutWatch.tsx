@@ -15,6 +15,7 @@ import { BackupDownloadLink } from "../vault/BackupDownloadLink";
 import { useWatchVault } from "./useWatchVault";
 import { compareSnapshots } from "./model";
 import { ActivityFeed } from "./ActivityFeed";
+import { WalletOverlap } from "./WalletOverlap";
 
 const button =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-sm border border-[#63564c] px-4 py-2 text-sm text-[#e9e0d1] transition-colors hover:border-[#fa6c34] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff985e] disabled:cursor-not-allowed disabled:opacity-50";
@@ -150,7 +151,7 @@ function Workspace({ session }: { session: WatchSession }) {
   const [consent, setConsent] = useState(false);
   const [error, setError] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
-  const [view, setView] = useState<"wallets" | "feed">("wallets");
+  const [view, setView] = useState<"wallets" | "feed" | "overlap">("wallets");
   const item =
     session.watches.find((row) => row.id === selected) ?? session.watches[0];
   return (
@@ -173,6 +174,13 @@ function Workspace({ session }: { session: WatchSession }) {
           onClick={() => setView("feed")}
         >
           {t("feed.open")}
+        </button>
+        <button
+          className={view === "overlap" ? primary : button}
+          aria-pressed={view === "overlap"}
+          onClick={() => setView("overlap")}
+        >
+          {t("overlap.open")}
         </button>
       </div>
       <section className={panel} aria-labelledby="watch-add-title">
@@ -316,6 +324,15 @@ function Workspace({ session }: { session: WatchSession }) {
       )}
       {view === "feed" && (
         <ActivityFeed
+          watches={session.watches}
+          onWallet={(id) => {
+            setSelected(id);
+            setView("wallets");
+          }}
+        />
+      )}
+      {view === "overlap" && (
+        <WalletOverlap
           watches={session.watches}
           onWallet={(id) => {
             setSelected(id);

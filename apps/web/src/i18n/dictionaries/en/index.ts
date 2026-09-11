@@ -17,6 +17,7 @@ import { cloud } from "./cloud";
 import { cards } from "./cards";
 import { watch } from "./watch";
 import { feed } from "./feed";
+import { overlap } from "./overlap";
 
 export const en = {
   ...common,
@@ -38,6 +39,7 @@ export const en = {
   ...cards,
   ...watch,
   ...feed,
+  ...overlap,
 };
 
 export type TranslationKey = keyof typeof en;
