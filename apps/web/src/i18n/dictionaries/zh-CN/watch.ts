@@ -144,4 +144,97 @@ export const watch = {
     "稍后刷新以对比精确余额，或打开动态汇总和共同持仓，一起查看已保存的检查。",
   "product.feature.scout-watch.step.4":
     "导出加密备份；关注列表仅保存在当前浏览器和网站。",
+  "watch.briefing.title": "关注列表概览",
+  "watch.briefing.badge": "本地 · 手动",
+  "watch.briefing.eyebrow": "自上次保存的查询以来",
+  "watch.briefing.intro": "查看每个钱包最近两次已保存查询之间的变化。",
+  "watch.briefing.window":
+    "已保存查询：{from} 至 {to}。不同钱包的查询时间范围可能不同。",
+  "watch.briefing.limits":
+    "仅手动刷新。只对比查询返回的数据，缺失的项目保持未知。",
+  "watch.briefing.partial": "部分区域不完整。缺失条目不代表已确认转出。",
+  "watch.briefing.gaps": "提供方报告的缺口：",
+  "watch.briefing.filter": "概览钱包筛选",
+  "watch.briefing.filterAll": "全部钱包",
+  "watch.briefing.showing": "显示 {total} 项变化中的 {shown} 项",
+  "watch.briefing.noChanges": "未发现可对比的变化",
+  "watch.briefing.noChangesBody":
+    "最近两次查询之间的余额与已观察活动一致。这仅反映有限的已保存样本，不代表期间没有发生任何事。",
+  "watch.briefing.viewAll": "查看全部变化（{count}）",
+  "watch.briefing.showFewer": "收起变化",
+  "watch.briefing.emptyTitle": "尚未保存钱包",
+  "watch.briefing.emptyBody":
+    "保存一个钱包并进行基准查询。当第二次查询到达更新的区块后，就会出现概览。",
+  "watch.briefing.emptyAction": "在上方添加钱包",
+  "watch.briefing.baselineTitle": "已保存数据不足以对比",
+  "watch.briefing.baselineBody":
+    "你有 {count} 个钱包只有基准。出现更新区块后刷新钱包，即可生成概览。",
+  "watch.briefing.baselineAction": "打开钱包进行刷新",
+  "watch.briefing.unsupported": "{count} 个钱包无法对比",
+  "watch.briefing.unsupportedBody":
+    "部分已保存查询无效或无法对比。它们不计入发现，列于下方。",
+  "watch.briefing.reason.invalid": "某次已保存查询无效或已损坏",
+  "watch.briefing.reason.baseline": "只保存了基准",
+  "watch.briefing.reason.order": "较新的查询不在较早查询之后",
+  "watch.briefing.reason.same-check": "两次保留的查询是同一区块",
+  "watch.briefing.reason.conflict": "同一区块的哈希不同",
+  "watch.briefing.status.comparable": "已对比",
+  "watch.briefing.status.baseline": "仅有基准",
+  "watch.briefing.status.unsupported": "未对比",
+  "watch.briefing.category.balance-decrease": "余额减少",
+  "watch.briefing.category.balance-increase": "余额增加",
+  "watch.briefing.category.new-activity": "新发现的成功活动",
+  "watch.briefing.category.failed-activity": "发现失败交易",
+  "watch.briefing.category.older-activity": "新发现的较早交易",
+  "watch.briefing.observe.balance":
+    "{label} 余额在两次查询之间{direction} {delta}",
+  "watch.briefing.increased": "增加",
+  "watch.briefing.decreased": "减少",
+  "watch.briefing.observe.new-activity":
+    "自上次保存的查询后，新发现了一笔成功交易",
+  "watch.briefing.observe.failed-activity":
+    "此时间段内有一笔交易失败。这不代表发生了资产转移",
+  "watch.briefing.observe.older-activity":
+    "新发现了一笔较早的交易。它不是近期活动",
+  "watch.briefing.walletContext": "{label} · {address}",
+  "watch.briefing.between":
+    "{before}（区块 {beforeBlock}）→ {after}（区块 {afterBlock}）",
+  "watch.briefing.observation.window":
+    "上次保存的查询 {before}（区块 {beforeBlock}）→ {after}（区块 {afterBlock}）",
+  "watch.briefing.windowMixed":
+    "此交易对部分钱包发生在上次保存的查询之后，对另一些钱包则已经更早。",
+  "watch.briefing.shared.note":
+    "另有 {count} 个关注钱包持有同一精确合约。",
+  "watch.briefing.shared.incompatible":
+    "这些钱包的代币精度不同，因此不跨钱包比较数量。",
+  "watch.briefing.unknown.title": "这些查询中无法对比",
+  "watch.briefing.unknown.body":
+    "以下余额条目无法对比。新发现、缺失和精度变化的条目与已确认变化分开显示。",
+  "watch.briefing.unknown.newly-observed": "本次查询中新发现——不代表已确认买入",
+  "watch.briefing.unknown.unavailable": "本次查询中缺失——不代表已确认卖出",
+  "watch.briefing.unknown.metadata-changed": "精度不同——无法比较",
+  "watch.briefing.compact.show": "展开概览",
+  "watch.briefing.compact.hide": "收起概览",
+  "watch.briefing.evidence": "证据详情",
+  "watch.briefing.why": "为何显示此行",
+  "watch.briefing.why.balance": "同一链、同一代币合约下的精确前后数量。",
+  "watch.briefing.why.new-activity": "该交易哈希未出现在较早保存的查询中。",
+  "watch.briefing.why.failed-activity":
+    "提供方将此交易报告为失败，因此不显示资产转移。",
+  "watch.briefing.why.older-activity":
+    "该交易区块早于更早保存的查询，因此属于新发现，而非近期变化。",
+  "watch.briefing.before": "之前",
+  "watch.briefing.after": "之后",
+  "watch.briefing.delta": "差额",
+  "watch.briefing.notReturned": "未返回",
+  "watch.briefing.sources": "来源证据",
+  "watch.briefing.transaction": "交易",
+  "watch.briefing.movements": "解析出的资产转移",
+  "watch.briefing.noMovements": "此交易不代表发生了资产转移。",
+  "watch.briefing.openWallet": "打开钱包详情",
+  "watch.briefing.openTx": "查看交易证据",
+  "watch.briefing.captured": "采集于 {time}",
+  "watch.briefing.conflict":
+    "已保存的观察结果不一致。此处展示保留的证据，但不把任何一条视为完整事实。",
+  "watch.briefing.failed": "失败",
 } as const;

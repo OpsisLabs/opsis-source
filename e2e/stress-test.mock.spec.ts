@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
 const enabled = process.env.VITE_PORTFOLIO_STRESS_TEST_ENABLED === "true";
@@ -378,4 +378,436 @@ test("portfolio stress test explains zero holdings and rounded tiny positions wi
     .click();
   await expect(page.locator(".stress-editor")).toHaveCount(0);
   await expect(page.locator(".stress-heading")).toBeFocused();
+});
+
+const passphrase = "test-only-stress-passphrase";
+const importedAsset = "Stress Import Card";
+const manualAsset = "Stress Manual Card";
+
+async function addVaultAsset(
+  page: Page,
+  name: string,
+  quantity: string,
+  value: string,
+) {
+  await page.getByRole("button", { name: "ADD ASSET" }).click();
+  await page.getByLabel("ASSET NAME").fill(name);
+  await page.getByLabel("IDENTIFIER / CONTRACT / SKU").fill(`stress-${name}`);
+  await page.getByLabel("LOT 1 QUANTITY").fill(quantity);
+  await page.getByLabel("PRICE PER UNIT").fill("200");
+  await page.getByLabel("ACQUIRED DATE").fill("2026-01-01");
+  await page.getByLabel("PRIVATE NOTES").fill("Test-only import value");
+  await page.getByLabel("OWNER PRINTING / VARIANT").fill("Test printing");
+  await page.getByLabel("OWNER CONDITION").selectOption("near-mint");
+  await page
+    .getByRole("button", { name: "ADD FIRST DATED REFERENCE" })
+    .click();
+  await page.getByLabel("REFERENCE 1 VALUE").fill(value);
+  await page.getByLabel("REFERENCE 1 CURRENCY").fill("USD");
+  await page.getByLabel("REFERENCE 1 OBSERVED DATE").fill("2026-05-01");
+  await page
+    .getByLabel("REFERENCE 1 HTTPS SOURCE URL")
+    .fill("https://example.com/stress-reference");
+  await page.getByLabel("REFERENCE 1 SOURCE LABEL").fill("Test reference");
+  await page.getByRole("button", { name: "ENCRYPT & SAVE" }).click();
+  await expect(page.getByRole("heading", { name })).toBeVisible();
+}
+
+async function createVaultWithReference(page: Page) {
+  await page.goto("/vault");
+  await page.getByLabel("VAULT PASSPHRASE").fill(passphrase);
+  await page.getByLabel("CONFIRM PASSPHRASE").fill(passphrase);
+  await page.getByRole("button", { name: "CREATE ENCRYPTED VAULT" }).click();
+  await page.getByRole("button", { name: /I SAVED IT/i }).click();
+  await addVaultAsset(page, importedAsset, "1", "250.00");
+  await addVaultAsset(page, manualAsset, "2", "200.00");
+}
+
+async function openImporter(page: Page) {
+  const importer = page
+    .locator("details.stress-advanced")
+    .filter({ hasText: "Import selected values from local Vault" });
+  const open = await importer.evaluate(
+    (element) => (element as HTMLDetailsElement).open,
+  );
+  if (!open) await importer.locator("summary").click();
+  return importer;
+}
+
+async function unlockImporter(page: Page, value = passphrase) {
+  const importer = await openImporter(page);
+  await importer.getByLabel("Vault passphrase").fill(value);
+  await importer
+    .getByRole("button", { name: "Unlock and choose" })
+    .click();
+  return importer;
+}
+
+test("portfolio stress test compares current and proposed allocations with the same total", async ({
+  page,
+}) => {
+  test.skip(!enabled);
+  await page.goto("/stress-test");
+  await page
+    .getByRole("button", { name: "Compare allocations", exact: true })
+    .click();
+  const panel = page.getByTestId("stress-compare");
+  await expect(panel).toBeVisible();
+  const weightA = panel.getByLabel("Asset A proposed weight (%)");
+  // Default proposed mix mirrors the current one, but Asset A still moves -40%,
+  // so the reason must not claim that no position moves.
+  await expect(page.getByTestId("stress-compare-difference")).toHaveText(
+    "$0.00",
+  );
+  await expect(page.getByTestId("stress-compare-reason")).toContainText(
+    "Both mixes are identical",
+  );
+  await expect(page.getByTestId("stress-compare-reason")).not.toContainText(
+    "No position moves",
+  );
+  await expect(panel).toContainText("Starting total held constant");
+  await weightA.fill("50");
+  await panel.getByLabel("Asset B proposed weight (%)").fill("30");
+  await panel.getByLabel("Asset C proposed weight (%)").fill("10");
+  await expect(panel.getByRole("alert").first()).toContainText(
+    "exactly 100%",
+  );
+  await expect(page.getByTestId("stress-compare-difference")).toHaveCount(0);
+
+  await weightA.focus();
+  await page.keyboard.press("ControlOrMeta+A");
+  await page.keyboard.type("40");
+  await panel.getByLabel("Asset B proposed weight (%)").fill("30");
+  await panel.getByLabel("Asset C proposed weight (%)").fill("30");
+  await expect(page.getByTestId("stress-compare-difference")).toHaveText(
+    "+$1,200.00",
+  );
+  await expect(page.getByTestId("stress-compare-reason")).toContainText(
+    "Asset A changes the scenario outcome the most",
+  );
+
+  // The dense allocation table sits behind a labelled disclosure with a named
+  // scrollable region.
+  await panel
+    .getByText("Position-by-position allocation details", { exact: true })
+    .click();
+  await expect(
+    panel.getByRole("region", {
+      name: "Position-by-position allocation details",
+    }),
+  ).toBeVisible();
+
+  await panel.getByRole("button", { name: "Even split", exact: true }).click();
+  await expect(weightA).toHaveValue("33.34");
+  await panel
+    .getByRole("button", { name: "Match current", exact: true })
+    .click();
+  await expect(weightA).toHaveValue("70");
+  await expect(page.getByTestId("stress-compare-difference")).toHaveText(
+    "$0.00",
+  );
+
+  // Different allocations with no price move: neutral, truthful all-flat copy.
+  await weightA.fill("40");
+  await panel.getByLabel("Asset B proposed weight (%)").fill("30");
+  await panel.getByLabel("Asset C proposed weight (%)").fill("30");
+  await page.getByRole("button", { name: "No change", exact: true }).click();
+  await expect(page.getByTestId("stress-compare-difference")).toHaveText(
+    "$0.00",
+  );
+  await expect(page.getByTestId("stress-compare-reason")).toContainText(
+    "No position moves",
+  );
+
+  await expect(
+    page.getByRole("button", { name: "Preview share card" }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByText(/Image export is unavailable while/),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Switch language to 简体中文", exact: true })
+    .filter({ visible: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "比较配置", exact: true }),
+  ).toBeVisible();
+  for (const width of [390, 320]) {
+    await page.setViewportSize({ width, height: 1000 });
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth - innerWidth,
+      ),
+    ).toBeLessThanOrEqual(1);
+  }
+  await page.setViewportSize({ width: 1280, height: 1000 });
+  const axe = await new AxeBuilder({ page }).analyze();
+  expect(
+    axe.violations.filter((v) =>
+      ["critical", "serious"].includes(v.impact ?? ""),
+    ),
+  ).toEqual([]);
+});
+
+test("portfolio stress test hides simple comparison outcomes while the simple input is invalid", async ({
+  page,
+}) => {
+  test.skip(!enabled);
+  await page.goto("/stress-test");
+  await page
+    .getByRole("button", { name: "Compare allocations", exact: true })
+    .click();
+  const panel = page.getByTestId("stress-compare");
+  const weightA = panel.getByLabel("Asset A proposed weight (%)");
+  await weightA.fill("40");
+  await panel.getByLabel("Asset B proposed weight (%)").fill("30");
+  await panel.getByLabel("Asset C proposed weight (%)").fill("30");
+  await expect(page.getByTestId("stress-compare-difference")).toHaveText(
+    "+$1,200.00",
+  );
+
+  const number = page.getByLabel("Price change (%)", { exact: true });
+  await number.fill("1e2");
+  // Both the main result and the comparison outcome disappear while invalid.
+  await expect(page.getByTestId("stress-after")).toHaveCount(0);
+  await expect(page.getByTestId("stress-compare-difference")).toHaveCount(0);
+  await expect(page.getByTestId("stress-compare-reason")).toHaveCount(0);
+  // The editable proposal is preserved.
+  await expect(weightA).toHaveValue("40");
+
+  await number.fill("-40");
+  await expect(page.getByTestId("stress-after")).toHaveText("$7,200.00");
+  await expect(page.getByTestId("stress-compare-difference")).toHaveText(
+    "+$1,200.00",
+  );
+
+  // Per-position mode stays independently usable with the simple field invalid.
+  await number.fill("1e2");
+  const advanced = page
+    .locator("details.stress-advanced")
+    .filter({ hasText: "Advanced: per-position moves" });
+  await advanced.locator("summary").click();
+  await advanced
+    .getByLabel("Use a different move for each position")
+    .check();
+  await expect(advanced.getByLabel("Asset A move (%)")).toHaveValue("-40");
+  await expect(page.getByTestId("stress-after")).toHaveText("$7,200.00");
+});
+
+test("portfolio stress test supports per-position moves and aggregate contributions", async ({
+  page,
+}) => {
+  test.skip(!enabled);
+  await page.goto("/stress-test");
+  const advanced = page
+    .locator("details.stress-advanced")
+    .filter({ hasText: "Advanced: per-position moves" });
+  await advanced.locator("summary").click();
+  await advanced
+    .getByLabel("Use a different move for each position")
+    .check();
+  const moveA = advanced.getByLabel("Asset A move (%)");
+  await expect(moveA).toHaveValue("-40");
+  await expect(page.getByTestId("stress-after")).toHaveText("$7,200.00");
+  await moveA.fill("-50");
+  await expect(page.getByTestId("stress-after")).toHaveText("$6,500.00");
+  await expect(page.getByTestId("stress-impact")).toHaveText("-35%");
+  await expect(advanced).toContainText(
+    "Contribution to the total change",
+  );
+  await moveA.fill("1.5");
+  await expect(page.getByRole("alert").first()).toContainText(
+    "whole-number move",
+  );
+  await expect(page.getByTestId("stress-after")).toHaveCount(0);
+  await moveA.fill("-50");
+  await advanced
+    .getByLabel("Use a different move for each position")
+    .uncheck();
+  await expect(page.getByTestId("stress-after")).toHaveText("$7,200.00");
+});
+
+test("portfolio stress test keeps per-position moves usable after invalid simple input", async ({
+  page,
+}) => {
+  test.skip(!enabled);
+  await page.goto("/stress-test");
+  const number = page.getByLabel("Price change (%)", { exact: true });
+  await number.fill("1e2");
+  await expect(number).toHaveAttribute("aria-invalid", "true");
+  await expect(page.getByTestId("stress-after")).toHaveCount(0);
+  const advanced = page
+    .locator("details.stress-advanced")
+    .filter({ hasText: "Advanced: per-position moves" });
+  await advanced.locator("summary").click();
+  await advanced
+    .getByLabel("Use a different move for each position")
+    .check();
+  const moveA = advanced.getByLabel("Asset A move (%)");
+  await expect(moveA).toHaveValue("-40");
+  await expect(page.getByTestId("stress-after")).toHaveText("$7,200.00");
+  await moveA.fill("-20");
+  await expect(page.getByTestId("stress-after")).toHaveText("$8,600.00");
+  await advanced
+    .getByLabel("Use a different move for each position")
+    .uncheck();
+});
+
+test("portfolio stress test imports selected local Vault values read-only without any upload", async ({
+  page,
+}) => {
+  test.skip(!enabled);
+  test.setTimeout(90_000);
+  const requests: string[] = [];
+  page.on("request", (request) => {
+    if (/\/v1\//.test(request.url())) requests.push(request.url());
+  });
+  await createVaultWithReference(page);
+  await page.goto("/stress-test");
+  // A non-default prior simple input must not survive into, or after, an import.
+  const number = page.getByLabel("Price change (%)", { exact: true });
+  await number.fill("-30");
+  await expect(number).toHaveValue("-30");
+  await expect(page.getByTestId("stress-after")).toHaveText("$7,900.00");
+  const importer = await openImporter(page);
+  await importer
+    .getByLabel("Vault passphrase")
+    .fill("wrong passphrase but long enough");
+  await importer
+    .getByRole("button", { name: "Unlock and choose" })
+    .click();
+  await expect(importer.getByRole("alert")).toContainText(
+    "could not unlock",
+  );
+  await expect(importer.getByLabel("Vault passphrase")).toHaveValue("");
+  await importer.getByLabel("Vault passphrase").fill(passphrase);
+  await importer
+    .getByRole("button", { name: "Unlock and choose" })
+    .click();
+  const choice = importer.getByLabel(`Include ${importedAsset}`);
+  await expect(choice).toBeEnabled();
+  await expect(importer).toContainText("Saved USD reference: 250.00 USD");
+  await expect(
+    importer.getByRole("button", { name: "Use selected values", exact: true }),
+  ).toBeDisabled();
+  await expect(importer).toContainText(
+    "Select at least one position total to include.",
+  );
+  await choice.check();
+  await importer
+    .getByRole("button", { name: "Use selected values", exact: true })
+    .click();
+  await expect(
+    page.getByText("Selected Vault values · not complete live portfolio"),
+  ).toBeVisible();
+  await expect(page.getByTestId("stress-after")).toHaveText("$150.00");
+  await expect(number).toHaveValue("-40");
+  await expect(page.getByText(importedAsset).first()).toBeVisible();
+  await page
+    .getByRole("button", { name: "Clear imported private data", exact: true })
+    .click();
+  await expect(page.getByTestId("stress-after")).toHaveText("$7,200.00");
+  await expect(number).toHaveValue("-40");
+  await expect(page.getByText(importedAsset)).toHaveCount(0);
+  expect(requests).toEqual([]);
+  expect(
+    await page.evaluate(() => [localStorage.length, sessionStorage.length]),
+  ).toEqual([0, 0]);
+});
+
+test("portfolio stress test keeps manual Vault totals editable and confirms them", async ({
+  page,
+}) => {
+  test.skip(!enabled);
+  test.setTimeout(90_000);
+  await createVaultWithReference(page);
+  await page.goto("/stress-test");
+  const importer = await unlockImporter(page);
+  const manualChoice = importer.getByLabel(`Include ${manualAsset}`);
+  await expect(manualChoice).toBeDisabled();
+  await expect(importer).toContainText("per-unit value");
+  const valueInput = importer.getByLabel(
+    `${manualAsset} confirmed total value in USD`,
+  );
+  const dateInput = importer.getByLabel(`${manualAsset} observation date`);
+  await valueInput.fill("400");
+  await dateInput.fill("2026-06-01");
+  await expect(importer).toContainText("Confirmed total: 400 USD");
+  // Controls stay available for correction after the value resolves.
+  await expect(valueInput).toBeVisible();
+  await valueInput.fill("500");
+  await expect(importer).toContainText("Confirmed total: 500 USD");
+  await expect(manualChoice).toBeEnabled();
+  await manualChoice.check();
+  await importer
+    .getByRole("button", { name: "Use selected values", exact: true })
+    .click();
+  await expect(page.getByTestId("stress-after")).toHaveText("$300.00");
+});
+
+test("portfolio stress test clears an unsubmitted Vault passphrase when the tab hides", async ({
+  page,
+}) => {
+  test.skip(!enabled);
+  test.setTimeout(90_000);
+  await createVaultWithReference(page);
+  await page.goto("/stress-test");
+  const importer = await openImporter(page);
+  const passInput = importer.getByLabel("Vault passphrase");
+  await passInput.fill("typed-but-not-submitted");
+  await expect(passInput).toHaveValue("typed-but-not-submitted");
+  await page.evaluate(() => {
+    Object.defineProperty(document, "hidden", {
+      configurable: true,
+      get: () => true,
+    });
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+  await expect(passInput).toHaveValue("");
+});
+
+test("portfolio stress test clears imported values when the Vault locks in another tab", async ({
+  page,
+  context,
+}) => {
+  test.skip(!enabled);
+  test.setTimeout(90_000);
+  await createVaultWithReference(page);
+  await page.goto("/stress-test");
+  const importer = await unlockImporter(page);
+  await importer.getByLabel(`Include ${importedAsset}`).check();
+  await importer
+    .getByRole("button", { name: "Use selected values", exact: true })
+    .click();
+  await expect(page.getByTestId("stress-after")).toHaveText("$150.00");
+
+  const other = await context.newPage();
+  await other.goto("/guide");
+  await other.evaluate(() => {
+    const bus = new BroadcastChannel("chainscout-vault-control-v1");
+    bus.postMessage({ event: "changed" });
+    bus.close();
+  });
+  await expect(page.getByTestId("stress-after")).toHaveText("$7,200.00");
+  await expect(
+    page.getByText("Selected Vault values · not complete live portfolio"),
+  ).toHaveCount(0);
+  await expect(page.getByText(importedAsset)).toHaveCount(0);
+
+  // A hidden tab must also drop imported values after a fresh selection.
+  const importerAgain = await unlockImporter(page);
+  await importerAgain.getByLabel(`Include ${importedAsset}`).check();
+  await importerAgain
+    .getByRole("button", { name: "Use selected values", exact: true })
+    .click();
+  await expect(page.getByTestId("stress-after")).toHaveText("$150.00");
+  await page.evaluate(() => {
+    Object.defineProperty(document, "hidden", {
+      configurable: true,
+      get: () => true,
+    });
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+  await expect(page.getByTestId("stress-after")).toHaveText("$7,200.00");
+  await expect(page.getByText(importedAsset)).toHaveCount(0);
 });

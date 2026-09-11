@@ -125,4 +125,119 @@ export const stress = {
   "stress.why.math": "{affected} affected × {percent}% move ≈ {amount} change",
   "stress.why.rounding":
     "Values round to cents per position; displayed percentages are rounded.",
+  "stress.compare.open": "Compare allocations",
+  "stress.compare.close": "Close comparison",
+  "stress.compare.eyebrow": "CURRENT VS PROPOSED",
+  "stress.compare.title": "Compare allocations",
+  "stress.compare.intro":
+    "Same starting total, same positions and the same price assumptions. Only the weights differ.",
+  "stress.compare.current": "Current mix",
+  "stress.compare.proposed": "Proposed mix",
+  "stress.compare.weight": "{asset} proposed weight (%)",
+  "stress.compare.shift": "Weight shift",
+  "stress.compare.value": "Starting value",
+  "stress.compare.allocChange": "Allocation change",
+  "stress.compare.even": "Even split",
+  "stress.compare.reset": "Match current",
+  "stress.compare.error.positions": "Use between 1 and 10 positions.",
+  "stress.compare.error.identity":
+    "Proposed weights must match the current positions exactly.",
+  "stress.compare.error.weightValue":
+    "Enter each weight from 0 to 100, with no more than two decimals.",
+  "stress.compare.error.weightSum":
+    "Proposed weights must add up to exactly 100%.",
+  "stress.compare.error.value": "These values cannot be compared.",
+  "stress.compare.outcome": "Under this scenario",
+  "stress.compare.currentEnds": "Current mix ends at",
+  "stress.compare.proposedEnds": "Proposed mix ends at",
+  "stress.compare.difference": "Difference",
+  "stress.compare.differenceUp":
+    "The proposed mix ends {amount} higher under this scenario.",
+  "stress.compare.differenceDown":
+    "The proposed mix ends {amount} lower under this scenario.",
+  "stress.compare.differenceFlat":
+    "The proposed mix ends with the same total under this scenario.",
+  "stress.compare.reason":
+    "{asset} changes the scenario outcome the most ({amount}).",
+  "stress.compare.reasonFlat":
+    "No position moves in this scenario, so reallocating alone does not change the outcome.",
+  "stress.compare.reasonFlatAllFlat":
+    "No position moves in this scenario, so neither mix changes the outcome.",
+  "stress.compare.reasonFlatIdentical":
+    "Both mixes are identical, so they move together and end the same under this scenario.",
+  "stress.compare.reasonFlatEqual":
+    "Neither mix changes the scenario outcome, even though individual positions move differently.",
+  "stress.compare.details": "Position-by-position allocation details",
+  "stress.compare.heldConstant":
+    "Starting total held constant at {amount}. The same scenario applies to both mixes.",
+  "stress.compare.notAdvice":
+    "Hypothetical arithmetic only. Not a recommendation, forecast, optimum or safety rating.",
+  "stress.moves.advanced": "Advanced: per-position moves",
+  "stress.moves.toggle": "Use a different move for each position",
+  "stress.moves.label": "{asset} move (%)",
+  "stress.moves.assumptions":
+    "Every position keeps the same starting value. Only the whole-percent moves below change the outcome.",
+  "stress.moves.contributions": "Contribution to the total change",
+  "stress.moves.none": "No position moves in this scenario.",
+  "stress.error.moves":
+    "Scenario moves must match the current positions.",
+  "stress.error.moveValue":
+    "Enter a whole-number move between −100% and +100% for every position.",
+  "stress.import.open": "Import selected values from local Vault",
+  "stress.import.intro":
+    "Unlock the local encrypted Vault read-only and include specific position totals. Selected values only — not your complete live portfolio.",
+  "stress.import.badge":
+    "Selected Vault values · not complete live portfolio",
+  "stress.import.loading": "Checking this device for a local Vault…",
+  "stress.import.empty": "No local Vault found on this device.",
+  "stress.import.emptyLink": "Create a Vault",
+  "stress.import.passphrase": "Vault passphrase",
+  "stress.import.unlock": "Unlock and choose",
+  "stress.import.unlocking": "Unlocking…",
+  "stress.import.select": "Include {asset}",
+  "stress.import.selectedValue": "USD · selected total",
+  "stress.import.included": "{count} selected",
+  "stress.import.excluded": "{count} not selected",
+  "stress.import.value": "{asset} confirmed total value in USD",
+  "stress.import.date": "{asset} observation date",
+  "stress.import.tooMany": "Select no more than 10 positions.",
+  "stress.import.none": "Select at least one position total to include.",
+  "stress.import.confirm": "Use selected values",
+  "stress.import.clear": "Clear private data",
+  "stress.import.confirmed": "Imported {count} selected values into this page.",
+  "stress.import.confirmedValue":
+    "Confirmed total: {value} USD · observed {date}",
+  "stress.import.clearImported": "Clear imported private data",
+  "stress.import.stale": "Over a year old",
+  "stress.import.evidence.reference":
+    "Saved USD reference: {value} {currency} · {date}",
+  "stress.import.evidence.valuation":
+    "Saved USD unit valuation: {value} {currency} · {date}",
+  "stress.import.evidence.unit":
+    "Stored as a per-unit reference, not a position total.",
+  "stress.import.reason.missingReference":
+    "No saved USD reference. Enter a confirmed total to include it.",
+  "stress.import.reason.foreignCurrency":
+    "Saved reference uses another currency and cannot be treated as USD. Enter a confirmed USD total.",
+  "stress.import.reason.missingDate":
+    "Saved value has no usable observation date. Enter a confirmed total and date.",
+  "stress.import.reason.futureDate":
+    "Saved date is in the future and cannot be a past observation. Enter a confirmed total and date.",
+  "stress.import.reason.missingValue":
+    "Saved value is missing or unreadable. Enter a confirmed total and date.",
+  "stress.import.reason.unitValue":
+    "Saved reference is a per-unit value, not a position total. Enter the confirmed total.",
+  "stress.import.reason.quantityMismatch":
+    "Could not confirm an exact quantity for the saved unit valuation. Enter the confirmed total.",
+  "stress.import.reason.purchaseCostOnly":
+    "Only purchase cost is saved. Purchase cost is not current value. Enter a confirmed total.",
+  "stress.import.reason.overLimit":
+    "Saved value is above the 1,000,000,000 USD limit for one position. Enter a smaller confirmed total.",
+  "stress.import.error.missing": "No local Vault was found on this device.",
+  "stress.import.error.unlock":
+    "The Vault could not be unlocked with that passphrase.",
+  "stress.import.error.storage":
+    "Local Vault storage is unavailable in this browser.",
+  "stress.receipt.disabledAdvanced":
+    "Image export is unavailable while per-position moves or the allocation comparison is open, because the simple share card would not match this scenario. Close it to export the simple scenario.",
 };

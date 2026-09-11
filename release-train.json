@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "18-portfolio-stress-test",
+  "activeRelease": "20-watch-briefing",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement",
@@ -186,7 +186,7 @@
       "id": "18-portfolio-stress-test",
       "branch": "codex/18-portfolio-stress-test",
       "tagPrefix": "rc/18-portfolio-stress-test/",
-      "status": "active",
+      "status": "released",
       "dependencies": [
         "17-watch-wallet-overlap"
       ],
@@ -198,7 +198,7 @@
       "id": "19-stress-comparison",
       "branch": "codex/19-stress-comparison",
       "tagPrefix": "rc/19-stress-comparison/",
-      "status": "queued",
+      "status": "released",
       "dependencies": [
         "18-portfolio-stress-test",
         "03-encrypted-vault"
@@ -211,7 +211,7 @@
       "id": "20-watch-briefing",
       "branch": "codex/20-watch-briefing",
       "tagPrefix": "rc/20-watch-briefing/",
-      "status": "queued",
+      "status": "active",
       "dependencies": [
         "19-stress-comparison",
         "17-watch-wallet-overlap"
