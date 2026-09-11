@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "16-watch-activity-feed",
+  "activeRelease": "17-watch-wallet-overlap",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement",
@@ -162,7 +162,7 @@
       "id": "16-watch-activity-feed",
       "branch": "codex/16-watch-activity-feed",
       "tagPrefix": "rc/16-watch-activity-feed/",
-      "status": "active",
+      "status": "released",
       "dependencies": [
         "14-scout-watch"
       ],
@@ -174,7 +174,7 @@
       "id": "17-watch-wallet-overlap",
       "branch": "codex/17-watch-wallet-overlap",
       "tagPrefix": "rc/17-watch-wallet-overlap/",
-      "status": "queued",
+      "status": "active",
       "dependencies": [
         "16-watch-activity-feed"
       ],
