@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "20-watch-briefing",
+  "activeRelease": "21-explorer-answers",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement",
@@ -211,7 +211,7 @@
       "id": "20-watch-briefing",
       "branch": "codex/20-watch-briefing",
       "tagPrefix": "rc/20-watch-briefing/",
-      "status": "active",
+      "status": "released",
       "dependencies": [
         "19-stress-comparison",
         "17-watch-wallet-overlap"
@@ -224,7 +224,7 @@
       "id": "21-explorer-answers",
       "branch": "codex/21-explorer-answers",
       "tagPrefix": "rc/21-explorer-answers/",
-      "status": "queued",
+      "status": "active",
       "dependencies": [
         "20-watch-briefing"
       ],
