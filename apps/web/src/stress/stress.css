@@ -101,6 +101,11 @@
   color: #201b18;
   border-color: #fa6c34;
 }
+.stress-page .stress-primary:hover,
+.stress-page button[aria-pressed="true"]:hover {
+  background: #ff8d5f;
+  color: #201b18;
+}
 .stress-page :focus-visible {
   outline: 2px solid #ffd0b7;
   outline-offset: 4px;

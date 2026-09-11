@@ -59,6 +59,20 @@ test("portfolio stress test validates manual values and clears them without pers
     if (/\/v1\//.test(r.url())) requests.push(r.url());
   });
   await page.goto("/stress-test");
+  const primary = page.getByRole("button", {
+    name: "Use my own values",
+    exact: true,
+  });
+  await primary.hover();
+  await expect(primary).toHaveCSS("background-color", "rgb(255, 141, 95)");
+  await expect(primary).toHaveCSS("color", "rgb(32, 27, 24)");
+  const selected = page.getByRole("button", {
+    name: "One position",
+    exact: true,
+  });
+  await selected.hover();
+  await expect(selected).toHaveCSS("background-color", "rgb(255, 141, 95)");
+  await expect(selected).toHaveCSS("color", "rgb(32, 27, 24)");
   await page
     .getByRole("button", { name: "Use my own values", exact: true })
     .click();

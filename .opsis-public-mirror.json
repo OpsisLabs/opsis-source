@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "97052fbd8ae1152de054271e5b9d132b8c2e5ff650e026067833d2840f567f6b",
+  "sourceTreeDigest": "333846f7c42c8d28ff06467f1a7dacc1c52ab303839e29270f346c940aa46290",
   "files": {
     ".dockerignore": "c5e446906c24e0f859f2e38d86cef592fd9a008e2106264edec621417ee4ef30",
     ".env.example": "b5200443bdb61a9dc68050fa8a3e34b0c0e75ce51aa182c81efc07149be363bb",
@@ -359,7 +359,7 @@
     "apps/web/src/stress/model.ts": "e7b14450f9e1e586b4dd0bdc5536b7f0a0592a07b01e352f73ed6fd786f42f74",
     "apps/web/src/stress/receipt.test.ts": "b3199d105ef1a158bd0c74e43496ef8c05fa8c1db2a06290cfc3f67ed77848cc",
     "apps/web/src/stress/receipt.ts": "637427ecb09920d9603ef2c8c126d88dc1744de946a988a1f167a94ac920453c",
-    "apps/web/src/stress/stress.css": "a183bb046c2abdbed4d1524157355422e17706f7a782ae3dbe6f2cba0ff7be64",
+    "apps/web/src/stress/stress.css": "6be282c1d1e975fe87151db1fc14a7b2bf42a586bdff3fc5f05c18aea620f463",
     "apps/web/src/stress/StressReceipt.tsx": "46eaba248a595341ec2e334cbbc98018acf3b5c6a9194a86ad18080efe17862e",
     "apps/web/src/stress/StressTest.tsx": "952854004190d61616c7f51570bcbd7bd19a9dfd9e14f51240362cefb4cf4dfc",
     "apps/web/src/swap/api.test.ts": "535c562ece97f42cbaf87557ea30ae2d66b2a7db4be934d5592004a67444a419",
@@ -416,7 +416,7 @@
     "e2e/scout-swap.mock.spec.ts": "687299ea9fb334a567ee4d44f39d415dbb574031c835d0228de1c84bc031f533",
     "e2e/scout-watch.mock.spec.ts": "c49f4d4efeca6c785af72623b0dd10a9116f6a3b9bf47ab35a839404483d57d1",
     "e2e/situation-room.mock.spec.ts": "df1dca79e73516c2c6ceabc60990e52ba311eff4d840cbbf9c206208f196bd9f",
-    "e2e/stress-test.mock.spec.ts": "e88b4708771bc15bf69ac0a08a6f1643bacced2c5b73d4964f21d2045d2077f9",
+    "e2e/stress-test.mock.spec.ts": "ec6dc49801eb19378391ee693c34ebba71795a3d3b8773de9871e7bc76cff5a4",
     "e2e/support/origin.ts": "ca6f98ac33b26b8c540ce812d8acbccf944c6cd1d94f4ff9911f51402e293fb8",
     "e2e/vault.mock.spec.ts": "2170a4baab1820e0ff0a6dcd5a292ea8f05bd7205b775e8a35cdea679e44fc1a",
     "e2e/wallet-ai.live.spec.ts": "0b74831125b671378e36c1fad76be23f98a9f4beec3c08250df2451ca107727e",
