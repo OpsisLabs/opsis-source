@@ -244,6 +244,16 @@
       ],
       "outcome": "Get question-specific wallet, transaction and token answers with clear evidence and relevant next actions",
       "shipGate": "Deterministic factual task-specific presentation, uncertainty visible when material, no invented safety/identity/holdings, sources and private persistence preserved, optional English/Chinese goals tested and no new providers."
+    },
+    {
+      "order": 23,
+      "id": "22-eth-market-brief",
+      "branch": "codex/22-eth-market-brief",
+      "tagPrefix": "rc/22-eth-market-brief/",
+      "status": "queued",
+      "dependencies": ["21-explorer-answers"],
+      "outcome": "Show a compact ETH market brief in Situation Room using captured global and Robinhood WETH/USDG data",
+      "shipGate": "Contextualized static ETH snapshot only, explicit stale/not-live/freshness states, single-venue global and Robinhood-chain source-separation, source links, and a stress-test hypothesis handoff. No new providers, polling, or claims of causation."
     }
   ]
 }
