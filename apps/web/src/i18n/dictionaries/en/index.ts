@@ -16,6 +16,7 @@ import { roadmap } from "./roadmap";
 import { cloud } from "./cloud";
 import { cards } from "./cards";
 import { watch } from "./watch";
+import { feed } from "./feed";
 
 export const en = {
   ...common,
@@ -36,6 +37,7 @@ export const en = {
   ...cloud,
   ...cards,
   ...watch,
+  ...feed,
 };
 
 export type TranslationKey = keyof typeof en;

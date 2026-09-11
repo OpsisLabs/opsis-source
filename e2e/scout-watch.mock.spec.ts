@@ -9,6 +9,103 @@ import {
 const passphrase = "test-only-watch-passphrase";
 const label = "PRIVATE-WATCH-LABEL-私密";
 const enabled = process.env.VITE_SCOUT_WATCH_ENABLED === "true";
+
+test("scout watch combined feed filters locally, deduplicates and clears on lock", async ({
+  page,
+}) => {
+  test.skip(!enabled);
+  test.setTimeout(90_000);
+  const bodies: unknown[] = [];
+  await page.route("**/v1/private/watch/snapshot", async (route) => {
+    const body = route.request().postDataJSON();
+    bodies.push(body);
+    const value = watchFixture(101);
+    value.address = body.address;
+    await route.fulfill({ json: value });
+  });
+  await create(page);
+  await add(page, WATCH_TEST_ADDRESS, "Wallet Alpha");
+  await add(page, `0x${"2".repeat(40)}`, "Wallet Beta");
+  await page
+    .getByRole("button", { name: "Activity feed", exact: true })
+    .click();
+  const feed = page.getByRole("region", {
+    name: "All your wallets. One view.",
+  });
+  await expect(
+    feed.getByRole("link", { name: /Open transaction evidence/ }),
+  ).toHaveCount(2);
+  await expect(feed.getByText("2 wallet view(s)").first()).toBeVisible();
+  await feed.getByLabel("Filter by asset type").selectOption("native");
+  await expect(
+    feed.getByRole("link", { name: /Open transaction evidence/ }),
+  ).toHaveCount(1);
+  await feed
+    .getByLabel("Filter by wallet")
+    .selectOption({ label: "Wallet Alpha" });
+  await expect(feed.getByText("1 wallet view(s)")).toBeVisible();
+  await feed.getByLabel("Search token, contract or transaction").fill("absent");
+  await expect(
+    feed.getByText("Nothing to show in this view yet."),
+  ).toBeVisible();
+  await feed.getByRole("button", { name: "Clear filters" }).click();
+  await feed
+    .getByRole("button", { name: /Wallet Beta/ })
+    .first()
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Wallet Beta", exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Activity feed", exact: true })
+    .click();
+  const a11y = await new AxeBuilder({ page }).analyze();
+  expect(
+    a11y.violations.filter((v) =>
+      ["critical", "serious"].includes(v.impact ?? ""),
+    ),
+  ).toEqual([]);
+  await page
+    .getByRole("button", { name: "Switch language to 简体中文", exact: true })
+    .filter({ visible: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "所有钱包，一目了然。" }),
+  ).toBeVisible();
+  for (const width of [320, 390, 768, 1440]) {
+    await page.setViewportSize({ width, height: 1000 });
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth - innerWidth,
+      ),
+    ).toBeLessThanOrEqual(1);
+  }
+  await page
+    .getByRole("button", { name: "切换语言为English", exact: true })
+    .filter({ visible: true })
+    .click();
+  expect(bodies).toEqual([
+    { address: WATCH_TEST_ADDRESS },
+    { address: `0x${"2".repeat(40)}` },
+  ]);
+  await page.getByRole("button", { name: "Lock watchlist" }).click();
+  await expect(page.getByText("Wallet Alpha", { exact: true })).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "All your wallets. One view." }),
+  ).toHaveCount(0);
+  await page.reload();
+  await page.getByLabel("Vault passphrase", { exact: true }).fill(passphrase);
+  await page.getByRole("button", { name: "Unlock watchlist" }).click();
+  await page
+    .getByRole("button", { name: "Activity feed", exact: true })
+    .click();
+  await expect(
+    page
+      .getByRole("region", { name: "All your wallets. One view." })
+      .getByRole("link", { name: /Open transaction evidence/ }),
+  ).toHaveCount(2);
+  expect(bodies).toHaveLength(2);
+});
 test.beforeEach(async ({ context }) => {
   await context.addCookies([
     { name: "chainscout_product_tour_seen_v1", value: "1", url: APP_ORIGIN },

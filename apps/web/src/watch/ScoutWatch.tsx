@@ -14,6 +14,7 @@ import type { VaultWatch } from "../vault/types";
 import { BackupDownloadLink } from "../vault/BackupDownloadLink";
 import { useWatchVault } from "./useWatchVault";
 import { compareSnapshots } from "./model";
+import { ActivityFeed } from "./ActivityFeed";
 
 const button =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-sm border border-[#63564c] px-4 py-2 text-sm text-[#e9e0d1] transition-colors hover:border-[#fa6c34] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff985e] disabled:cursor-not-allowed disabled:opacity-50";
@@ -149,10 +150,31 @@ function Workspace({ session }: { session: WatchSession }) {
   const [consent, setConsent] = useState(false);
   const [error, setError] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
+  const [view, setView] = useState<"wallets" | "feed">("wallets");
   const item =
     session.watches.find((row) => row.id === selected) ?? session.watches[0];
   return (
     <div className="space-y-6">
+      <div
+        role="group"
+        aria-label={t("feed.views")}
+        className="flex flex-wrap gap-3"
+      >
+        <button
+          className={view === "wallets" ? primary : button}
+          aria-pressed={view === "wallets"}
+          onClick={() => setView("wallets")}
+        >
+          {t("feed.walletDetails")}
+        </button>
+        <button
+          className={view === "feed" ? primary : button}
+          aria-pressed={view === "feed"}
+          onClick={() => setView("feed")}
+        >
+          {t("feed.open")}
+        </button>
+      </div>
       <section className={panel} aria-labelledby="watch-add-title">
         <details open={session.watches.length === 0}>
           <summary className="min-h-11 cursor-pointer py-2">
@@ -241,56 +263,67 @@ function Workspace({ session }: { session: WatchSession }) {
           </form>
         </details>
       </section>
-      <section aria-labelledby="watch-list-title">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h2 id="watch-list-title" className="text-xl">
-            {t("watch.list")}
-          </h2>
-          <span className="text-sm text-[#bbb2a8]">
-            {t("watch.count", { count: session.watches.length })}
-          </span>
-        </div>
-        {!session.watches.length ? (
-          <div className={`${panel} border-dashed py-10 text-center`}>
-            <Eye
-              className="mx-auto mb-4 text-[#fa6c34]"
-              size={30}
-              aria-hidden
-            />
-            <h3 className="text-lg">{t("watch.empty")}</h3>
-            <p className="mt-2 text-sm text-[#bbb2a8]">
-              {t("watch.emptyDetail")}
-            </p>
+      {view === "wallets" && (
+        <section aria-labelledby="watch-list-title">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <h2 id="watch-list-title" className="text-xl">
+              {t("watch.list")}
+            </h2>
+            <span className="text-sm text-[#bbb2a8]">
+              {t("watch.count", { count: session.watches.length })}
+            </span>
           </div>
-        ) : (
-          <nav
-            aria-label={t("watch.list")}
-            className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3"
-          >
-            {session.watches.map((row) => (
-              <button
-                key={row.id}
-                disabled={session.busy}
-                onClick={() => setSelected(row.id)}
-                aria-current={row.id === item?.id ? "true" : undefined}
-                className={`${panel} text-left transition-colors hover:border-[#fa6c34] ${row.id === item?.id ? "!border-[#fa6c34]" : ""}`}
-              >
-                <span className="block truncate text-base font-medium">
-                  {row.label}
-                </span>
-                <span className="mt-1 block font-mono text-xs text-[#bbb2a8]">
-                  {short(row.address)}
-                </span>
-                <span className="mt-4 block break-all text-xl text-[#ff985e]">
-                  {row.snapshots.at(-1)!.nativeBalanceEth}{" "}
-                  <span className="text-xs">ETH</span>
-                </span>
-              </button>
-            ))}
-          </nav>
-        )}
-      </section>
-      {item && (
+          {!session.watches.length ? (
+            <div className={`${panel} border-dashed py-10 text-center`}>
+              <Eye
+                className="mx-auto mb-4 text-[#fa6c34]"
+                size={30}
+                aria-hidden
+              />
+              <h3 className="text-lg">{t("watch.empty")}</h3>
+              <p className="mt-2 text-sm text-[#bbb2a8]">
+                {t("watch.emptyDetail")}
+              </p>
+            </div>
+          ) : (
+            <nav
+              aria-label={t("watch.list")}
+              className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3"
+            >
+              {session.watches.map((row) => (
+                <button
+                  key={row.id}
+                  disabled={session.busy}
+                  onClick={() => setSelected(row.id)}
+                  aria-current={row.id === item?.id ? "true" : undefined}
+                  className={`${panel} text-left transition-colors hover:border-[#fa6c34] ${row.id === item?.id ? "!border-[#fa6c34]" : ""}`}
+                >
+                  <span className="block truncate text-base font-medium">
+                    {row.label}
+                  </span>
+                  <span className="mt-1 block font-mono text-xs text-[#bbb2a8]">
+                    {short(row.address)}
+                  </span>
+                  <span className="mt-4 block break-all text-xl text-[#ff985e]">
+                    {row.snapshots.at(-1)!.nativeBalanceEth}{" "}
+                    <span className="text-xs">ETH</span>
+                  </span>
+                </button>
+              ))}
+            </nav>
+          )}
+        </section>
+      )}
+      {view === "feed" && (
+        <ActivityFeed
+          watches={session.watches}
+          onWallet={(id) => {
+            setSelected(id);
+            setView("wallets");
+          }}
+        />
+      )}
+      {item && view === "wallets" && (
         <WatchDetail
           key={`${item.id}:${item.snapshots.at(-1)!.anchor.blockHash}`}
           item={item}

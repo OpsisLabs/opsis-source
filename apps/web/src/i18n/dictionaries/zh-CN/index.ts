@@ -16,6 +16,7 @@ import { roadmap } from "./roadmap";
 import { cloud } from "./cloud";
 import { cards } from "./cards";
 import { watch } from "./watch";
+import { feed } from "./feed";
 
 export const zhCN: Record<string, string> = {
   ...common,
@@ -36,4 +37,5 @@ export const zhCN: Record<string, string> = {
   ...cloud,
   ...cards,
   ...watch,
+  ...feed,
 };

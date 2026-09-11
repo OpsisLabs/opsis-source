@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "14-scout-watch",
+  "activeRelease": "15-watch-activity-feed",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement",
@@ -137,7 +137,7 @@
       "id": "14-scout-watch",
       "branch": "codex/14-scout-watch",
       "tagPrefix": "rc/14-scout-watch/",
-      "status": "active",
+      "status": "released",
       "outcome": "Save wallets privately and see what changed between checks",
       "dependencies": [
         "04-portfolio-intelligence",
@@ -150,8 +150,10 @@
       "id": "15-watch-activity-feed",
       "branch": "codex/15-watch-activity-feed",
       "tagPrefix": "rc/15-watch-activity-feed/",
-      "status": "queued",
-      "dependencies": ["14-scout-watch"],
+      "status": "active",
+      "dependencies": [
+        "14-scout-watch"
+      ],
       "outcome": "Review saved activity across watched wallets in one private feed",
       "shipGate": "Bounded retained snapshots produce a deduplicated, source-linked local feed. Wallet and asset filters send no network requests. Baseline activity, later discoveries, failed transactions, incomplete movements and conflicting observations remain distinct. Locked and disabled states expose no private data; persistence, English/Chinese, mobile and browser tests pass. No polling, new providers or storage migration."
     },
@@ -161,7 +163,9 @@
       "branch": "codex/16-watch-wallet-overlap",
       "tagPrefix": "rc/16-watch-wallet-overlap/",
       "status": "queued",
-      "dependencies": ["15-watch-activity-feed"],
+      "dependencies": [
+        "15-watch-activity-feed"
+      ],
       "outcome": "Compare exact token holdings shared by selected watched wallets",
       "shipGate": "Local latest snapshots group positive ERC20 holdings by exact chain and contract, never symbol. Different capture times, partial coverage, incompatible decimals and unavailable prior holdings remain visible. Per-wallet exact changes never imply buys, identity, coordination or profit. Disabled/locked, selection, precision, persistence, Chinese and mobile tests pass."
     }
