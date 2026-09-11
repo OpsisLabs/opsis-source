@@ -180,6 +180,16 @@
       ],
       "outcome": "Compare exact token holdings shared by selected watched wallets",
       "shipGate": "Local latest snapshots group positive ERC20 holdings by exact chain and contract, never symbol. Different capture times, partial coverage, incompatible decimals and unavailable prior holdings remain visible. Per-wallet exact changes never imply buys, identity, coordination or profit. Disabled/locked, selection, precision, persistence, Chinese and mobile tests pass."
+    },
+    {
+      "order": 18,
+      "id": "18-portfolio-stress-test",
+      "branch": "codex/18-portfolio-stress-test",
+      "tagPrefix": "rc/18-portfolio-stress-test/",
+      "status": "queued",
+      "dependencies": ["17-watch-wallet-overlap"],
+      "outcome": "Try a portfolio shock instantly and understand concentration without connecting a wallet",
+      "shipGate": "Clearly hypothetical presets and editable USD reference values drive exact local-only single-position and all-position scenarios. Concentration is not a correlation or safety rating. Accessible responsive visuals, English/Chinese, invalid inputs, default-off routing and privacy-safe previewed image export pass automated browser and unit tests. No provider, storage migration, account, signing or recurring spend."
     }
   ]
 }
