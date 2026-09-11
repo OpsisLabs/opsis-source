@@ -50,6 +50,7 @@ export function isOpenDataApiEnabled() {
 }
 
 export function isProductFeatureEnabled(id: string) {
+  if (id === "portfolio-stress-test") return import.meta.env.VITE_PORTFOLIO_STRESS_TEST_ENABLED === "true";
   if (id === "situation-room") return import.meta.env.VITE_SITUATION_ROOM_ENABLED === "true";
   if (id === "scout-watch") return import.meta.env.VITE_SCOUT_WATCH_ENABLED === "true";
   if (id === "card-price-check") return import.meta.env.VITE_CARD_PRICE_CHECK_ENABLED === "true";

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "17-watch-wallet-overlap",
+  "activeRelease": "18-portfolio-stress-test",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement",
@@ -174,7 +174,7 @@
       "id": "17-watch-wallet-overlap",
       "branch": "codex/17-watch-wallet-overlap",
       "tagPrefix": "rc/17-watch-wallet-overlap/",
-      "status": "active",
+      "status": "released",
       "dependencies": [
         "16-watch-activity-feed"
       ],
@@ -183,12 +183,24 @@
     },
     {
       "order": 18,
-      "id": "18-kol-tracker",
-      "branch": "codex/18-kol-tracker",
-      "tagPrefix": "rc/18-kol-tracker/",
+      "id": "18-portfolio-stress-test",
+      "branch": "codex/18-portfolio-stress-test",
+      "tagPrefix": "rc/18-portfolio-stress-test/",
+      "status": "active",
+      "dependencies": [
+        "17-watch-wallet-overlap"
+      ],
+      "outcome": "Try a portfolio shock instantly and understand concentration without connecting a wallet",
+      "shipGate": "Clearly hypothetical presets and editable USD reference values drive exact local-only single-position and all-position scenarios. Concentration is not a correlation or safety rating. Accessible responsive visuals, English/Chinese, invalid inputs, default-off routing and privacy-safe previewed image export pass automated browser and unit tests. No provider, storage migration, account, signing or recurring spend."
+    },
+    {
+      "order": 19,
+      "id": "19-kol-tracker",
+      "branch": "codex/19-kol-tracker",
+      "tagPrefix": "rc/19-kol-tracker/",
       "status": "queued",
       "dependencies": [
-        "17-watch-wallet-overlap",
+        "18-portfolio-stress-test",
         "15-situation-room"
       ],
       "outcome": "Inspect original KOL posts, compare stated targets and curate a private source watchlist",

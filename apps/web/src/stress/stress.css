@@ -1,0 +1,617 @@
+.stress-page {
+  --stress-line: var(--line);
+  max-width: 1320px;
+  margin: auto;
+  padding: 36px clamp(20px, 3.5vw, 52px) 64px;
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.stress-heading h1 {
+  max-width: 25ch;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1.12;
+  margin: 12px 0 14px;
+}
+.stress-heading > p {
+  color: var(--text-secondary);
+}
+.stress-page .stress-kicker {
+  color: var(--orange);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+}
+.stress-heading .stress-context {
+  font-size: 12px;
+  margin-top: 6px;
+  color: var(--text-muted);
+}
+.stress-examples {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 28px 0 24px;
+}
+.stress-badge {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.stress-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.stress-page button,
+.stress-page a.stress-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--stress-line);
+  color: var(--text-primary);
+  background: transparent;
+  font-size: 13px;
+  font-weight: 400;
+  border-radius: 3px;
+  transition:
+    background 160ms,
+    border-color 160ms;
+}
+.stress-page button:hover,
+.stress-page a.stress-button:hover {
+  background: var(--ink-2);
+  border-color: #675d52;
+}
+.stress-page button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.stress-page .stress-primary,
+.stress-page button[aria-pressed="true"] {
+  background: var(--orange);
+  color: #201b18;
+  border-color: var(--orange);
+}
+.stress-page .stress-primary:hover,
+.stress-page button[aria-pressed="true"]:hover {
+  background: #ff8d5f;
+  color: #201b18;
+}
+.stress-page :focus-visible {
+  outline: 2px solid #ffd0b7;
+  outline-offset: 4px;
+}
+.stress-page .stress-step {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.4;
+  margin: 0 0 12px;
+}
+.stress-step > span {
+  color: var(--orange);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+.stress-mix {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.7fr) minmax(0, 2fr);
+  align-items: center;
+  gap: 24px;
+  padding: 24px 0;
+  border-block: 1px solid var(--stress-line);
+}
+.stress-mix-total {
+  font-size: 23px;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  overflow-wrap: anywhere;
+}
+.stress-mix-total > span {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0;
+  margin-left: 6px;
+}
+.stress-stack {
+  height: 8px;
+  display: flex;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.stress-stack span {
+  flex-basis: 0;
+  min-width: 0;
+  transition: flex-grow 250ms;
+}
+.stress-mix-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.stress-mix-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.stress-mix-legend li span {
+  overflow-wrap: anywhere;
+}
+.stress-mix-legend li span:last-child {
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+.stress-mix-legend i {
+  width: 5px;
+  height: 5px;
+  flex: 0 0 5px;
+}
+.stress-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  margin-top: 30px;
+}
+.stress-panel {
+  min-width: 0;
+}
+.stress-panel h2 {
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.4;
+  margin-bottom: 16px;
+}
+.stress-controls {
+  padding: 0 clamp(20px, 3vw, 44px) 0 0;
+}
+.stress-controls fieldset {
+  margin: 18px 0 16px;
+}
+.stress-controls legend,
+.stress-controls label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.stress-segment {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.stress-segment button {
+  flex: 1;
+}
+.stress-control-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(100px, 1fr);
+  align-items: end;
+  gap: 12px;
+}
+.stress-page select,
+.stress-page input:not([type="range"]):not([type="checkbox"]) {
+  display: block;
+  min-height: 44px;
+  background: var(--ink);
+  color: var(--text-primary);
+  border: 1px solid #635b51;
+  padding: 10px 12px;
+  width: 100%;
+  border-radius: 3px;
+  margin-top: 6px;
+  font-size: 14px;
+}
+.stress-page input[aria-invalid="true"] {
+  border-color: #ffada3 !important;
+}
+.stress-dial {
+  width: min(100%, 300px);
+  aspect-ratio: 300 / 185;
+  margin: 18px auto 8px;
+  touch-action: none;
+  cursor: grab;
+}
+.stress-dial:active {
+  cursor: grabbing;
+}
+.stress-dial svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.stress-dial path {
+  fill: none;
+  stroke-width: 3px;
+}
+.stress-dial-track {
+  stroke: #645d54;
+}
+.stress-dial-fill {
+  stroke: var(--orange);
+}
+.stress-dial line {
+  stroke: #756f65;
+  stroke-width: 1px;
+}
+.stress-dial text {
+  fill: var(--text-secondary);
+  font:
+    11px Inter,
+    sans-serif;
+}
+.stress-dial .stress-dial-value {
+  fill: var(--text-primary);
+  font-size: 36px;
+  font-weight: 400;
+  letter-spacing: -1px;
+}
+.stress-dial-handle {
+  fill: var(--orange);
+  stroke: var(--ink);
+  stroke-width: 3px;
+}
+.stress-dial-help {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  max-width: 38ch;
+  margin: 0 auto;
+}
+.stress-presets {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.stress-presets button {
+  min-height: 44px;
+  padding: 8px 12px;
+  font-size: 12px;
+}
+.stress-scope-note {
+  margin-top: 16px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.stress-result {
+  padding: 0 0 0 clamp(20px, 3vw, 44px);
+  border-left: 1px solid var(--stress-line);
+}
+.stress-result > p {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+.stress-result > .stress-step {
+  margin-bottom: 32px;
+}
+.stress-total {
+  display: block;
+  font-size: clamp(2.6rem, 4.7vw, 4.25rem);
+  letter-spacing: -0.055em;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+  line-height: 1.2;
+  margin-top: 10px;
+}
+.stress-impact {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 12px 0 2px;
+}
+.stress-impact svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.5px;
+}
+.stress-impact output {
+  font-size: 23px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+.stress-impact span {
+  color: var(--text-secondary);
+  font-size: 12px;
+  margin-left: 5px;
+}
+.stress-result .stress-change-amount {
+  font-size: 13px;
+  margin-top: 4px;
+}
+.stress-negative {
+  color: #ffada3 !important;
+}
+.stress-positive {
+  color: #99d6b3 !important;
+}
+.stress-value-bars {
+  margin-top: 30px;
+}
+.stress-value-bars > div:not(.stress-bar) {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.stress-value-bars strong {
+  font-weight: 400;
+  color: var(--text-primary);
+}
+.stress-bar {
+  height: 8px;
+  background: var(--ink-3);
+  margin: 8px 0 20px;
+  overflow: hidden;
+}
+.stress-bar i {
+  display: block;
+  height: 100%;
+  background: #8a8176;
+  transition: width 250ms ease;
+}
+.stress-bar-after i {
+  background: var(--orange);
+}
+.stress-result .stress-result-limit {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 24px;
+}
+.stress-explanation {
+  display: grid;
+  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+  gap: 28px;
+  border-top: 1px solid var(--stress-line);
+  border-bottom: 1px solid var(--stress-line);
+  padding: 26px 0;
+  margin: 30px 0 0;
+}
+.stress-explanation h2 {
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.4;
+  margin-top: 9px;
+}
+.stress-explanation p {
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+.stress-explanation .stress-equation {
+  color: var(--text-primary);
+  font-size: 14px;
+  margin-top: 12px;
+}
+.stress-explanation .stress-rounding {
+  font-size: 11px;
+  margin-top: 6px;
+  color: var(--text-muted);
+}
+.stress-breakdown {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--stress-line);
+}
+.stress-breakdown summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 12px 0;
+  color: var(--text-secondary);
+}
+.stress-table-wrap {
+  overflow: auto;
+}
+.stress-page table {
+  width: 100%;
+  min-width: 540px;
+  text-align: left;
+  font-size: 13px;
+  border-collapse: collapse;
+}
+.stress-page th,
+.stress-page td {
+  padding: 12px;
+  border-bottom: 1px solid var(--stress-line);
+  font-weight: 400;
+}
+.stress-page thead th {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+.stress-page tbody th {
+  overflow-wrap: anywhere;
+  max-width: 150px;
+}
+.stress-editor,
+.stress-receipt {
+  margin-top: 26px;
+  padding: 24px;
+  border: 1px solid var(--stress-line);
+  background: var(--ink-2);
+}
+.stress-edit-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 12px;
+  margin: 18px 0;
+}
+.stress-edit-row label {
+  font-size: 13px;
+}
+.stress-editor {
+  scroll-margin-top: 100px;
+}
+.stress-editor > p,
+.stress-receipt > p {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+.stress-receipt label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  font-size: 13px;
+  margin: 10px 0;
+}
+.stress-receipt input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--orange);
+}
+.stress-receipt img {
+  margin: 22px 0;
+  max-width: 480px;
+  width: 100%;
+  border: 1px solid var(--stress-line);
+}
+.stress-method {
+  margin-top: 28px;
+  border-top: 1px solid var(--stress-line);
+  padding-top: 18px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.stress-method summary {
+  cursor: pointer;
+  min-height: 44px;
+  color: var(--text-secondary);
+}
+.stress-method p {
+  max-width: 95ch;
+}
+.stress-privacy {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-top: 22px;
+}
+.stress-invalid {
+  padding: 30px 0;
+}
+.stress-invalid p {
+  margin-bottom: 20px;
+}
+.stress-mobile-summary {
+  display: none;
+}
+@media (max-width: 1050px) {
+  .stress-grid {
+    grid-template-columns: 1fr;
+  }
+  .stress-controls {
+    padding: 0;
+  }
+  .stress-result {
+    padding: 26px 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--stress-line);
+    margin-top: 26px;
+  }
+  .stress-result > .stress-step {
+    margin-bottom: 18px;
+  }
+  .stress-dial {
+    width: min(100%, 320px);
+  }
+  .stress-total {
+    font-size: clamp(2.6rem, 7vw, 3.6rem);
+  }
+  .stress-explanation {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .stress-mobile-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    position: sticky;
+    top: 66px;
+    z-index: 20;
+    background: var(--ink);
+    border-bottom: 1px solid var(--stress-line);
+    padding: 12px 0;
+    margin: 12px 0 0;
+  }
+  .stress-mobile-summary span {
+    display: block;
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+  .stress-mobile-summary strong {
+    font-size: 20px;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+}
+@media (max-width: 580px) {
+  .stress-page {
+    padding: 24px 20px 48px;
+  }
+  .stress-mix {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .stress-mix-legend {
+    gap: 8px 16px;
+  }
+  .stress-examples {
+    align-items: flex-start;
+    margin-top: 22px;
+  }
+  .stress-examples .stress-actions {
+    width: 100%;
+  }
+  .stress-examples button {
+    flex: 1;
+  }
+  .stress-examples .stress-primary {
+    flex-basis: 100%;
+  }
+  .stress-control-fields {
+    grid-template-columns: minmax(0, 1.4fr) minmax(84px, 1fr);
+    gap: 8px;
+  }
+  .stress-edit-row {
+    grid-template-columns: 1fr auto;
+  }
+  .stress-edit-row label:first-child {
+    grid-column: 1/-1;
+  }
+  .stress-editor,
+  .stress-receipt {
+    padding: 18px;
+  }
+  .stress-segment button {
+    padding: 10px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stress-page * {
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
