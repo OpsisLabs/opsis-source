@@ -3,8 +3,8 @@ export const stress = {
   "stress.metadata.description":
     "试试假设的市场波动，无需钱包或账户，查看组合集中度与情景影响。",
   "stress.eyebrow": "组合压力测试",
-  "stress.title": "如果市场波动，会发生什么？",
-  "stress.intro": "拖动滑块，查看影响。无需钱包。",
+  "stress.title": "如果你最大的持仓下跌，会怎样？",
+  "stress.intro": "选择价格变动，看看组合总值如何变化。",
   "stress.example": "示例组合 · 非实时持仓",
   "stress.custom": "你输入的参考值 · 非实时价格",
   "stress.concentrated": "单一资产占 70%",
@@ -24,8 +24,7 @@ export const stress = {
   "stress.concentration": "集中在哪些持仓",
   "stress.largest": "最大持仓",
   "stress.weight": "{asset} 占起始组合的 {percent}%。",
-  "stress.everyFalls":
-    "所有持仓均变动 {percent}%。仅调整配置无法缓释统一变动。",
+  "stress.everyFalls": "在此情景中，所有持仓均变动 {percent}%。",
   "stress.oneMoves": "仅 {asset} 变动 {percent}%。其他参考值保持不变。",
   "stress.edit": "使用我自己的数值",
   "stress.editTitle": "构建你的情景",
@@ -87,9 +86,34 @@ export const stress = {
   "product.feature.portfolio-stress-test.boundary":
     "假设的美元数值，并非实时价格、预测或分散化评分。未建模相关性、杠杆和交易成本。",
   "product.feature.portfolio-stress-test.step.1":
-    "试试示例并拖动价格变动滑块。",
+    "试试示例，然后拖动转盘或输入假设的价格变动。",
   "product.feature.portfolio-stress-test.step.2":
     "将变动应用于单个或全部持仓，并比较不同配置。",
   "product.feature.portfolio-stress-test.step.3":
     "可选择输入你自己的参考值，然后预览隐私可控的分享卡片。",
+  "stress.context": "无需钱包。可使用示例，也可输入自己的参考值。",
+  "stress.mix": "你的起始配置",
+  "stress.seeImpact": "查看影响",
+  "stress.typePercent": "价格变动（%）",
+  "stress.dialHelp": "拖动转盘、使用方向键，或输入整数百分比（−100 至 +100）。",
+  "stress.amountDown": "相比起始价值减少 {amount}。",
+  "stress.amountUp": "相比起始价值增加 {amount}。",
+  "stress.amountFlat": "组合总值没有变化。",
+  "stress.notForecast": "假设情景 · 并非预测",
+  "stress.done": "完成 — 查看我的情景",
+  "stress.why.eyebrow": "原因",
+  "stress.why.down": "为何总值下降 {percent}%",
+  "stress.why.up": "为何总值上升 {percent}%",
+  "stress.why.flat": "为何总值保持不变",
+  "stress.why.smallDown": "为何总值略有下降",
+  "stress.why.smallUp": "为何总值略有上升",
+  "stress.why.single":
+    "{asset} 占起始组合的 {weight}%。其价格变动 {percent}%，因此只有这部分价值发生变化，其他持仓保持不变。",
+  "stress.why.all":
+    "每个持仓都变动 {percent}%，因此整个组合都会受到影响。仅改变配置无法缓释所有持仓的统一变动。",
+  "stress.why.noMove":
+    "你选择了价格不变。每个持仓都保持起始价值，因此组合总值不变。",
+  "stress.why.math":
+    "受影响价值 {affected} × 变动 {percent}% ≈ 金额变化 {amount}",
+  "stress.why.rounding": "每个持仓金额四舍五入到分；显示的百分比也经过舍入。",
 };

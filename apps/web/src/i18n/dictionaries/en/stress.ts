@@ -3,14 +3,14 @@ export const stress = {
   "stress.metadata.description":
     "Try a hypothetical market move. See portfolio concentration and scenario impact without a wallet or account.",
   "stress.eyebrow": "PORTFOLIO STRESS TEST",
-  "stress.title": "What happens if the market moves?",
-  "stress.intro": "Drag the slider. See the impact. No wallet needed.",
+  "stress.title": "What if your biggest holding drops?",
+  "stress.intro": "Choose a price change. See what happens to your total.",
   "stress.example": "Illustrative portfolio · not live holdings",
   "stress.custom": "Your entered reference values · not live prices",
   "stress.concentrated": "70% in one asset",
   "stress.spread": "40 / 30 / 30 split",
   "stress.examples": "Try an example allocation",
-  "stress.change": "Choose a price move",
+  "stress.change": "Choose a price change",
   "stress.scope": "Apply the move to",
   "stress.all": "Every position",
   "stress.single": "One position",
@@ -24,8 +24,7 @@ export const stress = {
   "stress.concentration": "Where you are concentrated",
   "stress.largest": "Largest position",
   "stress.weight": "{asset} is {percent}% of your starting portfolio.",
-  "stress.everyFalls":
-    "Every position moves {percent}%. Changing the allocation alone cannot soften a uniform move.",
+  "stress.everyFalls": "Every position moves {percent}% in this scenario.",
   "stress.oneMoves":
     "Only {asset} moves {percent}%. All other reference values stay unchanged.",
   "stress.edit": "Use my own values",
@@ -94,9 +93,36 @@ export const stress = {
   "product.feature.portfolio-stress-test.boundary":
     "Assumed USD values, not live prices, forecasts or a diversification score. Correlation, leverage and trading costs are not modeled.",
   "product.feature.portfolio-stress-test.step.1":
-    "Try an example and drag the price-change slider.",
+    "Try an example, then drag the dial or type a hypothetical price change.",
   "product.feature.portfolio-stress-test.step.2":
     "Apply the move to one position or all positions and compare allocations.",
   "product.feature.portfolio-stress-test.step.3":
     "Optionally enter your own reference values, then preview a privacy-controlled share card.",
+  "stress.context":
+    "No wallet needed. Start with the example or enter your own values.",
+  "stress.mix": "Your starting mix",
+  "stress.seeImpact": "See the impact",
+  "stress.typePercent": "Price change (%)",
+  "stress.dialHelp":
+    "Drag the dial, use the arrow keys, or type a whole percentage (−100 to +100).",
+  "stress.amountDown": "Down {amount} from your starting value.",
+  "stress.amountUp": "Up {amount} from your starting value.",
+  "stress.amountFlat": "Your total value is unchanged.",
+  "stress.notForecast": "Hypothetical scenario · Not a forecast",
+  "stress.done": "Done — see my scenario",
+  "stress.why.eyebrow": "THE REASON",
+  "stress.why.down": "Why your total drops {percent}%",
+  "stress.why.up": "Why your total rises {percent}%",
+  "stress.why.flat": "Why your total stays the same",
+  "stress.why.smallDown": "Why your total falls slightly",
+  "stress.why.smallUp": "Why your total rises slightly",
+  "stress.why.single":
+    "{asset} makes up {weight}% of your starting portfolio. Its price moves {percent}%; only that portion changes. All other positions stay flat.",
+  "stress.why.all":
+    "Every position moves {percent}%, so the whole portfolio is affected. Changing the allocation alone cannot soften a uniform move.",
+  "stress.why.noMove":
+    "You chose no price change. Each position keeps its starting value, so your portfolio total stays the same.",
+  "stress.why.math": "{affected} affected × {percent}% move ≈ {amount} change",
+  "stress.why.rounding":
+    "Values round to cents per position; displayed percentages are rounded.",
 };

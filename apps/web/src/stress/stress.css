@@ -1,76 +1,51 @@
-.stress-mobile-summary {
-  display: none;
-}
-@media (max-width: 900px) {
-  .stress-mobile-summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    position: sticky;
-    top: 66px;
-    z-index: 20;
-    background: #25221f;
-    border: 1px solid #75614f;
-    border-left: 4px solid #fa6c34;
-    padding: 10px 16px;
-    margin: 0 0 14px;
-  }
-  .stress-mobile-summary span {
-    display: block;
-    font-size: 12px;
-    color: #c9c0b6;
-  }
-  .stress-mobile-summary strong {
-    display: block;
-    font-size: 24px;
-    line-height: 1.25;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-    overflow-wrap: anywhere;
-  }
-}
 .stress-page {
+  --stress-line: var(--line);
   max-width: 1320px;
   margin: auto;
-  padding: 28px clamp(16px, 3vw, 44px) 60px;
-  color: #eee5d8;
-  --stress-line: #514b44;
-  font-size: 16px;
-  line-height: 1.5;
+  padding: 36px clamp(20px, 3.5vw, 52px) 64px;
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.6;
 }
 .stress-heading h1 {
-  font-size: clamp(1.8rem, 3vw, 2.65rem);
-  font-weight: 600;
-  letter-spacing: -0.04em;
+  max-width: 25ch;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 500;
+  letter-spacing: -0.035em;
   line-height: 1.12;
-  margin: 10px 0;
+  margin: 12px 0 14px;
 }
-.stress-heading > p:last-child {
-  color: #c1b8ae;
+.stress-heading > p {
+  color: var(--text-secondary);
 }
-.stress-kicker {
-  font-family: monospace;
-  color: #fa6c34;
-  font-size: 14px;
-  letter-spacing: 0.14em;
+.stress-page .stress-kicker {
+  color: var(--orange);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+}
+.stress-heading .stress-context {
+  font-size: 12px;
+  margin-top: 6px;
+  color: var(--text-muted);
 }
 .stress-examples {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 15px;
+  gap: 16px;
   flex-wrap: wrap;
-  margin: 26px 0 18px;
+  margin: 28px 0 24px;
 }
 .stress-badge {
-  color: #d8b778;
-  font-size: 14px;
+  font-size: 12px;
+  color: var(--text-secondary);
 }
 .stress-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 }
 .stress-page button,
 .stress-page a.stress-button {
@@ -79,17 +54,21 @@
   justify-content: center;
   gap: 8px;
   min-height: 44px;
-  padding: 10px 15px;
-  border: 1px solid #73503c;
-  color: #ffd0b7;
-  background: #30231d;
-  font-size: 14px;
-  border-radius: 5px;
-  transition: background 0.15s;
+  padding: 10px 14px;
+  border: 1px solid var(--stress-line);
+  color: var(--text-primary);
+  background: transparent;
+  font-size: 13px;
+  font-weight: 400;
+  border-radius: 3px;
+  transition:
+    background 160ms,
+    border-color 160ms;
 }
 .stress-page button:hover,
 .stress-page a.stress-button:hover {
-  background: #473023;
+  background: var(--ink-2);
+  border-color: #675d52;
 }
 .stress-page button:disabled {
   opacity: 0.45;
@@ -97,9 +76,9 @@
 }
 .stress-page .stress-primary,
 .stress-page button[aria-pressed="true"] {
-  background: #fa6c34;
+  background: var(--orange);
   color: #201b18;
-  border-color: #fa6c34;
+  border-color: var(--orange);
 }
 .stress-page .stress-primary:hover,
 .stress-page button[aria-pressed="true"]:hover {
@@ -110,119 +89,255 @@
   outline: 2px solid #ffd0b7;
   outline-offset: 4px;
 }
+.stress-page .stress-step {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.4;
+  margin: 0 0 12px;
+}
+.stress-step > span {
+  color: var(--orange);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+.stress-mix {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.7fr) minmax(0, 2fr);
+  align-items: center;
+  gap: 24px;
+  padding: 24px 0;
+  border-block: 1px solid var(--stress-line);
+}
+.stress-mix-total {
+  font-size: 23px;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  overflow-wrap: anywhere;
+}
+.stress-mix-total > span {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0;
+  margin-left: 6px;
+}
+.stress-stack {
+  height: 8px;
+  display: flex;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.stress-stack span {
+  flex-basis: 0;
+  min-width: 0;
+  transition: flex-grow 250ms;
+}
+.stress-mix-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.stress-mix-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.stress-mix-legend li span {
+  overflow-wrap: anywhere;
+}
+.stress-mix-legend li span:last-child {
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+.stress-mix-legend i {
+  width: 5px;
+  height: 5px;
+  flex: 0 0 5px;
+}
 .stress-grid {
   display: grid;
-  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
-  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  margin-top: 30px;
 }
 .stress-panel {
-  background: #232221;
-  border: 1px solid var(--stress-line);
-  border-radius: 8px;
-  padding: clamp(18px, 2.5vw, 30px);
   min-width: 0;
 }
 .stress-panel h2 {
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 1.3;
-  margin-bottom: 18px;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.4;
+  margin-bottom: 16px;
+}
+.stress-controls {
+  padding: 0 clamp(20px, 3vw, 44px) 0 0;
 }
 .stress-controls fieldset {
-  margin: 23px 0 18px;
+  margin: 18px 0 16px;
 }
 .stress-controls legend,
 .stress-controls label {
-  font-size: 14px;
-  color: #c9c0b6;
+  font-size: 12px;
+  color: var(--text-secondary);
 }
 .stress-segment {
   display: flex;
-  gap: 8px;
-  margin-top: 10px;
+  gap: 6px;
+  margin-top: 8px;
 }
 .stress-segment button {
   flex: 1;
 }
+.stress-control-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(100px, 1fr);
+  align-items: end;
+  gap: 12px;
+}
 .stress-page select,
 .stress-page input:not([type="range"]):not([type="checkbox"]) {
   display: block;
-  min-height: 46px;
-  background: #191919;
-  color: #eee5d8;
-  border: 1px solid #75695e;
+  min-height: 44px;
+  background: var(--ink);
+  color: var(--text-primary);
+  border: 1px solid #635b51;
   padding: 10px 12px;
   width: 100%;
-  border-radius: 4px;
-  margin-top: 7px;
-}
-.stress-slider-label {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin: 24px 0 5px;
-}
-.stress-slider-label span {
-  font-size: 36px;
-  letter-spacing: -0.03em;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-.stress-page input[type="range"] {
-  width: 100%;
-  min-height: 44px;
-  accent-color: #fa6c34;
-  cursor: ew-resize;
-}
-.stress-scale {
-  display: flex;
-  justify-content: space-between;
+  border-radius: 3px;
+  margin-top: 6px;
   font-size: 14px;
-  color: #b6ada2;
+}
+.stress-page input[aria-invalid="true"] {
+  border-color: #ffada3 !important;
+}
+.stress-dial {
+  width: min(100%, 300px);
+  aspect-ratio: 300 / 185;
+  margin: 18px auto 8px;
+  touch-action: none;
+  cursor: grab;
+}
+.stress-dial:active {
+  cursor: grabbing;
+}
+.stress-dial svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.stress-dial path {
+  fill: none;
+  stroke-width: 3px;
+}
+.stress-dial-track {
+  stroke: #645d54;
+}
+.stress-dial-fill {
+  stroke: var(--orange);
+}
+.stress-dial line {
+  stroke: #756f65;
+  stroke-width: 1px;
+}
+.stress-dial text {
+  fill: var(--text-secondary);
+  font:
+    11px Inter,
+    sans-serif;
+}
+.stress-dial .stress-dial-value {
+  fill: var(--text-primary);
+  font-size: 36px;
+  font-weight: 400;
+  letter-spacing: -1px;
+}
+.stress-dial-handle {
+  fill: var(--orange);
+  stroke: var(--ink);
+  stroke-width: 3px;
+}
+.stress-dial-help {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  max-width: 38ch;
+  margin: 0 auto;
 }
 .stress-presets {
   display: flex;
-  gap: 8px;
+  justify-content: center;
+  gap: 6px;
   flex-wrap: wrap;
-  margin-top: 20px;
+  margin-top: 16px;
+}
+.stress-presets button {
+  min-height: 44px;
+  padding: 8px 12px;
+  font-size: 12px;
 }
 .stress-scope-note {
-  margin-top: 22px;
-  color: #c9c0b6;
-  font-size: 14px;
+  margin-top: 16px;
+  color: var(--text-secondary);
+  font-size: 12px;
   overflow-wrap: anywhere;
+}
+.stress-result {
+  padding: 0 0 0 clamp(20px, 3vw, 44px);
+  border-left: 1px solid var(--stress-line);
+}
+.stress-result > p {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+.stress-result > .stress-step {
+  margin-bottom: 32px;
 }
 .stress-total {
   display: block;
-  font-size: clamp(2.5rem, 5vw, 4.5rem);
-  letter-spacing: -0.06em;
-  font-weight: 600;
+  font-size: clamp(2.6rem, 4.7vw, 4.25rem);
+  letter-spacing: -0.055em;
+  font-weight: 400;
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
   line-height: 1.2;
-  margin-top: 8px;
-}
-.stress-result > p {
-  color: #c9c0b6;
-  font-size: 14px;
+  margin-top: 10px;
 }
 .stress-impact {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
   flex-wrap: wrap;
-  margin: 14px 0 26px;
+  margin: 12px 0 2px;
+}
+.stress-impact svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.5px;
 }
 .stress-impact output {
-  font-size: 25px;
-  font-weight: 600;
+  font-size: 23px;
+  font-weight: 400;
   font-variant-numeric: tabular-nums;
 }
 .stress-impact span {
-  color: #bdb4aa;
-  font-size: 14px;
-  margin-left: 6px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  margin-left: 5px;
+}
+.stress-result .stress-change-amount {
+  font-size: 13px;
+  margin-top: 4px;
 }
 .stress-negative {
   color: #ffada3 !important;
@@ -230,60 +345,79 @@
 .stress-positive {
   color: #99d6b3 !important;
 }
+.stress-value-bars {
+  margin-top: 30px;
+}
 .stress-value-bars > div:not(.stress-bar) {
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  font-size: 14px;
+  font-size: 12px;
+  color: var(--text-secondary);
 }
 .stress-value-bars strong {
-  font-weight: 500;
+  font-weight: 400;
+  color: var(--text-primary);
 }
 .stress-bar {
-  height: 12px;
-  background: #383431;
-  border-radius: 2px;
-  margin: 9px 0 19px;
+  height: 8px;
+  background: var(--ink-3);
+  margin: 8px 0 20px;
   overflow: hidden;
 }
 .stress-bar i {
   display: block;
   height: 100%;
   background: #8a8176;
-  transition: width 0.25s;
+  transition: width 250ms ease;
 }
 .stress-bar-after i {
-  background: #fa6c34;
+  background: var(--orange);
 }
-.stress-concentration {
+.stress-result .stress-result-limit {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 24px;
+}
+.stress-explanation {
+  display: grid;
+  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+  gap: 28px;
   border-top: 1px solid var(--stress-line);
-  padding-top: 20px;
+  border-bottom: 1px solid var(--stress-line);
+  padding: 26px 0;
+  margin: 30px 0 0;
 }
-.stress-concentration h2 {
-  font-size: 16px;
-  margin-bottom: 12px;
+.stress-explanation h2 {
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.4;
+  margin-top: 9px;
 }
-.stress-concentration p {
-  color: #c9c0b6;
-  font-size: 14px;
+.stress-explanation p {
+  color: var(--text-secondary);
   overflow-wrap: anywhere;
 }
-.stress-stack {
-  height: 13px;
-  display: flex;
-  gap: 3px;
-  overflow: hidden;
-  border-radius: 2px;
-  margin-bottom: 10px;
+.stress-explanation .stress-equation {
+  color: var(--text-primary);
+  font-size: 14px;
+  margin-top: 12px;
 }
-.stress-stack span {
-  flex-basis: 0;
-  transition: flex-grow 0.25s;
+.stress-explanation .stress-rounding {
+  font-size: 11px;
+  margin-top: 6px;
+  color: var(--text-muted);
 }
-.stress-breakdown,
-.stress-editor,
-.stress-receipt {
-  margin-top: 18px;
+.stress-breakdown {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--stress-line);
+}
+.stress-breakdown summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 12px 0;
+  color: var(--text-secondary);
 }
 .stress-table-wrap {
   overflow: auto;
@@ -292,22 +426,29 @@
   width: 100%;
   min-width: 540px;
   text-align: left;
-  font-size: 14px;
+  font-size: 13px;
   border-collapse: collapse;
 }
 .stress-page th,
 .stress-page td {
   padding: 12px;
-  border-bottom: 1px solid #423c36;
+  border-bottom: 1px solid var(--stress-line);
   font-weight: 400;
 }
 .stress-page thead th {
-  color: #beb5aa;
-  font-size: 14px;
+  color: var(--text-secondary);
+  font-size: 12px;
 }
 .stress-page tbody th {
   overflow-wrap: anywhere;
   max-width: 150px;
+}
+.stress-editor,
+.stress-receipt {
+  margin-top: 26px;
+  padding: 24px;
+  border: 1px solid var(--stress-line);
+  background: var(--ink-2);
 }
 .stress-edit-row {
   display: grid;
@@ -317,28 +458,28 @@
   margin: 18px 0;
 }
 .stress-edit-row label {
-  font-size: 14px;
+  font-size: 13px;
 }
 .stress-editor {
   scroll-margin-top: 100px;
 }
 .stress-editor > p,
 .stress-receipt > p {
-  color: #c9c0b6;
-  font-size: 14px;
+  color: var(--text-secondary);
+  font-size: 13px;
 }
 .stress-receipt label {
   display: flex;
   align-items: center;
   gap: 12px;
   min-height: 48px;
-  font-size: 14px;
+  font-size: 13px;
   margin: 10px 0;
 }
 .stress-receipt input[type="checkbox"] {
   width: 20px;
   height: 20px;
-  accent-color: #fa6c34;
+  accent-color: var(--orange);
 }
 .stress-receipt img {
   margin: 22px 0;
@@ -350,20 +491,20 @@
   margin-top: 28px;
   border-top: 1px solid var(--stress-line);
   padding-top: 18px;
-  font-size: 14px;
-  color: #c9c0b6;
+  font-size: 13px;
+  color: var(--text-secondary);
 }
 .stress-method summary {
   cursor: pointer;
   min-height: 44px;
-  color: #eee5d8;
+  color: var(--text-secondary);
 }
 .stress-method p {
   max-width: 95ch;
 }
 .stress-privacy {
-  color: #bdb4aa;
-  font-size: 14px;
+  color: var(--text-muted);
+  font-size: 12px;
   margin-top: 22px;
 }
 .stress-invalid {
@@ -372,29 +513,74 @@
 .stress-invalid p {
   margin-bottom: 20px;
 }
-@media (max-width: 900px) {
+.stress-mobile-summary {
+  display: none;
+}
+@media (max-width: 1050px) {
   .stress-grid {
     grid-template-columns: 1fr;
   }
+  .stress-controls {
+    padding: 0;
+  }
+  .stress-result {
+    padding: 26px 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--stress-line);
+    margin-top: 26px;
+  }
+  .stress-result > .stress-step {
+    margin-bottom: 18px;
+  }
+  .stress-dial {
+    width: min(100%, 320px);
+  }
   .stress-total {
-    font-size: 3.6rem;
+    font-size: clamp(2.6rem, 7vw, 3.6rem);
+  }
+  .stress-explanation {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .stress-mobile-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    position: sticky;
+    top: 66px;
+    z-index: 20;
+    background: var(--ink);
+    border-bottom: 1px solid var(--stress-line);
+    padding: 12px 0;
+    margin: 12px 0 0;
+  }
+  .stress-mobile-summary span {
+    display: block;
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+  .stress-mobile-summary strong {
+    font-size: 20px;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+}
+@media (max-width: 580px) {
+  .stress-page {
+    padding: 24px 20px 48px;
+  }
+  .stress-mix {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .stress-mix-legend {
+    gap: 8px 16px;
   }
   .stress-examples {
     align-items: flex-start;
-  }
-  .stress-value-bars {
-    max-width: none;
-  }
-}
-@media (max-width: 440px) {
-  .stress-edit-row {
-    grid-template-columns: 1fr auto;
-  }
-  .stress-edit-row label:first-child {
-    grid-column: 1/-1;
-  }
-  .stress-total {
-    font-size: 2.8rem;
+    margin-top: 22px;
   }
   .stress-examples .stress-actions {
     width: 100%;
@@ -402,11 +588,25 @@
   .stress-examples button {
     flex: 1;
   }
+  .stress-examples .stress-primary {
+    flex-basis: 100%;
+  }
+  .stress-control-fields {
+    grid-template-columns: minmax(0, 1.4fr) minmax(84px, 1fr);
+    gap: 8px;
+  }
+  .stress-edit-row {
+    grid-template-columns: 1fr auto;
+  }
+  .stress-edit-row label:first-child {
+    grid-column: 1/-1;
+  }
+  .stress-editor,
+  .stress-receipt {
+    padding: 18px;
+  }
   .stress-segment button {
     padding: 10px;
-  }
-  .stress-page {
-    padding-top: 22px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

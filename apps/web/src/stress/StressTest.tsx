@@ -10,6 +10,8 @@ import {
 import { useI18n, type TranslationKey } from "../i18n";
 import { examplePositions, stress, type Position, type Shock } from "./model";
 import { StressReceipt } from "./StressReceipt";
+import { StressDial } from "./StressDial";
+import { StressExplanation } from "./StressExplanation";
 import "./stress.css";
 
 export default function StressTest() {
@@ -23,6 +25,7 @@ export default function StressTest() {
     positionId: "asset-a",
   });
   const [custom, setCustom] = useState(false);
+  const [percentInput, setPercentInput] = useState("-40");
   const [editing, setEditing] = useState(false);
   const nextId = useRef(10);
   const editor = useRef<HTMLElement>(null);
@@ -34,9 +37,17 @@ export default function StressTest() {
     }).format(Number(value) / 100);
   const pct = (value: number) =>
     new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(value);
+  const invalidPercent =
+    !/^[+-]?\d{1,3}$/.test(percentInput) ||
+    Math.abs(Number(percentInput)) > 100;
   let result: ReturnType<typeof stress> | null = null;
   let error = "";
   try {
+    if (
+      !/^[+-]?\d{1,3}$/.test(percentInput) ||
+      Math.abs(Number(percentInput)) > 100
+    )
+      throw new Error("shock");
     result = stress(positions, shock);
   } catch (cause) {
     const code =
@@ -80,14 +91,20 @@ export default function StressTest() {
     });
   };
   const selected = positions.find((row) => row.id === shock.positionId);
+  const updatePercent = (percent: number) => {
+    setPercentInput(String(percent));
+    setShock((current) => ({ ...current, percent }));
+  };
+  const colors = ["#fa6c34", "#d8b778", "#7ebbae", "#9c9bc0"];
   const signed = (value: number) => `${value > 0 ? "+" : ""}${pct(value)}`;
   const signature = JSON.stringify({ positions, shock, locale });
   return (
     <div className="stress-page">
-      <header className="stress-heading">
+      <header className="stress-heading" id="stress-top" tabIndex={-1}>
         <p className="stress-kicker">{t("stress.eyebrow")}</p>
         <h1>{t("stress.title")}</h1>
         <p>{t("stress.intro")}</p>
+        <p className="stress-context">{t("stress.context")}</p>
       </header>
       <div
         className="stress-examples"
@@ -109,6 +126,44 @@ export default function StressTest() {
           </button>
         </div>
       </div>
+      {result && (
+        <section className="stress-mix" aria-labelledby="stress-mix-title">
+          <div>
+            <h2 id="stress-mix-title" className="stress-step">
+              <span aria-hidden="true">01</span>
+              {t("stress.mix")}
+            </h2>
+            <p className="stress-mix-total">
+              {money(result.before)} <span>USD</span>
+            </p>
+          </div>
+          <div>
+            <div className="stress-stack" aria-hidden="true">
+              {result.rows.map((row, i) => (
+                <span
+                  key={row.id}
+                  style={{
+                    flexGrow: Number(row.before),
+                    background: colors[i % colors.length],
+                  }}
+                />
+              ))}
+            </div>
+            <ul className="stress-mix-legend">
+              {result.rows.map((row, i) => (
+                <li key={row.id}>
+                  <i
+                    style={{ background: colors[i % colors.length] }}
+                    aria-hidden="true"
+                  />
+                  <span>{row.label}</span>
+                  <span>{pct(row.shareBps / 100)}%</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
       {result && (
         <div className="stress-mobile-summary" aria-hidden="true">
           <div>
@@ -133,7 +188,10 @@ export default function StressTest() {
           className="stress-panel stress-controls"
           aria-labelledby="stress-controls-title"
         >
-          <h2 id="stress-controls-title">{t("stress.change")}</h2>
+          <h2 id="stress-controls-title" className="stress-step">
+            <span aria-hidden="true">02</span>
+            {t("stress.change")}
+          </h2>
           <fieldset>
             <legend>{t("stress.scope")}</legend>
             <div className="stress-segment">
@@ -157,56 +215,64 @@ export default function StressTest() {
               </button>
             </div>
           </fieldset>
-          {shock.scope === "single" && (
-            <label>
-              {t("stress.choose")}
-              <select
-                value={shock.positionId}
-                onChange={(e) =>
-                  setShock({ ...shock, positionId: e.target.value })
+          <div className="stress-control-fields">
+            {shock.scope === "single" && (
+              <label>
+                {t("stress.choose")}
+                <select
+                  value={shock.positionId}
+                  onChange={(e) =>
+                    setShock({ ...shock, positionId: e.target.value })
+                  }
+                >
+                  {positions.map((row) => (
+                    <option key={row.id} value={row.id}>
+                      {row.label || "—"}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+            <label htmlFor="stress-percent">
+              {t("stress.typePercent")}
+              <input
+                id="stress-percent"
+                type="text"
+                inputMode="text"
+                maxLength={4}
+                value={percentInput}
+                aria-invalid={
+                  !/^[+-]?\d{1,3}$/.test(percentInput) ||
+                  Math.abs(Number(percentInput)) > 100
                 }
-              >
-                {positions.map((row) => (
-                  <option key={row.id} value={row.id}>
-                    {row.label || "—"}
-                  </option>
-                ))}
-              </select>
+                aria-describedby="stress-dial-help"
+                onChange={(event) => {
+                  const text = event.target.value;
+                  setPercentInput(text);
+                  if (
+                    /^[+-]?\d{1,3}$/.test(text) &&
+                    Math.abs(Number(text)) <= 100
+                  )
+                    setShock({ ...shock, percent: Number(text) });
+                }}
+              />
             </label>
-          )}
-          <label className="stress-slider-label" htmlFor="stress-shock">
-            {t("stress.move")}
-            <span
-              className={
-                shock.percent < 0 ? "stress-negative" : "stress-positive"
-              }
-            >
-              {signed(shock.percent)}%
-            </span>
-          </label>
-          <input
-            id="stress-shock"
-            type="range"
-            min="-100"
-            max="100"
-            step="1"
-            value={shock.percent}
-            onChange={(e) =>
-              setShock({ ...shock, percent: Number(e.target.value) })
-            }
-            aria-valuetext={`${signed(shock.percent)}%`}
-          />
-          <div className="stress-scale" aria-hidden="true">
-            <span>−100%</span>
-            <span>0%</span>
-            <span>+100%</span>
           </div>
+          <StressDial
+            value={shock.percent}
+            label={t("stress.move")}
+            description="stress-dial-help"
+            onChange={updatePercent}
+          />
+          <p id="stress-dial-help" className="stress-dial-help">
+            {t("stress.dialHelp")}
+          </p>
           <div className="stress-presets">
             {[-50, -30, 0, 30].map((value) => (
               <button
                 key={value}
                 aria-pressed={shock.percent === value}
-                onClick={() => setShock({ ...shock, percent: value })}
+                onClick={() => updatePercent(value)}
               >
                 {value === 0 ? t("stress.flat") : `${signed(value)}%`}
               </button>
@@ -227,6 +293,10 @@ export default function StressTest() {
         >
           {result ? (
             <>
+              <h2 className="stress-step">
+                <span aria-hidden="true">03</span>
+                {t("stress.seeImpact")}
+              </h2>
               <p>{t("stress.after")}</p>
               <output className="stress-total" data-testid="stress-after">
                 {money(result.after)}
@@ -246,6 +316,23 @@ export default function StressTest() {
                 </output>
                 <span>{t("stress.impact")}</span>
               </div>
+              <p
+                className="stress-change-amount"
+                data-testid="stress-change-amount"
+              >
+                {t(
+                  result.delta < 0n
+                    ? "stress.amountDown"
+                    : result.delta > 0n
+                      ? "stress.amountUp"
+                      : "stress.amountFlat",
+                  {
+                    amount: money(
+                      result.delta < 0n ? -result.delta : result.delta,
+                    ),
+                  },
+                )}
+              </p>
               <div className="stress-value-bars">
                 <div>
                   <span>{t("stress.before")}</span>
@@ -270,48 +357,28 @@ export default function StressTest() {
                   />
                 </div>
               </div>
-              <div className="stress-concentration">
-                <h2>{t("stress.concentration")}</h2>
-                <div className="stress-stack" aria-hidden="true">
-                  {result.rows.map((row, i) => (
-                    <span
-                      key={row.id}
-                      style={{
-                        flexGrow: row.shareBps,
-                        background: [
-                          "#fa6c34",
-                          "#d8b778",
-                          "#7ebbae",
-                          "#9c9bc0",
-                        ][i % 4],
-                      }}
-                    />
-                  ))}
-                </div>
-                <p>
-                  {t("stress.weight", {
-                    asset:
-                      result.rows.find((r) => r.id === result.largestId)
-                        ?.label ?? "—",
-                    percent: pct(result.largestShareBps / 100),
-                  })}
-                </p>
-              </div>
+              <p className="stress-result-limit">{t("stress.notForecast")}</p>
             </>
           ) : (
             <div className="stress-invalid" role="alert">
               <h2>{t("stress.editTitle")}</h2>
               <p>{error}</p>
-              <button onClick={revealEditor}>{t("stress.edit")}</button>
+              <button
+                onClick={
+                  invalidPercent
+                    ? () => document.getElementById("stress-percent")?.focus()
+                    : revealEditor
+                }
+              >
+                {t(invalidPercent ? "stress.typePercent" : "stress.edit")}
+              </button>
             </div>
           )}
         </section>
       </div>
-      <section
-        className="stress-panel stress-breakdown"
-        aria-labelledby="stress-breakdown-title"
-      >
-        <h2 id="stress-breakdown-title">{t("stress.details")}</h2>
+      {result && <StressExplanation result={result} shock={shock} />}
+      <details className="stress-panel stress-breakdown">
+        <summary id="stress-breakdown-title">{t("stress.details")}</summary>
         {result ? (
           <div
             className="stress-table-wrap"
@@ -352,7 +419,7 @@ export default function StressTest() {
         ) : (
           <p>{error}</p>
         )}
-      </section>
+      </details>
       {editing && (
         <section
           ref={editor}
@@ -396,6 +463,16 @@ export default function StressTest() {
             </div>
           ))}
           <div className="stress-actions">
+            <button
+              className="stress-primary"
+              disabled={!result}
+              onClick={() => {
+                setEditing(false);
+                document.getElementById("stress-top")?.focus();
+              }}
+            >
+              {t("stress.done")}
+            </button>
             <button
               disabled={positions.length >= 10}
               onClick={() => {
