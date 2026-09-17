@@ -1,3 +1,5 @@
+> **Opsis (working name).** This private repository starts from ChainScout's code as an additive pivot. The product direction, scope and build order are in [docs/opsis/](docs/opsis/README.md). Everything below this note is the inherited ChainScout README; update it when the rebrand release ships.
+
 <p align="center">
   <img src="docs/assets/chainscout-source.svg" alt="ChainScout — public facts, private context. Explore, understand, keep privately." width="100%" />
 </p>
