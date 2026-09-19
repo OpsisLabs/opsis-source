@@ -297,6 +297,22 @@
       ],
       "outcome": "Compare the largest observed trades for a token or wallet and follow the public addresses involved",
       "shipGate": "Largest observed amounts come from bounded, timestamped, source-linked decoded Uniswap V3 Swap logs with signed amount0/amount1 for explicit pools and an explicit block window, not from raw ERC-20 transfer records. Matched-log caps, partial coverage, missing or out-of-window records, failed transactions and unknown counterparties remain distinct; ranking never infers buys, sells, identity, coordination or profit. Public participant addresses reuse the release 23 chain-aware follow action with no automatic lookup or save, and ranking is deterministic, excluding zero, dead and classified-contract addresses. Locked/disabled ownership, English/Chinese and mobile are tested; no signing, new provider, polling or recurring spend."
+    },
+    {
+      "order": 27,
+      "id": "26-opsis-workspaces",
+      "branch": "codex/26-opsis-workspaces",
+      "tagPrefix": "rc/26-opsis-workspaces/",
+      "status": "queued",
+      "dependencies": [
+        "25-biggest-trades",
+        "03-encrypted-vault",
+        "14-scout-watch",
+        "21-explorer-answers",
+        "24-exit-check"
+      ],
+      "outcome": "Use the Opsis four-workspace frontend with existing ChainScout research, exit quotes, private Watch and Saved workflows",
+      "shipGate": "A default-off, access-restricted Opsis preview reuses the existing engines, flags and privacy boundaries. Research and Trade Check preserve public identity across handoffs without leaking amounts or private context into URLs. Watch and Vault reuse encrypted storage; Quant Lab clearly distinguishes the frozen capture from unimplemented experiments. Electric-blue responsive navigation, light/dark themes, keyboard paths, unavailable/error states, English/Chinese and Chromium/WebKit flows pass tests. No new provider, execution, chain, paid path, migration, or change to frozen /quant artifacts. Full release gate and release-specific evidence required before activation or staging."
     }
   ]
 }
