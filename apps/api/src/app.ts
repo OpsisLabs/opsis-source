@@ -1,3 +1,4 @@
+import { opsisRoutes, installOpsisPreviewGuard } from "./routes/opsis.js";
 import cors from "@fastify/cors";
 import cookie from "@fastify/cookie";
 import helmet from "@fastify/helmet";
@@ -94,6 +95,7 @@ export async function buildApp(
     }, "request summary");
   });
   installErrorHandler(app);
+  installOpsisPreviewGuard(app, env);
   const redis = env.REDIS_URL
     ? new Redis(env.REDIS_URL, { lazyConnect: true, enableOfflineQueue: false, maxRetriesPerRequest: 1 })
     : undefined;
@@ -154,6 +156,7 @@ export async function buildApp(
   }
   if (env.ENABLE_METRICS) await installMetrics(app);
   await healthRoutes(app, env, prisma, redis);
+  await opsisRoutes(app, env);
   await openDataRoutes(app, env, redis, dependencies?.openDataLimiter);
   await privateRoutes(app, env, prisma, cache, dependencies?.privateAnalysis);
   await portfolioRoutes(

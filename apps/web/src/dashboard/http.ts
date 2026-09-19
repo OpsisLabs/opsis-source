@@ -3,6 +3,7 @@
  * cookies; JavaScript never reads, stores, or serializes either token.
  */
 
+import { opsisPreviewAuthorization } from "../opsis/preview-token";
 import { dealPreviewAuthorization } from "../deals/preview-token";
 import { translateCurrent } from "../i18n/translate";
 const BASE = import.meta.env.VITE_API_BASE_URL ?? "";
@@ -217,7 +218,7 @@ export async function privateApi<T>(
     "content-type": "application/json",
     "x-chainscout-csrf": "1",
   });
-  const previewAuthorization = dealPreviewAuthorization(path);
+  const previewAuthorization = opsisPreviewAuthorization(path) ?? dealPreviewAuthorization(path);
   if (previewAuthorization) headers.set("authorization", previewAuthorization);
   const response = await fetch(`${BASE}${path}`, {
     method: "POST",

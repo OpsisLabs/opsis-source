@@ -5,6 +5,7 @@ import RouteMetadata from "./RouteMetadata";
 import { isOpenDataApiEnabled } from "./product/availability";
 import { useI18n } from "./i18n";
 
+const OpsisApp = lazy(() => import("./opsis/OpsisApp"));
 const Roadmap = lazy(() => import("./pages/Roadmap"));
 const ScoutSwap = lazy(() => import("./pages/ScoutSwap"));
 const TradeSimulator = lazy(() => import("./simulator/TradeSimulator"));
@@ -80,6 +81,7 @@ function DeferredPage({ children }: { children: ReactNode }) {
 }
 
 export default function App() {
+  if (import.meta.env.VITE_OPSIS_WORKSPACES_ENABLED === "true") return <DeferredPage><OpsisApp /></DeferredPage>;
   return (
     <>
       <RouteMetadata />
