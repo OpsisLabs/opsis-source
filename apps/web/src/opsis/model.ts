@@ -44,10 +44,17 @@ export async function unlockPreview(
   if (!response.ok) throw new Error("Preview unavailable");
   const data: Capabilities = await response.json();
   const expires = Date.parse(data.expiresAt);
+  const receivedAt = Date.now();
+  // HTTP Date has whole-second precision. Validate the server's lifetime against
+  // its own clock, then cap our local session to one hour independently.
+  const dateHeader = response.headers.get("date");
+  const serverNow = dateHeader === null ? receivedAt : Date.parse(dateHeader);
+  const latestExpiry = serverNow + 3_600_000 + (dateHeader === null ? 0 : 999);
   if (
     !Number.isFinite(expires) ||
-    expires <= Date.now() ||
-    expires > Date.now() + 3_600_000 ||
+    !Number.isFinite(serverNow) ||
+    expires <= receivedAt ||
+    expires > latestExpiry ||
     data.chainId !== 4663 ||
     data.perpExecution !== false ||
     [
@@ -60,5 +67,10 @@ export async function unlockPreview(
   ) {
     throw new Error("Invalid preview response");
   }
-  return data;
+  return {
+    ...data,
+    expiresAt: new Date(
+      Math.min(expires, receivedAt + 3_600_000),
+    ).toISOString(),
+  };
 }
