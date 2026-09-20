@@ -80,3 +80,12 @@ it("rejects expired, excessive and malformed lifetimes with or without a server 
     ).rejects.toThrow("Invalid preview response");
   }
 });
+it("public capability requests omit credentials and keep CSRF protection", async () => {
+  const fetcher = vi.fn().mockResolvedValue(response(Date.now() + 60_000));
+  vi.stubGlobal("fetch", fetcher);
+  await unlockPreview("", new AbortController().signal);
+  const options = fetcher.mock.calls[0][1];
+  expect(options.credentials).toBe("omit");
+  expect(options.headers.authorization).toBeUndefined();
+  expect(options.headers["x-chainscout-csrf"]).toBe("1");
+});

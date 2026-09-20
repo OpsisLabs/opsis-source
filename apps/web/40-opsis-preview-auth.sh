@@ -2,7 +2,9 @@
 set -eu
 # The Opsis build embeds this switch. Missing runtime protection fails startup.
 access_config=/etc/nginx/opsis-preview-access.conf
-if [ "${OPSIS_PRIVATE_PREVIEW:-false}" = "true" ]; then
+if [ "${OPSIS_PUBLIC_ACCESS_ENABLED:-false}" = "true" ]; then
+  printf '%s\n' 'auth_basic off; # Founder-authorized public Opsis preview (D13).' > "$access_config"
+elif [ "${OPSIS_PRIVATE_PREVIEW:-false}" = "true" ]; then
   : "${OPSIS_INGRESS_PASSWORD_HASH:?Private Opsis preview requires an ingress password hash}"
   case "$OPSIS_INGRESS_PASSWORD_HASH" in
     \$apr1\$*) ;;

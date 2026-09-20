@@ -34,7 +34,7 @@ export async function unlockPreview(
       cache: "no-store",
       signal,
       headers: {
-        authorization: `Preview ${key}`,
+        ...(key ? { authorization: `Preview ${key}` } : {}),
         "content-type": "application/json",
         "x-chainscout-csrf": "1",
       },

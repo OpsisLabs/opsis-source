@@ -27,6 +27,9 @@ import { setOpsisPreviewToken } from "./preview-token";
 import OriginalLanding from "./OriginalLanding";
 import "./opsis.css";
 
+const publicAccess =
+  import.meta.env.VITE_OPSIS_PUBLIC_ACCESS_ENABLED === "true";
+
 const SituationRoom = lazy(() => import("../situation/SituationRoom"));
 const Research = lazy(() => import("./Research"));
 const TradeCheck = lazy(() => import("./TradeCheck"));
@@ -206,7 +209,7 @@ export default function OpsisApp() {
     const lock = () => {
       setOpsisPreviewToken("");
       setAccess(null);
-      setError(true);
+      setError(!publicAccess);
     };
     const timer = window.setTimeout(lock, Math.max(0, expires - Date.now()));
     const wake = () => {
@@ -230,7 +233,7 @@ export default function OpsisApp() {
     pending.current = controller;
     setBusy(true);
     setError(false);
-    const credential = key;
+    const credential = publicAccess ? "" : key;
     setKey("");
     try {
       const result = await unlockPreview(credential, controller.signal);
@@ -244,15 +247,32 @@ export default function OpsisApp() {
       if (!controller.signal.aborted) setBusy(false);
     }
   }
+  useEffect(() => {
+    if (!publicAccess || access || error) return;
+    const controller = new AbortController();
+    pending.current = controller;
+    void unlockPreview("", controller.signal)
+      .then((result) => {
+        if (!controller.signal.aborted) setAccess(result);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setError(true);
+      });
+    return () => controller.abort();
+  }, [access, error]);
   return (
     <>
       {access && (
         <OriginalLanding
-          onLock={() => {
-            setOpsisPreviewToken("");
-            setAccess(null);
-            setError(false);
-          }}
+          onLock={
+            publicAccess
+              ? undefined
+              : () => {
+                  setOpsisPreviewToken("");
+                  setAccess(null);
+                  setError(false);
+                }
+          }
         />
       )}
       <div
@@ -282,7 +302,7 @@ export default function OpsisApp() {
             <button onClick={() => setLocale(locale === "en" ? "zh-CN" : "en")}>
               {locale === "en" ? "中文" : "English"}
             </button>
-            {access && (
+            {access && !publicAccess && (
               <button
                 onClick={() => {
                   setOpsisPreviewToken("");
@@ -295,7 +315,22 @@ export default function OpsisApp() {
             )}
           </div>
         </header>
-        {!access ? (
+        {!access && publicAccess ? (
+          <main id="opsis-content" className="opsis-unlock">
+            {error ? (
+              <>
+                <p role="alert">
+                  {c("Opsis is temporarily unavailable.", "Opsis 暂时不可用。")}
+                </p>
+                <button onClick={() => setError(false)}>
+                  {c("Retry", "重试")}
+                </button>
+              </>
+            ) : (
+              <p role="status">{c("Loading Opsis…", "正在加载 Opsis…")}</p>
+            )}
+          </main>
+        ) : !access ? (
           <main id="opsis-content" className="opsis-unlock">
             <p className="opsis-kicker">
               OPSIS / {c("PRIVATE PREVIEW", "私密预览")}
@@ -362,8 +397,12 @@ export default function OpsisApp() {
             </div>
             <div className="opsis-preview-note">
               {c(
-                "PRIVATE PREVIEW · Test data only · Robinhood Chain 4663",
-                "私密预览 · 仅限测试数据 · Robinhood Chain 4663",
+                publicAccess
+                  ? "PREVIEW · Robinhood Chain 4663"
+                  : "PRIVATE PREVIEW · Test data only · Robinhood Chain 4663",
+                publicAccess
+                  ? "预览 · Robinhood Chain 4663"
+                  : "私密预览 · 仅限测试数据 · Robinhood Chain 4663",
               )}
             </div>
             <main id="opsis-content" className="opsis-content" tabIndex={-1}>

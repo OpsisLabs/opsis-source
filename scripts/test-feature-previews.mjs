@@ -19,12 +19,16 @@ const features = [
   { source: "apps/web/src/deals/DealBrief.tsx", flag: "VITE_COLLECTIBLE_DEAL_FINDER_ENABLED", file: "e2e/vault.mock.spec.ts", grep: "deal finder" },
   { source: "apps/web/src/trades/BiggestTrades.tsx", flag: "VITE_OBSERVED_TRADES_ENABLED", also: ["VITE_SCOUT_WATCH_ENABLED"], file: "e2e/biggest-trades.mock.spec.ts", grep: "biggest observed trades" },
 ];
-const baseEnv = { ...process.env, PW_APP_PORT: String(port), CHAINSCOUT_FEATURE_PREVIEW: "1" };
+const baseEnv = { ...process.env, VITE_OPSIS_PUBLIC_ACCESS_ENABLED: "false", PW_APP_PORT: String(port), CHAINSCOUT_FEATURE_PREVIEW: "1" };
 for (const feature of features) baseEnv[feature.flag] = "false";
 for (const engine of ["chromium", "webkit"]) {
   const config = engine === "webkit" ? ["--config", "playwright.webkit.config.ts"] : [];
   const opsisClosed = spawnSync("pnpm", ["exec", "playwright", "test", ...config, "e2e/opsis.mock.spec.ts", "--grep", "closed by default"], { cwd: root, stdio: "inherit", env: baseEnv });
   if (opsisClosed.status !== 0) process.exit(opsisClosed.status ?? 1);
+  const publicOpsis = spawnSync("pnpm", ["exec", "playwright", "test", ...config, "e2e/opsis-public.mock.spec.ts"], {
+    cwd: root, stdio: "inherit", env: { ...baseEnv, VITE_OPSIS_WORKSPACES_ENABLED: "true", VITE_OPSIS_PUBLIC_ACCESS_ENABLED: "true", VITE_SCOUT_WATCH_ENABLED: "true" },
+  });
+  if (publicOpsis.status !== 0) process.exit(publicOpsis.status ?? 1);
   const stressClosed = spawnSync("pnpm", ["exec", "playwright", "test", ...config, "e2e/stress-test.mock.spec.ts", "--grep", "closed by default"], {cwd: root, stdio: "inherit", env: baseEnv});
   if (stressClosed.status !== 0) process.exit(stressClosed.status ?? 1);
   if (existsSync(join(root, "e2e/quant.mock.spec.ts"))) {

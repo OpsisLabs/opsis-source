@@ -10,6 +10,9 @@ export function authorizeOpsisPreview(
   authorization?: string,
   now = Date.now(),
 ): number {
+  // D13: public access removes only the deployment password, not feature gates.
+  if (env.OPSIS_WORKSPACES_ENABLED && env.OPSIS_PUBLIC_ACCESS_ENABLED)
+    return now + 3_600_000;
   const key = /^Preview ([a-f0-9]{64})$/.exec(authorization ?? "")?.[1];
   const hash = env.OPSIS_PREVIEW_HASH;
   const expires = Date.parse(env.OPSIS_PREVIEW_EXPIRES_AT ?? "");

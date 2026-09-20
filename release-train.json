@@ -312,7 +312,7 @@
         "24-exit-check"
       ],
       "outcome": "Use the Opsis four-workspace frontend with existing ChainScout research, exit quotes, private Watch and Saved workflows",
-      "shipGate": "A default-off, access-restricted Opsis preview reuses the existing engines, flags and privacy boundaries. Research and Trade Check preserve public identity across handoffs without leaking amounts or private context into URLs. Watch and Vault reuse encrypted storage; Quant Lab clearly distinguishes the frozen capture from unimplemented experiments. Electric-blue responsive navigation, light/dark themes, keyboard paths, unavailable/error states, English/Chinese and Chromium/WebKit flows pass tests. No new provider, execution, chain, paid path, migration, or change to frozen /quant artifacts. Full release gate and release-specific evidence required before activation or staging."
+      "shipGate": "A default-off Opsis preview (public access explicitly authorized by D13 for the isolated Railway deployment) reuses the existing engines, flags and privacy boundaries. Research and Trade Check preserve public identity across handoffs without leaking amounts or private context into URLs. Watch and Vault reuse encrypted storage; Quant Lab clearly distinguishes the frozen capture from unimplemented experiments. Electric-blue responsive navigation, light/dark themes, keyboard paths, unavailable/error states, English/Chinese and Chromium/WebKit flows pass tests. No new provider, execution, chain, paid path, migration, or change to frozen /quant artifacts. Full release gate and release-specific evidence required before activation or staging."
     }
   ]
 }

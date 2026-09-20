@@ -17,7 +17,7 @@ const destinations: Record<string, string> = {
 
 /** Preserve the original film and scroll state without exposing preview credentials.
  * Events are bound to this exact same-origin document, never the host window. */
-export default function OriginalLanding({ onLock }: { onLock: () => void }) {
+export default function OriginalLanding({ onLock }: { onLock?: () => void }) {
   const frame = useRef<HTMLIFrameElement>(null);
   const cleanup = useRef<(() => void) | null>(null);
   const navigate = useNavigate();
@@ -44,7 +44,7 @@ export default function OriginalLanding({ onLock }: { onLock: () => void }) {
         return;
       const data = (event as CustomEvent).detail;
       if (data?.type === "opsis:lock") {
-        onLock();
+        onLock?.();
         return;
       }
       if (
@@ -62,6 +62,8 @@ export default function OriginalLanding({ onLock }: { onLock: () => void }) {
           : path,
       );
     };
+    const lock = document.getElementById("lock-preview");
+    if (lock) lock.hidden = !onLock;
     document.addEventListener("opsis:navigate", receive);
     cleanup.current = () =>
       document.removeEventListener("opsis:navigate", receive);

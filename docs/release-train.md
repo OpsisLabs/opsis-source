@@ -31,6 +31,10 @@ pnpm release:gate
 
 This runs lint, type checks, unit tests, the production build, and mock browser E2E. Do not point Railway staging at the branch until it passes.
 
+## Founder-authorized Opsis exception
+
+D13 in `docs/opsis/decisions.md` authorizes password-free public access to the existing isolated Opsis preview and already-enabled tools. The access-restriction clauses below do not apply to that deployment. Release order, full-gate requirements, feature flags, quotas and Vault encryption remain in force.
+
 ## Private previews
 
 A passing queued branch may be tested on an explicitly authorized private preview,

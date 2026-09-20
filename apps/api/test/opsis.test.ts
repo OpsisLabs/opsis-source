@@ -171,3 +171,70 @@ it("leaves existing private routes unchanged when preview is disabled", async ()
     await app.close();
   }
 });
+
+it("public access requires explicit enablement and preserves disabled workspaces", () => {
+  const config = { ...env(), OPSIS_PUBLIC_ACCESS_ENABLED: true };
+  expect(authorizeOpsisPreview(config, undefined, 1000)).toBe(3_601_000);
+  expect(() =>
+    authorizeOpsisPreview({ ...config, OPSIS_WORKSPACES_ENABLED: false }),
+  ).toThrow();
+  expect(env().OPSIS_PUBLIC_ACCESS_ENABLED).toBe(false);
+});
+it("public access permits anonymous research while retaining capabilities and CSRF", async () => {
+  const app = await buildApp({
+    ...env(),
+    OPSIS_PUBLIC_ACCESS_ENABLED: true,
+    CSRF_PROTECTION_ENABLED: true,
+  });
+  try {
+    const url = "/v1/private/opsis/access";
+    expect(
+      (await app.inject({ method: "POST", url, payload: {} })).statusCode,
+    ).toBe(403);
+    const result = await app.inject({
+      method: "POST",
+      url,
+      headers: { origin: "http://localhost:5173", "x-chainscout-csrf": "1" },
+      payload: {},
+    });
+    expect(result.statusCode).toBe(200);
+    expect(result.json()).toMatchObject({
+      research: true,
+      exitCheck: false,
+      perpExecution: false,
+    });
+    expect(result.headers["cache-control"]).toBe("private, no-store");
+    // Feature-level gates still reject disabled quotes before provider work.
+    const quote = await app.inject({
+      method: "POST",
+      url: "/v1/private/exit-check/quote",
+      headers: { origin: "http://localhost:5173", "x-chainscout-csrf": "1" },
+      payload: {},
+    });
+    expect(quote.statusCode).toBe(404);
+  } finally {
+    await app.close();
+  }
+});
+it("public mode lets anonymous requests reach reused read-only engines", async () => {
+  const app = Fastify();
+  installErrorHandler(app);
+  installOpsisPreviewGuard(app, {
+    ...env(),
+    OPSIS_PUBLIC_ACCESS_ENABLED: true,
+  });
+  app.post("/v1/private/analyze", () => ({ ok: true }));
+  try {
+    expect(
+      (
+        await app.inject({
+          method: "POST",
+          url: "/v1/private/analyze",
+          payload: {},
+        })
+      ).statusCode,
+    ).toBe(200);
+  } finally {
+    await app.close();
+  }
+});
