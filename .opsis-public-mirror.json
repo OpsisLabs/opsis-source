@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "3a872d861d19467481e290eaca2ca63ecd4999efd2412e0d69bc0e1112dfff33",
+  "sourceTreeDigest": "d0ca625d7e5607c632e2d7e4f6c430c59c2ae3aa39d707d8658e56df9fd41bbe",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "8a176662769853374eca5d3aa11034bdad891f75bd511a2020a44c6bbf2bcaf6",
@@ -607,7 +607,7 @@
     "scripts/test-load-smoke.mjs": "ab4966fdf17e3df35bba94dfea9f7b9e9715221473a16325b825f0bef8476825",
     "scripts/test-notification-workflow.mjs": "63672f76f74e18454a349cac0da39b67e076d0897002d662df26f6314a582350",
     "scripts/test-opsis-ingress.mjs": "a11d6cfde26df704c34637177b30ccecdbeef83424ed31e8774058073735d067",
-    "scripts/test-opsis-public-ingress.mjs": "f2973be9b19128f4b48ffc594a2f7845d03904ae57eb509781dcfe33a97cc72f",
+    "scripts/test-opsis-public-ingress.mjs": "9cb56094331ec554833a32ee3e71f7ced4dc5c16e01bddee867ddfffb107a8c0",
     "scripts/test-private-launch-smoke.mjs": "d2ac6d1fb1e34f3322402d36f69189bda43af33dcc4a63ccdb011b02dfbd52b5",
     "scripts/test-public-export.mjs": "e08bb7eea248a0dbd981a374a3293261f2d614ea6ae683aecbd56d8bb75649ee",
     "scripts/test-public-history.mjs": "a1abcc2959382e85e5ade30bda7e702a5dd0ebf902f9b02aad8a8a744bfe2ac2",
