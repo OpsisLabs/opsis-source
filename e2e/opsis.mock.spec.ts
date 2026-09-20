@@ -98,7 +98,9 @@ async function unlock(page: Page, path = "/") {
   await page.getByLabel("Preview access key").fill(key);
   await page.getByRole("button", { name: "Open preview", exact: true }).click();
   await expect(
-    page.getByRole("navigation", { name: "Workspaces", exact: true }),
+    path === "/"
+      ? page.getByTitle("Opsis overview — interactive chain")
+      : page.getByRole("navigation", { name: "Workspaces", exact: true }),
   ).toBeVisible();
 }
 function research() {
@@ -303,6 +305,16 @@ test.describe("opsis preview", () => {
   }) => {
     await access(page, { exitCheck: false, watch: false });
     await unlock(page);
+    const overview = page.frameLocator(
+      'iframe[title="Opsis overview — interactive chain"]',
+    );
+    await expect(
+      overview.getByRole("heading", { name: "See the bigger picture." }),
+    ).toBeVisible();
+    await overview
+      .getByRole("navigation", { name: "Workspaces" })
+      .getByRole("button", { name: "Research", exact: true })
+      .click();
     await page.screenshot({
       path: "test-results/opsis-home.png",
       fullPage: true,
@@ -348,6 +360,99 @@ test.describe("opsis preview", () => {
         .getByRole("navigation", { name: "工作区", exact: true })
         .getByRole("link", { name: "研究", exact: true }),
     ).toBeVisible();
+  });
+  test("original film preserves scroll, opens real tools and rejects untrusted navigation", async ({
+    page,
+  }) => {
+    await access(page);
+    let lookups = 0;
+    await page.route("**/v1/private/analyze", (route) => {
+      lookups++;
+      return route.abort();
+    });
+    await unlock(page);
+    const overview = page.frameLocator(
+      'iframe[title="Opsis overview — interactive chain"]',
+    );
+    await expect(overview.locator("#scanner")).toBeAttached();
+    await expect(
+      overview.getByRole("heading", { name: "See the bigger picture." }),
+    ).toBeVisible();
+    await expect(overview.locator("#index-list button")).toHaveCount(6);
+    await expect(overview.locator("#scanner")).toHaveAttribute(
+      "data-state",
+      "ready",
+    );
+    await expect(overview.locator("#poster")).toHaveCSS("opacity", "0");
+    await page.screenshot({ path: "output/opsis-restored-desktop.png" });
+    for (const width of [320, 390, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      if (width === 390)
+        await page.screenshot({ path: "output/opsis-restored-mobile.png" });
+      expect(
+        await overview
+          .locator("html")
+          .evaluate((el) => el.scrollWidth - window.innerWidth),
+      ).toBeLessThanOrEqual(1);
+    }
+    // Parent/sibling windows cannot impersonate the landing frame.
+    await page.evaluate(() =>
+      window.postMessage(
+        { type: "opsis:open-tool", tool: "saved" },
+        location.origin,
+      ),
+    );
+    await expect(page).toHaveURL(/\/$/);
+    await overview
+      .locator("body")
+      .evaluate(() =>
+        document.dispatchEvent(
+          new CustomEvent("opsis:navigate", {
+            detail: { type: "opsis:open-tool", tool: "https://example.com/" },
+          }),
+        ),
+      );
+    await expect(page).toHaveURL(/\/$/);
+    await overview.locator("#public-entity").fill(TOKEN);
+    await overview.locator("#public-search button").click();
+    await expect(page).toHaveURL(new RegExp(`/research\\?entity=${TOKEN}$`));
+    await expect(page.locator("#research-entity")).toHaveValue(TOKEN);
+    expect(lookups).toBe(0);
+    await page.getByRole("link", { name: "Back to overview" }).click();
+    const scroll = await overview
+      .locator("body")
+      .evaluate(() => window.scrollY);
+    expect(scroll).toBeGreaterThan(0);
+    await overview
+      .locator("#index-list button")
+      .filter({ hasText: "Swap Lab" })
+      .click();
+    await expect(page).toHaveURL(/\/check$/);
+    await expect(
+      page.getByRole("button", { name: "Run a check", exact: true }),
+    ).toBeVisible();
+    await page.getByRole("link", { name: "Back to overview" }).click();
+    await expect(overview.locator("#terminal")).not.toBeVisible();
+    expect(
+      await overview.locator("body").evaluate(() => window.scrollY),
+    ).toBeGreaterThan(0);
+    await overview.locator("#sidebar-toggle").focus();
+    // WebKit opens the hover menu on keyboard focus; Chromium may wait for Enter.
+    if (
+      (await overview
+        .locator("#sidebar-toggle")
+        .getAttribute("aria-expanded")) === "false"
+    )
+      await overview.locator("#sidebar-toggle").press("Enter");
+    await expect(overview.locator("#sidebar-toggle")).toHaveAttribute(
+      "aria-expanded",
+      "true",
+    );
+    await overview.locator("#lock-preview").click();
+    await expect(page.getByLabel("Preview access key")).toBeVisible();
+    await expect(
+      page.getByTitle("Opsis overview — interactive chain"),
+    ).toHaveCount(0);
   });
   test("new screens have accessible keyboard controls and contrast in both themes", async ({
     page,

@@ -24,8 +24,10 @@ import {
   type Capabilities,
 } from "./model";
 import { setOpsisPreviewToken } from "./preview-token";
+import OriginalLanding from "./OriginalLanding";
 import "./opsis.css";
 
+const SituationRoom = lazy(() => import("../situation/SituationRoom"));
 const Research = lazy(() => import("./Research"));
 const TradeCheck = lazy(() => import("./TradeCheck"));
 const Watch = lazy(() => import("../watch/ScoutWatch"));
@@ -88,86 +90,6 @@ function PublicSearch({ hero = false }: { hero?: boolean }) {
         {c("Research →", "研究 →")}
       </button>
     </form>
-  );
-}
-function Home() {
-  const c = useCopy();
-  return (
-    <>
-      <section className="opsis-hero">
-        <img src="/opsis/chain-poster.webp" alt="" aria-hidden="true" />
-        <div className="opsis-hero-copy">
-          <p className="opsis-kicker">
-            OPSIS / {c("PRIVATE PREVIEW", "私密预览")}
-          </p>
-          <h1>
-            {c("See the evidence.\nCheck the trade.", "看清证据。\n核查交易。")}
-          </h1>
-          <p>
-            {c(
-              "A workspace for the questions behind your next move.",
-              "在行动之前，找到问题的依据。",
-            )}
-          </p>
-          <PublicSearch hero />
-          <p className="opsis-small">
-            {c(
-              "Research needs no account or wallet connection. Public identifiers are sent only when you run a lookup.",
-              "研究无需账户或连接钱包。仅在运行查询时发送公开标识符。",
-            )}
-          </p>
-        </div>
-      </section>
-      <section
-        className="opsis-workspaces"
-        aria-label={c("Workspaces", "工作区")}
-      >
-        {[
-          [
-            "01",
-            "/research",
-            c("Research", "研究"),
-            c("What can the evidence tell me?", "证据能告诉我什么？"),
-          ],
-          [
-            "02",
-            "/check",
-            c("Trade Check", "交易核查"),
-            c(
-              "What output is observed at my size?",
-              "以我的数量能观察到多少输出？",
-            ),
-          ],
-          [
-            "03",
-            "/watch",
-            c("Watch", "观察"),
-            c(
-              "What changed since my last snapshot?",
-              "与上次快照相比发生了什么变化？",
-            ),
-          ],
-          [
-            "04",
-            "/lab",
-            c("Quant Lab", "量化实验室"),
-            c("Which data can support an experiment?", "哪些数据能支持实验？"),
-          ],
-        ].map(([n, path, title, description]) => (
-          <Link key={path} to={path}>
-            <span className="opsis-kicker">{n} ↗</span>
-            <h2>{title}</h2>
-            <p>{description}</p>
-          </Link>
-        ))}
-      </section>
-      <p className="opsis-muted">
-        {c(
-          "Preview foundation: existing ChainScout engines connected to Opsis. No live news feed or curated worked example is connected yet.",
-          "预览基础版：已将现有 ChainScout 引擎接入 Opsis。实时新闻和经过核实的示例尚未接入。",
-        )}
-      </p>
-    </>
   );
 }
 function Lab() {
@@ -298,6 +220,10 @@ export default function OpsisApp() {
       document.removeEventListener("visibilitychange", wake);
     };
   }, [access]);
+  useEffect(() => {
+    if (access && location.pathname !== "/")
+      document.getElementById("opsis-content")?.focus();
+  }, [access, location.pathname]);
   async function unlock() {
     pending.current?.abort();
     const controller = new AbortController();
@@ -319,302 +245,339 @@ export default function OpsisApp() {
     }
   }
   return (
-    <div className="opsis" data-theme={theme}>
-      <a href="#opsis-content" className="opsis-skip">
-        {c("Skip to content", "跳至内容")}
-      </a>
-      <header className="opsis-header">
-        <Link to="/" className="opsis-logo">
-          OPSIS
-        </Link>
-        <div className="opsis-controls">
-          <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-            {theme === "dark"
-              ? c("Light theme", "浅色主题")
-              : c("Dark theme", "深色主题")}
-          </button>
-          <button onClick={() => setLocale(locale === "en" ? "zh-CN" : "en")}>
-            {locale === "en" ? "中文" : "English"}
-          </button>
-          {access && (
+    <>
+      {access && (
+        <OriginalLanding
+          onLock={() => {
+            setOpsisPreviewToken("");
+            setAccess(null);
+            setError(false);
+          }}
+        />
+      )}
+      <div
+        className={`opsis ${access ? (location.pathname === "/" ? "opsis-overview" : "opsis-terminal") : ""}`}
+        data-theme={theme}
+      >
+        {access && location.pathname !== "/" && (
+          <Link to="/" className="opsis-back">
+            ← Back to overview
+          </Link>
+        )}
+        <a href="#opsis-content" className="opsis-skip">
+          {c("Skip to content", "跳至内容")}
+        </a>
+        <header className="opsis-header">
+          <Link to="/" className="opsis-logo">
+            OPSIS
+          </Link>
+          <div className="opsis-controls">
             <button
-              onClick={() => {
-                setOpsisPreviewToken("");
-                setAccess(null);
-                setError(false);
-              }}
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             >
-              {c("Lock preview", "锁定预览")}
+              {theme === "dark"
+                ? c("Light theme", "浅色主题")
+                : c("Dark theme", "深色主题")}
             </button>
-          )}
-        </div>
-      </header>
-      {!access ? (
-        <main id="opsis-content" className="opsis-unlock">
-          <p className="opsis-kicker">
-            OPSIS / {c("PRIVATE PREVIEW", "私密预览")}
-          </p>
-          <h1>{c("Your tools,\none clear view.", "所有工具，\n一目了然。")}</h1>
-          <p>
-            {c(
-              "An access key is required for this preparation build. Use test-only data. This is not an account or a wallet connection.",
-              "此准备版本需要访问密钥。请仅使用测试数据。这不是账户或钱包连接。",
+            <button onClick={() => setLocale(locale === "en" ? "zh-CN" : "en")}>
+              {locale === "en" ? "中文" : "English"}
+            </button>
+            {access && (
+              <button
+                onClick={() => {
+                  setOpsisPreviewToken("");
+                  setAccess(null);
+                  setError(false);
+                }}
+              >
+                {c("Lock preview", "锁定预览")}
+              </button>
             )}
-          </p>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              void unlock();
-            }}
-          >
-            <label htmlFor="opsis-key">
-              {c("Preview access key", "预览访问密钥")}
-            </label>
-            <input
-              id="opsis-key"
-              type="password"
-              autoComplete="off"
-              value={key}
-              onChange={(e) => setKey(e.target.value)}
-            />
-            <button
-              className="opsis-action"
-              disabled={busy || !/^[a-f0-9]{64}$/.test(key)}
-            >
-              {busy
-                ? c("Checking…", "正在核查…")
-                : c("Open preview", "打开预览")}
-            </button>
-          </form>
-          {error && (
-            <p role="alert">
+          </div>
+        </header>
+        {!access ? (
+          <main id="opsis-content" className="opsis-unlock">
+            <p className="opsis-kicker">
+              OPSIS / {c("PRIVATE PREVIEW", "私密预览")}
+            </p>
+            <h1>
+              {c("Your tools,\none clear view.", "所有工具，\n一目了然。")}
+            </h1>
+            <p>
               {c(
-                "Preview unavailable or expired. Check the key and server configuration, then retry.",
-                "预览不可用或已过期。请检查密钥和服务器配置后重试。",
+                "An access key is required for this preparation build. Use test-only data. This is not an account or a wallet connection.",
+                "此准备版本需要访问密钥。请仅使用测试数据。这不是账户或钱包连接。",
               )}
             </p>
-          )}
-        </main>
-      ) : (
-        <>
-          <div className="opsis-navigation">
-            <nav aria-label={c("Workspaces", "工作区")}>
-              {[
-                ["/research", c("Research", "研究")],
-                ["/check", c("Trade Check", "交易核查")],
-                ["/watch", c("Watch", "观察")],
-                ["/lab", c("Quant Lab", "量化实验室")],
-              ].map(([path, label]) => (
-                <NavLink key={path} to={path}>
-                  {label}
-                </NavLink>
-              ))}
-            </nav>
-            <PublicSearch />
-          </div>
-          <div className="opsis-preview-note">
-            {c(
-              "PRIVATE PREVIEW · Test data only · Robinhood Chain 4663",
-              "私密预览 · 仅限测试数据 · Robinhood Chain 4663",
-            )}
-          </div>
-          <main id="opsis-content" className="opsis-content">
-            <Suspense
-              fallback={
-                <p role="status">
-                  {c("Loading workspace…", "正在加载工作区…")}
-                </p>
-              }
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                void unlock();
+              }}
             >
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route
-                  path="/research"
-                  element={
-                    access.research ? (
-                      <Research key={location.search} capabilities={access} />
-                    ) : (
-                      <Unavailable />
-                    )
-                  }
-                />
-                <Route
-                  path="/check"
-                  element={
-                    access.exitCheck &&
-                    import.meta.env.VITE_EXIT_CHECK_ENABLED === "true" ? (
-                      <TradeCheck key={location.search} />
-                    ) : (
-                      <Unavailable />
-                    )
-                  }
-                />
-                <Route
-                  path="/watch"
-                  element={
-                    access.watch &&
-                    import.meta.env.VITE_SCOUT_WATCH_ENABLED === "true" ? (
-                      <Legacy>
-                        <Watch />
-                      </Legacy>
-                    ) : (
-                      <Unavailable />
-                    )
-                  }
-                />
-                <Route
-                  path="/saved"
-                  element={
-                    <Legacy>
-                      <Saved />
-                    </Legacy>
-                  }
-                />
-                <Route
-                  path="/vault"
-                  element={<Navigate to="/saved" replace />}
-                />
-                <Route path="/lab" element={<Lab />} />
-                <Route
-                  path="/status"
-                  element={<Status capabilities={access} />}
-                />
-                <Route
-                  path="/rwa"
-                  element={
-                    access.rwa ? (
-                      <Legacy>
-                        <Rwa />
-                      </Legacy>
-                    ) : (
-                      <Unavailable />
-                    )
-                  }
-                />
-                <Route
-                  path="/biggest-trades"
-                  element={
-                    access.observedTrades &&
-                    import.meta.env.VITE_OBSERVED_TRADES_ENABLED === "true" ? (
-                      <Legacy>
-                        <Trades />
-                      </Legacy>
-                    ) : (
-                      <Unavailable />
-                    )
-                  }
-                />
-                <Route
-                  path="/research/details"
-                  element={
-                    access.research ? (
-                      <Legacy>
-                        <Explorer />
-                      </Legacy>
-                    ) : (
-                      <Unavailable />
-                    )
-                  }
-                />
-                <Route
-                  path="/swap"
-                  element={
-                    <Legacy>
-                      <Swap />
-                    </Legacy>
-                  }
-                />
-                <Route
-                  path="/app"
-                  element={<RedirectPublic to="/research" />}
-                />
-                <Route
-                  path="/exit-check"
-                  element={<RedirectPublic to="/check" />}
-                />
-                <Route
-                  path="/simulate"
-                  element={
-                    import.meta.env.VITE_TRADE_SIMULATOR_ENABLED === "true" ? (
-                      <Legacy>
-                        <Simulator />
-                      </Legacy>
-                    ) : (
-                      <Unavailable />
-                    )
-                  }
-                />
-                <Route
-                  path="/stress-test"
-                  element={
-                    import.meta.env.VITE_PORTFOLIO_STRESS_TEST_ENABLED ===
-                    "true" ? (
-                      <Legacy>
-                        <Stress />
-                      </Legacy>
-                    ) : (
-                      <Unavailable />
-                    )
-                  }
-                />
-                <Route
-                  path="/terms"
-                  element={
-                    <Legacy>
-                      <Terms />
-                    </Legacy>
-                  }
-                />
-                <Route
-                  path="/privacy"
-                  element={
-                    <Legacy>
-                      <Privacy />
-                    </Legacy>
-                  }
-                />
-                <Route
-                  path="/guide"
-                  element={
-                    <Legacy>
-                      <Guide />
-                    </Legacy>
-                  }
-                />
-                <Route
-                  path="*"
-                  element={
-                    <section className="opsis-panel">
-                      <h1>{c("This tool is parked", "此工具已暂缓")}</h1>
-                      <p>
-                        {c(
-                          "It has not been connected to this Opsis preview. Saved records and encrypted export remain available.",
-                          "此工具尚未接入 Opsis 预览。已保存的记录和加密导出仍然可用。",
-                        )}
-                      </p>
-                      <Link to="/saved">
-                        {c("Open Saved and backups", "打开已保存记录及备份")}
-                      </Link>
-                    </section>
-                  }
-                />
-              </Routes>
-            </Suspense>
+              <label htmlFor="opsis-key">
+                {c("Preview access key", "预览访问密钥")}
+              </label>
+              <input
+                id="opsis-key"
+                type="password"
+                autoComplete="off"
+                value={key}
+                onChange={(e) => setKey(e.target.value)}
+              />
+              <button
+                className="opsis-action"
+                disabled={busy || !/^[a-f0-9]{64}$/.test(key)}
+              >
+                {busy
+                  ? c("Checking…", "正在核查…")
+                  : c("Open preview", "打开预览")}
+              </button>
+            </form>
+            {error && (
+              <p role="alert">
+                {c(
+                  "Preview unavailable or expired. Check the key and server configuration, then retry.",
+                  "预览不可用或已过期。请检查密钥和服务器配置后重试。",
+                )}
+              </p>
+            )}
           </main>
-          <footer className="opsis-footer">
-            <Link to="/saved">{c("Saved", "已保存")}</Link>
-            <Link to="/status">{c("Data status", "数据状态")}</Link>
-            <Link to="/guide">{c("Help", "帮助")}</Link>
-            <Link to="/privacy">{c("Privacy", "隐私")}</Link>
-            <span>
+        ) : (
+          <>
+            <div className="opsis-navigation">
+              <nav aria-label={c("Workspaces", "工作区")}>
+                {[
+                  ["/research", c("Research", "研究")],
+                  ["/check", c("Trade Check", "交易核查")],
+                  ["/watch", c("Watch", "观察")],
+                  ["/lab", c("Quant Lab", "量化实验室")],
+                ].map(([path, label]) => (
+                  <NavLink key={path} to={path}>
+                    {label}
+                  </NavLink>
+                ))}
+              </nav>
+              <PublicSearch />
+            </div>
+            <div className="opsis-preview-note">
               {c(
-                "Local encrypted records · No transaction execution",
-                "本地加密记录 · 不执行交易",
+                "PRIVATE PREVIEW · Test data only · Robinhood Chain 4663",
+                "私密预览 · 仅限测试数据 · Robinhood Chain 4663",
               )}
-            </span>
-          </footer>
-        </>
-      )}
-    </div>
+            </div>
+            <main id="opsis-content" className="opsis-content" tabIndex={-1}>
+              <Suspense
+                fallback={
+                  <p role="status">
+                    {c("Loading workspace…", "正在加载工作区…")}
+                  </p>
+                }
+              >
+                <Routes>
+                  <Route path="/" element={null} />
+                  <Route
+                    path="/research/events"
+                    element={
+                      import.meta.env.VITE_SITUATION_ROOM_ENABLED === "true" ? (
+                        <Legacy>
+                          <SituationRoom />
+                        </Legacy>
+                      ) : (
+                        <Unavailable />
+                      )
+                    }
+                  />
+                  <Route
+                    path="/research"
+                    element={
+                      access.research ? (
+                        <Research key={location.search} capabilities={access} />
+                      ) : (
+                        <Unavailable />
+                      )
+                    }
+                  />
+                  <Route
+                    path="/check"
+                    element={
+                      access.exitCheck &&
+                      import.meta.env.VITE_EXIT_CHECK_ENABLED === "true" ? (
+                        <TradeCheck key={location.search} />
+                      ) : (
+                        <Unavailable />
+                      )
+                    }
+                  />
+                  <Route
+                    path="/watch"
+                    element={
+                      access.watch &&
+                      import.meta.env.VITE_SCOUT_WATCH_ENABLED === "true" ? (
+                        <Legacy>
+                          <Watch />
+                        </Legacy>
+                      ) : (
+                        <Unavailable />
+                      )
+                    }
+                  />
+                  <Route
+                    path="/saved"
+                    element={
+                      <Legacy>
+                        <Saved />
+                      </Legacy>
+                    }
+                  />
+                  <Route
+                    path="/vault"
+                    element={<Navigate to="/saved" replace />}
+                  />
+                  <Route path="/lab" element={<Lab />} />
+                  <Route
+                    path="/status"
+                    element={<Status capabilities={access} />}
+                  />
+                  <Route
+                    path="/rwa"
+                    element={
+                      access.rwa ? (
+                        <Legacy>
+                          <Rwa />
+                        </Legacy>
+                      ) : (
+                        <Unavailable />
+                      )
+                    }
+                  />
+                  <Route
+                    path="/biggest-trades"
+                    element={
+                      access.observedTrades &&
+                      import.meta.env.VITE_OBSERVED_TRADES_ENABLED ===
+                        "true" ? (
+                        <Legacy>
+                          <Trades />
+                        </Legacy>
+                      ) : (
+                        <Unavailable />
+                      )
+                    }
+                  />
+                  <Route
+                    path="/research/details"
+                    element={
+                      access.research ? (
+                        <Legacy>
+                          <Explorer />
+                        </Legacy>
+                      ) : (
+                        <Unavailable />
+                      )
+                    }
+                  />
+                  <Route
+                    path="/swap"
+                    element={
+                      <Legacy>
+                        <Swap />
+                      </Legacy>
+                    }
+                  />
+                  <Route
+                    path="/app"
+                    element={<RedirectPublic to="/research" />}
+                  />
+                  <Route
+                    path="/exit-check"
+                    element={<RedirectPublic to="/check" />}
+                  />
+                  <Route
+                    path="/simulate"
+                    element={
+                      import.meta.env.VITE_TRADE_SIMULATOR_ENABLED ===
+                      "true" ? (
+                        <Legacy>
+                          <Simulator />
+                        </Legacy>
+                      ) : (
+                        <Unavailable />
+                      )
+                    }
+                  />
+                  <Route
+                    path="/stress-test"
+                    element={
+                      import.meta.env.VITE_PORTFOLIO_STRESS_TEST_ENABLED ===
+                      "true" ? (
+                        <Legacy>
+                          <Stress />
+                        </Legacy>
+                      ) : (
+                        <Unavailable />
+                      )
+                    }
+                  />
+                  <Route
+                    path="/terms"
+                    element={
+                      <Legacy>
+                        <Terms />
+                      </Legacy>
+                    }
+                  />
+                  <Route
+                    path="/privacy"
+                    element={
+                      <Legacy>
+                        <Privacy />
+                      </Legacy>
+                    }
+                  />
+                  <Route
+                    path="/guide"
+                    element={
+                      <Legacy>
+                        <Guide />
+                      </Legacy>
+                    }
+                  />
+                  <Route
+                    path="*"
+                    element={
+                      <section className="opsis-panel">
+                        <h1>{c("This tool is parked", "此工具已暂缓")}</h1>
+                        <p>
+                          {c(
+                            "It has not been connected to this Opsis preview. Saved records and encrypted export remain available.",
+                            "此工具尚未接入 Opsis 预览。已保存的记录和加密导出仍然可用。",
+                          )}
+                        </p>
+                        <Link to="/saved">
+                          {c("Open Saved and backups", "打开已保存记录及备份")}
+                        </Link>
+                      </section>
+                    }
+                  />
+                </Routes>
+              </Suspense>
+            </main>
+            <footer className="opsis-footer">
+              <Link to="/saved">{c("Saved", "已保存")}</Link>
+              <Link to="/status">{c("Data status", "数据状态")}</Link>
+              <Link to="/guide">{c("Help", "帮助")}</Link>
+              <Link to="/privacy">{c("Privacy", "隐私")}</Link>
+              <span>
+                {c(
+                  "Local encrypted records · No transaction execution",
+                  "本地加密记录 · 不执行交易",
+                )}
+              </span>
+            </footer>
+          </>
+        )}
+      </div>
+    </>
   );
 }

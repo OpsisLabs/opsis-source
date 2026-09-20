@@ -1,0 +1,10 @@
+/* Integration controls only. Original film, typography and section layouts stay intact. */
+#public-search label{display:block;margin-bottom:12px;font:14px var(--sans)}
+#public-entity{width:100%;min-width:0;padding:16px;background:transparent;color:inherit;border:1px solid #ffffff80;border-radius:0;margin-bottom:16px;font:14px var(--mono)}
+#public-entity::placeholder{color:#d1ceff}
+#search-error{font-size:14px;min-height:1.5em}
+.news-unavailable{font:18px/1.6 var(--sans);color:#d1ceff}
+.topbar nav button[data-workspace]{border:0;border-radius:0;padding:12px 0;font:400 15px var(--sans)}
+@media(max-width:850px){.topbar nav{gap:16px}.topbar nav button[data-workspace]{font-size:12px}.topbar nav #terminal-shortcut{font-size:12px;padding:9px}.topbar{padding-right:20px}}
+@media(max-width:520px){.topbar .top-brand{display:none}.topbar nav{width:100%;justify-content:space-between;gap:8px}.topbar nav button[data-workspace]{font-size:11px}.topbar nav #terminal-shortcut{font-size:11px;padding:8px}.topbar{padding-left:82px;padding-right:12px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}

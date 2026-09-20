@@ -1,0 +1,108 @@
+{
+  "total": 36864,
+  "stride": 16,
+  "parts": [
+    {
+      "name": "Identity",
+      "offset": 0,
+      "count": 6144,
+      "center": [
+        0,
+        0,
+        0
+      ],
+      "size": [
+        3.5,
+        1.9,
+        0.5
+      ],
+      "depthOffset": 0,
+      "depthCount": 36864
+    },
+    {
+      "name": "Liquidity",
+      "offset": 6144,
+      "count": 6144,
+      "center": [
+        0,
+        0,
+        0
+      ],
+      "size": [
+        3.5,
+        1.9,
+        0.5
+      ],
+      "depthOffset": 36864,
+      "depthCount": 36864
+    },
+    {
+      "name": "Holdings",
+      "offset": 12288,
+      "count": 6144,
+      "center": [
+        0,
+        0,
+        0
+      ],
+      "size": [
+        3.5,
+        1.9,
+        0.5
+      ],
+      "depthOffset": 73728,
+      "depthCount": 36864
+    },
+    {
+      "name": "Provenance",
+      "offset": 18432,
+      "count": 6144,
+      "center": [
+        0,
+        0,
+        0
+      ],
+      "size": [
+        3.5,
+        1.9,
+        0.5
+      ],
+      "depthOffset": 110592,
+      "depthCount": 36864
+    },
+    {
+      "name": "Scenarios",
+      "offset": 24576,
+      "count": 6144,
+      "center": [
+        0,
+        0,
+        0
+      ],
+      "size": [
+        3.5,
+        1.9,
+        0.5
+      ],
+      "depthOffset": 147456,
+      "depthCount": 36864
+    },
+    {
+      "name": "Memory",
+      "offset": 30720,
+      "count": 6144,
+      "center": [
+        0,
+        0,
+        0
+      ],
+      "size": [
+        3.5,
+        1.9,
+        0.5
+      ],
+      "depthOffset": 184320,
+      "depthCount": 36864
+    }
+  ]
+}
