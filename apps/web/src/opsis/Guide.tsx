@@ -1,104 +1,127 @@
+import { useState } from "react";
 import { Link } from "react-router";
 import { useCopy } from "./copy";
 import type { Capabilities } from "./model";
+import { audiences, toolGuides, type ToolGuide } from "./tool-guide";
 export default function Guide({
   capabilities,
 }: {
   capabilities: Capabilities;
 }) {
   const c = useCopy();
-  const tools = [
-    {
-      to: "/research",
-      title: c("Follow the evidence", "追溯证据"),
-      body: c(
-        "Paste a public identity. Choose a question. Select a finding to inspect its dated sources.",
-        "粘贴公开标识并选择问题，选中发现以查看注明日期的来源。",
-      ),
-      enabled: capabilities.research,
-    },
-    {
-      to: "/check",
-      title: c("Compare an exit", "比较退出报价"),
-      body: c(
-        "Compare the observed outputs of V3 pools for one entered size. Fees, failed pools and expiry stay visible.",
-        "比较同一输入数量下 V3 池的观察输出，查看费用、失败池和到期时间。",
-      ),
-      enabled: capabilities.exitCheck,
-    },
-    {
-      to: "/watch",
-      title: c("See what changed", "查看变化"),
-      body: c(
-        "Save public wallets in your encrypted local Vault. Compare retained checks and inspect activity, overlap and coverage.",
-        "在本地加密保险库中保存公开钱包，比较保留的核查、活动、重叠及覆盖范围。",
-      ),
-      enabled: capabilities.watch,
-    },
-    {
-      to: "/lab",
-      title: c("Explore in three dimensions", "三维探索"),
-      body: c(
-        "Rotate a captured pool atlas, compare tokens and adjust a hypothetical portfolio shock surface.",
-        "旋转历史资金池图谱，比较代币并调整假设投资组合冲击曲面。",
-      ),
-      enabled: true,
-    },
-    {
-      to: "/saved",
-      title: c("Keep your own context", "保留个人背景"),
-      body: c(
-        "Encrypted records, holdings and allocation views stay on this device. Back up your Vault before clearing browser storage.",
-        "加密记录、持仓及分配视图保留在此设备上。清除浏览器存储前请备份保险库。",
-      ),
-      enabled: true,
-    },
-    {
-      to: "/research/events",
-      title: c("Put markets in context", "理解市场背景"),
-      body: c(
-        "Explore the captured ETH market brief and globe of source-linked events. Publication timing is not proof of causation.",
-        "探索已采集的 ETH 市场简报和关联来源的事件地球仪。发布时间不代表因果关系。",
-      ),
-      enabled: import.meta.env.VITE_SITUATION_ROOM_ENABLED === "true",
-    },
-  ];
+  const [selected, setSelected] = useState("new");
+  const audience = audiences.find((a) => a.id === selected)!;
+  function card(tool: ToolGuide, index?: number) {
+    return (
+      <article key={tool.path} className="opsis-panel">
+        <p className="opsis-kicker">
+          {index === undefined
+            ? c("GOOD FOR", "适合")
+            : index === 0
+              ? c("START HERE", "从这里开始")
+              : c("THEN, IF YOU NEED IT", "然后，按需使用")}{" "}
+          · {c(...tool.audience)}
+        </p>
+        <h2>{c(...tool.name)}</h2>
+        <dl className="opsis-tool-facts">
+          <div>
+            <dt>{c("Start with", "从这里开始")}</dt>
+            <dd>{c(...tool.input)}</dd>
+          </div>
+          <div>
+            <dt>{c("You'll get", "您将得到")}</dt>
+            <dd>{c(...tool.outcome)}</dd>
+          </div>
+        </dl>
+        {tool.enabled(capabilities) ? (
+          <Link className="opsis-action" to={tool.path}>
+            {c("Open", "打开")} {c(...tool.name)} ↗
+          </Link>
+        ) : (
+          <p className="opsis-small">
+            {c("Not enabled on this deployment", "此部署未启用")}
+          </p>
+        )}
+      </article>
+    );
+  }
   return (
     <>
       <header className="opsis-heading">
         <p className="opsis-kicker">
-          {c("FIELD GUIDE / OPSIS", "使用指南 / OPSIS")}
+          {c("FIND YOUR TOOL / OPSIS", "选择工具 / OPSIS")}
         </p>
-        <h1>{c("Find your way through.", "找到探索的方向。")}</h1>
+        <h1>{c("What brings you here?", "您想做什么？")}</h1>
         <p>
           {c(
-            "One visual language. Different ways to inspect the evidence.",
-            "统一的视觉语言，多种检查证据的方式。",
+            "Choose your task. We'll show you where to start, what to enter and what you'll get back.",
+            "选择任务，了解从哪里开始、输入什么以及会得到什么。",
           )}
         </p>
       </header>
-      <div className="opsis-guide-grid">
-        {tools.map((tool, i) => (
-          <article key={tool.to} className="opsis-panel">
-            <p className="opsis-kicker">0{i + 1}</p>
-            <h2>{tool.title}</h2>
-            <p>{tool.body}</p>
-            {tool.enabled ? (
-              <Link className="opsis-action" to={tool.to}>
-                {c("Open tool ↗", "打开工具 ↗")}
-              </Link>
-            ) : (
-              <p className="opsis-small">
-                {c("Not enabled on this deployment", "此部署未启用")}
-              </p>
-            )}
-          </article>
+      <div
+        className="opsis-audience-options"
+        role="group"
+        aria-label={c("Choose your task", "选择任务")}
+      >
+        {audiences.map((a) => (
+          <button
+            key={a.id}
+            aria-pressed={selected === a.id}
+            aria-controls="opsis-recommended-tools"
+            onClick={() => setSelected(a.id)}
+          >
+            {c(...a.name)}
+            <span aria-hidden="true">↗</span>
+          </button>
         ))}
       </div>
+      <section
+        id="opsis-recommended-tools"
+        className="opsis-recommended-tools"
+        aria-label={c("Suggested starting points", "建议起点")}
+      >
+        <p className="opsis-route-goal" aria-live="polite">
+          {c(...audience.task)}
+        </p>
+        {audience.id === "perp" ? (
+          <div className="opsis-panel">
+            <h2>
+              {c(
+                "Perpetual trading is not available yet.",
+                "永续合约交易尚未开放。",
+              )}
+            </h2>
+            <p>
+              {c(
+                "This preview cannot open or close perp positions, track funding or calculate venue-specific liquidation prices. The current Lab contains captured pool data and generic portfolio shocks, not perp models or backtests.",
+                "此预览无法开关永续仓位、跟踪资金费率或计算特定场所的清算价格。当前实验室提供历史资金池数据和通用投资组合冲击，不提供永续模型或回测。",
+              )}
+            </p>
+          </div>
+        ) : (
+          <div className="opsis-guide-grid">
+            {audience.paths.map((path, i) =>
+              card(
+                toolGuides.find((t) => t.path === path)!,
+                i,
+              ),
+            )}
+          </div>
+        )}
+      </section>
+      <details className="opsis-all-tools">
+        <summary>
+          {c("Browse all tools and who they're for", "浏览全部工具及适用人群")}
+        </summary>
+        <div className="opsis-guide-grid">
+          {toolGuides.map((tool) => card(tool))}
+        </div>
+      </details>
       <p className="opsis-receipt">
         {c(
-          "Research uses public data; availability depends on the configured providers. Private notes and saved records stay encrypted locally. These tools do not execute transactions.",
-          "研究使用公开数据，可用性取决于已配置的提供商。私人笔记和保存记录保留在本地加密存储中。这些工具不执行交易。",
+          "Your choice only changes this guide; it isn't saved or sent to a provider. Research uses public data. Private records stay encrypted on this device. Current tools do not execute trades.",
+          "您的选择仅改变此指南，不会保存或发送给提供商。研究使用公开数据，私人记录保留在此设备的加密存储中。当前工具不执行交易。",
         )}
       </p>
     </>

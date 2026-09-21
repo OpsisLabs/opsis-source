@@ -785,7 +785,136 @@
   }
 }
 .opsis .opsis-content .stress-primary,
-.opsis .opsis-content .stress-segment button[aria-pressed="true"] { color: #fff; }
+.opsis .opsis-content .stress-segment button[aria-pressed="true"] {
+  color: #fff;
+}
 .opsis .opsis-content .stress-page button[aria-pressed="true"],
 .opsis .opsis-content .stress-primary:hover,
-.opsis .opsis-content .stress-page button[aria-pressed="true"]:hover { color: #fff; background: #1000ff; }
+.opsis .opsis-content .stress-page button[aria-pressed="true"]:hover {
+  color: #fff;
+  background: #1000ff;
+}
+
+/* Task guidance stays in the shared shell; it does not create a fifth workspace. */
+.opsis .opsis-guide-link {
+  font:
+    11px OpsisMono,
+    monospace;
+  padding: 12px;
+  border: 1px solid currentColor;
+  align-self: center;
+}
+.opsis .opsis-navigation nav a small {
+  display: block;
+  font:
+    10px/1.5 OpsisMono,
+    monospace;
+  opacity: 0.85;
+  margin-top: 4px;
+}
+.opsis .opsis-tool-orientation {
+  margin: 0 0 28px;
+  padding: 0 0 20px;
+  border-bottom: 1px solid var(--line);
+}
+.opsis .opsis-tool-orientation dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin: 0;
+}
+.opsis .opsis-tool-orientation dt,
+.opsis .opsis-tool-facts dt {
+  color: var(--soft);
+  font:
+    10px/1.6 OpsisMono,
+    monospace;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.opsis .opsis-tool-orientation dd,
+.opsis .opsis-tool-facts dd {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.65;
+}
+.opsis .opsis-audience-options {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.opsis .opsis-audience-options button {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px;
+  text-align: left;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  min-width: 0;
+}
+.opsis .opsis-audience-options button[aria-pressed="true"] {
+  color: #fff;
+  background: #1000ff;
+}
+.opsis .opsis-audience-options button:hover {
+  border-color: #1000ff;
+}
+.opsis .opsis-route-goal {
+  font-size: 21px;
+  margin: 28px 0 18px;
+}
+.opsis .opsis-tool-facts {
+  display: grid;
+  gap: 20px;
+  margin: 20px 0;
+}
+.opsis .opsis-all-tools {
+  margin-top: 32px;
+}
+.opsis .opsis-all-tools summary {
+  font-size: 16px;
+}
+@media (max-width: 850px) {
+  .opsis .opsis-audience-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .opsis .opsis-tool-orientation dl {
+    gap: 12px;
+  }
+  .opsis .opsis-navigation nav a small {
+    font-size: 9px;
+    max-width: 120px;
+  }
+}
+@media (max-width: 520px) {
+  .opsis .opsis-tool-orientation dl {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .opsis .opsis-tool-orientation dl > div {
+    display: grid;
+    grid-template-columns: 75px 1fr;
+    gap: 8px;
+  }
+  .opsis .opsis-controls {
+    justify-content: flex-end;
+  }
+  .opsis .opsis-guide-link {
+    font-size: 10px;
+  }
+  .opsis .opsis-audience-options button {
+    padding: 14px 12px;
+    font-size: 13px;
+  }
+  .opsis .opsis-navigation nav a small {
+    max-width: 80px;
+    font-size: 8px;
+  }
+}
+.opsis .opsis-navigation nav a small { opacity: 1; white-space: normal; }
+@media (max-width: 850px) {
+ .opsis .opsis-navigation nav { width: 100%; min-width: 0; }
+ .opsis .opsis-navigation nav a { flex: 1; min-width: 0; white-space: normal; }
+}

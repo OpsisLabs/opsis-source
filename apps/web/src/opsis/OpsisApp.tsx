@@ -18,6 +18,7 @@ import {
 } from "./model";
 import { setOpsisPreviewToken } from "./preview-token";
 import OriginalLanding from "./OriginalLanding";
+import ToolOrientation from "./ToolOrientation";
 import ToolNavigation from "./ToolNavigation";
 import ToolWorkspace from "./ToolWorkspace";
 import OpsisCopy from "./OpsisCopy";
@@ -262,6 +263,11 @@ export default function OpsisApp() {
             OPSIS
           </Link>
           <div className="opsis-controls">
+            {access && (
+              <Link className="opsis-guide-link" to="/guide">
+                {c("Find your tool ↗", "选择工具 ↗")}
+              </Link>
+            )}
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             >
@@ -353,14 +359,32 @@ export default function OpsisApp() {
             <div className="opsis-navigation">
               <nav aria-label={c("Workspaces", "工作区")}>
                 {[
-                  ["/research", c("Research", "研究")],
-                  ["/check", c("Trade Check", "交易核查")],
-                  ["/watch", c("Watch", "观察")],
-                  ["/lab", c("Quant Lab", "量化实验室")],
-                ].map(([path, label]) => (
+                  [
+                    "/research",
+                    c("Research", "研究"),
+                    c("Understand an asset", "理解资产"),
+                  ],
+                  [
+                    "/check",
+                    c("Trade Check", "交易核查"),
+                    c("Check trading costs", "核查交易成本"),
+                  ],
+                  [
+                    "/watch",
+                    c("Watch", "观察"),
+                    c("Compare wallet checks", "比较钱包核查"),
+                  ],
+                  [
+                    "/lab",
+                    c("Quant Lab", "量化实验室"),
+                    c("Explore data & scenarios", "探索数据与情景"),
+                  ],
+                ].map(([path, label, purpose]) => (
                   <NavLink
                     key={path}
                     to={path}
+                    aria-label={label}
+                    aria-describedby={`workspace-purpose-${path.slice(1)}`}
                     className={({ isActive }) =>
                       isActive ||
                       (path === "/research" &&
@@ -376,6 +400,9 @@ export default function OpsisApp() {
                     }
                   >
                     {label}
+                    <small id={`workspace-purpose-${path.slice(1)}`}>
+                      {purpose}
+                    </small>
                   </NavLink>
                 ))}
               </nav>
@@ -393,6 +420,7 @@ export default function OpsisApp() {
               )}
             </div>
             <main id="opsis-content" className="opsis-content" tabIndex={-1}>
+              <ToolOrientation capabilities={access} />
               <Suspense
                 fallback={
                   <p role="status">
@@ -609,7 +637,7 @@ export default function OpsisApp() {
             <footer className="opsis-footer">
               <Link to="/saved">{c("Saved", "已保存")}</Link>
               <Link to="/status">{c("Data status", "数据状态")}</Link>
-              <Link to="/guide">{c("Help", "帮助")}</Link>
+              <Link to="/guide">{c("Find your tool", "选择工具")}</Link>
               <Link to="/privacy">{c("Privacy", "隐私")}</Link>
               <span>
                 {c(

@@ -13,6 +13,7 @@ const destinations: Record<string, string> = {
   quant: "/lab",
   world: "/research/events",
   watch: "/watch",
+  guide: "/guide",
 };
 
 /** Preserve the original film and scroll state without exposing preview credentials.
