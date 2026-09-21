@@ -251,6 +251,9 @@ test.describe("opsis preview", () => {
       path: "test-results/opsis-check.png",
       fullPage: true,
     });
+    await expect(page.getByRole("region", {name: "Observed pool comparison"})).toBeVisible();
+    await page.getByRole("region", {name: "Observed pool comparison"}).getByRole("button").first().click();
+    await expect(page.getByRole("region", {name: "Observed pool comparison"})).toContainText(POOL);
     const venue = await page
       .getByRole("link", { name: "Open Uniswap" })
       .getAttribute("href");

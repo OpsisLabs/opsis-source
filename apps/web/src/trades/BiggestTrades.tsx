@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { lazy, Suspense, useEffect, useRef, useState, type FormEvent } from "react";
 import { useI18n } from "../i18n";
 import { ApiError } from "../dashboard/http";
 import { isObservedTradesEnabled } from "../product/availability";
@@ -228,6 +228,8 @@ export default function BiggestTrades() {
   );
 }
 
+const QuantityBars = lazy(() => import("../opsis/QuantityBars"));
+
 function Result({ data }: { data: ObservedTradesResponse }) {
   const { t } = useI18n();
   const baseSymbol = data.pair.base.symbol ?? shortAddress(data.pair.base.address);
@@ -325,6 +327,11 @@ function Result({ data }: { data: ObservedTradesResponse }) {
               count: data.observations.length,
             })}
           </h2>
+          {import.meta.env.VITE_OPSIS_WORKSPACES_ENABLED === "true" && <Suspense fallback={null}><QuantityBars
+            title={t("trades.table.caption")} unit={quoteSymbol}
+            rows={data.observations.map((row,index) => ({id: row.id, label: String(index+1).padStart(2,"0"), value: row.notionalQuote, detail: `${row.txHash} · ${t(tradeSideKey(row.side))}`}))}
+            note={t("trades.result.methodValue")}
+          /></Suspense>}
           <ol className="mt-4 space-y-3" aria-label={t("trades.table.caption")}>
             {data.observations.map((observation) => (
               <Observation

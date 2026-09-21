@@ -25,8 +25,8 @@ for (const engine of ["chromium", "webkit"]) {
   const config = engine === "webkit" ? ["--config", "playwright.webkit.config.ts"] : [];
   const opsisClosed = spawnSync("pnpm", ["exec", "playwright", "test", ...config, "e2e/opsis.mock.spec.ts", "--grep", "closed by default"], { cwd: root, stdio: "inherit", env: baseEnv });
   if (opsisClosed.status !== 0) process.exit(opsisClosed.status ?? 1);
-  const publicOpsis = spawnSync("pnpm", ["exec", "playwright", "test", ...config, "e2e/opsis-public.mock.spec.ts"], {
-    cwd: root, stdio: "inherit", env: { ...baseEnv, VITE_OPSIS_WORKSPACES_ENABLED: "true", VITE_OPSIS_PUBLIC_ACCESS_ENABLED: "true", VITE_SCOUT_WATCH_ENABLED: "true" },
+  const publicOpsis = spawnSync("pnpm", ["exec", "playwright", "test", ...config, "e2e/opsis-public.mock.spec.ts", "e2e/opsis-design.mock.spec.ts"], {
+    cwd: root, stdio: "inherit", env: { ...baseEnv, VITE_OPSIS_WORKSPACES_ENABLED: "true", VITE_OPSIS_PUBLIC_ACCESS_ENABLED: "true", VITE_SCOUT_WATCH_ENABLED: "true", VITE_EXIT_CHECK_ENABLED: "true", VITE_TRADE_SIMULATOR_ENABLED: "true", VITE_PORTFOLIO_STRESS_TEST_ENABLED: "true", VITE_SITUATION_ROOM_ENABLED: "true", VITE_OBSERVED_TRADES_ENABLED: "true" },
   });
   if (publicOpsis.status !== 0) process.exit(publicOpsis.status ?? 1);
   const stressClosed = spawnSync("pnpm", ["exec", "playwright", "test", ...config, "e2e/stress-test.mock.spec.ts", "--grep", "closed by default"], {cwd: root, stdio: "inherit", env: baseEnv});

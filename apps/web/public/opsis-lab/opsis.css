@@ -1,0 +1,385 @@
+@font-face {
+  font-family: Opsis;
+  src: url("/opsis/space-regular.ttf");
+}
+@font-face {
+  font-family: OpsisMono;
+  src: url("/opsis/plex-regular.ttf");
+}
+:root {
+  --bg: #1000ff;
+  --panel: #170ce6;
+  --line: #ffffff42;
+  --text: #fff;
+  --muted: #d1ceff;
+  --mint: #ddff9b;
+  --cyan: #8eeaff;
+  --orange: #ffc0a6;
+  --violet: #e2bfff;
+}
+html {
+  color-scheme: dark;
+}
+body {
+  font-family: Opsis, sans-serif;
+}
+.rail,
+.workspace > header,
+.page-head,
+footer {
+  display: none;
+}
+.workspace {
+  margin-left: 0;
+}
+main {
+  padding: 20px;
+}
+h1,
+h2,
+h3 {
+  font-family: Opsis, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.035em;
+}
+button,
+input,
+select {
+  border-radius: 0 !important;
+}
+.capture-stamp {
+  margin-top: 0;
+}
+.panel,
+.stats,
+.chart-panel {
+  border-radius: 0 !important;
+}
+canvas {
+  touch-action: none;
+}
+dialog {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+.overline,
+.eyebrow,
+.micro-note,
+.capture-stamp {
+  font-family: OpsisMono, monospace;
+}
+.source-stamp {
+  color: var(--muted);
+}
+/* Retain plot color encodings and source disclosures; eliminate the old chrome. */
+.chart-area,
+.chart-wrap,
+.chart-tools,
+.asset-table,
+.scenario-panel {
+  background: var(--panel);
+}
+@media (max-width: 600px) {
+  main {
+    padding: 12px;
+  }
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+.rail {
+  background: var(--panel);
+}
+.rail .active {
+  background: var(--panel);
+}
+header {
+  background: var(--panel);
+}
+nav b {
+  background: var(--panel);
+}
+.source-stamp span {
+  color: var(--muted);
+}
+.primary {
+  color: var(--muted);
+}
+.tabs button.active {
+  background: var(--panel);
+}
+.dimension-tag {
+  color: var(--muted);
+}
+.axis-legend {
+  color: var(--muted);
+}
+.view-tools {
+  background: var(--panel);
+}
+.view-tools button {
+  color: var(--muted);
+}
+.view-tools button[aria-pressed="true"] {
+  background: var(--panel);
+}
+.drag-hint {
+  color: var(--muted);
+}
+.drag-hint span {
+  color: var(--muted);
+}
+.venue-toggles button.active {
+  border-color: var(--line);
+  background: var(--panel);
+}
+#visibleCount {
+  color: var(--muted);
+}
+.tiny-grid {
+  color: var(--muted);
+}
+#analysisText {
+  color: var(--muted);
+}
+#analysisText strong {
+  color: var(--muted);
+}
+.analysis-evidence span {
+  color: var(--muted);
+}
+.analyst-actions button {
+  background: var(--panel);
+  color: var(--muted);
+}
+.analyst-actions button:nth-child(2) {
+  border-color: var(--line);
+  color: var(--muted);
+}
+.analyst form {
+  background: var(--panel);
+}
+.analyst form button {
+  color: var(--muted);
+}
+.section-heading select {
+  background: var(--panel);
+  color: var(--muted);
+}
+th {
+  background: var(--panel);
+}
+.unknown {
+  color: var(--muted);
+}
+.add-button {
+  background: var(--panel);
+}
+.add-button[aria-pressed="true"] {
+  background: var(--panel);
+}
+.basket-item button {
+  color: var(--muted);
+}
+.scenario-inputs label {
+  color: var(--muted);
+}
+.micro-note {
+  color: var(--muted);
+}
+.outline {
+  background: var(--panel);
+}
+footer {
+  color: var(--muted);
+}
+footer button {
+  color: var(--muted);
+}
+dialog {
+  background: var(--panel);
+}
+dialog::backdrop {
+  background: var(--panel);
+}
+.detail-copy p {
+  color: var(--muted);
+}
+.detail-copy .detail-signal {
+  background: var(--panel);
+}
+.detail-actions a,
+.detail-actions button {
+  color: var(--muted);
+}
+.detail-actions button {
+  background: var(--panel);
+}
+#methods {
+  color: var(--muted);
+}
+#chartTooltip {
+  background: var(--panel);
+}
+.toast {
+  background: var(--panel);
+  color: var(--muted);
+}
+.inline-controls label {
+  color: var(--muted);
+}
+#focusBoard {
+  color: var(--muted);
+}
+.lab-layout.immersive {
+  background: var(--panel);
+}
+.token-strip button {
+  background: var(--panel);
+  color: var(--muted);
+}
+.token-strip button.active {
+  background: var(--panel);
+  border-color: var(--line);
+}
+.token-strip i {
+  color: var(--muted);
+}
+.pool-controls > span {
+  color: var(--muted);
+}
+.pool-controls label {
+  color: var(--muted);
+}
+.pool-controls select {
+  background: var(--panel);
+  color: var(--muted);
+}
+.small-primary {
+  background: var(--panel);
+}
+.crypto-table .asset-cell small {
+  color: var(--muted);
+}
+.crypto-table .rank {
+  color: var(--muted);
+}
+.allocation small {
+  color: var(--muted);
+}
+.allocation b {
+  color: var(--muted);
+}
+.focused-asset .focused-metric {
+  color: var(--muted);
+}
+.focused-asset .focused-metric b {
+  color: var(--muted);
+}
+.momentum .section-heading > span {
+  color: var(--muted);
+}
+.heatmap > span {
+  color: var(--muted);
+}
+.heat-token {
+  color: var(--muted);
+}
+.compare-intro p {
+  color: var(--muted);
+}
+.coin-head span {
+  color: var(--muted);
+}
+.compare-card dt {
+  color: var(--muted);
+}
+.compare-read {
+  background: var(--panel);
+}
+.compare-read p {
+  color: var(--muted);
+}
+.token-detail small {
+  color: var(--muted);
+}
+.token-metrics div {
+  background: var(--panel);
+}
+.token-metrics small {
+  color: var(--muted);
+}
+.token-contract {
+  color: var(--muted);
+}
+.token-detail p {
+  color: var(--muted);
+}
+.token-detail p strong {
+  color: var(--muted);
+}
+.token-mini-heat small {
+  color: var(--muted);
+}
+.capture-stamp {
+  color: var(--muted);
+}
+.stats,
+.analyst {
+  background: var(--panel);
+}
+.stats strong {
+  font-family: Opsis, sans-serif;
+}
+.board {
+  background: #0c083d;
+  --text: #fff;
+  --muted: #d1ceff;
+  --panel: #15104c;
+}
+.board .tabs button.active {
+  background: #ffffff1a;
+  color: #fff;
+}
+.token-strip button {
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+.token-strip button.active {
+  background: var(--text);
+  color: var(--bg);
+}
+.analyst-head,
+.board-head {
+  border-color: var(--line);
+}
+html[data-theme="light"] {
+  --bg: #f4f3ff;
+  --panel: #fff;
+  --line: #22127e35;
+  --text: #160b79;
+  --muted: #514b7a;
+  --mint: #346900;
+  --cyan: #006a7a;
+  --orange: #a34722;
+  --violet: #713bc1;
+  color-scheme: light;
+}
+html[data-theme="light"] .board {
+  --text: #fff;
+  --muted: #d1ceff;
+  --line: #ffffff42;
+  --mint: #ddff9b;
+  --cyan: #8eeaff;
+  --orange: #ffc0a6;
+  --violet: #e2bfff;
+}

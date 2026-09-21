@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 import { analyzePrivate, type PrivateAnalysis } from "../private/api";
 import { safeHttpUrl } from "../dashboard/adapters";
@@ -7,8 +7,11 @@ import {
   toFollowableWallet,
   classificationFromAddressObject,
 } from "../watch/followWallet";
+import ResearchIntro from "./ResearchIntro";
 import { useCopy } from "./copy";
 import { publicIdentity, workspaceLink, type Capabilities } from "./model";
+
+const EvidenceMap = lazy(() => import("./EvidenceMap"));
 
 export default function Research({
   capabilities,
@@ -148,18 +151,13 @@ export default function Research({
             </section>
           )}
           {!result && !busy && !error && (
-            <section className="opsis-panel opsis-empty">
-              <p className="opsis-kicker">
-                {c("READY WHEN YOU ARE", "准备就绪")}
-              </p>
-              <h2>{c("Start with the exact identity.", "从确切标识开始。")}</h2>
-              <p>
-                {c(
-                  "Robinhood Chain · 4663. Coverage and source times appear with each result. A missing observation does not prove absence.",
-                  "Robinhood Chain · 4663。每个结果均显示覆盖范围和来源时间。未观察到不代表不存在。",
-                )}
-              </p>
-            </section>
+            <ResearchIntro
+              task={task}
+              onSelect={(next) => {
+                clear();
+                setTask(next);
+              }}
+            />
           )}
           {busy && (
             <p role="status">
@@ -186,26 +184,21 @@ export default function Research({
                 {result.answer.citations[0]?.fetchedAt ?? c("Unknown", "未知")}
               </p>
               <p className="opsis-result-copy">{result.answer.answer}</p>
-              <ul className="opsis-findings">
-                {[
-                  ...result.answer.riskNotes
-                    .filter((note) => note.severity === "high")
-                    .map((note) => ({
-                      fact: `${note.severity}: ${note.note}`,
-                      sourceIds: note.sourceIds,
-                    })),
-                  ...result.answer.confirmedFacts,
-                ]
-                  .slice(0, 3)
-                  .map((fact, i) => (
-                    <li key={i}>
-                      {fact.fact}{" "}
-                      <span className="opsis-small">
-                        [{fact.sourceIds.join(", ")}]
-                      </span>
-                    </li>
-                  ))}
-              </ul>
+              <Suspense fallback={null}>
+                <EvidenceMap
+                  key={result.entity.value}
+                  findings={[
+                    ...result.answer.riskNotes
+                      .filter((note) => note.severity === "high")
+                      .map((note) => ({
+                        fact: `${note.severity}: ${note.note}`,
+                        sourceIds: note.sourceIds,
+                      })),
+                    ...result.answer.confirmedFacts,
+                  ].slice(0, 3)}
+                  sources={result.answer.citations}
+                />
+              </Suspense>
               <p className="opsis-receipt">
                 {c(
                   "Provider scope may be incomplete. Freshness and finality are unknown unless the evidence explicitly supplies them.",

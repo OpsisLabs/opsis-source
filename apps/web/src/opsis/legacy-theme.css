@@ -1,0 +1,2159 @@
+/* Scoped adapter for the shipped ChainScout tools. Layout and data logic stay intact. */
+.opsis .opsis-legacy [class~="bg-[#171615]"],
+.opsis .opsis-legacy [class~="!bg-[#171615]"],
+.opsis .opsis-legacy [class*="bg-[#171615]/"],
+.opsis .opsis-legacy [class~="bg-[#171717]"],
+.opsis .opsis-legacy [class~="!bg-[#171717]"],
+.opsis .opsis-legacy [class*="bg-[#171717]/"],
+.opsis .opsis-legacy [class~="bg-[#172015]"],
+.opsis .opsis-legacy [class~="!bg-[#172015]"],
+.opsis .opsis-legacy [class*="bg-[#172015]/"],
+.opsis .opsis-legacy [class~="bg-[#181716]"],
+.opsis .opsis-legacy [class~="!bg-[#181716]"],
+.opsis .opsis-legacy [class*="bg-[#181716]/"],
+.opsis .opsis-legacy [class~="bg-[#181818]"],
+.opsis .opsis-legacy [class~="!bg-[#181818]"],
+.opsis .opsis-legacy [class*="bg-[#181818]/"],
+.opsis .opsis-legacy [class~="bg-[#191817]"],
+.opsis .opsis-legacy [class~="!bg-[#191817]"],
+.opsis .opsis-legacy [class*="bg-[#191817]/"],
+.opsis .opsis-legacy [class~="bg-[#191919]"],
+.opsis .opsis-legacy [class~="!bg-[#191919]"],
+.opsis .opsis-legacy [class*="bg-[#191919]/"],
+.opsis .opsis-legacy [class~="bg-[#1a1918]"],
+.opsis .opsis-legacy [class~="!bg-[#1a1918]"],
+.opsis .opsis-legacy [class*="bg-[#1a1918]/"],
+.opsis .opsis-legacy [class~="bg-[#1b1a19]"],
+.opsis .opsis-legacy [class~="!bg-[#1b1a19]"],
+.opsis .opsis-legacy [class*="bg-[#1b1a19]/"],
+.opsis .opsis-legacy [class~="bg-[#1b1b1b]"],
+.opsis .opsis-legacy [class~="!bg-[#1b1b1b]"],
+.opsis .opsis-legacy [class*="bg-[#1b1b1b]/"],
+.opsis .opsis-legacy [class~="bg-[#1c1b1a]"],
+.opsis .opsis-legacy [class~="!bg-[#1c1b1a]"],
+.opsis .opsis-legacy [class*="bg-[#1c1b1a]/"],
+.opsis .opsis-legacy [class~="bg-[#1c1c1c]"],
+.opsis .opsis-legacy [class~="!bg-[#1c1c1c]"],
+.opsis .opsis-legacy [class*="bg-[#1c1c1c]/"],
+.opsis .opsis-legacy [class~="bg-[#1c241e]"],
+.opsis .opsis-legacy [class~="!bg-[#1c241e]"],
+.opsis .opsis-legacy [class*="bg-[#1c241e]/"],
+.opsis .opsis-legacy [class~="bg-[#1d1b1a]"],
+.opsis .opsis-legacy [class~="!bg-[#1d1b1a]"],
+.opsis .opsis-legacy [class*="bg-[#1d1b1a]/"],
+.opsis .opsis-legacy [class~="bg-[#1d1d1d]"],
+.opsis .opsis-legacy [class~="!bg-[#1d1d1d]"],
+.opsis .opsis-legacy [class*="bg-[#1d1d1d]/"],
+.opsis .opsis-legacy [class~="bg-[#1f1f1f]"],
+.opsis .opsis-legacy [class~="!bg-[#1f1f1f]"],
+.opsis .opsis-legacy [class*="bg-[#1f1f1f]/"],
+.opsis .opsis-legacy [class~="bg-[#1f3a2b]"],
+.opsis .opsis-legacy [class~="!bg-[#1f3a2b]"],
+.opsis .opsis-legacy [class*="bg-[#1f3a2b]/"],
+.opsis .opsis-legacy [class~="bg-[#201e1c]"],
+.opsis .opsis-legacy [class~="!bg-[#201e1c]"],
+.opsis .opsis-legacy [class*="bg-[#201e1c]/"],
+.opsis .opsis-legacy [class~="bg-[#20201f]"],
+.opsis .opsis-legacy [class~="!bg-[#20201f]"],
+.opsis .opsis-legacy [class*="bg-[#20201f]/"],
+.opsis .opsis-legacy [class~="bg-[#202020]"],
+.opsis .opsis-legacy [class~="!bg-[#202020]"],
+.opsis .opsis-legacy [class*="bg-[#202020]/"],
+.opsis .opsis-legacy [class~="bg-[#20251f]"],
+.opsis .opsis-legacy [class~="!bg-[#20251f]"],
+.opsis .opsis-legacy [class*="bg-[#20251f]/"],
+.opsis .opsis-legacy [class~="bg-[#20261e]"],
+.opsis .opsis-legacy [class~="!bg-[#20261e]"],
+.opsis .opsis-legacy [class*="bg-[#20261e]/"],
+.opsis .opsis-legacy [class~="bg-[#211d18]"],
+.opsis .opsis-legacy [class~="!bg-[#211d18]"],
+.opsis .opsis-legacy [class*="bg-[#211d18]/"],
+.opsis .opsis-legacy [class~="bg-[#211e1b]"],
+.opsis .opsis-legacy [class~="!bg-[#211e1b]"],
+.opsis .opsis-legacy [class*="bg-[#211e1b]/"],
+.opsis .opsis-legacy [class~="bg-[#211e1c]"],
+.opsis .opsis-legacy [class~="!bg-[#211e1c]"],
+.opsis .opsis-legacy [class*="bg-[#211e1c]/"],
+.opsis .opsis-legacy [class~="bg-[#211f1c]"],
+.opsis .opsis-legacy [class~="!bg-[#211f1c]"],
+.opsis .opsis-legacy [class*="bg-[#211f1c]/"],
+.opsis .opsis-legacy [class~="bg-[#211f1d]"],
+.opsis .opsis-legacy [class~="!bg-[#211f1d]"],
+.opsis .opsis-legacy [class*="bg-[#211f1d]/"],
+.opsis .opsis-legacy [class~="bg-[#211f1e]"],
+.opsis .opsis-legacy [class~="!bg-[#211f1e]"],
+.opsis .opsis-legacy [class*="bg-[#211f1e]/"],
+.opsis .opsis-legacy [class~="bg-[#22201f]"],
+.opsis .opsis-legacy [class~="!bg-[#22201f]"],
+.opsis .opsis-legacy [class*="bg-[#22201f]/"],
+.opsis .opsis-legacy [class~="bg-[#222222]"],
+.opsis .opsis-legacy [class~="!bg-[#222222]"],
+.opsis .opsis-legacy [class*="bg-[#222222]/"],
+.opsis .opsis-legacy [class~="bg-[#222721]"],
+.opsis .opsis-legacy [class~="!bg-[#222721]"],
+.opsis .opsis-legacy [class*="bg-[#222721]/"],
+.opsis .opsis-legacy [class~="bg-[#222722]"],
+.opsis .opsis-legacy [class~="!bg-[#222722]"],
+.opsis .opsis-legacy [class*="bg-[#222722]/"],
+.opsis .opsis-legacy [class~="bg-[#23211f]"],
+.opsis .opsis-legacy [class~="!bg-[#23211f]"],
+.opsis .opsis-legacy [class*="bg-[#23211f]/"],
+.opsis .opsis-legacy [class~="bg-[#241d18]"],
+.opsis .opsis-legacy [class~="!bg-[#241d18]"],
+.opsis .opsis-legacy [class*="bg-[#241d18]/"],
+.opsis .opsis-legacy [class~="bg-[#241f1c]"],
+.opsis .opsis-legacy [class~="!bg-[#241f1c]"],
+.opsis .opsis-legacy [class*="bg-[#241f1c]/"],
+.opsis .opsis-legacy [class~="bg-[#24211f]"],
+.opsis .opsis-legacy [class~="!bg-[#24211f]"],
+.opsis .opsis-legacy [class*="bg-[#24211f]/"],
+.opsis .opsis-legacy [class~="bg-[#242220]"],
+.opsis .opsis-legacy [class~="!bg-[#242220]"],
+.opsis .opsis-legacy [class*="bg-[#242220]/"],
+.opsis .opsis-legacy [class~="bg-[#242321]"],
+.opsis .opsis-legacy [class~="!bg-[#242321]"],
+.opsis .opsis-legacy [class*="bg-[#242321]/"],
+.opsis .opsis-legacy [class~="bg-[#242424]"],
+.opsis .opsis-legacy [class~="!bg-[#242424]"],
+.opsis .opsis-legacy [class*="bg-[#242424]/"],
+.opsis .opsis-legacy [class~="bg-[#252321]"],
+.opsis .opsis-legacy [class~="!bg-[#252321]"],
+.opsis .opsis-legacy [class*="bg-[#252321]/"],
+.opsis .opsis-legacy [class~="bg-[#26211f]"],
+.opsis .opsis-legacy [class~="!bg-[#26211f]"],
+.opsis .opsis-legacy [class*="bg-[#26211f]/"],
+.opsis .opsis-legacy [class~="bg-[#26221f]"],
+.opsis .opsis-legacy [class~="!bg-[#26221f]"],
+.opsis .opsis-legacy [class*="bg-[#26221f]/"],
+.opsis .opsis-legacy [class~="bg-[#27221f]"],
+.opsis .opsis-legacy [class~="!bg-[#27221f]"],
+.opsis .opsis-legacy [class*="bg-[#27221f]/"],
+.opsis .opsis-legacy [class~="bg-[#272321]"],
+.opsis .opsis-legacy [class~="!bg-[#272321]"],
+.opsis .opsis-legacy [class*="bg-[#272321]/"],
+.opsis .opsis-legacy [class~="bg-[#282022]"],
+.opsis .opsis-legacy [class~="!bg-[#282022]"],
+.opsis .opsis-legacy [class*="bg-[#282022]/"],
+.opsis .opsis-legacy [class~="bg-[#28211e]"],
+.opsis .opsis-legacy [class~="!bg-[#28211e]"],
+.opsis .opsis-legacy [class*="bg-[#28211e]/"],
+.opsis .opsis-legacy [class~="bg-[#28221e]"],
+.opsis .opsis-legacy [class~="!bg-[#28221e]"],
+.opsis .opsis-legacy [class*="bg-[#28221e]/"],
+.opsis .opsis-legacy [class~="bg-[#28221f]"],
+.opsis .opsis-legacy [class~="!bg-[#28221f]"],
+.opsis .opsis-legacy [class*="bg-[#28221f]/"],
+.opsis .opsis-legacy [class~="bg-[#29221f]"],
+.opsis .opsis-legacy [class~="!bg-[#29221f]"],
+.opsis .opsis-legacy [class*="bg-[#29221f]/"],
+.opsis .opsis-legacy [class~="bg-[#292320]"],
+.opsis .opsis-legacy [class~="!bg-[#292320]"],
+.opsis .opsis-legacy [class*="bg-[#292320]/"],
+.opsis .opsis-legacy [class~="bg-[#29251f]"],
+.opsis .opsis-legacy [class~="!bg-[#29251f]"],
+.opsis .opsis-legacy [class*="bg-[#29251f]/"],
+.opsis .opsis-legacy [class~="bg-[#2a211d]"],
+.opsis .opsis-legacy [class~="!bg-[#2a211d]"],
+.opsis .opsis-legacy [class*="bg-[#2a211d]/"],
+.opsis .opsis-legacy [class~="bg-[#2a211e]"],
+.opsis .opsis-legacy [class~="!bg-[#2a211e]"],
+.opsis .opsis-legacy [class*="bg-[#2a211e]/"],
+.opsis .opsis-legacy [class~="bg-[#2a231d]"],
+.opsis .opsis-legacy [class~="!bg-[#2a231d]"],
+.opsis .opsis-legacy [class*="bg-[#2a231d]/"],
+.opsis .opsis-legacy [class~="bg-[#2a2421]"],
+.opsis .opsis-legacy [class~="!bg-[#2a2421]"],
+.opsis .opsis-legacy [class*="bg-[#2a2421]/"],
+.opsis .opsis-legacy [class~="bg-[#2a2928]"],
+.opsis .opsis-legacy [class~="!bg-[#2a2928]"],
+.opsis .opsis-legacy [class*="bg-[#2a2928]/"],
+.opsis .opsis-legacy [class~="bg-[#2a2a2a]"],
+.opsis .opsis-legacy [class~="!bg-[#2a2a2a]"],
+.opsis .opsis-legacy [class*="bg-[#2a2a2a]/"],
+.opsis .opsis-legacy [class~="bg-[#2b2023]"],
+.opsis .opsis-legacy [class~="!bg-[#2b2023]"],
+.opsis .opsis-legacy [class*="bg-[#2b2023]/"],
+.opsis .opsis-legacy [class~="bg-[#2b211c]"],
+.opsis .opsis-legacy [class~="!bg-[#2b211c]"],
+.opsis .opsis-legacy [class*="bg-[#2b211c]/"],
+.opsis .opsis-legacy [class~="bg-[#2b2421]"],
+.opsis .opsis-legacy [class~="!bg-[#2b2421]"],
+.opsis .opsis-legacy [class*="bg-[#2b2421]/"],
+.opsis .opsis-legacy [class~="bg-[#2b2521]"],
+.opsis .opsis-legacy [class~="!bg-[#2b2521]"],
+.opsis .opsis-legacy [class*="bg-[#2b2521]/"],
+.opsis .opsis-legacy [class~="bg-[#2b2725]"],
+.opsis .opsis-legacy [class~="!bg-[#2b2725]"],
+.opsis .opsis-legacy [class*="bg-[#2b2725]/"],
+.opsis .opsis-legacy [class~="bg-[#2b2b2b]"],
+.opsis .opsis-legacy [class~="!bg-[#2b2b2b]"],
+.opsis .opsis-legacy [class*="bg-[#2b2b2b]/"],
+.opsis .opsis-legacy [class~="bg-[#2d2b29]"],
+.opsis .opsis-legacy [class~="!bg-[#2d2b29]"],
+.opsis .opsis-legacy [class*="bg-[#2d2b29]/"],
+.opsis .opsis-legacy [class~="bg-[#2e2e2e]"],
+.opsis .opsis-legacy [class~="!bg-[#2e2e2e]"],
+.opsis .opsis-legacy [class*="bg-[#2e2e2e]/"],
+.opsis .opsis-legacy [class~="bg-[#2f2f2f]"],
+.opsis .opsis-legacy [class~="!bg-[#2f2f2f]"],
+.opsis .opsis-legacy [class*="bg-[#2f2f2f]/"],
+.opsis .opsis-legacy [class~="bg-[#30221a]"],
+.opsis .opsis-legacy [class~="!bg-[#30221a]"],
+.opsis .opsis-legacy [class*="bg-[#30221a]/"],
+.opsis .opsis-legacy [class~="bg-[#302823]"],
+.opsis .opsis-legacy [class~="!bg-[#302823]"],
+.opsis .opsis-legacy [class*="bg-[#302823]/"],
+.opsis .opsis-legacy [class~="bg-[#333]"],
+.opsis .opsis-legacy [class~="!bg-[#333]"],
+.opsis .opsis-legacy [class*="bg-[#333]/"],
+.opsis .opsis-legacy [class~="bg-[#34231e]"],
+.opsis .opsis-legacy [class~="!bg-[#34231e]"],
+.opsis .opsis-legacy [class*="bg-[#34231e]/"],
+.opsis .opsis-legacy [class~="bg-[#34312f]"],
+.opsis .opsis-legacy [class~="!bg-[#34312f]"],
+.opsis .opsis-legacy [class*="bg-[#34312f]/"],
+.opsis .opsis-legacy [class~="bg-[#343434]"],
+.opsis .opsis-legacy [class~="!bg-[#343434]"],
+.opsis .opsis-legacy [class*="bg-[#343434]/"],
+.opsis .opsis-legacy [class~="bg-[#35312e]"],
+.opsis .opsis-legacy [class~="!bg-[#35312e]"],
+.opsis .opsis-legacy [class*="bg-[#35312e]/"],
+.opsis .opsis-legacy [class~="bg-[#373330]"],
+.opsis .opsis-legacy [class~="!bg-[#373330]"],
+.opsis .opsis-legacy [class*="bg-[#373330]/"],
+.opsis .opsis-legacy [class~="bg-[#383431]"],
+.opsis .opsis-legacy [class~="!bg-[#383431]"],
+.opsis .opsis-legacy [class*="bg-[#383431]/"],
+.opsis .opsis-legacy [class~="bg-[#383838]"],
+.opsis .opsis-legacy [class~="!bg-[#383838]"],
+.opsis .opsis-legacy [class*="bg-[#383838]/"],
+.opsis .opsis-legacy [class~="bg-[#393532]"],
+.opsis .opsis-legacy [class~="!bg-[#393532]"],
+.opsis .opsis-legacy [class*="bg-[#393532]/"],
+.opsis .opsis-legacy [class~="bg-[#393633]"],
+.opsis .opsis-legacy [class~="!bg-[#393633]"],
+.opsis .opsis-legacy [class*="bg-[#393633]/"],
+.opsis .opsis-legacy [class~="bg-[#3a231f]"],
+.opsis .opsis-legacy [class~="!bg-[#3a231f]"],
+.opsis .opsis-legacy [class*="bg-[#3a231f]/"],
+.opsis .opsis-legacy [class~="bg-[#3a3633]"],
+.opsis .opsis-legacy [class~="!bg-[#3a3633]"],
+.opsis .opsis-legacy [class*="bg-[#3a3633]/"],
+.opsis .opsis-legacy [class~="bg-[#3a3734]"],
+.opsis .opsis-legacy [class~="!bg-[#3a3734]"],
+.opsis .opsis-legacy [class*="bg-[#3a3734]/"],
+.opsis .opsis-legacy [class~="bg-[#3b3735]"],
+.opsis .opsis-legacy [class~="!bg-[#3b3735]"],
+.opsis .opsis-legacy [class*="bg-[#3b3735]/"],
+.opsis .opsis-legacy [class~="bg-[#3d5538]"],
+.opsis .opsis-legacy [class~="!bg-[#3d5538]"],
+.opsis .opsis-legacy [class*="bg-[#3d5538]/"],
+.opsis .opsis-legacy [class~="bg-[#403b36]"],
+.opsis .opsis-legacy [class~="!bg-[#403b36]"],
+.opsis .opsis-legacy [class*="bg-[#403b36]/"],
+.opsis .opsis-legacy [class~="bg-[#423a49]"],
+.opsis .opsis-legacy [class~="!bg-[#423a49]"],
+.opsis .opsis-legacy [class*="bg-[#423a49]/"],
+.opsis .opsis-legacy [class~="bg-[#45403b]"],
+.opsis .opsis-legacy [class~="!bg-[#45403b]"],
+.opsis .opsis-legacy [class*="bg-[#45403b]/"],
+.opsis .opsis-legacy [class~="bg-[#45413e]"],
+.opsis .opsis-legacy [class~="!bg-[#45413e]"],
+.opsis .opsis-legacy [class*="bg-[#45413e]/"],
+.opsis .opsis-legacy [class~="bg-[#47413d]"],
+.opsis .opsis-legacy [class~="!bg-[#47413d]"],
+.opsis .opsis-legacy [class*="bg-[#47413d]/"],
+.opsis .opsis-legacy [class~="bg-[#482116]"],
+.opsis .opsis-legacy [class~="!bg-[#482116]"],
+.opsis .opsis-legacy [class*="bg-[#482116]/"],
+.opsis .opsis-legacy [class~="bg-[#48413b]"],
+.opsis .opsis-legacy [class~="!bg-[#48413b]"],
+.opsis .opsis-legacy [class*="bg-[#48413b]/"],
+.opsis .opsis-legacy [class~="bg-[#484848]"],
+.opsis .opsis-legacy [class~="!bg-[#484848]"],
+.opsis .opsis-legacy [class*="bg-[#484848]/"],
+.opsis .opsis-legacy [class~="bg-[#4a3a32]"],
+.opsis .opsis-legacy [class~="!bg-[#4a3a32]"],
+.opsis .opsis-legacy [class*="bg-[#4a3a32]/"],
+.opsis .opsis-legacy [class~="bg-[#4a3b35]"],
+.opsis .opsis-legacy [class~="!bg-[#4a3b35]"],
+.opsis .opsis-legacy [class*="bg-[#4a3b35]/"],
+.opsis .opsis-legacy [class~="bg-[#4a443f]"],
+.opsis .opsis-legacy [class~="!bg-[#4a443f]"],
+.opsis .opsis-legacy [class*="bg-[#4a443f]/"],
+.opsis .opsis-legacy [class~="bg-[#4a4541]"],
+.opsis .opsis-legacy [class~="!bg-[#4a4541]"],
+.opsis .opsis-legacy [class*="bg-[#4a4541]/"],
+.opsis .opsis-legacy [class~="bg-[#4a4642]"],
+.opsis .opsis-legacy [class~="!bg-[#4a4642]"],
+.opsis .opsis-legacy [class*="bg-[#4a4642]/"],
+.opsis .opsis-legacy [class~="bg-[#4a4743]"],
+.opsis .opsis-legacy [class~="!bg-[#4a4743]"],
+.opsis .opsis-legacy [class*="bg-[#4a4743]/"],
+.opsis .opsis-legacy [class~="bg-[#4b2114]"],
+.opsis .opsis-legacy [class~="!bg-[#4b2114]"],
+.opsis .opsis-legacy [class*="bg-[#4b2114]/"],
+.opsis .opsis-legacy [class~="bg-[#4b403b]"],
+.opsis .opsis-legacy [class~="!bg-[#4b403b]"],
+.opsis .opsis-legacy [class*="bg-[#4b403b]/"],
+.opsis .opsis-legacy [class~="bg-[#4b443e]"],
+.opsis .opsis-legacy [class~="!bg-[#4b443e]"],
+.opsis .opsis-legacy [class*="bg-[#4b443e]/"],
+.opsis .opsis-legacy [class~="bg-[#4c4844]"],
+.opsis .opsis-legacy [class~="!bg-[#4c4844]"],
+.opsis .opsis-legacy [class*="bg-[#4c4844]/"],
+.opsis .opsis-legacy [class~="bg-[#4d413b]"],
+.opsis .opsis-legacy [class~="!bg-[#4d413b]"],
+.opsis .opsis-legacy [class*="bg-[#4d413b]/"],
+.opsis .opsis-legacy [class~="bg-[#4d5c47]"],
+.opsis .opsis-legacy [class~="!bg-[#4d5c47]"],
+.opsis .opsis-legacy [class*="bg-[#4d5c47]/"],
+.opsis .opsis-legacy [class~="bg-[#4f4a46]"],
+.opsis .opsis-legacy [class~="!bg-[#4f4a46]"],
+.opsis .opsis-legacy [class*="bg-[#4f4a46]/"],
+.opsis .opsis-legacy [class~="bg-[#504840]"],
+.opsis .opsis-legacy [class~="!bg-[#504840]"],
+.opsis .opsis-legacy [class*="bg-[#504840]/"],
+.opsis .opsis-legacy [class~="bg-[#514a45]"],
+.opsis .opsis-legacy [class~="!bg-[#514a45]"],
+.opsis .opsis-legacy [class*="bg-[#514a45]/"],
+.opsis .opsis-legacy [class~="bg-[#52634b]"],
+.opsis .opsis-legacy [class~="!bg-[#52634b]"],
+.opsis .opsis-legacy [class*="bg-[#52634b]/"],
+.opsis .opsis-legacy [class~="bg-[#55443d]"],
+.opsis .opsis-legacy [class~="!bg-[#55443d]"],
+.opsis .opsis-legacy [class*="bg-[#55443d]/"],
+.opsis .opsis-legacy [class~="bg-[#55483d]"],
+.opsis .opsis-legacy [class~="!bg-[#55483d]"],
+.opsis .opsis-legacy [class*="bg-[#55483d]/"],
+.opsis .opsis-legacy [class~="bg-[#554a44]"],
+.opsis .opsis-legacy [class~="!bg-[#554a44]"],
+.opsis .opsis-legacy [class*="bg-[#554a44]/"],
+.opsis .opsis-legacy [class~="bg-[#555]"],
+.opsis .opsis-legacy [class~="!bg-[#555]"],
+.opsis .opsis-legacy [class*="bg-[#555]/"],
+.opsis .opsis-legacy [class~="bg-[#594439]"],
+.opsis .opsis-legacy [class~="!bg-[#594439]"],
+.opsis .opsis-legacy [class*="bg-[#594439]/"],
+.opsis .opsis-legacy [class~="bg-[#5b4a42]"],
+.opsis .opsis-legacy [class~="!bg-[#5b4a42]"],
+.opsis .opsis-legacy [class*="bg-[#5b4a42]/"],
+.opsis .opsis-legacy [class~="bg-[#635043]"],
+.opsis .opsis-legacy [class~="!bg-[#635043]"],
+.opsis .opsis-legacy [class*="bg-[#635043]/"],
+.opsis .opsis-legacy [class~="bg-[#63564c]"],
+.opsis .opsis-legacy [class~="!bg-[#63564c]"],
+.opsis .opsis-legacy [class*="bg-[#63564c]/"],
+.opsis .opsis-legacy [class~="bg-[#635d5a]"],
+.opsis .opsis-legacy [class~="!bg-[#635d5a]"],
+.opsis .opsis-legacy [class*="bg-[#635d5a]/"],
+.opsis .opsis-legacy [class~="bg-[#654333]"],
+.opsis .opsis-legacy [class~="!bg-[#654333]"],
+.opsis .opsis-legacy [class*="bg-[#654333]/"],
+.opsis .opsis-legacy [class~="bg-[#6a3b45]"],
+.opsis .opsis-legacy [class~="!bg-[#6a3b45]"],
+.opsis .opsis-legacy [class*="bg-[#6a3b45]/"],
+.opsis .opsis-legacy [class~="bg-[#6a4b3b]"],
+.opsis .opsis-legacy [class~="!bg-[#6a4b3b]"],
+.opsis .opsis-legacy [class*="bg-[#6a4b3b]/"],
+.opsis .opsis-legacy [class~="bg-[#6b4a3b]"],
+.opsis .opsis-legacy [class~="!bg-[#6b4a3b]"],
+.opsis .opsis-legacy [class*="bg-[#6b4a3b]/"],
+.opsis .opsis-legacy [class~="bg-[#6b4a3e]"],
+.opsis .opsis-legacy [class~="!bg-[#6b4a3e]"],
+.opsis .opsis-legacy [class*="bg-[#6b4a3e]/"] {
+  background-color: var(--panel) !important;
+}
+.opsis .opsis-legacy [class~="bg-[#cfc5ba]"],
+.opsis .opsis-legacy [class~="!bg-[#cfc5ba]"],
+.opsis .opsis-legacy [class*="bg-[#cfc5ba]/"],
+.opsis .opsis-legacy [class~="bg-[#d0c5bc]"],
+.opsis .opsis-legacy [class~="!bg-[#d0c5bc]"],
+.opsis .opsis-legacy [class*="bg-[#d0c5bc]/"],
+.opsis .opsis-legacy [class~="bg-[#d1dfc9]"],
+.opsis .opsis-legacy [class~="!bg-[#d1dfc9]"],
+.opsis .opsis-legacy [class*="bg-[#d1dfc9]/"],
+.opsis .opsis-legacy [class~="bg-[#d2c7bc]"],
+.opsis .opsis-legacy [class~="!bg-[#d2c7bc]"],
+.opsis .opsis-legacy [class*="bg-[#d2c7bc]/"],
+.opsis .opsis-legacy [class~="bg-[#d6ccba]"],
+.opsis .opsis-legacy [class~="!bg-[#d6ccba]"],
+.opsis .opsis-legacy [class*="bg-[#d6ccba]/"],
+.opsis .opsis-legacy [class~="bg-[#d6ccc2]"],
+.opsis .opsis-legacy [class~="!bg-[#d6ccc2]"],
+.opsis .opsis-legacy [class*="bg-[#d6ccc2]/"],
+.opsis .opsis-legacy [class~="bg-[#d8cec5]"],
+.opsis .opsis-legacy [class~="!bg-[#d8cec5]"],
+.opsis .opsis-legacy [class*="bg-[#d8cec5]/"],
+.opsis .opsis-legacy [class~="bg-[#d8cfc7]"],
+.opsis .opsis-legacy [class~="!bg-[#d8cfc7]"],
+.opsis .opsis-legacy [class*="bg-[#d8cfc7]/"],
+.opsis .opsis-legacy [class~="bg-[#ddd3c4]"],
+.opsis .opsis-legacy [class~="!bg-[#ddd3c4]"],
+.opsis .opsis-legacy [class*="bg-[#ddd3c4]/"],
+.opsis .opsis-legacy [class~="bg-[#ddd3ca]"],
+.opsis .opsis-legacy [class~="!bg-[#ddd3ca]"],
+.opsis .opsis-legacy [class*="bg-[#ddd3ca]/"],
+.opsis .opsis-legacy [class~="bg-[#ded5c8]"],
+.opsis .opsis-legacy [class~="!bg-[#ded5c8]"],
+.opsis .opsis-legacy [class*="bg-[#ded5c8]/"],
+.opsis .opsis-legacy [class~="bg-[#e0d7ce]"],
+.opsis .opsis-legacy [class~="!bg-[#e0d7ce]"],
+.opsis .opsis-legacy [class*="bg-[#e0d7ce]/"],
+.opsis .opsis-legacy [class~="bg-[#e2d9ca]"],
+.opsis .opsis-legacy [class~="!bg-[#e2d9ca]"],
+.opsis .opsis-legacy [class*="bg-[#e2d9ca]/"],
+.opsis .opsis-legacy [class~="bg-[#e2d9cc]"],
+.opsis .opsis-legacy [class~="!bg-[#e2d9cc]"],
+.opsis .opsis-legacy [class*="bg-[#e2d9cc]/"],
+.opsis .opsis-legacy [class~="bg-[#e6ddd4]"],
+.opsis .opsis-legacy [class~="!bg-[#e6ddd4]"],
+.opsis .opsis-legacy [class*="bg-[#e6ddd4]/"],
+.opsis .opsis-legacy [class~="bg-[#e9e0d1]"],
+.opsis .opsis-legacy [class~="!bg-[#e9e0d1]"],
+.opsis .opsis-legacy [class*="bg-[#e9e0d1]/"],
+.opsis .opsis-legacy [class~="bg-[#e9e0d8]"],
+.opsis .opsis-legacy [class~="!bg-[#e9e0d8]"],
+.opsis .opsis-legacy [class*="bg-[#e9e0d8]/"],
+.opsis .opsis-legacy [class~="bg-[#efe6dc]"],
+.opsis .opsis-legacy [class~="!bg-[#efe6dc]"],
+.opsis .opsis-legacy [class*="bg-[#efe6dc]/"],
+.opsis .opsis-legacy [class~="bg-[#f0e8da]"],
+.opsis .opsis-legacy [class~="!bg-[#f0e8da]"],
+.opsis .opsis-legacy [class*="bg-[#f0e8da]/"],
+.opsis .opsis-legacy [class~="bg-[#f0e8df]"],
+.opsis .opsis-legacy [class~="!bg-[#f0e8df]"],
+.opsis .opsis-legacy [class*="bg-[#f0e8df]/"],
+.opsis .opsis-legacy [class~="bg-[#f4ece4]"],
+.opsis .opsis-legacy [class~="!bg-[#f4ece4]"],
+.opsis .opsis-legacy [class*="bg-[#f4ece4]/"],
+.opsis .opsis-legacy [class~="bg-[#fff7ec]"],
+.opsis .opsis-legacy [class~="!bg-[#fff7ec]"],
+.opsis .opsis-legacy [class*="bg-[#fff7ec]/"],
+.opsis .opsis-legacy [class~="bg-[#fff7ef]"],
+.opsis .opsis-legacy [class~="!bg-[#fff7ef]"],
+.opsis .opsis-legacy [class*="bg-[#fff7ef]/"] {
+  background-color: var(--button) !important;
+}
+.opsis .opsis-legacy [class~="bg-[#fa6c34]"],
+.opsis .opsis-legacy [class~="!bg-[#fa6c34]"],
+.opsis .opsis-legacy [class*="bg-[#fa6c34]/"],
+.opsis .opsis-legacy [class~="bg-[#ff7038]"],
+.opsis .opsis-legacy [class~="!bg-[#ff7038]"],
+.opsis .opsis-legacy [class*="bg-[#ff7038]/"],
+.opsis .opsis-legacy [class~="bg-[#ff8655]"],
+.opsis .opsis-legacy [class~="!bg-[#ff8655]"],
+.opsis .opsis-legacy [class*="bg-[#ff8655]/"] {
+  background-color: var(--button) !important;
+}
+.opsis .opsis-legacy [class~="text-[#cfc5ba]"],
+.opsis .opsis-legacy [class~="!text-[#cfc5ba]"],
+.opsis .opsis-legacy [class*="text-[#cfc5ba]/"],
+.opsis .opsis-legacy [class~="text-[#d0c5bc]"],
+.opsis .opsis-legacy [class~="!text-[#d0c5bc]"],
+.opsis .opsis-legacy [class*="text-[#d0c5bc]/"],
+.opsis .opsis-legacy [class~="text-[#d1dfc9]"],
+.opsis .opsis-legacy [class~="!text-[#d1dfc9]"],
+.opsis .opsis-legacy [class*="text-[#d1dfc9]/"],
+.opsis .opsis-legacy [class~="text-[#d2c7bc]"],
+.opsis .opsis-legacy [class~="!text-[#d2c7bc]"],
+.opsis .opsis-legacy [class*="text-[#d2c7bc]/"],
+.opsis .opsis-legacy [class~="text-[#d6ccba]"],
+.opsis .opsis-legacy [class~="!text-[#d6ccba]"],
+.opsis .opsis-legacy [class*="text-[#d6ccba]/"],
+.opsis .opsis-legacy [class~="text-[#d6ccc2]"],
+.opsis .opsis-legacy [class~="!text-[#d6ccc2]"],
+.opsis .opsis-legacy [class*="text-[#d6ccc2]/"],
+.opsis .opsis-legacy [class~="text-[#d8cec5]"],
+.opsis .opsis-legacy [class~="!text-[#d8cec5]"],
+.opsis .opsis-legacy [class*="text-[#d8cec5]/"],
+.opsis .opsis-legacy [class~="text-[#d8cfc7]"],
+.opsis .opsis-legacy [class~="!text-[#d8cfc7]"],
+.opsis .opsis-legacy [class*="text-[#d8cfc7]/"],
+.opsis .opsis-legacy [class~="text-[#ddd3c4]"],
+.opsis .opsis-legacy [class~="!text-[#ddd3c4]"],
+.opsis .opsis-legacy [class*="text-[#ddd3c4]/"],
+.opsis .opsis-legacy [class~="text-[#ddd3ca]"],
+.opsis .opsis-legacy [class~="!text-[#ddd3ca]"],
+.opsis .opsis-legacy [class*="text-[#ddd3ca]/"],
+.opsis .opsis-legacy [class~="text-[#ded5c8]"],
+.opsis .opsis-legacy [class~="!text-[#ded5c8]"],
+.opsis .opsis-legacy [class*="text-[#ded5c8]/"],
+.opsis .opsis-legacy [class~="text-[#e0d7ce]"],
+.opsis .opsis-legacy [class~="!text-[#e0d7ce]"],
+.opsis .opsis-legacy [class*="text-[#e0d7ce]/"],
+.opsis .opsis-legacy [class~="text-[#e2d9ca]"],
+.opsis .opsis-legacy [class~="!text-[#e2d9ca]"],
+.opsis .opsis-legacy [class*="text-[#e2d9ca]/"],
+.opsis .opsis-legacy [class~="text-[#e2d9cc]"],
+.opsis .opsis-legacy [class~="!text-[#e2d9cc]"],
+.opsis .opsis-legacy [class*="text-[#e2d9cc]/"],
+.opsis .opsis-legacy [class~="text-[#e6ddd4]"],
+.opsis .opsis-legacy [class~="!text-[#e6ddd4]"],
+.opsis .opsis-legacy [class*="text-[#e6ddd4]/"],
+.opsis .opsis-legacy [class~="text-[#e9e0d1]"],
+.opsis .opsis-legacy [class~="!text-[#e9e0d1]"],
+.opsis .opsis-legacy [class*="text-[#e9e0d1]/"],
+.opsis .opsis-legacy [class~="text-[#e9e0d8]"],
+.opsis .opsis-legacy [class~="!text-[#e9e0d8]"],
+.opsis .opsis-legacy [class*="text-[#e9e0d8]/"],
+.opsis .opsis-legacy [class~="text-[#efe6dc]"],
+.opsis .opsis-legacy [class~="!text-[#efe6dc]"],
+.opsis .opsis-legacy [class*="text-[#efe6dc]/"],
+.opsis .opsis-legacy [class~="text-[#f0e8da]"],
+.opsis .opsis-legacy [class~="!text-[#f0e8da]"],
+.opsis .opsis-legacy [class*="text-[#f0e8da]/"],
+.opsis .opsis-legacy [class~="text-[#f0e8df]"],
+.opsis .opsis-legacy [class~="!text-[#f0e8df]"],
+.opsis .opsis-legacy [class*="text-[#f0e8df]/"],
+.opsis .opsis-legacy [class~="text-[#f4ece4]"],
+.opsis .opsis-legacy [class~="!text-[#f4ece4]"],
+.opsis .opsis-legacy [class*="text-[#f4ece4]/"],
+.opsis .opsis-legacy [class~="text-[#fff7ec]"],
+.opsis .opsis-legacy [class~="!text-[#fff7ec]"],
+.opsis .opsis-legacy [class*="text-[#fff7ec]/"],
+.opsis .opsis-legacy [class~="text-[#fff7ef]"],
+.opsis .opsis-legacy [class~="!text-[#fff7ef]"],
+.opsis .opsis-legacy [class*="text-[#fff7ef]/"],
+.opsis .opsis-legacy [class~="text-[#c9a6ff]"],
+.opsis .opsis-legacy [class~="!text-[#c9a6ff]"],
+.opsis .opsis-legacy [class*="text-[#c9a6ff]/"],
+.opsis .opsis-legacy [class~="text-[#fa6c34]"],
+.opsis .opsis-legacy [class~="!text-[#fa6c34]"],
+.opsis .opsis-legacy [class*="text-[#fa6c34]/"],
+.opsis .opsis-legacy [class~="text-[#ff7038]"],
+.opsis .opsis-legacy [class~="!text-[#ff7038]"],
+.opsis .opsis-legacy [class*="text-[#ff7038]/"],
+.opsis .opsis-legacy [class~="text-[#ff8655]"],
+.opsis .opsis-legacy [class~="!text-[#ff8655]"],
+.opsis .opsis-legacy [class*="text-[#ff8655]/"],
+.opsis .opsis-legacy [class~="text-[#ff8957]"],
+.opsis .opsis-legacy [class~="!text-[#ff8957]"],
+.opsis .opsis-legacy [class*="text-[#ff8957]/"],
+.opsis .opsis-legacy [class~="text-[#ff985e]"],
+.opsis .opsis-legacy [class~="!text-[#ff985e]"],
+.opsis .opsis-legacy [class*="text-[#ff985e]/"],
+.opsis .opsis-legacy [class~="text-[#ffd0a8]"],
+.opsis .opsis-legacy [class~="!text-[#ffd0a8]"],
+.opsis .opsis-legacy [class*="text-[#ffd0a8]/"] {
+  color: var(--ink) !important;
+}
+.opsis .opsis-legacy [class~="text-[#6ea879]"],
+.opsis .opsis-legacy [class~="!text-[#6ea879]"],
+.opsis .opsis-legacy [class*="text-[#6ea879]/"],
+.opsis .opsis-legacy [class~="text-[#6f4b3e]"],
+.opsis .opsis-legacy [class~="!text-[#6f4b3e]"],
+.opsis .opsis-legacy [class*="text-[#6f4b3e]/"],
+.opsis .opsis-legacy [class~="text-[#705044]"],
+.opsis .opsis-legacy [class~="!text-[#705044]"],
+.opsis .opsis-legacy [class*="text-[#705044]/"],
+.opsis .opsis-legacy [class~="text-[#706a64]"],
+.opsis .opsis-legacy [class~="!text-[#706a64]"],
+.opsis .opsis-legacy [class*="text-[#706a64]/"],
+.opsis .opsis-legacy [class~="text-[#716b65]"],
+.opsis .opsis-legacy [class~="!text-[#716b65]"],
+.opsis .opsis-legacy [class*="text-[#716b65]/"],
+.opsis .opsis-legacy [class~="text-[#756d68]"],
+.opsis .opsis-legacy [class~="!text-[#756d68]"],
+.opsis .opsis-legacy [class*="text-[#756d68]/"],
+.opsis .opsis-legacy [class~="text-[#766a60]"],
+.opsis .opsis-legacy [class~="!text-[#766a60]"],
+.opsis .opsis-legacy [class*="text-[#766a60]/"],
+.opsis .opsis-legacy [class~="text-[#766f68]"],
+.opsis .opsis-legacy [class~="!text-[#766f68]"],
+.opsis .opsis-legacy [class*="text-[#766f68]/"],
+.opsis .opsis-legacy [class~="text-[#7d756e]"],
+.opsis .opsis-legacy [class~="!text-[#7d756e]"],
+.opsis .opsis-legacy [class*="text-[#7d756e]/"],
+.opsis .opsis-legacy [class~="text-[#7f7972]"],
+.opsis .opsis-legacy [class~="!text-[#7f7972]"],
+.opsis .opsis-legacy [class*="text-[#7f7972]/"],
+.opsis .opsis-legacy [class~="text-[#817872]"],
+.opsis .opsis-legacy [class~="!text-[#817872]"],
+.opsis .opsis-legacy [class*="text-[#817872]/"],
+.opsis .opsis-legacy [class~="text-[#887366]"],
+.opsis .opsis-legacy [class~="!text-[#887366]"],
+.opsis .opsis-legacy [class*="text-[#887366]/"],
+.opsis .opsis-legacy [class~="text-[#8bc496]"],
+.opsis .opsis-legacy [class~="!text-[#8bc496]"],
+.opsis .opsis-legacy [class*="text-[#8bc496]/"],
+.opsis .opsis-legacy [class~="text-[#8c8076]"],
+.opsis .opsis-legacy [class~="!text-[#8c8076]"],
+.opsis .opsis-legacy [class*="text-[#8c8076]/"],
+.opsis .opsis-legacy [class~="text-[#8e8881]"],
+.opsis .opsis-legacy [class~="!text-[#8e8881]"],
+.opsis .opsis-legacy [class*="text-[#8e8881]/"],
+.opsis .opsis-legacy [class~="text-[#8f837b]"],
+.opsis .opsis-legacy [class~="!text-[#8f837b]"],
+.opsis .opsis-legacy [class*="text-[#8f837b]/"],
+.opsis .opsis-legacy [class~="text-[#8f8780]"],
+.opsis .opsis-legacy [class~="!text-[#8f8780]"],
+.opsis .opsis-legacy [class*="text-[#8f8780]/"],
+.opsis .opsis-legacy [class~="text-[#8f8880]"],
+.opsis .opsis-legacy [class~="!text-[#8f8880]"],
+.opsis .opsis-legacy [class*="text-[#8f8880]/"],
+.opsis .opsis-legacy [class~="text-[#8fba7f]"],
+.opsis .opsis-legacy [class~="!text-[#8fba7f]"],
+.opsis .opsis-legacy [class*="text-[#8fba7f]/"],
+.opsis .opsis-legacy [class~="text-[#99918a]"],
+.opsis .opsis-legacy [class~="!text-[#99918a]"],
+.opsis .opsis-legacy [class*="text-[#99918a]/"],
+.opsis .opsis-legacy [class~="text-[#9a938a]"],
+.opsis .opsis-legacy [class~="!text-[#9a938a]"],
+.opsis .opsis-legacy [class*="text-[#9a938a]/"],
+.opsis .opsis-legacy [class~="text-[#9f9790]"],
+.opsis .opsis-legacy [class~="!text-[#9f9790]"],
+.opsis .opsis-legacy [class*="text-[#9f9790]/"],
+.opsis .opsis-legacy [class~="text-[#9fc68f]"],
+.opsis .opsis-legacy [class~="!text-[#9fc68f]"],
+.opsis .opsis-legacy [class*="text-[#9fc68f]/"],
+.opsis .opsis-legacy [class~="text-[#a09790]"],
+.opsis .opsis-legacy [class~="!text-[#a09790]"],
+.opsis .opsis-legacy [class*="text-[#a09790]/"],
+.opsis .opsis-legacy [class~="text-[#a19992]"],
+.opsis .opsis-legacy [class~="!text-[#a19992]"],
+.opsis .opsis-legacy [class*="text-[#a19992]/"],
+.opsis .opsis-legacy [class~="text-[#a76978]"],
+.opsis .opsis-legacy [class~="!text-[#a76978]"],
+.opsis .opsis-legacy [class*="text-[#a76978]/"],
+.opsis .opsis-legacy [class~="text-[#a8a198]"],
+.opsis .opsis-legacy [class~="!text-[#a8a198]"],
+.opsis .opsis-legacy [class*="text-[#a8a198]/"],
+.opsis .opsis-legacy [class~="text-[#a99e94]"],
+.opsis .opsis-legacy [class~="!text-[#a99e94]"],
+.opsis .opsis-legacy [class*="text-[#a99e94]/"],
+.opsis .opsis-legacy [class~="text-[#a9a098]"],
+.opsis .opsis-legacy [class~="!text-[#a9a098]"],
+.opsis .opsis-legacy [class*="text-[#a9a098]/"],
+.opsis .opsis-legacy [class~="text-[#aaa097]"],
+.opsis .opsis-legacy [class~="!text-[#aaa097]"],
+.opsis .opsis-legacy [class*="text-[#aaa097]/"],
+.opsis .opsis-legacy [class~="text-[#aaa197]"],
+.opsis .opsis-legacy [class~="!text-[#aaa197]"],
+.opsis .opsis-legacy [class*="text-[#aaa197]/"],
+.opsis .opsis-legacy [class~="text-[#aaa19a]"],
+.opsis .opsis-legacy [class~="!text-[#aaa19a]"],
+.opsis .opsis-legacy [class*="text-[#aaa19a]/"],
+.opsis .opsis-legacy [class~="text-[#aaa39b]"],
+.opsis .opsis-legacy [class~="!text-[#aaa39b]"],
+.opsis .opsis-legacy [class*="text-[#aaa39b]/"],
+.opsis .opsis-legacy [class~="text-[#b1aaa0]"],
+.opsis .opsis-legacy [class~="!text-[#b1aaa0]"],
+.opsis .opsis-legacy [class*="text-[#b1aaa0]/"],
+.opsis .opsis-legacy [class~="text-[#b5ada2]"],
+.opsis .opsis-legacy [class~="!text-[#b5ada2]"],
+.opsis .opsis-legacy [class*="text-[#b5ada2]/"],
+.opsis .opsis-legacy [class~="text-[#b6aea4]"],
+.opsis .opsis-legacy [class~="!text-[#b6aea4]"],
+.opsis .opsis-legacy [class*="text-[#b6aea4]/"],
+.opsis .opsis-legacy [class~="text-[#b7aea2]"],
+.opsis .opsis-legacy [class~="!text-[#b7aea2]"],
+.opsis .opsis-legacy [class*="text-[#b7aea2]/"],
+.opsis .opsis-legacy [class~="text-[#b8b0a7]"],
+.opsis .opsis-legacy [class~="!text-[#b8b0a7]"],
+.opsis .opsis-legacy [class*="text-[#b8b0a7]/"],
+.opsis .opsis-legacy [class~="text-[#bbb2a8]"],
+.opsis .opsis-legacy [class~="!text-[#bbb2a8]"],
+.opsis .opsis-legacy [class*="text-[#bbb2a8]/"],
+.opsis .opsis-legacy [class~="text-[#bdb3a6]"],
+.opsis .opsis-legacy [class~="!text-[#bdb3a6]"],
+.opsis .opsis-legacy [class*="text-[#bdb3a6]/"],
+.opsis .opsis-legacy [class~="text-[#bdb4ac]"],
+.opsis .opsis-legacy [class~="!text-[#bdb4ac]"],
+.opsis .opsis-legacy [class*="text-[#bdb4ac]/"],
+.opsis .opsis-legacy [class~="text-[#bfe4af]"],
+.opsis .opsis-legacy [class~="!text-[#bfe4af]"],
+.opsis .opsis-legacy [class*="text-[#bfe4af]/"],
+.opsis .opsis-legacy [class~="text-[#c1b8ab]"],
+.opsis .opsis-legacy [class~="!text-[#c1b8ab]"],
+.opsis .opsis-legacy [class*="text-[#c1b8ab]/"],
+.opsis .opsis-legacy [class~="text-[#c2b7ae]"],
+.opsis .opsis-legacy [class~="!text-[#c2b7ae]"],
+.opsis .opsis-legacy [class*="text-[#c2b7ae]/"],
+.opsis .opsis-legacy [class~="text-[#c3b8ad]"],
+.opsis .opsis-legacy [class~="!text-[#c3b8ad]"],
+.opsis .opsis-legacy [class*="text-[#c3b8ad]/"],
+.opsis .opsis-legacy [class~="text-[#c7bdb0]"],
+.opsis .opsis-legacy [class~="!text-[#c7bdb0]"],
+.opsis .opsis-legacy [class*="text-[#c7bdb0]/"],
+.opsis .opsis-legacy [class~="text-[#c7d7b8]"],
+.opsis .opsis-legacy [class~="!text-[#c7d7b8]"],
+.opsis .opsis-legacy [class*="text-[#c7d7b8]/"],
+.opsis .opsis-legacy [class~="text-[#c8beb4]"],
+.opsis .opsis-legacy [class~="!text-[#c8beb4]"],
+.opsis .opsis-legacy [class*="text-[#c8beb4]/"],
+.opsis .opsis-legacy [class~="text-[#c8bfb6]"],
+.opsis .opsis-legacy [class~="!text-[#c8bfb6]"],
+.opsis .opsis-legacy [class*="text-[#c8bfb6]/"],
+.opsis .opsis-legacy [class~="text-[#c8ecb8]"],
+.opsis .opsis-legacy [class~="!text-[#c8ecb8]"],
+.opsis .opsis-legacy [class*="text-[#c8ecb8]/"],
+.opsis .opsis-legacy [class~="text-[#c9a697]"],
+.opsis .opsis-legacy [class~="!text-[#c9a697]"],
+.opsis .opsis-legacy [class*="text-[#c9a697]/"],
+.opsis .opsis-legacy [class~="text-[#c9bfae]"],
+.opsis .opsis-legacy [class~="!text-[#c9bfae]"],
+.opsis .opsis-legacy [class*="text-[#c9bfae]/"],
+.opsis .opsis-legacy [class~="text-[#d99aab]"],
+.opsis .opsis-legacy [class~="!text-[#d99aab]"],
+.opsis .opsis-legacy [class*="text-[#d99aab]/"] {
+  color: var(--soft) !important;
+}
+.opsis .opsis-legacy [class~="text-[#171615]"],
+.opsis .opsis-legacy [class~="!text-[#171615]"],
+.opsis .opsis-legacy [class*="text-[#171615]/"],
+.opsis .opsis-legacy [class~="text-[#171717]"],
+.opsis .opsis-legacy [class~="!text-[#171717]"],
+.opsis .opsis-legacy [class*="text-[#171717]/"],
+.opsis .opsis-legacy [class~="text-[#172015]"],
+.opsis .opsis-legacy [class~="!text-[#172015]"],
+.opsis .opsis-legacy [class*="text-[#172015]/"],
+.opsis .opsis-legacy [class~="text-[#181716]"],
+.opsis .opsis-legacy [class~="!text-[#181716]"],
+.opsis .opsis-legacy [class*="text-[#181716]/"],
+.opsis .opsis-legacy [class~="text-[#181818]"],
+.opsis .opsis-legacy [class~="!text-[#181818]"],
+.opsis .opsis-legacy [class*="text-[#181818]/"],
+.opsis .opsis-legacy [class~="text-[#191817]"],
+.opsis .opsis-legacy [class~="!text-[#191817]"],
+.opsis .opsis-legacy [class*="text-[#191817]/"],
+.opsis .opsis-legacy [class~="text-[#191919]"],
+.opsis .opsis-legacy [class~="!text-[#191919]"],
+.opsis .opsis-legacy [class*="text-[#191919]/"],
+.opsis .opsis-legacy [class~="text-[#1a1918]"],
+.opsis .opsis-legacy [class~="!text-[#1a1918]"],
+.opsis .opsis-legacy [class*="text-[#1a1918]/"],
+.opsis .opsis-legacy [class~="text-[#1b1a19]"],
+.opsis .opsis-legacy [class~="!text-[#1b1a19]"],
+.opsis .opsis-legacy [class*="text-[#1b1a19]/"],
+.opsis .opsis-legacy [class~="text-[#1b1b1b]"],
+.opsis .opsis-legacy [class~="!text-[#1b1b1b]"],
+.opsis .opsis-legacy [class*="text-[#1b1b1b]/"],
+.opsis .opsis-legacy [class~="text-[#1c1b1a]"],
+.opsis .opsis-legacy [class~="!text-[#1c1b1a]"],
+.opsis .opsis-legacy [class*="text-[#1c1b1a]/"],
+.opsis .opsis-legacy [class~="text-[#1c1c1c]"],
+.opsis .opsis-legacy [class~="!text-[#1c1c1c]"],
+.opsis .opsis-legacy [class*="text-[#1c1c1c]/"],
+.opsis .opsis-legacy [class~="text-[#1c241e]"],
+.opsis .opsis-legacy [class~="!text-[#1c241e]"],
+.opsis .opsis-legacy [class*="text-[#1c241e]/"],
+.opsis .opsis-legacy [class~="text-[#1d1b1a]"],
+.opsis .opsis-legacy [class~="!text-[#1d1b1a]"],
+.opsis .opsis-legacy [class*="text-[#1d1b1a]/"],
+.opsis .opsis-legacy [class~="text-[#1d1d1d]"],
+.opsis .opsis-legacy [class~="!text-[#1d1d1d]"],
+.opsis .opsis-legacy [class*="text-[#1d1d1d]/"],
+.opsis .opsis-legacy [class~="text-[#1f1f1f]"],
+.opsis .opsis-legacy [class~="!text-[#1f1f1f]"],
+.opsis .opsis-legacy [class*="text-[#1f1f1f]/"],
+.opsis .opsis-legacy [class~="text-[#1f3a2b]"],
+.opsis .opsis-legacy [class~="!text-[#1f3a2b]"],
+.opsis .opsis-legacy [class*="text-[#1f3a2b]/"],
+.opsis .opsis-legacy [class~="text-[#201e1c]"],
+.opsis .opsis-legacy [class~="!text-[#201e1c]"],
+.opsis .opsis-legacy [class*="text-[#201e1c]/"],
+.opsis .opsis-legacy [class~="text-[#20201f]"],
+.opsis .opsis-legacy [class~="!text-[#20201f]"],
+.opsis .opsis-legacy [class*="text-[#20201f]/"],
+.opsis .opsis-legacy [class~="text-[#202020]"],
+.opsis .opsis-legacy [class~="!text-[#202020]"],
+.opsis .opsis-legacy [class*="text-[#202020]/"],
+.opsis .opsis-legacy [class~="text-[#20251f]"],
+.opsis .opsis-legacy [class~="!text-[#20251f]"],
+.opsis .opsis-legacy [class*="text-[#20251f]/"],
+.opsis .opsis-legacy [class~="text-[#20261e]"],
+.opsis .opsis-legacy [class~="!text-[#20261e]"],
+.opsis .opsis-legacy [class*="text-[#20261e]/"],
+.opsis .opsis-legacy [class~="text-[#211d18]"],
+.opsis .opsis-legacy [class~="!text-[#211d18]"],
+.opsis .opsis-legacy [class*="text-[#211d18]/"],
+.opsis .opsis-legacy [class~="text-[#211e1b]"],
+.opsis .opsis-legacy [class~="!text-[#211e1b]"],
+.opsis .opsis-legacy [class*="text-[#211e1b]/"],
+.opsis .opsis-legacy [class~="text-[#211e1c]"],
+.opsis .opsis-legacy [class~="!text-[#211e1c]"],
+.opsis .opsis-legacy [class*="text-[#211e1c]/"],
+.opsis .opsis-legacy [class~="text-[#211f1c]"],
+.opsis .opsis-legacy [class~="!text-[#211f1c]"],
+.opsis .opsis-legacy [class*="text-[#211f1c]/"],
+.opsis .opsis-legacy [class~="text-[#211f1d]"],
+.opsis .opsis-legacy [class~="!text-[#211f1d]"],
+.opsis .opsis-legacy [class*="text-[#211f1d]/"],
+.opsis .opsis-legacy [class~="text-[#211f1e]"],
+.opsis .opsis-legacy [class~="!text-[#211f1e]"],
+.opsis .opsis-legacy [class*="text-[#211f1e]/"],
+.opsis .opsis-legacy [class~="text-[#22201f]"],
+.opsis .opsis-legacy [class~="!text-[#22201f]"],
+.opsis .opsis-legacy [class*="text-[#22201f]/"],
+.opsis .opsis-legacy [class~="text-[#222222]"],
+.opsis .opsis-legacy [class~="!text-[#222222]"],
+.opsis .opsis-legacy [class*="text-[#222222]/"],
+.opsis .opsis-legacy [class~="text-[#222721]"],
+.opsis .opsis-legacy [class~="!text-[#222721]"],
+.opsis .opsis-legacy [class*="text-[#222721]/"],
+.opsis .opsis-legacy [class~="text-[#222722]"],
+.opsis .opsis-legacy [class~="!text-[#222722]"],
+.opsis .opsis-legacy [class*="text-[#222722]/"],
+.opsis .opsis-legacy [class~="text-[#23211f]"],
+.opsis .opsis-legacy [class~="!text-[#23211f]"],
+.opsis .opsis-legacy [class*="text-[#23211f]/"],
+.opsis .opsis-legacy [class~="text-[#241d18]"],
+.opsis .opsis-legacy [class~="!text-[#241d18]"],
+.opsis .opsis-legacy [class*="text-[#241d18]/"],
+.opsis .opsis-legacy [class~="text-[#241f1c]"],
+.opsis .opsis-legacy [class~="!text-[#241f1c]"],
+.opsis .opsis-legacy [class*="text-[#241f1c]/"],
+.opsis .opsis-legacy [class~="text-[#24211f]"],
+.opsis .opsis-legacy [class~="!text-[#24211f]"],
+.opsis .opsis-legacy [class*="text-[#24211f]/"],
+.opsis .opsis-legacy [class~="text-[#242220]"],
+.opsis .opsis-legacy [class~="!text-[#242220]"],
+.opsis .opsis-legacy [class*="text-[#242220]/"],
+.opsis .opsis-legacy [class~="text-[#242321]"],
+.opsis .opsis-legacy [class~="!text-[#242321]"],
+.opsis .opsis-legacy [class*="text-[#242321]/"],
+.opsis .opsis-legacy [class~="text-[#242424]"],
+.opsis .opsis-legacy [class~="!text-[#242424]"],
+.opsis .opsis-legacy [class*="text-[#242424]/"],
+.opsis .opsis-legacy [class~="text-[#252321]"],
+.opsis .opsis-legacy [class~="!text-[#252321]"],
+.opsis .opsis-legacy [class*="text-[#252321]/"],
+.opsis .opsis-legacy [class~="text-[#26211f]"],
+.opsis .opsis-legacy [class~="!text-[#26211f]"],
+.opsis .opsis-legacy [class*="text-[#26211f]/"],
+.opsis .opsis-legacy [class~="text-[#26221f]"],
+.opsis .opsis-legacy [class~="!text-[#26221f]"],
+.opsis .opsis-legacy [class*="text-[#26221f]/"],
+.opsis .opsis-legacy [class~="text-[#27221f]"],
+.opsis .opsis-legacy [class~="!text-[#27221f]"],
+.opsis .opsis-legacy [class*="text-[#27221f]/"],
+.opsis .opsis-legacy [class~="text-[#272321]"],
+.opsis .opsis-legacy [class~="!text-[#272321]"],
+.opsis .opsis-legacy [class*="text-[#272321]/"],
+.opsis .opsis-legacy [class~="text-[#282022]"],
+.opsis .opsis-legacy [class~="!text-[#282022]"],
+.opsis .opsis-legacy [class*="text-[#282022]/"],
+.opsis .opsis-legacy [class~="text-[#28211e]"],
+.opsis .opsis-legacy [class~="!text-[#28211e]"],
+.opsis .opsis-legacy [class*="text-[#28211e]/"],
+.opsis .opsis-legacy [class~="text-[#28221e]"],
+.opsis .opsis-legacy [class~="!text-[#28221e]"],
+.opsis .opsis-legacy [class*="text-[#28221e]/"],
+.opsis .opsis-legacy [class~="text-[#28221f]"],
+.opsis .opsis-legacy [class~="!text-[#28221f]"],
+.opsis .opsis-legacy [class*="text-[#28221f]/"],
+.opsis .opsis-legacy [class~="text-[#29221f]"],
+.opsis .opsis-legacy [class~="!text-[#29221f]"],
+.opsis .opsis-legacy [class*="text-[#29221f]/"],
+.opsis .opsis-legacy [class~="text-[#292320]"],
+.opsis .opsis-legacy [class~="!text-[#292320]"],
+.opsis .opsis-legacy [class*="text-[#292320]/"],
+.opsis .opsis-legacy [class~="text-[#29251f]"],
+.opsis .opsis-legacy [class~="!text-[#29251f]"],
+.opsis .opsis-legacy [class*="text-[#29251f]/"],
+.opsis .opsis-legacy [class~="text-[#2a211d]"],
+.opsis .opsis-legacy [class~="!text-[#2a211d]"],
+.opsis .opsis-legacy [class*="text-[#2a211d]/"],
+.opsis .opsis-legacy [class~="text-[#2a211e]"],
+.opsis .opsis-legacy [class~="!text-[#2a211e]"],
+.opsis .opsis-legacy [class*="text-[#2a211e]/"],
+.opsis .opsis-legacy [class~="text-[#2a231d]"],
+.opsis .opsis-legacy [class~="!text-[#2a231d]"],
+.opsis .opsis-legacy [class*="text-[#2a231d]/"],
+.opsis .opsis-legacy [class~="text-[#2a2421]"],
+.opsis .opsis-legacy [class~="!text-[#2a2421]"],
+.opsis .opsis-legacy [class*="text-[#2a2421]/"],
+.opsis .opsis-legacy [class~="text-[#2a2928]"],
+.opsis .opsis-legacy [class~="!text-[#2a2928]"],
+.opsis .opsis-legacy [class*="text-[#2a2928]/"],
+.opsis .opsis-legacy [class~="text-[#2a2a2a]"],
+.opsis .opsis-legacy [class~="!text-[#2a2a2a]"],
+.opsis .opsis-legacy [class*="text-[#2a2a2a]/"],
+.opsis .opsis-legacy [class~="text-[#2b2023]"],
+.opsis .opsis-legacy [class~="!text-[#2b2023]"],
+.opsis .opsis-legacy [class*="text-[#2b2023]/"],
+.opsis .opsis-legacy [class~="text-[#2b211c]"],
+.opsis .opsis-legacy [class~="!text-[#2b211c]"],
+.opsis .opsis-legacy [class*="text-[#2b211c]/"],
+.opsis .opsis-legacy [class~="text-[#2b2421]"],
+.opsis .opsis-legacy [class~="!text-[#2b2421]"],
+.opsis .opsis-legacy [class*="text-[#2b2421]/"],
+.opsis .opsis-legacy [class~="text-[#2b2521]"],
+.opsis .opsis-legacy [class~="!text-[#2b2521]"],
+.opsis .opsis-legacy [class*="text-[#2b2521]/"],
+.opsis .opsis-legacy [class~="text-[#2b2725]"],
+.opsis .opsis-legacy [class~="!text-[#2b2725]"],
+.opsis .opsis-legacy [class*="text-[#2b2725]/"],
+.opsis .opsis-legacy [class~="text-[#2b2b2b]"],
+.opsis .opsis-legacy [class~="!text-[#2b2b2b]"],
+.opsis .opsis-legacy [class*="text-[#2b2b2b]/"],
+.opsis .opsis-legacy [class~="text-[#2d2b29]"],
+.opsis .opsis-legacy [class~="!text-[#2d2b29]"],
+.opsis .opsis-legacy [class*="text-[#2d2b29]/"],
+.opsis .opsis-legacy [class~="text-[#2e2e2e]"],
+.opsis .opsis-legacy [class~="!text-[#2e2e2e]"],
+.opsis .opsis-legacy [class*="text-[#2e2e2e]/"],
+.opsis .opsis-legacy [class~="text-[#2f2f2f]"],
+.opsis .opsis-legacy [class~="!text-[#2f2f2f]"],
+.opsis .opsis-legacy [class*="text-[#2f2f2f]/"],
+.opsis .opsis-legacy [class~="text-[#30221a]"],
+.opsis .opsis-legacy [class~="!text-[#30221a]"],
+.opsis .opsis-legacy [class*="text-[#30221a]/"],
+.opsis .opsis-legacy [class~="text-[#302823]"],
+.opsis .opsis-legacy [class~="!text-[#302823]"],
+.opsis .opsis-legacy [class*="text-[#302823]/"],
+.opsis .opsis-legacy [class~="text-[#333]"],
+.opsis .opsis-legacy [class~="!text-[#333]"],
+.opsis .opsis-legacy [class*="text-[#333]/"],
+.opsis .opsis-legacy [class~="text-[#34231e]"],
+.opsis .opsis-legacy [class~="!text-[#34231e]"],
+.opsis .opsis-legacy [class*="text-[#34231e]/"],
+.opsis .opsis-legacy [class~="text-[#34312f]"],
+.opsis .opsis-legacy [class~="!text-[#34312f]"],
+.opsis .opsis-legacy [class*="text-[#34312f]/"],
+.opsis .opsis-legacy [class~="text-[#343434]"],
+.opsis .opsis-legacy [class~="!text-[#343434]"],
+.opsis .opsis-legacy [class*="text-[#343434]/"],
+.opsis .opsis-legacy [class~="text-[#35312e]"],
+.opsis .opsis-legacy [class~="!text-[#35312e]"],
+.opsis .opsis-legacy [class*="text-[#35312e]/"],
+.opsis .opsis-legacy [class~="text-[#373330]"],
+.opsis .opsis-legacy [class~="!text-[#373330]"],
+.opsis .opsis-legacy [class*="text-[#373330]/"],
+.opsis .opsis-legacy [class~="text-[#383431]"],
+.opsis .opsis-legacy [class~="!text-[#383431]"],
+.opsis .opsis-legacy [class*="text-[#383431]/"],
+.opsis .opsis-legacy [class~="text-[#383838]"],
+.opsis .opsis-legacy [class~="!text-[#383838]"],
+.opsis .opsis-legacy [class*="text-[#383838]/"],
+.opsis .opsis-legacy [class~="text-[#393532]"],
+.opsis .opsis-legacy [class~="!text-[#393532]"],
+.opsis .opsis-legacy [class*="text-[#393532]/"],
+.opsis .opsis-legacy [class~="text-[#393633]"],
+.opsis .opsis-legacy [class~="!text-[#393633]"],
+.opsis .opsis-legacy [class*="text-[#393633]/"],
+.opsis .opsis-legacy [class~="text-[#3a231f]"],
+.opsis .opsis-legacy [class~="!text-[#3a231f]"],
+.opsis .opsis-legacy [class*="text-[#3a231f]/"],
+.opsis .opsis-legacy [class~="text-[#3a3633]"],
+.opsis .opsis-legacy [class~="!text-[#3a3633]"],
+.opsis .opsis-legacy [class*="text-[#3a3633]/"],
+.opsis .opsis-legacy [class~="text-[#3a3734]"],
+.opsis .opsis-legacy [class~="!text-[#3a3734]"],
+.opsis .opsis-legacy [class*="text-[#3a3734]/"],
+.opsis .opsis-legacy [class~="text-[#3b3735]"],
+.opsis .opsis-legacy [class~="!text-[#3b3735]"],
+.opsis .opsis-legacy [class*="text-[#3b3735]/"],
+.opsis .opsis-legacy [class~="text-[#3d5538]"],
+.opsis .opsis-legacy [class~="!text-[#3d5538]"],
+.opsis .opsis-legacy [class*="text-[#3d5538]/"],
+.opsis .opsis-legacy [class~="text-[#403b36]"],
+.opsis .opsis-legacy [class~="!text-[#403b36]"],
+.opsis .opsis-legacy [class*="text-[#403b36]/"],
+.opsis .opsis-legacy [class~="text-[#423a49]"],
+.opsis .opsis-legacy [class~="!text-[#423a49]"],
+.opsis .opsis-legacy [class*="text-[#423a49]/"],
+.opsis .opsis-legacy [class~="text-[#45403b]"],
+.opsis .opsis-legacy [class~="!text-[#45403b]"],
+.opsis .opsis-legacy [class*="text-[#45403b]/"],
+.opsis .opsis-legacy [class~="text-[#45413e]"],
+.opsis .opsis-legacy [class~="!text-[#45413e]"],
+.opsis .opsis-legacy [class*="text-[#45413e]/"],
+.opsis .opsis-legacy [class~="text-[#47413d]"],
+.opsis .opsis-legacy [class~="!text-[#47413d]"],
+.opsis .opsis-legacy [class*="text-[#47413d]/"],
+.opsis .opsis-legacy [class~="text-[#482116]"],
+.opsis .opsis-legacy [class~="!text-[#482116]"],
+.opsis .opsis-legacy [class*="text-[#482116]/"],
+.opsis .opsis-legacy [class~="text-[#48413b]"],
+.opsis .opsis-legacy [class~="!text-[#48413b]"],
+.opsis .opsis-legacy [class*="text-[#48413b]/"],
+.opsis .opsis-legacy [class~="text-[#484848]"],
+.opsis .opsis-legacy [class~="!text-[#484848]"],
+.opsis .opsis-legacy [class*="text-[#484848]/"],
+.opsis .opsis-legacy [class~="text-[#4a3a32]"],
+.opsis .opsis-legacy [class~="!text-[#4a3a32]"],
+.opsis .opsis-legacy [class*="text-[#4a3a32]/"],
+.opsis .opsis-legacy [class~="text-[#4a3b35]"],
+.opsis .opsis-legacy [class~="!text-[#4a3b35]"],
+.opsis .opsis-legacy [class*="text-[#4a3b35]/"],
+.opsis .opsis-legacy [class~="text-[#4a443f]"],
+.opsis .opsis-legacy [class~="!text-[#4a443f]"],
+.opsis .opsis-legacy [class*="text-[#4a443f]/"],
+.opsis .opsis-legacy [class~="text-[#4a4541]"],
+.opsis .opsis-legacy [class~="!text-[#4a4541]"],
+.opsis .opsis-legacy [class*="text-[#4a4541]/"],
+.opsis .opsis-legacy [class~="text-[#4a4642]"],
+.opsis .opsis-legacy [class~="!text-[#4a4642]"],
+.opsis .opsis-legacy [class*="text-[#4a4642]/"],
+.opsis .opsis-legacy [class~="text-[#4a4743]"],
+.opsis .opsis-legacy [class~="!text-[#4a4743]"],
+.opsis .opsis-legacy [class*="text-[#4a4743]/"],
+.opsis .opsis-legacy [class~="text-[#4b2114]"],
+.opsis .opsis-legacy [class~="!text-[#4b2114]"],
+.opsis .opsis-legacy [class*="text-[#4b2114]/"],
+.opsis .opsis-legacy [class~="text-[#4b403b]"],
+.opsis .opsis-legacy [class~="!text-[#4b403b]"],
+.opsis .opsis-legacy [class*="text-[#4b403b]/"],
+.opsis .opsis-legacy [class~="text-[#4b443e]"],
+.opsis .opsis-legacy [class~="!text-[#4b443e]"],
+.opsis .opsis-legacy [class*="text-[#4b443e]/"],
+.opsis .opsis-legacy [class~="text-[#4c4844]"],
+.opsis .opsis-legacy [class~="!text-[#4c4844]"],
+.opsis .opsis-legacy [class*="text-[#4c4844]/"],
+.opsis .opsis-legacy [class~="text-[#4d413b]"],
+.opsis .opsis-legacy [class~="!text-[#4d413b]"],
+.opsis .opsis-legacy [class*="text-[#4d413b]/"],
+.opsis .opsis-legacy [class~="text-[#4d5c47]"],
+.opsis .opsis-legacy [class~="!text-[#4d5c47]"],
+.opsis .opsis-legacy [class*="text-[#4d5c47]/"],
+.opsis .opsis-legacy [class~="text-[#4f4a46]"],
+.opsis .opsis-legacy [class~="!text-[#4f4a46]"],
+.opsis .opsis-legacy [class*="text-[#4f4a46]/"],
+.opsis .opsis-legacy [class~="text-[#504840]"],
+.opsis .opsis-legacy [class~="!text-[#504840]"],
+.opsis .opsis-legacy [class*="text-[#504840]/"],
+.opsis .opsis-legacy [class~="text-[#514a45]"],
+.opsis .opsis-legacy [class~="!text-[#514a45]"],
+.opsis .opsis-legacy [class*="text-[#514a45]/"],
+.opsis .opsis-legacy [class~="text-[#52634b]"],
+.opsis .opsis-legacy [class~="!text-[#52634b]"],
+.opsis .opsis-legacy [class*="text-[#52634b]/"],
+.opsis .opsis-legacy [class~="text-[#55443d]"],
+.opsis .opsis-legacy [class~="!text-[#55443d]"],
+.opsis .opsis-legacy [class*="text-[#55443d]/"],
+.opsis .opsis-legacy [class~="text-[#55483d]"],
+.opsis .opsis-legacy [class~="!text-[#55483d]"],
+.opsis .opsis-legacy [class*="text-[#55483d]/"],
+.opsis .opsis-legacy [class~="text-[#554a44]"],
+.opsis .opsis-legacy [class~="!text-[#554a44]"],
+.opsis .opsis-legacy [class*="text-[#554a44]/"],
+.opsis .opsis-legacy [class~="text-[#555]"],
+.opsis .opsis-legacy [class~="!text-[#555]"],
+.opsis .opsis-legacy [class*="text-[#555]/"],
+.opsis .opsis-legacy [class~="text-[#594439]"],
+.opsis .opsis-legacy [class~="!text-[#594439]"],
+.opsis .opsis-legacy [class*="text-[#594439]/"],
+.opsis .opsis-legacy [class~="text-[#5b4a42]"],
+.opsis .opsis-legacy [class~="!text-[#5b4a42]"],
+.opsis .opsis-legacy [class*="text-[#5b4a42]/"],
+.opsis .opsis-legacy [class~="text-[#635043]"],
+.opsis .opsis-legacy [class~="!text-[#635043]"],
+.opsis .opsis-legacy [class*="text-[#635043]/"],
+.opsis .opsis-legacy [class~="text-[#63564c]"],
+.opsis .opsis-legacy [class~="!text-[#63564c]"],
+.opsis .opsis-legacy [class*="text-[#63564c]/"],
+.opsis .opsis-legacy [class~="text-[#635d5a]"],
+.opsis .opsis-legacy [class~="!text-[#635d5a]"],
+.opsis .opsis-legacy [class*="text-[#635d5a]/"],
+.opsis .opsis-legacy [class~="text-[#654333]"],
+.opsis .opsis-legacy [class~="!text-[#654333]"],
+.opsis .opsis-legacy [class*="text-[#654333]/"],
+.opsis .opsis-legacy [class~="text-[#6a3b45]"],
+.opsis .opsis-legacy [class~="!text-[#6a3b45]"],
+.opsis .opsis-legacy [class*="text-[#6a3b45]/"],
+.opsis .opsis-legacy [class~="text-[#6a4b3b]"],
+.opsis .opsis-legacy [class~="!text-[#6a4b3b]"],
+.opsis .opsis-legacy [class*="text-[#6a4b3b]/"],
+.opsis .opsis-legacy [class~="text-[#6b4a3b]"],
+.opsis .opsis-legacy [class~="!text-[#6b4a3b]"],
+.opsis .opsis-legacy [class*="text-[#6b4a3b]/"],
+.opsis .opsis-legacy [class~="text-[#6b4a3e]"],
+.opsis .opsis-legacy [class~="!text-[#6b4a3e]"],
+.opsis .opsis-legacy [class*="text-[#6b4a3e]/"] {
+  color: var(--soft) !important;
+}
+.opsis .opsis-legacy [class~="border-[#171615]"],
+.opsis .opsis-legacy [class~="!border-[#171615]"],
+.opsis .opsis-legacy [class*="border-[#171615]/"],
+.opsis .opsis-legacy [class~="border-[#171717]"],
+.opsis .opsis-legacy [class~="!border-[#171717]"],
+.opsis .opsis-legacy [class*="border-[#171717]/"],
+.opsis .opsis-legacy [class~="border-[#172015]"],
+.opsis .opsis-legacy [class~="!border-[#172015]"],
+.opsis .opsis-legacy [class*="border-[#172015]/"],
+.opsis .opsis-legacy [class~="border-[#181716]"],
+.opsis .opsis-legacy [class~="!border-[#181716]"],
+.opsis .opsis-legacy [class*="border-[#181716]/"],
+.opsis .opsis-legacy [class~="border-[#181818]"],
+.opsis .opsis-legacy [class~="!border-[#181818]"],
+.opsis .opsis-legacy [class*="border-[#181818]/"],
+.opsis .opsis-legacy [class~="border-[#191817]"],
+.opsis .opsis-legacy [class~="!border-[#191817]"],
+.opsis .opsis-legacy [class*="border-[#191817]/"],
+.opsis .opsis-legacy [class~="border-[#191919]"],
+.opsis .opsis-legacy [class~="!border-[#191919]"],
+.opsis .opsis-legacy [class*="border-[#191919]/"],
+.opsis .opsis-legacy [class~="border-[#1a1918]"],
+.opsis .opsis-legacy [class~="!border-[#1a1918]"],
+.opsis .opsis-legacy [class*="border-[#1a1918]/"],
+.opsis .opsis-legacy [class~="border-[#1b1a19]"],
+.opsis .opsis-legacy [class~="!border-[#1b1a19]"],
+.opsis .opsis-legacy [class*="border-[#1b1a19]/"],
+.opsis .opsis-legacy [class~="border-[#1b1b1b]"],
+.opsis .opsis-legacy [class~="!border-[#1b1b1b]"],
+.opsis .opsis-legacy [class*="border-[#1b1b1b]/"],
+.opsis .opsis-legacy [class~="border-[#1c1b1a]"],
+.opsis .opsis-legacy [class~="!border-[#1c1b1a]"],
+.opsis .opsis-legacy [class*="border-[#1c1b1a]/"],
+.opsis .opsis-legacy [class~="border-[#1c1c1c]"],
+.opsis .opsis-legacy [class~="!border-[#1c1c1c]"],
+.opsis .opsis-legacy [class*="border-[#1c1c1c]/"],
+.opsis .opsis-legacy [class~="border-[#1c241e]"],
+.opsis .opsis-legacy [class~="!border-[#1c241e]"],
+.opsis .opsis-legacy [class*="border-[#1c241e]/"],
+.opsis .opsis-legacy [class~="border-[#1d1b1a]"],
+.opsis .opsis-legacy [class~="!border-[#1d1b1a]"],
+.opsis .opsis-legacy [class*="border-[#1d1b1a]/"],
+.opsis .opsis-legacy [class~="border-[#1d1d1d]"],
+.opsis .opsis-legacy [class~="!border-[#1d1d1d]"],
+.opsis .opsis-legacy [class*="border-[#1d1d1d]/"],
+.opsis .opsis-legacy [class~="border-[#1f1f1f]"],
+.opsis .opsis-legacy [class~="!border-[#1f1f1f]"],
+.opsis .opsis-legacy [class*="border-[#1f1f1f]/"],
+.opsis .opsis-legacy [class~="border-[#1f3a2b]"],
+.opsis .opsis-legacy [class~="!border-[#1f3a2b]"],
+.opsis .opsis-legacy [class*="border-[#1f3a2b]/"],
+.opsis .opsis-legacy [class~="border-[#201e1c]"],
+.opsis .opsis-legacy [class~="!border-[#201e1c]"],
+.opsis .opsis-legacy [class*="border-[#201e1c]/"],
+.opsis .opsis-legacy [class~="border-[#20201f]"],
+.opsis .opsis-legacy [class~="!border-[#20201f]"],
+.opsis .opsis-legacy [class*="border-[#20201f]/"],
+.opsis .opsis-legacy [class~="border-[#202020]"],
+.opsis .opsis-legacy [class~="!border-[#202020]"],
+.opsis .opsis-legacy [class*="border-[#202020]/"],
+.opsis .opsis-legacy [class~="border-[#20251f]"],
+.opsis .opsis-legacy [class~="!border-[#20251f]"],
+.opsis .opsis-legacy [class*="border-[#20251f]/"],
+.opsis .opsis-legacy [class~="border-[#20261e]"],
+.opsis .opsis-legacy [class~="!border-[#20261e]"],
+.opsis .opsis-legacy [class*="border-[#20261e]/"],
+.opsis .opsis-legacy [class~="border-[#211d18]"],
+.opsis .opsis-legacy [class~="!border-[#211d18]"],
+.opsis .opsis-legacy [class*="border-[#211d18]/"],
+.opsis .opsis-legacy [class~="border-[#211e1b]"],
+.opsis .opsis-legacy [class~="!border-[#211e1b]"],
+.opsis .opsis-legacy [class*="border-[#211e1b]/"],
+.opsis .opsis-legacy [class~="border-[#211e1c]"],
+.opsis .opsis-legacy [class~="!border-[#211e1c]"],
+.opsis .opsis-legacy [class*="border-[#211e1c]/"],
+.opsis .opsis-legacy [class~="border-[#211f1c]"],
+.opsis .opsis-legacy [class~="!border-[#211f1c]"],
+.opsis .opsis-legacy [class*="border-[#211f1c]/"],
+.opsis .opsis-legacy [class~="border-[#211f1d]"],
+.opsis .opsis-legacy [class~="!border-[#211f1d]"],
+.opsis .opsis-legacy [class*="border-[#211f1d]/"],
+.opsis .opsis-legacy [class~="border-[#211f1e]"],
+.opsis .opsis-legacy [class~="!border-[#211f1e]"],
+.opsis .opsis-legacy [class*="border-[#211f1e]/"],
+.opsis .opsis-legacy [class~="border-[#22201f]"],
+.opsis .opsis-legacy [class~="!border-[#22201f]"],
+.opsis .opsis-legacy [class*="border-[#22201f]/"],
+.opsis .opsis-legacy [class~="border-[#222222]"],
+.opsis .opsis-legacy [class~="!border-[#222222]"],
+.opsis .opsis-legacy [class*="border-[#222222]/"],
+.opsis .opsis-legacy [class~="border-[#222721]"],
+.opsis .opsis-legacy [class~="!border-[#222721]"],
+.opsis .opsis-legacy [class*="border-[#222721]/"],
+.opsis .opsis-legacy [class~="border-[#222722]"],
+.opsis .opsis-legacy [class~="!border-[#222722]"],
+.opsis .opsis-legacy [class*="border-[#222722]/"],
+.opsis .opsis-legacy [class~="border-[#23211f]"],
+.opsis .opsis-legacy [class~="!border-[#23211f]"],
+.opsis .opsis-legacy [class*="border-[#23211f]/"],
+.opsis .opsis-legacy [class~="border-[#241d18]"],
+.opsis .opsis-legacy [class~="!border-[#241d18]"],
+.opsis .opsis-legacy [class*="border-[#241d18]/"],
+.opsis .opsis-legacy [class~="border-[#241f1c]"],
+.opsis .opsis-legacy [class~="!border-[#241f1c]"],
+.opsis .opsis-legacy [class*="border-[#241f1c]/"],
+.opsis .opsis-legacy [class~="border-[#24211f]"],
+.opsis .opsis-legacy [class~="!border-[#24211f]"],
+.opsis .opsis-legacy [class*="border-[#24211f]/"],
+.opsis .opsis-legacy [class~="border-[#242220]"],
+.opsis .opsis-legacy [class~="!border-[#242220]"],
+.opsis .opsis-legacy [class*="border-[#242220]/"],
+.opsis .opsis-legacy [class~="border-[#242321]"],
+.opsis .opsis-legacy [class~="!border-[#242321]"],
+.opsis .opsis-legacy [class*="border-[#242321]/"],
+.opsis .opsis-legacy [class~="border-[#242424]"],
+.opsis .opsis-legacy [class~="!border-[#242424]"],
+.opsis .opsis-legacy [class*="border-[#242424]/"],
+.opsis .opsis-legacy [class~="border-[#252321]"],
+.opsis .opsis-legacy [class~="!border-[#252321]"],
+.opsis .opsis-legacy [class*="border-[#252321]/"],
+.opsis .opsis-legacy [class~="border-[#26211f]"],
+.opsis .opsis-legacy [class~="!border-[#26211f]"],
+.opsis .opsis-legacy [class*="border-[#26211f]/"],
+.opsis .opsis-legacy [class~="border-[#26221f]"],
+.opsis .opsis-legacy [class~="!border-[#26221f]"],
+.opsis .opsis-legacy [class*="border-[#26221f]/"],
+.opsis .opsis-legacy [class~="border-[#27221f]"],
+.opsis .opsis-legacy [class~="!border-[#27221f]"],
+.opsis .opsis-legacy [class*="border-[#27221f]/"],
+.opsis .opsis-legacy [class~="border-[#272321]"],
+.opsis .opsis-legacy [class~="!border-[#272321]"],
+.opsis .opsis-legacy [class*="border-[#272321]/"],
+.opsis .opsis-legacy [class~="border-[#282022]"],
+.opsis .opsis-legacy [class~="!border-[#282022]"],
+.opsis .opsis-legacy [class*="border-[#282022]/"],
+.opsis .opsis-legacy [class~="border-[#28211e]"],
+.opsis .opsis-legacy [class~="!border-[#28211e]"],
+.opsis .opsis-legacy [class*="border-[#28211e]/"],
+.opsis .opsis-legacy [class~="border-[#28221e]"],
+.opsis .opsis-legacy [class~="!border-[#28221e]"],
+.opsis .opsis-legacy [class*="border-[#28221e]/"],
+.opsis .opsis-legacy [class~="border-[#28221f]"],
+.opsis .opsis-legacy [class~="!border-[#28221f]"],
+.opsis .opsis-legacy [class*="border-[#28221f]/"],
+.opsis .opsis-legacy [class~="border-[#29221f]"],
+.opsis .opsis-legacy [class~="!border-[#29221f]"],
+.opsis .opsis-legacy [class*="border-[#29221f]/"],
+.opsis .opsis-legacy [class~="border-[#292320]"],
+.opsis .opsis-legacy [class~="!border-[#292320]"],
+.opsis .opsis-legacy [class*="border-[#292320]/"],
+.opsis .opsis-legacy [class~="border-[#29251f]"],
+.opsis .opsis-legacy [class~="!border-[#29251f]"],
+.opsis .opsis-legacy [class*="border-[#29251f]/"],
+.opsis .opsis-legacy [class~="border-[#2a211d]"],
+.opsis .opsis-legacy [class~="!border-[#2a211d]"],
+.opsis .opsis-legacy [class*="border-[#2a211d]/"],
+.opsis .opsis-legacy [class~="border-[#2a211e]"],
+.opsis .opsis-legacy [class~="!border-[#2a211e]"],
+.opsis .opsis-legacy [class*="border-[#2a211e]/"],
+.opsis .opsis-legacy [class~="border-[#2a231d]"],
+.opsis .opsis-legacy [class~="!border-[#2a231d]"],
+.opsis .opsis-legacy [class*="border-[#2a231d]/"],
+.opsis .opsis-legacy [class~="border-[#2a2421]"],
+.opsis .opsis-legacy [class~="!border-[#2a2421]"],
+.opsis .opsis-legacy [class*="border-[#2a2421]/"],
+.opsis .opsis-legacy [class~="border-[#2a2928]"],
+.opsis .opsis-legacy [class~="!border-[#2a2928]"],
+.opsis .opsis-legacy [class*="border-[#2a2928]/"],
+.opsis .opsis-legacy [class~="border-[#2a2a2a]"],
+.opsis .opsis-legacy [class~="!border-[#2a2a2a]"],
+.opsis .opsis-legacy [class*="border-[#2a2a2a]/"],
+.opsis .opsis-legacy [class~="border-[#2b2023]"],
+.opsis .opsis-legacy [class~="!border-[#2b2023]"],
+.opsis .opsis-legacy [class*="border-[#2b2023]/"],
+.opsis .opsis-legacy [class~="border-[#2b211c]"],
+.opsis .opsis-legacy [class~="!border-[#2b211c]"],
+.opsis .opsis-legacy [class*="border-[#2b211c]/"],
+.opsis .opsis-legacy [class~="border-[#2b2421]"],
+.opsis .opsis-legacy [class~="!border-[#2b2421]"],
+.opsis .opsis-legacy [class*="border-[#2b2421]/"],
+.opsis .opsis-legacy [class~="border-[#2b2521]"],
+.opsis .opsis-legacy [class~="!border-[#2b2521]"],
+.opsis .opsis-legacy [class*="border-[#2b2521]/"],
+.opsis .opsis-legacy [class~="border-[#2b2725]"],
+.opsis .opsis-legacy [class~="!border-[#2b2725]"],
+.opsis .opsis-legacy [class*="border-[#2b2725]/"],
+.opsis .opsis-legacy [class~="border-[#2b2b2b]"],
+.opsis .opsis-legacy [class~="!border-[#2b2b2b]"],
+.opsis .opsis-legacy [class*="border-[#2b2b2b]/"],
+.opsis .opsis-legacy [class~="border-[#2d2b29]"],
+.opsis .opsis-legacy [class~="!border-[#2d2b29]"],
+.opsis .opsis-legacy [class*="border-[#2d2b29]/"],
+.opsis .opsis-legacy [class~="border-[#2e2e2e]"],
+.opsis .opsis-legacy [class~="!border-[#2e2e2e]"],
+.opsis .opsis-legacy [class*="border-[#2e2e2e]/"],
+.opsis .opsis-legacy [class~="border-[#2f2f2f]"],
+.opsis .opsis-legacy [class~="!border-[#2f2f2f]"],
+.opsis .opsis-legacy [class*="border-[#2f2f2f]/"],
+.opsis .opsis-legacy [class~="border-[#30221a]"],
+.opsis .opsis-legacy [class~="!border-[#30221a]"],
+.opsis .opsis-legacy [class*="border-[#30221a]/"],
+.opsis .opsis-legacy [class~="border-[#302823]"],
+.opsis .opsis-legacy [class~="!border-[#302823]"],
+.opsis .opsis-legacy [class*="border-[#302823]/"],
+.opsis .opsis-legacy [class~="border-[#333]"],
+.opsis .opsis-legacy [class~="!border-[#333]"],
+.opsis .opsis-legacy [class*="border-[#333]/"],
+.opsis .opsis-legacy [class~="border-[#34231e]"],
+.opsis .opsis-legacy [class~="!border-[#34231e]"],
+.opsis .opsis-legacy [class*="border-[#34231e]/"],
+.opsis .opsis-legacy [class~="border-[#34312f]"],
+.opsis .opsis-legacy [class~="!border-[#34312f]"],
+.opsis .opsis-legacy [class*="border-[#34312f]/"],
+.opsis .opsis-legacy [class~="border-[#343434]"],
+.opsis .opsis-legacy [class~="!border-[#343434]"],
+.opsis .opsis-legacy [class*="border-[#343434]/"],
+.opsis .opsis-legacy [class~="border-[#35312e]"],
+.opsis .opsis-legacy [class~="!border-[#35312e]"],
+.opsis .opsis-legacy [class*="border-[#35312e]/"],
+.opsis .opsis-legacy [class~="border-[#373330]"],
+.opsis .opsis-legacy [class~="!border-[#373330]"],
+.opsis .opsis-legacy [class*="border-[#373330]/"],
+.opsis .opsis-legacy [class~="border-[#383431]"],
+.opsis .opsis-legacy [class~="!border-[#383431]"],
+.opsis .opsis-legacy [class*="border-[#383431]/"],
+.opsis .opsis-legacy [class~="border-[#383838]"],
+.opsis .opsis-legacy [class~="!border-[#383838]"],
+.opsis .opsis-legacy [class*="border-[#383838]/"],
+.opsis .opsis-legacy [class~="border-[#393532]"],
+.opsis .opsis-legacy [class~="!border-[#393532]"],
+.opsis .opsis-legacy [class*="border-[#393532]/"],
+.opsis .opsis-legacy [class~="border-[#393633]"],
+.opsis .opsis-legacy [class~="!border-[#393633]"],
+.opsis .opsis-legacy [class*="border-[#393633]/"],
+.opsis .opsis-legacy [class~="border-[#3a231f]"],
+.opsis .opsis-legacy [class~="!border-[#3a231f]"],
+.opsis .opsis-legacy [class*="border-[#3a231f]/"],
+.opsis .opsis-legacy [class~="border-[#3a3633]"],
+.opsis .opsis-legacy [class~="!border-[#3a3633]"],
+.opsis .opsis-legacy [class*="border-[#3a3633]/"],
+.opsis .opsis-legacy [class~="border-[#3a3734]"],
+.opsis .opsis-legacy [class~="!border-[#3a3734]"],
+.opsis .opsis-legacy [class*="border-[#3a3734]/"],
+.opsis .opsis-legacy [class~="border-[#3b3735]"],
+.opsis .opsis-legacy [class~="!border-[#3b3735]"],
+.opsis .opsis-legacy [class*="border-[#3b3735]/"],
+.opsis .opsis-legacy [class~="border-[#3d5538]"],
+.opsis .opsis-legacy [class~="!border-[#3d5538]"],
+.opsis .opsis-legacy [class*="border-[#3d5538]/"],
+.opsis .opsis-legacy [class~="border-[#403b36]"],
+.opsis .opsis-legacy [class~="!border-[#403b36]"],
+.opsis .opsis-legacy [class*="border-[#403b36]/"],
+.opsis .opsis-legacy [class~="border-[#423a49]"],
+.opsis .opsis-legacy [class~="!border-[#423a49]"],
+.opsis .opsis-legacy [class*="border-[#423a49]/"],
+.opsis .opsis-legacy [class~="border-[#45403b]"],
+.opsis .opsis-legacy [class~="!border-[#45403b]"],
+.opsis .opsis-legacy [class*="border-[#45403b]/"],
+.opsis .opsis-legacy [class~="border-[#45413e]"],
+.opsis .opsis-legacy [class~="!border-[#45413e]"],
+.opsis .opsis-legacy [class*="border-[#45413e]/"],
+.opsis .opsis-legacy [class~="border-[#47413d]"],
+.opsis .opsis-legacy [class~="!border-[#47413d]"],
+.opsis .opsis-legacy [class*="border-[#47413d]/"],
+.opsis .opsis-legacy [class~="border-[#482116]"],
+.opsis .opsis-legacy [class~="!border-[#482116]"],
+.opsis .opsis-legacy [class*="border-[#482116]/"],
+.opsis .opsis-legacy [class~="border-[#48413b]"],
+.opsis .opsis-legacy [class~="!border-[#48413b]"],
+.opsis .opsis-legacy [class*="border-[#48413b]/"],
+.opsis .opsis-legacy [class~="border-[#484848]"],
+.opsis .opsis-legacy [class~="!border-[#484848]"],
+.opsis .opsis-legacy [class*="border-[#484848]/"],
+.opsis .opsis-legacy [class~="border-[#4a3a32]"],
+.opsis .opsis-legacy [class~="!border-[#4a3a32]"],
+.opsis .opsis-legacy [class*="border-[#4a3a32]/"],
+.opsis .opsis-legacy [class~="border-[#4a3b35]"],
+.opsis .opsis-legacy [class~="!border-[#4a3b35]"],
+.opsis .opsis-legacy [class*="border-[#4a3b35]/"],
+.opsis .opsis-legacy [class~="border-[#4a443f]"],
+.opsis .opsis-legacy [class~="!border-[#4a443f]"],
+.opsis .opsis-legacy [class*="border-[#4a443f]/"],
+.opsis .opsis-legacy [class~="border-[#4a4541]"],
+.opsis .opsis-legacy [class~="!border-[#4a4541]"],
+.opsis .opsis-legacy [class*="border-[#4a4541]/"],
+.opsis .opsis-legacy [class~="border-[#4a4642]"],
+.opsis .opsis-legacy [class~="!border-[#4a4642]"],
+.opsis .opsis-legacy [class*="border-[#4a4642]/"],
+.opsis .opsis-legacy [class~="border-[#4a4743]"],
+.opsis .opsis-legacy [class~="!border-[#4a4743]"],
+.opsis .opsis-legacy [class*="border-[#4a4743]/"],
+.opsis .opsis-legacy [class~="border-[#4b2114]"],
+.opsis .opsis-legacy [class~="!border-[#4b2114]"],
+.opsis .opsis-legacy [class*="border-[#4b2114]/"],
+.opsis .opsis-legacy [class~="border-[#4b403b]"],
+.opsis .opsis-legacy [class~="!border-[#4b403b]"],
+.opsis .opsis-legacy [class*="border-[#4b403b]/"],
+.opsis .opsis-legacy [class~="border-[#4b443e]"],
+.opsis .opsis-legacy [class~="!border-[#4b443e]"],
+.opsis .opsis-legacy [class*="border-[#4b443e]/"],
+.opsis .opsis-legacy [class~="border-[#4c4844]"],
+.opsis .opsis-legacy [class~="!border-[#4c4844]"],
+.opsis .opsis-legacy [class*="border-[#4c4844]/"],
+.opsis .opsis-legacy [class~="border-[#4d413b]"],
+.opsis .opsis-legacy [class~="!border-[#4d413b]"],
+.opsis .opsis-legacy [class*="border-[#4d413b]/"],
+.opsis .opsis-legacy [class~="border-[#4d5c47]"],
+.opsis .opsis-legacy [class~="!border-[#4d5c47]"],
+.opsis .opsis-legacy [class*="border-[#4d5c47]/"],
+.opsis .opsis-legacy [class~="border-[#4f4a46]"],
+.opsis .opsis-legacy [class~="!border-[#4f4a46]"],
+.opsis .opsis-legacy [class*="border-[#4f4a46]/"],
+.opsis .opsis-legacy [class~="border-[#504840]"],
+.opsis .opsis-legacy [class~="!border-[#504840]"],
+.opsis .opsis-legacy [class*="border-[#504840]/"],
+.opsis .opsis-legacy [class~="border-[#514a45]"],
+.opsis .opsis-legacy [class~="!border-[#514a45]"],
+.opsis .opsis-legacy [class*="border-[#514a45]/"],
+.opsis .opsis-legacy [class~="border-[#52634b]"],
+.opsis .opsis-legacy [class~="!border-[#52634b]"],
+.opsis .opsis-legacy [class*="border-[#52634b]/"],
+.opsis .opsis-legacy [class~="border-[#55443d]"],
+.opsis .opsis-legacy [class~="!border-[#55443d]"],
+.opsis .opsis-legacy [class*="border-[#55443d]/"],
+.opsis .opsis-legacy [class~="border-[#55483d]"],
+.opsis .opsis-legacy [class~="!border-[#55483d]"],
+.opsis .opsis-legacy [class*="border-[#55483d]/"],
+.opsis .opsis-legacy [class~="border-[#554a44]"],
+.opsis .opsis-legacy [class~="!border-[#554a44]"],
+.opsis .opsis-legacy [class*="border-[#554a44]/"],
+.opsis .opsis-legacy [class~="border-[#555]"],
+.opsis .opsis-legacy [class~="!border-[#555]"],
+.opsis .opsis-legacy [class*="border-[#555]/"],
+.opsis .opsis-legacy [class~="border-[#594439]"],
+.opsis .opsis-legacy [class~="!border-[#594439]"],
+.opsis .opsis-legacy [class*="border-[#594439]/"],
+.opsis .opsis-legacy [class~="border-[#5b4a42]"],
+.opsis .opsis-legacy [class~="!border-[#5b4a42]"],
+.opsis .opsis-legacy [class*="border-[#5b4a42]/"],
+.opsis .opsis-legacy [class~="border-[#635043]"],
+.opsis .opsis-legacy [class~="!border-[#635043]"],
+.opsis .opsis-legacy [class*="border-[#635043]/"],
+.opsis .opsis-legacy [class~="border-[#63564c]"],
+.opsis .opsis-legacy [class~="!border-[#63564c]"],
+.opsis .opsis-legacy [class*="border-[#63564c]/"],
+.opsis .opsis-legacy [class~="border-[#635d5a]"],
+.opsis .opsis-legacy [class~="!border-[#635d5a]"],
+.opsis .opsis-legacy [class*="border-[#635d5a]/"],
+.opsis .opsis-legacy [class~="border-[#654333]"],
+.opsis .opsis-legacy [class~="!border-[#654333]"],
+.opsis .opsis-legacy [class*="border-[#654333]/"],
+.opsis .opsis-legacy [class~="border-[#6a3b45]"],
+.opsis .opsis-legacy [class~="!border-[#6a3b45]"],
+.opsis .opsis-legacy [class*="border-[#6a3b45]/"],
+.opsis .opsis-legacy [class~="border-[#6a4b3b]"],
+.opsis .opsis-legacy [class~="!border-[#6a4b3b]"],
+.opsis .opsis-legacy [class*="border-[#6a4b3b]/"],
+.opsis .opsis-legacy [class~="border-[#6b4a3b]"],
+.opsis .opsis-legacy [class~="!border-[#6b4a3b]"],
+.opsis .opsis-legacy [class*="border-[#6b4a3b]/"],
+.opsis .opsis-legacy [class~="border-[#6b4a3e]"],
+.opsis .opsis-legacy [class~="!border-[#6b4a3e]"],
+.opsis .opsis-legacy [class*="border-[#6b4a3e]/"],
+.opsis .opsis-legacy [class~="border-[#6ea879]"],
+.opsis .opsis-legacy [class~="!border-[#6ea879]"],
+.opsis .opsis-legacy [class*="border-[#6ea879]/"],
+.opsis .opsis-legacy [class~="border-[#6f4b3e]"],
+.opsis .opsis-legacy [class~="!border-[#6f4b3e]"],
+.opsis .opsis-legacy [class*="border-[#6f4b3e]/"],
+.opsis .opsis-legacy [class~="border-[#705044]"],
+.opsis .opsis-legacy [class~="!border-[#705044]"],
+.opsis .opsis-legacy [class*="border-[#705044]/"],
+.opsis .opsis-legacy [class~="border-[#706a64]"],
+.opsis .opsis-legacy [class~="!border-[#706a64]"],
+.opsis .opsis-legacy [class*="border-[#706a64]/"],
+.opsis .opsis-legacy [class~="border-[#716b65]"],
+.opsis .opsis-legacy [class~="!border-[#716b65]"],
+.opsis .opsis-legacy [class*="border-[#716b65]/"],
+.opsis .opsis-legacy [class~="border-[#756d68]"],
+.opsis .opsis-legacy [class~="!border-[#756d68]"],
+.opsis .opsis-legacy [class*="border-[#756d68]/"],
+.opsis .opsis-legacy [class~="border-[#766a60]"],
+.opsis .opsis-legacy [class~="!border-[#766a60]"],
+.opsis .opsis-legacy [class*="border-[#766a60]/"],
+.opsis .opsis-legacy [class~="border-[#766f68]"],
+.opsis .opsis-legacy [class~="!border-[#766f68]"],
+.opsis .opsis-legacy [class*="border-[#766f68]/"],
+.opsis .opsis-legacy [class~="border-[#7d756e]"],
+.opsis .opsis-legacy [class~="!border-[#7d756e]"],
+.opsis .opsis-legacy [class*="border-[#7d756e]/"],
+.opsis .opsis-legacy [class~="border-[#7f7972]"],
+.opsis .opsis-legacy [class~="!border-[#7f7972]"],
+.opsis .opsis-legacy [class*="border-[#7f7972]/"],
+.opsis .opsis-legacy [class~="border-[#817872]"],
+.opsis .opsis-legacy [class~="!border-[#817872]"],
+.opsis .opsis-legacy [class*="border-[#817872]/"],
+.opsis .opsis-legacy [class~="border-[#887366]"],
+.opsis .opsis-legacy [class~="!border-[#887366]"],
+.opsis .opsis-legacy [class*="border-[#887366]/"],
+.opsis .opsis-legacy [class~="border-[#8bc496]"],
+.opsis .opsis-legacy [class~="!border-[#8bc496]"],
+.opsis .opsis-legacy [class*="border-[#8bc496]/"],
+.opsis .opsis-legacy [class~="border-[#8c8076]"],
+.opsis .opsis-legacy [class~="!border-[#8c8076]"],
+.opsis .opsis-legacy [class*="border-[#8c8076]/"],
+.opsis .opsis-legacy [class~="border-[#8e8881]"],
+.opsis .opsis-legacy [class~="!border-[#8e8881]"],
+.opsis .opsis-legacy [class*="border-[#8e8881]/"],
+.opsis .opsis-legacy [class~="border-[#8f837b]"],
+.opsis .opsis-legacy [class~="!border-[#8f837b]"],
+.opsis .opsis-legacy [class*="border-[#8f837b]/"],
+.opsis .opsis-legacy [class~="border-[#8f8780]"],
+.opsis .opsis-legacy [class~="!border-[#8f8780]"],
+.opsis .opsis-legacy [class*="border-[#8f8780]/"],
+.opsis .opsis-legacy [class~="border-[#8f8880]"],
+.opsis .opsis-legacy [class~="!border-[#8f8880]"],
+.opsis .opsis-legacy [class*="border-[#8f8880]/"],
+.opsis .opsis-legacy [class~="border-[#8fba7f]"],
+.opsis .opsis-legacy [class~="!border-[#8fba7f]"],
+.opsis .opsis-legacy [class*="border-[#8fba7f]/"],
+.opsis .opsis-legacy [class~="border-[#99918a]"],
+.opsis .opsis-legacy [class~="!border-[#99918a]"],
+.opsis .opsis-legacy [class*="border-[#99918a]/"],
+.opsis .opsis-legacy [class~="border-[#9a938a]"],
+.opsis .opsis-legacy [class~="!border-[#9a938a]"],
+.opsis .opsis-legacy [class*="border-[#9a938a]/"],
+.opsis .opsis-legacy [class~="border-[#9f9790]"],
+.opsis .opsis-legacy [class~="!border-[#9f9790]"],
+.opsis .opsis-legacy [class*="border-[#9f9790]/"],
+.opsis .opsis-legacy [class~="border-[#9fc68f]"],
+.opsis .opsis-legacy [class~="!border-[#9fc68f]"],
+.opsis .opsis-legacy [class*="border-[#9fc68f]/"],
+.opsis .opsis-legacy [class~="border-[#a09790]"],
+.opsis .opsis-legacy [class~="!border-[#a09790]"],
+.opsis .opsis-legacy [class*="border-[#a09790]/"],
+.opsis .opsis-legacy [class~="border-[#a19992]"],
+.opsis .opsis-legacy [class~="!border-[#a19992]"],
+.opsis .opsis-legacy [class*="border-[#a19992]/"],
+.opsis .opsis-legacy [class~="border-[#a76978]"],
+.opsis .opsis-legacy [class~="!border-[#a76978]"],
+.opsis .opsis-legacy [class*="border-[#a76978]/"],
+.opsis .opsis-legacy [class~="border-[#a8a198]"],
+.opsis .opsis-legacy [class~="!border-[#a8a198]"],
+.opsis .opsis-legacy [class*="border-[#a8a198]/"],
+.opsis .opsis-legacy [class~="border-[#a99e94]"],
+.opsis .opsis-legacy [class~="!border-[#a99e94]"],
+.opsis .opsis-legacy [class*="border-[#a99e94]/"],
+.opsis .opsis-legacy [class~="border-[#a9a098]"],
+.opsis .opsis-legacy [class~="!border-[#a9a098]"],
+.opsis .opsis-legacy [class*="border-[#a9a098]/"],
+.opsis .opsis-legacy [class~="border-[#aaa097]"],
+.opsis .opsis-legacy [class~="!border-[#aaa097]"],
+.opsis .opsis-legacy [class*="border-[#aaa097]/"],
+.opsis .opsis-legacy [class~="border-[#aaa197]"],
+.opsis .opsis-legacy [class~="!border-[#aaa197]"],
+.opsis .opsis-legacy [class*="border-[#aaa197]/"],
+.opsis .opsis-legacy [class~="border-[#aaa19a]"],
+.opsis .opsis-legacy [class~="!border-[#aaa19a]"],
+.opsis .opsis-legacy [class*="border-[#aaa19a]/"],
+.opsis .opsis-legacy [class~="border-[#aaa39b]"],
+.opsis .opsis-legacy [class~="!border-[#aaa39b]"],
+.opsis .opsis-legacy [class*="border-[#aaa39b]/"],
+.opsis .opsis-legacy [class~="border-[#b1aaa0]"],
+.opsis .opsis-legacy [class~="!border-[#b1aaa0]"],
+.opsis .opsis-legacy [class*="border-[#b1aaa0]/"],
+.opsis .opsis-legacy [class~="border-[#b5ada2]"],
+.opsis .opsis-legacy [class~="!border-[#b5ada2]"],
+.opsis .opsis-legacy [class*="border-[#b5ada2]/"],
+.opsis .opsis-legacy [class~="border-[#b6aea4]"],
+.opsis .opsis-legacy [class~="!border-[#b6aea4]"],
+.opsis .opsis-legacy [class*="border-[#b6aea4]/"],
+.opsis .opsis-legacy [class~="border-[#b7aea2]"],
+.opsis .opsis-legacy [class~="!border-[#b7aea2]"],
+.opsis .opsis-legacy [class*="border-[#b7aea2]/"],
+.opsis .opsis-legacy [class~="border-[#b8b0a7]"],
+.opsis .opsis-legacy [class~="!border-[#b8b0a7]"],
+.opsis .opsis-legacy [class*="border-[#b8b0a7]/"],
+.opsis .opsis-legacy [class~="border-[#bbb2a8]"],
+.opsis .opsis-legacy [class~="!border-[#bbb2a8]"],
+.opsis .opsis-legacy [class*="border-[#bbb2a8]/"],
+.opsis .opsis-legacy [class~="border-[#bdb3a6]"],
+.opsis .opsis-legacy [class~="!border-[#bdb3a6]"],
+.opsis .opsis-legacy [class*="border-[#bdb3a6]/"],
+.opsis .opsis-legacy [class~="border-[#bdb4ac]"],
+.opsis .opsis-legacy [class~="!border-[#bdb4ac]"],
+.opsis .opsis-legacy [class*="border-[#bdb4ac]/"],
+.opsis .opsis-legacy [class~="border-[#bfe4af]"],
+.opsis .opsis-legacy [class~="!border-[#bfe4af]"],
+.opsis .opsis-legacy [class*="border-[#bfe4af]/"],
+.opsis .opsis-legacy [class~="border-[#c1b8ab]"],
+.opsis .opsis-legacy [class~="!border-[#c1b8ab]"],
+.opsis .opsis-legacy [class*="border-[#c1b8ab]/"],
+.opsis .opsis-legacy [class~="border-[#c2b7ae]"],
+.opsis .opsis-legacy [class~="!border-[#c2b7ae]"],
+.opsis .opsis-legacy [class*="border-[#c2b7ae]/"],
+.opsis .opsis-legacy [class~="border-[#c3b8ad]"],
+.opsis .opsis-legacy [class~="!border-[#c3b8ad]"],
+.opsis .opsis-legacy [class*="border-[#c3b8ad]/"],
+.opsis .opsis-legacy [class~="border-[#c7bdb0]"],
+.opsis .opsis-legacy [class~="!border-[#c7bdb0]"],
+.opsis .opsis-legacy [class*="border-[#c7bdb0]/"],
+.opsis .opsis-legacy [class~="border-[#c7d7b8]"],
+.opsis .opsis-legacy [class~="!border-[#c7d7b8]"],
+.opsis .opsis-legacy [class*="border-[#c7d7b8]/"],
+.opsis .opsis-legacy [class~="border-[#c8beb4]"],
+.opsis .opsis-legacy [class~="!border-[#c8beb4]"],
+.opsis .opsis-legacy [class*="border-[#c8beb4]/"],
+.opsis .opsis-legacy [class~="border-[#c8bfb6]"],
+.opsis .opsis-legacy [class~="!border-[#c8bfb6]"],
+.opsis .opsis-legacy [class*="border-[#c8bfb6]/"],
+.opsis .opsis-legacy [class~="border-[#c8ecb8]"],
+.opsis .opsis-legacy [class~="!border-[#c8ecb8]"],
+.opsis .opsis-legacy [class*="border-[#c8ecb8]/"],
+.opsis .opsis-legacy [class~="border-[#c9a697]"],
+.opsis .opsis-legacy [class~="!border-[#c9a697]"],
+.opsis .opsis-legacy [class*="border-[#c9a697]/"],
+.opsis .opsis-legacy [class~="border-[#c9bfae]"],
+.opsis .opsis-legacy [class~="!border-[#c9bfae]"],
+.opsis .opsis-legacy [class*="border-[#c9bfae]/"],
+.opsis .opsis-legacy [class~="border-[#cfc5ba]"],
+.opsis .opsis-legacy [class~="!border-[#cfc5ba]"],
+.opsis .opsis-legacy [class*="border-[#cfc5ba]/"],
+.opsis .opsis-legacy [class~="border-[#d0c5bc]"],
+.opsis .opsis-legacy [class~="!border-[#d0c5bc]"],
+.opsis .opsis-legacy [class*="border-[#d0c5bc]/"],
+.opsis .opsis-legacy [class~="border-[#d1dfc9]"],
+.opsis .opsis-legacy [class~="!border-[#d1dfc9]"],
+.opsis .opsis-legacy [class*="border-[#d1dfc9]/"],
+.opsis .opsis-legacy [class~="border-[#d2c7bc]"],
+.opsis .opsis-legacy [class~="!border-[#d2c7bc]"],
+.opsis .opsis-legacy [class*="border-[#d2c7bc]/"],
+.opsis .opsis-legacy [class~="border-[#d6ccba]"],
+.opsis .opsis-legacy [class~="!border-[#d6ccba]"],
+.opsis .opsis-legacy [class*="border-[#d6ccba]/"],
+.opsis .opsis-legacy [class~="border-[#d6ccc2]"],
+.opsis .opsis-legacy [class~="!border-[#d6ccc2]"],
+.opsis .opsis-legacy [class*="border-[#d6ccc2]/"],
+.opsis .opsis-legacy [class~="border-[#d8cec5]"],
+.opsis .opsis-legacy [class~="!border-[#d8cec5]"],
+.opsis .opsis-legacy [class*="border-[#d8cec5]/"],
+.opsis .opsis-legacy [class~="border-[#d8cfc7]"],
+.opsis .opsis-legacy [class~="!border-[#d8cfc7]"],
+.opsis .opsis-legacy [class*="border-[#d8cfc7]/"],
+.opsis .opsis-legacy [class~="border-[#d99aab]"],
+.opsis .opsis-legacy [class~="!border-[#d99aab]"],
+.opsis .opsis-legacy [class*="border-[#d99aab]/"],
+.opsis .opsis-legacy [class~="border-[#ddd3c4]"],
+.opsis .opsis-legacy [class~="!border-[#ddd3c4]"],
+.opsis .opsis-legacy [class*="border-[#ddd3c4]/"],
+.opsis .opsis-legacy [class~="border-[#ddd3ca]"],
+.opsis .opsis-legacy [class~="!border-[#ddd3ca]"],
+.opsis .opsis-legacy [class*="border-[#ddd3ca]/"],
+.opsis .opsis-legacy [class~="border-[#ded5c8]"],
+.opsis .opsis-legacy [class~="!border-[#ded5c8]"],
+.opsis .opsis-legacy [class*="border-[#ded5c8]/"],
+.opsis .opsis-legacy [class~="border-[#e0d7ce]"],
+.opsis .opsis-legacy [class~="!border-[#e0d7ce]"],
+.opsis .opsis-legacy [class*="border-[#e0d7ce]/"],
+.opsis .opsis-legacy [class~="border-[#e2d9ca]"],
+.opsis .opsis-legacy [class~="!border-[#e2d9ca]"],
+.opsis .opsis-legacy [class*="border-[#e2d9ca]/"],
+.opsis .opsis-legacy [class~="border-[#e2d9cc]"],
+.opsis .opsis-legacy [class~="!border-[#e2d9cc]"],
+.opsis .opsis-legacy [class*="border-[#e2d9cc]/"],
+.opsis .opsis-legacy [class~="border-[#e6ddd4]"],
+.opsis .opsis-legacy [class~="!border-[#e6ddd4]"],
+.opsis .opsis-legacy [class*="border-[#e6ddd4]/"],
+.opsis .opsis-legacy [class~="border-[#e9e0d1]"],
+.opsis .opsis-legacy [class~="!border-[#e9e0d1]"],
+.opsis .opsis-legacy [class*="border-[#e9e0d1]/"],
+.opsis .opsis-legacy [class~="border-[#e9e0d8]"],
+.opsis .opsis-legacy [class~="!border-[#e9e0d8]"],
+.opsis .opsis-legacy [class*="border-[#e9e0d8]/"],
+.opsis .opsis-legacy [class~="border-[#efe6dc]"],
+.opsis .opsis-legacy [class~="!border-[#efe6dc]"],
+.opsis .opsis-legacy [class*="border-[#efe6dc]/"],
+.opsis .opsis-legacy [class~="border-[#f0e8da]"],
+.opsis .opsis-legacy [class~="!border-[#f0e8da]"],
+.opsis .opsis-legacy [class*="border-[#f0e8da]/"],
+.opsis .opsis-legacy [class~="border-[#f0e8df]"],
+.opsis .opsis-legacy [class~="!border-[#f0e8df]"],
+.opsis .opsis-legacy [class*="border-[#f0e8df]/"],
+.opsis .opsis-legacy [class~="border-[#f4ece4]"],
+.opsis .opsis-legacy [class~="!border-[#f4ece4]"],
+.opsis .opsis-legacy [class*="border-[#f4ece4]/"],
+.opsis .opsis-legacy [class~="border-[#fff7ec]"],
+.opsis .opsis-legacy [class~="!border-[#fff7ec]"],
+.opsis .opsis-legacy [class*="border-[#fff7ec]/"],
+.opsis .opsis-legacy [class~="border-[#fff7ef]"],
+.opsis .opsis-legacy [class~="!border-[#fff7ef]"],
+.opsis .opsis-legacy [class*="border-[#fff7ef]/"],
+.opsis .opsis-legacy [class~="border-[#c9a6ff]"],
+.opsis .opsis-legacy [class~="!border-[#c9a6ff]"],
+.opsis .opsis-legacy [class*="border-[#c9a6ff]/"],
+.opsis .opsis-legacy [class~="border-[#fa6c34]"],
+.opsis .opsis-legacy [class~="!border-[#fa6c34]"],
+.opsis .opsis-legacy [class*="border-[#fa6c34]/"],
+.opsis .opsis-legacy [class~="border-[#ff7038]"],
+.opsis .opsis-legacy [class~="!border-[#ff7038]"],
+.opsis .opsis-legacy [class*="border-[#ff7038]/"],
+.opsis .opsis-legacy [class~="border-[#ff8655]"],
+.opsis .opsis-legacy [class~="!border-[#ff8655]"],
+.opsis .opsis-legacy [class*="border-[#ff8655]/"],
+.opsis .opsis-legacy [class~="border-[#ff8957]"],
+.opsis .opsis-legacy [class~="!border-[#ff8957]"],
+.opsis .opsis-legacy [class*="border-[#ff8957]/"],
+.opsis .opsis-legacy [class~="border-[#ff985e]"],
+.opsis .opsis-legacy [class~="!border-[#ff985e]"],
+.opsis .opsis-legacy [class*="border-[#ff985e]/"],
+.opsis .opsis-legacy [class~="border-[#ffd0a8]"],
+.opsis .opsis-legacy [class~="!border-[#ffd0a8]"],
+.opsis .opsis-legacy [class*="border-[#ffd0a8]/"] {
+  border-color: var(--line) !important;
+}
+.opsis
+  .opsis-legacy
+  :is(
+    [class*="bg-[#fa6c34]"],
+    [class*="bg-[#ff7038]"],
+    [class*="bg-[#e9e0d1]"],
+    [class*="bg-[#f0e8da]"]
+  ) {
+  color: var(--button-ink) !important;
+}
+.opsis
+  .opsis-legacy
+  :is([class*="bg-[#fa6c34]"], [class*="bg-[#e9e0d1]"], [class*="bg-[#f0e8da]"])
+  :is(span, p, strong, h2, h3) {
+  color: inherit !important;
+}
+.opsis .opsis-legacy > .min-h-screen {
+  background: var(--ground) !important;
+}
+.opsis .opsis-legacy :is(.hatch, .hatch-dark, .scan-panel)::before {
+  opacity: 0.12;
+}
+
+.opsis .situation-surface {
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-breadcrumb {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-eth-brief {
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-eth-brief-head small {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-eth-status {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-eth-status.valid {
+  border-color: var(--line) !important;
+}
+.opsis .situation-surface .sr-eth-status.stale {
+  border-color: var(--line) !important;
+}
+.opsis .situation-surface .sr-eth-status.invalid,
+.opsis .situation-surface .sr-eth-status.missing {
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+}
+.opsis .situation-surface .sr-eth-card {
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-eth-card-head small {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-eth-card p {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-eth-bridge-note {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-eth-action {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-eth-gap-note {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-eth-context-card {
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-eth-context-card h4 {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-eth-context-card p {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-eth-card .sr-source-link,
+.opsis .situation-surface .sr-eth-context-card .sr-source-link {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-edition-switch button {
+  background: var(--panel) !important;
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-edition-switch button.active {
+  border-color: var(--line) !important;
+  background: var(--panel) !important;
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-eth-context-card .sr-eth-context-label {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-eth-context-card .sr-eth-context-date {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-eth-why summary {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-title h1 {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-title > div > p:last-child {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-primary {
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-world {
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-world-label {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-world-label button {
+  background: var(--panel) !important;
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-metrics span {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-metrics small {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .globe-marker {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .globe-marker > b {
+  background: var(--panel) !important;
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .globe-marker > span {
+  color: var(--ink) !important;
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-globe-tools > span {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-globe-tools button {
+  color: var(--ink) !important;
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-market {
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-chart-head {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-chart-head small {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-chart-head button {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-chart-foot {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-chart-foot button {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-event-tools {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-event-tools b {
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-event-tools select {
+  background: var(--panel) !important;
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-event {
+  background: var(--panel) !important;
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-event.selected {
+  border-color: var(--line) !important;
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-event-photo b {
+  background: var(--panel) !important;
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-event-copy > div {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-event-copy time {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-event p {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-event footer {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-investigate {
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-replay {
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-status-dot {
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-replay small {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-play {
+  background: var(--panel) !important;
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-step {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-speeds button {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-speeds .selected {
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-clock {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-clock small {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-time-marker {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-time-marker span {
+  background: var(--panel) !important;
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-time-marker small {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-time-marker.selected span {
+  background: var(--panel) !important;
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-hours {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-context > span {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-context p {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-context button {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-bottom h2 {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-bottom p:not(.sr-overline) {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-keymetric span {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-keymetric small {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-footer {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-footer b {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-empty {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-loading {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-overlay {
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-dialog {
+  background: var(--panel) !important;
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-close {
+  background: var(--panel) !important;
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-dialog h3 {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-dialog p {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-dialog .sr-overline {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-bigmetric span {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-evidence strong {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-evidence small {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-brief-note {
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-toast {
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-market {
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-title h1 span {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-secondary {
+  background: var(--panel) !important;
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-secondary.active {
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-world-label > span {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-metrics > div {
+  border-color: var(--line) !important;
+}
+.opsis .situation-surface .sr-location {
+  background: var(--panel) !important;
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-location strong {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-location span {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-market {
+  background: var(--panel) !important;
+  border-color: var(--line) !important;
+}
+.opsis .situation-surface .sr-chart-head strong {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-windows button {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-windows button.active {
+  color: var(--soft) !important;
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-chart-legend {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-chart-legend button {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-filters button {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-filters button.active {
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-event {
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-event.selected {
+  background: var(--panel) !important;
+  border-color: var(--line) !important;
+}
+.opsis .situation-surface .sr-feed-actions .sr-investigate {
+  background: var(--panel) !important;
+  border-color: var(--line) !important;
+}
+.opsis .situation-surface .sr-reactions {
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-reactions-label strong {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-reactions-label small {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-reaction strong small {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-reaction span small {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-reaction b {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-reaction b.positive {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-sequence > div > span {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-sequence small {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-sequence-items button {
+  background: var(--panel) !important;
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-sequence-items time {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-sequence-items svg {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-sequence-items button.active {
+  border-color: var(--line) !important;
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-sequence-items button.active time {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-insight {
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-insight-head {
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-insight-head button {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-insight h2 {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-insight h3 {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-insight p {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-insight-tabs button {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-insight-tabs button.active {
+  border-color: var(--line) !important;
+  background: var(--panel) !important;
+}
+.opsis .situation-surface .sr-insight-callout {
+  background: var(--panel) !important;
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-ai-note {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-ai-price strong {
+  color: var(--ink) !important;
+}
+.opsis .situation-surface .sr-ai-price small {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-edition {
+  color: var(--soft) !important;
+}
+.opsis .situation-surface .sr-reaction strong small,
+.opsis .situation-surface .sr-sequence > div:first-child small {
+  color: var(--soft) !important;
+}
+/* Keep semantic token badges legible on both workspace themes. */
+.opsis .opsis-legacy [class~="text-[#7fb069]"] {
+  color: #b2df9e !important;
+}
+.opsis[data-theme="light"] .opsis-legacy [class~="text-[#7fb069]"] {
+  color: #176b46 !important;
+}
+.opsis[data-theme="light"] .opsis-legacy [class~="text-[#7cc4f8]"] {
+  color: #185e8a !important;
+}

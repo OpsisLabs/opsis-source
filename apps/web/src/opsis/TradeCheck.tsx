@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 import {
   getExitCheckQuote,
@@ -8,6 +8,8 @@ import {
 } from "../exit-check/api";
 import { useCopy } from "./copy";
 import { publicIdentity } from "./model";
+
+const PoolComparison = lazy(() => import("./PoolComparison"));
 
 export default function TradeCheck() {
   const c = useCopy();
@@ -209,6 +211,9 @@ export default function TradeCheck() {
                       <dd>{result.coverage.poolsQuoted.length}</dd>
                     </div>
                   </dl>
+                  <Suspense fallback={null}>
+                    <PoolComparison key={result.quotedAt} result={result} />
+                  </Suspense>
                   <p className="opsis-receipt">
                     {c(
                       "Partial scope: single-hop V3 pools only. Excluded: gas, approvals, transfer taxes, execution failure and other routes. A quote is not sellability proof.",

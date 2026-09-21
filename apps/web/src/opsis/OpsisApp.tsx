@@ -25,7 +25,10 @@ import {
 } from "./model";
 import { setOpsisPreviewToken } from "./preview-token";
 import OriginalLanding from "./OriginalLanding";
+import ToolNavigation from "./ToolNavigation";
+const Lab = lazy(() => import("./Lab"));
 import "./opsis.css";
+import "./legacy-theme.css";
 
 const publicAccess =
   import.meta.env.VITE_OPSIS_PUBLIC_ACCESS_ENABLED === "true";
@@ -47,7 +50,7 @@ const Stress = lazy(() => import("../stress/StressTest"));
 const Terms = lazy(() =>
   import("../pages/Legal").then((m) => ({ default: m.TermsPage })),
 );
-const Guide = lazy(() => import("../pages/FeatureGuide"));
+const Guide = lazy(() => import("./Guide"));
 
 function Legacy({ children }: { children: ReactNode }) {
   return <div className="opsis-legacy">{children}</div>;
@@ -93,37 +96,6 @@ function PublicSearch({ hero = false }: { hero?: boolean }) {
         {c("Research →", "研究 →")}
       </button>
     </form>
-  );
-}
-function Lab() {
-  const c = useCopy();
-  return (
-    <section className="opsis-panel">
-      <p className="opsis-kicker">04 / {c("QUANT LAB", "量化实验室")}</p>
-      <h1>
-        {c("Start with a dataset you can trust.", "从可靠的数据集开始。")}
-      </h1>
-      <p>
-        {c(
-          "Dataset capture and cancellable statistical experiments are not implemented yet. No model results are available in this workspace.",
-          "数据集采集和可取消的统计实验尚未实现。此工作区暂无模型结果。",
-        )}
-      </p>
-      <a
-        className="opsis-action"
-        href="/quant/"
-        target="_blank"
-        rel="noreferrer"
-      >
-        {c("Open the frozen Quant Lab ↗", "打开冻结版量化实验室 ↗")}
-      </a>
-      <p className="opsis-small">
-        {c(
-          "Captured 10 September 2026. Separate legacy surface; not live market data.",
-          "数据采集于 2026 年 9 月 10 日。独立的旧版界面；并非实时行情。",
-        )}
-      </p>
-    </section>
   );
 }
 function Status({ capabilities }: { capabilities: Capabilities }) {
@@ -190,6 +162,7 @@ export default function OpsisApp() {
   const [busy, setBusy] = useState(false);
   const pending = useRef<AbortController | null>(null);
   useEffect(() => {
+    document.documentElement.classList.add("opsis-document");
     const meta = document.createElement("meta");
     meta.name = "robots";
     meta.content = "noindex, nofollow";
@@ -198,6 +171,7 @@ export default function OpsisApp() {
       pending.current?.abort();
       setOpsisPreviewToken("");
       meta.remove();
+      document.documentElement.classList.remove("opsis-document");
     };
   }, []);
   useEffect(() => {
@@ -224,8 +198,10 @@ export default function OpsisApp() {
     };
   }, [access]);
   useEffect(() => {
-    if (access && location.pathname !== "/")
-      document.getElementById("opsis-content")?.focus();
+    if (access && location.pathname !== "/") {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      document.getElementById("opsis-content")?.focus({ preventScroll: true });
+    }
   }, [access, location.pathname]);
   async function unlock() {
     pending.current?.abort();
@@ -278,6 +254,7 @@ export default function OpsisApp() {
       <div
         className={`opsis ${access ? (location.pathname === "/" ? "opsis-overview" : "opsis-terminal") : ""}`}
         data-theme={theme}
+        data-workspace={location.pathname.split("/")[1] || "overview"}
       >
         {access && location.pathname !== "/" && (
           <Link to="/" className="opsis-back">
@@ -388,13 +365,30 @@ export default function OpsisApp() {
                   ["/watch", c("Watch", "观察")],
                   ["/lab", c("Quant Lab", "量化实验室")],
                 ].map(([path, label]) => (
-                  <NavLink key={path} to={path}>
+                  <NavLink
+                    key={path}
+                    to={path}
+                    className={({ isActive }) =>
+                      isActive ||
+                      (path === "/research" &&
+                        ["/rwa", "/biggest-trades"].includes(
+                          location.pathname,
+                        )) ||
+                      (path === "/check" &&
+                        ["/swap", "/simulate", "/stress-test"].includes(
+                          location.pathname,
+                        ))
+                        ? "active"
+                        : undefined
+                    }
+                  >
                     {label}
                   </NavLink>
                 ))}
               </nav>
               <PublicSearch />
             </div>
+            <ToolNavigation capabilities={access} />
             <div className="opsis-preview-note">
               {c(
                 publicAccess
@@ -473,7 +467,15 @@ export default function OpsisApp() {
                     path="/vault"
                     element={<Navigate to="/saved" replace />}
                   />
-                  <Route path="/lab" element={<Lab />} />
+                  <Route path="/lab" element={<Lab theme={theme} />} />
+                  <Route
+                    path="/situation-room"
+                    element={<Navigate to="/research/events" replace />}
+                  />
+                  <Route
+                    path="/roadmap"
+                    element={<Navigate to="/status" replace />}
+                  />
                   <Route
                     path="/status"
                     element={<Status capabilities={access} />}
@@ -578,7 +580,7 @@ export default function OpsisApp() {
                     path="/guide"
                     element={
                       <Legacy>
-                        <Guide />
+                        <Guide capabilities={access} />
                       </Legacy>
                     }
                   />

@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <base href="/quant/" />
+    <meta
+      name="description"
+      content="Explore Robinhood Chain crypto with interactive 3D pool maps, token comparisons and portfolio scenarios."
+    />
+    <title>Quant Lab · Opsis</title>
+    <link rel="icon" href="assets/logo.svg" />
+    <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="/opsis-lab/opsis.css" />
+</head>
+  <body>
+    <aside class="rail" inert>
+      <a href="/lab" target="_parent" class="logo" aria-label="Opsis"
+        ><img src="assets/logo.svg" alt="" /></a
+      ><button class="active" id="railAtlas" aria-label="Crypto market map">
+        ⌘</button
+      ><button id="railCompare" aria-label="Compare tokens">⇄</button
+      ><button id="railStress" aria-label="Portfolio scenarios">⠿</button
+      ><button
+        id="railMethods"
+        class="rail-end"
+        aria-label="Data and methodology"
+      >
+        ?
+      </button>
+    </aside>
+    <div class="workspace" inert>
+      <header>
+        <a class="brand" href="/lab" target="_parent">Opsis <span>QUANT LAB</span></a>
+        <nav>
+          <button class="selected" id="overviewNav">Crypto intelligence</button
+          ><button id="compareNav">Compare <b id="navCount">3</b></button
+          ><button id="portfolioNav">Portfolio</button>
+        </nav>
+        <button class="source-stamp" id="sourceButton">
+          <i></i> ROBINHOOD CHAIN <span>SNAPSHOT · 10 SEP 2026</span><b>↗</b>
+        </button>
+      </header>
+      <main>
+        <p id="captureStamp" class="capture-stamp">
+          Market snapshot · 10 September 2026 · Prices are captured
+          observations.
+        </p>
+        <section class="page-head">
+          <div>
+            <div class="eyebrow">
+              <span class="green-star">✳</span> CRYPTO MARKETS. EVERY ANGLE.
+            </div>
+            <h1>Read the chain. See the bigger picture.</h1>
+          </div>
+          <button id="readBoard" class="primary">
+            <span>✳</span> Analyze the market <b>↗</b>
+          </button>
+        </section>
+        <section class="stats" aria-label="Crypto snapshot">
+          <div>
+            <span>CRYPTO TOKENS</span><strong>10</strong
+            ><small>Selected by chain activity</small>
+          </div>
+          <div>
+            <span>POOLS OBSERVED</span><strong id="poolCount">—</strong
+            ><small>Exact token contracts</small>
+          </div>
+          <div>
+            <span>BIGGEST 24H MOVE</span
+            ><strong id="biggestMove" class="mint">—</strong
+            ><small id="moverName">Primary observed pool</small>
+          </div>
+          <div>
+            <span>LARGEST POOL LIQUIDITY</span><strong id="deepest">—</strong
+            ><small id="deepestName">Indexed pool reserves</small>
+          </div>
+        </section>
+        <div
+          id="tokenStrip"
+          class="token-strip"
+          role="group"
+          aria-label="Filter crypto token"
+        ></div>
+        <section class="lab-layout">
+          <div class="board panel">
+            <div class="board-head">
+              <div class="tabs" role="tablist" aria-label="3D visualization">
+                <button
+                  id="atlasTab"
+                  class="active"
+                  role="tab"
+                  aria-selected="true"
+                >
+                  ◈ Market point cloud</button
+                ><button id="scenarioTab" role="tab" aria-selected="false">
+                  ⠿ Portfolio surface
+                </button>
+              </div>
+              <div class="board-tools">
+                <button
+                  id="focusBoard"
+                  aria-label="Expand 3D board"
+                  aria-pressed="false"
+                >
+                  ⤢ <span>Focus view</span></button
+                ><button id="resetView" class="icon" aria-label="Reset 3D view">
+                  ⟳
+                </button>
+              </div>
+            </div>
+            <div class="board-context">
+              <div>
+                <span class="overline" id="boardLabel"
+                  >ROBINHOOD CHAIN / 4663</span
+                >
+                <h2 id="boardTitle">Momentum meets liquidity.</h2>
+              </div>
+              <span class="dimension-tag" id="cloudCount"
+                >SOURCE-BACKED / 3D</span
+              >
+            </div>
+            <div class="canvas-wrap">
+              <canvas
+                id="space"
+                tabindex="0"
+                aria-label="Interactive 3D crypto pool map. Drag or use arrow keys to rotate. Plus or minus to zoom. Inspect tokens in the table below."
+              ></canvas>
+              <div id="chartTooltip" role="status" hidden></div>
+              <div class="axis-legend" id="axisLegend"></div>
+              <div class="view-tools">
+                <button
+                  id="autoRotate"
+                  aria-label="Pause rotation"
+                  aria-pressed="true"
+                >
+                  Ⅱ</button
+                ><button id="zoomIn" aria-label="Zoom in">+</button
+                ><button id="zoomOut" aria-label="Zoom out">−</button
+                ><button
+                  id="meshToggle"
+                  aria-label="Toggle surface mesh"
+                  aria-pressed="false"
+                  disabled
+                >
+                  ▦
+                </button>
+              </div>
+              <div class="drag-hint">
+                ↔ DRAG TO ORBIT <span>SCROLL TO ZOOM</span>
+              </div>
+            </div>
+            <div class="board-footer">
+              <div id="poolControls" class="pool-controls">
+                <span><i></i> EACH POINT = ONE POOL</span
+                ><label
+                  >Min. liquidity
+                  <select id="minLiquidity" aria-label="Minimum pool liquidity">
+                    <option value="1000">$1K</option>
+                    <option value="10000" selected>$10K</option>
+                    <option value="100000">$100K</option>
+                  </select></label
+                >
+              </div>
+              <div id="inlineControls" class="inline-controls" hidden>
+                <label
+                  >WETH + cbBTC
+                  <input
+                    id="inlineCore"
+                    type="range"
+                    min="-40"
+                    max="40"
+                    value="-12"
+                    aria-label="WETH and cbBTC scenario move"
+                  /><output id="coreValue">−12%</output></label
+                ><label
+                  >OTHER CRYPTO
+                  <input
+                    id="inlineOther"
+                    type="range"
+                    min="-60"
+                    max="60"
+                    value="-30"
+                    aria-label="Other crypto scenario move"
+                  /><output id="otherValue">−30%</output></label
+                >
+              </div>
+              <span id="visibleCount"></span>
+            </div>
+          </div>
+          <aside class="analyst panel">
+            <div class="analyst-head">
+              <div class="analyst-avatar">✳</div>
+              <div>
+                <b>Opsis Quant Analyst</b
+                ><span>Source-based calculations.</span>
+              </div>
+              <span class="tiny-grid">⠿</span>
+            </div>
+            <div class="analyst-body">
+              <div class="analysis-label">
+                <i></i><span id="analysisLabel">ONCHAIN MARKET READ</span>
+              </div>
+              <h3 id="analysisTitle">
+                Activity is a signal.<br />Context is the edge.
+              </h3>
+              <div id="analysisText" aria-live="polite"></div>
+              <div id="analysisEvidence" class="analysis-evidence"></div>
+              <div class="analyst-actions">
+                <button id="compareLeaders">
+                  Compare leaders <span>↗</span></button
+                ><button id="stressPortfolio">
+                  Stress portfolio <span>↗</span>
+                </button>
+              </div>
+              <div id="focusedAsset" class="focused-asset"></div>
+            </div>
+            <form id="analystForm">
+              <input
+                id="analystInput"
+                aria-label="Ask Scout about crypto"
+                placeholder="Compare WETH, PONS and CASHCAT…"
+              /><button aria-label="Ask Scout">↑</button>
+            </form>
+          </aside>
+        </section>
+        <section class="lower-layout">
+          <div class="panel opportunities">
+            <div class="section-heading">
+              <div>
+                <div class="overline">POPULAR CRYPTO / ROBINHOOD CHAIN</div>
+                <h2>Compare the tokens driving activity.</h2>
+              </div>
+              <button id="openCompare" class="small-primary">
+                Compare <span id="compareCount">3</span> ↗
+              </button>
+            </div>
+            <div class="table-scroll">
+              <table class="crypto-table">
+                <thead>
+                  <tr>
+                    <th>TOKEN / EXACT CONTRACT</th>
+                    <th>POOL PRICE</th>
+                    <th>24H</th>
+                    <th>CHAIN VOL. 24H</th>
+                    <th>POOL LIQUIDITY</th>
+                    <th>COMPARE</th>
+                  </tr>
+                </thead>
+                <tbody id="assetRows"></tbody>
+              </table>
+            </div>
+            <div class="table-bottom">
+              <span
+                >Chain volume: HoodExplorer. Price & liquidity: largest eligible
+                observed pool, DEX Screener.</span
+              ><button id="showAll">Show all 10 ↓</button>
+            </div>
+          </div>
+          <div class="panel basket" id="portfolioPanel">
+            <div class="section-heading">
+              <div>
+                <div class="overline">PRIVATE SCENARIO WORKSPACE</div>
+                <h2>Stress your allocation.</h2>
+              </div>
+              <span class="basket-number">USD</span>
+            </div>
+            <div class="basket-total">
+              <span>$10,000</span
+              ><small
+                >Hypothetical portfolio<br />At captured pool prices</small
+              >
+            </div>
+            <div class="concentration" id="concentration"></div>
+            <div id="allocations" class="allocations"></div>
+            <div class="scenario-inputs">
+              <label
+                >WETH allocation <output id="weightValue">40%</output
+                ><input
+                  id="weightSlider"
+                  type="range"
+                  min="10"
+                  max="55"
+                  value="40"
+                  aria-label="WETH portfolio weight"
+              /></label>
+              <p class="micro-note weight-note">
+                Changing WETH weight adjusts USDG. cbBTC 15%, PONS 20%, CASHCAT
+                10% stay fixed.
+              </p>
+              <label
+                >Assumed total selling costs <output id="feeValue">0.30%</output
+                ><input
+                  id="feeSlider"
+                  type="range"
+                  min="0"
+                  max="2"
+                  step="0.05"
+                  value="0.3"
+                  aria-label="Assumed total selling costs"
+              /></label>
+            </div>
+            <div class="scenario-result">
+              <div>
+                <span>SCENARIO P/L</span><strong id="scenarioPL"></strong>
+              </div>
+              <div>
+                <span>NET PORTFOLIO VALUE</span
+                ><strong id="scenarioNet"></strong>
+              </div>
+            </div>
+            <p class="micro-note">
+              Two user-set shocks. USDG held at its captured price as an
+              assumption. No forecast or execution quote.
+            </p>
+            <button id="openScenario" class="outline">
+              Explore 2,501 scenarios <span>↗</span>
+            </button>
+          </div>
+        </section>
+        <section class="panel momentum">
+          <div class="section-heading">
+            <div>
+              <div class="overline">MULTI-HORIZON PRICE CHANGE</div>
+              <h2>The move behind the headline.</h2>
+            </div>
+            <span>Trailing windows · primary observed pools</span>
+          </div>
+          <div id="heatmap" class="heatmap"></div>
+          <div class="table-bottom">
+            <span
+              >Overlapping windows, not a price history or correlation estimate.
+              Missing returns stay unavailable.</span
+            >
+          </div>
+        </section>
+        <footer>
+          <span>Opsis / Crypto Quant Lab</span>
+          <p>Robinhood Chain · Market snapshot · Source-linked analysis</p>
+          <button id="methodButton">Sources & methodology ↗</button>
+        </footer>
+      </main>
+    </div>
+    <dialog id="itemDialog">
+      <div class="detail-head">
+        <span class="overline">OPSIS / TOKEN INTELLIGENCE</span
+        ><button data-close="itemDialog" aria-label="Close token details">
+          ×
+        </button>
+      </div>
+      <div id="itemDetails"></div>
+    </dialog>
+    <dialog id="compareDialog">
+      <div class="detail-head">
+        <span class="overline">SIDE BY SIDE / CRYPTO INTELLIGENCE</span
+        ><button data-close="compareDialog" aria-label="Close token comparison">
+          ×
+        </button>
+      </div>
+      <div id="comparison"></div>
+    </dialog>
+    <dialog id="methodDialog">
+      <div class="detail-head">
+        <span class="overline">DATA & METHODOLOGY</span
+        ><button data-close="methodDialog" aria-label="Close methodology">
+          ×
+        </button>
+      </div>
+      <h2>Know what every number means.</h2>
+      <div id="methods"></div>
+    </dialog>
+    <div id="toast" class="toast" role="status" hidden></div>
+    <div id="loadError" role="alert" hidden>
+      Crypto data is unavailable. <button id="retryData">Retry</button>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>

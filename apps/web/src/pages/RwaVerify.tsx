@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { lazy, Suspense, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { Link } from "react-router";
 import {
   AlertTriangle, BadgeCheck, BarChart3, Box, Building2, Check,
@@ -30,6 +30,8 @@ const ORACLE_STATE_KEYS: Record<RwaOracleState, TranslationKey> = {
   stale_or_market_closed: "rwa.oracle.state.stale_or_market_closed",
   invalid: "rwa.oracle.state.invalid"
 };
+
+const EvidenceMap = lazy(() => import("../opsis/EvidenceMap"));
 
 export default function RwaVerify() {
   const { t } = useI18n();
@@ -175,6 +177,7 @@ function EvidenceResult({ result }: { result: RwaVerification }) {
     {result.stock && <StockDetails stock={result.stock} />}
     {result.morpho && <MorphoDetails morpho={result.morpho} />}
 
+    {import.meta.env.VITE_OPSIS_WORKSPACES_ENABLED === "true" && <Suspense fallback={null}><EvidenceMap findings={result.checks.map(check => ({fact: `${check.status}: ${check.label} — ${check.detail}`, sourceIds: check.sourceIds}))} sources={result.sources} /></Suspense>}
     <div className="grid gap-4 lg:grid-cols-2">{result.checks.map((item) => <EvidenceCard key={item.id} check={item} sources={result.sources} />)}</div>
 
     <div className="grid gap-5 lg:grid-cols-[1fr_0.75fr]">

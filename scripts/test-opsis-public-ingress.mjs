@@ -14,7 +14,7 @@ try {
   const port = execFileSync("docker", ["port", id, "80"], {encoding:"utf8"}).trim().split(":").at(-1);
   const base = `http://127.0.0.1:${port}`;
   for(let i=0;i<30;i++) { try { await fetch(base); break; } catch { await new Promise(r=>setTimeout(r,100)); } }
-  for (const path of ["/", "/research", "/check", "/saved", "/quant/", "/opsis-site/index.html", "/opsis-site/scene.js"]) {
+  for (const path of ["/", "/research", "/check", "/saved", "/quant/", "/opsis-site/index.html", "/opsis-site/scene.js", "/opsis-lab/index.html", "/opsis-lab/opsis.css"]) {
     const response = await fetch(base+path);
     assert.equal(response.status,200,path);
     assert.equal(response.headers.get("www-authenticate"),null);
@@ -46,6 +46,11 @@ try {
       await page.goto(secureBase);
       await page.frameLocator('iframe[title="Opsis overview — interactive chain"]').getByRole("heading",{name:"See the bigger picture."}).waitFor();
       assert.equal(await page.getByLabel("Preview access key").count(),0);
+      await page.goto(secureBase+"/lab");
+      const lab=page.frameLocator('iframe[title="Opsis interactive Quant Lab"]');
+      await lab.locator("#space").waitFor();
+      await lab.locator("#scenarioTab").click();
+      await lab.getByText("61 × 41 shock pairs",{exact:true}).waitFor();
     } finally { await browser.close(); }
   }
   console.log("PASS: public container opens without either password gate in Chromium and WebKit; CSP preserved.");
