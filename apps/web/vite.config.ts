@@ -34,6 +34,13 @@ export default defineConfig({
     {
       name: "chainscout-deployment-metadata",
       transformIndexHtml(html) {
+        if (process.env.VITE_OPSIS_WORKSPACES_ENABLED === "true") {
+          html = html.replaceAll("ChainScout — Private Multi-Asset Command Center", "Opsis — See the bigger picture.")
+            .replaceAll("ChainScout", "Opsis")
+            .replaceAll("Track crypto, NFTs, tokenized assets, Pokémon cards, collectibles, and anything else in one encrypted local Vault—then inspect source-linked Robinhood Chain activity.", "Research public evidence, check exits, watch changes and explore captured market data with Opsis.")
+            .replace(/ {4}<meta[^>]+(?:og:image|twitter:image)[\s\S]*?\/>/g, "")
+            .replace('href="/logo.svg"', 'href="/opsis-icon.svg"');
+        }
         return html
           .replaceAll("__CHAINSCOUT_PUBLIC_SITE_URL__", publicSiteUrl)
           .replaceAll("__CHAINSCOUT_BUILD_SHA__", buildSha);

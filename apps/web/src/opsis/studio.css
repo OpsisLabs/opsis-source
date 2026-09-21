@@ -1,0 +1,791 @@
+/* Opsis studio: a blue navigation field around a light, usable work surface. */
+.opsis.opsis-terminal {
+  margin: 0;
+  min-height: 100dvh;
+  border: 0;
+  padding-left: 64px;
+}
+.opsis .opsis-back {
+  left: 0;
+  top: 0;
+  width: 64px;
+  height: 100dvh;
+  border: 0;
+  border-right: 1px solid #ffffff40;
+  padding: 28px 22px;
+  background: #1000ff;
+}
+.opsis .opsis-header {
+  padding: 22px 36px;
+}
+.opsis .opsis-workspace-bar {
+  padding-left: 36px;
+  padding-right: 36px;
+}
+.opsis .opsis-preview-note {
+  padding: 12px 36px;
+}
+.opsis .opsis-content {
+  --ground: #f7f7f2;
+  --panel: #fff;
+  --panel-hover: #eeedf9;
+  --ink: #181249;
+  --soft: #59546e;
+  --line: #21184c24;
+  --accent: #1000ff;
+  --button: #1000ff;
+  --button-ink: #fff;
+  --ink-2: #fff;
+  --ink-3: #eae9f3;
+  --text-primary: #181249;
+  --text-secondary: #59546e;
+  --text-muted: #59546e;
+  --orange: #1000ff;
+  color: var(--ink);
+  background: var(--ground);
+  padding: 32px 36px 56px;
+  max-width: none;
+  min-height: calc(100dvh - 235px);
+  color-scheme: light;
+}
+.opsis .opsis-content .opsis-legacy {
+  --ink-2: #fff;
+  --ink-3: #eae9f3;
+  --text-primary: var(--ink);
+  --text-secondary: var(--soft);
+  --text-muted: var(--soft);
+  --orange: #1000ff;
+}
+.opsis .opsis-footer {
+  padding: 24px 36px;
+}
+.opsis .opsis-studio-heading,
+.opsis .opsis-content > .opsis-heading,
+.opsis .opsis-native-lab > .opsis-studio-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(220px, 0.6fr);
+  gap: 32px;
+  align-items: end;
+  margin: 0 0 28px;
+  padding: 4px 0 32px;
+  border-bottom: 1px solid var(--line);
+}
+.opsis .opsis-studio-heading h1,
+.opsis .opsis-content .opsis-heading h1 {
+  font:
+    400 clamp(36px, 4.3vw, 68px)/1.05 Opsis,
+    sans-serif;
+  letter-spacing: -0.06em;
+  max-width: 920px;
+  margin: 12px 0 0;
+}
+.opsis .opsis-studio-heading > p {
+  margin: 0;
+  max-width: 370px;
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--soft);
+}
+.opsis .opsis-kicker {
+  color: var(--soft);
+}
+.opsis .opsis-content .opsis-heading {
+  margin-bottom: 28px;
+}
+.opsis .opsis-content .opsis-heading h1 {
+  max-width: 850px;
+}
+.opsis .opsis-content .opsis-heading > p:last-child {
+  max-width: 600px;
+}
+.opsis .opsis-panel {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 24px;
+}
+.opsis
+  .opsis-content
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.opsis .opsis-content select,
+.opsis .opsis-content textarea {
+  background: #fff;
+  color: var(--ink);
+  border-color: #20135240;
+  border-radius: 0;
+}
+.opsis .opsis-content input::placeholder {
+  color: #706982;
+  opacity: 1;
+}
+.opsis .opsis-content input[type="range"] {
+  accent-color: #1000ff;
+}
+.opsis .opsis-engine-content > div {
+  background: transparent !important;
+  min-height: 0;
+}
+.opsis .opsis-engine-content .workspace-layout,
+.opsis .opsis-engine-content > main,
+.opsis .opsis-engine-content .stress-page {
+  padding: 0;
+  max-width: none;
+  width: 100%;
+  margin: 0;
+}
+.opsis .opsis-engine-content .workspace-heading {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 20px;
+  padding: 0;
+  min-height: 0;
+}
+.opsis .opsis-engine-content .workspace-heading:empty {
+  display: none;
+}
+.opsis .opsis-engine-content .clip-panel {
+  clip-path: none;
+  border-radius: 0;
+}
+.opsis .opsis-engine-content .workspace-privacy-details {
+  max-width: 100%;
+}
+.opsis .opsis-engine-content .workspace-privacy-details > summary {
+  font-size: 11px;
+}
+.opsis .opsis-watch-board {
+  display: grid;
+  gap: 24px;
+}
+.opsis .opsis-watch-board > section[aria-labelledby="watch-access-title"] {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px 36px;
+  padding: 32px;
+}
+.opsis
+  .opsis-watch-board
+  > section[aria-labelledby="watch-access-title"]
+  > svg {
+  grid-column: 1;
+  margin: 0;
+}
+.opsis .opsis-watch-board > section[aria-labelledby="watch-access-title"] > h2 {
+  grid-column: 1;
+  font-size: 30px;
+  line-height: 1.2;
+  letter-spacing: -0.04em;
+}
+.opsis .opsis-watch-board > section[aria-labelledby="watch-access-title"] > p {
+  grid-column: 1;
+  margin: 0;
+}
+.opsis
+  .opsis-watch-board
+  > section[aria-labelledby="watch-access-title"]
+  > form {
+  grid-column: 2;
+  grid-row: 1 / span 4;
+  margin: 0;
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+.opsis .opsis-watch-board > section[aria-labelledby="watch-access-title"] > a {
+  grid-column: 1;
+  align-self: start;
+}
+.opsis .opsis-vault-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  font:
+    11px OpsisMono,
+    monospace;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 16px;
+}
+.opsis .opsis-vault-controls button {
+  display: flex;
+  gap: 10px;
+  padding: 10px 15px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+.opsis .opsis-engine-content .stress-negative,
+.opsis .opsis-content [class~="text-[#ffada3]"],
+.opsis .opsis-content [class~="text-[#ffabbc]"],
+.opsis .opsis-content [class~="text-[#e0738a]"],
+.opsis .opsis-content [class~="text-[#ffbbca]"] {
+  color: #a12137 !important;
+}
+.opsis .opsis-engine-content .stress-positive,
+.opsis .opsis-content [class~="text-[#7fb069]"],
+.opsis .opsis-content [class~="text-[#99d6b3]"],
+.opsis .opsis-content [class~="text-[#9fc68f]"] {
+  color: #176b46 !important;
+}
+.opsis .opsis-content [class~="text-[#7cc4f8]"] {
+  color: #185e8a !important;
+}
+.opsis .opsis-content [class~="text-[#c9a6ff]"] {
+  color: #633696 !important;
+}
+.opsis .opsis-engine-content .stress-mobile-summary {
+  background: var(--ground);
+}
+.opsis .opsis-engine-content .stress-result {
+  background: #fff;
+  padding: 28px;
+  border: 1px solid var(--line);
+}
+.opsis .opsis-engine-content .stress-controls {
+  padding-right: 20px;
+}
+.opsis .opsis-engine-content .stress-examples {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+.opsis .opsis-engine-content .stress-page .stress-dial {
+  width: min(100%, 340px);
+}
+.opsis .opsis-dataset-strip {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 0 0 28px;
+  font:
+    10px/1.7 OpsisMono,
+    monospace;
+  color: var(--soft);
+}
+.opsis-status-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #1000ff;
+}
+.opsis .opsis-dataset-strip > span:last-child {
+  margin-left: auto;
+}
+.opsis .opsis-lab-mode {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--line);
+  background: #fff;
+  margin-bottom: 0;
+  width: fit-content;
+}
+.opsis .opsis-lab-mode button {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+  padding: 16px 22px;
+  border: 0;
+  border-right: 1px solid var(--line);
+  min-height: 52px;
+  color: var(--soft);
+  background: transparent;
+  font-size: 15px;
+}
+.opsis .opsis-lab-mode button:last-child {
+  border-right: 0;
+}
+.opsis .opsis-lab-mode button span {
+  font:
+    10px OpsisMono,
+    monospace;
+}
+.opsis .opsis-lab-mode button[aria-pressed="true"] {
+  color: #fff;
+  background: #1000ff;
+}
+.opsis .opsis-lab-workbench {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+.opsis .opsis-lab-plot {
+  min-width: 0;
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+}
+.opsis .opsis-plot-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 24px;
+}
+.opsis .opsis-plot-heading h2 {
+  font-size: 24px;
+  letter-spacing: -0.035em;
+  margin: 0;
+}
+.opsis .opsis-plot-heading > span {
+  font:
+    9px/1.7 OpsisMono,
+    monospace;
+  color: var(--soft);
+  max-width: 130px;
+}
+.opsis .opsis-spatial {
+  background: #1000ff;
+  color: #fff;
+  position: relative;
+  min-width: 0;
+  flex: 1;
+}
+.opsis .opsis-spatial-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  gap: 12px;
+  font:
+    9px/1.6 OpsisMono,
+    monospace;
+  color: #dedbff;
+}
+.opsis .opsis-spatial-toolbar > div {
+  display: flex;
+  gap: 5px;
+}
+.opsis .opsis-spatial-toolbar button {
+  border: 1px solid #ffffff40;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 6px 8px;
+  background: transparent;
+  color: #fff;
+  white-space: nowrap;
+}
+.opsis .opsis-spatial canvas {
+  display: block;
+  width: 100%;
+  height: 430px;
+  touch-action: none;
+  cursor: grab;
+}
+.opsis .opsis-spatial canvas:active {
+  cursor: grabbing;
+}
+.opsis .opsis-spatial-caption {
+  min-height: 42px;
+  padding: 10px 20px;
+  font:
+    10px/1.7 OpsisMono,
+    monospace;
+  border-top: 1px solid #ffffff35;
+}
+.opsis .opsis-plot-note {
+  font-size: 12px;
+  color: var(--soft);
+  padding: 18px 24px;
+  margin: 0;
+  line-height: 1.65;
+}
+.opsis .opsis-lab-inspector {
+  padding: 24px;
+  min-width: 0;
+}
+.opsis .opsis-lab-inspector label {
+  font-size: 10px;
+}
+.opsis .opsis-lab-inspector select {
+  padding: 11px;
+  font-size: 13px;
+  margin-bottom: 18px;
+}
+.opsis .opsis-pool-inspector {
+  border-top: 1px solid var(--line);
+  padding-top: 22px;
+}
+.opsis .opsis-pool-inspector h3 {
+  font-size: 24px;
+  letter-spacing: -0.035em;
+  margin: 10px 0 20px;
+}
+.opsis .opsis-pool-inspector h3 span {
+  font-size: 15px;
+  color: var(--soft);
+}
+.opsis .opsis-pool-inspector > strong {
+  font-size: 36px;
+  font-weight: 400;
+  letter-spacing: -0.05em;
+}
+.opsis .opsis-pool-inspector > p {
+  font-size: 12px;
+}
+.opsis .opsis-pool-inspector dl {
+  margin: 24px 0;
+}
+.opsis .opsis-pool-inspector dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  font-size: 11px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+.opsis .opsis-pool-inspector dd {
+  margin: 0;
+  font-family: OpsisMono, monospace;
+}
+.opsis .opsis-pool-inspector a {
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.opsis .opsis-pool-inspector .opsis-identity {
+  font-size: 9px;
+  line-height: 1.7;
+  color: var(--soft);
+}
+.opsis .opsis-scenario-slider {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  margin-bottom: 20px;
+  color: var(--ink);
+}
+.opsis .opsis-scenario-slider output {
+  font-family: OpsisMono, monospace;
+}
+.opsis .opsis-scenario-slider input {
+  grid-column: 1/-1;
+  width: 100%;
+  margin: 0;
+}
+.opsis .opsis-scenario-result {
+  border-top: 1px solid var(--line);
+  padding-top: 22px;
+  margin-top: 12px;
+}
+.opsis .opsis-scenario-result > output {
+  font-size: 40px;
+  letter-spacing: -0.05em;
+  color: #1000ff;
+  line-height: 1.3;
+}
+.opsis .opsis-scenario-result > p:last-child {
+  font-size: 12px;
+  line-height: 1.8;
+}
+.opsis .opsis-section-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  font:
+    10px/1.7 OpsisMono,
+    monospace;
+  padding: 22px 0;
+  color: var(--soft);
+}
+.opsis .opsis-lab-data {
+  margin-top: 20px;
+}
+.opsis .opsis-lab-data caption {
+  text-align: left;
+  font-size: 12px;
+  padding-bottom: 14px;
+  color: var(--soft);
+}
+.opsis .opsis-lab-data table {
+  width: 100%;
+  border-collapse: collapse;
+  font:
+    12px OpsisMono,
+    monospace;
+}
+.opsis .opsis-lab-data th {
+  text-align: left;
+  font-weight: 400;
+  font-size: 10px;
+  color: var(--soft);
+  padding: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.opsis .opsis-lab-data td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.opsis .opsis-lab-data tr[data-selected="true"] {
+  background: #e9e6ff;
+}
+.opsis .opsis-lab-data td button {
+  display: flex;
+  align-items: start;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: 0;
+  padding: 5px 0;
+  text-align: left;
+  max-width: 350px;
+  color: var(--ink);
+}
+.opsis .opsis-lab-data td small {
+  display: block;
+  max-width: 100%;
+  font-size: 9px;
+  color: var(--soft);
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+.opsis .opsis-lab-data .opsis-table-scroll {
+  max-height: 400px;
+  overflow: auto;
+}
+.opsis .opsis-lab-methods {
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+  margin-top: 24px;
+  color: var(--soft);
+  font-size: 12px;
+}
+.opsis .opsis-lab-methods summary {
+  color: var(--ink);
+  font-size: 13px;
+}
+.opsis .opsis-lab-methods p {
+  max-width: 1000px;
+  line-height: 1.8;
+}
+.opsis .opsis-tool-workspace[data-tool="research/events"] .sr-app {
+  background: transparent;
+}
+.opsis .opsis-tool-workspace[data-tool="research/events"] .sr-title h1 {
+  font-size: clamp(36px, 4vw, 64px);
+}
+@media (max-width: 1100px) {
+  .opsis .opsis-lab-workbench {
+    grid-template-columns: minmax(0, 1fr) 260px;
+  }
+  .opsis .opsis-plot-heading {
+    display: block;
+  }
+  .opsis .opsis-plot-heading > span {
+    display: block;
+    max-width: none;
+    margin-top: 8px;
+  }
+}
+@media (max-width: 800px) {
+  .opsis.opsis-terminal {
+    padding-left: 0;
+  }
+  .opsis .opsis-back {
+    position: static;
+    display: block;
+    width: auto;
+    height: auto;
+    min-height: 0;
+    writing-mode: horizontal-tb;
+    padding: 12px 22px;
+    border-bottom: 1px solid #ffffff40;
+  }
+  .opsis .opsis-header {
+    padding: 18px 22px;
+  }
+  .opsis .opsis-workspace-bar {
+    padding-left: 22px;
+    padding-right: 22px;
+  }
+  .opsis .opsis-preview-note {
+    padding: 10px 22px;
+  }
+  .opsis .opsis-content {
+    padding: 26px 22px 40px;
+  }
+  .opsis .opsis-studio-heading {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding-bottom: 24px;
+  }
+  .opsis .opsis-studio-heading > p {
+    max-width: 550px;
+  }
+  .opsis .opsis-lab-workbench {
+    grid-template-columns: 1fr;
+  }
+  .opsis .opsis-lab-plot {
+    border-right: 0;
+  }
+  .opsis .opsis-lab-inspector {
+    border-top: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 22px;
+  }
+  .opsis .opsis-lab-inspector > .opsis-kicker {
+    grid-column: 1/-1;
+  }
+  .opsis .opsis-pool-inspector,
+  .opsis .opsis-scenario-result,
+  .opsis .opsis-lab-inspector > .opsis-small {
+    grid-column: 1/-1;
+  }
+  .opsis .opsis-lab-inspector label {
+    grid-column: 1;
+  }
+  .opsis .opsis-lab-inspector select {
+    grid-column: 1;
+  }
+  .opsis .opsis-spatial canvas {
+    height: 360px;
+  }
+  .opsis .opsis-watch-board > section[aria-labelledby="watch-access-title"] {
+    display: block;
+    padding: 24px;
+  }
+  .opsis
+    .opsis-watch-board
+    > section[aria-labelledby="watch-access-title"]
+    > form {
+    display: grid;
+    margin-top: 24px;
+  }
+  .opsis
+    .opsis-watch-board
+    > section[aria-labelledby="watch-access-title"]
+    > h2 {
+    margin: 14px 0;
+  }
+}
+@media (max-width: 480px) {
+  .opsis .opsis-content {
+    padding: 24px 16px 36px;
+  }
+  .opsis .opsis-studio-heading h1,
+  .opsis .opsis-content .opsis-heading h1 {
+    font-size: 38px;
+  }
+  .opsis .opsis-lab-mode {
+    width: 100%;
+  }
+  .opsis .opsis-lab-mode button {
+    gap: 10px;
+    padding: 14px 12px;
+    font-size: 13px;
+    flex: 1;
+  }
+  .opsis .opsis-spatial-toolbar {
+    padding: 10px;
+  }
+  .opsis .opsis-spatial-toolbar > span {
+    max-width: 100px;
+    font-size: 8px;
+  }
+  .opsis .opsis-spatial canvas {
+    height: 300px;
+  }
+  .opsis .opsis-lab-inspector {
+    display: block;
+  }
+  .opsis .opsis-dataset-strip {
+    gap: 8px 14px;
+  }
+  .opsis .opsis-dataset-strip > span:last-child {
+    margin-left: 0;
+  }
+  .opsis .opsis-plot-heading {
+    padding: 20px;
+  }
+  .opsis .opsis-pool-inspector > strong {
+    font-size: 32px;
+  }
+}
+
+.opsis .opsis-token-comparison {
+  margin-top: 32px;
+  padding: 24px;
+  background: #fff;
+  border: 1px solid var(--line);
+}
+.opsis .opsis-token-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 20px 0 8px;
+}
+.opsis .opsis-token-choices button {
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  text-align: left;
+}
+.opsis .opsis-token-choices button span {
+  display: block;
+  font: 12px monospace;
+  margin-top: 6px;
+}
+.opsis .opsis-token-choices button[aria-pressed="true"] {
+  color: white;
+  background: #1000ff;
+}
+.opsis .opsis-token-choices button:disabled {
+  opacity: 0.7;
+}
+.opsis .opsis-token-comparison select {
+  padding: 10px;
+  margin: 12px;
+}
+.opsis .opsis-comparison-bars {
+  display: grid;
+  gap: 18px;
+  margin: 20px 0 30px;
+}
+.opsis .opsis-comparison-bars > div {
+  display: grid;
+  grid-template-columns: 90px 1fr 145px;
+  align-items: center;
+  gap: 14px;
+}
+.opsis .opsis-comparison-bars output {
+  text-align: right;
+  font: 12px monospace;
+}
+.opsis .opsis-comparison-track {
+  background: #eeedf9;
+  height: 22px;
+}
+.opsis .opsis-comparison-track i {
+  display: block;
+  height: 100%;
+  background: #1000ff;
+}
+.opsis .opsis-token-comparison th small {
+  display: block;
+  max-width: 230px;
+  font-weight: normal;
+}
+.opsis .opsis-native-lab > .opsis-studio-heading {
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+.opsis .opsis-native-lab .opsis-studio-heading h1 {
+  font-size: clamp(36px, 3.6vw, 58px);
+}
+@media (max-width: 600px) {
+  .opsis .opsis-token-comparison {
+    padding: 16px;
+  }
+  .opsis .opsis-comparison-bars > div {
+    grid-template-columns: 65px 1fr;
+  }
+  .opsis .opsis-comparison-bars output {
+    grid-column: 2;
+  }
+}
+.opsis .opsis-content .stress-primary,
+.opsis .opsis-content .stress-segment button[aria-pressed="true"] { color: #fff; }
+.opsis .opsis-content .stress-page button[aria-pressed="true"],
+.opsis .opsis-content .stress-primary:hover,
+.opsis .opsis-content .stress-page button[aria-pressed="true"]:hover { color: #fff; background: #1000ff; }

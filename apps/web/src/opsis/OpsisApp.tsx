@@ -1,11 +1,4 @@
-import {
-  lazy,
-  Suspense,
-  useEffect,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import {
   Link,
   NavLink,
@@ -26,9 +19,12 @@ import {
 import { setOpsisPreviewToken } from "./preview-token";
 import OriginalLanding from "./OriginalLanding";
 import ToolNavigation from "./ToolNavigation";
+import ToolWorkspace from "./ToolWorkspace";
+import OpsisCopy from "./OpsisCopy";
 const Lab = lazy(() => import("./Lab"));
 import "./opsis.css";
 import "./legacy-theme.css";
+import "./studio.css";
 
 const publicAccess =
   import.meta.env.VITE_OPSIS_PUBLIC_ACCESS_ENABLED === "true";
@@ -52,9 +48,6 @@ const Terms = lazy(() =>
 );
 const Guide = lazy(() => import("./Guide"));
 
-function Legacy({ children }: { children: ReactNode }) {
-  return <div className="opsis-legacy">{children}</div>;
-}
 function Unavailable() {
   const c = useCopy();
   return (
@@ -407,201 +400,210 @@ export default function OpsisApp() {
                   </p>
                 }
               >
-                <Routes>
-                  <Route path="/" element={null} />
-                  <Route
-                    path="/research/events"
-                    element={
-                      import.meta.env.VITE_SITUATION_ROOM_ENABLED === "true" ? (
-                        <Legacy>
-                          <SituationRoom />
-                        </Legacy>
-                      ) : (
-                        <Unavailable />
-                      )
-                    }
-                  />
-                  <Route
-                    path="/research"
-                    element={
-                      access.research ? (
-                        <Research key={location.search} capabilities={access} />
-                      ) : (
-                        <Unavailable />
-                      )
-                    }
-                  />
-                  <Route
-                    path="/check"
-                    element={
-                      access.exitCheck &&
-                      import.meta.env.VITE_EXIT_CHECK_ENABLED === "true" ? (
-                        <TradeCheck key={location.search} />
-                      ) : (
-                        <Unavailable />
-                      )
-                    }
-                  />
-                  <Route
-                    path="/watch"
-                    element={
-                      access.watch &&
-                      import.meta.env.VITE_SCOUT_WATCH_ENABLED === "true" ? (
-                        <Legacy>
-                          <Watch />
-                        </Legacy>
-                      ) : (
-                        <Unavailable />
-                      )
-                    }
-                  />
-                  <Route
-                    path="/saved"
-                    element={
-                      <Legacy>
-                        <Saved />
-                      </Legacy>
-                    }
-                  />
-                  <Route
-                    path="/vault"
-                    element={<Navigate to="/saved" replace />}
-                  />
-                  <Route path="/lab" element={<Lab theme={theme} />} />
-                  <Route
-                    path="/situation-room"
-                    element={<Navigate to="/research/events" replace />}
-                  />
-                  <Route
-                    path="/roadmap"
-                    element={<Navigate to="/status" replace />}
-                  />
-                  <Route
-                    path="/status"
-                    element={<Status capabilities={access} />}
-                  />
-                  <Route
-                    path="/rwa"
-                    element={
-                      access.rwa ? (
-                        <Legacy>
-                          <Rwa />
-                        </Legacy>
-                      ) : (
-                        <Unavailable />
-                      )
-                    }
-                  />
-                  <Route
-                    path="/biggest-trades"
-                    element={
-                      access.observedTrades &&
-                      import.meta.env.VITE_OBSERVED_TRADES_ENABLED ===
+                <OpsisCopy>
+                  <Routes>
+                    <Route path="/" element={null} />
+                    <Route
+                      path="/research/events"
+                      element={
+                        import.meta.env.VITE_SITUATION_ROOM_ENABLED ===
                         "true" ? (
-                        <Legacy>
-                          <Trades />
-                        </Legacy>
-                      ) : (
-                        <Unavailable />
-                      )
-                    }
-                  />
-                  <Route
-                    path="/research/details"
-                    element={
-                      access.research ? (
-                        <Legacy>
-                          <Explorer />
-                        </Legacy>
-                      ) : (
-                        <Unavailable />
-                      )
-                    }
-                  />
-                  <Route
-                    path="/swap"
-                    element={
-                      <Legacy>
-                        <Swap />
-                      </Legacy>
-                    }
-                  />
-                  <Route
-                    path="/app"
-                    element={<RedirectPublic to="/research" />}
-                  />
-                  <Route
-                    path="/exit-check"
-                    element={<RedirectPublic to="/check" />}
-                  />
-                  <Route
-                    path="/simulate"
-                    element={
-                      import.meta.env.VITE_TRADE_SIMULATOR_ENABLED ===
-                      "true" ? (
-                        <Legacy>
-                          <Simulator />
-                        </Legacy>
-                      ) : (
-                        <Unavailable />
-                      )
-                    }
-                  />
-                  <Route
-                    path="/stress-test"
-                    element={
-                      import.meta.env.VITE_PORTFOLIO_STRESS_TEST_ENABLED ===
-                      "true" ? (
-                        <Legacy>
-                          <Stress />
-                        </Legacy>
-                      ) : (
-                        <Unavailable />
-                      )
-                    }
-                  />
-                  <Route
-                    path="/terms"
-                    element={
-                      <Legacy>
-                        <Terms />
-                      </Legacy>
-                    }
-                  />
-                  <Route
-                    path="/privacy"
-                    element={
-                      <Legacy>
-                        <Privacy />
-                      </Legacy>
-                    }
-                  />
-                  <Route
-                    path="/guide"
-                    element={
-                      <Legacy>
-                        <Guide capabilities={access} />
-                      </Legacy>
-                    }
-                  />
-                  <Route
-                    path="*"
-                    element={
-                      <section className="opsis-panel">
-                        <h1>{c("This tool is parked", "此工具已暂缓")}</h1>
-                        <p>
-                          {c(
-                            "It has not been connected to this Opsis preview. Saved records and encrypted export remain available.",
-                            "此工具尚未接入 Opsis 预览。已保存的记录和加密导出仍然可用。",
-                          )}
-                        </p>
-                        <Link to="/saved">
-                          {c("Open Saved and backups", "打开已保存记录及备份")}
-                        </Link>
-                      </section>
-                    }
-                  />
-                </Routes>
+                          <ToolWorkspace>
+                            <SituationRoom />
+                          </ToolWorkspace>
+                        ) : (
+                          <Unavailable />
+                        )
+                      }
+                    />
+                    <Route
+                      path="/research"
+                      element={
+                        access.research ? (
+                          <Research
+                            key={location.search}
+                            capabilities={access}
+                          />
+                        ) : (
+                          <Unavailable />
+                        )
+                      }
+                    />
+                    <Route
+                      path="/check"
+                      element={
+                        access.exitCheck &&
+                        import.meta.env.VITE_EXIT_CHECK_ENABLED === "true" ? (
+                          <TradeCheck key={location.search} />
+                        ) : (
+                          <Unavailable />
+                        )
+                      }
+                    />
+                    <Route
+                      path="/watch"
+                      element={
+                        access.watch &&
+                        import.meta.env.VITE_SCOUT_WATCH_ENABLED === "true" ? (
+                          <ToolWorkspace>
+                            <Watch />
+                          </ToolWorkspace>
+                        ) : (
+                          <Unavailable />
+                        )
+                      }
+                    />
+                    <Route
+                      path="/saved"
+                      element={
+                        <ToolWorkspace>
+                          <Saved />
+                        </ToolWorkspace>
+                      }
+                    />
+                    <Route
+                      path="/vault"
+                      element={<Navigate to="/saved" replace />}
+                    />
+                    <Route path="/lab" element={<Lab />} />
+                    <Route
+                      path="/situation-room"
+                      element={<Navigate to="/research/events" replace />}
+                    />
+                    <Route
+                      path="/roadmap"
+                      element={<Navigate to="/status" replace />}
+                    />
+                    <Route
+                      path="/status"
+                      element={<Status capabilities={access} />}
+                    />
+                    <Route
+                      path="/rwa"
+                      element={
+                        access.rwa ? (
+                          <ToolWorkspace>
+                            <Rwa />
+                          </ToolWorkspace>
+                        ) : (
+                          <Unavailable />
+                        )
+                      }
+                    />
+                    <Route
+                      path="/biggest-trades"
+                      element={
+                        access.observedTrades &&
+                        import.meta.env.VITE_OBSERVED_TRADES_ENABLED ===
+                          "true" ? (
+                          <ToolWorkspace>
+                            <Trades />
+                          </ToolWorkspace>
+                        ) : (
+                          <Unavailable />
+                        )
+                      }
+                    />
+                    <Route
+                      path="/research/details"
+                      element={
+                        access.research ? (
+                          <ToolWorkspace>
+                            <Explorer />
+                          </ToolWorkspace>
+                        ) : (
+                          <Unavailable />
+                        )
+                      }
+                    />
+                    <Route
+                      path="/swap"
+                      element={
+                        <ToolWorkspace>
+                          <Swap />
+                        </ToolWorkspace>
+                      }
+                    />
+                    <Route
+                      path="/app"
+                      element={<RedirectPublic to="/research" />}
+                    />
+                    <Route
+                      path="/exit-check"
+                      element={<RedirectPublic to="/check" />}
+                    />
+                    <Route
+                      path="/simulate"
+                      element={
+                        import.meta.env.VITE_TRADE_SIMULATOR_ENABLED ===
+                        "true" ? (
+                          <ToolWorkspace>
+                            <Simulator />
+                          </ToolWorkspace>
+                        ) : (
+                          <Unavailable />
+                        )
+                      }
+                    />
+                    <Route
+                      path="/stress-test"
+                      element={
+                        import.meta.env.VITE_PORTFOLIO_STRESS_TEST_ENABLED ===
+                        "true" ? (
+                          <ToolWorkspace>
+                            <Stress />
+                          </ToolWorkspace>
+                        ) : (
+                          <Unavailable />
+                        )
+                      }
+                    />
+                    <Route
+                      path="/terms"
+                      element={
+                        <ToolWorkspace>
+                          <Terms />
+                        </ToolWorkspace>
+                      }
+                    />
+                    <Route
+                      path="/privacy"
+                      element={
+                        <ToolWorkspace>
+                          <Privacy />
+                        </ToolWorkspace>
+                      }
+                    />
+                    <Route
+                      path="/guide"
+                      element={
+                        <ToolWorkspace>
+                          <Guide capabilities={access} />
+                        </ToolWorkspace>
+                      }
+                    />
+                    <Route
+                      path="*"
+                      element={
+                        <section className="opsis-panel">
+                          <h1>{c("This tool is parked", "此工具已暂缓")}</h1>
+                          <p>
+                            {c(
+                              "It has not been connected to this Opsis preview. Saved records and encrypted export remain available.",
+                              "此工具尚未接入 Opsis 预览。已保存的记录和加密导出仍然可用。",
+                            )}
+                          </p>
+                          <Link to="/saved">
+                            {c(
+                              "Open Saved and backups",
+                              "打开已保存记录及备份",
+                            )}
+                          </Link>
+                        </section>
+                      }
+                    />
+                  </Routes>
+                </OpsisCopy>
               </Suspense>
             </main>
             <footer className="opsis-footer">

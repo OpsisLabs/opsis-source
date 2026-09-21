@@ -1,3 +1,4 @@
+import { OPSIS_PRESENTATION } from "../opsis/presentation";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { Link } from "react-router";
 import {
@@ -281,7 +282,7 @@ export default function ScoutSwap() {
 
   return (
     <div className="min-h-screen bg-[#1d1d1d] text-[#e9e0d1]">
-      <header className="sticky top-0 z-30 flex h-[64px] items-center border-b border-[#2e2e2e] bg-[#1d1d1d]/95 px-4 backdrop-blur sm:px-6">
+      {!OPSIS_PRESENTATION && (      <header className="sticky top-0 z-30 flex h-[64px] items-center border-b border-[#2e2e2e] bg-[#1d1d1d]/95 px-4 backdrop-blur sm:px-6">
         <Link to="/" className="flex items-center gap-3" aria-label={t("trade.swap.homeLabel")}>
           <span className="flex h-9 w-9 items-center justify-center bg-[#fa6c34]" style={{ clipPath: "polygon(0 0,100% 0,100% 72%,72% 100%,0 100%)" }}>
             <img src="/logo.svg" alt="" className="h-5 w-5" />
@@ -298,15 +299,15 @@ export default function ScoutSwap() {
             {t("trade.swap.noWalletData")}
           </span>
         </div>
-      </header>
+      </header>)}
 
       <main className="workspace-layout">
         <div className="workspace-heading">
-          <div>
+          {!OPSIS_PRESENTATION && (<div>
             <p className="workspace-eyebrow"><ArrowDownUp size={14} /> {t("trade.swap.eyebrow")}</p>
             <h1 className="workspace-title">{t("trade.swap.titleLead")}<br /><span className="text-[#fa6c34]">{t("trade.swap.titleAccent")}</span></h1>
             <p className="workspace-description">{t("trade.swap.description")}</p>
-          </div>
+          </div>)}
         </div>
 
         <div className="relative grid min-w-0 gap-6 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">

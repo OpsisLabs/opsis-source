@@ -1,3 +1,4 @@
+import { OPSIS_PRESENTATION } from "../opsis/presentation";
 import { useRef, useState } from "react";
 import {
   ArrowDownRight,
@@ -222,12 +223,12 @@ export default function StressTest() {
 
   return (
     <div className="stress-page">
-      <header className="stress-heading" id="stress-top" tabIndex={-1}>
+      {!OPSIS_PRESENTATION && (      <header className="stress-heading" id="stress-top" tabIndex={-1}>
         <p className="stress-kicker">{t("stress.eyebrow")}</p>
         <h1>{t("stress.title")}</h1>
         <p>{t("stress.intro")}</p>
         <p className="stress-context">{t("stress.context")}</p>
-      </header>
+      </header>)}
       <div
         className="stress-examples"
         role="group"

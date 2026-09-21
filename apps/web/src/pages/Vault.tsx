@@ -1,3 +1,4 @@
+import { OPSIS_PRESENTATION } from "../opsis/presentation";
 import {
   lazy,
   Suspense,
@@ -1151,6 +1152,7 @@ export default function VaultPage({ previewDeals = false }: { previewDeals?: boo
 
 function VaultHeader({ phase, onLock }: { phase: Phase; onLock: () => void }) {
   const { t } = useI18n();
+  if (OPSIS_PRESENTATION) return <div className="opsis-vault-controls"><span>{t("vault.header.encryptedVault")}</span>{phase === "unlocked" && <button type="button" onClick={onLock}><LockKeyhole size={14} /> {t("vault.header.lock")}</button>}</div>;
   return (
     <header className="sticky top-0 z-30 flex h-[64px] items-center border-b border-[#2e2e2e] bg-[#1d1d1d]/95 px-4 backdrop-blur sm:px-6">
       <Link
@@ -1206,7 +1208,7 @@ function VaultHero({
       : t("vault.hero.storageBackupAdvised");
   return (
     <section className="workspace-heading">
-      <div>
+      {!OPSIS_PRESENTATION && (      <div>
         <p className="workspace-eyebrow">
           <LockKeyhole size={14} /> {t("vault.hero.eyebrow")}
         </p>
@@ -1218,7 +1220,7 @@ function VaultHero({
         <p className="workspace-description">
           {t("vault.hero.description")}
         </p>
-      </div>
+      </div>)}
       <WorkspaceDisclosure title={t("vault.hero.privacyTitle")} className="workspace-privacy-details">
       <div className="grid grid-cols-2 gap-px border border-[#383838] bg-[#383838]">
         <PrivacyTile label={t("vault.hero.cipher")} value="AES-256-GCM" />

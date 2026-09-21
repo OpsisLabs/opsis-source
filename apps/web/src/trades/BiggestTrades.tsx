@@ -1,3 +1,4 @@
+import { OPSIS_PRESENTATION } from "../opsis/presentation";
 import { lazy, Suspense, useEffect, useRef, useState, type FormEvent } from "react";
 import { useI18n } from "../i18n";
 import { ApiError } from "../dashboard/http";
@@ -104,13 +105,13 @@ export default function BiggestTrades() {
 
   return (
     <main className="mx-auto max-w-4xl px-5 py-10 sm:px-8 sm:py-14">
-      <p className={LABEL}>{t("trades.page.eyebrow")}</p>
+      {!OPSIS_PRESENTATION && <>      <p className={LABEL}>{t("trades.page.eyebrow")}</p>
       <h1 className="mt-2 text-3xl font-semibold tracking-[-0.02em] text-[#f4ece4] sm:text-4xl">
         {t("trades.page.title")}
       </h1>
       <p className="mt-4 max-w-2xl text-[14px] leading-relaxed text-[#b8b0a7]">
         {t("trades.page.intro")}
-      </p>
+      </p></>}
 
       <form
         onSubmit={(event: FormEvent) => {

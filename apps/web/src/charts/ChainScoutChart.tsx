@@ -45,7 +45,8 @@ export function ChainScoutChart({
     const chart = init(container, undefined, { renderer: "svg" });
     const shell = container.closest(".opsis");
     const draw = () => {
-      const styles = shell ? getComputedStyle(shell) : null;
+      const surface = container.closest(".opsis-content") ?? shell;
+      const styles = surface ? getComputedStyle(surface) : null;
       const adapt = (value: unknown): unknown => {
         if (!styles) return value;
         if (Array.isArray(value)) return value.map(adapt);

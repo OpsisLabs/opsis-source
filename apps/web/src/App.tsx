@@ -66,6 +66,7 @@ const ChatRoute = lazy(() =>
 
 function PageFallback() {
   const { t } = useI18n();
+  if (import.meta.env.VITE_OPSIS_WORKSPACES_ENABLED === "true") return <div role="status" style={{minHeight:"100dvh", display:"grid", placeItems:"center", background:"#f7f7f2", color:"#1000ff", fontFamily:"sans-serif"}}>{t("common.loadingPage")}</div>;
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#1d1d1d]">
       <span

@@ -52,6 +52,13 @@ test.describe("Opsis visual workspaces", () => {
       await page.goto(route);
       await expect(page.locator(".opsis-terminal")).toBeVisible();
       await expect(page.locator("#opsis-content h1").first()).toBeVisible();
+      await expect(page.locator("#opsis-content")).not.toContainText(
+        "Scout Watch",
+      );
+      await expect(page.locator("#opsis-content")).toHaveCSS(
+        "background-color",
+        "rgb(247, 247, 242)",
+      );
       await expect(page.locator(".opsis-terminal")).toHaveCSS(
         "background-color",
         "rgb(16, 0, 255)",
@@ -91,6 +98,7 @@ test.describe("Opsis visual workspaces", () => {
       "/simulate",
       "/rwa",
       "/biggest-trades",
+      "/lab",
     ]) {
       await page.goto(route);
       await expect(page.locator("#opsis-content h1").first()).toBeVisible();
@@ -111,32 +119,100 @@ test.describe("Opsis visual workspaces", () => {
     page,
   }) => {
     await page.goto("/lab");
-    const lab = page.frameLocator(
-      'iframe[title="Opsis interactive Quant Lab"]',
+    const plot = page.getByRole("img", {
+      name: /Interactive captured pool map/,
+    });
+    await expect(plot).toBeVisible();
+    await expect(page.locator("#opsis-content iframe")).toHaveCount(0);
+    await expect(
+      page.getByRole("link", { name: /frozen Quant Lab/ }),
+    ).toHaveCount(0);
+    await page.getByLabel("Token", { exact: true }).selectOption("weth");
+    await expect(
+      page.getByRole("table", { name: "Exact captured pool observations" }),
+    ).toContainText("WETH");
+    const comparison = page.getByRole("region", {
+      name: "Captured token comparison",
+    });
+    await expect(comparison.getByRole("table")).toContainText("USDG");
+    await comparison.getByLabel("Comparison measure").selectOption("volume24h");
+    await expect(
+      comparison.locator(".opsis-comparison-bars output").first(),
+    ).toHaveText(/\$/);
+    const beforeCamera = await plot.evaluate((el: HTMLCanvasElement) =>
+      el.toDataURL(),
     );
-    await expect(lab.locator("#visibleCount")).toContainText("pools plotted");
-    await expect(lab.locator("#space")).toBeVisible();
-    await lab.locator("#scenarioTab").click();
-    await expect(lab.locator("#visibleCount")).toContainText(
-      "61 × 41 shock pairs",
-    );
-    const before = await lab.locator("#coreValue").innerText();
-    await lab.locator("#inlineCore").focus();
-    await lab.locator("#inlineCore").press("ArrowRight");
-    await expect(lab.locator("#coreValue")).not.toHaveText(before);
-    await lab.getByRole("button", { name: "Reset 3D view" }).click();
+    await plot.focus();
+    await plot.press("ArrowRight");
+    await expect
+      .poll(() => plot.evaluate((el: HTMLCanvasElement) => el.toDataURL()))
+      .not.toBe(beforeCamera);
+    await page.getByRole("button", { name: /Portfolio surface/ }).click();
+    await expect(
+      page.getByText("2,501 deterministic shock pairs", { exact: false }),
+    ).toBeVisible();
+    const before = await page.getByTestId("lab-scenario-pl").innerText();
+    await page
+      .getByRole("slider", { name: "WETH + cbBTC shock", exact: true })
+      .focus();
+    await page
+      .getByRole("slider", { name: "WETH + cbBTC shock", exact: true })
+      .press("ArrowRight");
+    await expect(page.getByTestId("lab-scenario-pl")).not.toHaveText(before);
+    await page.getByRole("button", { name: /Reset view/ }).click();
     await page
       .getByRole("button", { name: "Light theme", exact: true })
       .click();
-    await expect(lab.locator("html")).toHaveAttribute("data-theme", "light");
     await page.setViewportSize({ width: 390, height: 844 });
     expect(
-      await lab.locator("html").evaluate((el) => el.scrollWidth - innerWidth),
+      await page.evaluate(
+        () => document.documentElement.scrollWidth - innerWidth,
+      ),
     ).toBeLessThanOrEqual(1);
     await expect(
-      page.getByText("Dated observations and user-set scenarios.", {
-        exact: false,
-      }),
+      page.getByText("Not live market data", { exact: true }),
+    ).toBeVisible();
+  });
+  test("Lab shows dataset failure and retries without inventing observations", async ({
+    page,
+  }) => {
+    let failed = true;
+    await page.route("**/quant/crypto-data.json", (route) =>
+      failed
+        ? route.fulfill({ status: 503, body: "Unavailable" })
+        : route.continue(),
+    );
+    await page.goto("/lab");
+    await expect(page.getByRole("alert")).toContainText(
+      "The capture could not load",
+    );
+    await expect(page.locator("canvas")).toHaveCount(0);
+    failed = false;
+    await page.getByRole("button", { name: "Retry dataset" }).click();
+    await expect(
+      page.getByRole("img", { name: /Interactive captured pool map/ }),
+    ).toBeVisible();
+  });
+  test("Saved keeps its visible lock control in the Opsis layout", async ({
+    page,
+  }) => {
+    await page.goto("/saved");
+    await page
+      .getByLabel("VAULT PASSPHRASE", { exact: true })
+      .fill("opsis-test-only-passphrase");
+    await page
+      .getByLabel("CONFIRM PASSPHRASE", { exact: true })
+      .fill("opsis-test-only-passphrase");
+    await page
+      .getByRole("button", { name: "CREATE ENCRYPTED VAULT", exact: true })
+      .click();
+    await page.getByRole("button", { name: /I SAVED IT/i }).click();
+    await page
+      .locator(".opsis-vault-controls")
+      .getByRole("button", { name: /LOCK/i })
+      .click();
+    await expect(
+      page.getByRole("button", { name: "UNLOCK LOCALLY", exact: true }),
     ).toBeVisible();
   });
   test("research question controls and linked evidence inspect real response sources", async ({

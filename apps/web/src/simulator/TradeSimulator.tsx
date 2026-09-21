@@ -1,3 +1,4 @@
+import { OPSIS_PRESENTATION } from "../opsis/presentation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getScoutSwapQuote, type ScoutSwapQuote, type SwapDirection } from "../swap/api";
 import { LocalHistory, SavedConversation } from "../private/LocalHistory";
@@ -57,7 +58,7 @@ export default function TradeSimulator() {
     } catch (failure) { setError((failure as Error).message); }
   };
   return <main className="mx-auto max-w-5xl space-y-6 p-6 text-[#e9e0d1]">
-    <h1 className="text-4xl">{t("trade.simulator.title")}</h1><p>{t("trade.simulator.description")}</p>
+    {!OPSIS_PRESENTATION && <><h1 className="text-4xl">{t("trade.simulator.title")}</h1><p>{t("trade.simulator.description")}</p></>}
     <section aria-label={t("trade.simulator.tryAria")} className="border border-[#fa6c34] bg-[#242424] p-5 sm:p-7">
       <p className="font-mono text-sm uppercase tracking-widest text-[#fa6c34]">{t("trade.simulator.tryEyebrow")}</p>
       <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">{t("trade.simulator.tryTitle")}</h2>

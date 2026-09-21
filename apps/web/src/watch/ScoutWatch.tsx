@@ -1,3 +1,4 @@
+import { OPSIS_PRESENTATION } from "../opsis/presentation";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { isAddress } from "viem";
@@ -812,8 +813,8 @@ export default function ScoutWatch() {
   const { t } = useI18n();
   const session = useWatchVault();
   return (
-    <main className="mx-auto w-full max-w-[1240px] space-y-6 px-4 py-8 text-[#e9e0d1] sm:px-8 sm:py-12">
-      <header className="border-b border-[#48413b] pb-7">
+    <main className={OPSIS_PRESENTATION ? "opsis-watch-board" : "mx-auto w-full max-w-[1240px] space-y-6 px-4 py-8 text-[#e9e0d1] sm:px-8 sm:py-12"}>
+      {!OPSIS_PRESENTATION && (      <header className="border-b border-[#48413b] pb-7">
         <p className="flex items-center gap-2 text-xs tracking-wider text-[#ff985e]">
           <ShieldCheck size={16} aria-hidden />
           {t("watch.badge")}
@@ -842,7 +843,7 @@ export default function ScoutWatch() {
             </li>
           ))}
         </ol>
-      </header>
+      </header>)}
       {session.phase !== "unlocked" ? (
         <Access key={session.epoch} session={session} />
       ) : (

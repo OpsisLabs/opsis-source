@@ -1,3 +1,4 @@
+import { OPSIS_PRESENTATION } from "../opsis/presentation";
 import {
   useCallback,
   useEffect,
@@ -295,7 +296,7 @@ export default function PrivateExplorer() {
 
   return (
     <div className="min-h-screen bg-[#1d1d1d] text-[#e9e0d1]">
-      <header className="sticky top-0 z-30 flex h-[64px] items-center border-b border-[#2e2e2e] bg-[#1d1d1d]/95 px-4 backdrop-blur sm:px-6">
+      {!OPSIS_PRESENTATION && (      <header className="sticky top-0 z-30 flex h-[64px] items-center border-b border-[#2e2e2e] bg-[#1d1d1d]/95 px-4 backdrop-blur sm:px-6">
         <Link
           to="/"
           className="flex items-center gap-3"
@@ -328,13 +329,13 @@ export default function PrivateExplorer() {
             {t("explorer.header.localChats")}
           </a>
         </div>
-      </header>
+      </header>)}
 
-      <OfficialContract />
+      {!OPSIS_PRESENTATION && <OfficialContract />}
 
       <main className="workspace-layout">
         <section className="workspace-heading">
-          <div>
+          {!OPSIS_PRESENTATION && (<div>
             <p className="workspace-eyebrow">
               <Search size={14} /> {t("explorer.eyebrow")}
             </p>
@@ -346,7 +347,7 @@ export default function PrivateExplorer() {
               </span>
             </h1>
             <p className="workspace-description">{t("explorer.description")}</p>
-          </div>
+          </div>)}
           <WorkspaceDisclosure
             title={t("explorer.privacy.title")}
             className="workspace-privacy-details"

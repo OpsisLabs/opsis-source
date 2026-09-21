@@ -1,3 +1,4 @@
+import { OPSIS_PRESENTATION } from "../opsis/presentation";
 import { lazy, Suspense, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { Link } from "react-router";
 import {
@@ -86,22 +87,22 @@ export default function RwaVerify() {
 
   return (
     <div className="min-h-screen bg-[#1d1d1d] text-[#e9e0d1]">
-      <header className="sticky top-0 z-30 flex h-[64px] items-center border-b border-[#2e2e2e] bg-[#1d1d1d]/95 px-4 backdrop-blur sm:px-6">
+      {!OPSIS_PRESENTATION && (      <header className="sticky top-0 z-30 flex h-[64px] items-center border-b border-[#2e2e2e] bg-[#1d1d1d]/95 px-4 backdrop-blur sm:px-6">
         <Link to="/" className="flex items-center gap-3" aria-label={t("rwa.header.home")}>
           <span className="flex h-9 w-9 items-center justify-center bg-[#fa6c34]" style={{ clipPath: "polygon(0 0,100% 0,100% 72%,72% 100%,0 100%)" }}><img src="/logo.svg" alt="" className="h-5 w-5" /></span>
           <span className="hidden font-mono-d text-[11px] tracking-[0.14em] text-[#d6ccba] sm:block">CHAINSCOUT</span>
         </Link>
         <div className="mx-auto flex items-center gap-2 font-mono-d text-[9.5px] tracking-[0.14em] text-[#c9a6ff] sm:text-[10.5px]"><BadgeCheck size={13} /> {t("rwa.header.badge")}</div>
         <nav className="flex items-center gap-4 font-mono-d text-[9px] text-[#7f7972] sm:text-[10px]"><Link to="/vault" className="hover:text-[#e9e0d1]">{t("rwa.header.vault")}</Link><Link to="/app" className="hover:text-[#e9e0d1]">{t("rwa.header.privateMode")}</Link></nav>
-      </header>
+      </header>)}
 
       <main className="workspace-layout">
         <section className="workspace-heading">
-          <div>
+          {!OPSIS_PRESENTATION && (<div>
             <p className="workspace-eyebrow"><BadgeCheck size={14} /> {t("rwa.eyebrow")}</p>
             <h1 className="workspace-title">{t("rwa.title.line1")}<br /><span className="text-[#d6ccba]">{t("rwa.title.line2")}</span></h1>
             <p className="workspace-description">{t("rwa.description")}</p>
-          </div>
+          </div>)}
           <WorkspaceDisclosure title={t("rwa.disclosure.title")} className="workspace-privacy-details">
           <div className="grid grid-cols-2 gap-px border border-[#383838] bg-[#383838]">
             <Feature icon={<Search size={14} />} label={t("rwa.disclosure.identity.label")} value={t("rwa.disclosure.identity.value")} />

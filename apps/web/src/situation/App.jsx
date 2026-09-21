@@ -1,3 +1,6 @@
+import { OPSIS_PRESENTATION } from "../opsis/presentation";
+const displayBrand = OPSIS_PRESENTATION ? "Opsis" : "ChainScout";
+const contextTitle = OPSIS_PRESENTATION ? "Source context" : "Scout AI insight";
 import { data, newsUrl, marketUrl } from "./data.js";
 import "./styles.css";
 import { useState, useEffect, useRef, useMemo } from "react";
@@ -345,7 +348,7 @@ export default function App() {
       ? events.filter((v) => saved.includes(v.id))
       : events;
     const text =
-      "# ChainScout Situation Room — 10 September 2026\n\nNews capture: " +
+      "# " + displayBrand + " Situation Room — 10 September 2026\n\nNews capture: " +
       data.news.capturedAt +
       "\nMarket capture: " +
       data.market.capturedAt +
@@ -353,14 +356,14 @@ export default function App() {
       list
         .map(
           (v) =>
-            `## ${v.title}\nPublished: ${v.time}\n${v.summary}\n\nScout AI context (prepared for this capture): ${v.insight}\nSource: ${v.url}\n\n`,
+            `## ${v.title}\nPublished: ${v.time}\n${v.summary}\n\n${OPSIS_PRESENTATION ? "Source context" : "Scout AI context"} (prepared for this capture): ${v.insight}\nSource: ${v.url}\n\n`,
         )
         .join("") +
       "\nPrice observations are contextual, not proof of causation.\n";
     const u = URL.createObjectURL(new Blob([text], { type: "text/markdown" }));
     const a = document.createElement("a");
     a.href = u;
-    a.download = "ChainScout-situation-brief-2026-09-10.md";
+    a.download = displayBrand + "-situation-brief-2026-09-10.md";
     a.click();
     URL.revokeObjectURL(u);
     notify("Situation brief saved");
@@ -398,14 +401,14 @@ export default function App() {
               <div>
                 <p className="sr-overline">SITUATION ROOM / ETH EDITION</p>
                 <h1>
-                  Situation Room<span>.</span>
+                  {OPSIS_PRESENTATION ? "World & markets" : "Situation Room"}<span>.</span>
                 </h1>
                 <p>
                   Ethereum market brief: captured Coinbase ETH/USD data with
                   dated source-linked context.
                 </p>
                 <small className="sr-edition">
-                  11 September 2026 ETH edition · captured data · ChainScout
+                  11 September 2026 ETH edition · captured data · {displayBrand}
                   summaries of publisher reporting
                 </small>
               </div>
@@ -508,7 +511,7 @@ export default function App() {
                     data-testid="eth-context-card"
                   >
                     <p className="sr-eth-context-label">
-                      CHAINSCOUT SUMMARY · {source.source}
+                      {displayBrand.toUpperCase()} SUMMARY · {source.source}
                     </p>
                     <h4>{source.title}</h4>
                     <p className="sr-eth-context-date">
@@ -553,7 +556,7 @@ export default function App() {
           <div>
             <p className="sr-overline">WORLD EVENTS / ONCHAIN INTELLIGENCE</p>
             <h1>
-              Situation Room<span>.</span>
+              {OPSIS_PRESENTATION ? "World & markets" : "Situation Room"}<span>.</span>
             </h1>
             <p>Follow the announcement. Examine the reaction.</p>
             <small className="sr-edition">
@@ -759,11 +762,11 @@ export default function App() {
               <div
                 className="sr-insight"
                 role="region"
-                aria-label="Scout AI insight"
+                aria-label={contextTitle}
               >
                 <div className="sr-insight-head">
                   <span>
-                    <Sparkle size={17} weight="fill" /> Scout AI insight
+                    <Sparkle size={17} weight="fill" /> {contextTitle}
                   </span>
                   <button
                     id="close-insight"
@@ -1090,7 +1093,7 @@ export default function App() {
               </>
             ) : modal === "brief" ? (
               <div className="sr-dialog-body">
-                <p className="sr-overline">CHAINSCOUT / SITUATION BRIEF</p>
+                <p className="sr-overline">{displayBrand.toUpperCase()} / SITUATION BRIEF</p>
                 <h2>
                   Your world view,
                   <br />
@@ -1174,7 +1177,7 @@ export default function App() {
                 <a className="sr-source-link" href={marketUrl} target="_blank">
                   Inspect observations and contracts <ArrowUpRight size={15} />
                 </a>
-                <h3>Scout AI insight</h3>
+                <h3>{contextTitle}</h3>
                 <p>
                   Source-grounded AI context was prepared for this captured
                   session. The price tab calculates observed changes as you

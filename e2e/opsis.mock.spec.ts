@@ -350,9 +350,7 @@ test.describe("opsis preview", () => {
       .getByRole("navigation", { name: "Workspaces", exact: true })
       .getByRole("link", { name: "Quant Lab", exact: true })
       .click();
-    await expect(
-      page.getByRole("link", { name: "Open the frozen Quant Lab" }),
-    ).toHaveAttribute("href", "/quant/");
+    await expect(page.getByRole("img", {name:/Interactive captured pool map/})).toBeVisible();
     await page
       .getByRole("button", { name: "Light theme", exact: true })
       .click();
