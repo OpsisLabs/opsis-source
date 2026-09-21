@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "2b4cf0765571e4b87f8c1c4cd1df6580cc50d5dfee225d12ad8c8e4753b419ca",
+  "sourceTreeDigest": "f7194d4c27e61a93c57069eb75f618a47bd8e7e5676e49bafab0abe1e3fb1274",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "8a176662769853374eca5d3aa11034bdad891f75bd511a2020a44c6bbf2bcaf6",
@@ -587,7 +587,7 @@
     "e2e/situation-room.mock.spec.ts": "39372f8acd486f409250cdeca2b0eb5f05052835aebd2e1ff80d880a7f671593",
     "e2e/stress-test.mock.spec.ts": "207c3d4250f1d27361f3c783c62fe7679541769568a0cf17121cd78bcea9abc6",
     "e2e/support/origin.ts": "ca6f98ac33b26b8c540ce812d8acbccf944c6cd1d94f4ff9911f51402e293fb8",
-    "e2e/vault.mock.spec.ts": "2170a4baab1820e0ff0a6dcd5a292ea8f05bd7205b775e8a35cdea679e44fc1a",
+    "e2e/vault.mock.spec.ts": "d82fe7336acf6f5f333bc5d07d595663f4426efac50b3df8dd26cafdea519558",
     "e2e/wallet-ai.live.spec.ts": "0b74831125b671378e36c1fad76be23f98a9f4beec3c08250df2451ca107727e",
     "e2e/wallet-ai.mock.spec.ts": "a229067837c646d50a1fcb2de04c4ac0e3f83b9c351006990194c06c23345541",
     "identity-policy.json": "0344660da1525234126b8fcf2628b81dbd71924997e832e5eba326437a9cebb7",

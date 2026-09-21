@@ -470,6 +470,7 @@ test("switching portfolio addresses clears the prior wallet's private label and 
   await page.getByRole("button", { name: "CONFIRM ONE-TIME REFRESH" }).click();
   await page.getByLabel("PRIVATE LOCAL LABEL").fill("MAIN-WALLET-A");
   await page.getByRole("button", { name: "SAVE LABEL" }).click();
+  await expect(page.getByText("Wallet label encrypted locally. It never crossed the network.", { exact: true })).toBeVisible();
   await page.getByLabel("ROBINHOOD ADDRESS").fill(portfolioAddress.slice(0, -1));
   await expect(page.getByLabel("PRIVATE LOCAL LABEL")).toHaveValue("MAIN-WALLET-A");
   await page.getByLabel("ROBINHOOD ADDRESS").fill(portfolioAddress);
