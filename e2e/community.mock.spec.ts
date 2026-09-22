@@ -44,6 +44,9 @@ test.describe("Opsis Community local intake", () => {
     await expect(page.getByRole("status")).toContainText("Saved for this session");
     expect(postCount).toBe(0);
     expect(await page.evaluate(() => JSON.stringify(localStorage) + JSON.stringify(sessionStorage) + document.cookie)).not.toContain("reader@example.com");
+    await page.getByLabel("Contact (optional)").fill("updated@example.com");
+    await expect(page.getByRole("button", { name: "Export JSON" })).toBeDisabled();
+    await page.getByRole("button", { name: "Save local draft" }).click();
     const download = page.waitForEvent("download");
     await page.getByRole("button", { name: "Export JSON" }).click();
     expect((await download).suggestedFilename()).toBe("opsis-suggestion.json");

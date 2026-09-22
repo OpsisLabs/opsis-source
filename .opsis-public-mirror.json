@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "73c47f4467e3fb4043f1f956c63601a0b3369df37e8f461c75989cfa700fc39a",
+  "sourceTreeDigest": "7bf4016ccef69e313f1a5bfd2cb6ddcd5c81cfa5ef6b0b000f14ead92def4934",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "8a176662769853374eca5d3aa11034bdad891f75bd511a2020a44c6bbf2bcaf6",
@@ -394,7 +394,7 @@
     "apps/web/src/open-data/api.ts": "399a203aeda1433f1a40c43f113bda023f8f9683f9a09d6d03cfe1a3f30ac4b5",
     "apps/web/src/opsis/community-model.ts": "ae00b6b13f92c4926e191ccd12caf8837bb818aa1d468f7cc238f2c1c18a8462",
     "apps/web/src/opsis/community.test.ts": "9dfaf3dc1679835c1c16f5660f8d9b288c4a8f39938d7702fbfc328ce855fc59",
-    "apps/web/src/opsis/Community.tsx": "88ac7a67b2febba8ff4ca35655e16c6285c79f4722c2a7b79fbf1eb1961986ca",
+    "apps/web/src/opsis/Community.tsx": "53f89f69bc5790de24a521d867dc7d9e89ff88a594c2469cf06c69a0755675cd",
     "apps/web/src/opsis/ContractControls.tsx": "9615ddbebccdaae6abb55743333d6dcbd721332ae6a404b06f487892afb5a96d",
     "apps/web/src/opsis/controls-model.test.ts": "dc3308413283676f09dd44753042917145ab5d47bd99788d755eacf55ec123e6",
     "apps/web/src/opsis/controls-model.ts": "05f236066aaa2f8294f8722eb47296e7990132470152fa7594c8ff66cabf4ac1",
@@ -603,7 +603,7 @@
     "e2e/biggest-trades.mock.spec.ts": "87b4a41e46f9e34db97a78551ec7eb78e20af7d8f94e55092de76ba0ad73a5d6",
     "e2e/card-prices.mock.spec.ts": "00d3828c879f3945fe7a2a8423b3485df09e753f0c564011c073dfc29b182f51",
     "e2e/collectibles.mock.spec.ts": "377b29096354c2826f2ab675f7f7dea7e544d8b33855feb6f96b35e69687e071",
-    "e2e/community.mock.spec.ts": "7a06abd71a545c6ebebdfcfe65b125c0c3e19c9b8ce9a74ad46023a2b5e873c9",
+    "e2e/community.mock.spec.ts": "a009fa6a0f422436c639a3bcc7eba726d5481caa493dd7eea335a5ba49f3e301",
     "e2e/deal-preview.mock.spec.ts": "1337fd73784e4148478d8290194168c02e658c2f4c11cc0133e3f797ea7ffc80",
     "e2e/exit-check.mock.spec.ts": "7182a4fb69ddea1a0314eb288c6940593fe203924879e430cd9baca4488b87aa",
     "e2e/kol-tracker.mock.spec.ts": "abf8dedc93e332923706ff5ca7e278176386256e8022f734bfa4dddefd6b8041",

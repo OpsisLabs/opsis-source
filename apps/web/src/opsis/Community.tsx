@@ -30,6 +30,7 @@ export default function Community() {
 
   function update(name: keyof SuggestionFields, value: string | boolean) {
     setFields((current) => ({ ...current, [name]: value }));
+    setDraft(null);
     setMessage("");
   }
 
