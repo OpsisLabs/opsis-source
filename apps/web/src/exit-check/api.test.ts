@@ -158,6 +158,7 @@ describe("Exit Check browser boundary", () => {
     });
     base.curve = {
       requestedAmount: "0.001",
+      scope: { strategy: "selected_pool", pool },
       points: [
         point("0.0005", "500000000000000", "1283514", "1.283514"),
         point("0.001", "1000000000000000", "2567029", "2.567029"),
@@ -192,6 +193,21 @@ describe("Exit Check browser boundary", () => {
     const malformed = structuredClone(base);
     malformed.curve!.points[1]!.amountOutDisplay = "999";
     mock(malformed);
+    await expect(
+      getExitCheckQuote({
+        token: WETH,
+        amount: "0.001",
+        outputToken: "USDG",
+        curve: true,
+      }),
+    ).rejects.toThrow();
+
+    const maliciousScope = structuredClone(base);
+    maliciousScope.curve!.scope = {
+      strategy: "selected_pool",
+      pool: { fee: 3000, pool: `0x${"c".repeat(40)}` },
+    };
+    mock(maliciousScope);
     await expect(
       getExitCheckQuote({
         token: WETH,

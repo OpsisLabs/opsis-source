@@ -43,6 +43,15 @@ export default function PerpScenario() {
           "以一种报价货币手动计算线性合约。请提供所选期间的每项费用及资金费收付总额。没有实时场所数据、钱包连接或订单提交。",
         )}
       </p>
+      <aside
+        className="opsis-small"
+        aria-label={c("Scenario disclosure", "情景披露")}
+      >
+        {c(
+          "Informational hypothetical tool only; this is not personalized investment advice. Fees, funding and other costs are user-entered estimates, and losses can exceed the amount modeled. Trading availability depends on your jurisdiction, venue rules and eligibility. This calculator does not verify eligibility, connect a wallet or submit orders.",
+          "仅供信息参考的假设工具，不构成个性化投资建议。费用、资金费及其他成本是用户输入的估算；损失可能超过模型金额。交易可用性取决于您的司法管辖区、场所规则和资格。本计算器不会验证资格、连接钱包或提交订单。",
+        )}
+      </aside>
       <label>
         {c("Position direction", "仓位方向")}
         <select

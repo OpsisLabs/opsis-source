@@ -197,6 +197,9 @@ export type ExitCheckResponse = {
   } | null;
   curve: {
     requestedAmount: string;
+    scope:
+      | { strategy: "selected_pool"; pool: ExitCheckPool }
+      | { strategy: "no_selected_pool"; pool: null };
     points: Array<{
       amount: string;
       rawAmount: string;
@@ -335,7 +338,7 @@ export class ExitCheckService implements ExitCheckSource {
       outputSymbol,
       amount: canonicalExitAmount(request.amount),
     };
-    const key = `exit-check:${EXIT_CHECK_CHAIN_ID}:${token}:${outputSymbol}:${canonicalRequest.amount}:${request.curve ? "curve" : "quote"}`;
+    const key = `exit-check:${EXIT_CHECK_CHAIN_ID}:${token}:${outputSymbol}:${canonicalRequest.amount}:${request.curve ? "curve-selected-pool-v1" : "quote"}`;
     const cached = await this.cache.get<ExitCheckResponse>(key);
     if (
       cached &&
@@ -488,34 +491,38 @@ export class ExitCheckService implements ExitCheckSource {
     }
 
     const zeroForOne = zeroForOneFor(token, outputAsset.address);
+    const curveRawAmounts = request.curve
+      ? curveAmounts(amountInRaw)
+      : [amountInRaw];
+    const requestedIndex = curveRawAmounts.findIndex(
+      (value) => value === amountInRaw,
+    );
+    if (request.curve) {
+      // Conservative accounting keeps the existing cap meaningful even though
+      // the aggregate calls batch several inner reads. Reviewed-token curves
+      // budget 6 fixed reads; arbitrary-token curves budget 8 for identity.
+      const fixedReads = reviewedInput ? 6 : 8;
+      const auxiliaryReads = Math.max(0, curveRawAmounts.length - 1);
+      const estimatedReads = fixedReads + pools.length * 3 + auxiliaryReads;
+      if (estimatedReads > this.env.EXIT_CHECK_MAX_RPC_SUBCALLS) {
+        throw new AppError(
+          "EXIT_CHECK_RPC_LIMIT_EXCEEDED",
+          503,
+          "The size curve exceeded its RPC safety limit",
+        );
+      }
+    }
     const state = await this.readPoolState(
       pools,
       zeroForOne,
       anchor.blockHex,
       consume,
     );
-    const curveRawAmounts = request.curve
-      ? curveAmounts(amountInRaw)
-      : [amountInRaw];
-    const fixedInnerCalls = reviewedInput ? 6 : 8; // four factory reads, two block anchors, optional code/decimals
-    if (
-      request.curve &&
-      fixedInnerCalls + pools.length * (2 + curveRawAmounts.length) >
-        this.env.EXIT_CHECK_MAX_RPC_SUBCALLS
-    ) {
-      throw new AppError(
-        "EXIT_CHECK_RPC_LIMIT_EXCEEDED",
-        503,
-        "The size curve exceeded its RPC safety limit",
-      );
-    }
-    const requestedIndex = curveRawAmounts.findIndex(
-      (value) => value === amountInRaw,
-    );
-    const quoteCalls = state.available.flatMap((pool) =>
-      curveRawAmounts.map((amount) =>
-        this.quoterCall(pool, token, outputAsset.address, amount),
-      ),
+    // First quote the requested size across every eligible pool. A curve then
+    // stays on the best successful pool, so its auxiliary sizes do not multiply
+    // the pool count or exceed the existing RPC cap.
+    const quoteCalls = state.available.map((pool) =>
+      this.quoterCall(pool, token, outputAsset.address, amountInRaw),
     );
     let quoteResults: Array<{ success: boolean; returnData: Hex }> = [];
     if (quoteCalls.length > 0) {
@@ -529,62 +536,51 @@ export class ExitCheckService implements ExitCheckSource {
 
     const poolsQuoted: ExitCheckPoolResult[] = [];
     const poolsFailed: Array<ExitCheckPool & { reason: string }> = state.failed;
-    const decodedBySize: Array<
-      Array<{ pool: (typeof state.available)[number]; amountOut: bigint }>
-    > = curveRawAmounts.map(() => []);
+    const requestedQuotes: Array<{
+      pool: (typeof state.available)[number];
+      amountOut: bigint;
+    }> = [];
     state.available.forEach((pool, poolIndex) => {
-      curveRawAmounts.forEach((_, sizeIndex) => {
-        const result =
-          quoteResults[poolIndex * curveRawAmounts.length + sizeIndex];
-        if (!result?.success) {
-          if (sizeIndex === requestedIndex)
-            poolsFailed.push({
-              fee: pool.fee,
-              pool: pool.pool,
-              reason: revertReason(result?.returnData),
-            });
+      const result = quoteResults[poolIndex];
+      if (!result?.success) {
+        poolsFailed.push({
+          fee: pool.fee,
+          pool: pool.pool,
+          reason: revertReason(result?.returnData),
+        });
+        return;
+      }
+      try {
+        const decoded = decodeFunctionResult({
+          abi: quoterAbi,
+          functionName: "quoteExactInputSingle",
+          data: result.returnData,
+        });
+        const amountOut = decoded[0] as bigint;
+        const sqrtPriceX96After = decoded[1] as bigint;
+        if (amountOut <= 0n) throw new Error("zero output");
+        if (isBoundarySqrtPrice(sqrtPriceX96After)) {
+          poolsFailed.push({
+            fee: pool.fee,
+            pool: pool.pool,
+            reason: "price_boundary_reached",
+          });
           return;
         }
-        try {
-          const decoded = decodeFunctionResult({
-            abi: quoterAbi,
-            functionName: "quoteExactInputSingle",
-            data: result.returnData,
-          });
-          const amountOut = decoded[0] as bigint;
-          const sqrtPriceX96After = decoded[1] as bigint;
-          if (amountOut <= 0n) throw new Error("zero output");
-          // A quote that ends on a V3 price boundary may have only partially
-          // filled, so it is excluded rather than shown as a full execution.
-          if (isBoundarySqrtPrice(sqrtPriceX96After)) {
-            if (sizeIndex === requestedIndex)
-              poolsFailed.push({
-                fee: pool.fee,
-                pool: pool.pool,
-                reason: "price_boundary_reached",
-              });
-            return;
-          }
-          decodedBySize[sizeIndex]!.push({ pool, amountOut });
-          if (sizeIndex === requestedIndex)
-            poolsQuoted.push({
-              fee: pool.fee,
-              pool: pool.pool,
-              amountOut: amountOut.toString(),
-              amountOutDisplay: formatExitUnits(
-                amountOut,
-                outputAsset.decimals,
-              ),
-            });
-        } catch {
-          if (sizeIndex === requestedIndex)
-            poolsFailed.push({
-              fee: pool.fee,
-              pool: pool.pool,
-              reason: "decode_failed",
-            });
-        }
-      });
+        requestedQuotes.push({ pool, amountOut });
+        poolsQuoted.push({
+          fee: pool.fee,
+          pool: pool.pool,
+          amountOut: amountOut.toString(),
+          amountOutDisplay: formatExitUnits(amountOut, outputAsset.decimals),
+        });
+      } catch {
+        poolsFailed.push({
+          fee: pool.fee,
+          pool: pool.pool,
+          reason: "decode_failed",
+        });
+      }
     });
 
     let best: {
@@ -592,25 +588,75 @@ export class ExitCheckService implements ExitCheckSource {
       amountOut: bigint;
       state: (typeof state.available)[number];
     } | null = null;
-    for (const quoted of poolsQuoted) {
-      const poolState = state.available.find(
-        (candidate) => candidate.pool === quoted.pool,
-      );
-      if (!poolState) continue;
-      const amountOut = BigInt(quoted.amountOut);
-      if (!best || amountOut > best.amountOut)
-        best = { pool: quoted, amountOut, state: poolState };
+    for (const quoted of requestedQuotes) {
+      if (!best || quoted.amountOut > best.amountOut)
+        best = {
+          pool: { fee: quoted.pool.fee, pool: quoted.pool.pool },
+          amountOut: quoted.amountOut,
+          state: quoted.pool,
+        };
     }
 
-    const curve = request.curve
-      ? this.makeCurve(
-          curveRawAmounts,
-          rawAmountInput,
-          decodedBySize,
-          outputAsset,
-          decimals,
-        )
-      : null;
+    let curve: ExitCheckResponse["curve"] = null;
+    if (request.curve) {
+      const decodedBySize: Array<
+        Array<{ pool: (typeof state.available)[number]; amountOut: bigint }>
+      > = curveRawAmounts.map(() => []);
+      if (best) {
+        decodedBySize[requestedIndex]!.push({
+          pool: best.state,
+          amountOut: best.amountOut,
+        });
+        const auxiliaryAmounts = curveRawAmounts.filter(
+          (_, index) => index !== requestedIndex,
+        );
+        if (auxiliaryAmounts.length > 0) {
+          const auxiliaryCalls = auxiliaryAmounts.map((amount) =>
+            this.quoterCall(best!.state, token, outputAsset.address, amount),
+          );
+          const auxiliaryRaw = await this.rpcEthCall(
+            this.aggregate3(auxiliaryCalls),
+            anchor.blockHex,
+            consume,
+          );
+          const auxiliaryResults = this.decodeAggregate3(
+            auxiliaryRaw,
+            auxiliaryCalls.length,
+          );
+          auxiliaryResults.forEach((result, index) => {
+            if (!result.success) return;
+            try {
+              const decoded = decodeFunctionResult({
+                abi: quoterAbi,
+                functionName: "quoteExactInputSingle",
+                data: result.returnData,
+              });
+              const amountOut = decoded[0] as bigint;
+              if (amountOut <= 0n || isBoundarySqrtPrice(decoded[1] as bigint))
+                return;
+              const sizeIndex = curveRawAmounts.findIndex(
+                (amount) => amount === auxiliaryAmounts[index],
+              );
+              if (sizeIndex >= 0)
+                decodedBySize[sizeIndex]!.push({
+                  pool: best!.state,
+                  amountOut,
+                });
+            } catch {
+              // Preserve this point as unavailable; the main quote remains valid.
+            }
+          });
+        }
+      }
+      curve = this.makeCurve(
+        curveRawAmounts,
+        rawAmountInput,
+        decodedBySize,
+        outputAsset,
+        decimals,
+        best?.pool ?? null,
+      );
+    }
     return this.finalize({
       token,
       outputSymbol,
@@ -767,9 +813,13 @@ export class ExitCheckService implements ExitCheckSource {
     >,
     outputAsset: (typeof EXIT_CHECK_OUTPUTS)[ExitCheckOutputSymbol],
     inputDecimals: number,
+    selectedPool: ExitCheckPool | null,
   ): ExitCheckResponse["curve"] {
     return {
       requestedAmount: canonicalExitAmount(requested),
+      scope: selectedPool
+        ? { strategy: "selected_pool", pool: selectedPool }
+        : { strategy: "no_selected_pool", pool: null },
       points: amounts.map((amount, index) => {
         const candidates = bySize[index] ?? [];
         const best = candidates.reduce<(typeof candidates)[number] | null>(

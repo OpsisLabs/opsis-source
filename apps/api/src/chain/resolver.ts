@@ -100,7 +100,16 @@ export class ChainEntityResolver {
         }
         if (resolvedType === "contract") {
           providerDestinations.add(this.blockscout.name);
-          docs.push(...(await this.blockscout.getContract(identified.value, { limit })));
+          if (options.privateMode) {
+            try {
+              docs.push(...(await this.blockscout.getContract(identified.value, { limit })));
+            } catch {
+              // Code and native-balance reads from the RPC still establish useful
+              // public evidence. Contract source/ABI metadata remains unknown.
+            }
+          } else {
+            docs.push(...(await this.blockscout.getContract(identified.value, { limit })));
+          }
         }
       }
       if (resolvedType === "wallet") {

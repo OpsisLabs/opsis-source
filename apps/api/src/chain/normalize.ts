@@ -223,25 +223,55 @@ function summarizeFacts(type: ChainEntityType, docs: SourceDocumentInput[]): Rec
     };
   }
   if (type === "contract") {
-    const contractDoc = docs.find((doc) => doc.entityType === "contract");
+    const contractDoc = docs.find((doc) => doc.requestUrl?.includes("/smart-contracts/"));
     const contract = (contractDoc?.responseJson ?? primary) as Record<string, unknown>;
     const address = docs.find((doc) => doc.requestUrl?.includes("/addresses/") && !doc.requestUrl.includes("/transactions"))?.responseJson as Record<string, unknown> | undefined;
+    const transactionSourcePresent = docs.some((doc) => doc.requestUrl?.includes("/transactions"));
+    const holderSourcePresent = docs.some((doc) => doc.requestUrl?.includes("/holders"));
     const recentInteractions = documentItems(docs, "/transactions").map(normalizeWalletTransaction);
+    const code = rpcResult(docs, "eth_getCode");
+    const metadataPresent = Boolean(contractDoc);
+    const verification = metadataPresent && hasAnyField(contract, ["is_verified", "is_verified_via_eth_bytecode_db"])
+      ? Boolean(contract.is_verified || contract.is_verified_via_eth_bytecode_db)
+      : null;
+    const abiAvailable = metadataPresent && Object.prototype.hasOwnProperty.call(contract, "abi")
+      ? Boolean(contract.abi)
+      : null;
+    const proxy = metadataPresent && hasAnyField(contract, ["is_proxy", "proxy_type"])
+      ? Boolean(contract.is_proxy || contract.proxy_type)
+      : address && Object.prototype.hasOwnProperty.call(address, "implementations")
+        ? Boolean(address.implementations)
+        : null;
     return {
       address: docs[0]?.entityValue,
-      verified: Boolean(contract?.is_verified || contract?.is_verified_via_eth_bytecode_db),
+      verified: verification,
       name: contract?.name,
       compiler: contract?.compiler_version,
       language: contract?.language,
-      abiAvailable: Boolean(contract?.abi),
-      proxy: Boolean(contract?.is_proxy || contract?.proxy_type || address?.implementations),
+      abiAvailable,
+      proxy,
       proxyType: contract?.proxy_type,
       implementations: contract?.implementations ?? address?.implementations,
       deployer: addressHash(address?.creator_address_hash ?? contract?.creator_address_hash),
       creationTransaction: address?.creation_tx_hash ?? contract?.creation_tx_hash,
       deployedAt: address?.creation_timestamp ?? contract?.creation_timestamp ?? contract?.deployed_at,
-      recentInteractions,
-      recentMethods: [...new Set(recentInteractions.map((transaction) => transaction.method).filter(Boolean))]
+      ...(transactionSourcePresent ? {
+        recentInteractions,
+        recentMethods: [...new Set(recentInteractions.map((transaction) => transaction.method).filter(Boolean))],
+        activityCoverage: "indexed_window"
+      } : { activityCoverage: "unavailable" }),
+      sourceCoverage: metadataPresent ? "explorer_metadata" : "unavailable",
+      holderCoverage: holderSourcePresent ? "indexed_window" : "unavailable",
+      ...(validRpcCode(code) ? {
+        codePresent: !/^0x0*$/i.test(code),
+        observation: "latest_rpc_sample",
+        observationFinality: "not_anchored",
+        blockRelation: "independent_samples_not_same_block_anchored"
+      } : {}),
+      ...(rpcResult(docs, "eth_getBalance") !== undefined ? {
+        nativeBalanceEth: weiToEth(rpcResult(docs, "eth_getBalance")),
+        balanceObservation: "latest_rpc_sample"
+      } : {})
     };
   }
   return { value: docs[0]?.entityValue, rawSourceCount: docs.length };
@@ -547,6 +577,14 @@ function valueFromRpc(docs: Array<{ responseJson: unknown }>, key: string): unkn
 
 function rpcResult(docs: SourceDocumentInput[], method: string): unknown {
   return (docs.find((doc) => (doc.responseJson as { method?: string })?.method === method)?.responseJson as { result?: unknown } | undefined)?.result;
+}
+
+function hasAnyField(value: Record<string, unknown>, fields: string[]): boolean {
+  return fields.some((field) => Object.prototype.hasOwnProperty.call(value, field));
+}
+
+function validRpcCode(value: unknown): value is string {
+  return typeof value === "string" && /^0x(?:[0-9a-f]{2})*$/i.test(value);
 }
 
 function isTodayUtc(value: unknown, now = new Date()): boolean {

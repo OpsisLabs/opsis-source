@@ -268,4 +268,59 @@ describe("wallet normalization", () => {
       "Recently deployed contract"
     ]));
   });
+
+  it("keeps RPC-only contract metadata unknown and exposes sampled code and balance", () => {
+    const contract = "0x0000000000000000000000000000000000000021";
+    const normalized = normalizeEntity(4663, "contract", contract, [
+      {
+        id: "code", provider: "robinhood-public-rpc", chainId: 4663,
+        entityType: "wallet", entityValue: contract, requestUrl: "https://rpc.example.test",
+        responseJson: { method: "eth_getCode", result: "0x6001" }, fetchedAt: "2026-09-22T00:00:00.000Z"
+      },
+      {
+        id: "balance", provider: "robinhood-public-rpc", chainId: 4663,
+        entityType: "wallet", entityValue: contract, requestUrl: "https://rpc.example.test",
+        responseJson: { method: "eth_getBalance", result: "0x0" }, fetchedAt: "2026-09-22T00:00:01.000Z"
+      }
+    ]);
+    expect(normalized.facts).toMatchObject({
+      verified: null, abiAvailable: null, proxy: null,
+      codePresent: true, nativeBalanceEth: "0",
+      observationFinality: "not_anchored",
+      blockRelation: "independent_samples_not_same_block_anchored",
+      sourceCoverage: "unavailable", holderCoverage: "unavailable", activityCoverage: "unavailable"
+    });
+    expect(normalized.facts.recentInteractions).toBeUndefined();
+  });
+
+  it("distinguishes an empty indexed window from no indexed source", () => {
+    const contract = "0x0000000000000000000000000000000000000022";
+    const base = {
+      id: "metadata", provider: "blockscout", chainId: 4663,
+      entityType: "contract" as const, entityValue: contract,
+      requestUrl: `https://example.test/api/v2/smart-contracts/${contract}`,
+      responseJson: { is_verified: true }, fetchedAt: "2026-09-22T00:00:00.000Z"
+    };
+    const empty = normalizeEntity(4663, "contract", contract, [
+      base,
+      { ...base, id: "transactions", requestUrl: `https://example.test/api/v2/addresses/${contract}/transactions`, responseJson: { items: [] } },
+      { ...base, id: "holders", requestUrl: `https://example.test/api/v2/tokens/${contract}/holders`, responseJson: { items: [] } }
+    ]);
+    const absent = normalizeEntity(4663, "contract", contract, [base]);
+    expect(empty.facts).toMatchObject({ activityCoverage: "indexed_window", holderCoverage: "indexed_window", recentInteractions: [], recentMethods: [] });
+    expect(absent.facts).toMatchObject({ activityCoverage: "unavailable", holderCoverage: "unavailable" });
+    expect(absent.facts.recentInteractions).toBeUndefined();
+    expect(absent.facts.recentMethods).toBeUndefined();
+  });
+
+  it("does not treat malformed RPC code as deployed code", () => {
+    const contract = "0x0000000000000000000000000000000000000023";
+    const normalized = normalizeEntity(4663, "contract", contract, [{
+      id: "code", provider: "robinhood-public-rpc", chainId: 4663,
+      entityType: "wallet", entityValue: contract, requestUrl: "https://rpc.example.test",
+      responseJson: { method: "eth_getCode", result: "0x600" }, fetchedAt: "2026-09-22T00:00:00.000Z"
+    }]);
+    expect(normalized.facts.codePresent).toBeUndefined();
+    expect(normalized.facts.observation).toBeUndefined();
+  });
 });

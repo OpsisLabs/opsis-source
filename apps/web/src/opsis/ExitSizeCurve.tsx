@@ -13,6 +13,10 @@ export default function ExitSizeCurve({
   const c = useCopy();
   const [selected, setSelected] = useState(0);
   if (!result.curve) return null;
+  const selectedPoolText =
+    result.curve.scope.strategy === "selected_pool"
+      ? `${formatFeeTier(result.curve.scope.pool.fee)}% fee pool`
+      : null;
   const usable = result.curve.points.filter(
     (point) => point.status === "ok" && point.amountOutDisplay !== null,
   );
@@ -36,8 +40,12 @@ export default function ExitSizeCurve({
       <h3 id="exit-size-curve-title">{c("Exit size curve", "退出数量曲线")}</h3>
       <p className="opsis-small">
         {c(
-          "Every point was quoted against the same block and pool snapshot. Unknown points stay unavailable.",
-          "每个点都基于同一区块和资金池快照报价。未知点保持不可用。",
+          result.curve.scope.strategy === "selected_pool"
+            ? `Every point uses the selected ${selectedPoolText} for the entered size and the smaller/larger points. Another pool may quote better at another size. Unknown points stay unavailable.`
+            : "No pool returned a usable quote for the entered size. Curve points stay unavailable.",
+          result.curve.scope.strategy === "selected_pool"
+            ? `每个点都使用同一区块的已选 ${selectedPoolText} 报价。较小或较大的数量可能在其他池中有更好的报价。未知点保持不可用。`
+            : "输入数量没有可用池报价。曲线点保持不可用。",
         )}
       </p>
       <svg
@@ -133,4 +141,8 @@ export default function ExitSizeCurve({
       </p>
     </section>
   );
+}
+
+function formatFeeTier(fee: number): string {
+  return (fee / 10_000).toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
 }

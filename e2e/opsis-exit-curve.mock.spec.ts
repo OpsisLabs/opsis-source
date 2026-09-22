@@ -59,6 +59,10 @@ test("Opsis exit curve sends explicit opt-in and supports point selection", asyn
               ...base,
               curve: {
                 requestedAmount: "1.5",
+                scope: {
+                  strategy: "selected_pool",
+                  pool: base.quote.pool,
+                },
                 points: [
                   point(
                     "0.75",
@@ -99,6 +103,7 @@ test("Opsis exit curve sends explicit opt-in and supports point selection", asyn
   await expect(
     page.getByRole("heading", { name: "Exit size curve", exact: true }),
   ).toBeVisible();
+  await expect(page.getByText(/selected 0\.3% fee pool/)).toBeVisible();
   expect(body).toEqual({
     token: base.input.contract,
     amount: "1.5",

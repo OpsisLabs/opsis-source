@@ -81,6 +81,34 @@ describe("AI answer boundary", () => {
     expect(answer.summaryBullets.join(" ")).toContain("smart-account code delegation");
   });
 
+  it("keeps unknown RPC-only contract metadata unknown in English and Chinese", async () => {
+    const service = new AiService(loadEnv({ NODE_ENV: "test", AI_PROVIDER: "fallback" }));
+    const contract: NormalizedEntity = {
+      ...entity,
+      type: "contract",
+      value: `0x${"8".repeat(40)}`,
+      facts: {
+        codePresent: true,
+        nativeBalanceEth: "0",
+        verified: null,
+        abiAvailable: null,
+        proxy: null,
+        activityCoverage: "unavailable",
+        sourceCoverage: "unavailable",
+        holderCoverage: "unavailable",
+        observation: "latest_rpc_sample"
+      }
+    };
+    const en = await service.answer("What is this?", contract, "en");
+    const zh = await service.answer("这是什么？", contract, "zh-CN");
+    expect(en.answer).not.toContain("reported unverified");
+    expect(en.answer).not.toMatch(/no activity|no .*transactions/i);
+    expect(zh.answer).not.toContain("未验证");
+    expect(zh.answer).not.toContain("没有活动");
+    expect(en.summaryBullets.join(" ")).toContain("Recent activity was unavailable");
+    expect(zh.summaryBullets.join(" ")).toContain("无法提供最近活动");
+  });
+
   it("maps supported private questions to distinct deterministic cited views", async () => {
     const wallet: NormalizedEntity = {
       ...entity,

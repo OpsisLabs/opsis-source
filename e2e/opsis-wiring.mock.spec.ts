@@ -183,7 +183,9 @@ test.describe("Opsis connected workflows", () => {
     await add.getByLabel("Private label (optional)").fill(note);
     await add.getByLabel("Allow this public-address lookup").check();
     await add.getByRole("button", { name: "Save wallet & check" }).click();
-    await page.getByRole("button", { name: "Wallet details", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Wallet details", exact: true })
+      .click();
     const detail = page.getByRole("region", { name: "Latest saved check" });
     await expect(page.getByRole("heading", { name: note })).toBeVisible();
     await detail.getByLabel("Allow this public-address lookup").check();
@@ -225,6 +227,7 @@ test.describe("Opsis connected workflows", () => {
       .getByRole("button", { name: "Run research", exact: true })
       .click();
     await expect(page.getByRole("alert")).toContainText("Research unavailable");
+    await expect(page.getByTestId("research-rpc-coverage")).toHaveCount(0);
     await expect(
       page.getByRole("button", { name: "Save observation", exact: true }),
     ).toHaveCount(0);
@@ -238,5 +241,72 @@ test.describe("Opsis connected workflows", () => {
     await expect(page).toHaveURL(
       new RegExp(`/research/details\\?entity=${TOKEN}$`),
     );
+  });
+
+  test("shows limited RPC coverage while keeping research controls available", async ({
+    page,
+  }) => {
+    const address = `0x${"4".repeat(40)}`;
+    await page.route("**/v1/private/analyze", (route) =>
+      route.fulfill({
+        json: {
+          mode: "private",
+          entity: {
+            chainId: 4663,
+            type: "contract",
+            value: address,
+            facts: {
+              codePresent: true,
+              nativeBalanceEth: "0",
+              verified: null,
+              activityCoverage: "unavailable",
+              observation: "latest_rpc_sample",
+              sourceCoverage: "unavailable",
+            },
+            citations: [],
+            riskNotes: [],
+          },
+          answer: {
+            answer: "The available evidence is partial.",
+            summaryBullets: [],
+            confirmedFacts: [],
+            inferences: [],
+            uncertainty: ["Metadata is unavailable."],
+            riskNotes: [],
+            citations: [],
+            suggestedQuestions: [],
+            suggestedFollowUps: [],
+            facts: {
+              codePresent: true,
+              nativeBalanceEth: "0",
+              verified: null,
+              activityCoverage: "unavailable",
+              observation: "latest_rpc_sample",
+              sourceCoverage: "unavailable",
+            },
+          },
+          privacy: {
+            accountRequired: false,
+            walletConnectionRequired: false,
+            serverStorage: "none",
+            browserStorage: "memory_only",
+            clearsOnReload: true,
+            modelProvider: "none",
+            providerDestinations: ["blockscout", "robinhood-public-rpc"],
+            disclosure: "Public identifier only.",
+          },
+        },
+      }),
+    );
+    await page.goto(`/research?entity=${address}`);
+    await page
+      .getByRole("button", { name: "Run research", exact: true })
+      .click();
+    await expect(page.getByTestId("research-rpc-coverage")).toContainText(
+      "LIMITED RPC COVERAGE",
+    );
+    await expect(
+      page.getByText("Save research / open saved reports"),
+    ).toBeVisible();
   });
 });

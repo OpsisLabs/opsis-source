@@ -29,6 +29,12 @@ test.describe("Opsis local price and perp scenarios", () => {
         requests.push(r.url() + (r.postData() ?? ""));
     });
     await page.goto("/check/perp-scenario");
+    await expect(
+      page.getByRole("complementary", { name: "Scenario disclosure" }),
+    ).toContainText("Informational hypothetical tool only");
+    await expect(
+      page.getByRole("button", { name: /connect wallet|submit order/i }),
+    ).toHaveCount(0);
     await expect(page.getByTestId("opsis-perp-result")).toContainText(
       "Complete the assumptions",
     );

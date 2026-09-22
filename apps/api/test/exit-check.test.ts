@@ -203,7 +203,7 @@ describe("exit-check service", () => {
     expect(curveAmounts(max)).toEqual([max / 2n, max]);
   });
 
-  it("curve refuses excessive inner calls, preserves reorg checks and separates cache keys", async () => {
+  it("keeps a four-pool curve within the cap by fixing auxiliary quotes to the main winner, preserves reorg checks and separates cache keys", async () => {
     const cfg = {
       pools: {
         100: POOL_100,
@@ -214,19 +214,80 @@ describe("exit-check service", () => {
       quotes: { 100: 123n, 500: 120n, 3000: 100n, 10000: 90n },
     };
     const fixed = () => new Date("2026-09-11T12:00:00Z");
+    const observedQuotes: Array<{ fee: number; amount: bigint }> = [];
     const capped = new ExitCheckService(
       testEnv(),
+      new JsonCache(undefined, 15),
+      {
+        rpc: mockRpc({ ...cfg, observedQuotes }),
+        budget: allowBudget(),
+        now: fixed,
+      },
+    );
+    const boundedCurve = await capped.quote({
+      token: WETH,
+      amount: "0.001",
+      outputToken: "USDG",
+      curve: true,
+    });
+    expect(boundedCurve.curve?.scope).toEqual({
+      strategy: "selected_pool",
+      pool: { fee: 100, pool: POOL_100 },
+    });
+    expect(
+      observedQuotes.filter((call) => call.amount !== 1_000_000_000_000_000n),
+    ).toEqual([
+      { fee: 100, amount: 500_000_000_000_000n },
+      { fee: 100, amount: 2_000_000_000_000_000n },
+    ]);
+    const ordinary = await new ExitCheckService(
+      testEnv(),
+      new JsonCache(undefined, 15),
+      { rpc: mockRpc(cfg), budget: allowBudget(), now: fixed },
+    ).quote({ token: WETH, amount: "0.001", outputToken: "USDG" });
+    expect(boundedCurve.quote?.amountOut).toBe(ordinary.quote?.amountOut);
+    const tight = new ExitCheckService(
+      loadEnv({
+        NODE_ENV: "test",
+        LOG_LEVEL: "silent",
+        EXIT_CHECK_ENABLED: "true",
+        EXIT_CHECK_MAX_RPC_SUBCALLS: "19",
+      }),
       new JsonCache(undefined, 15),
       { rpc: mockRpc(cfg), budget: allowBudget(), now: fixed },
     );
     await expect(
-      capped.quote({
+      tight.quote({
         token: WETH,
         amount: "0.001",
         outputToken: "USDG",
         curve: true,
       }),
     ).rejects.toMatchObject({ code: "EXIT_CHECK_RPC_LIMIT_EXCEEDED" });
+    const arbitrary = "0x6aa5b565155420b7d192a9a5577dfa5a77a22352";
+    const arbitraryCurve = await new ExitCheckService(
+      loadEnv({
+        NODE_ENV: "test",
+        LOG_LEVEL: "silent",
+        EXIT_CHECK_ENABLED: "true",
+        EXIT_CHECK_MAX_RPC_SUBCALLS: "22",
+      }),
+      new JsonCache(undefined, 15),
+      {
+        rpc: mockRpc({
+          ...cfg,
+          token: { address: arbitrary, decimals: 18, code: "0x60006000" },
+        }),
+        budget: allowBudget(),
+        now: fixed,
+      },
+    ).quote({
+      token: arbitrary,
+      amount: "0.001",
+      outputToken: "USDG",
+      curve: true,
+    });
+    expect(arbitraryCurve.curve?.scope.strategy).toBe("selected_pool");
     const reorg = new ExitCheckService(
       testEnv(),
       new JsonCache(undefined, 15),
@@ -666,13 +727,11 @@ describe("exit-check route", () => {
 
   it("serves a fresh read-only estimate with no-store headers", async () => {
     const source = {
-      quote: vi
-        .fn()
-        .mockResolvedValue({
-          schemaVersion: 1,
-          supported: false,
-          reason: "no_v3_pool",
-        }),
+      quote: vi.fn().mockResolvedValue({
+        schemaVersion: 1,
+        supported: false,
+        reason: "no_v3_pool",
+      }),
     };
     const app = Fastify({ logger: false });
     APPS.push(app);
@@ -710,6 +769,7 @@ type MockConfig = {
   pools?: Record<number, string>;
   quotes?: Record<number, bigint>;
   quoteByAmount?: Record<string, bigint>;
+  observedQuotes?: Array<{ fee: number; amount: bigint }>;
   sqrtPriceX96?: bigint;
   liquidity?: bigint;
   quoteFailures?: number[];
@@ -934,6 +994,7 @@ function handleMulticall(data: string, config: MockConfig): string {
           amountIn: bigint;
         };
         const fee = Number(params.fee);
+        config.observedQuotes?.push({ fee, amount: params.amountIn });
         if (config.quoteFailures?.includes(fee))
           return { success: false, returnData: "0xdeadbeef" as const };
         const baseline =

@@ -514,6 +514,44 @@ describe("no-account Private Mode", () => {
     expect(getContract).not.toHaveBeenCalled();
   });
 
+  it("keeps RPC contract evidence when address enrichment returns an error", async () => {
+    const contract = `0x${"7".repeat(40)}`;
+    const getContract = vi.fn(async () => { throw new Error("blockscout 403"); });
+    const resolver = new ChainEntityResolver(loadEnv({ NODE_ENV: "test" }), undefined, undefined, {
+      blockscout: {
+        ...provider({}), name: "blockscout",
+        getAddressSummary: vi.fn(async () => { throw new Error("blockscout address 403"); }), getContract
+      },
+      alchemy: {
+        name: "robinhood-public-rpc", isConfigured: () => true,
+        getTransaction: vi.fn(async () => []),
+        getAddressSummary: vi.fn(async () => [
+          { id: "code", provider: "robinhood-public-rpc", chainId: 4663, entityType: "wallet" as const, entityValue: contract, fetchedAt: new Date().toISOString(), responseJson: { method: "eth_getCode", result: "0x60016000" } },
+          { id: "balance", provider: "robinhood-public-rpc", chainId: 4663, entityType: "wallet" as const, entityValue: contract, fetchedAt: new Date().toISOString(), responseJson: { method: "eth_getBalance", result: "0x2" } }
+        ]),
+        getAllowances: vi.fn(async () => [])
+      },
+      goldrush: { ...provider({}), isConfigured: () => false }
+    });
+
+    const result = await resolver.resolveWithSources("unknown", contract, { privateMode: true });
+    expect(getContract).toHaveBeenCalledOnce();
+    expect(result.providerDestinations).toEqual(["blockscout", "robinhood-public-rpc"]);
+    expect(result.entity.type).toBe("contract");
+    expect(result.entity.facts).toMatchObject({
+      codePresent: true,
+      nativeBalanceEth: "0.000000000000000002",
+      verified: null,
+      abiAvailable: null,
+      proxy: null,
+      sourceCoverage: "unavailable",
+      holderCoverage: "unavailable",
+      activityCoverage: "unavailable"
+    });
+    expect(result.entity.facts.recentInteractions).toBeUndefined();
+    await expect(resolver.resolveWithSources("unknown", contract)).rejects.toThrow("blockscout 403");
+  });
+
   it("discloses a configured provider that received the identifier and then failed", async () => {
     const source: SourceDocumentInput = {
       id: "blockscout-source",

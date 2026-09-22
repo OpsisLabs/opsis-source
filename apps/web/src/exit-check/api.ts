@@ -38,6 +38,9 @@ export type ExitCheckQuote = {
   } | null;
   curve?: {
     requestedAmount: string;
+    scope:
+      | { strategy: "selected_pool"; pool: { fee: number; pool: string } }
+      | { strategy: "no_selected_pool"; pool: null };
     points: Array<{
       amount: string;
       rawAmount: string;
@@ -193,6 +196,19 @@ function assertExitCheckQuote(
       /^(0|[1-9]\d{0,77})$/.test(x) &&
       BigInt(x) < 1n << 256n;
     if (
+      !value.curve.scope ||
+      (value.curve.scope.strategy === "selected_pool" &&
+        (!value.curve.scope.pool ||
+          ![100, 500, 3000, 10000].includes(value.curve.scope.pool.fee) ||
+          !isHexAddress(value.curve.scope.pool.pool))) ||
+      (value.curve.scope.strategy === "no_selected_pool" &&
+        value.curve.scope.pool !== null) ||
+      !["selected_pool", "no_selected_pool"].includes(
+        value.curve.scope.strategy,
+      )
+    )
+      fail();
+    if (
       !uint(value.input.rawAmount) ||
       BigInt(value.input.rawAmount) === 0n ||
       formatRaw(BigInt(value.input.rawAmount), value.input.decimals) !==
@@ -209,6 +225,7 @@ function assertExitCheckQuote(
       ]),
     ];
     if (value.curve.points.length !== expectedRaw.length) fail();
+    const scope = value.curve.scope;
     value.curve.points.forEach((point, index) => {
       if (
         !point ||
@@ -235,6 +252,7 @@ function assertExitCheckQuote(
           fail();
         return;
       }
+      if (scope.strategy === "no_selected_pool") fail();
       if (
         point.status !== "ok" ||
         !uint(point.amountOut) ||
@@ -256,6 +274,12 @@ function assertExitCheckQuote(
             typeof pool.pool === "string" &&
             pool.pool.toLowerCase() === point.pool!.pool.toLowerCase(),
         )
+      )
+        fail();
+      if (
+        scope.strategy === "selected_pool" &&
+        (point.pool!.fee !== scope.pool.fee ||
+          point.pool!.pool.toLowerCase() !== scope.pool.pool.toLowerCase())
       )
         fail();
       if (
@@ -283,7 +307,12 @@ function assertExitCheckQuote(
       (point) => point.rawAmount === value.input.rawAmount,
     )!;
     if (value.supported) {
-      if (!value.quote || requested.status !== "ok") fail();
+      if (
+        !value.quote ||
+        requested.status !== "ok" ||
+        scope.strategy !== "selected_pool"
+      )
+        fail();
       for (const field of [
         "amountOut",
         "amountOutDisplay",

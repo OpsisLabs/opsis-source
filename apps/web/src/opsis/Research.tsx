@@ -192,6 +192,24 @@ export default function Research({
                 {result.answer.citations[0]?.fetchedAt ?? c("Unknown", "未知")}
               </p>
               <p className="opsis-result-copy">{result.answer.answer}</p>
+              {result.entity.type === "contract" &&
+                result.entity.facts.observation === "latest_rpc_sample" &&
+                result.entity.facts.sourceCoverage === "unavailable" && (
+                  <section
+                    className="opsis-panel"
+                    data-testid="research-rpc-coverage"
+                  >
+                    <p className="opsis-kicker">
+                      {c("LIMITED RPC COVERAGE", "有限 RPC 覆盖")}
+                    </p>
+                    <p>
+                      {c(
+                        "Direct RPC returned code evidence. Any returned native balance is a separate latest-state sample. Contract metadata and indexed history are shown only when available. These observations are not finalized or anchored to one shared block.",
+                        "直接 RPC 返回了代码证据。若返回原生余额，则该余额是独立的最新状态采样。合约元数据和索引历史仅在可用时显示。这些观察尚未最终确认，也未锚定至同一个区块。",
+                      )}
+                    </p>
+                  </section>
+                )}
               <Suspense fallback={null}>
                 <EvidenceMap
                   key={result.entity.value}
