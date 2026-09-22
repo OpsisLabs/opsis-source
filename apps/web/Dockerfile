@@ -4,9 +4,11 @@ RUN corepack enable && corepack prepare pnpm@8.15.9 --activate
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
 COPY apps/web/package.json apps/web/package.json
 COPY packages/shared/package.json packages/shared/package.json
+COPY packages/quant/package.json packages/quant/package.json
 RUN pnpm install --frozen-lockfile
 COPY apps/web apps/web
 COPY packages/shared packages/shared
+COPY packages/quant packages/quant
 ARG VITE_OPSIS_WORKSPACES_ENABLED=false
 ARG VITE_OPSIS_PUBLIC_ACCESS_ENABLED=false
 ARG VITE_API_BASE_URL=
@@ -49,7 +51,7 @@ ENV VITE_BUILD_SHA=$VITE_BUILD_SHA
 ENV VITE_PUBLIC_SITE_URL=$VITE_PUBLIC_SITE_URL
 ENV RAILWAY_GIT_COMMIT_SHA=$RAILWAY_GIT_COMMIT_SHA
 ENV RAILWAY_PUBLIC_DOMAIN=$RAILWAY_PUBLIC_DOMAIN
-RUN pnpm --filter @rh-chain/shared build && pnpm --filter @rh-chain/web build
+RUN pnpm --filter @rh-chain/shared build && pnpm --filter @rh-chain/quant build && pnpm --filter @rh-chain/web build
 
 FROM nginx:1.30.4-alpine3.24@sha256:97d490c12ba55b4946b01546d1c3ed324e8d41ab1c9fcb2a616aa470620e5b46
 # The base digest is intentionally pinned for reproducibility, then upgraded

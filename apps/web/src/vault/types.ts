@@ -15,6 +15,28 @@ export const VAULT_MARKET_RECORD_VERSION = 4 as const;
 export const VAULT_CONVERSATION_RECORD_VERSION = 5 as const;
 export const VAULT_WATCH_RECORD_VERSION = 6 as const;
 
+/** A private, user-authored rule evaluated only against retained Watch evidence. */
+export type VaultWatchConditionKind = "balance-change";
+export type VaultWatchConditionDirection = "any" | "increase" | "decrease";
+export interface VaultWatchCondition {
+  id: string;
+  kind: VaultWatchConditionKind;
+  /** Public contract address, or "native" for the chain native balance. */
+  assetKey: string;
+  direction: VaultWatchConditionDirection;
+  threshold: string;
+  unit: string;
+  decimals: number;
+  sourceReportId?: string;
+  createdAt: string;
+}
+
+export interface VaultWatchInboxAction {
+  evidenceId: string;
+  acknowledgedAt?: string;
+  snoozedUntil?: string;
+}
+
 export interface VaultWatch {
   kind: "watch";
   id: string;
@@ -23,6 +45,9 @@ export interface VaultWatch {
   snapshots: PortfolioSnapshot[];
   createdAt: string;
   updatedAt: string;
+  /** Optional fields keep old encrypted Watch records readable. */
+  conditions?: VaultWatchCondition[];
+  inboxActions?: VaultWatchInboxAction[];
 }
 
 export interface VaultConversationTurn {

@@ -1,0 +1,17 @@
+.opsis-quant-workbench { width: 100%; min-width: 0; }
+.opsis-quant-steps { display: flex; flex-wrap: wrap; gap: .5rem 1rem; margin: 1rem 0; color: #1261a0; font: 600 .68rem/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .08em; }
+.opsis-quant-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.opsis-quant-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; margin-top: .8rem; }
+.opsis-quant-workbench label { display: grid; gap: .35rem; margin: .7rem 0; font-size: .8rem; }
+.opsis-quant-workbench input { box-sizing: border-box; max-width: 100%; min-height: 2.3rem; border: 1px solid #b6c9d8; background: #fff; padding: .5rem; }
+.opsis-quant-workbench button { margin: .4rem .4rem .2rem 0; min-height: 2.5rem; border: 1px solid #1261a0; background: #1261a0; color: #fff; padding: .55rem .8rem; cursor: pointer; }
+.opsis-quant-workbench button:disabled { cursor: not-allowed; opacity: .45; }
+.opsis-quant-workbench .opsis-check { display: flex; grid-template-columns: auto 1fr; align-items: center; gap: .5rem; }
+.opsis-quant-workbench .opsis-check input { min-height: auto; width: 1rem; }
+.opsis-quant-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .75rem; margin: 1rem 0; }
+.opsis-quant-metrics div { border-left: 2px solid #8cc8ff; padding: .35rem .6rem; min-width: 0; }
+.opsis-quant-metrics span, .opsis-quant-metrics strong { display: block; }
+.opsis-quant-metrics span { color: #5b6d78; font-size: .7rem; }
+.opsis-quant-metrics strong { color: #1261a0; font-size: 1.2rem; }
+.opsis-quant-workbench .opsis-error { color: #9b2c2c; }
+@media (max-width: 640px) { .opsis-quant-grid, .opsis-quant-fields, .opsis-quant-metrics { grid-template-columns: 1fr; } .opsis-quant-workbench { overflow-wrap: anywhere; } }

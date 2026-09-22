@@ -311,8 +311,8 @@
         "21-explorer-answers",
         "24-exit-check"
       ],
-      "outcome": "Use the Opsis four-workspace frontend with existing ChainScout research, exit quotes, private Watch and Saved workflows",
-      "shipGate": "A default-off Opsis preview (public access explicitly authorized by D13 for the isolated Railway deployment) reuses the existing engines, flags and privacy boundaries. Research and Trade Check preserve public identity across handoffs without leaking amounts or private context into URLs. Watch and Vault reuse encrypted storage; Quant Lab clearly distinguishes the frozen capture from unimplemented experiments. Electric-blue responsive navigation, light/dark themes, keyboard paths, unavailable/error states, English/Chinese and Chromium/WebKit flows pass tests. No new provider, execution, chain, paid path, migration, or change to frozen /quant artifacts. Full release gate and release-specific evidence required before activation or staging."
+      "outcome": "Build the Opsis four-workspace specification in reviewed batches, integrating existing research, exact-size trade checks, private Watch and reproducible local Quant experiments",
+      "shipGate": "Default-off Opsis preparation within the existing four workspaces; D13 permits the isolated public preview after verification. Relevant unit, numerical, failure-state, privacy, English/Chinese, Chromium/WebKit and full release gates must pass on the integrated candidate. Same-block bounded exit ladders preserve exact math and quotas. Watch conditions and inbox state remain encrypted locally and never imply continuous monitoring. Quant imports and seeded experiments run locally with eligibility checks, cancellation, provenance and reproducible manifests. New capture sources, chains, paid AI or execution stay disabled pending their separate admission and decision gates. No provider, execution, chain, paid path or frozen /quant change is admitted by this release. The active release and production order remain unchanged."
     }
   ]
 }

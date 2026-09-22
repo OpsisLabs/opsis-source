@@ -20,6 +20,7 @@ import { compareSnapshots } from "./model";
 import { ActivityFeed } from "./ActivityFeed";
 import { WalletOverlap } from "./WalletOverlap";
 import { WatchBriefing } from "./WatchBriefing";
+import WatchInbox from "./WatchInbox";
 
 const QuantityBars = lazy(() => import("../opsis/QuantityBars"));
 
@@ -166,6 +167,7 @@ function LookupConsent({
 
 function Workspace({ session, tradeCheckEnabled }: { session: WatchSession; tradeCheckEnabled: boolean }) {
   const { t } = useI18n();
+  const c = useCopy();
   const [searchParams] = useSearchParams();
   // Optional handoff from the Private Explorer: prefill a validated public
   // address only. Consent, lookup and saving stay explicit user actions.
@@ -178,7 +180,8 @@ function Workspace({ session, tradeCheckEnabled }: { session: WatchSession; trad
   const [consent, setConsent] = useState(false);
   const [error, setError] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
-  const [view, setView] = useState<"wallets" | "feed" | "overlap">("wallets");
+  const opsisWorkspaces = import.meta.env.VITE_OPSIS_WORKSPACES_ENABLED === "true";
+  const [view, setView] = useState<"wallets" | "inbox" | "feed" | "overlap">(opsisWorkspaces ? "inbox" : "wallets");
   const item =
     session.watches.find((row) => row.id === selected) ?? session.watches[0];
   const addDetails = useRef<HTMLDetailsElement | null>(null);
@@ -214,12 +217,19 @@ function Workspace({ session, tradeCheckEnabled }: { session: WatchSession; trad
     node.focus({ preventScroll: true });
   }, [focusRequest, view]);
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <div
         role="group"
         aria-label={t("feed.views")}
         className="flex flex-wrap gap-3"
       >
+        {opsisWorkspaces && <button
+          className={view === "inbox" ? primary : button}
+          aria-pressed={view === "inbox"}
+          onClick={() => setView("inbox")}
+        >
+          {c("Inbox", "收件箱")}
+        </button>}
         <button
           className={view === "wallets" ? primary : button}
           aria-pressed={view === "wallets"}
@@ -242,6 +252,17 @@ function Workspace({ session, tradeCheckEnabled }: { session: WatchSession; trad
           {t("overlap.open")}
         </button>
       </div>
+      {view === "inbox" && (
+        <WatchInbox
+          watches={session.watches}
+          onAcknowledge={(entry) => void session.acknowledge(entry.watchId, entry.evidenceId)}
+          onSnooze={(entry, until) => void session.snooze(entry.watchId, entry.evidenceId, until)}
+          onRestore={(entry) => void session.restore(entry.watchId, entry.evidenceId)}
+          onSaveCondition={(watchId, condition) => void session.saveConditions(watchId, [...(session.watches.find((watch) => watch.id === watchId)?.conditions ?? []), condition])}
+          onRemoveCondition={(watchId, conditionId) => void session.saveConditions(watchId, (session.watches.find((watch) => watch.id === watchId)?.conditions ?? []).filter((condition) => condition.id !== conditionId))}
+          busy={session.busy}
+        />
+      )}
       <section
         className={`${panel} scroll-mt-24`}
         aria-labelledby="watch-add-title"

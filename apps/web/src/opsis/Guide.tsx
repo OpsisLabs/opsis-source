@@ -94,10 +94,13 @@ export default function Guide({
             </h2>
             <p>
               {c(
-                "This preview cannot open or close perp positions, track funding or calculate venue-specific liquidation prices. The current Lab contains captured pool data and generic portfolio shocks, not perp models or backtests.",
-                "此预览无法开关永续仓位、跟踪资金费率或计算特定场所的清算价格。当前实验室提供历史资金池数据和通用投资组合冲击，不提供永续模型或回测。",
+                "Opening/closing, live funding and venue-specific liquidation remain unavailable. You can calculate a manual linear-contract cost scenario locally; enter your own prices, fees and total funding.",
+                "开平仓、实时资金费及特定场所清算仍不可用。您可以本地计算手动线性合约成本情景；请自行输入价格、费用及资金费总额。",
               )}
             </p>
+            <Link className="opsis-action" to="/check/perp-scenario">
+              {c("Open Perp cost scenario ↗", "打开 永续成本情景 ↗")}
+            </Link>
           </div>
         ) : (
           <div className="opsis-guide-grid">

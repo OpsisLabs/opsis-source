@@ -1,8 +1,17 @@
-import { decodeFunctionResult, encodeFunctionData, type Abi, type Hex } from "viem";
+import {
+  decodeFunctionResult,
+  encodeFunctionData,
+  type Abi,
+  type Hex,
+} from "viem";
 import { z } from "zod";
 import { JsonCache } from "../cache/service.js";
 import type { Env } from "../config/env.js";
-import { ProviderHttpClient, ProviderRequestError, type ProviderHttp } from "../chain/provider-http.js";
+import {
+  ProviderHttpClient,
+  ProviderRequestError,
+  type ProviderHttp,
+} from "../chain/provider-http.js";
 import { AppError } from "../http/errors.js";
 import { createExitCheckBudget, type ExitCheckBudget } from "./budget.js";
 import {
@@ -17,7 +26,7 @@ import {
   UNISWAP_MULTICALL3,
   UNISWAP_QUOTER_V2,
   UNISWAP_V3_FACTORY,
-  type ExitCheckOutputSymbol
+  type ExitCheckOutputSymbol,
 } from "./constants.js";
 import {
   ExitCheckInputError,
@@ -29,20 +38,26 @@ import {
   isBoundarySqrtPrice,
   parseExitAmount,
   priceImpactBps,
-  spotAmountOutRaw
+  spotAmountOutRaw,
 } from "./math.js";
 
 const ADDRESS_PATTERN = /^0x[0-9a-fA-F]{40}$/;
 const HASH_PATTERN = /^0x[0-9a-fA-F]{64}$/;
 const MAX_DECIMALS = 36;
 
-const factoryAbi = [{
-  type: "function",
-  name: "getPool",
-  stateMutability: "view",
-  inputs: [{ name: "tokenA", type: "address" }, { name: "tokenB", type: "address" }, { name: "fee", type: "uint24" }],
-  outputs: [{ name: "pool", type: "address" }]
-}] as const satisfies Abi;
+const factoryAbi = [
+  {
+    type: "function",
+    name: "getPool",
+    stateMutability: "view",
+    inputs: [
+      { name: "tokenA", type: "address" },
+      { name: "tokenB", type: "address" },
+      { name: "fee", type: "uint24" },
+    ],
+    outputs: [{ name: "pool", type: "address" }],
+  },
+] as const satisfies Abi;
 
 const poolAbi = [
   {
@@ -57,82 +72,114 @@ const poolAbi = [
       { name: "observationCardinality", type: "uint16" },
       { name: "observationCardinalityNext", type: "uint16" },
       { name: "feeProtocol", type: "uint8" },
-      { name: "unlocked", type: "bool" }
-    ]
+      { name: "unlocked", type: "bool" },
+    ],
   },
-  { type: "function", name: "liquidity", stateMutability: "view", inputs: [], outputs: [{ name: "", type: "uint128" }] }
+  {
+    type: "function",
+    name: "liquidity",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "uint128" }],
+  },
 ] as const satisfies Abi;
 
-const quoterAbi = [{
-  type: "function",
-  name: "quoteExactInputSingle",
-  stateMutability: "nonpayable",
-  inputs: [{
-    name: "params",
-    type: "tuple",
-    components: [
-      { name: "tokenIn", type: "address" },
-      { name: "tokenOut", type: "address" },
-      { name: "amountIn", type: "uint256" },
-      { name: "fee", type: "uint24" },
-      { name: "sqrtPriceLimitX96", type: "uint160" }
-    ]
-  }],
-  outputs: [
-    { name: "amountOut", type: "uint256" },
-    { name: "sqrtPriceX96After", type: "uint160" },
-    { name: "initializedTicksCrossed", type: "uint32" },
-    { name: "gasEstimate", type: "uint256" }
-  ]
-}] as const satisfies Abi;
+const quoterAbi = [
+  {
+    type: "function",
+    name: "quoteExactInputSingle",
+    stateMutability: "nonpayable",
+    inputs: [
+      {
+        name: "params",
+        type: "tuple",
+        components: [
+          { name: "tokenIn", type: "address" },
+          { name: "tokenOut", type: "address" },
+          { name: "amountIn", type: "uint256" },
+          { name: "fee", type: "uint24" },
+          { name: "sqrtPriceLimitX96", type: "uint160" },
+        ],
+      },
+    ],
+    outputs: [
+      { name: "amountOut", type: "uint256" },
+      { name: "sqrtPriceX96After", type: "uint160" },
+      { name: "initializedTicksCrossed", type: "uint32" },
+      { name: "gasEstimate", type: "uint256" },
+    ],
+  },
+] as const satisfies Abi;
 
-const multicall3Abi = [{
-  type: "function",
-  name: "aggregate3",
-  stateMutability: "payable",
-  inputs: [{
-    name: "calls",
-    type: "tuple[]",
-    components: [
-      { name: "target", type: "address" },
-      { name: "allowFailure", type: "bool" },
-      { name: "callData", type: "bytes" }
-    ]
-  }],
-  outputs: [{
-    name: "returnData",
-    type: "tuple[]",
-    components: [
-      { name: "success", type: "bool" },
-      { name: "returnData", type: "bytes" }
-    ]
-  }]
-}] as const satisfies Abi;
+const multicall3Abi = [
+  {
+    type: "function",
+    name: "aggregate3",
+    stateMutability: "payable",
+    inputs: [
+      {
+        name: "calls",
+        type: "tuple[]",
+        components: [
+          { name: "target", type: "address" },
+          { name: "allowFailure", type: "bool" },
+          { name: "callData", type: "bytes" },
+        ],
+      },
+    ],
+    outputs: [
+      {
+        name: "returnData",
+        type: "tuple[]",
+        components: [
+          { name: "success", type: "bool" },
+          { name: "returnData", type: "bytes" },
+        ],
+      },
+    ],
+  },
+] as const satisfies Abi;
 
-const erc20DecimalsAbi = [{
-  type: "function",
-  name: "decimals",
-  stateMutability: "view",
-  inputs: [],
-  outputs: [{ name: "", type: "uint8" }]
-}] as const satisfies Abi;
+const erc20DecimalsAbi = [
+  {
+    type: "function",
+    name: "decimals",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "uint8" }],
+  },
+] as const satisfies Abi;
 
 export type ExitCheckRequest = {
   token: string;
   amount: string;
   outputToken?: ExitCheckOutputSymbol;
+  curve?: boolean;
 };
 
 export type ExitCheckPool = { fee: number; pool: string };
-export type ExitCheckPoolResult = ExitCheckPool & { amountOut: string; amountOutDisplay: string };
+export type ExitCheckPoolResult = ExitCheckPool & {
+  amountOut: string;
+  amountOutDisplay: string;
+};
 
 export type ExitCheckResponse = {
   schemaVersion: 1;
   supported: boolean;
   reason: "ok" | "no_v3_pool" | "unknown_decimals" | "quote_failed";
   chain: { id: 4663; name: "Robinhood Chain" };
-  input: { contract: string; symbol: string | null; decimals: number; amount: string; rawAmount: string };
-  output: { symbol: ExitCheckOutputSymbol; address: string; decimals: number } | null;
+  input: {
+    contract: string;
+    symbol: string | null;
+    decimals: number;
+    amount: string;
+    rawAmount: string;
+  };
+  output: {
+    symbol: ExitCheckOutputSymbol;
+    address: string;
+    decimals: number;
+  } | null;
   quote: {
     pool: ExitCheckPool;
     amountOut: string;
@@ -148,6 +195,26 @@ export type ExitCheckResponse = {
     activeLiquidity: string;
     fullExecutionProven: false;
   } | null;
+  curve: {
+    requestedAmount: string;
+    points: Array<{
+      amount: string;
+      rawAmount: string;
+      status: "ok" | "unavailable";
+      reason?: string;
+      amountOut: string | null;
+      amountOutDisplay: string | null;
+      spotAmountOut: string | null;
+      spotAmountOutDisplay: string | null;
+      priceImpactBps: string | null;
+      priceImpactPercent: string | null;
+      feeTier: number | null;
+      feePercent: string | null;
+      feeAmount: string | null;
+      feeAmountDisplay: string | null;
+      pool: ExitCheckPool | null;
+    }>;
+  } | null;
   coverage: {
     feeTiersTested: number[];
     poolsFound: ExitCheckPool[];
@@ -156,7 +223,13 @@ export type ExitCheckResponse = {
     poolsMissing: number[];
     poolsDiscoveryFailed: number[];
   };
-  anchor: { tag: "latest"; blockNumber: number; blockHash: string; timestamp: string; fetchedAt: string };
+  anchor: {
+    tag: "latest";
+    blockNumber: number;
+    blockHash: string;
+    timestamp: string;
+    fetchedAt: string;
+  };
   quotedAt: string;
   expiresAt: string;
   freshForMs: number;
@@ -171,7 +244,12 @@ type Dependencies = {
   now: () => Date;
 };
 
-type RpcRequest = { jsonrpc: "2.0"; id: string; method: string; params: unknown[] };
+type RpcRequest = {
+  jsonrpc: "2.0";
+  id: string;
+  method: string;
+  params: unknown[];
+};
 type RpcResponse = { id?: string; result?: unknown; error?: unknown };
 
 export interface ExitCheckSource {
@@ -185,37 +263,59 @@ export class ExitCheckService implements ExitCheckSource {
   constructor(
     private readonly env: Env,
     private readonly cache: JsonCache = new JsonCache(undefined, 15),
-    dependencies?: Partial<Dependencies>
+    dependencies?: Partial<Dependencies>,
   ) {
     this.dependencies = {
-      rpc: dependencies?.rpc ?? new ProviderHttpClient({
-        maxRetries: 0,
-        backoffMs: 1,
-        timeoutMs: env.PROVIDER_TIMEOUT_MS,
-        circuitFailureThreshold: 3,
-        circuitResetMs: 60_000,
-        requestBudgetPerMinute: env.PROVIDER_REQUEST_BUDGET_PER_MINUTE,
-        maxConcurrency: 1,
-        providerName: "robinhood-public-rpc"
-      }),
+      rpc:
+        dependencies?.rpc ??
+        new ProviderHttpClient({
+          maxRetries: 0,
+          backoffMs: 1,
+          timeoutMs: env.PROVIDER_TIMEOUT_MS,
+          circuitFailureThreshold: 3,
+          circuitResetMs: 60_000,
+          requestBudgetPerMinute: env.PROVIDER_REQUEST_BUDGET_PER_MINUTE,
+          maxConcurrency: 1,
+          providerName: "robinhood-public-rpc",
+        }),
       budget: dependencies?.budget ?? createExitCheckBudget(env),
-      now: dependencies?.now ?? (() => new Date())
+      now: dependencies?.now ?? (() => new Date()),
     };
   }
 
   async quote(request: ExitCheckRequest): Promise<ExitCheckResponse> {
     const outputSymbol = request.outputToken ?? "WETH";
     if (!EXIT_CHECK_OUTPUT_SYMBOLS.includes(outputSymbol)) {
-      throw new AppError("EXIT_CHECK_INVALID_OUTPUT", 400, "Choose WETH or USDG as the estimated output token");
+      throw new AppError(
+        "EXIT_CHECK_INVALID_OUTPUT",
+        400,
+        "Choose WETH or USDG as the estimated output token",
+      );
     }
     const token = request.token.trim().toLowerCase();
-    if (!ADDRESS_PATTERN.test(token)) throw new AppError("EXIT_CHECK_INVALID_TOKEN", 400, "Provide a complete token contract address");
+    if (!ADDRESS_PATTERN.test(token))
+      throw new AppError(
+        "EXIT_CHECK_INVALID_TOKEN",
+        400,
+        "Provide a complete token contract address",
+      );
     const outputAsset = EXIT_CHECK_OUTPUTS[outputSymbol];
     if (token === outputAsset.address.toLowerCase()) {
-      throw new AppError("EXIT_CHECK_INVALID_TOKEN", 400, "The input token and output token must be different");
+      throw new AppError(
+        "EXIT_CHECK_INVALID_TOKEN",
+        400,
+        "The input token and output token must be different",
+      );
     }
-    if (token === EXIT_CHECK_ZERO_ADDRESS || token === EXIT_CHECK_DEAD_ADDRESS) {
-      throw new AppError("EXIT_CHECK_INVALID_TOKEN", 400, "The zero and dead addresses are not tokens");
+    if (
+      token === EXIT_CHECK_ZERO_ADDRESS ||
+      token === EXIT_CHECK_DEAD_ADDRESS
+    ) {
+      throw new AppError(
+        "EXIT_CHECK_INVALID_TOKEN",
+        400,
+        "The zero and dead addresses are not tokens",
+      );
     }
 
     // Structural validation happens before canonicalization/cache so a
@@ -223,18 +323,32 @@ export class ExitCheckService implements ExitCheckSource {
     try {
       assertAmountSyntax(request.amount);
     } catch {
-      throw new AppError("EXIT_CHECK_INVALID_AMOUNT", 400, "Enter a positive decimal amount");
+      throw new AppError(
+        "EXIT_CHECK_INVALID_AMOUNT",
+        400,
+        "Enter a positive decimal amount",
+      );
     }
 
-    const canonicalRequest = { token, outputSymbol, amount: canonicalExitAmount(request.amount) };
-    const key = `exit-check:${EXIT_CHECK_CHAIN_ID}:${token}:${outputSymbol}:${canonicalRequest.amount}`;
+    const canonicalRequest = {
+      token,
+      outputSymbol,
+      amount: canonicalExitAmount(request.amount),
+    };
+    const key = `exit-check:${EXIT_CHECK_CHAIN_ID}:${token}:${outputSymbol}:${canonicalRequest.amount}:${request.curve ? "curve" : "quote"}`;
     const cached = await this.cache.get<ExitCheckResponse>(key);
-    if (cached && Date.parse(cached.expiresAt) > this.dependencies.now().getTime()) {
+    if (
+      cached &&
+      Date.parse(cached.expiresAt) > this.dependencies.now().getTime()
+    ) {
       return { ...cached, provider: { ...cached.provider, cached: true } };
     }
     const pending = this.inflight.get(key);
     if (pending) return pending;
-    const operation = this.fetchAndNormalize(canonicalRequest, canonicalRequest.amount)
+    const operation = this.fetchAndNormalize(
+      { ...canonicalRequest, curve: request.curve === true },
+      canonicalRequest.amount,
+    )
       .then(async (quote) => {
         await this.cache.set(key, quote, 15);
         return quote;
@@ -245,8 +359,13 @@ export class ExitCheckService implements ExitCheckSource {
   }
 
   private async fetchAndNormalize(
-    request: { token: string; outputSymbol: ExitCheckOutputSymbol; amount: string },
-    rawAmountInput: string
+    request: {
+      token: string;
+      outputSymbol: ExitCheckOutputSymbol;
+      amount: string;
+      curve: boolean;
+    },
+    rawAmountInput: string,
   ): Promise<ExitCheckResponse> {
     const { token, outputSymbol } = request;
     const outputAsset = EXIT_CHECK_OUTPUTS[outputSymbol];
@@ -254,7 +373,11 @@ export class ExitCheckService implements ExitCheckSource {
     let units = 0;
     const consume = async (value: number): Promise<void> => {
       if (units + value > this.env.EXIT_CHECK_MAX_RPC_SUBCALLS) {
-        throw new AppError("EXIT_CHECK_RPC_LIMIT_EXCEEDED", 503, "This check exceeded its RPC safety limit");
+        throw new AppError(
+          "EXIT_CHECK_RPC_LIMIT_EXCEEDED",
+          503,
+          "This check exceeded its RPC safety limit",
+        );
       }
       units += value;
       await this.dependencies.budget.consume(value);
@@ -263,7 +386,9 @@ export class ExitCheckService implements ExitCheckSource {
     // Capture the real block anchor first and pin every later read to it.
     const anchor = await this.latestBlock(consume);
 
-    const reviewedInput = Object.values(EXIT_CHECK_OUTPUTS).find((asset) => asset.address.toLowerCase() === token);
+    const reviewedInput = Object.values(EXIT_CHECK_OUTPUTS).find(
+      (asset) => asset.address.toLowerCase() === token,
+    );
     let decimals: number;
     let symbol: string | null;
 
@@ -271,13 +396,26 @@ export class ExitCheckService implements ExitCheckSource {
       decimals = reviewedInput.decimals;
       symbol = reviewedInput.symbol;
     } else {
-      const identity = await this.readTokenIdentity(token, anchor.blockHex, consume);
+      const identity = await this.readTokenIdentity(
+        token,
+        anchor.blockHex,
+        consume,
+      );
       if (identity.kind === "not_a_contract") {
-        throw new AppError("EXIT_CHECK_INVALID_TOKEN", 400, "No token contract code exists at that address");
+        throw new AppError(
+          "EXIT_CHECK_INVALID_TOKEN",
+          400,
+          "No token contract code exists at that address",
+        );
       }
       if (identity.kind === "unknown_decimals") {
         return this.unsupportedResponse({
-          token, outputSymbol, symbol: null, decimals: 0, amount: rawAmountInput, anchor,
+          token,
+          outputSymbol,
+          symbol: null,
+          decimals: 0,
+          amount: rawAmountInput,
+          anchor,
           reason: "unknown_decimals",
           coverage: {
             feeTiersTested: [],
@@ -285,9 +423,9 @@ export class ExitCheckService implements ExitCheckSource {
             poolsQuoted: [],
             poolsFailed: [],
             poolsMissing: [],
-            poolsDiscoveryFailed: []
+            poolsDiscoveryFailed: [],
           },
-          consume
+          consume,
         });
       }
       decimals = identity.decimals;
@@ -299,91 +437,211 @@ export class ExitCheckService implements ExitCheckSource {
       amountInRaw = parseExitAmount(rawAmountInput, decimals);
     } catch (error) {
       if (error instanceof ExitCheckInputError) {
-        throw new AppError("EXIT_CHECK_INVALID_AMOUNT", 400, `Enter a positive amount with no more than ${decimals} decimal places`);
+        throw new AppError(
+          "EXIT_CHECK_INVALID_AMOUNT",
+          400,
+          `Enter a positive amount with no more than ${decimals} decimal places`,
+        );
       }
       throw error;
     }
 
-    const discovery = await this.findPools(token, outputAsset.address, anchor.blockHex, consume);
+    const discovery = await this.findPools(
+      token,
+      outputAsset.address,
+      anchor.blockHex,
+      consume,
+    );
     const pools = discovery.pools;
     // A revert or malformed factory read is a discovery failure, not proof that
     // no pool exists. Fail closed when no pool was confirmed and any read failed.
     if (pools.length === 0 && discovery.discoveryFailed.length > 0) {
-      throw new AppError("EXIT_CHECK_POOL_DISCOVERY_FAILED", 503, "Some factory pool reads failed; no absence of a pool is claimed");
+      throw new AppError(
+        "EXIT_CHECK_POOL_DISCOVERY_FAILED",
+        503,
+        "Some factory pool reads failed; no absence of a pool is claimed",
+      );
     }
 
     if (pools.length === 0) {
       return this.finalize({
-        token, outputSymbol, symbol, decimals, amount: rawAmountInput, amountInRaw, anchor,
+        token,
+        outputSymbol,
+        symbol,
+        decimals,
+        amount: rawAmountInput,
+        amountInRaw,
+        anchor,
         coverage: {
           feeTiersTested: [...EXIT_CHECK_FEE_TIERS],
           poolsFound: [],
           poolsQuoted: [],
           poolsFailed: [],
           poolsMissing: [...EXIT_CHECK_FEE_TIERS],
-          poolsDiscoveryFailed: []
+          poolsDiscoveryFailed: [],
         },
         best: null,
+        curve: null,
         reason: "no_v3_pool",
-        consume
+        consume,
       });
     }
 
     const zeroForOne = zeroForOneFor(token, outputAsset.address);
-    const state = await this.readPoolState(pools, zeroForOne, anchor.blockHex, consume);
-    const quoteCalls = state.available.map((pool) => this.quoterCall(pool, token, outputAsset.address, amountInRaw));
+    const state = await this.readPoolState(
+      pools,
+      zeroForOne,
+      anchor.blockHex,
+      consume,
+    );
+    const curveRawAmounts = request.curve
+      ? curveAmounts(amountInRaw)
+      : [amountInRaw];
+    const fixedInnerCalls = reviewedInput ? 6 : 8; // four factory reads, two block anchors, optional code/decimals
+    if (
+      request.curve &&
+      fixedInnerCalls + pools.length * (2 + curveRawAmounts.length) >
+        this.env.EXIT_CHECK_MAX_RPC_SUBCALLS
+    ) {
+      throw new AppError(
+        "EXIT_CHECK_RPC_LIMIT_EXCEEDED",
+        503,
+        "The size curve exceeded its RPC safety limit",
+      );
+    }
+    const requestedIndex = curveRawAmounts.findIndex(
+      (value) => value === amountInRaw,
+    );
+    const quoteCalls = state.available.flatMap((pool) =>
+      curveRawAmounts.map((amount) =>
+        this.quoterCall(pool, token, outputAsset.address, amount),
+      ),
+    );
     let quoteResults: Array<{ success: boolean; returnData: Hex }> = [];
     if (quoteCalls.length > 0) {
-      const raw = await this.rpcEthCall(this.aggregate3(quoteCalls), anchor.blockHex, consume);
+      const raw = await this.rpcEthCall(
+        this.aggregate3(quoteCalls),
+        anchor.blockHex,
+        consume,
+      );
       quoteResults = this.decodeAggregate3(raw, quoteCalls.length);
     }
 
     const poolsQuoted: ExitCheckPoolResult[] = [];
     const poolsFailed: Array<ExitCheckPool & { reason: string }> = state.failed;
-    state.available.forEach((pool, index) => {
-      const result = quoteResults[index];
-      if (!result?.success) {
-        poolsFailed.push({ fee: pool.fee, pool: pool.pool, reason: revertReason(result?.returnData) });
-        return;
-      }
-      try {
-        const decoded = decodeFunctionResult({ abi: quoterAbi, functionName: "quoteExactInputSingle", data: result.returnData });
-        const amountOut = decoded[0] as bigint;
-        const sqrtPriceX96After = decoded[1] as bigint;
-        if (amountOut <= 0n) throw new Error("zero output");
-        // A quote that ends on a V3 price boundary may have only partially
-        // filled, so it is excluded rather than shown as a full execution.
-        if (isBoundarySqrtPrice(sqrtPriceX96After)) {
-          poolsFailed.push({ fee: pool.fee, pool: pool.pool, reason: "price_boundary_reached" });
+    const decodedBySize: Array<
+      Array<{ pool: (typeof state.available)[number]; amountOut: bigint }>
+    > = curveRawAmounts.map(() => []);
+    state.available.forEach((pool, poolIndex) => {
+      curveRawAmounts.forEach((_, sizeIndex) => {
+        const result =
+          quoteResults[poolIndex * curveRawAmounts.length + sizeIndex];
+        if (!result?.success) {
+          if (sizeIndex === requestedIndex)
+            poolsFailed.push({
+              fee: pool.fee,
+              pool: pool.pool,
+              reason: revertReason(result?.returnData),
+            });
           return;
         }
-        poolsQuoted.push({ fee: pool.fee, pool: pool.pool, amountOut: amountOut.toString(), amountOutDisplay: formatExitUnits(amountOut, outputAsset.decimals) });
-      } catch {
-        poolsFailed.push({ fee: pool.fee, pool: pool.pool, reason: "decode_failed" });
-      }
+        try {
+          const decoded = decodeFunctionResult({
+            abi: quoterAbi,
+            functionName: "quoteExactInputSingle",
+            data: result.returnData,
+          });
+          const amountOut = decoded[0] as bigint;
+          const sqrtPriceX96After = decoded[1] as bigint;
+          if (amountOut <= 0n) throw new Error("zero output");
+          // A quote that ends on a V3 price boundary may have only partially
+          // filled, so it is excluded rather than shown as a full execution.
+          if (isBoundarySqrtPrice(sqrtPriceX96After)) {
+            if (sizeIndex === requestedIndex)
+              poolsFailed.push({
+                fee: pool.fee,
+                pool: pool.pool,
+                reason: "price_boundary_reached",
+              });
+            return;
+          }
+          decodedBySize[sizeIndex]!.push({ pool, amountOut });
+          if (sizeIndex === requestedIndex)
+            poolsQuoted.push({
+              fee: pool.fee,
+              pool: pool.pool,
+              amountOut: amountOut.toString(),
+              amountOutDisplay: formatExitUnits(
+                amountOut,
+                outputAsset.decimals,
+              ),
+            });
+        } catch {
+          if (sizeIndex === requestedIndex)
+            poolsFailed.push({
+              fee: pool.fee,
+              pool: pool.pool,
+              reason: "decode_failed",
+            });
+        }
+      });
     });
 
-    let best: { pool: ExitCheckPool; amountOut: bigint; state: (typeof state.available)[number] } | null = null;
+    let best: {
+      pool: ExitCheckPool;
+      amountOut: bigint;
+      state: (typeof state.available)[number];
+    } | null = null;
     for (const quoted of poolsQuoted) {
-      const poolState = state.available.find((candidate) => candidate.pool === quoted.pool);
+      const poolState = state.available.find(
+        (candidate) => candidate.pool === quoted.pool,
+      );
       if (!poolState) continue;
       const amountOut = BigInt(quoted.amountOut);
-      if (!best || amountOut > best.amountOut) best = { pool: quoted, amountOut, state: poolState };
+      if (!best || amountOut > best.amountOut)
+        best = { pool: quoted, amountOut, state: poolState };
     }
 
+    const curve = request.curve
+      ? this.makeCurve(
+          curveRawAmounts,
+          rawAmountInput,
+          decodedBySize,
+          outputAsset,
+          decimals,
+        )
+      : null;
     return this.finalize({
-      token, outputSymbol, symbol, decimals, amount: rawAmountInput, amountInRaw, anchor,
+      token,
+      outputSymbol,
+      symbol,
+      decimals,
+      amount: rawAmountInput,
+      amountInRaw,
+      anchor,
       coverage: {
         feeTiersTested: [...EXIT_CHECK_FEE_TIERS],
         poolsFound: pools,
-        poolsQuoted: poolsQuoted.map(({ fee, pool, amountOut, amountOutDisplay }) => ({ fee, pool, amountOut, amountOutDisplay })),
+        poolsQuoted: poolsQuoted.map(
+          ({ fee, pool, amountOut, amountOutDisplay }) => ({
+            fee,
+            pool,
+            amountOut,
+            amountOutDisplay,
+          }),
+        ),
         poolsFailed,
-        poolsMissing: EXIT_CHECK_FEE_TIERS.filter((fee) => !pools.some((pool) => pool.fee === fee) && !discovery.discoveryFailed.includes(fee)),
-        poolsDiscoveryFailed: discovery.discoveryFailed
+        poolsMissing: EXIT_CHECK_FEE_TIERS.filter(
+          (fee) =>
+            !pools.some((pool) => pool.fee === fee) &&
+            !discovery.discoveryFailed.includes(fee),
+        ),
+        poolsDiscoveryFailed: discovery.discoveryFailed,
       },
       best,
+      curve,
       reason: best ? "ok" : "quote_failed",
-      consume
+      consume,
     });
   }
 
@@ -396,7 +654,18 @@ export class ExitCheckService implements ExitCheckSource {
     amountInRaw: bigint;
     anchor: ExitCheckAnchor;
     coverage: ExitCheckResponse["coverage"];
-    best: { pool: ExitCheckPool; amountOut: bigint; state: { fee: number; pool: string; sqrtPriceX96: bigint; liquidity: bigint; zeroForOne: boolean } } | null;
+    best: {
+      pool: ExitCheckPool;
+      amountOut: bigint;
+      state: {
+        fee: number;
+        pool: string;
+        sqrtPriceX96: bigint;
+        liquidity: bigint;
+        zeroForOne: boolean;
+      };
+    } | null;
+    curve: ExitCheckResponse["curve"];
     reason: ExitCheckResponse["reason"];
     consume: (units: number) => Promise<void>;
   }): Promise<ExitCheckResponse> {
@@ -406,23 +675,36 @@ export class ExitCheckService implements ExitCheckSource {
     // Freshness starts at anchor capture, not at response completion, so a
     // slow request can still expire instead of presenting an old block as fresh.
     if (now - input.anchor.capturedAtMs >= EXIT_CHECK_FRESHNESS_MS) {
-      throw new AppError("EXIT_CHECK_STALE", 503, "The captured block is already older than the freshness window; run the check again");
+      throw new AppError(
+        "EXIT_CHECK_STALE",
+        503,
+        "The captured block is already older than the freshness window; run the check again",
+      );
     }
     let quote: ExitCheckResponse["quote"] = null;
     if (input.best) {
       const spotAmountOut = spotAmountOutRaw({
         amountInRaw: input.amountInRaw,
         sqrtPriceX96: input.best.state.sqrtPriceX96,
-        zeroForOne: input.best.state.zeroForOne
+        zeroForOne: input.best.state.zeroForOne,
       });
-      const impactBps = priceImpactBps({ spotAmountOut, quotedAmountOut: input.best.amountOut });
+      const impactBps = priceImpactBps({
+        spotAmountOut,
+        quotedAmountOut: input.best.amountOut,
+      });
       const feeAmount = feeAmountRaw(input.amountInRaw, input.best.pool.fee);
       quote = {
         pool: { fee: input.best.pool.fee, pool: input.best.pool.pool },
         amountOut: input.best.amountOut.toString(),
-        amountOutDisplay: formatExitUnits(input.best.amountOut, outputAsset.decimals),
+        amountOutDisplay: formatExitUnits(
+          input.best.amountOut,
+          outputAsset.decimals,
+        ),
         spotAmountOut: spotAmountOut.toString(),
-        spotAmountOutDisplay: formatExitUnits(spotAmountOut, outputAsset.decimals),
+        spotAmountOutDisplay: formatExitUnits(
+          spotAmountOut,
+          outputAsset.decimals,
+        ),
         priceImpactBps: impactBps === null ? null : impactBps.toString(),
         priceImpactPercent: impactBps === null ? null : formatBps(impactBps),
         feeTier: input.best.pool.fee,
@@ -430,7 +712,7 @@ export class ExitCheckService implements ExitCheckSource {
         feeAmount: feeAmount.toString(),
         feeAmountDisplay: formatExitUnits(feeAmount, input.decimals),
         activeLiquidity: input.best.state.liquidity.toString(),
-        fullExecutionProven: false
+        fullExecutionProven: false,
       };
     }
     return {
@@ -443,18 +725,108 @@ export class ExitCheckService implements ExitCheckSource {
         symbol: input.symbol,
         decimals: input.decimals,
         amount: canonicalExitAmount(input.amount),
-        rawAmount: input.amountInRaw.toString()
+        rawAmount: input.amountInRaw.toString(),
       },
-      output: input.reason === "ok" ? { symbol: input.outputSymbol, address: outputAsset.address, decimals: outputAsset.decimals } : null,
+      output:
+        input.reason === "ok"
+          ? {
+              symbol: input.outputSymbol,
+              address: outputAsset.address,
+              decimals: outputAsset.decimals,
+            }
+          : null,
       quote,
+      curve: input.curve,
       coverage: input.coverage,
       anchor: responseAnchor(input.anchor),
       quotedAt: new Date(input.anchor.capturedAtMs).toISOString(),
-      expiresAt: new Date(input.anchor.capturedAtMs + EXIT_CHECK_FRESHNESS_MS).toISOString(),
+      expiresAt: new Date(
+        input.anchor.capturedAtMs + EXIT_CHECK_FRESHNESS_MS,
+      ).toISOString(),
       freshForMs: EXIT_CHECK_FRESHNESS_MS,
       quoteIsNotSellabilityProof: true,
       limitations: [...EXIT_CHECK_LIMITATIONS],
-      provider: { name: "robinhood-public-rpc", cached: false }
+      provider: { name: "robinhood-public-rpc", cached: false },
+    };
+  }
+
+  private makeCurve(
+    amounts: bigint[],
+    requested: string,
+    bySize: Array<
+      Array<{
+        pool: {
+          fee: number;
+          pool: string;
+          sqrtPriceX96: bigint;
+          liquidity: bigint;
+          zeroForOne: boolean;
+        };
+        amountOut: bigint;
+      }>
+    >,
+    outputAsset: (typeof EXIT_CHECK_OUTPUTS)[ExitCheckOutputSymbol],
+    inputDecimals: number,
+  ): ExitCheckResponse["curve"] {
+    return {
+      requestedAmount: canonicalExitAmount(requested),
+      points: amounts.map((amount, index) => {
+        const candidates = bySize[index] ?? [];
+        const best = candidates.reduce<(typeof candidates)[number] | null>(
+          (current, candidate) =>
+            !current || candidate.amountOut > current.amountOut
+              ? candidate
+              : current,
+          null,
+        );
+        if (!best)
+          return {
+            amount: formatExitUnits(amount, inputDecimals),
+            rawAmount: amount.toString(),
+            status: "unavailable",
+            reason: "quote_unavailable",
+            amountOut: null,
+            amountOutDisplay: null,
+            spotAmountOut: null,
+            spotAmountOutDisplay: null,
+            priceImpactBps: null,
+            priceImpactPercent: null,
+            feeTier: null,
+            feePercent: null,
+            feeAmount: null,
+            feeAmountDisplay: null,
+            pool: null,
+          };
+        const spot = spotAmountOutRaw({
+          amountInRaw: amount,
+          sqrtPriceX96: best.pool.sqrtPriceX96,
+          zeroForOne: best.pool.zeroForOne,
+        });
+        const impact = priceImpactBps({
+          spotAmountOut: spot,
+          quotedAmountOut: best.amountOut,
+        });
+        const fee = feeAmountRaw(amount, best.pool.fee);
+        return {
+          amount: formatExitUnits(amount, inputDecimals),
+          rawAmount: amount.toString(),
+          status: "ok",
+          amountOut: best.amountOut.toString(),
+          amountOutDisplay: formatExitUnits(
+            best.amountOut,
+            outputAsset.decimals,
+          ),
+          spotAmountOut: spot.toString(),
+          spotAmountOutDisplay: formatExitUnits(spot, outputAsset.decimals),
+          priceImpactBps: impact === null ? null : impact.toString(),
+          priceImpactPercent: impact === null ? null : formatBps(impact),
+          feeTier: best.pool.fee,
+          feePercent: formatBps(BigInt(best.pool.fee) / 100n),
+          feeAmount: fee.toString(),
+          feeAmountDisplay: formatExitUnits(fee, inputDecimals),
+          pool: { fee: best.pool.fee, pool: best.pool.pool },
+        };
+      }),
     };
   }
 
@@ -472,63 +844,111 @@ export class ExitCheckService implements ExitCheckSource {
     await this.assertAnchorUnchanged(input.anchor, input.consume);
     const now = this.dependencies.now().getTime();
     if (now - input.anchor.capturedAtMs >= EXIT_CHECK_FRESHNESS_MS) {
-      throw new AppError("EXIT_CHECK_STALE", 503, "The captured block is already older than the freshness window; run the check again");
+      throw new AppError(
+        "EXIT_CHECK_STALE",
+        503,
+        "The captured block is already older than the freshness window; run the check again",
+      );
     }
     return {
       schemaVersion: 1,
       supported: false,
       reason: input.reason,
       chain: { id: EXIT_CHECK_CHAIN_ID, name: "Robinhood Chain" },
-      input: { contract: input.token, symbol: input.symbol, decimals: input.decimals, amount: canonicalExitAmount(input.amount), rawAmount: "0" },
+      input: {
+        contract: input.token,
+        symbol: input.symbol,
+        decimals: input.decimals,
+        amount: canonicalExitAmount(input.amount),
+        rawAmount: "0",
+      },
       output: null,
       quote: null,
+      curve: null,
       coverage: input.coverage,
       anchor: responseAnchor(input.anchor),
       quotedAt: new Date(input.anchor.capturedAtMs).toISOString(),
-      expiresAt: new Date(input.anchor.capturedAtMs + EXIT_CHECK_FRESHNESS_MS).toISOString(),
+      expiresAt: new Date(
+        input.anchor.capturedAtMs + EXIT_CHECK_FRESHNESS_MS,
+      ).toISOString(),
       freshForMs: EXIT_CHECK_FRESHNESS_MS,
       quoteIsNotSellabilityProof: true,
       limitations: [...EXIT_CHECK_LIMITATIONS],
-      provider: { name: "robinhood-public-rpc", cached: false }
+      provider: { name: "robinhood-public-rpc", cached: false },
     };
   }
 
   private async readTokenIdentity(
     token: string,
     blockHex: string,
-    consume: (units: number) => Promise<void>
-  ): Promise<{ kind: "ok"; decimals: number } | { kind: "not_a_contract" } | { kind: "unknown_decimals" }> {
+    consume: (units: number) => Promise<void>,
+  ): Promise<
+    | { kind: "ok"; decimals: number }
+    | { kind: "not_a_contract" }
+    | { kind: "unknown_decimals" }
+  > {
     await consume(2);
     const responses = await this.rpcBatch([
-      { jsonrpc: "2.0", id: "code", method: "eth_getCode", params: [token, blockHex] },
-      { jsonrpc: "2.0", id: "decimals", method: "eth_call", params: [{ to: token, data: "0x313ce567" }, blockHex] }
+      {
+        jsonrpc: "2.0",
+        id: "code",
+        method: "eth_getCode",
+        params: [token, blockHex],
+      },
+      {
+        jsonrpc: "2.0",
+        id: "decimals",
+        method: "eth_call",
+        params: [{ to: token, data: "0x313ce567" }, blockHex],
+      },
     ]);
     const codeResponse = responses.get("code");
     // A missing, errored, or malformed code response is a provider problem, not
     // evidence that no contract exists. Only a true empty code result means the
     // address has no contract.
     if (!codeResponse || codeResponse.error !== undefined) {
-      throw new AppError("EXIT_CHECK_PROVIDER_UNAVAILABLE", 503, "The token code read did not return a usable result");
+      throw new AppError(
+        "EXIT_CHECK_PROVIDER_UNAVAILABLE",
+        503,
+        "The token code read did not return a usable result",
+      );
     }
     const code = codeResponse.result;
     if (typeof code !== "string" || !/^0x[0-9a-fA-F]*$/.test(code)) {
-      throw new AppError("EXIT_CHECK_PROVIDER_UNAVAILABLE", 503, "The token code read returned a malformed result");
+      throw new AppError(
+        "EXIT_CHECK_PROVIDER_UNAVAILABLE",
+        503,
+        "The token code read returned a malformed result",
+      );
     }
     if (code === "0x" || /^0x0*$/.test(code)) return { kind: "not_a_contract" };
 
     const decimalsResponse = responses.get("decimals");
     if (!decimalsResponse) {
-      throw new AppError("EXIT_CHECK_PROVIDER_UNAVAILABLE", 503, "The token decimals read did not return a usable result");
+      throw new AppError(
+        "EXIT_CHECK_PROVIDER_UNAVAILABLE",
+        503,
+        "The token decimals read did not return a usable result",
+      );
     }
     // A revert or empty result from decimals() means the contract exists but
     // does not expose readable ERC-20 decimals, so quoting fails closed.
     const decimalsRaw = decimalsResponse.result;
-    if (decimalsResponse.error !== undefined || typeof decimalsRaw !== "string" || !/^0x[0-9a-fA-F]+$/.test(decimalsRaw)) {
+    if (
+      decimalsResponse.error !== undefined ||
+      typeof decimalsRaw !== "string" ||
+      !/^0x[0-9a-fA-F]+$/.test(decimalsRaw)
+    ) {
       return { kind: "unknown_decimals" };
     }
     try {
       const decimals = Number(BigInt(decimalsRaw));
-      if (!Number.isInteger(decimals) || decimals < 0 || decimals > MAX_DECIMALS) return { kind: "unknown_decimals" };
+      if (
+        !Number.isInteger(decimals) ||
+        decimals < 0 ||
+        decimals > MAX_DECIMALS
+      )
+        return { kind: "unknown_decimals" };
       return { kind: "ok", decimals };
     } catch {
       return { kind: "unknown_decimals" };
@@ -539,14 +959,22 @@ export class ExitCheckService implements ExitCheckSource {
     token: string,
     outputToken: string,
     blockHex: string,
-    consume: (units: number) => Promise<void>
+    consume: (units: number) => Promise<void>,
   ): Promise<{ pools: ExitCheckPool[]; discoveryFailed: number[] }> {
     const calls = EXIT_CHECK_FEE_TIERS.map((fee) => ({
       target: UNISWAP_V3_FACTORY as `0x${string}`,
       allowFailure: true,
-      callData: encodeFunctionData({ abi: factoryAbi, functionName: "getPool", args: [token as `0x${string}`, outputToken as `0x${string}`, fee] })
+      callData: encodeFunctionData({
+        abi: factoryAbi,
+        functionName: "getPool",
+        args: [token as `0x${string}`, outputToken as `0x${string}`, fee],
+      }),
     }));
-    const raw = await this.rpcEthCall(this.aggregate3(calls), blockHex, consume);
+    const raw = await this.rpcEthCall(
+      this.aggregate3(calls),
+      blockHex,
+      consume,
+    );
     const decoded = this.decodeAggregate3(raw, calls.length);
     const pools: ExitCheckPool[] = [];
     const discoveryFailed: number[] = [];
@@ -557,8 +985,13 @@ export class ExitCheckService implements ExitCheckSource {
         return;
       }
       try {
-        const pool = decodeFunctionResult({ abi: factoryAbi, functionName: "getPool", data: result.returnData });
-        if (typeof pool !== "string" || !ADDRESS_PATTERN.test(pool)) throw new Error("malformed pool address");
+        const pool = decodeFunctionResult({
+          abi: factoryAbi,
+          functionName: "getPool",
+          data: result.returnData,
+        });
+        if (typeof pool !== "string" || !ADDRESS_PATTERN.test(pool))
+          throw new Error("malformed pool address");
         if (/^0x0*$/.test(pool)) return;
         pools.push({ fee, pool: pool.toLowerCase() });
       } catch {
@@ -572,18 +1005,45 @@ export class ExitCheckService implements ExitCheckSource {
     pools: ExitCheckPool[],
     zeroForOne: boolean,
     blockHex: string,
-    consume: (units: number) => Promise<void>
+    consume: (units: number) => Promise<void>,
   ): Promise<{
-    available: Array<{ fee: number; pool: string; sqrtPriceX96: bigint; liquidity: bigint; zeroForOne: boolean }>;
+    available: Array<{
+      fee: number;
+      pool: string;
+      sqrtPriceX96: bigint;
+      liquidity: bigint;
+      zeroForOne: boolean;
+    }>;
     failed: Array<ExitCheckPool & { reason: string }>;
   }> {
     const calls = pools.flatMap((pool) => [
-      { target: pool.pool as `0x${string}`, allowFailure: true, callData: encodeFunctionData({ abi: poolAbi, functionName: "slot0" }) },
-      { target: pool.pool as `0x${string}`, allowFailure: true, callData: encodeFunctionData({ abi: poolAbi, functionName: "liquidity" }) }
+      {
+        target: pool.pool as `0x${string}`,
+        allowFailure: true,
+        callData: encodeFunctionData({ abi: poolAbi, functionName: "slot0" }),
+      },
+      {
+        target: pool.pool as `0x${string}`,
+        allowFailure: true,
+        callData: encodeFunctionData({
+          abi: poolAbi,
+          functionName: "liquidity",
+        }),
+      },
     ]);
-    const raw = await this.rpcEthCall(this.aggregate3(calls), blockHex, consume);
+    const raw = await this.rpcEthCall(
+      this.aggregate3(calls),
+      blockHex,
+      consume,
+    );
     const decoded = this.decodeAggregate3(raw, calls.length);
-    const available: Array<{ fee: number; pool: string; sqrtPriceX96: bigint; liquidity: bigint; zeroForOne: boolean }> = [];
+    const available: Array<{
+      fee: number;
+      pool: string;
+      sqrtPriceX96: bigint;
+      liquidity: bigint;
+      zeroForOne: boolean;
+    }> = [];
     const failed: Array<ExitCheckPool & { reason: string }> = [];
     pools.forEach((pool, index) => {
       const slot0 = decoded[index * 2];
@@ -593,8 +1053,16 @@ export class ExitCheckService implements ExitCheckSource {
         return;
       }
       try {
-        const slot = decodeFunctionResult({ abi: poolAbi, functionName: "slot0", data: slot0.returnData });
-        const active = decodeFunctionResult({ abi: poolAbi, functionName: "liquidity", data: liquidity.returnData });
+        const slot = decodeFunctionResult({
+          abi: poolAbi,
+          functionName: "slot0",
+          data: slot0.returnData,
+        });
+        const active = decodeFunctionResult({
+          abi: poolAbi,
+          functionName: "liquidity",
+          data: liquidity.returnData,
+        });
         const sqrtPriceX96 = slot[0] as bigint;
         if (sqrtPriceX96 <= 0n) throw new Error("zero price");
         available.push({
@@ -602,7 +1070,7 @@ export class ExitCheckService implements ExitCheckSource {
           pool: pool.pool,
           sqrtPriceX96,
           liquidity: active as bigint,
-          zeroForOne
+          zeroForOne,
         });
       } catch {
         failed.push({ ...pool, reason: "state_decode_failed" });
@@ -611,53 +1079,111 @@ export class ExitCheckService implements ExitCheckSource {
     return { available, failed };
   }
 
-  private quoterCall(pool: ExitCheckPool, tokenIn: string, tokenOut: string, amountIn: bigint) {
+  private quoterCall(
+    pool: ExitCheckPool,
+    tokenIn: string,
+    tokenOut: string,
+    amountIn: bigint,
+  ) {
     return {
       target: UNISWAP_QUOTER_V2 as `0x${string}`,
       allowFailure: true,
       callData: encodeFunctionData({
         abi: quoterAbi,
         functionName: "quoteExactInputSingle",
-        args: [{ tokenIn: tokenIn as `0x${string}`, tokenOut: tokenOut as `0x${string}`, amountIn, fee: pool.fee, sqrtPriceLimitX96: 0n }]
-      })
+        args: [
+          {
+            tokenIn: tokenIn as `0x${string}`,
+            tokenOut: tokenOut as `0x${string}`,
+            amountIn,
+            fee: pool.fee,
+            sqrtPriceLimitX96: 0n,
+          },
+        ],
+      }),
     };
   }
 
-  private aggregate3(calls: Array<{ target: `0x${string}`; allowFailure: boolean; callData: Hex }>): Hex {
+  private aggregate3(
+    calls: Array<{
+      target: `0x${string}`;
+      allowFailure: boolean;
+      callData: Hex;
+    }>,
+  ): Hex {
     return encodeFunctionData({
       abi: multicall3Abi,
       functionName: "aggregate3",
-      args: [calls]
+      args: [calls],
     });
   }
 
-  private decodeAggregate3(raw: unknown, expectedCount: number): Array<{ success: boolean; returnData: Hex }> {
-    if (typeof raw !== "string" || !raw.startsWith("0x")) throw new AppError("EXIT_CHECK_MALFORMED_POOL", 503, "The pool read returned an unexpected response");
+  private decodeAggregate3(
+    raw: unknown,
+    expectedCount: number,
+  ): Array<{ success: boolean; returnData: Hex }> {
+    if (typeof raw !== "string" || !raw.startsWith("0x"))
+      throw new AppError(
+        "EXIT_CHECK_MALFORMED_POOL",
+        503,
+        "The pool read returned an unexpected response",
+      );
     let decoded: unknown;
     try {
-      decoded = decodeFunctionResult({ abi: multicall3Abi, functionName: "aggregate3", data: raw as Hex });
+      decoded = decodeFunctionResult({
+        abi: multicall3Abi,
+        functionName: "aggregate3",
+        data: raw as Hex,
+      });
     } catch {
-      throw new AppError("EXIT_CHECK_MALFORMED_POOL", 503, "The pool read could not be decoded");
+      throw new AppError(
+        "EXIT_CHECK_MALFORMED_POOL",
+        503,
+        "The pool read could not be decoded",
+      );
     }
     if (!Array.isArray(decoded) || decoded.length !== expectedCount) {
-      throw new AppError("EXIT_CHECK_MALFORMED_POOL", 503, "The pool read returned an unexpected number of results");
+      throw new AppError(
+        "EXIT_CHECK_MALFORMED_POOL",
+        503,
+        "The pool read returned an unexpected number of results",
+      );
     }
     return decoded as Array<{ success: boolean; returnData: Hex }>;
   }
 
-  private async rpcEthCall(data: Hex, blockHex: string, consume: (units: number) => Promise<void>): Promise<unknown> {
+  private async rpcEthCall(
+    data: Hex,
+    blockHex: string,
+    consume: (units: number) => Promise<void>,
+  ): Promise<unknown> {
     await consume(1);
     return this.rpc("eth_call", [{ to: UNISWAP_MULTICALL3, data }, blockHex]);
   }
 
-  private async latestBlock(consume: (units: number) => Promise<void>): Promise<ExitCheckAnchor> {
+  private async latestBlock(
+    consume: (units: number) => Promise<void>,
+  ): Promise<ExitCheckAnchor> {
     await consume(1);
-    const response = await this.rpc("eth_getBlockByNumber", ["latest", false]) as Record<string, unknown> | null;
+    const response = (await this.rpc("eth_getBlockByNumber", [
+      "latest",
+      false,
+    ])) as Record<string, unknown> | null;
     const block = response as Record<string, unknown> | null;
     const blockNumber = hexNumber(block?.number);
     const timestampSeconds = hexNumber(block?.timestamp);
-    if (!block || blockNumber === undefined || timestampSeconds === undefined || typeof block.hash !== "string" || !HASH_PATTERN.test(block.hash)) {
-      throw new AppError("EXIT_CHECK_ANCHOR_UNAVAILABLE", 503, "Robinhood Chain did not return a usable current block");
+    if (
+      !block ||
+      blockNumber === undefined ||
+      timestampSeconds === undefined ||
+      typeof block.hash !== "string" ||
+      !HASH_PATTERN.test(block.hash)
+    ) {
+      throw new AppError(
+        "EXIT_CHECK_ANCHOR_UNAVAILABLE",
+        503,
+        "Robinhood Chain did not return a usable current block",
+      );
     }
     const capturedAt = this.dependencies.now();
     return {
@@ -666,54 +1192,103 @@ export class ExitCheckService implements ExitCheckSource {
       blockHex: `0x${blockNumber.toString(16)}`,
       timestamp: new Date(timestampSeconds * 1_000).toISOString(),
       fetchedAt: capturedAt.toISOString(),
-      capturedAtMs: capturedAt.getTime()
+      capturedAtMs: capturedAt.getTime(),
     };
   }
 
-  private async assertAnchorUnchanged(anchor: ExitCheckAnchor, consume: (units: number) => Promise<void>): Promise<void> {
+  private async assertAnchorUnchanged(
+    anchor: ExitCheckAnchor,
+    consume: (units: number) => Promise<void>,
+  ): Promise<void> {
     await consume(1);
-    const response = await this.rpc("eth_getBlockByNumber", [anchor.blockHex, false]) as Record<string, unknown> | null;
-    const hash = typeof response?.hash === "string" && HASH_PATTERN.test(response.hash) ? response.hash.toLowerCase() : undefined;
+    const response = (await this.rpc("eth_getBlockByNumber", [
+      anchor.blockHex,
+      false,
+    ])) as Record<string, unknown> | null;
+    const hash =
+      typeof response?.hash === "string" && HASH_PATTERN.test(response.hash)
+        ? response.hash.toLowerCase()
+        : undefined;
     if (!hash || hash !== anchor.blockHash) {
-      throw new AppError("EXIT_CHECK_REORGED", 503, "The block changed while the estimate was being verified; run the check again");
+      throw new AppError(
+        "EXIT_CHECK_REORGED",
+        503,
+        "The block changed while the estimate was being verified; run the check again",
+      );
     }
   }
 
   private async rpc(method: string, params: unknown[]): Promise<unknown> {
     try {
-      const json = await this.dependencies.rpc.requestJson(this.rpcUrl, {
+      const json = (await this.dependencies.rpc.requestJson(this.rpcUrl, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params })
-      }) as { result?: unknown; error?: unknown };
-      if (json.error) throw new ProviderRequestError("PROVIDER_RPC_ERROR", false);
+        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
+      })) as { result?: unknown; error?: unknown };
+      if (json.error)
+        throw new ProviderRequestError("PROVIDER_RPC_ERROR", false);
       return json.result;
     } catch (error) {
       if (error instanceof AppError) throw error;
       if (error instanceof ProviderRequestError) {
-        if (error.code === "PROVIDER_HTTP_429") throw new AppError("EXIT_CHECK_RATE_LIMITED", 503, "The public RPC rate-limited this check; try again shortly");
-        if (error.code === "PROVIDER_BUDGET_EXCEEDED" || error.code === "PROVIDER_CIRCUIT_OPEN") {
-          throw new AppError("EXIT_CHECK_PROVIDER_UNAVAILABLE", 503, "The read-only chain provider is cooling down");
+        if (error.code === "PROVIDER_HTTP_429")
+          throw new AppError(
+            "EXIT_CHECK_RATE_LIMITED",
+            503,
+            "The public RPC rate-limited this check; try again shortly",
+          );
+        if (
+          error.code === "PROVIDER_BUDGET_EXCEEDED" ||
+          error.code === "PROVIDER_CIRCUIT_OPEN"
+        ) {
+          throw new AppError(
+            "EXIT_CHECK_PROVIDER_UNAVAILABLE",
+            503,
+            "The read-only chain provider is cooling down",
+          );
         }
       }
-      throw new AppError("EXIT_CHECK_PROVIDER_UNAVAILABLE", 503, "The read-only chain provider is temporarily unavailable");
+      throw new AppError(
+        "EXIT_CHECK_PROVIDER_UNAVAILABLE",
+        503,
+        "The read-only chain provider is temporarily unavailable",
+      );
     }
   }
 
-  private async rpcBatch(requests: RpcRequest[]): Promise<Map<string, RpcResponse>> {
+  private async rpcBatch(
+    requests: RpcRequest[],
+  ): Promise<Map<string, RpcResponse>> {
     try {
-      const body = await this.dependencies.rpc.requestJson(this.rpcUrl, {
+      const body = (await this.dependencies.rpc.requestJson(this.rpcUrl, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify(requests)
-      }) as RpcResponse[] | RpcResponse;
+        body: JSON.stringify(requests),
+      })) as RpcResponse[] | RpcResponse;
       const responses = Array.isArray(body) ? body : [body];
-      return new Map(responses.flatMap((response) => typeof response.id === "string" ? [[response.id, response] as const] : []));
+      return new Map(
+        responses.flatMap((response) =>
+          typeof response.id === "string"
+            ? [[response.id, response] as const]
+            : [],
+        ),
+      );
     } catch (error) {
-      if (error instanceof ProviderRequestError && error.code === "PROVIDER_HTTP_429") {
-        throw new AppError("EXIT_CHECK_RATE_LIMITED", 503, "The public RPC rate-limited this check; try again shortly");
+      if (
+        error instanceof ProviderRequestError &&
+        error.code === "PROVIDER_HTTP_429"
+      ) {
+        throw new AppError(
+          "EXIT_CHECK_RATE_LIMITED",
+          503,
+          "The public RPC rate-limited this check; try again shortly",
+        );
       }
-      throw new AppError("EXIT_CHECK_PROVIDER_UNAVAILABLE", 503, "The read-only chain provider is temporarily unavailable");
+      throw new AppError(
+        "EXIT_CHECK_PROVIDER_UNAVAILABLE",
+        503,
+        "The read-only chain provider is temporarily unavailable",
+      );
     }
   }
 
@@ -722,7 +1297,14 @@ export class ExitCheckService implements ExitCheckSource {
   }
 }
 
-type ExitCheckAnchor = { blockNumber: number; blockHash: string; blockHex: string; timestamp: string; fetchedAt: string; capturedAtMs: number };
+type ExitCheckAnchor = {
+  blockNumber: number;
+  blockHash: string;
+  blockHex: string;
+  timestamp: string;
+  fetchedAt: string;
+  capturedAtMs: number;
+};
 
 function responseAnchor(anchor: ExitCheckAnchor): ExitCheckResponse["anchor"] {
   return {
@@ -730,19 +1312,33 @@ function responseAnchor(anchor: ExitCheckAnchor): ExitCheckResponse["anchor"] {
     blockNumber: anchor.blockNumber,
     blockHash: anchor.blockHash,
     timestamp: anchor.timestamp,
-    fetchedAt: anchor.fetchedAt
+    fetchedAt: anchor.fetchedAt,
   };
 }
 
 function revertReason(returnData: Hex | undefined): string {
-  if (typeof returnData === "string" && returnData.length >= 10) return `reverted:${returnData.slice(0, 10)}`;
+  if (typeof returnData === "string" && returnData.length >= 10)
+    return `reverted:${returnData.slice(0, 10)}`;
   return "reverted";
 }
 
 function hexNumber(value: unknown): number | undefined {
-  if (typeof value !== "string" || !/^0x[0-9a-fA-F]+$/.test(value)) return undefined;
+  if (typeof value !== "string" || !/^0x[0-9a-fA-F]+$/.test(value))
+    return undefined;
   const number = Number(BigInt(value));
   return Number.isSafeInteger(number) && number >= 0 ? number : undefined;
+}
+
+/** Three exact raw sizes keep the requested point centered while staying within the RPC cap. */
+export function curveAmounts(requested: bigint): bigint[] {
+  const smaller = requested / 2n;
+  const larger = requested * 2n;
+  const candidates = [
+    smaller > 0n ? smaller : requested,
+    requested,
+    larger <= 2n ** 256n - 1n ? larger : requested,
+  ];
+  return [...new Set(candidates)].filter((value) => value > 0n);
 }
 
 // The pool state helper needs to know token ordering; kept as a separate pure

@@ -11,11 +11,12 @@ import {
 } from "../vault/service";
 import { requestPersistentStorage } from "../vault/db";
 import { useBackupDownload } from "../vault/useBackupDownload";
-import type { VaultWatch } from "../vault/types";
+import type { VaultWatch, VaultWatchCondition } from "../vault/types";
 import { privateApi } from "../dashboard/http";
 import { translateCurrent as t } from "../i18n/translate";
 import type { TranslationKey } from "../i18n";
 import { assertWatchSnapshot, captureWatch, WATCH_LIMIT } from "./model";
+import { clearInboxAction, setInboxAction } from "./inbox";
 
 export function useWatchVault() {
   const [phase, setPhase] = useState<
@@ -271,6 +272,20 @@ export function useWatchVault() {
       });
       setNotice("watch.removed");
     });
+  const updateWatch = (id: string, update: (watch: VaultWatch) => VaultWatch) =>
+    run(async (current, assertActive) => {
+      const item = current.watches?.find((row) => row.id === id);
+      if (!item) throw new Error(t("watch.error.vaultChanged"));
+      await commit(current, update(item), assertActive);
+    });
+  const acknowledge = (id: string, evidenceId: string) =>
+    updateWatch(id, (watch) => setInboxAction(watch, evidenceId, { acknowledgedAt: new Date().toISOString() }));
+  const snooze = (id: string, evidenceId: string, until: string) =>
+    updateWatch(id, (watch) => setInboxAction(watch, evidenceId, { snoozedUntil: until }));
+  const restore = (id: string, evidenceId: string) =>
+    updateWatch(id, (watch) => clearInboxAction(watch, evidenceId));
+  const saveConditions = (id: string, conditions: VaultWatchCondition[]) =>
+    updateWatch(id, (watch) => ({ ...watch, conditions, updatedAt: new Date().toISOString() }));
   const backup = () =>
     run(async (current, assertActive) => {
       const value = await exportVault(current);
@@ -291,6 +306,10 @@ export function useWatchVault() {
     refresh,
     rename,
     remove,
+    acknowledge,
+    snooze,
+    restore,
+    saveConditions,
     backup,
     download,
     acknowledgeRecovery: () => setRecovery(""),

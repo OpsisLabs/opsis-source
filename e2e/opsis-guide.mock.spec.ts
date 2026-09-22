@@ -59,7 +59,9 @@ test.describe("Opsis tool finder", () => {
     await expect(suggestions).toContainText(
       "Perpetual trading is not available yet",
     );
-    await expect(suggestions.getByRole("link")).toHaveCount(0);
+    await expect(
+      suggestions.getByRole("link", { name: "Open Perp cost scenario ↗" }),
+    ).toHaveAttribute("href", "/check/perp-scenario");
     expect(lookups).toEqual([]);
     await page
       .getByRole("button", { name: "I explore data & scenarios" })
@@ -69,7 +71,9 @@ test.describe("Opsis tool finder", () => {
       .click();
     await expect(
       page.getByRole("complementary", { name: "Who this tool is for" }),
-    ).toContainText("No setup: choose Pool atlas or Portfolio surface");
+    ).toContainText(
+      "Choose captured pools, a shock surface, or import daily prices for local experiments",
+    );
   });
   test("does not offer disabled tools and remains usable in Chinese on mobile", async ({
     page,

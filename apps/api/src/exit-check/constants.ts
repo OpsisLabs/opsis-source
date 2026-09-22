@@ -28,6 +28,7 @@ export const EXIT_CHECK_LIMITATIONS = [
   "This is a read-only single-pool estimate from the official Uniswap V3 factory and QuoterV2 on Robinhood Chain, captured at one block.",
   "It is not a guaranteed fill, a maximum slippage, or proof that the token can be transferred or sold. Token transfer restrictions, paused contracts, allowlists, taxes, and hooks are not checked.",
   "Only standard Uniswap V3 fee-tier pools created by the official factory are tested. Uniswap v4 and other venues are not included.",
+  "Pleiades and other non-admitted venues are excluded from this estimate.",
   "Price impact is the exact BigInt gap between the quote and the same-block pre-fee spot price, so it already includes the pool fee; it is not slippage.",
   "The fee amount shown is a floor estimate of the input-side pool fee and can differ from the exact charge because V3 rounding and the actual tick path are not reproduced.",
   "Only a QuoterV2 result that did not end at a price-boundary is shown. A boundary result can indicate a partial fill, so full execution is never proven.",

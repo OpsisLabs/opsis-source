@@ -11,6 +11,7 @@ import { publicIdentity, workspaceLink, type Capabilities } from "./model";
 
 import ReportShelf from "./ReportShelf";
 import { tradeReport } from "./reports";
+import ExitSizeCurve from "./ExitSizeCurve";
 
 const PoolComparison = lazy(() => import("./PoolComparison"));
 
@@ -29,6 +30,7 @@ export default function TradeCheck({
   });
   const [amount, setAmount] = useState("");
   const [output, setOutput] = useState<ExitCheckOutputSymbol>("WETH");
+  const [curveEnabled, setCurveEnabled] = useState(false);
   const [result, setResult] = useState<ExitCheckQuote | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
@@ -55,7 +57,12 @@ export default function TradeCheck({
     setBusy(true);
     try {
       const quote = await getExitCheckQuote(
-        { token: token.trim(), amount, outputToken: output },
+        {
+          token: token.trim(),
+          amount,
+          outputToken: output,
+          curve: curveEnabled,
+        },
         controller.signal,
       );
       if (!controller.signal.aborted) {
@@ -139,6 +146,28 @@ export default function TradeCheck({
               "向 Opsis 和配置的 Robinhood RPC 发送此合约、输入数量和输出资产。不会自动填入已保存持仓。不请求钱包连接或交易。",
             )}
           </p>
+          <label className="opsis-curve-optin">
+            <input
+              type="checkbox"
+              checked={curveEnabled}
+              onChange={(e) => {
+                clear();
+                setCurveEnabled(e.target.checked);
+              }}
+            />
+            {c(
+              "Also quote a size curve (half, entered amount, double)",
+              "同时核查数量曲线（半数、输入数量、两倍）",
+            )}
+          </label>
+          {curveEnabled && (
+            <p className="opsis-small">
+              {c(
+                "Before this request, Opsis derives up to three exact raw-unit sizes: half rounded down, the entered amount, and double. A duplicate at the smallest unit or a uint256 overflow is omitted. The actual accepted sizes are shown only after the response; all points share one block and a bounded RPC budget.",
+                "请求前说明：Opsis 以精确原始单位推导最多三个数量：向下取整的一半、输入数量和两倍。最小单位重复或 uint256 溢出时会省略。响应后显示实际接受的数量；所有点共享一个区块并受 RPC 预算限制。",
+              )}
+            </p>
+          )}
           <button className="opsis-action" disabled={busy || !valid}>
             {busy ? c("Checking…", "正在核查…") : c("Run a check", "运行核查")}
           </button>
@@ -277,6 +306,11 @@ export default function TradeCheck({
                   </p>
                 </>
               )}
+              <ExitSizeCurve
+                key={result.quotedAt}
+                result={result}
+                outputSymbol={output}
+              />
               <details>
                 <summary>
                   {c("Sources, time and limits", "来源、时间和限制")}

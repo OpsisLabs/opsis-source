@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@gsap/react": "2.1.2",
+    "@rh-chain/quant": "workspace:*",
     "@rh-chain/shared": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

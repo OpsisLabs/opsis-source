@@ -93,6 +93,8 @@ function PublicSearch({ hero = false }: { hero?: boolean }) {
     </form>
   );
 }
+const PerpScenario = lazy(() => import("./PerpScenario"));
+
 function Status({ capabilities }: { capabilities: Capabilities }) {
   const c = useCopy();
   return (
@@ -107,6 +109,10 @@ function Status({ capabilities }: { capabilities: Capabilities }) {
       <dl className="opsis-status">
         {[
           [c("Research", "研究"), capabilities.research],
+          [
+            c("Standard contract controls", "标准合约控制"),
+            capabilities.tokenControls ?? false,
+          ],
           [c("Exit quotes", "退出报价"), capabilities.exitCheck],
           [c("Watch snapshots", "观察快照"), capabilities.watch],
           [c("RWA verification", "RWA 验证"), capabilities.rwa],
@@ -504,6 +510,10 @@ export default function OpsisApp() {
                       element={
                         <Navigate to={savedLink(location.search)} replace />
                       }
+                    />
+                    <Route
+                      path="/check/perp-scenario"
+                      element={<PerpScenario />}
                     />
                     <Route path="/lab" element={<Lab />} />
                     <Route

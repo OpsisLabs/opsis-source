@@ -64,6 +64,8 @@ export function captureWatch(
     snapshots: [...(previous?.snapshots ?? []), snapshot].slice(-WATCH_HISTORY),
     createdAt: previous?.createdAt ?? date,
     updatedAt: date,
+    ...(previous?.conditions ? { conditions: previous.conditions } : {}),
+    ...(previous?.inboxActions ? { inboxActions: previous.inboxActions } : {}),
   };
 }
 
@@ -71,6 +73,7 @@ export type BalanceChange = {
   key: string;
   label: string;
   contract: string | null;
+  decimals: number | null;
   before: string | null;
   after: string | null;
   delta: string | null;
@@ -95,6 +98,7 @@ export function compareSnapshots(
     key: string,
     label: string,
     contract: string | null,
+    decimals: number | null,
     oldValue: string | null,
     newValue: string | null,
     compatible = true,
@@ -107,6 +111,7 @@ export function compareSnapshots(
       key,
       label,
       contract,
+      decimals,
       before: oldValue,
       after: newValue,
       delta,
@@ -121,7 +126,7 @@ export function compareSnapshots(
               : "changed",
     });
   };
-  add("native", "ETH", null, before.nativeBalanceEth, after.nativeBalanceEth);
+  add("native", "ETH", null, 18, before.nativeBalanceEth, after.nativeBalanceEth);
   const oldTokens = new Map(before.tokens.map((row) => [row.contract, row]));
   const newTokens = new Map(after.tokens.map((row) => [row.contract, row]));
   for (const contract of new Set([...oldTokens.keys(), ...newTokens.keys()])) {
@@ -131,6 +136,7 @@ export function compareSnapshots(
       contract,
       current?.symbol || old?.symbol || contract,
       contract,
+      current?.decimals ?? old?.decimals ?? null,
       old?.quantity ?? null,
       current?.quantity ?? null,
       !old || !current || old.decimals === current.decimals,
@@ -148,6 +154,7 @@ export function compareSnapshots(
       key,
       `${row.symbol || row.name || row.kind} #${row.tokenId}`,
       row.contract,
+      null,
       old?.quantity ?? null,
       current?.quantity ?? null,
     );

@@ -9,9 +9,13 @@ export default function ToolNavigation({
 }) {
   const c = useCopy();
   const { pathname } = useLocation();
-  const trade = ["/check", "/swap", "/simulate", "/stress-test"].includes(
-    pathname,
-  );
+  const trade = [
+    "/check",
+    "/check/perp-scenario",
+    "/swap",
+    "/simulate",
+    "/stress-test",
+  ].includes(pathname);
   const research =
     pathname.startsWith("/research") ||
     ["/rwa", "/biggest-trades"].includes(pathname);
@@ -19,6 +23,7 @@ export default function ToolNavigation({
     ? [
         ["/check", c("Exit check", "退出核查")],
         ["/swap", c("Swap preview", "兑换预览")],
+        ["/check/perp-scenario", c("Perp cost scenario", "永续成本情景")],
         ...(import.meta.env.VITE_TRADE_SIMULATOR_ENABLED === "true"
           ? [
               ["/simulate", c("Trade scenarios", "交易情景")] as [

@@ -16,6 +16,7 @@ export type Capabilities = {
   expiresAt: string;
   chainId: 4663;
   research: boolean;
+  tokenControls?: boolean;
   exitCheck: boolean;
   watch: boolean;
   rwa: boolean;
@@ -56,6 +57,8 @@ export async function unlockPreview(
     expires <= receivedAt ||
     expires > latestExpiry ||
     data.chainId !== 4663 ||
+    (data.tokenControls !== undefined &&
+      typeof data.tokenControls !== "boolean") ||
     data.perpExecution !== false ||
     [
       data.research,

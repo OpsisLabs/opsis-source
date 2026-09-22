@@ -112,6 +112,9 @@ importers:
       '@phosphor-icons/react':
         specifier: 2.1.10
         version: 2.1.10(react-dom@19.2.8)(react@19.2.8)
+      '@rh-chain/quant':
+        specifier: workspace:*
+        version: link:../../packages/quant
       '@rh-chain/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -203,6 +206,15 @@ importers:
       vitest:
         specifier: 4.1.10
         version: 4.1.10(@types/node@24.13.3)(vite@7.3.6)
+
+  packages/quant:
+    devDependencies:
+      typescript:
+        specifier: ~5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@20.19.43)(vite@7.3.6)
 
   packages/shared: {}
 

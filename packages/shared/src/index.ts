@@ -502,3 +502,5 @@ export const CHAINSCOUT_REVIEWED_ASSETS = {
     decimals: 6,
   },
 } as const;
+
+export type { TokenControls, ControlReading } from "./controls.js";

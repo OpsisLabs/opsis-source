@@ -537,6 +537,33 @@ export function validateWatch(value: unknown): asserts value is VaultWatch {
     || JSON.stringify(value).length > 1_000_000) {
     throw new VaultError("INVALID_WATCH", translateCurrent("watch.error.invalidRecord"));
   }
+  if (value.conditions !== undefined) {
+    if (!Array.isArray(value.conditions) || value.conditions.length > 20)
+      throw new VaultError("INVALID_WATCH", translateCurrent("watch.error.invalidRecord"));
+    for (const condition of value.conditions) {
+      if (!isRecord(condition) || typeof condition.id !== "string" || !UUID.test(condition.id)
+        || condition.kind !== "balance-change"
+        || typeof condition.assetKey !== "string" || !(/^(native|0x[0-9a-f]{40})$/.test(condition.assetKey))
+        || (condition.direction !== "any" && condition.direction !== "increase" && condition.direction !== "decrease")
+        || typeof condition.threshold !== "string" || !/^\d{1,78}(?:\.\d{1,78})?$/.test(condition.threshold)
+        || !/[1-9]/.test(String(condition.threshold))
+        || typeof condition.unit !== "string" || !condition.unit.length || condition.unit.length > 32
+        || typeof condition.decimals !== "number" || !Number.isInteger(condition.decimals) || condition.decimals < 0 || condition.decimals > 78
+        || (condition.sourceReportId !== undefined && (typeof condition.sourceReportId !== "string" || !UUID.test(condition.sourceReportId)))
+        || typeof condition.createdAt !== "string" || !ISO_DATE_TIME.test(condition.createdAt))
+        throw new VaultError("INVALID_WATCH", translateCurrent("watch.error.invalidRecord"));
+    }
+  }
+  if (value.inboxActions !== undefined) {
+    if (!Array.isArray(value.inboxActions) || value.inboxActions.length > 200)
+      throw new VaultError("INVALID_WATCH", translateCurrent("watch.error.invalidRecord"));
+    for (const action of value.inboxActions) {
+      if (!isRecord(action) || typeof action.evidenceId !== "string" || action.evidenceId.length < 3 || action.evidenceId.length > 300
+        || (action.acknowledgedAt !== undefined && (typeof action.acknowledgedAt !== "string" || !ISO_DATE_TIME.test(action.acknowledgedAt)))
+        || (action.snoozedUntil !== undefined && (typeof action.snoozedUntil !== "string" || !ISO_DATE_TIME.test(action.snoozedUntil))))
+        throw new VaultError("INVALID_WATCH", translateCurrent("watch.error.invalidRecord"));
+    }
+  }
   let previous = -1;
   for (const snapshot of value.snapshots) {
     validateWatchSnapshot(snapshot, value.address);

@@ -61,12 +61,29 @@ export const toolGuides: ToolGuide[] = [
       "数据探索者、研究者和量化交易者",
     ],
     input: [
-      "No setup: choose Pool atlas or Portfolio surface",
-      "无需设置：选择资金池图谱或投资组合曲面",
+      "Choose captured pools, a shock surface, or import daily prices for local experiments",
+      "选择历史资金池、冲击曲面，或导入日价格进行本地实验",
     ],
     outcome: [
-      "Captured pool comparisons or hypothetical shock outcomes",
-      "历史资金池比较或假设冲击结果",
+      "Captured comparisons, realized risk, seeded bootstrap and manual reference gaps",
+      "历史比较、已实现风险、种子自助抽样及手动参考价差",
+    ],
+    enabled: () => true,
+  },
+  {
+    path: "/check/perp-scenario",
+    name: ["Perp cost scenario", "永续成本情景"],
+    audience: [
+      "Perp traders checking manual assumptions",
+      "核查手动假设的永续交易者",
+    ],
+    input: [
+      "Quantity, entry/exit prices, fees and total funding in one quote currency",
+      "数量、开平价格、费用及同一报价货币的资金费总额",
+    ],
+    outcome: [
+      "Local linear-contract cost breakdown; no margin or execution",
+      "本地线性合约成本明细；无保证金或执行",
     ],
     enabled: () => true,
   },
@@ -259,8 +276,8 @@ export const audiences: {
     id: "quant",
     name: ["I explore data & scenarios", "我探索数据与情景"],
     task: [
-      "Inspect captured pools and test price-shock assumptions",
-      "检查历史资金池并测试价格冲击假设",
+      "Inspect pools, validate daily data and run reproducible local experiments",
+      "检查资金池、验证日数据并运行可重现的本地实验",
     ],
     paths: ["/lab", "/stress-test"],
   },
@@ -268,8 +285,8 @@ export const audiences: {
     id: "perp",
     name: ["I trade perpetuals", "我交易永续合约"],
     task: [
-      "Perp tools are planned, not available in this preview",
-      "永续工具已规划，但此预览尚不可用",
+      "Estimate manual linear-contract costs; venue trading remains unavailable",
+      "估算手动线性合约成本；场所交易仍不可用",
     ],
     paths: [],
   },

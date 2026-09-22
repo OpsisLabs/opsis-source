@@ -50,6 +50,7 @@ export async function opsisRoutes(app: FastifyInstance, env: Env) {
         expiresAt: new Date(expiresAt).toISOString(),
         chainId: 4663,
         research: env.PRIVATE_MODE_ENABLED,
+        tokenControls: env.PRIVATE_MODE_ENABLED && env.TOKEN_CONTROLS_ENABLED,
         exitCheck: env.EXIT_CHECK_ENABLED,
         watch: env.SCOUT_WATCH_ENABLED && env.PORTFOLIO_MODE_ENABLED,
         rwa: env.RWA_VERIFY_ENABLED,

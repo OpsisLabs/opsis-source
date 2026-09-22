@@ -42,11 +42,33 @@ describe("encrypted Scout Watch lifecycle", () => {
       ],
     });
     const vault = { ...created, meta: saved.meta };
-    const watch = captureWatch(watchFixture(), "私密标签 WATCH-CANARY");
+    const watch = {
+      ...captureWatch(watchFixture(), "私密标签 WATCH-CANARY"),
+      conditions: [
+        {
+          id: crypto.randomUUID(),
+          kind: "balance-change" as const,
+          assetKey: "native",
+          direction: "increase" as const,
+          threshold: "71.12501",
+          unit: "ETH",
+          decimals: 18,
+          createdAt: new Date().toISOString(),
+        },
+      ],
+      inboxActions: [
+        {
+          evidenceId: "PRIVATE-INBOX-EVIDENCE",
+          acknowledgedAt: new Date().toISOString(),
+        },
+      ],
+    };
     const meta = await saveVaultWatch(vault, watch);
     const ciphertext = JSON.stringify(await listEncryptedRecords());
     expect(ciphertext).not.toContain(watch.address);
     expect(ciphertext).not.toContain(watch.label);
+    expect(ciphertext).not.toContain("71.12501");
+    expect(ciphertext).not.toContain("PRIVATE-INBOX-EVIDENCE");
     const reopened = await unlockLocalVault(meta, passphrase);
     expect(reopened.watches).toEqual([watch]);
     expect(reopened.assets[0].name).toBe("Existing asset");

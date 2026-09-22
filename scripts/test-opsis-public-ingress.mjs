@@ -51,6 +51,12 @@ try {
       assert.equal(await page.locator("#opsis-content iframe").count(),0);
       await page.getByRole("button",{name:/Portfolio surface/}).click();
       await page.getByText("2,501 deterministic shock pairs",{exact:false}).waitFor();
+      await page.getByRole("button", { name: /Quant research/ }).click();
+      const observations = Array.from({length:190},(_,n)=>({date:new Date(Date.UTC(2025,0,n+1)).toISOString().slice(0,10),price:100+n}));
+      await page.getByLabel("CSV or JSON file").setInputFiles({name:"test-only.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify({schemaVersion:1,instrument:{chainId:4663,address:"0x1111111111111111111111111111111111111111",symbol:"TEST"},quoteCurrency:"USD",clock:"daily_crypto_24_7",provenance:{source:"synthetic container fixture",observedAt:"2025-09-01T00:00:00Z"},synthetic:true,observations}))});
+      await page.getByRole("button", { name: "Run local experiment", exact:true }).click();
+      await page.getByRole("heading", { name:"4. Results", exact:true }).waitFor();
+
     } finally { await browser.close(); }
   }
   console.log("PASS: public container opens without either password gate in Chromium and WebKit; CSP preserved.");

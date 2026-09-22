@@ -62,6 +62,7 @@ const envSchema = z.object({
   UNISWAP_QUOTE_CACHE_SECONDS: z.coerce.number().int().min(5).max(29).default(15),
   UNISWAP_QUOTE_BUDGET_PER_MINUTE: z.coerce.number().int().min(1).max(120).default(30),
   UNISWAP_QUOTE_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().min(1).max(120).default(20),
+  TOKEN_CONTROLS_ENABLED: envBoolean.default(false),
   OPSIS_WORKSPACES_ENABLED: envBoolean.default(false),
   OPSIS_PUBLIC_ACCESS_ENABLED: envBoolean.default(false),
   OPSIS_PREVIEW_HASH: optionalString,

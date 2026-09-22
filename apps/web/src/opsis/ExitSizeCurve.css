@@ -1,0 +1,70 @@
+.opsis-curve {
+  min-width: 0;
+  max-width: 100%;
+  margin-top: 1.25rem;
+  border-top: 1px solid rgba(85, 184, 255, 0.25);
+  padding-top: 1rem;
+}
+.opsis-curve h3 {
+  margin: 0 0 0.35rem;
+  color: #1261a0;
+}
+.opsis-curve-table {
+  overflow-x: auto;
+}
+.opsis-curve table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  overflow-wrap: anywhere;
+}
+.opsis-curve th,
+.opsis-curve td {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 0.55rem;
+  text-align: left;
+}
+.opsis-curve-optin {
+  display: flex;
+  gap: 0.55rem;
+  align-items: flex-start;
+  margin: 0.8rem 0;
+}
+.opsis-curve-plot {
+  display: block;
+  width: 100%;
+  max-width: 30rem;
+  height: 9rem;
+  margin: 0.75rem 0;
+  stroke: currentColor;
+  fill: none;
+}
+.opsis-curve-point {
+  fill: #55b8ff;
+  stroke: #55b8ff;
+}
+.opsis-curve-select {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.opsis-curve-point-button {
+  border: 1px solid #55b8ff;
+  padding: 0.35rem 0.55rem;
+  color: inherit;
+  background: transparent;
+}
+.opsis-curve-point-button[aria-pressed="true"] {
+  background: #55b8ff;
+  color: #07111c;
+}
+
+.opsis-curve-optin input {
+  width: 1rem;
+  min-width: 1rem;
+  flex: 0 0 1rem;
+}
+.opsis-curve-plot text {
+  stroke: none;
+  fill: currentColor;
+}

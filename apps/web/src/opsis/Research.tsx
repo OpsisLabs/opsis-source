@@ -14,6 +14,7 @@ import { publicIdentity, workspaceLink, type Capabilities } from "./model";
 import ReportShelf from "./ReportShelf";
 import { researchReport } from "./reports";
 
+const ContractControls = lazy(() => import("./ContractControls"));
 const EvidenceMap = lazy(() => import("./EvidenceMap"));
 
 export default function Research({
@@ -273,6 +274,15 @@ export default function Research({
           )}
         </div>
       </div>
+      {capabilities.tokenControls &&
+        /^0x[a-fA-F0-9]{40}$/.test(entity.trim()) && (
+          <Suspense fallback={null}>
+            <ContractControls
+              key={entity.trim().toLowerCase()}
+              contract={entity.trim()}
+            />
+          </Suspense>
+        )}
       <details className="opsis-panel">
         <summary>
           {c("Save research / open saved reports", "保存研究／打开已保存报告")}

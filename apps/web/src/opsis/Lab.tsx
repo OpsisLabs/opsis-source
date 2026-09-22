@@ -13,13 +13,15 @@ import {
   type LabData,
 } from "./lab-data";
 import { safeHttpUrl } from "../dashboard/adapters";
+import QuantWorkbench from "./quant/QuantWorkbench";
+import StockGap from "./StockGap";
 
 export default function Lab() {
   const c = useCopy();
   const [data, setData] = useState<LabData | null>(null);
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
-  const [mode, setMode] = useState<"atlas" | "scenario">("atlas");
+  const [mode, setMode] = useState<"atlas" | "scenario" | "quant">("atlas");
   const [token, setToken] = useState("all");
   const [minimum, setMinimum] = useState(10000);
   const [selection, setSelection] = useState("");
@@ -83,13 +85,52 @@ export default function Lab() {
           )}
         </p>
       </header>
-      <div className="opsis-dataset-strip">
-        <span className="opsis-status-dot" />
-        {c("CAPTURED / 10 SEP 2026", "已采集 / 2026 年 9 月 10 日")}
-        <span>ROBINHOOD CHAIN · 4663</span>
-        <span>{c("Not live market data", "非实时市场数据")}</span>
+      <div
+        className="opsis-lab-mode"
+        role="group"
+        aria-label={c("Lab view", "实验室视图")}
+      >
+        <button
+          aria-pressed={mode === "atlas"}
+          onClick={() => setMode("atlas")}
+        >
+          <span>01</span>
+          {c("Pool atlas", "资金池图谱")} ↗
+        </button>
+        <button
+          aria-pressed={mode === "scenario"}
+          onClick={() => setMode("scenario")}
+        >
+          <span>02</span>
+          {c("Portfolio surface", "投资组合曲面")} ↗
+        </button>
+        <button
+          aria-pressed={mode === "quant"}
+          onClick={() => setMode("quant")}
+        >
+          <span>03</span>
+          {c("Quant research", "量化研究")} ↗
+        </button>
       </div>
-      {failed ? (
+      {mode !== "quant" && (
+        <div className="opsis-dataset-strip">
+          <span className="opsis-status-dot" />
+          {c("CAPTURED / 10 SEP 2026", "已采集 / 2026 年 9 月 10 日")}
+          <span>ROBINHOOD CHAIN · 4663</span>
+          <span>{c("Not live market data", "非实时市场数据")}</span>
+        </div>
+      )}
+      {mode === "quant" ? (
+        <>
+          <QuantWorkbench />
+          <details className="opsis-lab-methods">
+            <summary>
+              {c("Stock-token reference gap", "股票代币参考价差")}
+            </summary>
+            <StockGap />
+          </details>
+        </>
+      ) : failed ? (
         <div className="opsis-panel" role="alert">
           <h2>{c("The capture could not load.", "无法加载历史数据。")}</h2>
           <button
@@ -107,26 +148,6 @@ export default function Lab() {
         </p>
       ) : (
         <>
-          <div
-            className="opsis-lab-mode"
-            role="group"
-            aria-label={c("Lab view", "实验室视图")}
-          >
-            <button
-              aria-pressed={mode === "atlas"}
-              onClick={() => setMode("atlas")}
-            >
-              <span>01</span>
-              {c("Pool atlas", "资金池图谱")} ↗
-            </button>
-            <button
-              aria-pressed={mode === "scenario"}
-              onClick={() => setMode("scenario")}
-            >
-              <span>02</span>
-              {c("Portfolio surface", "投资组合曲面")} ↗
-            </button>
-          </div>
           <div className="opsis-lab-workbench">
             <div className="opsis-lab-plot">
               <div className="opsis-plot-heading">
@@ -397,7 +418,7 @@ export default function Lab() {
                 </table>
               </div>
             </section>
-          ) : (
+          ) : mode === "scenario" ? (
             <section className="opsis-lab-data">
               <div className="opsis-section-label">
                 03 / {c("THE SELECTED SCENARIO", "所选情景")}
@@ -434,23 +455,25 @@ export default function Lab() {
                 </table>
               </div>
             </section>
-          )}
-          <TokenComparison data={data} />
-          <details className="opsis-lab-methods">
-            <summary>
-              {c("Sources, selection and calculation", "来源、筛选和计算")}
-            </summary>
-            <p>{data.selection}</p>
-            <p>{data.poolScope}</p>
-            <p>{data.priceMethod}</p>
-            <p>
-              {c(
-                "Scenario gross value = $10,000 × [1 + (WETH weight + 15%) × core shock + 30% × other shock]. Net = gross × (1 − selling-cost rate). Gas, taxes, slippage and actual venue fees may differ.",
-                "情景总值 = $10,000 × [1 + (WETH 权重 + 15%) × 核心冲击 + 30% × 其他冲击]。净值 = 总值 × (1 − 卖出成本率)。Gas、税费、滑点和实际场所费用可能不同。",
-              )}
-            </p>
-            <p>{data.capturedAt}</p>
-          </details>
+          ) : null}
+          <>
+            <TokenComparison data={data} />
+            <details className="opsis-lab-methods">
+              <summary>
+                {c("Sources, selection and calculation", "来源、筛选和计算")}
+              </summary>
+              <p>{data.selection}</p>
+              <p>{data.poolScope}</p>
+              <p>{data.priceMethod}</p>
+              <p>
+                {c(
+                  "Scenario gross value = $10,000 × [1 + (WETH weight + 15%) × core shock + 30% × other shock]. Net = gross × (1 − selling-cost rate). Gas, taxes, slippage and actual venue fees may differ.",
+                  "情景总值 = $10,000 × [1 + (WETH 权重 + 15%) × 核心冲击 + 30% × 其他冲击]。净值 = 总值 × (1 − 卖出成本率)。Gas、税费、滑点和实际场所费用可能不同。",
+                )}
+              </p>
+              <p>{data.capturedAt}</p>
+            </details>
+          </>
         </>
       )}
     </section>

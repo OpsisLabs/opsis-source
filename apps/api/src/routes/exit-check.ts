@@ -8,7 +8,8 @@ import { ExitCheckService, type ExitCheckSource } from "../exit-check/service.js
 const quoteBody = z.object({
   token: z.string().trim().regex(/^0x[0-9a-fA-F]{40}$/),
   amount: z.string().min(1).max(80),
-  outputToken: z.enum(["WETH", "USDG"]).optional()
+  outputToken: z.enum(["WETH", "USDG"]).optional(),
+  curve: z.boolean().optional()
 }).strict();
 
 export async function exitCheckRoutes(
