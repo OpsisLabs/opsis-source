@@ -110,6 +110,7 @@ test.describe("opsis preview", () => {
         token: TOKEN,
         amount: "1.5",
         outputToken: "WETH",
+        curve: false,
       });
       const data = fixture();
       data.quotedAt = new Date(Date.now() - 31_000).toISOString();

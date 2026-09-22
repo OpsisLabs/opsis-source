@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "de67b1bcee854ae8caa79d5de20f0eba5418b06e23609c39efd2c644861e897c",
+  "sourceTreeDigest": "f6c27d3756e53e44935ec09d3262d75ad3c4a060eb5a047910a7be317638b79c",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "8a176662769853374eca5d3aa11034bdad891f75bd511a2020a44c6bbf2bcaf6",
@@ -617,7 +617,7 @@
     "e2e/opsis-quant.mock.spec.ts": "e9fdfdec64e4e7c4feaed5a05dabc117b9715eaad0e799857db3a90a99259137",
     "e2e/opsis-watch-inbox.mock.spec.ts": "476e407df1fb99d593064aaf6ed26e93628056e7030cd097d3068fbf724ae552",
     "e2e/opsis-wiring.mock.spec.ts": "21bb62a75c6935df55216f4be89f76ef088230bcfd9c6a13533a779a36f93186",
-    "e2e/opsis.mock.spec.ts": "7a328cda4e5e31e4f9876073a4cef9b95704eb991379f904af456c71de0d8e3c",
+    "e2e/opsis.mock.spec.ts": "5dbcca3da8f9e942c8aa3670324d3afe3de3f0f97ac627ff98dda38c5bfd535e",
     "e2e/private-mode.mock.spec.ts": "5a0857bc39f54eb25e598654d60f817e345677cf6945c0ed8ae13dcd5dcd1d69",
     "e2e/product-navigation.mock.spec.ts": "fcecf1660d2f350116d9bc04e243d45305a2b2f8c649f99aca929921023bd966",
     "e2e/quant.mock.spec.ts": "8b24063faff3295e39b580bce3cd82d240ed833eee0e66ebe1e422a28f2a1916",
