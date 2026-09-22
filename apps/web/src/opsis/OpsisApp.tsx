@@ -49,6 +49,7 @@ const Terms = lazy(() =>
   import("../pages/Legal").then((m) => ({ default: m.TermsPage })),
 );
 const Guide = lazy(() => import("./Guide"));
+const Community = lazy(() => import("./Community"));
 
 function Unavailable() {
   const c = useCopy();
@@ -632,6 +633,8 @@ export default function OpsisApp() {
                         </ToolWorkspace>
                       }
                     />
+                    <Route path="/community" element={<Community />} />
+                    <Route path="/changelog" element={<Navigate to="/community" replace />} />
                     <Route
                       path="*"
                       element={
@@ -660,6 +663,7 @@ export default function OpsisApp() {
               <Link to="/saved">{c("Saved", "已保存")}</Link>
               <Link to="/status">{c("Data status", "数据状态")}</Link>
               <Link to="/guide">{c("Find your tool", "选择工具")}</Link>
+              <Link to="/community">{c("Community", "社区")}</Link>
               <Link to="/privacy">{c("Privacy", "隐私")}</Link>
               <span>
                 {c(

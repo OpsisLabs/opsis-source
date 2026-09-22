@@ -267,6 +267,49 @@
   text-decoration: underline;
   text-underline-offset: 6px;
 }
+.community-layout {
+  align-items: start;
+}
+.community-layout textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+.community-side {
+  display: grid;
+  gap: 24px;
+}
+.community-check {
+  display: flex;
+  align-items: start;
+  gap: 10px;
+  margin: 0 0 22px;
+}
+.community-check span {
+  color: var(--soft);
+  font-size: 12px;
+}
+.community-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 24px 0;
+}
+.community-actions .opsis-action {
+  justify-content: center;
+}
+.community-message {
+  margin-top: 18px;
+}
+.community-entry {
+  border-top: 1px solid var(--line);
+  margin-top: 20px;
+  padding-top: 18px;
+}
+.community-entry h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 400;
+}
 .opsis-preview-note {
   font:
     9px/1.6 OpsisMono,

@@ -5,6 +5,20 @@ import type { VaultWatch, VaultWatchCondition } from "../vault/types";
 import { useCopy } from "../opsis/copy";
 import { deriveWatchInbox, type WatchInboxItem } from "./inbox";
 
+function conditionReason(reason: string | undefined, chinese: boolean): string {
+  const labels = {
+    baseline: ["baseline only", "仅有基线"],
+    stale: ["stale observation", "观察已过期"],
+    "coverage-gap": ["provider coverage gap", "提供方覆盖缺口"],
+    "decimals-changed": ["token decimals changed", "代币精度已变化"],
+    "not-comparable": ["not comparable", "无法比较"],
+    "invalid-anchor": ["invalid block anchor", "区块锚点无效"],
+    missing: ["asset missing", "资产缺失"],
+  } as const;
+  const value = labels[reason as keyof typeof labels];
+  return value?.[chinese ? 1 : 0] ?? (chinese ? "未知" : "unknown");
+}
+
 export default function WatchInbox({
   watches,
   onAcknowledge,
@@ -66,8 +80,8 @@ export default function WatchInbox({
         `观察到的变化达到 ${item.detailValues?.threshold ?? ""} ${item.detailValues?.unit ?? ""}。`,
       ),
       conditionUnknown: c(
-        "Comparable same-unit evidence is unavailable.",
-        "没有可比较的同单位证据。",
+        `Comparable same-unit evidence is unavailable (${conditionReason(item.detailValues?.reason, false)}).`,
+        `没有可比较的同单位证据（${conditionReason(item.detailValues?.reason, true)}）。`,
       ),
       conditionMissing: c(
         "The selected asset was not returned in this observation.",
@@ -172,6 +186,11 @@ export default function WatchInbox({
                       {c("Not checked since", "上次检查")}:{" "}
                       {new Date(entry.notCheckedSince).toLocaleString()}
                     </div>
+                    {entry.anchorHash && (
+                      <div className="mt-1 break-all font-mono text-[11px] opacity-55">
+                        {c("Anchor", "锚点")}: {entry.anchorHash}
+                      </div>
+                    )}
                     <div className="mt-2 flex flex-wrap gap-2">
                       {entry.status === "unfinished" && (
                         <Link
