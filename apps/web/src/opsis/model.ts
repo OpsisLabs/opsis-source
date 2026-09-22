@@ -6,7 +6,7 @@ export function publicIdentity(value: string | null): string {
     : "";
 }
 export function workspaceLink(
-  path: "/research" | "/check",
+  path: "/research" | "/research/details" | "/check",
   value: string,
 ): string {
   const id = publicIdentity(value);
@@ -73,4 +73,22 @@ export async function unlockPreview(
       Math.min(expires, receivedAt + 3_600_000),
     ).toISOString(),
   };
+}
+
+/** Preserve only a known local workspace selector in legacy Vault redirects. */
+export function savedLink(search: string): string {
+  const view = new URLSearchParams(search).get("view");
+  return view &&
+    [
+      "reports",
+      "assets",
+      "portfolio",
+      "collectibles",
+      "market",
+      "approvals",
+      "replay",
+      "deals",
+    ].includes(view)
+    ? `/saved?view=${view}`
+    : "/saved";
 }

@@ -1,3 +1,5 @@
+import { workspaceLink } from "../opsis/model";
+import { useCopy } from "../opsis/copy";
 import { OPSIS_PRESENTATION } from "../opsis/presentation";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router";
@@ -162,7 +164,7 @@ function LookupConsent({
   );
 }
 
-function Workspace({ session }: { session: WatchSession }) {
+function Workspace({ session, tradeCheckEnabled }: { session: WatchSession; tradeCheckEnabled: boolean }) {
   const { t } = useI18n();
   const [searchParams] = useSearchParams();
   // Optional handoff from the Private Explorer: prefill a validated public
@@ -400,6 +402,7 @@ function Workspace({ session }: { session: WatchSession }) {
         <WatchDetail
           key={`${item.id}:${item.snapshots.at(-1)!.anchor.blockHash}`}
           item={item}
+          tradeCheckEnabled={tradeCheckEnabled}
           session={session}
         />
       )}
@@ -410,11 +413,14 @@ function Workspace({ session }: { session: WatchSession }) {
 function WatchDetail({
   item,
   session,
+  tradeCheckEnabled,
 }: {
   item: VaultWatch;
   session: WatchSession;
+  tradeCheckEnabled: boolean;
 }) {
   const { t, locale } = useI18n();
+  const c = useCopy();
   const [consent, setConsent] = useState(false);
   const [label, setLabel] = useState(item.label);
   const [deleting, setDeleting] = useState(false);
@@ -564,6 +570,7 @@ function WatchDetail({
                         {row.contract}
                       </p>
                     )}
+                    {OPSIS_PRESENTATION && tradeCheckEnabled && row.contract && /^0x[0-9a-f]{40}$/i.test(row.contract) && <Link className="opsis-text-link" to={workspaceLink("/check", row.contract)}>{c("Check a new amount →", "核查新数量 →")}</Link>}
                     <p className="mt-1 text-xs text-[#bbb2a8]">
                       {t(`watch.status.${row.status}`)}
                     </p>
@@ -809,7 +816,7 @@ function WatchDetail({
   );
 }
 
-export default function ScoutWatch() {
+export default function ScoutWatch({ tradeCheckEnabled = false }: { tradeCheckEnabled?: boolean }) {
   const { t } = useI18n();
   const session = useWatchVault();
   return (
@@ -892,7 +899,7 @@ export default function ScoutWatch() {
           </button>
         </section>
       ) : (
-        session.phase === "unlocked" && <Workspace session={session} />
+        session.phase === "unlocked" && <Workspace session={session} tradeCheckEnabled={tradeCheckEnabled} />
       )}
       <p className="text-xs leading-relaxed text-[#bbb2a8]">
         {t("watch.storageNote")}

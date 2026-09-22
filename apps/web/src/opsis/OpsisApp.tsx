@@ -14,6 +14,7 @@ import {
   publicIdentity,
   unlockPreview,
   workspaceLink,
+  savedLink,
   type Capabilities,
 } from "./model";
 import { setOpsisPreviewToken } from "./preview-token";
@@ -34,7 +35,7 @@ const SituationRoom = lazy(() => import("../situation/SituationRoom"));
 const Research = lazy(() => import("./Research"));
 const TradeCheck = lazy(() => import("./TradeCheck"));
 const Watch = lazy(() => import("../watch/ScoutWatch"));
-const Saved = lazy(() => import("../pages/Vault"));
+const Saved = lazy(() => import("./SavedWorkspace"));
 const Rwa = lazy(() => import("../pages/RwaVerify"));
 const Trades = lazy(() => import("../trades/BiggestTrades"));
 const Explorer = lazy(() => import("../pages/PrivateExplorer"));
@@ -462,7 +463,10 @@ export default function OpsisApp() {
                       element={
                         access.exitCheck &&
                         import.meta.env.VITE_EXIT_CHECK_ENABLED === "true" ? (
-                          <TradeCheck key={location.search} />
+                          <TradeCheck
+                            key={location.search}
+                            capabilities={access}
+                          />
                         ) : (
                           <Unavailable />
                         )
@@ -474,7 +478,13 @@ export default function OpsisApp() {
                         access.watch &&
                         import.meta.env.VITE_SCOUT_WATCH_ENABLED === "true" ? (
                           <ToolWorkspace>
-                            <Watch />
+                            <Watch
+                              tradeCheckEnabled={
+                                access.exitCheck &&
+                                import.meta.env.VITE_EXIT_CHECK_ENABLED ===
+                                  "true"
+                              }
+                            />
                           </ToolWorkspace>
                         ) : (
                           <Unavailable />
@@ -485,13 +495,15 @@ export default function OpsisApp() {
                       path="/saved"
                       element={
                         <ToolWorkspace>
-                          <Saved />
+                          <Saved capabilities={access} />
                         </ToolWorkspace>
                       }
                     />
                     <Route
                       path="/vault"
-                      element={<Navigate to="/saved" replace />}
+                      element={
+                        <Navigate to={savedLink(location.search)} replace />
+                      }
                     />
                     <Route path="/lab" element={<Lab />} />
                     <Route

@@ -490,6 +490,9 @@ export function validateConversation(value: unknown): asserts value is VaultConv
         || !text(turn.answer, 50_000) || !date(turn.savedAt)
         || !Array.isArray(turn.bullets) || turn.bullets.length > 100 || turn.bullets.some(v => !text(v, 10_000))
         || !Array.isArray(turn.sources) || turn.sources.length > 100) return true;
+      if (turn.opsis !== undefined && (!isRecord(turn.opsis)
+        || !["research", "check"].includes(String(turn.opsis.workspace))
+        || typeof turn.opsis.token !== "boolean" || turn.opsis.chainId !== 4663)) return true;
       return turn.sources.some((source: unknown) => {
         if (!isRecord(source) || !text(source.label, 1000) || !date(source.fetchedAt)) return true;
         if (source.url === null) return false;

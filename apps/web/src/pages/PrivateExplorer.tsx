@@ -6,7 +6,8 @@ import {
   useState,
   type FormEvent,
 } from "react";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
+import { publicIdentity } from "../opsis/model";
 import {
   CheckCircle2,
   DatabaseZap,
@@ -75,7 +76,8 @@ function shortAddress(address: string): string {
 
 export default function PrivateExplorer() {
   const { t } = useI18n();
-  const [entityInput, setEntityInput] = useState("");
+  const location = useLocation();
+  const [entityInput, setEntityInput] = useState(() => OPSIS_PRESENTATION ? publicIdentity(new URLSearchParams(location.search).get("entity")) : "");
   const [question, setQuestion] = useState("");
   const [questionSource, setQuestionSource] = useState<"goal" | "freeform">("freeform");
   const [task, setTask] = useState<ExplorerAnswerTask | undefined>(undefined);

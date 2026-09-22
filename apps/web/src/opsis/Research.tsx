@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 import { analyzePrivate, type PrivateAnalysis } from "../private/api";
 import { safeHttpUrl } from "../dashboard/adapters";
@@ -10,6 +10,9 @@ import {
 import ResearchIntro from "./ResearchIntro";
 import { useCopy } from "./copy";
 import { publicIdentity, workspaceLink, type Capabilities } from "./model";
+
+import ReportShelf from "./ReportShelf";
+import { researchReport } from "./reports";
 
 const EvidenceMap = lazy(() => import("./EvidenceMap"));
 
@@ -52,6 +55,10 @@ export default function Research({
       if (!controller.signal.aborted) setBusy(false);
     }
   }
+  const report = useMemo(
+    () => (result ? researchReport(result) : null),
+    [result],
+  );
   const follow =
     result?.entity.type === "wallet"
       ? toFollowableWallet({
@@ -125,8 +132,8 @@ export default function Research({
           </select>
           <p className="opsis-receipt">
             {c(
-              "Sends this public identifier, question selection and language to Opsis and its configured chain-data providers. No account, wallet connection, saved holdings or AI model request. Results stay in memory.",
-              "向 Opsis 及其配置的链上数据提供商发送此公开标识符、所选问题和语言。不涉及账户、钱包连接、已保存持仓或 AI 模型请求。结果仅存于内存。",
+              "Sends this public identifier, question selection and language to Opsis and its configured chain-data providers. No account, wallet connection, saved holdings or AI model request. Results stay in memory unless you explicitly save an encrypted observation.",
+              "向 Opsis 及其配置的链上数据提供商发送此公开标识符、所选问题和语言。不涉及账户、钱包连接、已保存持仓或 AI 模型请求。除非您主动保存加密观察，否则结果仅存于内存。",
             )}
           </p>
           <button
@@ -267,9 +274,24 @@ export default function Research({
         </div>
       </div>
       <details className="opsis-panel">
+        <summary>
+          {c("Save research / open saved reports", "保存研究／打开已保存报告")}
+        </summary>
+        <ReportShelf
+          draft={report}
+          onLock={clear}
+          capabilities={capabilities}
+        />
+      </details>
+      <details className="opsis-panel">
         <summary>{c("More research tools", "更多研究工具")}</summary>
         <div className="opsis-tool-links">
-          <Link to="/research/details">
+          <Link
+            to={workspaceLink(
+              "/research/details",
+              result?.entity.value ?? entity,
+            )}
+          >
             {c("Detailed Explorer", "详细浏览器")}
           </Link>
           {capabilities.rwa && (

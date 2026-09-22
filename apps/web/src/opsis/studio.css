@@ -918,3 +918,10 @@
  .opsis .opsis-navigation nav { width: 100%; min-width: 0; }
  .opsis .opsis-navigation nav a { flex: 1; min-width: 0; white-space: normal; }
 }
+
+.opsis-report-shelf { margin-top: 1.5rem; }
+.opsis-report-shelf textarea { display: block; width: 100%; min-height: 6rem; margin: .75rem 0 1rem; padding: .75rem; background: var(--opsis-paper, #f6f4ef); color: #242424; border: 1px solid #777; }
+.opsis-text-link { display: inline-flex; align-items: center; min-height: 44px; margin-inline-end: 1rem; text-decoration: underline; }
+.opsis-saved-tabs { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.5rem; }
+.opsis-saved-tabs a { padding: .8rem 1rem; border: 1px solid currentColor; }
+.opsis-saved-tabs a[aria-current="page"] { background: #1538d6; color: #fff; }

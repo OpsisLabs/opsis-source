@@ -15,6 +15,7 @@ export function LocalHistory({
   onNew,
   pending,
   reports = false,
+  labels,
 }: {
   history: ReturnType<typeof useLocalHistory>;
   selected: string | null;
@@ -22,22 +23,23 @@ export function LocalHistory({
   onNew: () => void;
   pending: boolean;
   reports?: boolean;
+  labels?: { title: string; description: string; unlocked: string; empty: string };
 }) {
   const { t } = useI18n();
   const [passphrase, setPassphrase] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   return (
     <aside
-      aria-label={t("cloud.history.ariaLabel")}
+      aria-label={labels?.title ?? t("cloud.history.ariaLabel")}
       className="mb-6 space-y-4 rounded-sm border border-[#514a45] bg-[#242424] p-5"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg text-[#e9e0d1]">{reports ? t("cloud.history.title.reports") : t("cloud.history.title.chats")}</h2>
+          <h2 className="text-lg text-[#e9e0d1]">{labels?.title ?? (reports ? t("cloud.history.title.reports") : t("cloud.history.title.chats"))}</h2>
           <p className="mt-1 text-sm text-[#b8b0a7]">
-            {reports ? t("cloud.history.desc.reports") : history.phase === "unlocked"
+            {labels?.description ?? (reports ? t("cloud.history.desc.reports") : history.phase === "unlocked"
               ? t("cloud.history.desc.unlocked")
-              : t("cloud.history.desc.locked")}
+              : t("cloud.history.desc.locked"))}
           </p>
         </div>
         {history.phase === "unlocked" && (
@@ -97,7 +99,7 @@ export function LocalHistory({
       )}
       {history.notice && (
         <p role="status" className="text-sm text-[#c7d7b8]">
-          {reports && history.notice === t("cloud.history.notice.autosave") ? t("cloud.history.reportNotice") : history.notice}
+          {reports && history.notice === t("cloud.history.notice.autosave") ? (labels?.unlocked ?? t("cloud.history.reportNotice")) : history.notice}
         </p>
       )}
       {history.phase === "unlocked" && (
@@ -125,7 +127,7 @@ export function LocalHistory({
           >
             {!history.conversations.length && (
               <p className="text-sm text-[#b8b0a7]">
-                {reports ? t("cloud.history.noReports") : t("cloud.history.noChats")}
+                {labels?.empty ?? (reports ? t("cloud.history.noReports") : t("cloud.history.noChats"))}
               </p>
             )}
             {history.conversations.map((item) => (

@@ -182,3 +182,15 @@ describe("encrypted local conversation retention", () => {
     expect(await listEncryptedRecords()).toEqual([]);
   });
 });
+
+it("round-trips optional Opsis routing context in ciphertext and rejects unsupported context", async () => {
+  await deleteLocalVault();
+  const vault = await createLocalVault(passphrase);
+  const report = fixture();
+  report.turns[0].opsis = { workspace: "check", token: true, chainId: 4663 };
+  const encrypted = await encryptConversation(vault.meta, vault.key, report);
+  expect(await decryptConversation(vault.meta, vault.key, encrypted)).toEqual(report);
+  for (const invalid of [null, { workspace: "trade", token: true, chainId: 4663 }, { workspace: "check", token: true, chainId: 1 }, { workspace: "check", token: "true", chainId: 4663 }]) {
+    expect(() => validateConversation({ ...report, turns: [{ ...report.turns[0], opsis: invalid }] })).toThrow();
+  }
+});

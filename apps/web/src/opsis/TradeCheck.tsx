@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 import {
   getExitCheckQuote,
@@ -7,11 +7,18 @@ import {
   type ExitCheckOutputSymbol,
 } from "../exit-check/api";
 import { useCopy } from "./copy";
-import { publicIdentity } from "./model";
+import { publicIdentity, workspaceLink, type Capabilities } from "./model";
+
+import ReportShelf from "./ReportShelf";
+import { tradeReport } from "./reports";
 
 const PoolComparison = lazy(() => import("./PoolComparison"));
 
-export default function TradeCheck() {
+export default function TradeCheck({
+  capabilities,
+}: {
+  capabilities: Capabilities;
+}) {
   const c = useCopy();
   const location = useLocation();
   const [token, setToken] = useState(() => {
@@ -61,6 +68,10 @@ export default function TradeCheck() {
       if (!controller.signal.aborted) setBusy(false);
     }
   }
+  const report = useMemo(
+    () => (result ? tradeReport(result, output) : null),
+    [result, output],
+  );
   const stale = result ? now >= Date.parse(result.expiresAt) : true;
   return (
     <>
@@ -303,8 +314,23 @@ export default function TradeCheck() {
         </div>
       </div>
       <details className="opsis-panel">
+        <summary>
+          {c("Save this check / revisit conditions", "保存此核查／复查条件")}
+        </summary>
+        <ReportShelf
+          draft={report}
+          onLock={clear}
+          capabilities={capabilities}
+        />
+      </details>
+      <details className="opsis-panel">
         <summary>{c("More trade tools", "更多交易工具")}</summary>
         <div className="opsis-tool-links">
+          {capabilities.research && (
+            <Link to={workspaceLink("/research", token)}>
+              {c("Research this token", "研究此代币")}
+            </Link>
+          )}
           <Link to="/swap">{c("Swap preview", "兑换预览")}</Link>
           {import.meta.env.VITE_TRADE_SIMULATOR_ENABLED === "true" && (
             <Link to="/simulate">

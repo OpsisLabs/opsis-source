@@ -26,6 +26,8 @@ export interface VaultWatch {
 }
 
 export interface VaultConversationTurn {
+  /** Optional routing context; encrypted with the report, never contains quantities. */
+  opsis?: { workspace: "research" | "check"; token: boolean; chainId: 4663 };
   question: string;
   entity: string;
   answer: string;

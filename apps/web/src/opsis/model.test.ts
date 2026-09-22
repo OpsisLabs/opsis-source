@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from "vitest";
-import { publicIdentity, unlockPreview, workspaceLink } from "./model";
+import { publicIdentity, unlockPreview, workspaceLink, savedLink } from "./model";
 it("only hands public identity across workspaces, never amounts or notes", () => {
   const address = "0x" + "a".repeat(40);
   expect(workspaceLink("/check", address)).toBe(`/check?entity=${address}`);
@@ -88,4 +88,10 @@ it("public capability requests omit credentials and keep CSRF protection", async
   expect(options.credentials).toBe("omit");
   expect(options.headers.authorization).toBeUndefined();
   expect(options.headers["x-chainscout-csrf"]).toBe("1");
+});
+
+it("legacy Vault redirect keeps only a known workspace", () => {
+  expect(savedLink("?view=portfolio&amount=10&note=private")).toBe("/saved?view=portfolio");
+  expect(savedLink("?view=reports&entity=private")).toBe("/saved?view=reports");
+  expect(savedLink("?view=https://example.com")).toBe("/saved");
 });

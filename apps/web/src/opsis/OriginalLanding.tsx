@@ -5,9 +5,9 @@ import { publicIdentity, workspaceLink } from "./model";
 const destinations: Record<string, string> = {
   explorer: "/research",
   research: "/research",
-  swap: "/check",
+  swap: "/swap",
   check: "/check",
-  portfolio: "/saved",
+  portfolio: "/saved?view=portfolio",
   saved: "/saved",
   rwa: "/rwa",
   quant: "/lab",
