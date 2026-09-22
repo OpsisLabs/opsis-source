@@ -106,8 +106,10 @@ describe("browser privacy static boundary", () => {
       "COPY packages/shared/package.json packages/shared/package.json",
     );
     expect(dockerfile).toContain("COPY packages/shared packages/shared");
+    expect(dockerfile).toContain("COPY packages/quant/package.json packages/quant/package.json");
+    expect(dockerfile).toContain("COPY packages/quant packages/quant");
     expect(dockerfile).toContain(
-      "RUN pnpm --filter @rh-chain/shared build && pnpm --filter @rh-chain/web build",
+      "RUN pnpm --filter @rh-chain/shared build && pnpm --filter @rh-chain/quant build && pnpm --filter @rh-chain/web build",
     );
     expect(server).toContain('host: "::"');
   });
