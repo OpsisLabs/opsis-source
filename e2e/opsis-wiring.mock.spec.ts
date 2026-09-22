@@ -183,6 +183,7 @@ test.describe("Opsis connected workflows", () => {
     await add.getByLabel("Private label (optional)").fill(note);
     await add.getByLabel("Allow this public-address lookup").check();
     await add.getByRole("button", { name: "Save wallet & check" }).click();
+    await page.getByRole("button", { name: "Wallet details", exact: true }).click();
     const detail = page.getByRole("region", { name: "Latest saved check" });
     await expect(page.getByRole("heading", { name: note })).toBeVisible();
     await detail.getByLabel("Allow this public-address lookup").check();

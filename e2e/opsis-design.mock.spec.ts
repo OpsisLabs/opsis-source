@@ -317,6 +317,7 @@ test.describe("Opsis visual workspaces", () => {
     await form.getByLabel("Private label (optional)").fill("LOCAL CHART LABEL");
     await form.getByLabel("Allow this public-address lookup").check();
     await form.getByRole("button", { name: "Save wallet & check" }).click();
+    await page.getByRole("button", { name: "Wallet details", exact: true }).click();
     await expect(
       page.getByRole("heading", { name: "Baseline saved" }),
     ).toBeVisible();
