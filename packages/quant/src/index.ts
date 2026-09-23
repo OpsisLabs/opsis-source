@@ -56,6 +56,8 @@ export interface ExperimentSpec {
   seed: number;
   researchMode: boolean;
   confidence: number;
+  model?: "historical_iid_bootstrap" | "historical_moving_block_bootstrap";
+  blockLength?: number;
 }
 
 export interface RealizedStats {
@@ -80,8 +82,9 @@ export interface QuantRun {
   datasetHash: string;
   manifest: {
     seed: number;
-    model: "historical_iid_bootstrap";
+    model: "historical_iid_bootstrap" | "historical_moving_block_bootstrap";
     modelVersion: "1";
+    blockLength?: number;
     bootstrapRuns: number;
     confidence: number;
     researchMode: boolean;
@@ -530,6 +533,16 @@ export function runQuant(
     .map((row, n) => row.price / dataset.observations[n]!.price - 1);
   if (returns.length > 730)
     throw new Error("This bounded v1 run supports at most 730 daily returns.");
+  const model = spec.model ?? "historical_iid_bootstrap";
+  if (model !== "historical_iid_bootstrap" && model !== "historical_moving_block_bootstrap")
+    throw new Error("Unsupported bootstrap model.");
+  if (model === "historical_iid_bootstrap" && spec.blockLength !== undefined)
+    throw new Error("Block length applies only to moving-block bootstrap.");
+  const blockLength = model === "historical_moving_block_bootstrap" ? spec.blockLength : undefined;
+  const maxBlockLength = Math.min(30, Math.floor(returns.length / 2));
+  if (model === "historical_moving_block_bootstrap" &&
+    (!Number.isSafeInteger(blockLength) || blockLength! < 2 || blockLength! > maxBlockLength))
+    throw new Error(`Block length must be an integer from 2 to ${maxBlockLength} for this history window.`);
   const draws: number[][] = Array.from(
     { length: dataset.observations.length },
     () => [],
@@ -539,9 +552,15 @@ export function runQuant(
   const alpha = (1 - confidence) / 2;
   for (let run = 0; run < runs; run += 1) {
     let value = 1;
+    let blockStart = 0;
     for (let step = 0; step < returns.length; step += 1) {
       if (cancelled()) throw new Error("cancelled");
-      value *= 1 + returns[Math.floor(random() * returns.length)]!;
+      if (blockLength !== undefined && step % blockLength === 0)
+        blockStart = Math.floor(random() * (returns.length - blockLength + 1));
+      const sampled = blockLength === undefined
+        ? returns[Math.floor(random() * returns.length)]!
+        : returns[blockStart + (step % blockLength)]!;
+      value *= 1 + sampled;
       if (!Number.isFinite(value) || value <= 0)
         throw new Error("Numeric overflow or underflow in bootstrap path.");
       draws[step + 1]!.push(value);
@@ -562,8 +581,9 @@ export function runQuant(
   return {
     manifest: {
       seed: spec.seed,
-      model: "historical_iid_bootstrap",
+      model,
       modelVersion: "1",
+      ...(blockLength === undefined ? {} : { blockLength }),
       bootstrapRuns: runs,
       confidence,
       researchMode: spec.researchMode,
@@ -575,7 +595,9 @@ export function runQuant(
       },
       assumptions: [
         "Daily crypto 24/7 clock",
-        "IID resampling of observed daily returns",
+        ...(blockLength === undefined
+          ? ["IID resampling of observed daily returns"]
+          : [`Moving-block resampling of contiguous observed daily returns (length ${blockLength}); the final block is truncated to the horizon`]),
         "Bands are pointwise intervals over normalized paths, not predictions",
       ],
     },

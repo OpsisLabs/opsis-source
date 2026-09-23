@@ -25,7 +25,7 @@ return 1
 
 type RedisGuardsClient = Pick<Redis, "set" | "eval">;
 
-/** A bounded capture must finish in less than this lease TTL. No renewal timer is started. */
+/** Redis-backed owner-checked lease. The worker renews at one-third of this TTL. */
 export class RedisHistoryWorkerLease implements HistoryWorkerLease {
   constructor(
     private readonly redis: RedisGuardsClient,

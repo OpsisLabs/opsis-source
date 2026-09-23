@@ -61,11 +61,14 @@ export class PublicSwapCapture {
     private readonly enabled = false,
   ) {}
 
-  async capture(request: SwapRangeRequest): Promise<{ status: "COMPLETE" | "EMPTY" | "GAP" | "UNAVAILABLE"; rows: number }> {
+  async capture(request: SwapRangeRequest, options?: { assertLease: () => Promise<void> }): Promise<{ status: "COMPLETE" | "EMPTY" | "GAP" | "UNAVAILABLE"; rows: number }> {
     if (!this.enabled) throw new Error("Public Swap capture is disabled");
     assertRequest(request);
     const normalized = { ...request, poolAddress: request.poolAddress.toLowerCase() };
     const coverage = async (status: "COMPLETE" | "EMPTY" | "GAP" | "UNAVAILABLE", blockHash: string | null = null, rows?: PublicSwapObservationInput[]) => {
+      // This check sits directly before the coverage write so stale workers cannot
+      // publish a valid range after their Redis owner token has expired.
+      await options?.assertLease();
       await this.history.recordCoverage({
         ...normalized,
         blockHash,

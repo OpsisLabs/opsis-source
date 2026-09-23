@@ -29,6 +29,7 @@ function setup(options: { rows?: Record<string, any>[]; committedRows?: Record<s
   const coverage: Record<string, any> = {
     id: "coverage-1", chainId: 4663, poolAddress: POOL, fromBlock: 100n, toBlock: 101n, blockHash: HASH,
     source: "reviewed-source", status: coveredStatus, revision: 1, canonicalStatus: options.coverageCanonicalStatus ?? "CANONICAL",
+    observedAt: new Date("2026-09-23T12:00:00.000Z"),
     retentionExpiresAt: options.coverageExpiry ?? null,
     expectedEventCount: committedRows.length, contentDigest: publicSwapContentDigest(committedRows as any),
   };
@@ -58,16 +59,37 @@ describe("public Swap exact covered history reader", () => {
 
   it("returns only committed canonical complete observations and committed empty ranges", async () => {
     const complete = setup();
-    await expect(complete.reader.read(request, now)).resolves.toMatchObject({ state: "complete", events: [{ amount0: "-12", amount1: "34" }] });
+    await expect(complete.reader.read(request, now)).resolves.toMatchObject({ state: "complete",
+      evidence: { kind: "observed", chain: "eip155:4663", instrumentId: `eip155:4663/pool:${POOL}`,
+        sourceId: "reviewed-source", sourceVersion: "unknown", decoderVersion: "uniswap-v3-swap-abi-v1",
+        anchor: { height: "101", hash: HASH, semantics: "current-not-final" },
+        coverage: { state: "complete", scope: { fromBlock: "100", toBlock: "101" }, gaps: [] },
+        freshness: { state: "unknown", checkedAt: now.toISOString() } },
+      events: [{ amount0: "-12", amount1: "34" }] });
     const empty = setup({ rows: [], status: "EMPTY" });
-    await expect(empty.reader.read(request, now)).resolves.toEqual({ state: "empty", events: [] });
+    await expect(empty.reader.read(request, now)).resolves.toMatchObject({ state: "empty", events: [],
+      evidence: { coverage: { state: "empty" }, anchor: { height: "101", hash: HASH }, units: { amount0: "raw-token-units" } } });
+  });
+
+  it("fails closed when evidence timestamps or the retained range anchor are absent or inconsistent", async () => {
+    const noObservedAt = setup();
+    noObservedAt.coverages[0].observedAt = null;
+    await expect(noObservedAt.reader.read(request, now)).resolves.toEqual({ state: "gap" });
+    const noAnchor = setup();
+    noAnchor.coverages[0].blockHash = null;
+    await expect(noAnchor.reader.read(request, now)).resolves.toEqual({ state: "gap" });
+    const changedAnchor = setup();
+    changedAnchor.findCoverage.mockImplementationOnce(async () => changedAnchor.coverages[0]).mockImplementationOnce(async () => ({
+      ...changedAnchor.coverages[0], blockHash: `0x${"bb".repeat(32)}`,
+    }));
+    await expect(changedAnchor.reader.read(request, now)).resolves.toEqual({ state: "gap" });
   });
 
   it("keeps empty ranges unreadable until their anchor is independently promoted and rejects forked coverage", async () => {
     const unverified = setup({ rows: [], status: "EMPTY", coverageCanonicalStatus: "UNKNOWN" });
     await expect(unverified.reader.read(request, now)).resolves.toEqual({ state: "gap" });
     unverified.coverages[0].canonicalStatus = "CANONICAL";
-    await expect(unverified.reader.read(request, now)).resolves.toEqual({ state: "empty", events: [] });
+    await expect(unverified.reader.read(request, now)).resolves.toMatchObject({ state: "empty", events: [], evidence: { coverage: { state: "empty" } } });
 
     const forked = setup({ rows: [], status: "EMPTY", coverageCanonicalStatus: "ORPHANED" });
     await expect(forked.reader.read(request, now)).resolves.toEqual({ state: "gap" });
@@ -90,7 +112,7 @@ describe("public Swap exact covered history reader", () => {
         const prior = coverages.at(-1);
         if (prior && prior.status === input.status && prior.contentDigest === input.contentDigest) return prior;
         const coverage = { ...input, id: `coverage-${coverages.length + 1}`, revision: coverages.length + 1,
-          canonicalStatus: "UNKNOWN", retentionExpiresAt: null };
+          canonicalStatus: "UNKNOWN", observedAt: new Date("2026-09-23T12:00:00.000Z"), retentionExpiresAt: null };
         coverages.push(coverage);
         return coverage;
       },
@@ -136,6 +158,7 @@ describe("public Swap exact covered history reader", () => {
       setup({ rows: [row({ canonicalStatus: "ORPHANED" })] }),
       setup({ rows: [row({ retentionExpiresAt: new Date(now.getTime()) })] }),
       setup({ rows: [row({ blockNumber: 99n })] }),
+      setup({ rows: [row({ blockHash: `0x${"bb".repeat(32)}` })] }),
     ];
     for (const testCase of cases) await expect(testCase.reader.read(request, now)).resolves.toEqual({ state: "gap" });
     const deleted = setup();

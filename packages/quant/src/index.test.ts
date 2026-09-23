@@ -156,3 +156,38 @@ it("nonflat seeded paths reproduce, report thin tails and preserve a crash drawd
   expect(trend.stats.tailCount).toBeLessThan(20);
   expect(trend.stats.warnings).toHaveLength(1);
 });
+
+it("moving-block bootstrap preserves contiguous return stretches and records its model", () => {
+  const input = dataset(40);
+  const factors = [1.01, 0.98, 1.04, 0.97, 1.02, 0.99, 1.03];
+  input.observations.forEach((row, index) => {
+    if (index > 0) row.price = input.observations[index - 1]!.price * factors[(index - 1) % factors.length]!;
+  });
+  const spec = {
+    seed: 17, bootstrapRuns: 1, confidence: 0.9, researchMode: true,
+    model: "historical_moving_block_bootstrap" as const, blockLength: 3,
+  };
+  const first = runQuant(input, spec);
+  expect(first).toEqual(runQuant(input, spec));
+  expect(first.manifest).toMatchObject({ model: spec.model, modelVersion: "1", blockLength: 3, horizon: 39 });
+  const sourceFactors = input.observations.slice(1).map((row, index) => row.price / input.observations[index]!.price);
+  const sampledFactors = first.bootstrap.path.slice(1).map((point, index) => point.median / first.bootstrap.path[index]!.median);
+  for (let offset = 0; offset < sampledFactors.length; offset += 3) {
+    const block = sampledFactors.slice(offset, offset + 3);
+    const found = sourceFactors.some((_, start) => start + 3 <= sourceFactors.length
+      && block.every((factor, index) => Math.abs(factor - sourceFactors[start + index]!) < 1e-10));
+    expect(found).toBe(true);
+  }
+});
+
+it("refuses invalid moving-block settings while leaving the IID default unchanged", () => {
+  const input = dataset();
+  const base = { seed: 1, bootstrapRuns: 5, confidence: 0.9, researchMode: true };
+  expect(runQuant(input, base).manifest.model).toBe("historical_iid_bootstrap");
+  for (const length of [undefined, 1, 20, 31, 1.5, NaN, Infinity]) {
+    expect(() => runQuant(input, { ...base, model: "historical_moving_block_bootstrap", blockLength: length })).toThrow(/Block length/);
+  }
+  expect(() => runQuant(input, { ...base, model: "historical_iid_bootstrap", blockLength: 3 })).toThrow(/Block length/);
+  let checks = 0;
+  expect(() => runQuant(input, { ...base, model: "historical_moving_block_bootstrap", blockLength: 3 }, () => ++checks > 2)).toThrow("cancelled");
+});

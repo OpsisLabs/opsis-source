@@ -15,10 +15,27 @@ export type PublicSwapHistoryRequest = {
 };
 
 export type PublicSwapHistoryRead =
-  | { state: "complete"; events: Record<string, unknown>[] }
-  | { state: "empty"; events: [] }
+  | { state: "complete"; evidence: PublicSwapHistoryEvidence; events: Record<string, unknown>[] }
+  | { state: "empty"; evidence: PublicSwapHistoryEvidence; events: [] }
   | { state: "gap" }
   | { state: "unavailable" };
+
+export type PublicSwapHistoryEvidence = {
+  kind: "observed";
+  chain: "eip155:4663";
+  instrumentId: string;
+  observedAt: string;
+  sourceId: string;
+  sourceVersion: "unknown";
+  decoderVersion: "uniswap-v3-swap-abi-v1";
+  anchor: { height: string; hash: string; semantics: "current-not-final" };
+  coverage: { state: "complete" | "empty"; scope: { fromBlock: string; toBlock: string };
+    caps: { maxBlocks: number; maxEvents: number }; gaps: [] };
+  freshness: { state: "unknown"; checkedAt: string };
+  units: { amount0: "raw-token-units"; amount1: "raw-token-units"; sqrtPriceX96: "Q64.96";
+    liquidity: "raw-pool-liquidity"; tick: "ticks" };
+  limitations: string[];
+};
 
 type ReaderDb = Pick<PrismaClient, "publicSwapHistoryCoverage" | "publicSwapObservation">;
 
@@ -62,6 +79,7 @@ export class PublicSwapHistoryReader {
       if (seen.has(identity) || row.canonicalStatus !== "CANONICAL" || row.chainId !== 4663
         || row.poolAddress !== range.poolAddress || row.source !== request.source
         || typeof row.blockNumber !== "bigint" || row.blockNumber < request.fromBlock || row.blockNumber > request.toBlock
+        || (row.blockNumber === request.toBlock && row.blockHash !== coverage.blockHash)
         || !(row.blockTimestamp instanceof Date) || !Number.isFinite(row.blockTimestamp.getTime())
         || !(row.observedAt instanceof Date) || !Number.isFinite(row.observedAt.getTime())
         || (row.retentionExpiresAt !== null && (!(row.retentionExpiresAt instanceof Date)
@@ -78,9 +96,32 @@ export class PublicSwapHistoryReader {
     const latest = await this.prisma.publicSwapHistoryCoverage.findFirst({ where: range, orderBy: { revision: "desc" } });
     if (!latest || latest.id !== coverage.id || latest.revision !== coverage.revision || latest.status !== coverage.status
       || latest.contentDigest !== coverage.contentDigest || latest.expectedEventCount !== coverage.expectedEventCount
+      || latest.blockHash !== coverage.blockHash || !(latest.observedAt instanceof Date)
+      || latest.observedAt.getTime() !== coverage.observedAt?.getTime()
       || latest.canonicalStatus !== "CANONICAL") return { state: "gap" };
-    if (coverage.status === "EMPTY") return rows.length === 0 ? { state: "empty", events: [] } : { state: "gap" };
-    return rows.length > 0 ? { state: "complete", events: rows.map(publicEvent) } : { state: "gap" };
+    if (!(coverage.observedAt instanceof Date) || !Number.isFinite(coverage.observedAt.getTime())
+      || typeof coverage.blockHash !== "string" || !/^0x[0-9a-f]{64}$/.test(coverage.blockHash)) return { state: "gap" };
+    const evidence: PublicSwapHistoryEvidence = {
+      kind: "observed",
+      chain: "eip155:4663",
+      instrumentId: `eip155:4663/pool:${range.poolAddress}`,
+      observedAt: coverage.observedAt.toISOString(),
+      sourceId: coverage.source,
+      sourceVersion: "unknown",
+      decoderVersion: "uniswap-v3-swap-abi-v1",
+      anchor: { height: coverage.toBlock.toString(), hash: coverage.blockHash, semantics: "current-not-final" },
+      coverage: { state: coverage.status === "EMPTY" ? "empty" : "complete",
+        scope: { fromBlock: coverage.fromBlock.toString(), toBlock: coverage.toBlock.toString() },
+        caps: { maxBlocks: Number(MAX_BLOCKS), maxEvents: MAX_ROWS }, gaps: [] },
+      freshness: { state: "unknown", checkedAt: now.toISOString() },
+      units: { amount0: "raw-token-units", amount1: "raw-token-units", sqrtPriceX96: "Q64.96",
+        liquidity: "raw-pool-liquidity", tick: "ticks" },
+      limitations: ["Pool identity does not identify token contracts or token decimals.",
+        "Source version, redistribution rights, and freshness are not established by stored coverage.",
+        "Swap observations are not OHLC candles or USD prices."],
+    };
+    if (coverage.status === "EMPTY") return rows.length === 0 ? { state: "empty", evidence, events: [] } : { state: "gap" };
+    return rows.length > 0 ? { state: "complete", evidence, events: rows.map(publicEvent) } : { state: "gap" };
   }
 }
 

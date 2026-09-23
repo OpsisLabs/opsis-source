@@ -24,6 +24,11 @@ test("local quant workflow validates, runs, and requires export consent", async 
   await expect(page.getByText(/observations loaded/)).toBeVisible();
   await page.getByRole("button", { name: "Run local experiment" }).click();
   await expect(page.getByText("4. Results")).toBeVisible({ timeout: 10_000 });
+  await page.getByLabel("Resampling model").selectOption("historical_moving_block_bootstrap");
+  await page.getByLabel("Block length (2–30 days; at most half the sample)").fill("7");
+  await page.getByRole("button", { name: "Run local experiment" }).click();
+  await expect(page.getByText(/historical_moving_block_bootstrap \(7d\)/).first()).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByText("At most two local runs")).toBeVisible();
   await expect(page.getByRole("button", { name: "Export manifest" })).toBeDisabled();
   await page.getByRole("checkbox", { name: /consent to download/i }).check();
   await expect(page.getByRole("button", { name: "Export manifest" })).toBeEnabled();

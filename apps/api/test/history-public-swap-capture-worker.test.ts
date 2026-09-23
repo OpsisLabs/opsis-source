@@ -88,6 +88,79 @@ describe("public Swap capture worker", () => {
     expect(beforeGap.lease.release).toHaveBeenCalledTimes(1);
   });
 
+  it("renews during a long capture and waits for the in-flight renewal before release", async () => {
+    let interval: (() => void) | undefined;
+    let finishCapture!: (value: { status: "COMPLETE"; rows: number }) => void;
+    const h = setup();
+    h.lease.ttlMs = 90;
+    h.capture.capture.mockImplementationOnce(() => new Promise((resolve) => { finishCapture = resolve; }));
+    const worker = new PublicSwapCaptureWorker({
+      capture: h.capture, lease: h.lease, budget: h.budget, storage: h.storage, coverage: h.coverage,
+      allowlist: [r(A, 1n, 100n)], enabled: true,
+      setInterval: ((callback: TimerHandler) => { interval = callback as () => void; return 1 as unknown as ReturnType<typeof setInterval>; }) as typeof setInterval,
+      clearInterval: vi.fn(),
+    });
+    const pending = worker.run({ enabled: true, ranges: [r()] });
+    await vi.waitFor(() => expect(finishCapture).toBeDefined());
+    interval?.();
+    await vi.waitFor(() => expect(h.lease.confirm).toHaveBeenCalledTimes(4));
+    finishCapture({ status: "COMPLETE", rows: 1 });
+    expect(await pending).toMatchObject({ status: "COMPLETE", complete: 1 });
+    expect(h.lease.release).toHaveBeenCalledTimes(1);
+  });
+
+  it("rejects completion when renewal loses ownership during capture", async () => {
+    let interval: (() => void) | undefined;
+    let finishCapture!: (value: { status: "COMPLETE"; rows: number }) => void;
+    const h = setup();
+    h.capture.capture.mockImplementationOnce(async (_range, options) => {
+      const pending = new Promise<{ status: "COMPLETE"; rows: number }>((resolve) => { finishCapture = resolve; });
+      const result = await pending;
+      await options?.assertLease();
+      return result;
+    });
+    h.lease.confirm.mockResolvedValueOnce(true).mockResolvedValueOnce(true).mockResolvedValueOnce(true).mockResolvedValueOnce(false);
+    const worker = new PublicSwapCaptureWorker({
+      capture: h.capture, lease: h.lease, budget: h.budget, storage: h.storage, coverage: h.coverage,
+      allowlist: [r(A, 1n, 100n)], enabled: true,
+      setInterval: ((callback: TimerHandler) => { interval = callback as () => void; return 1 as unknown as ReturnType<typeof setInterval>; }) as typeof setInterval,
+      clearInterval: vi.fn(),
+    });
+    const pending = worker.run({ enabled: true, ranges: [r()] });
+    await vi.waitFor(() => expect(finishCapture).toBeDefined());
+    interval?.();
+    await vi.waitFor(() => expect(h.lease.confirm).toHaveBeenCalledTimes(4));
+    finishCapture({ status: "COMPLETE", rows: 1 });
+    expect(await pending).toMatchObject({ status: "STOPPED", stopReason: "LEASE_LOST", attempted: 1, complete: 0 });
+    expect(h.lease.release).toHaveBeenCalledTimes(1);
+  });
+
+  it("aborts publication and releases the owner when Redis renewal fails mid-capture", async () => {
+    let interval: (() => void) | undefined;
+    let finishCapture!: (value: { status: "COMPLETE"; rows: number }) => void;
+    const h = setup();
+    h.capture.capture.mockImplementationOnce(async (_range, options) => {
+      const result = await new Promise<{ status: "COMPLETE"; rows: number }>((resolve) => { finishCapture = resolve; });
+      await options?.assertLease();
+      return result;
+    });
+    h.lease.confirm.mockResolvedValueOnce(true).mockResolvedValueOnce(true).mockResolvedValueOnce(true)
+      .mockRejectedValueOnce(new Error("Redis offline"));
+    const worker = new PublicSwapCaptureWorker({
+      capture: h.capture, lease: h.lease, budget: h.budget, storage: h.storage, coverage: h.coverage,
+      allowlist: [r(A, 1n, 100n)], enabled: true,
+      setInterval: ((callback: TimerHandler) => { interval = callback as () => void; return 1 as unknown as ReturnType<typeof setInterval>; }) as typeof setInterval,
+      clearInterval: vi.fn(),
+    });
+    const pending = worker.run({ enabled: true, ranges: [r()] });
+    await vi.waitFor(() => expect(finishCapture).toBeDefined());
+    interval?.();
+    await vi.waitFor(() => expect(h.lease.confirm).toHaveBeenCalledTimes(4));
+    finishCapture({ status: "COMPLETE", rows: 1 });
+    expect(await pending).toMatchObject({ status: "STOPPED", stopReason: "LEASE_LOST", attempted: 1, complete: 0 });
+    expect(h.lease.release).toHaveBeenCalledTimes(1);
+  });
+
   it("rejects malformed allowlists before acquiring the invocation lease", async () => {
     const malformed = new PublicSwapCaptureWorker({
       capture: { capture: vi.fn(async () => ({ status: "COMPLETE" as const, rows: 1 })) },

@@ -31,6 +31,8 @@ export default function QuantWorkbench() {
   const [symbol, setSymbol] = useState("");
   const [quoteCurrency, setQuoteCurrency] = useState("USD");
   const [researchMode, setResearchMode] = useState(false);
+  const [model, setModel] = useState<NonNullable<ExperimentSpec["model"]>>("historical_iid_bootstrap");
+  const [blockLength, setBlockLength] = useState(7);
   const [runs, setRuns] = useState(180);
   const [seed, setSeed] = useState(42);
   const [busy, setBusy] = useState(false);
@@ -206,7 +208,11 @@ export default function QuantWorkbench() {
           ...current.filter(
             (item) =>
               item.datasetHash !== next.datasetHash ||
-              item.manifest.seed !== next.manifest.seed,
+              item.manifest.seed !== next.manifest.seed ||
+              item.manifest.model !== next.manifest.model ||
+              item.manifest.blockLength !== next.manifest.blockLength ||
+              item.manifest.bootstrapRuns !== next.manifest.bootstrapRuns ||
+              item.manifest.researchMode !== next.manifest.researchMode,
           ),
         ].slice(0, 2),
       );
@@ -228,6 +234,8 @@ export default function QuantWorkbench() {
       seed: seed,
       confidence: 0.9,
       researchMode,
+      model,
+      ...(model === "historical_moving_block_bootstrap" ? { blockLength } : {}),
     };
     worker.postMessage({ id, dataset, spec });
   };
@@ -360,10 +368,26 @@ export default function QuantWorkbench() {
           <h2>{c("2. Set the experiment", "2. 设置实验")}</h2>
           <p>
             {c(
-              "Historical IID bootstrap resamples observed daily returns. The band is pointwise evidence, never a prediction.",
-              "历史 IID 自助法重采样已观察的每日收益。区间是逐点证据，不是预测。",
+              "Choose independent daily draws or contiguous return blocks. Both use the imported history; pointwise bands are scenarios, never predictions.",
+              "选择独立每日抽样或连续收益区块。两者都使用导入的历史数据；逐点区间是情景而非预测。",
             )}
           </p>
+          <label>
+            {c("Resampling model", "重采样模型")}
+            <select value={model} onChange={(e) => setModel(e.target.value as NonNullable<ExperimentSpec["model"]>)}>
+              <option value="historical_iid_bootstrap">{c("Independent daily returns (IID)", "独立每日收益（IID）")}</option>
+              <option value="historical_moving_block_bootstrap">{c("Contiguous return blocks", "连续收益区块")}</option>
+            </select>
+          </label>
+          {model === "historical_moving_block_bootstrap" && (
+            <label>
+              {c("Block length (2–30 days; at most half the sample)", "区块长度（2–30 天；最多为样本的一半）")}
+              <input type="number" min="2"
+                max={dataset ? Math.min(30, Math.floor((dataset.observations.length - 1) / 2)) : 30}
+                value={blockLength}
+                onChange={(e) => setBlockLength(Number(e.target.value))} />
+            </label>
+          )}
           <label>
             {c("Bootstrap runs", "自助法次数")}
             <input
@@ -462,7 +486,8 @@ export default function QuantWorkbench() {
             )}
             <p>
               {run.dataset.instrument.symbol} · {run.datasetHash.slice(0, 16)}…
-              · {run.manifest.model} · seed {run.manifest.seed}
+              · {run.manifest.model}
+              {run.manifest.blockLength === undefined ? "" : ` (${run.manifest.blockLength}d)`} · seed {run.manifest.seed}
             </p>
             <div className="opsis-quant-metrics">
               <div>
@@ -548,10 +573,11 @@ export default function QuantWorkbench() {
                   </caption>
                   <tbody>
                     {history.map((item) => (
-                      <tr key={`${item.datasetHash}-${item.manifest.seed}`}>
+                      <tr key={`${item.datasetHash}-${item.manifest.model}-${item.manifest.blockLength ?? "iid"}-${item.manifest.seed}`}>
                         <th>
                           {item.datasetHash.slice(0, 12)}… / seed{" "}
-                          {item.manifest.seed}
+                          {item.manifest.seed} / {item.manifest.model}
+                          {item.manifest.blockLength === undefined ? "" : ` (${item.manifest.blockLength}d)`}
                         </th>
                         <td>
                           {item.bootstrap.terminal.median.toFixed(4)}{" "}

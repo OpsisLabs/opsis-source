@@ -123,4 +123,13 @@ describe("bounded public Swap capture preparation", () => {
     await expect(h.capture.capture(request)).resolves.toEqual({ status: "GAP", rows: 0 });
     expect(h.recordCoverage).toHaveBeenCalledWith(expect.objectContaining({ status: "GAP", blockHash: null }));
   });
+
+  it("does not write COMPLETE or EMPTY coverage after the lease assertion fails", async () => {
+    for (const logs of [[log()], []]) {
+      const h = harness({ state: "complete", toBlockHash: HASH, logs });
+      await expect(h.capture.capture(request, { assertLease: async () => { throw new Error("lease lost"); } })).rejects.toThrow("lease lost");
+      expect(h.recordCoverage).not.toHaveBeenCalled();
+      if (logs.length) expect(h.ingestObservation).toHaveBeenCalledTimes(1);
+    }
+  });
 });

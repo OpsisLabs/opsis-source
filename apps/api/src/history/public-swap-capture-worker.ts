@@ -12,10 +12,11 @@ export type AllowlistedRange = WorkerRange;
 export type CaptureResult = { status: "COMPLETE" | "EMPTY" | "GAP" | "UNAVAILABLE"; rows: number };
 
 export interface PublicSwapCaptureLike {
-  /** The implementation's maximum duration must be strictly below the lease TTL. */
-  capture(range: WorkerRange): Promise<CaptureResult>;
+  capture(range: WorkerRange, options?: { assertLease: () => Promise<void> }): Promise<CaptureResult>;
 }
 export interface HistoryWorkerLease {
+  /** Lease lifetime in milliseconds, used to schedule safe owner-checked renewal. */
+  readonly ttlMs?: number;
   acquire(key: string): Promise<string | null>;
   /** Must validate the owner token and renew the lease when it is still owned. */
   confirm(key: string, ownerToken: string): Promise<boolean>;
@@ -44,6 +45,8 @@ export class PublicSwapCaptureWorker {
     coverage: WorkerCoverageWriter;
     allowlist: readonly AllowlistedRange[];
     enabled?: boolean;
+    setInterval?: typeof setInterval;
+    clearInterval?: typeof clearInterval;
   }) {}
 
   async run(plan: WorkerPlan): Promise<WorkerResult> {
@@ -56,29 +59,57 @@ export class PublicSwapCaptureWorker {
     const owner = await this.deps.lease.acquire(GLOBAL_LEASE_KEY);
     if (!owner) return { status: "STOPPED", ...zero, stopReason: "LEASE_UNAVAILABLE" };
     const counts = { ...zero };
+    const intervalMs = Math.max(1, Math.floor((this.deps.lease.ttlMs ?? 60_000) / 3));
+    const setTimer = this.deps.setInterval ?? setInterval;
+    const clearTimer = this.deps.clearInterval ?? clearInterval;
+    let lost = false;
+    let renewal: Promise<boolean> | null = null;
+    const renew = () => {
+      const operation = Promise.resolve().then(() => this.deps.lease.confirm(GLOBAL_LEASE_KEY, owner))
+        .then((ok) => { if (!ok) lost = true; return ok; }, () => { lost = true; return false; });
+      renewal = operation;
+      void operation.then(() => { if (renewal === operation) renewal = null; });
+      return operation;
+    };
+    const assertLease = async () => {
+      if (lost) throw new LeaseLostError();
+      if (renewal) {
+        if (!(await renewal)) throw new LeaseLostError();
+      }
+      if (!(await renew())) throw new LeaseLostError();
+    };
+    const timer = setTimer(() => {
+      if (lost || renewal) return;
+      void renew();
+    }, intervalMs);
     let priorError: unknown;
     try {
       for (let i = 0; i < ranges.length; i++) {
         const range = ranges[i]!;
-        if (!(await this.ownsLease(owner))) return { status: "STOPPED", ...counts, stopReason: "LEASE_LOST" };
+        if (!(await this.tryAssertLease(assertLease))) return { status: "STOPPED", ...counts, stopReason: "LEASE_LOST" };
         const before = await this.deps.storage.check();
         if (!before.allowed) {
-          if (!(await this.ownsLease(owner))) return { status: "STOPPED", ...counts, stopReason: "LEASE_LOST" };
+          if (!(await this.tryAssertLease(assertLease))) return { status: "STOPPED", ...counts, stopReason: "LEASE_LOST" };
           await this.deps.coverage.recordGap({ range, detail: "STORAGE_CAP" });
           counts.gaps++;
           return { status: "STOPPED", ...counts, stopReason: "STORAGE_CAP" };
         }
-        if (!(await this.ownsLease(owner))) return { status: "STOPPED", ...counts, stopReason: "LEASE_LOST" };
+        if (!(await this.tryAssertLease(assertLease))) return { status: "STOPPED", ...counts, stopReason: "LEASE_LOST" };
         if (!(await this.deps.budget.reserve({ kind: "RANGE-ATTEMPT", range }))) {
-          if (!(await this.ownsLease(owner))) return { status: "STOPPED", ...counts, stopReason: "LEASE_LOST" };
+          if (!(await this.tryAssertLease(assertLease))) return { status: "STOPPED", ...counts, stopReason: "LEASE_LOST" };
           await this.deps.coverage.recordGap({ range, detail: "BUDGET_EXHAUSTED" });
           counts.gaps++;
           return { status: "STOPPED", ...counts, stopReason: "BUDGET_EXHAUSTED" };
         }
-        if (!(await this.ownsLease(owner))) return { status: "STOPPED", ...counts, stopReason: "LEASE_LOST" };
+        if (!(await this.tryAssertLease(assertLease))) return { status: "STOPPED", ...counts, stopReason: "LEASE_LOST" };
         counts.attempted++;
-        const result = await this.deps.capture.capture(range);
-        if (!(await this.ownsLease(owner))) return { status: "STOPPED", ...counts, stopReason: "LEASE_LOST" };
+        let result: CaptureResult;
+        try { result = await this.deps.capture.capture(range, { assertLease }); }
+        catch (error) {
+          if (error instanceof LeaseLostError || lost) return { status: "STOPPED", ...counts, stopReason: "LEASE_LOST" };
+          throw error;
+        }
+        if (!(await this.tryAssertLease(assertLease))) return { status: "STOPPED", ...counts, stopReason: "LEASE_LOST" };
         if (result.status === "COMPLETE") counts.complete++;
         else if (result.status === "EMPTY") counts.empty++;
         else if (result.status === "GAP") { counts.gaps++; return { status: "STOPPED", ...counts, stopReason: "SOURCE_GAP" }; }
@@ -88,7 +119,7 @@ export class PublicSwapCaptureWorker {
           const after = await this.deps.storage.check();
           if (!after.allowed) {
             const nextRange = ranges[i + 1]!;
-            if (!(await this.ownsLease(owner))) return { status: "STOPPED", ...counts, stopReason: "LEASE_LOST" };
+            if (!(await this.tryAssertLease(assertLease))) return { status: "STOPPED", ...counts, stopReason: "LEASE_LOST" };
             await this.deps.coverage.recordGap({ range: nextRange, detail: "STORAGE_CAP" });
             counts.gaps++;
             return { status: "STOPPED", ...counts, stopReason: "STORAGE_CAP" };
@@ -100,14 +131,20 @@ export class PublicSwapCaptureWorker {
       priorError = error;
       throw error;
     } finally {
+      clearTimer(timer);
+      if (renewal) await renewal;
       try { await this.deps.lease.release(GLOBAL_LEASE_KEY, owner); }
       catch (error) { if (priorError === undefined) throw error; }
     }
   }
 
-  private ownsLease(owner: string): Promise<boolean> {
-    return this.deps.lease.confirm(GLOBAL_LEASE_KEY, owner);
+  private async tryAssertLease(assertLease: () => Promise<void>): Promise<boolean> {
+    try { await assertLease(); return true; } catch { return false; }
   }
+}
+
+export class LeaseLostError extends Error {
+  constructor() { super("Public Swap capture lease was lost"); this.name = "LeaseLostError"; }
 }
 
 function validateAndSort(plan: WorkerPlan, allowlist: readonly AllowlistedRange[]): WorkerRange[] | null {
