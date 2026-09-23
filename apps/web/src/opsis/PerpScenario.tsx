@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useCopy } from "./copy";
-import { perpScenario } from "./perp-scenario";
+import { perpScenario, perpShockScenarios } from "./perp-scenario";
 export default function PerpScenario() {
   const c = useCopy();
   const [side, setSide] = useState<"long" | "short">("long");
+  const [selectedShock, setSelectedShock] = useState(2);
   const [values, setValues] = useState({
     quantity: "",
     entry: "",
@@ -26,8 +27,12 @@ export default function PerpScenario() {
     otherCosts: c("Other costs in quote currency", "报价货币计价的其他成本"),
   };
   let result: ReturnType<typeof perpScenario> | null = null;
+  let comparison: Exclude<ReturnType<typeof perpShockScenarios>, null> | null = null;
+  let comparisonUnavailable = false;
   try {
     result = perpScenario({ side, ...values });
+    comparison = perpShockScenarios({ side, ...values });
+    comparisonUnavailable = comparison === null;
   } catch {
     /* Input state explicitly shown, never synthesize defaults. */
   }
@@ -112,6 +117,74 @@ export default function PerpScenario() {
           </dl>
         )}
       </section>
+      {comparison && (
+        <section aria-labelledby="perp-shock-title" data-testid="opsis-perp-shocks">
+          <h2 id="perp-shock-title">{c("Price-shock comparison", "价格冲击比较")}</h2>
+          <p className="opsis-small">
+            {c(
+              "Moves are relative to your entry price. Select a fixed move to inspect its net result. Every point uses the same entered quantity, fees, funding and other costs; these are hypothetical scenarios, not executable quotes.",
+              "固定变动以您的入场价格为基准。选择一种变动查看净结果。每个点均使用相同的数量、费用、资金费及其他成本；这些是假设情景，并非可执行报价。",
+            )}
+          </p>
+          <p className="opsis-small">
+            {c(
+              "Closing prices are truncated to eight decimals; displayed moves are approximate.",
+              "平仓价格截断至小数点后八位；显示的变动为近似值。",
+            )}
+          </p>
+          <div role="group" aria-label={c("Fixed price shocks", "固定价格冲击")}>
+            {comparison.shocks.map((shock, index) => (
+              <button
+                key={shock.percent}
+                type="button"
+                aria-pressed={selectedShock === index}
+                onClick={() => setSelectedShock(index)}
+                style={{ margin: "0.2rem", borderColor: selectedShock === index ? "#1769ff" : undefined }}
+              >
+                {shock.percent > 0 ? "+" : ""}{shock.percent}%
+              </button>
+            ))}
+          </div>
+          <p aria-live="polite">
+            {c("Selected hypothetical close", "所选假设平仓")} {comparison.shocks[selectedShock].exit} · {comparison.shocks[selectedShock].net} {c("quote units net", "报价单位净额")}
+          </p>
+          <div aria-hidden="true" style={{ display: "grid", gap: "0.35rem", margin: "0.6rem 0" }}>
+            {comparison.shocks.map((shock) => (
+              <div key={shock.percent} style={{ display: "grid", gridTemplateColumns: "3.5rem 1fr", gap: "0.5rem", alignItems: "center" }}>
+                <span>{shock.percent > 0 ? "+" : ""}{shock.percent}%</span>
+                <span style={{ display: "grid", gridTemplateColumns: "1fr 1fr", height: "0.65rem", position: "relative" }}>
+                  <span style={{ display: "flex", justifyContent: "flex-end", borderRight: "1px solid #526173" }}>
+                    {shock.negative && <span style={{ display: "block", height: "0.55rem", width: `${shock.barWidth}%`, minWidth: "2px", background: "#b42318" }} />}
+                  </span>
+                  <span>
+                    {!shock.negative && shock.barWidth > 0 && <span style={{ display: "block", height: "0.55rem", width: `${shock.barWidth}%`, minWidth: "2px", background: "#1769ff" }} />}
+                  </span>
+                </span>
+              </div>
+            ))}
+          </div>
+          <div style={{ overflowX: "auto" }}>
+            <table>
+              <caption>{c("Exact price and net result for each hypothetical move and your entered exit", "每个假设变动及您输入的平仓价格与净结果")}</caption>
+              <thead><tr><th scope="col">{c("Case", "情景")}</th><th scope="col">{c("Closing price", "平仓价格")}</th><th scope="col">{c("Net result", "净结果")}</th></tr></thead>
+              <tbody>
+                {comparison.shocks.map((shock) => (
+                  <tr key={shock.percent}><th scope="row">{shock.percent > 0 ? "+" : ""}{shock.percent}%</th><td>{shock.exit}</td><td>{shock.net}</td></tr>
+                ))}
+                <tr><th scope="row">{c("Your entered exit", "您输入的平仓价格")}</th><td>{comparison.entered.exit}</td><td>{comparison.entered.net}</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+      {result && comparisonUnavailable && (
+        <p role="status" data-testid="opsis-perp-shocks-unavailable">
+          {c(
+            "Shock comparison unavailable at eight-decimal price precision.",
+            "价格精度为八位小数时，冲击比较不可用。",
+          )}
+        </p>
+      )}
       <p className="opsis-receipt">
         {c(
           "Calculated locally in memory, truncated to eight decimals per term. No assumed funding frequency or annualization. Collateral is not a fee. Margin tiers, liquidation, inverse/quanto contracts, collateral FX, partial fills and venue rounding are outside this model. A scenario is not a close quote or a guarantee. Opening and closing remain unavailable pending an admitted venue for Canada/US.",

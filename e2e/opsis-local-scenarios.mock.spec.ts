@@ -51,6 +51,16 @@ test.describe("Opsis local price and perp scenarios", () => {
     await expect(page.getByTestId("opsis-perp-result")).toContainText(
       "18.18000000 quote units net",
     );
+    await expect(page.getByTestId("opsis-perp-shocks")).toContainText("-41.76000000");
+    await expect(page.getByTestId("opsis-perp-shocks")).toContainText("Your entered exit");
+    await expect(page.getByTestId("opsis-perp-shocks")).toContainText("relative to your entry price");
+    await expect(page.getByTestId("opsis-perp-shocks")).toContainText(
+      "Closing prices are truncated to eight decimals; displayed moves are approximate.",
+    );
+    await page.getByRole("button", { name: "+20%" }).click();
+    await expect(page.getByTestId("opsis-perp-shocks")).toContainText(
+      "Selected hypothetical close 120.00000000 · 38.16000000 quote units net",
+    );
     await page.getByLabel("Position direction").selectOption("short");
     await expect(page.getByTestId("opsis-perp-result")).toContainText(
       "-21.82000000 quote units net",
@@ -59,11 +69,20 @@ test.describe("Opsis local price and perp scenarios", () => {
     await expect(page.getByTestId("opsis-perp-result")).toContainText(
       "Complete the assumptions",
     );
+    await expect(page.getByTestId("opsis-perp-shocks")).toHaveCount(0);
     await page.setViewportSize({ width: 320, height: 800 });
     await page.getByRole("button", { name: "中文", exact: true }).click();
     await expect(
       page.getByRole("heading", { name: "平仓成本后还剩多少？" }),
     ).toBeVisible();
+    await page.getByLabel("退出费用（基点）", { exact: true }).fill("10");
+    await expect(page.getByTestId("opsis-perp-shocks")).toContainText("您输入的平仓价格");
+    await page.getByLabel("入场价格", { exact: true }).fill("0.00000001");
+    await expect(page.getByTestId("opsis-perp-result")).not.toContainText("补全假设");
+    await expect(page.getByTestId("opsis-perp-shocks")).toHaveCount(0);
+    await expect(page.getByTestId("opsis-perp-shocks-unavailable")).toContainText(
+      "价格精度为八位小数时，冲击比较不可用。",
+    );
     expect(
       await page.locator("html").evaluate((el) => el.scrollWidth - innerWidth),
     ).toBeLessThanOrEqual(1);
