@@ -95,6 +95,7 @@ const envSchema = z.object({
   OBSERVED_TRADES_MIN_BLOCKS: z.coerce.number().int().min(10).max(500).default(50),
   OBSERVED_TRADES_MAX_LOGS: z.coerce.number().int().min(10).max(10_000).default(1_000),
   OBSERVED_TRADES_TOP_ROWS: z.coerce.number().int().min(1).max(6).default(6),
+  PUBLIC_SWAP_HISTORY_ENABLED: envBoolean.default(false),
   OPEN_DATA_API_ENABLED: envBoolean.default(false),
   OPEN_DATA_DAILY_REQUEST_BUDGET: z.coerce.number().int().min(100).max(100_000).default(10_000),
   // The browser sends a custom header and exact Origin on state-changing

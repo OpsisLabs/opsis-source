@@ -226,6 +226,75 @@ export class PublicSwapHistoryRepository {
     });
   }
 
+  /**
+   * Promote one exact latest coverage revision only after its independently
+   * verified block hashes and committed rows agree. The serializable read and
+   * conditional write prevent a newer coverage revision from being promoted
+   * through a check made before a concurrent recapture.
+   */
+  async promoteVerifiedCanonicalRange(input: {
+    chainId: 4663;
+    poolAddress: string;
+    fromBlock: bigint;
+    toBlock: bigint;
+    source: string;
+    coverageId: string;
+    revision: number;
+    blockHash: string;
+    verifiedBlocks: readonly { blockNumber: bigint; blockHash: string }[];
+  }): Promise<boolean> {
+    this.requireEnabled();
+    assert(input.chainId === 4663 && input.fromBlock >= 0n && input.toBlock >= input.fromBlock
+      && input.toBlock <= POSTGRES_BIGINT_MAX && input.toBlock - input.fromBlock < 100n,
+    "Invalid verified history range");
+    const poolAddress = canonicalHex(input.poolAddress, ADDRESS, "poolAddress");
+    const anchorHash = canonicalHex(input.blockHash, HASH, "blockHash");
+    assert(SOURCE_ID.test(input.source) && typeof input.coverageId === "string" && input.coverageId.length > 0
+      && input.coverageId.length <= 120 && Number.isSafeInteger(input.revision) && input.revision > 0,
+    "Invalid verified coverage identity");
+    assert(input.verifiedBlocks.length > 0 && input.verifiedBlocks.length <= 100, "Invalid verified block cap");
+    const verified = new Map<bigint, string>();
+    for (const block of input.verifiedBlocks) {
+      assert(block.blockNumber >= input.fromBlock && block.blockNumber <= input.toBlock
+        && !verified.has(block.blockNumber), "Invalid verified block list");
+      verified.set(block.blockNumber, canonicalHex(block.blockHash, HASH, "verified blockHash"));
+    }
+    assert(verified.get(input.toBlock) === anchorHash, "Missing verified range anchor");
+
+    return this.prisma.$transaction(async (tx) => {
+      const range = { chainId: input.chainId, poolAddress, fromBlock: input.fromBlock,
+        toBlock: input.toBlock, source: input.source };
+      const latest = await tx.publicSwapHistoryCoverage.findFirst({ where: range, orderBy: { revision: "desc" } });
+      if (!latest || latest.id !== input.coverageId || latest.revision !== input.revision
+        || latest.canonicalStatus !== "UNKNOWN" || (latest.status !== "COMPLETE" && latest.status !== "EMPTY")
+        || latest.blockHash !== anchorHash || latest.expectedEventCount === null || latest.contentDigest === null) return false;
+
+      const rows = await tx.publicSwapObservation.findMany({
+        where: { chainId: input.chainId, poolAddress, source: input.source,
+          blockNumber: { gte: input.fromBlock, lte: input.toBlock } },
+        take: 101,
+      });
+      if (rows.length > 100 || rows.some((row) => !verified.has(row.blockNumber))) return false;
+      const canonicalRows = rows.filter((row) => row.blockHash === verified.get(row.blockNumber));
+      if (canonicalRows.length !== latest.expectedEventCount
+        || publicSwapContentDigest(canonicalRows) !== latest.contentDigest
+        || (latest.status === "EMPTY" ? canonicalRows.length !== 0 : canonicalRows.length === 0)) return false;
+
+      for (const [blockNumber, blockHash] of verified) {
+        const scope = { chainId: input.chainId, poolAddress, source: input.source, blockNumber };
+        await tx.publicSwapObservation.updateMany({ where: { ...scope, blockHash }, data: { canonicalStatus: "CANONICAL" } });
+        await tx.publicSwapObservation.updateMany({ where: { ...scope, blockHash: { not: blockHash } },
+          data: { canonicalStatus: "ORPHANED" } });
+      }
+      const updated = await tx.publicSwapHistoryCoverage.updateMany({
+        where: { id: input.coverageId, revision: input.revision, canonicalStatus: "UNKNOWN" },
+        data: { canonicalStatus: "CANONICAL" },
+      });
+      if (updated.count !== 1) throw new PublicSwapHistoryConflictError();
+      return true;
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+  }
+
   async recordCoverage(input: PublicSwapHistoryCoverageInput) {
     this.requireEnabled();
     const data = validateCoverage(input);

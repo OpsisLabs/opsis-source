@@ -23,6 +23,8 @@ import { entityRoutes } from "./routes/entities.js";
 import { healthRoutes } from "./routes/health.js";
 import { usageRoutes } from "./routes/usage.js";
 import { swapRoutes } from "./routes/swaps.js";
+import { publicSwapHistoryRoutes } from "./routes/public-swap-history.js";
+import type { PublicSwapHistoryLookup } from "./routes/public-swap-history.js";
 import { exitCheckRoutes } from "./routes/exit-check.js";
 import { ExitCheckService, type ExitCheckSource } from "./exit-check/service.js";
 import { createExitCheckBudget } from "./exit-check/budget.js";
@@ -63,6 +65,7 @@ export async function buildApp(
     observedTrades?: ObservedTradesSource;
     openDataLimiter?: OpenDataLimiter;
     exitCheck?: ExitCheckSource;
+    publicSwapHistory?: PublicSwapHistoryLookup;
   }
 ) {
   const app = Fastify({
@@ -196,6 +199,7 @@ export async function buildApp(
   await chatRoutes(app, env, prisma, cache);
   await usageRoutes(app, env, prisma);
   await swapRoutes(app, env, cache);
+  await publicSwapHistoryRoutes(app, env, prisma, dependencies?.publicSwapHistory);
   await exitCheckRoutes(
     app,
     env,
