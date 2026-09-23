@@ -10,7 +10,11 @@ import {
 } from "viem";
 import { CHAINSCOUT_REVIEWED_ASSETS } from "@rh-chain/shared";
 import type { Env } from "../config/env.js";
-import { createProviderHttp, type ProviderHttp } from "../chain/provider-http.js";
+import {
+  createProviderHttp,
+  ProviderRequestError,
+  type ProviderHttp,
+} from "../chain/provider-http.js";
 import { AppError } from "../http/errors.js";
 import {
   createObservedTradesBudget,
@@ -368,7 +372,7 @@ export class ObservedTradesService implements ObservedTradesSource {
         modelProvider: "none",
         providerDestinations: ["Robinhood Public RPC"],
         disclosure:
-          "Your clicked request sent the public token contract, the factory-derived pool address, and a bounded block range to the Robinhood Public RPC, which returned public Swap logs plus, for the displayed rows only, public transaction hashes with their public sender addresses and account code. Those are public chain identifiers, not your wallet. No private wallet, Vault, label, note, ownership, or AI data was sent.",
+          "Your clicked request sent the public token contract, the factory-derived pool address, and a bounded block range to the Robinhood Public RPC, which returned public Swap logs and transaction data for displayed rows. Dense displayed blocks may be returned with all their public transactions; their hashes are checked for consistency, only displayed transactions are used to label rows, and unused transaction data is not retained. Public sender addresses and account code may be read for displayed rows. These are public chain identifiers, not your wallet. No private wallet, Vault, label, note, ownership, or AI data was sent.",
       },
     };
   }
@@ -683,8 +687,20 @@ export class ObservedTradesService implements ObservedTradesSource {
           .filter((blockNumber) => blockNumber !== anchor.number),
       ),
     ];
+    const groupedHashes = new Map<number, string[]>();
+    for (const hash of txHashes) {
+      const blockNumber = expected.get(hash)!.blockNumber;
+      if (blockNumber === anchor.number) continue;
+      const group = groupedHashes.get(blockNumber) ?? [];
+      group.push(hash);
+      groupedHashes.set(blockNumber, group);
+    }
+    const batchTxHashes = txHashes.filter((hash) => {
+      const blockNumber = expected.get(hash)!.blockNumber;
+      return blockNumber === anchor.number || (groupedHashes.get(blockNumber)?.length ?? 0) < 4;
+    });
     const calls: RpcCall[] = [
-      ...txHashes.map((hash) => ({
+      ...batchTxHashes.map((hash) => ({
         id: `tx:${hash}`,
         method: "eth_getTransactionByHash",
         params: [hash],
@@ -700,10 +716,101 @@ export class ObservedTradesService implements ObservedTradesSource {
         ? await this.rpcBatch(calls, run)
         : new Map<string, Record<string, unknown>>();
     const senders = new Map<string, string>();
+    const verifiedTransactions = new Map<string, unknown>();
+    const individuallyRequested = new Set(batchTxHashes);
+    for (const hash of batchTxHashes) {
+      verifiedTransactions.set(hash, results.get(`tx:${hash}`)?.result);
+    }
+    const blockHeaders = new Map<number, Record<string, unknown>>();
+    for (const blockNumber of blockNumbers) {
+      blockHeaders.set(blockNumber, asRecord(results.get(`block:${blockNumber}`)?.result));
+    }
+
+    // A full block is useful only when the independently checked hash-only
+    // header proves it contains every requested transaction and stays small.
+    const fullBlockGroups = [...groupedHashes.entries()].filter(([number, hashes]) => {
+      if (hashes.length < 4) return false;
+      const header = blockHeaders.get(number) ?? {};
+      const transactions = header.transactions;
+      return Array.isArray(transactions) && transactions.length <= 64 &&
+        transactions.every((hash) => typeof hash === "string" && HASH.test(hash)) &&
+        hashes.every((hash) => transactions.some((candidate) =>
+          typeof candidate === "string" && candidate.toLowerCase() === hash.toLowerCase()));
+    });
+    if (fullBlockGroups.length > 0) {
+      let fullResults: Map<string, Record<string, unknown>> | null = null;
+      try {
+        fullResults = await this.rpcBatch(fullBlockGroups.map(([number]) => ({
+          id: `full-block:${number}`,
+          method: "eth_getBlockByNumber",
+          params: [`0x${number.toString(16)}`, true],
+        })), run);
+      } catch (error) {
+        // Optional full blocks can exceed a provider's response-size limit.
+        // AppErrors and provider budget/circuit failures represent deliberate
+        // service states. Only oversized or malformed responses fall back;
+        // rate limits and provider outages must not trigger more requests.
+        if (error instanceof AppError) throw error;
+        if (!(error instanceof ProviderRequestError) || !(
+          error.code === "PROVIDER_RESPONSE_TOO_LARGE" ||
+          error.code === "PROVIDER_MALFORMED_RESPONSE" ||
+          error.code === "PROVIDER_HTTP_413"
+        )) throw error;
+      }
+      for (const [number, hashes] of fullBlockGroups) {
+        const result = fullResults?.get(`full-block:${number}`);
+        const full = asRecord(result?.result);
+        const header = blockHeaders.get(number) ?? {};
+        const fullHash = typeof full.hash === "string" ? full.hash.toLowerCase() : null;
+        const headerHash = typeof header.hash === "string" ? header.hash.toLowerCase() : null;
+        const fullNumber = parseHexNumber(full.number);
+        if (result?.error === undefined && fullHash && headerHash &&
+            (fullHash !== headerHash || (fullNumber !== null && fullNumber !== number))) {
+          throw new AppError("OBSERVED_TRADES_REORGED", 503,
+            "A displayed trade block changed during observation; reload before relying on these trades");
+        }
+        const transactions = full.transactions;
+        const headerTransactions = header.transactions;
+        const transactionHashes = Array.isArray(transactions)
+          ? transactions.map((tx) => asRecord(tx).hash).filter(
+              (hash): hash is string => typeof hash === "string" && HASH.test(hash),
+            )
+          : [];
+        const headerHashes = Array.isArray(headerTransactions)
+          ? headerTransactions.filter(
+              (hash): hash is string => typeof hash === "string" && HASH.test(hash),
+            )
+          : [];
+        const valid = result?.error === undefined && fullHash === headerHash &&
+          fullNumber === number && Array.isArray(transactions) &&
+          transactions.length <= 64 && Array.isArray(headerTransactions) &&
+          transactionHashes.length === transactions.length &&
+          transactionHashes.length === headerTransactions.length &&
+          headerHashes.length === headerTransactions.length &&
+          new Set(transactionHashes.map((hash) => hash.toLowerCase())).size === transactionHashes.length &&
+          new Set(headerHashes.map((hash) => hash.toLowerCase())).size === headerHashes.length &&
+          transactionHashes.every((hash) => headerHashes.some((candidate) =>
+            candidate.toLowerCase() === hash.toLowerCase()));
+        if (!valid) continue; // Malformed/full-block failure falls back to tx lookups.
+        for (const hash of hashes) {
+          const tx = transactions.map(asRecord).find((entry) =>
+            typeof entry.hash === "string" && entry.hash.toLowerCase() === hash.toLowerCase());
+          if (tx) verifiedTransactions.set(hash, tx);
+        }
+      }
+    }
+    const fallbackHashes = txHashes.filter((hash) =>
+      !individuallyRequested.has(hash) && verifiedTransactions.get(hash) === undefined,
+    );
+    if (fallbackHashes.length > 0) {
+      const fallbackResults = await this.rpcBatch(fallbackHashes.map((hash) => ({
+        id: `tx:${hash}`, method: "eth_getTransactionByHash", params: [hash],
+      })), run);
+      for (const hash of fallbackHashes) verifiedTransactions.set(hash, fallbackResults.get(`tx:${hash}`)?.result);
+    }
     for (const hash of txHashes) {
       const want = expected.get(hash);
-      const result = results.get(`tx:${hash}`);
-      const entry = asRecord(result?.result);
+      const entry = asRecord(verifiedTransactions.get(hash));
       const returnedHash =
         typeof entry.hash === "string" ? entry.hash.toLowerCase() : null;
       const returnedBlockHash =
@@ -719,7 +826,6 @@ export class ObservedTradesService implements ObservedTradesSource {
       // block number all match the requested log. Otherwise the sender stays
       // unknown and is never labelled from mismatched evidence.
       if (
-        result?.error !== undefined ||
         !want ||
         returnedHash !== hash.toLowerCase() ||
         returnedBlockHash !== want.blockHash ||
@@ -747,7 +853,7 @@ export class ObservedTradesService implements ObservedTradesSource {
     const verifiedBlockTime = new Map<number, string>();
     for (const blockNumber of blockNumbers) {
       const result = results.get(`block:${blockNumber}`);
-      const entry = asRecord(result?.result);
+      const entry = blockHeaders.get(blockNumber) ?? {};
       const hash =
         typeof entry.hash === "string" ? entry.hash.toLowerCase() : null;
       const timestamp = parseHexNumber(entry.timestamp);

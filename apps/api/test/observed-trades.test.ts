@@ -4,7 +4,7 @@ import { encodeAbiParameters, type Hex } from "viem";
 import { CHAINSCOUT_REVIEWED_ASSETS } from "@rh-chain/shared";
 import { loadEnv } from "../src/config/env.js";
 import { installErrorHandler, AppError } from "../src/http/errors.js";
-import type { ProviderHttp } from "../src/chain/provider-http.js";
+import { ProviderRequestError, type ProviderHttp } from "../src/chain/provider-http.js";
 import {
   ObservedTradesService,
   OBSERVED_TRADES_FACTORY,
@@ -109,6 +109,11 @@ function createHarness(options: {
   senders?: Record<string, string>;
   codes?: Record<string, string>;
   txEvidence?: Record<string, TxEvidence>;
+  headerTransactions?: "valid" | "malformed";
+  fullBlockError?: boolean;
+  fullBlockIncomplete?: boolean;
+  fullBlockHash?: string;
+  fullBlockTransportCode?: string;
   poolRead?: "error" | "malformed" | "first-error";
   budgetUnits?: number;
   env?: Record<string, string>;
@@ -149,6 +154,12 @@ function createHarness(options: {
       const body = JSON.parse(String(init?.body ?? "null"));
       if (Array.isArray(body)) {
         rpcSubcalls += body.length;
+        if (options.fullBlockTransportCode && body.some(
+          (entry: { method: string; params: unknown[] }) =>
+            entry.method === "eth_getBlockByNumber" && entry.params[1] === true,
+        )) {
+          throw new ProviderRequestError(options.fullBlockTransportCode, false);
+        }
         return body.map(
           (entry: { id: string; method: string; params: unknown[] }) => {
             if (entry.method === "eth_getTransactionByHash") {
@@ -168,13 +179,16 @@ function createHarness(options: {
               if (from === null) {
                 return { jsonrpc: "2.0", id: entry.id, result: null };
               }
-              const blockNumber = override?.blockNumber ?? ANCHOR_NUMBER;
+              const sourceLog = ((options.logs ?? []) as unknown[]).find((value) =>
+                (value as { transactionHash?: string }).transactionHash === hash,
+              ) as { blockNumber?: string; blockHash?: string } | undefined;
+              const blockNumber = override?.blockNumber ?? Number.parseInt(String(sourceLog?.blockNumber ?? `0x${ANCHOR_NUMBER.toString(16)}`), 16);
               return {
                 jsonrpc: "2.0",
                 id: entry.id,
                 result: {
                   hash: override?.hash ?? hash,
-                  blockHash: override?.blockHash ?? ANCHOR_HASH,
+                  blockHash: override?.blockHash ?? sourceLog?.blockHash ?? ANCHOR_HASH,
                   blockNumber: `0x${blockNumber.toString(16)}`,
                   from,
                 },
@@ -182,13 +196,44 @@ function createHarness(options: {
             }
             if (entry.method === "eth_getBlockByNumber") {
               const number = Number.parseInt(String(entry.params[0]), 16);
+              if (entry.params[1] === true) {
+                if (options.fullBlockError) {
+                  return { jsonrpc: "2.0", id: entry.id, error: { code: -32000, message: "block unavailable" } };
+                }
+                const hashes = (options.logs ?? []) as unknown[];
+                const txs = hashes.filter((value) => {
+                  const log = value as { blockNumber?: string };
+                  return Number.parseInt(String(log.blockNumber ?? "0"), 16) === number;
+                }).map((value) => {
+                  const log = value as { transactionHash: string };
+                  const hash = log.transactionHash;
+                  const override = options.txEvidence?.[hash];
+                  return {
+                    hash: override?.hash ?? hash,
+                    blockHash: override?.blockHash ?? (number === ANCHOR_NUMBER ? ANCHOR_HASH : OTHER_HASH),
+                    blockNumber: `0x${(override?.blockNumber ?? number).toString(16)}`,
+                    from: override?.from ?? options.senders?.[hash] ?? EOA_SENDER,
+                  };
+                });
+                if (options.fullBlockIncomplete) txs.pop();
+                return {
+                  jsonrpc: "2.0", id: entry.id,
+                  result: { ...header(number, options.fullBlockHash ?? (number === ANCHOR_NUMBER ? ANCHOR_HASH : OTHER_HASH)), transactions: txs },
+                };
+              }
+              const transactions = options.headerTransactions === "valid"
+                ? ((options.logs ?? []) as unknown[]).filter((value) => {
+                    const log = value as { blockNumber?: string };
+                    return Number.parseInt(String(log.blockNumber ?? "0"), 16) === number;
+                  }).map((value) => (value as { transactionHash: string }).transactionHash)
+                : options.headerTransactions === "malformed" ? ["not-a-hash"] : undefined;
               return {
                 jsonrpc: "2.0",
                 id: entry.id,
-                result: header(
-                  number,
-                  number === ANCHOR_NUMBER ? ANCHOR_HASH : OTHER_HASH,
-                ),
+                result: {
+                  ...header(number, number === ANCHOR_NUMBER ? ANCHOR_HASH : OTHER_HASH),
+                  ...(transactions ? { transactions } : {}),
+                },
               };
             }
             if (entry.method === "eth_getCode") {
@@ -448,7 +493,7 @@ describe("observed trades service", () => {
       method: "uniswap_v3_swap_signed_amounts",
       transfersUsed: false,
     });
-    expect(result.privacy.disclosure).toContain("public transaction hashes");
+    expect(result.privacy.disclosure).toContain("only displayed transactions are used to label rows");
     expect(result.privacy.disclosure).toContain("not your wallet");
   });
 
@@ -543,6 +588,104 @@ describe("observed trades service", () => {
     // Anchor, four fee-tier reads, pool code, token reads, logs, transaction,
     // one shared from-block read, sender code, and anchor recheck: 12 total.
     expect(rpcSubcalls()).toBe(12);
+  });
+
+  it("uses one bounded full-block read for four displayed transactions in a shared block", async () => {
+    const logs = Array.from({ length: 4 }, (_, index) => swapLog({
+      txHash: txHash(String(index + 1)), blockNumber: 900, blockHash: OTHER_HASH,
+      logIndex: index, amount0: -BigInt(index + 1) * 1_000_000_000_000_000_000n,
+      amount1: BigInt(index + 1) * 1_000_000n,
+    }));
+    const senders = Object.fromEntries(logs.map((log) => [log.transactionHash, EOA_SENDER]));
+    const baseline = createHarness({ logs, senders });
+    const optimizedWithSenders = createHarness({ logs, senders, headerTransactions: "valid" });
+    const result = await optimizedWithSenders.service.observe({ chainId: 4663 });
+    const baselineResult = await baseline.service.observe({ chainId: 4663 });
+    expect({ ...result, coverage: { ...result.coverage, rpcUnits: 0 } }).toEqual({
+      ...baselineResult,
+      coverage: { ...baselineResult.coverage, rpcUnits: 0 },
+    });
+    expect(optimizedWithSenders.rpcSubcalls()).toBe(baseline.rpcSubcalls() - 3);
+  });
+
+  it("falls back to individual transaction reads when the full-block call fails", async () => {
+    const logs = Array.from({ length: 4 }, (_, index) => swapLog({
+      txHash: txHash(String(index + 1)), blockNumber: 900, blockHash: OTHER_HASH,
+      logIndex: index, amount0: -BigInt(index + 1) * 1_000_000_000_000_000_000n,
+      amount1: BigInt(index + 1) * 1_000_000n,
+    }));
+    const senders = Object.fromEntries(logs.map((log) => [log.transactionHash, EOA_SENDER]));
+    const { service } = createHarness({ logs, senders, headerTransactions: "valid", fullBlockError: true });
+    const result = await service.observe({ chainId: 4663 });
+    expect(result.observations).toHaveLength(4);
+    expect(result.observations.every((row) => row.transactionSender === EOA_SENDER)).toBe(true);
+  });
+
+  it("propagates a budget failure on the optional full-block request", async () => {
+    const logs = Array.from({ length: 4 }, (_, index) => swapLog({
+      txHash: txHash(String(index + 1)), blockNumber: 900, blockHash: OTHER_HASH,
+      logIndex: index, amount0: -BigInt(index + 1) * 1_000_000_000_000_000_000n,
+      amount1: BigInt(index + 1) * 1_000_000n,
+    }));
+    const { service } = createHarness({ logs, headerTransactions: "valid", budgetUnits: 11 });
+    await expect(service.observe({ chainId: 4663 })).rejects.toMatchObject({
+      code: "OBSERVED_TRADES_DAILY_BUDGET_EXCEEDED",
+    });
+  });
+
+  it("does not issue fallback reads after the provider rate-limits a full block", async () => {
+    const logs = Array.from({ length: 4 }, (_, index) => swapLog({
+      txHash: txHash(String(index + 1)), blockNumber: 900, blockHash: OTHER_HASH,
+      logIndex: index, amount0: -BigInt(index + 1) * 1_000_000_000_000_000_000n,
+      amount1: BigInt(index + 1) * 1_000_000n,
+    }));
+    const { service, rpcSubcalls } = createHarness({
+      logs, headerTransactions: "valid", fullBlockTransportCode: "PROVIDER_HTTP_429",
+    });
+    await expect(service.observe({ chainId: 4663 })).rejects.toMatchObject({
+      code: "PROVIDER_HTTP_429",
+    });
+    expect(rpcSubcalls()).toBe(12);
+  });
+
+  it("falls back when the full-block transaction list is incomplete", async () => {
+    const logs = Array.from({ length: 4 }, (_, index) => swapLog({
+      txHash: txHash(String(index + 1)), blockNumber: 900, blockHash: OTHER_HASH,
+      logIndex: index, amount0: -BigInt(index + 1) * 1_000_000_000_000_000_000n,
+      amount1: BigInt(index + 1) * 1_000_000n,
+    }));
+    const senders = Object.fromEntries(logs.map((log) => [log.transactionHash, EOA_SENDER]));
+    const { service } = createHarness({
+      logs, senders, headerTransactions: "valid", fullBlockIncomplete: true,
+    });
+    const result = await service.observe({ chainId: 4663 });
+    expect(result.observations).toHaveLength(4);
+    expect(result.observations.every((row) => row.transactionSender === EOA_SENDER)).toBe(true);
+  });
+
+  it("fails closed when a full-block response has a different block hash", async () => {
+    const logs = Array.from({ length: 4 }, (_, index) => swapLog({
+      txHash: txHash(String(index + 1)), blockNumber: 900, blockHash: OTHER_HASH,
+      logIndex: index, amount0: -BigInt(index + 1) * 1_000_000_000_000_000_000n,
+      amount1: BigInt(index + 1) * 1_000_000n,
+    }));
+    const { service } = createHarness({ logs, headerTransactions: "valid", fullBlockHash: ANCHOR_HASH });
+    await expect(service.observe({ chainId: 4663 })).rejects.toMatchObject({ code: "OBSERVED_TRADES_REORGED" });
+  });
+
+  it("keeps two and three transaction groups on individual lookups", async () => {
+    for (const count of [2, 3]) {
+      const logs = Array.from({ length: count }, (_, index) => swapLog({
+        txHash: txHash(String(index + 1)), blockNumber: 900, blockHash: OTHER_HASH,
+        logIndex: index, amount0: -BigInt(index + 1) * 1_000_000_000_000_000_000n,
+        amount1: BigInt(index + 1) * 1_000_000n,
+      }));
+      const { service, rpcSubcalls } = createHarness({ logs, headerTransactions: "valid" });
+      const baseline = createHarness({ logs });
+      await service.observe({ chainId: 4663 });
+      await baseline.service.observe({ chainId: 4663 });
+      expect(rpcSubcalls()).toBe(baseline.rpcSubcalls());
+    }
   });
 
   it("narrows the inclusive block window once instead of returning an incomplete capped set", async () => {
