@@ -30,5 +30,8 @@ test("local quant workflow validates, runs, and requires export consent", async 
   expect(requests.some((url) => url.includes("PRIVATE_CANARY"))).toBe(false);
   expect(requests.some((url) => url.includes("/v1/private/analyze"))).toBe(false);
   await page.setViewportSize({ width: 320, height: 800 });
-  expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+  await expect.poll(
+    () => page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
+    { timeout: 3_000, message: "Quant settles without horizontal overflow after a viewport resize" },
+  ).toBeLessThanOrEqual(1);
 });
