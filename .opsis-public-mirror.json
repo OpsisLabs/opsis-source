@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "c223927d046d0b2d4d72aaacf8b194e6903562ba1969507ea1735a3eb691eade",
+  "sourceTreeDigest": "b8d1986468e3edd35d898a982b806c530749f0d2d04db4c36097f0b08e6e7cd2",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "8a176662769853374eca5d3aa11034bdad891f75bd511a2020a44c6bbf2bcaf6",
@@ -647,7 +647,7 @@
     "e2e/wallet-ai.mock.spec.ts": "a229067837c646d50a1fcb2de04c4ac0e3f83b9c351006990194c06c23345541",
     "identity-policy.json": "0344660da1525234126b8fcf2628b81dbd71924997e832e5eba326437a9cebb7",
     "LICENSE": "c0ea4a896d2c8c394b29f9427589996db826cd501c512279ff0ed3ef48fabbe5",
-    "package.json": "9397c30f63975e490e2c46d1b550c3d5a69a04e49518d90d07da7b25b383e923",
+    "package.json": "f6eedbbc99fe1d01054eed42fcaae82942d68241a5f705e746b6db3d4ad302f0",
     "packages/quant/package.json": "94761a3bdae4bf78a2d350fd7718d2da0496537729806c9d1eb30dbc9ce05fa3",
     "packages/quant/src/index.test.ts": "41bfb9709d53297410168b1f32872c6fcb7ad9db10688434c9ae082c380c01fd",
     "packages/quant/src/index.ts": "72d8c0bf69272e41d8a019818e67d2134d29cbda19c2e42f21c0aab3776cefa9",
@@ -675,7 +675,7 @@
     "scripts/readiness-policy.mjs": "87f1b432a07e89bcd307bc89bcbf0c883dcd171a97bcff73f26717db57615aef",
     "scripts/release-train.mjs": "7e007a8e8e1dea392b69dd4f9e3c3d9399bcde47dea85ba9846bd8992454d858",
     "scripts/release-train.test.mjs": "97c8367cbe2b2072e21017edf3c5e26f4ab5d94055025b9b6801400bfc128a79",
-    "scripts/rpc-cost-benchmark.mjs": "1e7dcfa9216304886a0776eb861ea84be4b650c5d35056517a2b444592a92af6",
+    "scripts/rpc-cost-benchmark.mjs": "f3e42f15100a1b70e4a740f46dd61d8c88028495a9bdd3fb1b72810c95edb275",
     "scripts/test-feature-previews.mjs": "44f59ef0fc149ff71018853b707cca380c414d79e4cf96cf94590b26d4e65399",
     "scripts/test-identity-guard.mjs": "fee5c29a1b634e7a52045bc306e3255d75b0551e8b59a2bbb64bb76d919b8538",
     "scripts/test-load-smoke.mjs": "ab4966fdf17e3df35bba94dfea9f7b9e9715221473a16325b825f0bef8476825",
@@ -685,7 +685,7 @@
     "scripts/test-private-launch-smoke.mjs": "d2ac6d1fb1e34f3322402d36f69189bda43af33dcc4a63ccdb011b02dfbd52b5",
     "scripts/test-public-export.mjs": "e08bb7eea248a0dbd981a374a3293261f2d614ea6ae683aecbd56d8bb75649ee",
     "scripts/test-public-history.mjs": "a1abcc2959382e85e5ade30bda7e702a5dd0ebf902f9b02aad8a8a744bfe2ac2",
-    "scripts/test-rpc-cost-benchmark.mjs": "2af338da543a93ae51dbba27f45ae5e27604192264d1c20c5d8d1491b298407c",
+    "scripts/test-rpc-cost-benchmark.mjs": "120bfad9b27160c9bf053ad17c70d8c177e00b44c6401a68dde6e6e992043fdc",
     "scripts/verify-public-tree.mjs": "39998f43e560619f1340070105044252983f2342344c6f772655acf979e9ecd7",
     "tsconfig.base.json": "106ea736491527813ed147545e145b13b677944c1533afaecf6a975c3c433d01"
   }
