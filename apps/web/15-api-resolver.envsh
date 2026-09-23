@@ -1,0 +1,30 @@
+#!/bin/sh
+# Nginx OSS needs explicit DNS servers for runtime upstream re-resolution.
+# Use only the container's configured resolvers; never fall back to public DNS.
+API_UPSTREAM_RESOLVER="$(awk '
+function ipv4_ok(value, octets, count, i) {
+  count = split(value, octets, ".")
+  if (count != 4) return 0
+  for (i = 1; i <= count; i++) {
+    if (octets[i] !~ /^[0-9]+$/ || octets[i] + 0 > 255) return 0
+  }
+  return 1
+}
+/^[[:space:]]*nameserver[[:space:]]+/ {
+  address = $2
+  if (address ~ /^[0-9.]+$/ && ipv4_ok(address)) {
+    resolved = resolved (resolved == "" ? "" : " ") address
+  } else if (address ~ /^[0-9A-Fa-f:.]+$/ && index(address, ":") > 0) {
+    resolved = resolved (resolved == "" ? "" : " ") "[" address "]"
+  } else {
+    invalid = 1
+  }
+}
+END {
+  if (!invalid) print resolved
+}' /etc/resolv.conf)"
+if [ -z "$API_UPSTREAM_RESOLVER" ]; then
+  echo "API DNS resolver configuration missing or invalid: /etc/resolv.conf has no usable nameserver" >&2
+  exit 1
+fi
+export API_UPSTREAM_RESOLVER

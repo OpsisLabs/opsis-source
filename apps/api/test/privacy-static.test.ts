@@ -83,9 +83,11 @@ describe("browser privacy static boundary", () => {
       resolve(repositoryRoot, "apps/api/src/server.ts"),
       "utf8",
     );
-    expect(nginx).toContain(
-      "proxy_pass ${API_UPSTREAM_SCHEME}://${API_UPSTREAM_HOST}:${API_UPSTREAM_PORT}",
-    );
+    expect(nginx).toContain("server ${API_UPSTREAM_HOST}:${API_UPSTREAM_PORT} resolve;");
+    expect(nginx).toContain("resolver ${API_UPSTREAM_RESOLVER} valid=5s;");
+    expect(
+      nginx.match(/proxy_pass \$\{API_UPSTREAM_SCHEME\}:\/\/api_backend;/g),
+    ).toHaveLength(3);
     expect(nginx).toContain("proxy_ssl_name ${API_UPSTREAM_HOST}");
     expect(nginx).toContain("proxy_ssl_verify on");
     expect(nginx).toContain(
@@ -97,8 +99,9 @@ describe("browser privacy static boundary", () => {
     expect(dockerfile).toContain("ENV API_UPSTREAM_SCHEME=http");
     expect(dockerfile).toContain("ENV API_UPSTREAM_HOST=api.railway.internal");
     expect(dockerfile).toContain("ENV API_UPSTREAM_PORT=4000");
+    expect(dockerfile).toContain("COPY apps/web/15-api-resolver.envsh");
     expect(dockerfile).toContain(
-      "ENV NGINX_ENVSUBST_FILTER=API_UPSTREAM_SCHEME|API_UPSTREAM_HOST|API_UPSTREAM_PORT",
+      "ENV NGINX_ENVSUBST_FILTER=API_UPSTREAM_SCHEME|API_UPSTREAM_HOST|API_UPSTREAM_PORT|API_UPSTREAM_RESOLVER",
     );
     expect(dockerfile).toContain("RUN apk upgrade --no-cache");
     expect(dockerfile).toContain("&& apk add --no-cache ca-certificates");

@@ -63,10 +63,11 @@ COPY --from=build /app/apps/web/dist /usr/share/nginx/html
 ENV API_UPSTREAM_SCHEME=http
 ENV API_UPSTREAM_HOST=api.railway.internal
 ENV API_UPSTREAM_PORT=4000
-ENV NGINX_ENVSUBST_FILTER=API_UPSTREAM_SCHEME|API_UPSTREAM_HOST|API_UPSTREAM_PORT
+ENV NGINX_ENVSUBST_FILTER=API_UPSTREAM_SCHEME|API_UPSTREAM_HOST|API_UPSTREAM_PORT|API_UPSTREAM_RESOLVER
 ARG VITE_OPSIS_WORKSPACES_ENABLED=false
 ENV OPSIS_PRIVATE_PREVIEW=$VITE_OPSIS_WORKSPACES_ENABLED
 COPY apps/web/nginx.conf /etc/nginx/templates/default.conf.template
+COPY apps/web/15-api-resolver.envsh /docker-entrypoint.d/15-api-resolver.envsh
 COPY apps/web/40-opsis-preview-auth.sh /docker-entrypoint.d/40-opsis-preview-auth.sh
-RUN chmod +x /docker-entrypoint.d/40-opsis-preview-auth.sh
+RUN chmod +x /docker-entrypoint.d/15-api-resolver.envsh /docker-entrypoint.d/40-opsis-preview-auth.sh
 EXPOSE 80
