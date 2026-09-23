@@ -263,14 +263,22 @@ export class ObservedTradesService implements ObservedTradesSource {
     const pool = await this.resolvePool(pair, fee, anchor, run);
     const tokens = await this.resolveTokens(pool.address, pair, anchor, run);
     const logs = await this.fetchBoundedLogs(pool.address, anchor, requestedWindow, run);
-    const fromTime = await this.blockTime(logs.fromBlock, anchor, run);
     const decoded = logs.logs.map((log) =>
       decodeObservation(log, pool.address, tokens, anchor, logs.fromBlock),
     );
     validateLogSet(decoded);
     const ranked = sortObservations(decoded);
     const top = ranked.slice(0, this.env.OBSERVED_TRADES_TOP_ROWS);
-    await this.enrichTopRows(top, anchor, run);
+    const verifiedBlockTimes = await this.enrichTopRows(
+      top,
+      logs.fromBlock,
+      anchor,
+      run,
+    );
+    const fromTime =
+      logs.fromBlock === anchor.number
+        ? new Date(anchor.timestamp * 1_000).toISOString()
+        : verifiedBlockTimes.get(logs.fromBlock) ?? null;
     await this.recheckAnchor(anchor, run);
     const windowBlockCount = anchor.number - logs.fromBlock + 1;
     return {
@@ -640,33 +648,12 @@ export class ObservedTradesService implements ObservedTradesSource {
     );
   }
 
-  private async blockTime(
-    blockNumber: number,
-    anchor: CapturedAnchor,
-    run: RpcRun,
-  ): Promise<string | null> {
-    if (blockNumber === anchor.number) {
-      return new Date(anchor.timestamp * 1_000).toISOString();
-    }
-    const header = asRecord(
-      await this.rpcSingle(
-        "eth_getBlockByNumber",
-        [`0x${blockNumber.toString(16)}`, false],
-        run,
-      ),
-    );
-    const timestamp = parseHexNumber(header.timestamp);
-    return timestamp === null
-      ? null
-      : new Date(timestamp * 1_000).toISOString();
-  }
-
   private async enrichTopRows(
     top: RawObservation[],
+    fromBlock: number,
     anchor: CapturedAnchor,
     run: RpcRun,
-  ): Promise<void> {
-    if (top.length === 0) return;
+  ): Promise<Map<number, string>> {
     const txHashes = [...new Set(top.map((row) => row.txHash))];
     const expected = new Map<
       string,
@@ -692,8 +679,7 @@ export class ObservedTradesService implements ObservedTradesSource {
     }
     const blockNumbers = [
       ...new Set(
-        top
-          .map((row) => row.blockNumber)
+        [...top.map((row) => row.blockNumber), fromBlock]
           .filter((blockNumber) => blockNumber !== anchor.number),
       ),
     ];
@@ -709,7 +695,10 @@ export class ObservedTradesService implements ObservedTradesSource {
         params: [`0x${blockNumber.toString(16)}`, false],
       })),
     ];
-    const results = await this.rpcBatch(calls, run);
+    const results =
+      calls.length > 0
+        ? await this.rpcBatch(calls, run)
+        : new Map<string, Record<string, unknown>>();
     const senders = new Map<string, string>();
     for (const hash of txHashes) {
       const want = expected.get(hash);
@@ -807,6 +796,7 @@ export class ObservedTradesService implements ObservedTradesSource {
           ? new Date(anchor.timestamp * 1_000).toISOString()
           : verifiedBlockTime.get(row.blockNumber) ?? null;
     }
+    return verifiedBlockTime;
   }
 
   private async rpcSingle(

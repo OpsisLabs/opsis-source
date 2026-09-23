@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "bc64df30c6cf01ad910c76503257b40b35ea81d1ce6043362740ad5e6ba4330b",
+  "sourceTreeDigest": "041bc411756609a3ef8eca432a1215638eee5ff070e37a007081df6865ea14cb",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "8a176662769853374eca5d3aa11034bdad891f75bd511a2020a44c6bbf2bcaf6",
@@ -68,7 +68,7 @@
     "apps/api/src/market/merchants.ts": "1e06223b723b49079eb6f53264ffcd47eda9ff029a781dc6623e8112c3bcaba1",
     "apps/api/src/market/observed-trades-budget.ts": "b98e47fa7a72640d70354c0663658a43b29670b8a23c79b9776ba0ab35321da2",
     "apps/api/src/market/observed-trades-coalescer.ts": "1bc45a683bff2e640781ff406d49f6b333be13e1dbd36f20c643ad8f5bc19439",
-    "apps/api/src/market/observed-trades.ts": "fb6aea6360c30ab43368615d2f22b0d3e3c6c30954b1b354193912c751c199d5",
+    "apps/api/src/market/observed-trades.ts": "5f64a14a821ab9397d1ac0b4bb996f3699991df4d925554073ca54a25db29918",
     "apps/api/src/market/preview-access.ts": "322f216bab7bad6ed28c68ec56187151f9ff0e823b3a555a1ff16b4ef6196167",
     "apps/api/src/market/service.ts": "edf4d04e3f73621355e4f7b95b8364771c23cca06019d6d8358a28c99c4e7830",
     "apps/api/src/observability/metrics.ts": "696bb0d76e42b244569b9dc3368bd79e0af58e0941e1b87fd407960d3fac4284",
@@ -147,7 +147,7 @@
     "apps/api/test/metrics.test.ts": "cdc252e7ba86fac69975c74c681906d76ecc2dcd69c1e1d47a192ae9123a8ac5",
     "apps/api/test/normalize.test.ts": "45dab3a024191d0d1b445da50c181e774d65df0747ee8b4ce836657eed293322",
     "apps/api/test/observed-trades-coalescer.test.ts": "718062db97a6a63d042122169d9fbfc0f3a9533fc4be8c391af1da7d0d1184be",
-    "apps/api/test/observed-trades.test.ts": "a98745d5c1e7ee0f0060d67cca5b6974d2e00f8da668ace5a1d3497331c5fa39",
+    "apps/api/test/observed-trades.test.ts": "0c57acd590b849cdfd860f7151d12a17aef7d6297f44c5a4f4124b56b05a0fb8",
     "apps/api/test/ollama.integration.test.ts": "f04b505e4f444d55a07e487158528bf07ee8d264122002f00d4c643cd86ec165",
     "apps/api/test/open-data.test.ts": "4611a939f8d72d30f5b2382ec1e8c31bc539b3b50972cfbf90bc43a8c1c1fcb1",
     "apps/api/test/opsis.test.ts": "76a083af1e4623551da5c668e0c8d0d7d389c82d9e0a1dee2c153c83cdd3c155",

@@ -116,6 +116,7 @@ function createHarness(options: {
   let logAttempt = 0;
   let consumed = 0;
   let factoryReads = 0;
+  let rpcSubcalls = 0;
   const selectedPool =
     options.poolAddress === null ? null : options.poolAddress ?? POOL;
   const ethCalls: Array<{ to: string; data: string }> = [];
@@ -147,6 +148,7 @@ function createHarness(options: {
     async requestJson(_url: string, init?: RequestInit): Promise<unknown> {
       const body = JSON.parse(String(init?.body ?? "null"));
       if (Array.isArray(body)) {
+        rpcSubcalls += body.length;
         return body.map(
           (entry: { id: string; method: string; params: unknown[] }) => {
             if (entry.method === "eth_getTransactionByHash") {
@@ -242,6 +244,7 @@ function createHarness(options: {
           },
         );
       }
+      rpcSubcalls += 1;
       const method = body.method as string;
       if (method === "eth_getBlockByNumber") {
         const tag = body.params[0];
@@ -313,7 +316,14 @@ function createHarness(options: {
     budget,
     now: () => new Date("2026-09-11T00:00:00.000Z"),
   });
-  return { service, env, rpc, attempts: () => logAttempt, ethCalls };
+  return {
+    service,
+    env,
+    rpc,
+    attempts: () => logAttempt,
+    rpcSubcalls: () => rpcSubcalls,
+    ethCalls,
+  };
 }
 
 describe("observed trades pure helpers", () => {
@@ -511,6 +521,28 @@ describe("observed trades service", () => {
     expect(result.observations).toHaveLength(6);
     const notionals = result.observations.map((row) => Number(row.notionalQuote));
     expect(notionals).toEqual([8, 7, 6, 5, 4, 3]);
+  });
+
+  it("reuses a displayed from-block verification read for the window timestamp", async () => {
+    const { service, rpcSubcalls } = createHarness({
+      logs: [
+        swapLog({
+          txHash: txHash("9"),
+          blockNumber: 951,
+          blockHash: OTHER_HASH,
+          amount0: -1_000_000_000_000_000_000n,
+          amount1: 1_000_000n,
+        }),
+      ],
+    });
+    const result = await service.observe({ chainId: 4663, windowBlocks: 50 });
+    expect(result.window.fromTime).toBe(
+      new Date((1_700_000_000 + 951) * 1_000).toISOString(),
+    );
+    expect(result.observations[0]?.blockTime).toBe(result.window.fromTime);
+    // Anchor, four fee-tier reads, pool code, token reads, logs, transaction,
+    // one shared from-block read, sender code, and anchor recheck: 12 total.
+    expect(rpcSubcalls()).toBe(12);
   });
 
   it("narrows the inclusive block window once instead of returning an incomplete capped set", async () => {
