@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { buildApp } from "../src/app.js";
 import { loadEnv } from "../src/config/env.js";
 import { AppError } from "../src/http/errors.js";
+import { ProviderHttpClient } from "../src/chain/provider-http.js";
 import { observeRetention } from "../src/observability/metrics.js";
 
 const apps: Array<Awaited<ReturnType<typeof buildApp>>> = [];
@@ -47,5 +48,37 @@ describe("Prometheus metrics", () => {
     expect(metrics).toContain('rh_chain_retention_runs_total{outcome="success"} 1');
     expect(metrics).toContain('rh_chain_retention_runs_total{outcome="failure"} 1');
     expect(metrics).toContain("rh_chain_retention_last_success_timestamp_seconds 1786536000");
+  });
+
+  it("counts actual JSON-RPC subcall attempts without exposing parameters", async () => {
+    const app = await buildApp(loadEnv({ NODE_ENV: "test", ENABLE_METRICS: "true", LOG_LEVEL: "silent" }));
+    apps.push(app);
+    const canary = "0xprivate-canary-must-not-be-a-metric-label";
+    let attempts = 0;
+    const client = new ProviderHttpClient(
+      { maxRetries: 1, backoffMs: 1, timeoutMs: 1000, circuitFailureThreshold: 2, circuitResetMs: 1000, requestBudgetPerMinute: 10, providerName: "rpc-metrics-test" },
+      {
+        fetch: async () => {
+          attempts += 1;
+          return attempts === 1
+            ? new Response("unavailable", { status: 503 })
+            : new Response(JSON.stringify([{ jsonrpc: "2.0", id: 1, result: "0x1" }]));
+        },
+        now: Date.now,
+        sleep: async () => undefined,
+      },
+    );
+    await client.requestJson("https://provider.test", {
+      method: "POST",
+      body: JSON.stringify([
+        { jsonrpc: "2.0", id: 1, method: "eth_call", params: [{ to: canary }, "latest"] },
+        { jsonrpc: "2.0", id: 2, method: "eth_getLogs", params: [{ address: canary }] },
+      ]),
+    });
+    const metrics = (await app.inject({ method: "GET", url: "/metrics" })).body;
+    expect(metrics).toContain('rh_chain_rpc_subcalls_total{provider="rpc-metrics-test",method="eth_call"} 2');
+    expect(metrics).toContain('rh_chain_rpc_subcalls_total{provider="rpc-metrics-test",method="eth_getLogs"} 2');
+    expect(metrics).toContain('rh_chain_provider_response_bytes_total{provider="rpc-metrics-test"}');
+    expect(metrics).not.toContain(canary);
   });
 });

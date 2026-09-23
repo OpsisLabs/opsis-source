@@ -1,5 +1,6 @@
 import type { Env } from "../config/env.js";
-import { observeProviderCall } from "../observability/metrics.js";
+import { observeProviderCall, observeProviderResponseBytes, observeRpcSubcall } from "../observability/metrics.js";
+import type { RpcUnitBudget } from "./rpc-unit-budget.js";
 
 export type ProviderHttp = {
   requestJson(url: string, init?: RequestInit): Promise<unknown>;
@@ -15,6 +16,7 @@ export type ProviderHttpOptions = {
   maxConcurrency?: number;
   providerName?: string;
   maxResponseBytes?: number;
+  rpcUnitBudget?: RpcUnitBudget;
 };
 
 type Dependencies = {
@@ -81,9 +83,26 @@ export class ProviderHttpClient implements ProviderHttp {
   private async performRequest(url: string, init: RequestInit): Promise<unknown> {
     this.assertCircuitClosed();
     let lastError: ProviderRequestError | undefined;
+    const rpcMethods = rpcMethodsFromBody(init.body);
 
     for (let attempt = 0; attempt <= this.options.maxRetries; attempt += 1) {
       this.consumeBudget();
+      if (this.options.rpcUnitBudget) {
+        let reservation;
+        try {
+          reservation = await this.options.rpcUnitBudget.reserve(rpcMethods);
+        } catch {
+          throw new ProviderRequestError("PROVIDER_GLOBAL_BUDGET_UNAVAILABLE", false);
+        }
+        if (reservation.outcome !== "reserved") {
+          throw new ProviderRequestError(
+            reservation.outcome === "exhausted" ? "PROVIDER_GLOBAL_BUDGET_EXCEEDED" :
+              reservation.outcome === "unmetered" ? "PROVIDER_GLOBAL_BUDGET_UNMETERED" : "PROVIDER_GLOBAL_BUDGET_UNAVAILABLE",
+            false,
+          );
+        }
+      }
+      for (const method of rpcMethods) observeRpcSubcall(this.options.providerName ?? "unknown", METRIC_RPC_METHODS.has(method) ? method : "other");
       try {
         const response = await this.dependencies.fetch(url, {
           ...init,
@@ -92,7 +111,8 @@ export class ProviderHttpClient implements ProviderHttp {
         if (!response.ok) {
           throw new ProviderRequestError(`PROVIDER_HTTP_${response.status}`, response.status === 429 || response.status >= 500);
         }
-        const json = await readBoundedJson(response, this.options.maxResponseBytes ?? 5 * 1024 * 1024);
+        const { json, byteLength } = await readBoundedJson(response, this.options.maxResponseBytes ?? 5 * 1024 * 1024);
+        observeProviderResponseBytes(this.options.providerName ?? "unknown", byteLength);
         this.failures = 0;
         this.circuitOpenedAt = undefined;
         return json;
@@ -149,7 +169,7 @@ export function createProviderHttp(env: Env, providerName?: string, maxResponseB
   });
 }
 
-async function readBoundedJson(response: Response, maxBytes: number): Promise<unknown> {
+async function readBoundedJson(response: Response, maxBytes: number): Promise<{ json: unknown; byteLength: number }> {
   const declared = Number(response.headers.get("content-length"));
   if (Number.isFinite(declared) && declared > maxBytes) {
     throw new ProviderRequestError("PROVIDER_RESPONSE_TOO_LARGE", false);
@@ -176,9 +196,39 @@ async function readBoundedJson(response: Response, maxBytes: number): Promise<un
   let offset = 0;
   for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
   try {
-    return JSON.parse(new TextDecoder(undefined, { fatal: true }).decode(bytes)) as unknown;
+    return { json: JSON.parse(new TextDecoder(undefined, { fatal: true }).decode(bytes)) as unknown, byteLength: length };
   } catch {
     throw new ProviderRequestError("PROVIDER_MALFORMED_RESPONSE", false);
+  }
+}
+
+// Metrics must have bounded labels. Never include JSON-RPC parameters, URLs,
+// addresses, transaction hashes, or values supplied by the caller.
+const METRIC_RPC_METHODS = new Set([
+  "eth_blockNumber", "eth_call", "eth_chainId", "eth_getBalance",
+  "eth_getBlockByHash", "eth_getBlockByNumber", "eth_getCode",
+  "eth_getLogs", "eth_getStorageAt", "eth_getTransactionByHash",
+  "eth_getTransactionReceipt", "eth_getTransactionCount", "eth_estimateGas",
+]);
+
+function rpcMethodsFromBody(body: RequestInit["body"]): string[] {
+  if (typeof body !== "string") return [];
+  try {
+    const parsed: unknown = JSON.parse(body);
+    const calls = Array.isArray(parsed) ? parsed : [parsed];
+    if (calls.length === 0 || calls.length > 100) return [];
+    const methods: string[] = [];
+    for (const call of calls) {
+      if (typeof call !== "object" || call === null || Array.isArray(call)) return [];
+      const record = call as Record<string, unknown>;
+      // Never partially meter a batch: an invalid member could still consume
+      // provider units if the whole request is transmitted.
+      if (record.jsonrpc !== "2.0" || typeof record.method !== "string" || !record.method) return [];
+      methods.push(record.method);
+    }
+    return methods;
+  } catch {
+    return [];
   }
 }
 

@@ -63,6 +63,63 @@ describe("provider HTTP resilience", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
+  it("reserves provider-weighted units before every physical retry and fails closed", async () => {
+    const reserve = vi.fn()
+      .mockResolvedValueOnce({ outcome: "reserved", units: 5, remaining: 5 })
+      .mockResolvedValueOnce({ outcome: "exhausted" });
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(new Response("unavailable", { status: 503 }));
+    const client = new ProviderHttpClient(
+      { ...options, rpcUnitBudget: { reserve } },
+      { fetch: fetchMock, now: () => 0, sleep: async () => undefined },
+    );
+    await expect(client.requestJson("https://provider.test", {
+      method: "POST",
+      body: JSON.stringify([
+        { jsonrpc: "2.0", id: 1, method: "eth_call", params: [{ to: "0xprivate" }, "latest"] },
+        { jsonrpc: "2.0", id: 2, method: "eth_getLogs", params: [] },
+      ]),
+    })).rejects.toEqual(new ProviderRequestError("PROVIDER_GLOBAL_BUDGET_EXCEEDED", false));
+    expect(reserve).toHaveBeenCalledTimes(2);
+    expect(reserve).toHaveBeenCalledWith(["eth_call", "eth_getLogs"]);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not send an RPC body whose methods cannot be metered", async () => {
+    const fetchMock = vi.fn<typeof fetch>();
+    const reserve = vi.fn(async () => ({ outcome: "unmetered" as const }));
+    const client = new ProviderHttpClient(
+      { ...options, rpcUnitBudget: { reserve } },
+      { fetch: fetchMock, now: () => 0, sleep: async () => undefined },
+    );
+    await expect(client.requestJson("https://provider.test", {
+      method: "POST",
+      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_newUnknownMethod", params: [] }),
+    })).rejects.toEqual(new ProviderRequestError("PROVIDER_GLOBAL_BUDGET_UNMETERED", false));
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("does not partially meter a malformed JSON-RPC batch", async () => {
+    const fetchMock = vi.fn<typeof fetch>();
+    const reserve = vi.fn(async (methods: readonly string[]) => ({
+      outcome: methods.length > 0 ? "reserved" as const : "unmetered" as const,
+      units: 1,
+      remaining: 9,
+    }));
+    const client = new ProviderHttpClient(
+      { ...options, rpcUnitBudget: { reserve } },
+      { fetch: fetchMock, now: () => 0, sleep: async () => undefined },
+    );
+    await expect(client.requestJson("https://provider.test", {
+      method: "POST",
+      body: JSON.stringify([
+        { jsonrpc: "2.0", id: 1, method: "eth_call", params: [] },
+        { jsonrpc: "2.0", id: 2, params: [] },
+      ]),
+    })).rejects.toMatchObject({ code: "PROVIDER_GLOBAL_BUDGET_UNMETERED" });
+    expect(reserve).toHaveBeenCalledWith([]);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it("bounds concurrent requests per provider", async () => {
     let active = 0;
     let peak = 0;

@@ -370,6 +370,18 @@ describe("observed trades pure helpers", () => {
 });
 
 describe("observed trades service", () => {
+  it("coalesces concurrent identical public observations without reusing a completed result", async () => {
+    const { service, attempts } = createHarness({ logs: [] });
+    const [first, second] = await Promise.all([
+      service.observe({ chainId: 4663, windowBlocks: 50 }),
+      service.observe({ chainId: 4663, windowBlocks: 50 }),
+    ]);
+    expect(first).toEqual(second);
+    expect(attempts()).toBe(1);
+    await service.observe({ chainId: 4663, windowBlocks: 50 });
+    expect(attempts()).toBe(2);
+  });
+
   it("decodes signed V3 swaps at full precision, verifies blocks, and classifies from amounts only", async () => {
     const sellTx = txHash("b");
     const buyTx = txHash("a");

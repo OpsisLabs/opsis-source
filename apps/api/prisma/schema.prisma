@@ -128,6 +128,56 @@ model CachedApiResponse {
   @@index([expiresAt])
 }
 
+// Default-off storage for future shared public Swap history. This deliberately
+// stores pool/event data only: no caller, wallet, Watch label, or trader address.
+// Expiration is metadata only until exported-run references can be protected.
+model PublicSwapObservation {
+  id                String   @id @default(cuid())
+  chainId           Int
+  poolAddress       String
+  blockNumber       BigInt
+  blockHash         String
+  transactionHash   String
+  logIndex          Int
+  blockTimestamp    DateTime
+  amount0           Decimal  @db.Decimal(78, 0)
+  amount1           Decimal  @db.Decimal(78, 0)
+  sqrtPriceX96      Decimal  @db.Decimal(78, 0)
+  liquidity         Decimal  @db.Decimal(78, 0)
+  tick              Int
+  source            String
+  observedAt        DateTime @default(now())
+  canonicalStatus   HistoryCanonicalStatus @default(UNKNOWN)
+  retentionExpiresAt DateTime?
+
+  @@unique([chainId, poolAddress, blockHash, transactionHash, logIndex], map: "PublicSwapObservation_event_key")
+  @@index([chainId, poolAddress, blockNumber])
+  @@index([canonicalStatus, blockNumber])
+  @@index([retentionExpiresAt])
+}
+
+// Coverage is separate from observations so an empty successful scan is not
+// confused with a gap or an unavailable/partial scan.
+model PublicSwapHistoryCoverage {
+  id                 String   @id @default(cuid())
+  chainId            Int
+  poolAddress        String
+  fromBlock          BigInt
+  toBlock            BigInt
+  blockHash          String?
+  source             String
+  status             HistoryCoverageStatus
+  revision           Int      @default(1)
+  detail             String?
+  observedAt         DateTime @default(now())
+  retentionExpiresAt DateTime?
+
+  @@unique([chainId, poolAddress, fromBlock, toBlock, source, revision], map: "PublicSwapHistoryCoverage_range_key")
+  @@index([chainId, poolAddress, fromBlock, toBlock])
+  @@index([status, observedAt])
+  @@index([retentionExpiresAt])
+}
+
 model UsageEvent {
   id        String         @id @default(cuid())
   userId    String?
@@ -205,4 +255,18 @@ enum UsageEventType {
   CACHE_HIT
   CACHE_MISS
   AUTH_LOGIN
+}
+
+enum HistoryCanonicalStatus {
+  UNKNOWN
+  CANONICAL
+  ORPHANED
+}
+
+enum HistoryCoverageStatus {
+  COMPLETE
+  EMPTY
+  PARTIAL
+  GAP
+  UNAVAILABLE
 }

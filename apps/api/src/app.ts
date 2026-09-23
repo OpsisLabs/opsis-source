@@ -45,6 +45,7 @@ import { MarketInventoryService, type MarketInventorySource } from "./market/ser
 import { createMarketBudget } from "./market/budget.js";
 import { ObservedTradesService, type ObservedTradesSource } from "./market/observed-trades.js";
 import { createObservedTradesBudget } from "./market/observed-trades-budget.js";
+import { RedisObservedTradesCoalescer } from "./market/observed-trades-coalescer.js";
 import { openDataRoutes } from "./routes/open-data.js";
 import type { OpenDataLimiter } from "./open-data/limiter.js";
 import { corsOptionsForRequest } from "./http/cors.js";
@@ -182,7 +183,12 @@ export async function buildApp(
     env,
     dependencies?.marketInventory ?? new MarketInventoryService(env, { budget: createMarketBudget(env, redis) }),
     new BenchmarkService(env, { budget: createCollectibleBudget(env, redis) }),
-    dependencies?.observedTrades ?? new ObservedTradesService(env, { budget: createObservedTradesBudget(env, redis) })
+    dependencies?.observedTrades ?? (() => {
+      const source = new ObservedTradesService(env, { budget: createObservedTradesBudget(env, redis) });
+      return redis
+        ? new RedisObservedTradesCoalescer(source, redis, env.OBSERVED_TRADES_MIN_BLOCKS, env.OBSERVED_TRADES_MAX_BLOCKS)
+        : source;
+    })()
   );
   await authRoutes(app, env, prisma);
   await accountRoutes(app, env, prisma);

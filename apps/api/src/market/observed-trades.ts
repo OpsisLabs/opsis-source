@@ -221,6 +221,7 @@ export interface ObservedTradesSource {
 
 export class ObservedTradesService implements ObservedTradesSource {
   private readonly dependencies: Dependencies;
+  private readonly inflight = new Map<string, Promise<ObservedTradesResponse>>();
 
   constructor(
     private readonly env: Env,
@@ -243,9 +244,23 @@ export class ObservedTradesService implements ObservedTradesSource {
       this.env.OBSERVED_TRADES_MAX_BLOCKS,
     );
     const pair = resolvePair(input.contract);
+    const key = `${pair.base.address}:${pair.quote.address}:${input.fee ?? "all"}:${requestedWindow}`;
+    const pending = this.inflight.get(key);
+    if (pending) return pending;
+    const operation = this.observeFresh(pair, input.fee, requestedWindow)
+      .finally(() => this.inflight.delete(key));
+    this.inflight.set(key, operation);
+    return operation;
+  }
+
+  private async observeFresh(
+    pair: ReturnType<typeof resolvePair>,
+    fee: ObservedTradesInput["fee"],
+    requestedWindow: number,
+  ): Promise<ObservedTradesResponse> {
     const run: RpcRun = { rpcUnits: 0 };
     const anchor = await this.captureAnchor(run);
-    const pool = await this.resolvePool(pair, input.fee, anchor, run);
+    const pool = await this.resolvePool(pair, fee, anchor, run);
     const tokens = await this.resolveTokens(pool.address, pair, anchor, run);
     const logs = await this.fetchBoundedLogs(pool.address, anchor, requestedWindow, run);
     const fromTime = await this.blockTime(logs.fromBlock, anchor, run);

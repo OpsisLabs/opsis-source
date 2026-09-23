@@ -4,6 +4,8 @@ import { collectDefaultMetrics, Counter, Gauge, Histogram, Registry } from "prom
 type RuntimeMetrics = {
   providerCalls: Counter<"provider" | "outcome" | "error_code">;
   providerDuration: Histogram<"provider">;
+  rpcSubcalls: Counter<"provider" | "method">;
+  providerResponseBytes: Counter<"provider">;
   aiCalls: Counter<"outcome">;
   aiDuration: Histogram<never>;
   cacheOperations: Counter<"outcome">;
@@ -42,6 +44,18 @@ export async function installMetrics(app: FastifyInstance): Promise<void> {
   const providerDuration = new Histogram({
     name: "rh_chain_provider_call_duration_seconds",
     help: "Chain provider call duration",
+    labelNames: ["provider"],
+    registers: [registry]
+  });
+  const rpcSubcalls = new Counter({
+    name: "rh_chain_rpc_subcalls_total",
+    help: "JSON-RPC methods attempted, including batch members and retries; no parameters are recorded",
+    labelNames: ["provider", "method"],
+    registers: [registry]
+  });
+  const providerResponseBytes = new Counter({
+    name: "rh_chain_provider_response_bytes_total",
+    help: "Successfully parsed provider response body bytes",
     labelNames: ["provider"],
     registers: [registry]
   });
@@ -106,6 +120,8 @@ export async function installMetrics(app: FastifyInstance): Promise<void> {
   activeMetrics = {
     providerCalls,
     providerDuration,
+    rpcSubcalls,
+    providerResponseBytes,
     aiCalls,
     aiDuration,
     cacheOperations,
@@ -140,6 +156,14 @@ export async function installMetrics(app: FastifyInstance): Promise<void> {
 export function observeProviderCall(provider: string, durationSeconds: number, errorCode?: string): void {
   activeMetrics?.providerDuration.observe({ provider }, durationSeconds);
   activeMetrics?.providerCalls.inc({ provider, outcome: errorCode ? "error" : "success", error_code: errorCode ?? "none" });
+}
+
+export function observeRpcSubcall(provider: string, method: string): void {
+  activeMetrics?.rpcSubcalls.inc({ provider, method });
+}
+
+export function observeProviderResponseBytes(provider: string, bytes: number): void {
+  activeMetrics?.providerResponseBytes.inc({ provider }, bytes);
 }
 
 export function observeAiCall(durationSeconds: number, outcome: "success" | "invalid" | "error" | "fallback"): void {
