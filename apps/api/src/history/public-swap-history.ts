@@ -1,4 +1,5 @@
 import { Prisma, type PrismaClient } from "@prisma/client";
+import { createHash } from "node:crypto";
 
 export const PUBLIC_SWAP_HISTORY_STORAGE_ENABLED = false;
 
@@ -28,10 +29,30 @@ export type PublicSwapHistoryCoverageInput = {
   blockHash?: string | null;
   source: string;
   status: "COMPLETE" | "EMPTY" | "PARTIAL" | "GAP" | "UNAVAILABLE";
+  expectedEventCount?: number | null;
+  contentDigest?: string | null;
   detail?: string | null;
   observedAt?: Date;
   retentionExpiresAt?: Date | null;
 };
+
+export type PublicSwapCommittedObservation = Pick<PublicSwapObservationInput,
+  "chainId" | "poolAddress" | "blockNumber" | "blockHash" | "transactionHash" | "logIndex"
+  | "blockTimestamp" | "tick" | "source">
+  & { amount0: string | Prisma.Decimal; amount1: string | Prisma.Decimal; sqrtPriceX96: string | Prisma.Decimal; liquidity: string | Prisma.Decimal };
+
+/** SHA-256 of canonical normalized retained content; ordering is independent of source page order. */
+export function publicSwapContentDigest(rows: readonly PublicSwapCommittedObservation[]): string {
+  const exactDecimal = (value: string | Prisma.Decimal) => typeof value === "string" ? value : value.toFixed(0);
+  const sorted = [...rows].sort((a, b) => a.blockNumber < b.blockNumber ? -1 : a.blockNumber > b.blockNumber ? 1
+    : a.blockHash.localeCompare(b.blockHash) || a.transactionHash.localeCompare(b.transactionHash) || a.logIndex - b.logIndex);
+  const content = sorted.map((row) => [
+    row.chainId, row.poolAddress.toLowerCase(), row.blockNumber.toString(), row.blockHash.toLowerCase(),
+    row.transactionHash.toLowerCase(), row.logIndex, row.blockTimestamp.toISOString(), exactDecimal(row.amount0),
+    exactDecimal(row.amount1), exactDecimal(row.sqrtPriceX96), exactDecimal(row.liquidity), row.tick, row.source,
+  ]);
+  return createHash("sha256").update(JSON.stringify(content)).digest("hex");
+}
 
 export class PublicSwapHistoryConflictError extends Error {
   constructor() {
@@ -42,6 +63,7 @@ export class PublicSwapHistoryConflictError extends Error {
 
 const ADDRESS = /^0x[0-9a-f]{40}$/;
 const HASH = /^0x[0-9a-f]{64}$/;
+const SOURCE_ID = /^[a-z0-9][a-z0-9-]{0,63}$/;
 const POSTGRES_BIGINT_MAX = 9_223_372_036_854_775_807n;
 const INT256_MIN = -(1n << 255n);
 const INT256_MAX = (1n << 255n) - 1n;
@@ -99,8 +121,18 @@ function validateObservation(input: PublicSwapObservationInput) {
 function validateCoverage(input: PublicSwapHistoryCoverageInput) {
   assert(Number.isSafeInteger(input.chainId) && input.chainId > 0, "Invalid chainId");
   assert(input.fromBlock >= 0n && input.toBlock >= input.fromBlock && input.toBlock <= POSTGRES_BIGINT_MAX, "Invalid block range");
-  assert(input.source.trim().length > 0 && input.source.length <= 120, "Invalid source");
+  assert(SOURCE_ID.test(input.source), "Invalid source");
   assert(input.detail == null || input.detail.length <= 500, "Coverage detail is too long");
+  assert(input.expectedEventCount == null || (Number.isSafeInteger(input.expectedEventCount) && input.expectedEventCount >= 0), "Invalid expected event count");
+  assert(input.contentDigest == null || /^[a-f0-9]{64}$/.test(input.contentDigest), "Invalid content digest");
+  if (input.status === "COMPLETE" || input.status === "EMPTY") {
+    assert(input.expectedEventCount != null && input.contentDigest != null, "Successful coverage requires a content commitment");
+    assert(input.blockHash != null, "Successful coverage requires a range anchor");
+    assert(input.status !== "EMPTY" || input.expectedEventCount === 0, "EMPTY coverage must commit zero events");
+    assert(input.status !== "COMPLETE" || input.expectedEventCount > 0, "COMPLETE coverage must commit events");
+  } else {
+    assert(input.expectedEventCount == null && input.contentDigest == null, "Unsuccessful coverage cannot have a content commitment");
+  }
   return {
     ...input,
     poolAddress: canonicalHex(input.poolAddress, ADDRESS, "poolAddress"),
@@ -182,7 +214,15 @@ export class PublicSwapHistoryRepository {
         where: { chainId: input.chainId, blockNumber: input.blockNumber, blockHash: { not: blockHash } },
         data: { canonicalStatus: "ORPHANED" },
       });
-      return { canonical: matching.count, orphaned: orphaned.count };
+      const matchingCoverage = await tx.publicSwapHistoryCoverage.updateMany({
+        where: { chainId: input.chainId, toBlock: input.blockNumber, status: { in: ["COMPLETE", "EMPTY"] }, blockHash },
+        data: { canonicalStatus: "CANONICAL" },
+      });
+      const orphanedCoverage = await tx.publicSwapHistoryCoverage.updateMany({
+        where: { chainId: input.chainId, toBlock: input.blockNumber, status: { in: ["COMPLETE", "EMPTY"] }, blockHash: { not: blockHash } },
+        data: { canonicalStatus: "ORPHANED" },
+      });
+      return { canonical: matching.count, orphaned: orphaned.count, canonicalCoverage: matchingCoverage.count, orphanedCoverage: orphanedCoverage.count };
     });
   }
 
@@ -202,6 +242,8 @@ export class PublicSwapHistoryRepository {
         orderBy: { revision: "desc" },
       });
       if (prior && prior.blockHash === data.blockHash && prior.status === data.status && (prior.detail ?? null) === (data.detail ?? null)
+        && prior.expectedEventCount === (data.expectedEventCount ?? null)
+        && prior.contentDigest === (data.contentDigest ?? null)
         && prior.retentionExpiresAt?.getTime() === data.retentionExpiresAt?.getTime()) return prior;
       return tx.publicSwapHistoryCoverage.create({
         data: { ...data, revision: (prior?.revision ?? 0) + 1 },

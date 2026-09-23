@@ -1,6 +1,6 @@
 import { decodeEventLog, type Hex } from "viem";
 import { OBSERVED_TRADES_SWAP_TOPIC } from "../market/observed-trades.js";
-import type { PublicSwapHistoryRepository, PublicSwapObservationInput } from "./public-swap-history.js";
+import { publicSwapContentDigest, type PublicSwapHistoryRepository, type PublicSwapObservationInput } from "./public-swap-history.js";
 
 const ADDRESS = /^0x[0-9a-fA-F]{40}$/;
 const HASH = /^0x[0-9a-fA-F]{64}$/;
@@ -65,11 +65,13 @@ export class PublicSwapCapture {
     if (!this.enabled) throw new Error("Public Swap capture is disabled");
     assertRequest(request);
     const normalized = { ...request, poolAddress: request.poolAddress.toLowerCase() };
-    const coverage = async (status: "COMPLETE" | "EMPTY" | "GAP" | "UNAVAILABLE", blockHash: string | null = null) => {
+    const coverage = async (status: "COMPLETE" | "EMPTY" | "GAP" | "UNAVAILABLE", blockHash: string | null = null, rows?: PublicSwapObservationInput[]) => {
       await this.history.recordCoverage({
         ...normalized,
         blockHash,
         status,
+        expectedEventCount: rows ? rows.length : null,
+        contentDigest: rows ? publicSwapContentDigest(rows) : null,
         detail: status === "GAP" ? "INCOMPLETE_OR_INVALID_RANGE" : status === "UNAVAILABLE" ? "SOURCE_UNAVAILABLE" : null,
       });
     };
@@ -91,12 +93,13 @@ export class PublicSwapCapture {
     try {
       if (!HASH.test(scanned.toBlockHash) || scanned.logs.length > MAX_LOGS) throw new TypeError("Invalid range anchor or cap");
       const identities = new Set<string>();
+      const observedAt = new Date();
       observations = scanned.logs.map((log) => {
         const observation = decodeSwapLog(normalized, scanned.toBlockHash, log);
         const identity = `${observation.blockHash}:${observation.transactionHash}:${observation.logIndex}`;
         if (identities.has(identity)) throw new TypeError("Duplicate event in one range");
         identities.add(identity);
-        return observation;
+        return { ...observation, observedAt };
       });
     } catch {
       await coverage("GAP");
@@ -112,7 +115,7 @@ export class PublicSwapCapture {
       return { status: "GAP", rows: 0 };
     }
     const status = observations.length ? "COMPLETE" : "EMPTY";
-    await coverage(status, scanned.toBlockHash.toLowerCase());
+    await coverage(status, scanned.toBlockHash.toLowerCase(), observations);
     return { status, rows: observations.length };
   }
 }

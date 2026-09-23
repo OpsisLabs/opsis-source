@@ -167,6 +167,9 @@ model PublicSwapHistoryCoverage {
   blockHash          String?
   source             String
   status             HistoryCoverageStatus
+  canonicalStatus    HistoryCanonicalStatus @default(UNKNOWN)
+  expectedEventCount Int?
+  contentDigest      String?
   revision           Int      @default(1)
   detail             String?
   observedAt         DateTime @default(now())

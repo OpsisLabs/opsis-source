@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 import {
   PublicSwapHistoryConflictError,
   PublicSwapHistoryRepository,
+  publicSwapContentDigest,
   type PublicSwapHistoryCoverageInput,
   type PublicSwapObservationInput,
 } from "../src/history/public-swap-history.js";
@@ -47,9 +48,22 @@ class MemoryPrisma {
       .filter((row) => Object.entries(where).every(([field, value]) => row[field] === value))
       .sort((a, b) => orderBy.revision === "desc" ? b.revision - a.revision : a.revision - b.revision)[0] ?? null,
     create: async ({ data }: any) => {
-      const row = { id: `coverage-${data.revision}`, ...data };
+      const row = { id: `coverage-${this.coverages.size + 1}`, canonicalStatus: "UNKNOWN", ...data };
       this.coverages.set(row.id, row);
       return row;
+    },
+    updateMany: async ({ where, data }: any) => {
+      let count = 0;
+      for (const row of this.coverages.values()) {
+        const blockHashMatches = typeof where.blockHash === "string" ? row.blockHash === where.blockHash
+          : where.blockHash?.not ? row.blockHash !== null && row.blockHash !== where.blockHash.not : true;
+        const statusMatches = where.status?.in ? where.status.in.includes(row.status) : row.status === where.status;
+        if (row.chainId === where.chainId && row.toBlock === where.toBlock && blockHashMatches && statusMatches) {
+          Object.assign(row, data);
+          count++;
+        }
+      }
+      return { count };
     },
   };
   $transaction = async <T>(run: (tx: any) => Promise<T>) => run(this);
@@ -74,7 +88,9 @@ function observation(blockHash = BLOCK_A): PublicSwapObservationInput {
 }
 
 function coverage(status: PublicSwapHistoryCoverageInput["status"]): PublicSwapHistoryCoverageInput {
-  return { chainId: 4663, poolAddress: POOL, fromBlock: 80n, toBlock: 89n, source: "public-rpc", status };
+  const successful = status === "EMPTY";
+  return { chainId: 4663, poolAddress: POOL, fromBlock: 80n, toBlock: 88n, blockHash: successful ? BLOCK_A : null, source: "public-rpc", status,
+    expectedEventCount: successful ? 0 : null, contentDigest: successful ? publicSwapContentDigest([]) : null };
 }
 
 describe("public Swap history storage", () => {
@@ -127,6 +143,22 @@ describe("public Swap history storage", () => {
       ["GAP", 2],
     ]);
     expect(empty.status).toBe("EMPTY");
+  });
+
+  it("promotes successful empty coverage only when its block anchor matches independent verification", async () => {
+    const db = new MemoryPrisma();
+    const repo = new PublicSwapHistoryRepository(db as any, true);
+    const matching = await repo.recordCoverage(coverage("EMPTY"));
+    expect(matching.canonicalStatus).toBe("UNKNOWN");
+    await repo.promoteVerifiedCanonicalBlock({ chainId: 4663, blockNumber: 88n, blockHash: BLOCK_A });
+    expect(matching.canonicalStatus).toBe("CANONICAL");
+
+    const forked = await repo.recordCoverage({ ...coverage("EMPTY"), source: "fork-source" });
+    const gap = await repo.recordCoverage(coverage("GAP"));
+    const promoted = await repo.promoteVerifiedCanonicalBlock({ chainId: 4663, blockNumber: 88n, blockHash: BLOCK_B });
+    expect(promoted).toMatchObject({ orphanedCoverage: 2 });
+    expect(forked.canonicalStatus).toBe("ORPHANED");
+    expect(gap.canonicalStatus).toBe("UNKNOWN");
   });
 
   it("retains large signed and unsigned event integers exactly", async () => {
