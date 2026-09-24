@@ -112,14 +112,14 @@ export default function CorrelationPanel({ datasets }: { datasets: readonly Pric
 
   return <section className="opsis-quant-correlation" aria-labelledby="opsis-correlation-title">
     <h3 id="opsis-correlation-title">{c("What moved together in this sample?", "此样本中哪些资产共同变化？")}</h3>
-    <p>{c("Compare observed daily returns on dates shared by both imports. At least 60 matched returns are required; 120 or more are preferred. No missing day is filled.", "比较两份导入数据共同日期的每日观察收益。至少需要 60 个匹配收益，推荐 120 个以上。不会填补缺失日期。")}</p>
+    <p>{c("Compare observed daily returns across dates shared by every imported instrument. At least 60 matched returns are required; 120 or more are preferred. No missing day is filled.", "比较所有导入资产共同日期的每日观察收益。至少需要 60 个匹配收益，推荐 120 个以上。不会填补缺失日期。")}</p>
     <button type="button" disabled={busy} onClick={start}>{busy ? c("Checking…", "核查中…") : c("Inspect observed co-movement", "查看观察到的共同变化")}</button>
     {busy && <button type="button" onClick={cancel}>{c("Cancel local check", "取消本地核查")}</button>}
     {error && <p role="alert" className="opsis-error">{error}</p>}
     {result && <>
       <p role="status">{c("Shared daily return window", "共同每日收益窗口")}: {result.commonWindow.startDate} – {result.commonWindow.endDate} · {result.matchedReturns} {c("matched returns", "个匹配收益")} · {result.quoteCurrency}</p>
       {result.matchedReturns < 120 && <p role="note">{c("Fewer than 120 matched returns; co-movement estimates are sample-sensitive.", "匹配收益少于 120 个；共同变化估计对样本敏感。")}</p>}
-      <p>{c("A and B identify these exact instruments:", "A 和 B 对应以下确切资产：")} {result.instruments.map((identity, index) => <span key={identity}>{index > 0 ? " · " : ""}{String.fromCharCode(65 + index)} = {datasets[index]?.instrument.symbol} ({identity})</span>)}</p>
+      <p>{c("Letters identify these exact instruments:", "字母对应以下确切资产：")} {result.instruments.map((identity, index) => <span key={identity}>{index > 0 ? " · " : ""}{String.fromCharCode(65 + index)} = {datasets[index]?.instrument.symbol} ({identity})</span>)}</p>
       <p>{c("Blue = positive, red = negative, pale = near zero, grey = undefined. Select a cell for its exact values. Correlation describes this sample, not causation or a future relationship.", "蓝色表示正相关，红色表示负相关，浅色表示接近零，灰色表示未定义。选择单元格查看精确数值。相关性仅描述此样本，不表示因果或未来关系。")}</p>
       <div ref={chartRef} style={{ width: "100%", height: 290 }} role="img" aria-label={c("Observed daily-return correlation heatmap; exact values and undefined cells appear in the table below.", "观察到的每日收益相关性热力图；精确数值和未定义单元格见下表。")}/>
       {selectedCell && <p role="status">{c("Selected", "已选择")}: {selectedCell.rowInstrument} / {selectedCell.columnInstrument} · r = {selectedCell.correlation?.toString() ?? c("undefined", "未定义")} · {c("beta against column", "相对于列资产的贝塔")}: {selectedCell.beta?.toString() ?? c("undefined", "未定义")} · n = {selectedCell.observations}</p>}

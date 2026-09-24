@@ -57,6 +57,15 @@ test.describe("Opsis local price and perp scenarios", () => {
     await expect(page.getByTestId("opsis-perp-shocks")).toContainText(
       "Closing prices are truncated to eight decimals; displayed moves are approximate.",
     );
+    await page.getByTestId("opsis-perp-custom-shock-input").fill("12.34");
+    await expect(page.getByTestId("opsis-perp-custom-shock-result").getByRole("rowheader")).toContainText("+12.34%");
+    await expect(page.getByTestId("opsis-perp-custom-shock-result").locator("td")).toHaveText(["112.34000000", "22.85532000"]);
+    await expect(page.getByTestId("opsis-perp-custom-shock-plot-row")).toContainText("+12.34%");
+    await page.getByTestId("opsis-perp-custom-shock-input").fill("500.001");
+    await expect(page.getByTestId("opsis-perp-custom-shock-error")).toContainText(
+      "at most two decimal places",
+    );
+    await page.getByTestId("opsis-perp-custom-shock-input").fill("");
     await page.getByRole("button", { name: "+20%" }).click();
     await expect(page.getByTestId("opsis-perp-shocks")).toContainText(
       "Selected hypothetical close 120.00000000 · 38.16000000 quote units net",
@@ -77,6 +86,9 @@ test.describe("Opsis local price and perp scenarios", () => {
     ).toBeVisible();
     await page.getByLabel("退出费用（基点）", { exact: true }).fill("10");
     await expect(page.getByTestId("opsis-perp-shocks")).toContainText("您输入的平仓价格");
+    await page.getByTestId("opsis-perp-custom-shock-input").fill("-2.5");
+    await expect(page.getByTestId("opsis-perp-custom-shock-result")).toContainText("自定义 -2.50%");
+    await page.getByTestId("opsis-perp-custom-shock-input").fill("");
     await page.getByLabel("入场价格", { exact: true }).fill("0.00000001");
     await expect(page.getByTestId("opsis-perp-result")).not.toContainText("补全假设");
     await expect(page.getByTestId("opsis-perp-shocks")).toHaveCount(0);

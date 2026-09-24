@@ -35,7 +35,16 @@ export function perpScenario(input: {
     feeOut = fixed(input.exitFeeBps),
     funding = fixed(input.funding, true),
     other = fixed(input.otherCosts);
-  const result = calculate(input.side, q, entry, exit, feeIn, feeOut, funding, other);
+  const result = calculate(
+    input.side,
+    q,
+    entry,
+    exit,
+    feeIn,
+    feeOut,
+    funding,
+    other,
+  );
   return {
     entryNotional: result.entryNotional,
     exitNotional: result.exitNotional,
@@ -50,6 +59,71 @@ export function perpScenario(input: {
 
 type PerpScenarioInput = Parameters<typeof perpScenario>[0];
 const SHOCKS = [-20, -10, 0, 10, 20] as const;
+
+/** User-entered percentage points, bounded to -95.00..500.00 in 0.01 steps. */
+function parseCustomShock(value: string): {
+  basisPoints: bigint;
+  label: string;
+} {
+  if (!/^-?(?:0|[1-9]\d{0,2})(?:\.\d{1,2})?$/.test(value))
+    throw new Error("Custom shock must use at most two decimal places");
+  const negative = value.startsWith("-");
+  const [whole, fraction = ""] = (negative ? value.slice(1) : value).split(".");
+  const magnitude = BigInt(whole) * 100n + BigInt(fraction.padEnd(2, "0"));
+  const basisPoints = negative ? -magnitude : magnitude;
+  if (basisPoints < -9_500n || basisPoints > 50_000n)
+    throw new Error("Custom shock must be from -95% to +500%");
+  const absolute = basisPoints < 0n ? -basisPoints : basisPoints;
+  const label = `${basisPoints < 0n ? "-" : basisPoints > 0n ? "+" : ""}${absolute / 100n}${absolute % 100n ? `.${(absolute % 100n).toString().padStart(2, "0")}` : ""}%`;
+  return { basisPoints, label };
+}
+
+/** Custom closing-price shock; null means eight-decimal truncation is too coarse. */
+export function perpCustomShockScenario(
+  input: PerpScenarioInput,
+  value: string,
+) {
+  const { basisPoints, label } = parseCustomShock(value);
+  const q = fixed(input.quantity),
+    entry = fixed(input.entry),
+    exit = fixed(input.exit),
+    feeIn = fixed(input.entryFeeBps),
+    feeOut = fixed(input.exitFeeBps),
+    funding = fixed(input.funding, true),
+    other = fixed(input.otherCosts);
+  if (
+    !["long", "short"].includes(input.side) ||
+    q <= 0n ||
+    entry <= 0n ||
+    exit <= 0n ||
+    feeIn > 10_000n * SCALE ||
+    feeOut > 10_000n * SCALE
+  )
+    throw new Error("Invalid scenario assumptions");
+
+  const numerator = entry * (10_000n + basisPoints);
+  const shockedExit = numerator / 10_000n;
+  const remainder = numerator % 10_000n;
+  // Truncation error in percentage points is remainder/(100*entry).
+  // Refuse only when it exceeds 0.01 percentage point: remainder > entry.
+  if (shockedExit <= 0n || remainder > entry) return null;
+  const result = calculate(
+    input.side,
+    q,
+    entry,
+    shockedExit,
+    feeIn,
+    feeOut,
+    funding,
+    other,
+  );
+  return {
+    percent: label,
+    exit: display(shockedExit),
+    net: result.net,
+    netRaw: result._netRaw,
+  };
+}
 
 function calculate(
   side: PerpScenarioInput["side"],
@@ -92,7 +166,7 @@ function calculate(
 }
 
 /** Fixed price shocks use integer percent arithmetic and truncate to eight decimals. */
-export function perpShockScenarios(input: PerpScenarioInput) {
+export function perpShockScenarios(input: PerpScenarioInput, customNetRaw?: bigint) {
   // Parse and validate every assumption using the same boundaries as the main result.
   const q = fixed(input.quantity),
     entry = fixed(input.entry),
@@ -120,13 +194,23 @@ export function perpShockScenarios(input: PerpScenarioInput) {
   // intended percentage by more than 0.01 percentage point (1 bp).
   if (
     shockedPrices.some(
-      ({ shockedExit, remainder }) => shockedExit <= 0n || remainder * 100n > entry,
+      ({ shockedExit, remainder }) =>
+        shockedExit <= 0n || remainder * 100n > entry,
     )
   )
     return null;
 
   const results = shockedPrices.map(({ percent, shockedExit }) => {
-    const result = calculate(input.side, q, entry, shockedExit, feeIn, feeOut, funding, other);
+    const result = calculate(
+      input.side,
+      q,
+      entry,
+      shockedExit,
+      feeIn,
+      feeOut,
+      funding,
+      other,
+    );
     return {
       percent,
       exit: display(shockedExit),
@@ -146,9 +230,16 @@ export function perpShockScenarios(input: PerpScenarioInput) {
     const value = row.netRaw;
     const abs = value < 0n ? -value : value;
     return abs > max ? abs : max;
-  }, 0n);
+  }, customNetRaw === undefined ? 0n : customNetRaw < 0n ? -customNetRaw : customNetRaw);
   return {
     entered: { exit: display(fixed(input.exit)), ...entered },
+    customBar: customNetRaw === undefined ? null : (() => {
+      const abs = customNetRaw < 0n ? -customNetRaw : customNetRaw;
+      return {
+        barWidth: maxAbs === 0n ? 0 : Number((abs * 100n) / maxAbs),
+        negative: customNetRaw < 0n,
+      };
+    })(),
     shocks: results.map((row) => {
       const net = row.netRaw;
       const abs = net < 0n ? -net : net;

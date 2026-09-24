@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useCopy } from "./copy";
-import { perpScenario, perpShockScenarios } from "./perp-scenario";
+import { perpCustomShockScenario, perpScenario, perpShockScenarios } from "./perp-scenario";
 export default function PerpScenario() {
   const c = useCopy();
   const [side, setSide] = useState<"long" | "short">("long");
   const [selectedShock, setSelectedShock] = useState(2);
+  const [customShock, setCustomShock] = useState("");
   const [values, setValues] = useState({
     quantity: "",
     entry: "",
@@ -29,12 +30,25 @@ export default function PerpScenario() {
   let result: ReturnType<typeof perpScenario> | null = null;
   let comparison: Exclude<ReturnType<typeof perpShockScenarios>, null> | null = null;
   let comparisonUnavailable = false;
+  let customResult: ReturnType<typeof perpCustomShockScenario> = null;
+  let customError = false;
   try {
     result = perpScenario({ side, ...values });
     comparison = perpShockScenarios({ side, ...values });
     comparisonUnavailable = comparison === null;
   } catch {
     /* Input state explicitly shown, never synthesize defaults. */
+  }
+  if (customShock.trim() && result) {
+    try {
+      customResult = perpCustomShockScenario({ side, ...values }, customShock.trim());
+    } catch {
+      customError = true;
+    }
+  }
+  if (customResult) {
+    comparison = perpShockScenarios({ side, ...values }, customResult.netRaw);
+    comparisonUnavailable = comparison === null;
   }
   return (
     <section className="opsis-panel">
@@ -84,6 +98,24 @@ export default function PerpScenario() {
         {c(
           "All amounts use the same quote currency. Enter 0 only when that cost is explicitly assumed zero; blank means unknown. 1 basis point = 0.01%.",
           "所有金额使用相同报价货币。仅在明确假设该费用为零时输入 0；空白表示未知。1 基点 = 0.01%。",
+        )}
+      </p>
+      <label>
+        {c("Custom closing-price shock (%)", "自定义平仓价格冲击（%）")}
+        <input
+          aria-describedby={`perp-custom-shock-help${customError ? " perp-custom-shock-error" : ""}`}
+          aria-invalid={customError || undefined}
+          data-testid="opsis-perp-custom-shock-input"
+          inputMode="decimal"
+          autoComplete="off"
+          value={customShock}
+          onChange={(e) => setCustomShock(e.target.value)}
+        />
+      </label>
+      <p id="perp-custom-shock-help" className="opsis-small">
+        {c(
+          "Optional local scenario from -95% to +500%, in 0.01 percentage-point steps. Leave blank to omit.",
+          "可选本地情景：-95% 至 +500%，步长为 0.01 个百分点。留空则不添加。",
         )}
       </p>
       <section aria-live="polite" data-testid="opsis-perp-result">
@@ -148,7 +180,7 @@ export default function PerpScenario() {
           <p aria-live="polite">
             {c("Selected hypothetical close", "所选假设平仓")} {comparison.shocks[selectedShock].exit} · {comparison.shocks[selectedShock].net} {c("quote units net", "报价单位净额")}
           </p>
-          <div aria-hidden="true" style={{ display: "grid", gap: "0.35rem", margin: "0.6rem 0" }}>
+          <div aria-hidden="true" data-testid="opsis-perp-shock-plot" style={{ display: "grid", gap: "0.35rem", margin: "0.6rem 0" }}>
             {comparison.shocks.map((shock) => (
               <div key={shock.percent} style={{ display: "grid", gridTemplateColumns: "3.5rem 1fr", gap: "0.5rem", alignItems: "center" }}>
                 <span>{shock.percent > 0 ? "+" : ""}{shock.percent}%</span>
@@ -162,6 +194,19 @@ export default function PerpScenario() {
                 </span>
               </div>
             ))}
+            {customResult && comparison.customBar && (
+              <div data-testid="opsis-perp-custom-shock-plot-row" style={{ display: "grid", gridTemplateColumns: "3.5rem 1fr", gap: "0.5rem", alignItems: "center" }}>
+                <span>{c("Custom", "自定义")} {customResult.percent}</span>
+                <span style={{ display: "grid", gridTemplateColumns: "1fr 1fr", height: "0.65rem", position: "relative" }}>
+                  <span style={{ display: "flex", justifyContent: "flex-end", borderRight: "1px solid #526173" }}>
+                    {comparison.customBar.negative && <span style={{ display: "block", height: "0.55rem", width: `${comparison.customBar.barWidth}%`, minWidth: "2px", background: "#b42318" }} />}
+                  </span>
+                  <span>
+                    {!comparison.customBar.negative && comparison.customBar.barWidth > 0 && <span style={{ display: "block", height: "0.55rem", width: `${comparison.customBar.barWidth}%`, minWidth: "2px", background: "#1769ff" }} />}
+                  </span>
+                </span>
+              </div>
+            )}
           </div>
           <div style={{ overflowX: "auto" }}>
             <table>
@@ -172,10 +217,32 @@ export default function PerpScenario() {
                   <tr key={shock.percent}><th scope="row">{shock.percent > 0 ? "+" : ""}{shock.percent}%</th><td>{shock.exit}</td><td>{shock.net}</td></tr>
                 ))}
                 <tr><th scope="row">{c("Your entered exit", "您输入的平仓价格")}</th><td>{comparison.entered.exit}</td><td>{comparison.entered.net}</td></tr>
+                {customResult && <tr data-testid="opsis-perp-custom-shock-result"><th scope="row">{c("Custom", "自定义")} {customResult.percent}</th><td>{customResult.exit}</td><td>{customResult.net}</td></tr>}
               </tbody>
             </table>
           </div>
         </section>
+      )}
+      {customError && (
+        <p id="perp-custom-shock-error" role="alert" data-testid="opsis-perp-custom-shock-error">
+          {c(
+            "Enter a shock from -95% to +500% with at most two decimal places.",
+            "请输入 -95% 至 +500% 的冲击值，小数最多两位。",
+          )}
+        </p>
+      )}
+      {customShock.trim() && !customError && result && !customResult && (
+        <p role="status" data-testid="opsis-perp-custom-shock-unavailable">
+          {c(
+            "Custom shock unavailable at eight-decimal price precision.",
+            "价格精度为八位小数时，自定义冲击不可用。",
+          )}
+        </p>
+      )}
+      {comparison === null && customResult && (
+        <p role="status" data-testid="opsis-perp-custom-shock-result">
+          {c("Custom hypothetical close", "自定义假设平仓")} {customResult.percent}: {customResult.exit} · {customResult.net} {c("quote units net", "报价单位净额")}
+        </p>
       )}
       {result && comparisonUnavailable && (
         <p role="status" data-testid="opsis-perp-shocks-unavailable">

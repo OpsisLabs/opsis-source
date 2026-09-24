@@ -161,7 +161,7 @@ test("stock-token gap series stays local and shows session, corporate-action and
   expect(requests.some((request) => request.includes("PRIVATE_STOCK_SOURCE_CANARY"))).toBe(false);
 });
 
-test("joint portfolio keeps both imports and weights local, preserves the shared calendar, and shows numeric bands", async ({ page }) => {
+test("joint portfolio keeps three imports and weights local, preserves the shared calendar, and shows numeric bands", async ({ page }) => {
   await page.goto("/lab");
   await page.getByRole("button", { name: /Quant research/ }).click();
   const requests: string[] = [];
@@ -184,17 +184,29 @@ test("joint portfolio keeps both imports and weights local, preserves the shared
     name: "first.json", mimeType: "application/json",
     buffer: pack("0x0000000000000000000000000000000000000abc", "FIRST", rows),
   });
-  await page.getByLabel("Second asset JSON").setInputFiles({
+  await page.getByRole("button", { name: "Add another dataset" }).click();
+  await page.getByLabel("Additional asset 1 JSON").setInputFiles({
     name: "second.json", mimeType: "application/json",
     buffer: pack("0x0000000000000000000000000000000000000def", "SECOND", rows.map((row) => ({ ...row, price: row.price * 2 }))),
   });
+  await expect(page.getByLabel("First asset weight (basis points)")).toHaveValue("5000");
+  await expect(page.getByLabel("SECOND weight (basis points)")).toHaveValue("5000");
   await page.getByRole("button", { name: "Inspect observed co-movement" }).click();
   await expect(page.getByText(/189 matched returns/)).toBeVisible();
   await expect(page.getByRole("img", { name: /Observed daily-return correlation heatmap/ })).toBeVisible();
   await expect(page.locator(".opsis-quant-correlation-table tbody tr")).toHaveCount(4);
   await expect(page.locator(".opsis-quant-correlation-table tbody tr").nth(1).locator("td").nth(2)).toHaveText("189");
   await expect(page.locator(".opsis-quant-correlation-table tbody tr").nth(1).locator("td").nth(3)).toHaveText("1");
-  await page.getByLabel("First asset weight (%)").fill("60");
+  await page.getByLabel("First asset weight (basis points)").fill("4000");
+  await page.getByLabel("SECOND weight (basis points)").fill("3000");
+  await page.getByRole("button", { name: "Add another dataset" }).click();
+  await page.getByLabel("Additional asset 2 JSON").setInputFiles({
+    name: "third.json", mimeType: "application/json",
+    buffer: pack("0x0000000000000000000000000000000000000123", "THIRD", rows.map((row) => ({ ...row, price: row.price * 3 }))),
+  });
+  await page.getByLabel("THIRD weight (basis points)").fill("3000");
+  await page.getByRole("button", { name: "Inspect observed co-movement" }).click();
+  await expect(page.locator(".opsis-quant-correlation-table tbody tr")).toHaveCount(9);
   await page.getByLabel("Resampling model").selectOption("historical_moving_block_bootstrap");
   await page.getByLabel("Block length (2–30 days; at most half the sample)").fill("7");
   await page.getByRole("button", { name: "Run joint portfolio locally" }).click();
@@ -202,13 +214,14 @@ test("joint portfolio keeps both imports and weights local, preserves the shared
   await expect(page.getByRole("img", { name: /Joint portfolio pointwise fan chart/ })).toBeVisible();
   await expect(page.locator(".opsis-quant-joint-chart + .opsis-table-scroll tbody tr")).toHaveCount(190);
   await expect(page.getByRole("button", { name: "Export joint manifest" })).toBeDisabled();
-  await page.getByRole("checkbox", { name: /consent to download both local datasets/i }).check();
+  await page.getByRole("checkbox", { name: /consent to download all local datasets/i }).check();
   await expect(page.getByRole("button", { name: "Export joint manifest" })).toBeEnabled();
   const [jointDownload] = await Promise.all([
     page.waitForEvent("download"),
     page.getByRole("button", { name: "Export joint manifest" }).click(),
   ]);
   const exportedJoint = await readFile(await jointDownload.path());
+  expect(JSON.parse(exportedJoint.toString()).datasets).toHaveLength(3);
   await page.getByRole("button", { name: "中文", exact: true }).click();
   await expect(page.getByRole("heading", { name: "联合投资组合实验" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "此样本中哪些资产共同变化？" })).toBeVisible();
@@ -218,25 +231,40 @@ test("joint portfolio keeps both imports and weights local, preserves the shared
   await page.setViewportSize({ width: 320, height: 800 });
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - innerWidth), { timeout: 3_000 }).toBeLessThanOrEqual(1);
 
-  await page.getByLabel("First asset weight (%)").fill("70");
+  await page.getByLabel("First asset weight (basis points)").fill("4500");
+  await page.getByLabel("SECOND weight (basis points)").fill("2500");
   await expect(page.getByText(/joint_portfolio_moving_block_bootstrap \(7d\)/)).toHaveCount(0);
   await page.getByRole("button", { name: "Run joint portfolio locally" }).click();
-  await expect(page.getByText(/FIRST 70% \/ SECOND 30%/)).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByText(/4500bp \/ .*2500bp \/ .*3000bp/)).toBeVisible({ timeout: 10_000 });
+
+  await page.getByLabel("THIRD weight (basis points)").fill("2000");
+  await expect(page.getByRole("button", { name: "Run joint portfolio locally" })).toBeDisabled();
+  await expect(page.getByText(/must total exactly 10,000/)).toBeVisible();
+  await page.getByLabel("THIRD weight (basis points)").fill("3000");
 
   const shifted = rows.map((row, index) => ({ ...row, date: new Date(Date.UTC(2026, 0, index + 2)).toISOString().slice(0, 10) }));
-  await page.getByLabel("Second asset JSON").setInputFiles({
+  await page.getByLabel("Additional asset 1 JSON").setInputFiles({
     name: "shifted.json", mimeType: "application/json",
     buffer: pack("0x0000000000000000000000000000000000000def", "SECOND", shifted),
   });
-  await page.getByRole("button", { name: "Run joint portfolio locally" }).click();
   await expect(page.getByRole("alert").filter({ hasText: /dates must align exactly/i })).toBeVisible();
-  await page.getByLabel("Second asset JSON").setInputFiles({
+  await expect(page.getByRole("button", { name: "Run joint portfolio locally" })).toBeDisabled();
+  await page.getByLabel("Additional asset 1 JSON").setInputFiles({
     name: "short.json", mimeType: "application/json",
     buffer: pack("0x0000000000000000000000000000000000000def", "SECOND", rows.slice(-40)),
   });
-  await page.getByRole("button", { name: "Inspect observed co-movement" }).click();
-  await expect(page.getByRole("alert").filter({ hasText: /At least 60 synchronized daily returns/ })).toBeVisible();
+  await expect(page.getByRole("alert").filter({ hasText: /Dates must align exactly/ })).toBeVisible();
   await expect(page.locator(".opsis-quant-correlation-table tbody tr")).toHaveCount(0);
+  await page.getByLabel("Additional asset 1 JSON").setInputFiles({
+    name: "second-restored.json", mimeType: "application/json",
+    buffer: pack("0x0000000000000000000000000000000000000def", "SECOND", rows),
+  });
+  await expect(page.getByLabel("SECOND weight (basis points)")).toBeVisible();
+  await page.getByLabel("Additional asset 2 JSON").setInputFiles({
+    name: "duplicate.json", mimeType: "application/json",
+    buffer: pack("0x0000000000000000000000000000000000000def", "DUPLICATE", rows),
+  });
+  await expect(page.getByRole("alert").filter({ hasText: /distinct chain and contract identity/i })).toBeVisible();
   await page.reload();
   await page.getByRole("button", { name: /Quant research/ }).click();
   const replay = page.locator("details").filter({ hasText: "Verify an exported Quant run" });

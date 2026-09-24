@@ -1,5 +1,5 @@
 import { it, expect } from "vitest";
-import { perpScenario, perpShockScenarios } from "./perp-scenario";
+import { perpCustomShockScenario, perpScenario, perpShockScenarios } from "./perp-scenario";
 const input = {
   side: "long" as const,
   quantity: "2",
@@ -124,4 +124,52 @@ it("keeps shock prices and calculations in BigInt at supported input extremes", 
   expect(extreme.shocks.every((row) => row.barWidth >= 0 && row.barWidth <= 100)).toBe(true);
   expect(() => perpShockScenarios({ ...input, funding: "" })).toThrow();
   expect(() => perpShockScenarios({ ...input, entry: "0" })).toThrow();
+});
+
+it("calculates bounded fractional custom shocks with exact decimal prices", () => {
+  const noCosts = {
+    ...input,
+    entry: "100",
+    exit: "110",
+    entryFeeBps: "0",
+    exitFeeBps: "0",
+    funding: "0",
+    otherCosts: "0",
+  };
+  expect(perpCustomShockScenario(noCosts, "-12.34")).toMatchObject({
+    percent: "-12.34%", exit: "87.66000000", net: "-24.68000000",
+  });
+  expect(perpCustomShockScenario(noCosts, "12.34")).toMatchObject({
+    percent: "+12.34%", exit: "112.34000000", net: "24.68000000",
+  });
+  expect(perpCustomShockScenario(noCosts, "0")).toMatchObject({
+    percent: "0%", exit: "100.00000000", net: "0.00000000",
+  });
+});
+
+it("rejects malformed or out-of-range custom shocks and refuses unrepresentable prices", () => {
+  for (const shock of ["-95.01", "500.01", "500.1", "1.001", "+1", "1e2", " 1", "-", "01"])
+    expect(() => perpCustomShockScenario(input, shock)).toThrow();
+  expect(perpCustomShockScenario(input, "-95")?.exit).toBe("5.00000000");
+  expect(perpCustomShockScenario(input, "500")?.exit).toBe("600.00000000");
+  expect(() => perpCustomShockScenario({ ...input, exit: "0" }, "1")).toThrow();
+  expect(perpCustomShockScenario({
+    ...input, quantity: "1", entry: "0.00000001", exit: "0.00000001",
+    entryFeeBps: "0", exitFeeBps: "0", funding: "0", otherCosts: "0",
+  }, "1")).toBeNull();
+});
+
+it("accepts the 0.01 percentage-point precision boundary and scales custom plot bars together", () => {
+  const boundary = perpCustomShockScenario({
+    ...input, quantity: "1", entry: "0.00001000", exit: "0.00001000",
+    entryFeeBps: "0", exitFeeBps: "0", funding: "0", otherCosts: "0",
+  }, "0.01");
+  expect(boundary?.exit).toBe("0.00001000");
+
+  const custom = perpCustomShockScenario(input, "500");
+  if (!custom) throw new Error("Expected representable custom shock");
+  const comparison = perpShockScenarios(input, custom.netRaw);
+  if (!comparison) throw new Error("Expected representable fixed shocks");
+  expect(comparison.customBar?.barWidth).toBe(100);
+  expect(Math.max(...comparison.shocks.map((row) => row.barWidth))).toBeLessThan(100);
 });
