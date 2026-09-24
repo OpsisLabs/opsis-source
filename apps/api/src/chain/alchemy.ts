@@ -77,7 +77,7 @@ export class AlchemyProvider implements Pick<ChainProvider, "name" | "getTransac
       || (env.ALCHEMY_API_KEY ? `https://robinhood-mainnet.g.alchemy.com/v2/${env.ALCHEMY_API_KEY}` : undefined);
     this.rpcUrl = alchemyUrl || (env.ENABLE_PUBLIC_RPC_FALLBACK ? env.ROBINHOOD_PUBLIC_RPC_URL : undefined);
     this.name = alchemyUrl ? "alchemy" : "robinhood-public-rpc";
-    this.http = http ?? createProviderHttp(env, this.name);
+    this.http = http ?? createProviderHttp(env, this.name, undefined, "research");
   }
 
   isConfigured(): boolean {

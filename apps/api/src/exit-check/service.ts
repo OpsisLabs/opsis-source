@@ -280,6 +280,7 @@ export class ExitCheckService implements ExitCheckSource {
           requestBudgetPerMinute: env.PROVIDER_REQUEST_BUDGET_PER_MINUTE,
           maxConcurrency: 1,
           providerName: "robinhood-public-rpc",
+          rpcWorkload: "exit-check",
         }),
       budget: dependencies?.budget ?? createExitCheckBudget(env),
       now: dependencies?.now ?? (() => new Date()),

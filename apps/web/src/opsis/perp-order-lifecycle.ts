@@ -10,6 +10,7 @@ export type PerpSide = "buy" | "sell";
 export type PerpOrderState =
   | "review"
   | "authorization-pending"
+  | "authorization-recorded"
   | "submission-unknown"
   | "cancel-status-unknown"
   | "accepted"
@@ -31,10 +32,13 @@ export type PerpOrderIntent = Readonly<{
   state: PerpOrderState;
   /** A close's filled size is not position-state verification. */
   positionStateVerified: false;
+  /** Caller-supplied marker only; this model does not cryptographically verify authorization. */
+  authorizationMarker?: string;
 }>;
 
 export type LifecycleError =
   | "invalid-client-id"
+  | "invalid-authorization-marker"
   | "invalid-size"
   | "reduce-only-required"
   | "invalid-transition"
@@ -70,7 +74,7 @@ export function createPerpIntent(input: {
   requestedSize: string;
   reduceOnlyRequested: boolean;
 }): Result<PerpOrderIntent> {
-  if (!input.clientOrderId.trim()) return { ok: false, error: "invalid-client-id" };
+  if (!input.clientOrderId.trim() || input.clientOrderId.length > 128) return { ok: false, error: "invalid-client-id" };
   const requestedSize = parseBaseSize(input.requestedSize);
   if (requestedSize === null) return { ok: false, error: "invalid-size" };
   if (input.kind !== "open" && !input.reduceOnlyRequested) {
@@ -98,18 +102,22 @@ export type VenueOrderEvent = Readonly<{
   cumulativeFilled?: bigint;
 }>;
 
-export type LocalAction = "request-authorization" | "begin-submission" | "timeout" | "request-cancel";
+export type LocalAction = "request-authorization" | "begin-submission" | "timeout" | "request-cancel" | { type: "record-authorization"; marker: string };
 
 /**
- * `begin-submission` means wallet authorization has already succeeded and
- * submission may have started. Timeouts preserve known venue states; a cancel
+ * `begin-submission` requires an explicit caller-supplied authorization marker
+ * (not cryptographically verified here) and records that submission may have started. Timeouts preserve known venue states; a cancel
  * timeout is separately represented as cancel-status-unknown.
  */
 export function applyLocalAction(intent: PerpOrderIntent, action: LocalAction): Result<PerpOrderIntent> {
+  if (typeof action !== "string" && action.type === "record-authorization" && intent.state === "authorization-pending") {
+    if (!action.marker.trim() || action.marker.length > 512) return { ok: false, error: "invalid-authorization-marker" };
+    return { ok: true, value: { ...intent, state: "authorization-recorded", authorizationMarker: action.marker } };
+  }
   if (action === "request-authorization" && intent.state === "review") {
     return { ok: true, value: { ...intent, state: "authorization-pending" } };
   }
-  if (action === "begin-submission" && intent.state === "authorization-pending") {
+  if (action === "begin-submission" && intent.state === "authorization-recorded" && intent.authorizationMarker) {
     return { ok: true, value: { ...intent, state: "submission-unknown" } };
   }
   if (action === "timeout" && intent.state === "submission-unknown") {
@@ -128,11 +136,14 @@ const terminalStates = new Set<PerpOrderState>(["filled", "canceled", "rejected"
 
 /** Apply a correlated venue observation; `not-found` cannot resolve unknown. */
 export function applyVenueEvent(intent: PerpOrderIntent, event: VenueOrderEvent): Result<PerpOrderIntent> {
+  if (event.clientOrderId.length > 128 || (event.orderId !== undefined && (!event.orderId.trim() || event.orderId.length > 128))) {
+    return { ok: false, error: "order-id-required" };
+  }
   if (event.clientOrderId !== intent.clientOrderId) return { ok: false, error: "client-id-mismatch" };
   if (intent.orderId && !event.orderId) return { ok: false, error: "order-id-required" };
   if (intent.orderId && event.orderId !== intent.orderId) return { ok: false, error: "order-id-mismatch" };
   if (event.type !== "not-found" && !event.orderId?.trim()) return { ok: false, error: "order-id-required" };
-  if (intent.state === "review" || intent.state === "authorization-pending") {
+  if (intent.state === "review" || intent.state === "authorization-pending" || intent.state === "authorization-recorded") {
     return { ok: false, error: "invalid-transition" };
   }
   if (terminalStates.has(intent.state)) {
@@ -143,6 +154,8 @@ export function applyVenueEvent(intent: PerpOrderIntent, event: VenueOrderEvent)
   if (event.type === "not-found") return { ok: true, value: withOrderId };
   if (event.type === "accepted" || event.type === "open") {
     if (intent.state === "cancel-pending" || intent.state === "cancel-status-unknown" || intent.state === "partially-filled") return { ok: false, error: "terminal-regression" };
+    if (event.type === "accepted" && intent.state !== "submission-unknown" && intent.state !== "accepted") return { ok: false, error: "terminal-regression" };
+    if (event.type === "open" && intent.state !== "submission-unknown" && intent.state !== "accepted" && intent.state !== "open") return { ok: false, error: "terminal-regression" };
     return { ok: true, value: { ...withOrderId, state: event.type } };
   }
   if (event.type === "rejected") {
@@ -183,5 +196,6 @@ export function retryGuard(intent: PerpOrderIntent): RetryGuard {
   if (intent.state === "cancel-status-unknown") return "query-before-cancel";
   if (intent.state === "review") return "review-required";
   if (intent.state === "authorization-pending") return "authorization-required";
+  if (intent.state === "authorization-recorded") return "initial-submission-only";
   return "no-resubmit";
 }

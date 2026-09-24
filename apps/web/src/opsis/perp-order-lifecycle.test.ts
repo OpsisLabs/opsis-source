@@ -21,7 +21,9 @@ function intent(): PerpOrderIntent {
 }
 
 function submitted(source = intent()): PerpOrderIntent {
-  return ok(applyLocalAction(ok(applyLocalAction(source, "request-authorization")), "begin-submission"));
+  const pending = ok(applyLocalAction(source, "request-authorization"));
+  const authorized = ok(applyLocalAction(pending, { type: "record-authorization", marker: "caller-marker:opaque" }));
+  return ok(applyLocalAction(authorized, "begin-submission"));
 }
 
 function ok<T>(result: { ok: true; value: T } | { ok: false; error: string }): T {
@@ -72,10 +74,20 @@ describe("pure perp order lifecycle model", () => {
       .toEqual({ ok: false, error: "invalid-transition" });
     const authPending = ok(applyLocalAction(draft, "request-authorization"));
     expect(retryGuard(authPending)).toBe("authorization-required");
+    expect(applyLocalAction(authPending, "begin-submission")).toEqual({ ok: false, error: "invalid-transition" });
     expect(applyVenueEvent(authPending, { clientOrderId: authPending.clientOrderId, orderId: "venue-1", type: "accepted" }))
       .toEqual({ ok: false, error: "invalid-transition" });
     expect(retryGuard(draft)).toBe("review-required");
     expect(applyLocalAction(draft, "begin-submission")).toEqual({ ok: false, error: "invalid-transition" });
+  });
+
+  it("requires an explicit bounded caller marker before submission without claiming cryptographic verification", () => {
+    const pending = ok(applyLocalAction(intent(), "request-authorization"));
+    expect(applyLocalAction(pending, { type: "record-authorization", marker: " " })).toEqual({ ok: false, error: "invalid-authorization-marker" });
+    const recorded = ok(applyLocalAction(pending, { type: "record-authorization", marker: "caller-asserted:opaque" }));
+    expect(recorded).toMatchObject({ state: "authorization-recorded", authorizationMarker: "caller-asserted:opaque" });
+    expect(retryGuard(recorded)).toBe("initial-submission-only");
+    expect(applyLocalAction(recorded, "begin-submission")).toMatchObject({ ok: true, value: { state: "submission-unknown" } });
   });
 
   it("preserves cancel-pending through a partial fill race, then accepts venue cancellation", () => {

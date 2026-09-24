@@ -130,7 +130,7 @@ export class RwaService implements RwaVerificationSource {
     const oneAttemptEnv: Env = { ...env, PROVIDER_MAX_RETRIES: 0 };
     this.dependencies = {
       http: dependencies?.http ?? createProviderHttp(oneAttemptEnv, "rwa-public-source"),
-      rpc: dependencies?.rpc ?? createProviderHttp(oneAttemptEnv, "robinhood-public-rpc"),
+      rpc: dependencies?.rpc ?? createProviderHttp(oneAttemptEnv, "robinhood-public-rpc", undefined, "rwa"),
       budget: dependencies?.budget ?? createRwaBudget(env),
       now: dependencies?.now ?? (() => new Date())
     };

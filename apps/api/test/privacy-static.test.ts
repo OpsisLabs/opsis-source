@@ -228,7 +228,7 @@ describe("browser privacy static boundary", () => {
     );
     expect(source).toContain("PROVIDER_MAX_RETRIES: 0");
     expect(source).toContain(
-      'createProviderHttp(oneAttemptEnv, "robinhood-public-rpc")',
+      'createProviderHttp(oneAttemptEnv, "robinhood-public-rpc", undefined, "portfolio")',
     );
     expect(source).toContain('createProviderHttp(oneAttemptEnv, "blockscout")');
   });

@@ -70,7 +70,7 @@ export class PortfolioService implements PortfolioSnapshotSource {
   constructor(private readonly env: Env, dependencies?: Partial<Dependencies>) {
     const oneAttemptEnv: Env = { ...env, PROVIDER_MAX_RETRIES: 0 };
     this.dependencies = {
-      rpc: dependencies?.rpc ?? createProviderHttp(oneAttemptEnv, "robinhood-public-rpc"),
+      rpc: dependencies?.rpc ?? createProviderHttp(oneAttemptEnv, "robinhood-public-rpc", undefined, "portfolio"),
       blockscout: dependencies?.blockscout ?? createProviderHttp(oneAttemptEnv, "blockscout"),
       budget: dependencies?.budget ?? createPortfolioBudget(env),
       now: dependencies?.now ?? (() => new Date())

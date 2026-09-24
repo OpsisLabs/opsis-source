@@ -3,7 +3,7 @@ import { buildApp } from "../src/app.js";
 import { loadEnv } from "../src/config/env.js";
 import { AppError } from "../src/http/errors.js";
 import { ProviderHttpClient } from "../src/chain/provider-http.js";
-import { observeRetention } from "../src/observability/metrics.js";
+import { observeRetention, observeRpcSubcall } from "../src/observability/metrics.js";
 
 const apps: Array<Awaited<ReturnType<typeof buildApp>>> = [];
 
@@ -56,7 +56,7 @@ describe("Prometheus metrics", () => {
     const canary = "0xprivate-canary-must-not-be-a-metric-label";
     let attempts = 0;
     const client = new ProviderHttpClient(
-      { maxRetries: 1, backoffMs: 1, timeoutMs: 1000, circuitFailureThreshold: 2, circuitResetMs: 1000, requestBudgetPerMinute: 10, providerName: "rpc-metrics-test" },
+      { maxRetries: 1, backoffMs: 1, timeoutMs: 1000, circuitFailureThreshold: 2, circuitResetMs: 1000, requestBudgetPerMinute: 10, providerName: "rpc-metrics-test", rpcWorkload: "portfolio" },
       {
         fetch: async () => {
           attempts += 1;
@@ -78,7 +78,25 @@ describe("Prometheus metrics", () => {
     const metrics = (await app.inject({ method: "GET", url: "/metrics" })).body;
     expect(metrics).toContain('rh_chain_rpc_subcalls_total{provider="rpc-metrics-test",method="eth_call"} 2');
     expect(metrics).toContain('rh_chain_rpc_subcalls_total{provider="rpc-metrics-test",method="eth_getLogs"} 2');
+    expect(metrics).toContain('rh_chain_rpc_workload_subcalls_total{workload="portfolio",method="eth_call"} 2');
+    expect(metrics).toContain('rh_chain_rpc_workload_subcalls_total{workload="portfolio",method="eth_getLogs"} 2');
     expect(metrics).toContain('rh_chain_provider_response_bytes_total{provider="rpc-metrics-test"}');
     expect(metrics).not.toContain(canary);
+  });
+
+  it("attributes shared-provider RPC usage to bounded workloads", async () => {
+    const app = await buildApp(loadEnv({ NODE_ENV: "test", ENABLE_METRICS: "true", LOG_LEVEL: "silent" }));
+    apps.push(app);
+    observeRpcSubcall("robinhood-public-rpc", "eth_call", "exit-check");
+    observeRpcSubcall("robinhood-public-rpc", "eth_call", "rwa");
+    observeRpcSubcall("alchemy", "eth_getBalance", "research");
+    observeRpcSubcall("robinhood-public-rpc", "eth_call", "untrusted-private-value" as "unattributed");
+    const metrics = (await app.inject({ method: "GET", url: "/metrics" })).body;
+    expect(metrics).toContain('rh_chain_rpc_subcalls_total{provider="robinhood-public-rpc",method="eth_call"} 3');
+    expect(metrics).toContain('rh_chain_rpc_workload_subcalls_total{workload="exit-check",method="eth_call"} 1');
+    expect(metrics).toContain('rh_chain_rpc_workload_subcalls_total{workload="rwa",method="eth_call"} 1');
+    expect(metrics).toContain('rh_chain_rpc_workload_subcalls_total{workload="research",method="eth_getBalance"} 1');
+    expect(metrics).toContain('rh_chain_rpc_workload_subcalls_total{workload="unattributed",method="eth_call"} 1');
+    expect(metrics).not.toContain("untrusted-private-value");
   });
 });

@@ -45,6 +45,7 @@ export class ControlsService implements ControlsSource {
         maxConcurrency: 1,
         maxResponseBytes: 100_000,
         providerName: "robinhood-public-rpc",
+        rpcWorkload: "controls",
       });
   }
   async check(input: string): Promise<TokenControls> {

@@ -5,6 +5,7 @@ type RuntimeMetrics = {
   providerCalls: Counter<"provider" | "outcome" | "error_code">;
   providerDuration: Histogram<"provider">;
   rpcSubcalls: Counter<"provider" | "method">;
+  rpcWorkloadSubcalls: Counter<"workload" | "method">;
   providerResponseBytes: Counter<"provider">;
   aiCalls: Counter<"outcome">;
   aiDuration: Histogram<never>;
@@ -16,6 +17,9 @@ type RuntimeMetrics = {
   retentionLastAttempt: Gauge;
   retentionLastSuccess: Gauge;
 };
+
+export type RpcWorkload = "research" | "observed-trades" | "exit-check" | "controls" | "rwa" | "portfolio" | "unattributed";
+const RPC_WORKLOADS = new Set<RpcWorkload>(["research", "observed-trades", "exit-check", "controls", "rwa", "portfolio", "unattributed"]);
 
 let activeMetrics: RuntimeMetrics | undefined;
 
@@ -51,6 +55,12 @@ export async function installMetrics(app: FastifyInstance): Promise<void> {
     name: "rh_chain_rpc_subcalls_total",
     help: "JSON-RPC methods attempted, including batch members and retries; no parameters are recorded",
     labelNames: ["provider", "method"],
+    registers: [registry]
+  });
+  const rpcWorkloadSubcalls = new Counter({
+    name: "rh_chain_rpc_workload_subcalls_total",
+    help: "Physical JSON-RPC method attempts by bounded application workload; includes batch members and retries, never request parameters",
+    labelNames: ["workload", "method"],
     registers: [registry]
   });
   const providerResponseBytes = new Counter({
@@ -121,6 +131,7 @@ export async function installMetrics(app: FastifyInstance): Promise<void> {
     providerCalls,
     providerDuration,
     rpcSubcalls,
+    rpcWorkloadSubcalls,
     providerResponseBytes,
     aiCalls,
     aiDuration,
@@ -158,8 +169,9 @@ export function observeProviderCall(provider: string, durationSeconds: number, e
   activeMetrics?.providerCalls.inc({ provider, outcome: errorCode ? "error" : "success", error_code: errorCode ?? "none" });
 }
 
-export function observeRpcSubcall(provider: string, method: string): void {
+export function observeRpcSubcall(provider: string, method: string, workload: RpcWorkload = "unattributed"): void {
   activeMetrics?.rpcSubcalls.inc({ provider, method });
+  activeMetrics?.rpcWorkloadSubcalls.inc({ workload: RPC_WORKLOADS.has(workload) ? workload : "unattributed", method });
 }
 
 export function observeProviderResponseBytes(provider: string, bytes: number): void {

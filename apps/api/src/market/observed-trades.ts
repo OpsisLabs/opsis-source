@@ -235,7 +235,7 @@ export class ObservedTradesService implements ObservedTradesSource {
     this.dependencies = {
       rpc:
         dependencies?.rpc ??
-        createProviderHttp(oneAttemptEnv, "observed-trades-rpc", 2 * 1024 * 1024),
+        createProviderHttp(oneAttemptEnv, "observed-trades-rpc", 2 * 1024 * 1024, "observed-trades"),
       budget: dependencies?.budget ?? createObservedTradesBudget(env),
       now: dependencies?.now ?? (() => new Date()),
     };

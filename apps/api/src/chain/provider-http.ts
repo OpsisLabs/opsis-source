@@ -1,5 +1,5 @@
 import type { Env } from "../config/env.js";
-import { observeProviderCall, observeProviderResponseBytes, observeRpcSubcall } from "../observability/metrics.js";
+import { observeProviderCall, observeProviderResponseBytes, observeRpcSubcall, type RpcWorkload } from "../observability/metrics.js";
 import type { RpcUnitBudget } from "./rpc-unit-budget.js";
 
 export type ProviderHttp = {
@@ -15,6 +15,7 @@ export type ProviderHttpOptions = {
   requestBudgetPerMinute: number;
   maxConcurrency?: number;
   providerName?: string;
+  rpcWorkload?: RpcWorkload;
   maxResponseBytes?: number;
   rpcUnitBudget?: RpcUnitBudget;
 };
@@ -102,7 +103,7 @@ export class ProviderHttpClient implements ProviderHttp {
           );
         }
       }
-      for (const method of rpcMethods) observeRpcSubcall(this.options.providerName ?? "unknown", METRIC_RPC_METHODS.has(method) ? method : "other");
+      for (const method of rpcMethods) observeRpcSubcall(this.options.providerName ?? "unknown", METRIC_RPC_METHODS.has(method) ? method : "other", this.options.rpcWorkload);
       try {
         const response = await this.dependencies.fetch(url, {
           ...init,
@@ -155,7 +156,7 @@ export class ProviderHttpClient implements ProviderHttp {
   }
 }
 
-export function createProviderHttp(env: Env, providerName?: string, maxResponseBytes?: number): ProviderHttpClient {
+export function createProviderHttp(env: Env, providerName?: string, maxResponseBytes?: number, rpcWorkload?: RpcWorkload): ProviderHttpClient {
   return new ProviderHttpClient({
     maxRetries: env.PROVIDER_MAX_RETRIES,
     backoffMs: env.PROVIDER_BACKOFF_MS,
@@ -165,7 +166,8 @@ export function createProviderHttp(env: Env, providerName?: string, maxResponseB
     requestBudgetPerMinute: env.PROVIDER_REQUEST_BUDGET_PER_MINUTE,
     maxConcurrency: env.PROVIDER_MAX_CONCURRENCY,
     providerName,
-    maxResponseBytes
+    maxResponseBytes,
+    rpcWorkload
   });
 }
 
