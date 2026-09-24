@@ -75,7 +75,7 @@ test.describe("Opsis tool finder", () => {
     await expect(
       page.getByRole("complementary", { name: "Who this tool is for" }),
     ).toContainText(
-      "Choose captured pools or a shock surface; import daily prices or funding records for local experiments",
+      "Choose captured pools or a shock surface; import daily prices, funding, or paired mark/index records for local experiments",
     );
   });
   test("does not offer disabled tools and remains usable in Chinese on mobile", async ({

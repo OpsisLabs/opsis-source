@@ -64,6 +64,9 @@ test.describe("Opsis local price and perp scenarios", () => {
     await expect(page.getByTestId("opsis-perp-collateral")).toContainText("0.24000000");
     await page.getByTestId("opsis-perp-custom-shock-input").fill("12.34");
     await expect(page.getByTestId("opsis-perp-collateral")).toContainText("61.62132000");
+    await page.setViewportSize({ width: 320, height: 800 });
+    await expect.poll(() => page.locator("html").evaluate((el) => el.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+    expect(await page.locator(".opsis-perp-collateral-table").evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
     await page.getByLabel("User-entered collateral (quote units)", { exact: true }).fill("0");
     await expect(page.getByTestId("opsis-perp-collateral-leverage")).toHaveCount(0);
     await expect(page.getByTestId("opsis-perp-collateral-error")).toBeVisible();

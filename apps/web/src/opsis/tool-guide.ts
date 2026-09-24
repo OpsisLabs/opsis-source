@@ -61,12 +61,12 @@ export const toolGuides: ToolGuide[] = [
       "数据探索者、研究者和量化交易者",
     ],
     input: [
-      "Choose captured pools or a shock surface; import daily prices or funding records for local experiments",
-      "选择历史资金池或冲击曲面；导入日价格或资金费记录进行本地实验",
+      "Choose captured pools or a shock surface; import daily prices, funding, or paired mark/index records for local experiments",
+      "选择历史资金池或冲击曲面；导入日价格、资金费或成对标记价／指数价记录进行本地实验",
     ],
     outcome: [
-      "Captured comparisons, seeded scenarios, manual reference gaps and realized funding totals",
-      "历史比较、种子情景、手动参考价差及已实现资金费总额",
+      "Captured comparisons, seeded scenarios, manual reference gaps, realized funding totals and observed basis",
+      "历史比较、种子情景、手动参考价差、已实现资金费总额及观察基差",
     ],
     enabled: () => true,
   },

@@ -17,6 +17,7 @@ import QuantWorkbench from "./quant/QuantWorkbench";
 import StockGap from "./StockGap";
 import StockGapSeriesPanel from "./StockGapSeriesPanel";
 import FundingWorkbench from "./quant/FundingWorkbench";
+import BasisWorkbench from "./quant/BasisWorkbench";
 
 export default function Lab() {
   const c = useCopy();
@@ -135,6 +136,10 @@ export default function Lab() {
           <details className="opsis-lab-methods">
             <summary>{c("Funding record analysis", "资金费率记录分析")}</summary>
             <FundingWorkbench />
+          </details>
+          <details className="opsis-lab-methods">
+            <summary>{c("Mark / index basis dataset", "标记价 / 指数价基差数据集")}</summary>
+            <BasisWorkbench />
           </details>
         </>
       ) : failed ? (

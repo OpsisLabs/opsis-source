@@ -961,6 +961,15 @@
     monospace;
   color: var(--soft);
 }
+.opsis-perp-collateral-table table {
+  min-width: 760px;
+  font-variant-numeric: tabular-nums;
+}
+.opsis-perp-collateral-table caption {
+  padding: 8px 0;
+  text-align: left;
+  color: var(--soft);
+}
 @media (max-width: 850px) {
   .opsis-evidence-flow {
     grid-template-columns: 1fr;

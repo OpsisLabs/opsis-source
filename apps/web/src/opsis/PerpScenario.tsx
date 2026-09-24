@@ -176,7 +176,7 @@ export default function PerpScenario() {
         {collateralInvalid && <p role="alert" data-testid="opsis-perp-collateral-error">{c("Check the collateral amount and whole-bps maintenance input. Collateral must be positive; maintenance must be 0–10000 bps.", "请检查抵押品金额和整数基点维持保证金输入。抵押品必须为正数；维持保证金须为 0–10000 基点。")}</p>}
         {collateralResult && <>
           <p role="status" data-testid="opsis-perp-collateral-leverage">{c("Entry notional / collateral ratio", "入场名义价值／抵押品比率")}: {collateralResult.entryLeverage}×</p>
-          <div style={{ overflowX: "auto" }}>
+          <div className="opsis-table-scroll opsis-perp-collateral-table">
             <table>
               <caption>{c("User-supplied hypothetical buffer; all inputs and results use the same quote currency. Equity equals collateral plus existing scenario net P&L, including fees, funding and other costs.", "用户提供的假设缓冲；所有输入和结果均使用相同报价货币。权益等于抵押品加上现有情景净损益（含费用、资金费和其他成本）。")}</caption>
               <thead><tr><th scope="col">{c("Case", "情景")}</th><th scope="col">{c("Scenario exit notional", "情景退出名义价值")}</th><th scope="col">{c("Assumed scenario equity after net costs", "假设的情景净成本后权益")}</th><th scope="col">{c("Assumed user-entered maintenance amount", "假设的用户输入维持保证金额")}</th><th scope="col">{c("Hypothetical buffer", "假设缓冲")}</th></tr></thead>

@@ -1,0 +1,13 @@
+.opsis-basis { margin-top: 1rem; padding: 1rem; border: 1px solid var(--line); border-radius: .6rem; min-width: 0; color: var(--ink); background: var(--panel); }
+.opsis-basis label { display: block; margin: .8rem 0 .35rem; font-weight: 600; }
+.opsis-basis input { max-width: 100%; }
+.opsis-basis button { margin: .5rem .5rem .5rem 0; min-height: 2.5rem; padding: .5rem .8rem; border: 1px solid var(--line); border-radius: .35rem; background: var(--button); color: var(--button-ink); font: inherit; cursor: pointer; }
+.opsis-basis-download { display: inline-block; margin: .5rem; }
+.opsis-basis-schema { max-width: 100%; overflow-x: auto; white-space: pre; font-size: .75rem; }
+.opsis-basis-example { font-weight: 700; color: var(--accent); }
+.opsis-basis-chart { width: 100%; height: 280px; min-width: 0; }
+.opsis-basis-table-wrap { max-width: 100%; overflow-x: auto; }
+.opsis-basis-table { width: 100%; min-width: 980px; border-collapse: collapse; }
+.opsis-basis-table th, .opsis-basis-table td { padding: .45rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.opsis-basis-table td { font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) { .opsis-basis { overflow-wrap: anywhere; } }
