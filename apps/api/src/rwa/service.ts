@@ -197,7 +197,7 @@ export class RwaService implements RwaVerificationSource {
     const pendingEffectiveAt = effectiveAt && effectiveAt > 0n ? unixIso(effectiveAt) : null;
     const sources: RwaCitation[] = [
       source("robinhood-registry", "Robinhood", `${RHJ_API}/assets`, fetchedAt, "Canonical Stock Token registry and deployment"),
-      source("robinhood-rpc", "Robinhood Public RPC", this.env.ROBINHOOD_PUBLIC_RPC_URL, anchor.capturedAt, `Direct contract reads at block ${anchor.blockNumber}`),
+      source("robinhood-rpc", "Robinhood Public RPC", publicRpcCitationOrigin(this.env.ROBINHOOD_PUBLIC_RPC_URL), anchor.capturedAt, `Direct contract reads at block ${anchor.blockNumber}`),
       source("robinhood-terms", "Robinhood Jersey", "https://robinhood.com/rhj/stocktokens/", fetchedAt, "Issuer product, custody, and redemption statements")
     ];
     if (priceDocument.state === "available") sources.push(source("robinhood-price", "Robinhood", `${RHJ_API}/prices/${asset.symbol}`, fetchedAt, "Underlying-equity quote response; rejected if identity, currency, or timestamp validation fails"));
@@ -338,7 +338,7 @@ export class RwaService implements RwaVerificationSource {
         : indexedTotalsMatch ? "confirmed" : "conflict";
     const sources = [
       source("morpho-config", "Morpho", `${MORPHO_API}/v0/vaults-v2/4663:${address}`, fetchedAt, "Vault identity and configuration indexed by Morpho"),
-      source("robinhood-rpc", "Robinhood Public RPC", this.env.ROBINHOOD_PUBLIC_RPC_URL, anchor.capturedAt, `Direct vault reads at block ${anchor.blockNumber}`)
+      source("robinhood-rpc", "Robinhood Public RPC", publicRpcCitationOrigin(this.env.ROBINHOOD_PUBLIC_RPC_URL), anchor.capturedAt, `Direct vault reads at block ${anchor.blockNumber}`)
     ];
     if (stateDocument.state === "available") sources.push(source("morpho-state", "Morpho", `${MORPHO_API}/v1/vaults-v2/4663:${address}/state`, fetchedAt, stateMalformed ? "State response rejected as malformed" : "Indexed vault liquidity and allocation state"));
     if (apyDocument.state === "available") sources.push(source("morpho-apy", "Morpho", `${MORPHO_API}/v1/vaults-v2/4663:${address}/apy-averages?lookback=one_day`, fetchedAt, apyMalformed ? "APY response rejected as malformed" : "Provider-reported trailing one-day APY average"));
@@ -433,7 +433,7 @@ export class RwaService implements RwaVerificationSource {
       sources: [
         source("robinhood-registry", "Robinhood", `${RHJ_API}/assets`, this.dependencies.now().toISOString(), "Canonical Stock Token registry lookup"),
         source("morpho-lookup", "Morpho", `${MORPHO_API}/v0/vaults-v2/4663:${address}`, this.dependencies.now().toISOString(), "Exact-address Vault V2 lookup"),
-        source("robinhood-rpc", "Robinhood Public RPC", this.env.ROBINHOOD_PUBLIC_RPC_URL, anchor.capturedAt, `Contract bytecode read at block ${anchor.blockNumber}`)
+        source("robinhood-rpc", "Robinhood Public RPC", publicRpcCitationOrigin(this.env.ROBINHOOD_PUBLIC_RPC_URL), anchor.capturedAt, `Contract bytecode read at block ${anchor.blockNumber}`)
       ],
       privacy: privacy(["Robinhood Stock Token API", "Morpho public API", "Robinhood Public RPC"], "The pasted public contract was sent to the listed sources only. Nothing was saved by ChainScout or sent to an AI model.")
     };
@@ -639,6 +639,10 @@ function decoded<T>(abi: Abi, functionName: string, result?: RpcResult): T | und
 }
 
 function source(id: string, provider: string, url: string, fetchedAt: string, description: string): RwaCitation { return { id, provider, url, fetchedAt, description }; }
+
+function publicRpcCitationOrigin(configuredUrl: string): string {
+  return new URL(configuredUrl).origin;
+}
 function check(id: string, label: string, status: RwaCheck["status"], detail: string, sourceIds: string[]): RwaCheck { return { id, label, status, detail, sourceIds }; }
 function privacy(providerDestinations: string[], disclosure: string): RwaVerification["privacy"] { return { serverStorage: "none", modelProvider: "none", providerDestinations, disclosure }; }
 function publicAnchor(anchor: CapturedAnchor): RwaVerification["anchor"] { return { chainId: 4663, blockNumber: anchor.blockNumber, blockHash: anchor.blockHash, capturedAt: anchor.capturedAt, finality: "current_non_final" }; }

@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "0ad81d79650f53dbc46d7923871d363876a5098d2c067cb80adb992596d275ec",
+  "sourceTreeDigest": "dfbec1569e3396341fcc96d3dada7658505fe02de5837259b39fc73354aaaf21",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "c599bae760e9c12217232525246f5c973c403d2c1dcc3f78987edc65c722b08e",
@@ -112,7 +112,7 @@
     "apps/api/src/routes/swaps.ts": "e366ad45aa22e3241b2b2492f32f8dd32ba33299fd655bdf7ee43da5502a37b4",
     "apps/api/src/routes/usage.ts": "e52c864ab3d402854324ed1137c69c505b522e13aa785ac9f7188762edd455ba",
     "apps/api/src/rwa/budget.ts": "1d92608ded86237a9e935c0f661f90c542539fb4c6a1a8b73e5054c3e73b4daf",
-    "apps/api/src/rwa/service.ts": "a59c13b5479f723ec308975c4dce350cb1ce4d726fb170340fa016ca8d6f640a",
+    "apps/api/src/rwa/service.ts": "bc481a2eef8ee477104edd3dba3edd7f6ce5d9ea5f05bbf2ad7f6ff82235488e",
     "apps/api/src/security/hash.ts": "e4fac2f574ae43ffcd1a780534b59cc7f18fb2f948f53571f43a478502c30d60",
     "apps/api/src/security/jwt.ts": "f82393c43d75a2b0ce087d071179496a91bc61255273947d49663ccf823d2a33",
     "apps/api/src/server.ts": "5d5ebc31220a81cff88525b2607b8c1f4ab48a2ddb8dff840fe2acc2e801f464",
@@ -192,7 +192,7 @@
     "apps/api/test/retention.test.ts": "ecc7064f355376ec8e018c3a029070cf46c59bfe557192e8588530455e0afc0c",
     "apps/api/test/rpc-unit-budget.test.ts": "766567b4add03eee307d84bd7b528a04243e65e31ee7017ff640f06e4eb18385",
     "apps/api/test/rwa-budget.test.ts": "1407f1d75d0fd9dd8bb4a88e25022c564990e59948933a7e3eb0ae2308745aad",
-    "apps/api/test/rwa.test.ts": "a87a6a50765f0407e6c99a9c2a9739e530154a43b9bf119ecdfb9c9a58ddd6aa",
+    "apps/api/test/rwa.test.ts": "d4fb4334edc88c2ec5ce8d77d8e1ff00e238e83e876e0da6ce94bc114a72a336",
     "apps/api/test/schema-state.test.ts": "fd7b6128ce5c1e521c4abff99aa68bae3f00b6c55408cf08a6d0f8f387e85abc",
     "apps/api/test/spec-compliance.test.ts": "c3cc84ee29c840bfa337202bea16b1d54625ebb7b4114f1003813e8a4fa09385",
     "apps/api/test/spec-questions.test.ts": "0eb71d2229f9aac8777709e07dea47d558b68e01c2cf53088a6a7d8f367eb802",

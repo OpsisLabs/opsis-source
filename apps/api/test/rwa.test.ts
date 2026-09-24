@@ -19,17 +19,31 @@ const FEED = "0x6b22a786baa607d76728168703a39ea9c99f2cd0";
 const NOW = new Date("2026-08-11T12:00:00.000Z");
 const apps: Array<ReturnType<typeof Fastify>> = [];
 
-const testEnv = (enabled = true) => loadEnv({
+const testEnv = (enabled = true, rpcUrl = "https://rpc.mainnet.chain.robinhood.com") => loadEnv({
   NODE_ENV: "test",
   LOG_LEVEL: "silent",
   RWA_VERIFY_ENABLED: String(enabled),
-  ROBINHOOD_PUBLIC_RPC_URL: "https://rpc.mainnet.chain.robinhood.com",
+  ROBINHOOD_PUBLIC_RPC_URL: rpcUrl,
   RWA_MAX_RPC_SUBCALLS: "24"
 });
 
 afterEach(async () => { while (apps.length) await apps.pop()?.close(); });
 
 describe("RWA evidence inspector", () => {
+  it("keeps keyed RPC endpoint details out of citations while using the configured destination", async () => {
+    const configuredUrl = "https://rpc.mainnet.chain.robinhood.com/secret-route/private-key?api_key=do-not-expose";
+    const { http, rpc } = stockFixtures();
+    const result = await new RwaService(testEnv(true, configuredUrl), { http, rpc, budget: budget(), now: () => NOW }).verify(STOCK);
+
+    const citation = result.sources.find((item) => item.id === "robinhood-rpc");
+    expect(citation).toMatchObject({ url: "https://rpc.mainnet.chain.robinhood.com", fetchedAt: result.anchor.capturedAt });
+    expect(JSON.stringify(result)).not.toContain("secret-route");
+    expect(JSON.stringify(result)).not.toContain("do-not-expose");
+    const outboundCalls = (rpc.requestJson as ReturnType<typeof vi.fn>).mock.calls;
+    expect(outboundCalls.length).toBeGreaterThan(0);
+    expect(outboundCalls.every(([url]) => url === configuredUrl)).toBe(true);
+  });
+
   it("requires exact deployment + UID identity and never double-applies the multiplier", async () => {
     const { http, rpc } = stockFixtures();
     const result = await new RwaService(testEnv(), { http, rpc, budget: budget(), now: () => NOW }).verify(STOCK);
