@@ -15,6 +15,7 @@ import {
 import { safeHttpUrl } from "../dashboard/adapters";
 import QuantWorkbench from "./quant/QuantWorkbench";
 import StockGap from "./StockGap";
+import StockGapSeriesPanel from "./StockGapSeriesPanel";
 
 export default function Lab() {
   const c = useCopy();
@@ -128,6 +129,7 @@ export default function Lab() {
               {c("Stock-token reference gap", "股票代币参考价差")}
             </summary>
             <StockGap />
+            <StockGapSeriesPanel />
           </details>
         </>
       ) : failed ? (

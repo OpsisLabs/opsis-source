@@ -103,6 +103,64 @@ test("extreme validated prices show histogram refusal without crashing the workb
   await expect(page.getByText(/观察收益直方图不可用/)).toBeVisible();
 });
 
+test("stock-token gap series stays local and shows session, corporate-action and oracle-age evidence", async ({ page }) => {
+  await page.goto("/lab");
+  await page.getByRole("button", { name: /Quant research/ }).click();
+  await page.locator("summary").filter({ hasText: "Stock-token reference gap" }).click();
+  const requests: string[] = [];
+  page.on("request", (request) => requests.push(`${request.url()}${request.postData() ?? ""}`));
+  const base = {
+    schemaVersion: 1,
+    instrument: { chainId: 4663, address: "0x0000000000000000000000000000000000000abc", symbol: "SYN" },
+    quoteCurrency: "USD",
+    referenceQuoteCurrency: "USD",
+    sourceName: "PRIVATE_STOCK_SOURCE_CANARY",
+    observedAt: "2026-09-03T00:00:00Z",
+  };
+  const underlying = {
+    ...base,
+    referenceType: "underlying",
+    observations: [
+      { timestamp: "2026-08-31T14:00:00Z", dexPrice: "55", referencePrice: "100", multiplier: "0.5", session: "open" },
+      { timestamp: "2026-09-01T14:00:00Z", dexPrice: "58", referencePrice: "100", multiplier: "0.5", session: "closed" },
+      { timestamp: "2026-09-02T14:00:00Z", dexPrice: "105", referencePrice: "100", multiplier: "1", session: "unknown", corporateAction: { state: "effective", description: "SPLIT_CANARY" } },
+    ],
+  };
+  await page.getByLabel("Paired stock-token gap JSON").setInputFiles({ name: "underlying.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(underlying)) });
+  await expect(page.getByRole("img", { name: /Observed stock-token reference gap by session/ })).toBeVisible();
+  await expect(page.locator(".opsis-stock-series-table tbody tr")).toHaveCount(3);
+  await expect(page.locator(".opsis-stock-series-table tbody tr").first().locator("td").nth(4)).toHaveText("10.0000");
+  await expect(page.locator(".opsis-stock-series-table tbody tr").last()).toContainText("Effective: SPLIT_CANARY");
+  await expect(page.locator(".opsis-stock-series-table tbody tr").last().locator("td").nth(3)).toHaveText("1");
+  await page.locator(".opsis-stock-series-table tbody tr").last().getByRole("button").click();
+  await expect(page.getByText(/Selected: 2026-09-02T14:00:00Z/)).toBeVisible();
+  await expect(page.getByRole("img", { name: /Oracle age in minutes by observation/ })).toHaveCount(0);
+  await page.getByRole("button", { name: "中文", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "价差如何随交易时段变化？" })).toBeVisible();
+  await expect(page.getByRole("img", { name: /按交易时段显示的股票代币参考价差/ })).toBeVisible();
+  await page.getByRole("button", { name: "English", exact: true }).click();
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.locator("summary").filter({ hasText: "JSON format and required fields" }).click();
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - innerWidth), { timeout: 3_000 }).toBeLessThanOrEqual(1);
+
+  const oracle = {
+    ...base,
+    referenceType: "oracle",
+    observations: underlying.observations.slice(0, 2).map(({ multiplier, ...row }, index) => {
+      void multiplier;
+      return { ...row, referencePrice: "50", oracleObservedAt: index === 0 ? "2026-08-31T13:30:00Z" : "2026-09-01T13:45:00Z" };
+    }),
+  };
+  await page.getByLabel("Paired stock-token gap JSON").setInputFiles({ name: "oracle.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(oracle)) });
+  await expect(page.getByRole("img", { name: /Oracle age in minutes by observation/ })).toBeVisible();
+  await expect(page.locator(".opsis-stock-series-table tbody tr").first().locator("td").nth(4)).toHaveText("10.0000");
+  await expect(page.locator(".opsis-stock-series-table tbody tr").first().locator("td").nth(7)).toHaveText("30");
+  await page.getByLabel("Paired stock-token gap JSON").setInputFiles({ name: "mismatch.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify({ ...oracle, referenceQuoteCurrency: "USDG" })) });
+  await expect(page.getByRole("alert").filter({ hasText: /quote currencies must match/ })).toBeVisible();
+  await expect(page.locator(".opsis-stock-series-table tbody tr")).toHaveCount(0);
+  expect(requests.some((request) => request.includes("PRIVATE_STOCK_SOURCE_CANARY"))).toBe(false);
+});
+
 test("joint portfolio keeps both imports and weights local, preserves the shared calendar, and shows numeric bands", async ({ page }) => {
   await page.goto("/lab");
   await page.getByRole("button", { name: /Quant research/ }).click();
