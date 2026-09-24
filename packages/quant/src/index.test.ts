@@ -61,6 +61,12 @@ describe("quant dataset contract", () => {
     expect(a).toEqual(b);
     expect(a.stats.volatilityAnnualized).toBe(0);
     expect(a.bootstrap.terminal.median).toBe(1);
+    expect(a.bootstrap.path[0]?.bands).toEqual([
+      { confidence: 0.5, low: 1, high: 1 },
+      { confidence: 0.8, low: 1, high: 1 },
+      { confidence: 0.95, low: 1, high: 1 },
+    ]);
+    expect(a.bootstrap.path.every((point) => point.bands.every((band) => band.low === 1 && band.high === 1))).toBe(true);
     expect(await datasetHash(flat)).toHaveLength(64);
   });
   it("returns a structured refusal for missing metadata and requires 180 returns by default", () => {
@@ -178,6 +184,31 @@ it("moving-block bootstrap preserves contiguous return stretches and records its
       && block.every((factor, index) => Math.abs(factor - sourceFactors[start + index]!) < 1e-10));
     expect(found).toBe(true);
   }
+});
+
+it("returns deterministic nested pointwise 50/80/95 bands from each seeded path ensemble", () => {
+  const input = dataset();
+  input.observations.forEach((row, index) => {
+    if (index > 0) row.price = input.observations[index - 1]!.price * [0.9, 1.1, 1.03, 0.97][(index - 1) % 4]!;
+  });
+  const spec = { seed: 314, bootstrapRuns: 100, confidence: 0.9, researchMode: true };
+  const first = runQuant(input, spec);
+  expect(first).toEqual(runQuant(input, spec));
+  expect(first.bootstrap.path[4]!.bands.map((band) => band.confidence)).toEqual([0.5, 0.8, 0.95]);
+  for (const point of first.bootstrap.path) {
+    const [fifty, eighty, ninetyFive] = point.bands;
+    expect(fifty!.low).toBeLessThanOrEqual(point.median);
+    expect(fifty!.high).toBeGreaterThanOrEqual(point.median);
+    expect(eighty!.low).toBeLessThanOrEqual(fifty!.low);
+    expect(eighty!.high).toBeGreaterThanOrEqual(fifty!.high);
+    expect(ninetyFive!.low).toBeLessThanOrEqual(eighty!.low);
+    expect(ninetyFive!.high).toBeGreaterThanOrEqual(eighty!.high);
+  }
+  expect(first.bootstrap.path[4]!.bands[0]!.confidence).toBe(0.5);
+  expect(first.bootstrap.path[4]!.bands[0]!.low).toBeCloseTo(0.91773, 5);
+  expect(first.bootstrap.path[4]!.bands[0]!.high).toBeCloseTo(1.12167, 5);
+  expect(first.bootstrap.path[4]!.low).toBeCloseTo(0.8019, 4);
+  expect(first.bootstrap.path[4]!.high).toBeCloseTo(1.208911, 5);
 });
 
 it("refuses invalid moving-block settings while leaving the IID default unchanged", () => {

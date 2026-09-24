@@ -75,7 +75,8 @@ export interface BootstrapResult {
   horizon: number;
   confidence: number;
   terminal: { low: number; median: number; high: number };
-  path: Array<{ date: string; low: number; median: number; high: number }>;
+  path: Array<{ date: string; low: number; median: number; high: number;
+    bands: Array<{ confidence: 0.5 | 0.8 | 0.95; low: number; high: number }> }>;
 }
 
 export interface QuantRun {
@@ -570,11 +571,18 @@ export function runQuant(
   const dates = dataset.observations.map((_, n) => `step-${n}`);
   const path = dates.map((date, n) => {
     const sorted = [...draws[n]!].sort((a, b) => a - b);
+    const bands = ([0.5, 0.8, 0.95] as const).map((bandConfidence) => {
+      const tail = (1 - bandConfidence) / 2;
+      return { confidence: bandConfidence,
+        low: n === 0 ? 1 : quantile(sorted, tail),
+        high: n === 0 ? 1 : quantile(sorted, 1 - tail) };
+    });
     return {
       date,
       low: n === 0 ? 1 : quantile(sorted, alpha),
       median: n === 0 ? 1 : quantile(sorted, 0.5),
       high: n === 0 ? 1 : quantile(sorted, 1 - alpha),
+      bands,
     };
   });
   const sortedTerminal = terminal.sort((a, b) => a - b);

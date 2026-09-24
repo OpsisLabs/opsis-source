@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { PublicSwapCaptureWorker, type WorkerRange } from "../src/history/public-swap-capture-worker.js";
+import { PublicSwapHistoryFenceError } from "../src/history/public-swap-history.js";
 const LEASE_KEY = "public-swap-capture-worker:4663";
 
 const A = "0x1111111111111111111111111111111111111111";
@@ -52,20 +53,20 @@ describe("public Swap capture worker", () => {
   it("records a bounded gap and stops when attempt budget or storage headroom is exhausted", async () => {
     const budget = setup({ budget: false });
     expect(await budget.worker.run({ enabled: true, ranges: [r()] })).toMatchObject({ stopReason: "BUDGET_EXHAUSTED", gaps: 1 });
-    expect(budget.coverage.recordGap).toHaveBeenCalledWith({ range: r(), detail: "BUDGET_EXHAUSTED" });
+    expect(budget.coverage.recordGap).toHaveBeenCalledWith({ range: r(), detail: "BUDGET_EXHAUSTED", workerLeaseToken: "owner" });
     expect(budget.capture.capture).not.toHaveBeenCalled();
     const storage = setup({ storage: false });
     expect(await storage.worker.run({ enabled: true, ranges: [r()] })).toMatchObject({ stopReason: "STORAGE_CAP" });
-    expect(storage.coverage.recordGap).toHaveBeenCalledWith({ range: r(), detail: "STORAGE_CAP" });
+    expect(storage.coverage.recordGap).toHaveBeenCalledWith({ range: r(), detail: "STORAGE_CAP", workerLeaseToken: "owner" });
     expect(storage.lease.acquire).toHaveBeenCalledTimes(1);
-    expect(storage.coverage.recordGap).toHaveBeenCalledWith({ range: r(), detail: "STORAGE_CAP" });
+    expect(storage.coverage.recordGap).toHaveBeenCalledWith({ range: r(), detail: "STORAGE_CAP", workerLeaseToken: "owner" });
     expect(storage.lease.release).toHaveBeenCalledTimes(1);
   });
 
   it("rechecks storage after a range and preserves source GAP and UNAVAILABLE", async () => {
     const h = setup(); h.storage.check.mockResolvedValueOnce({ allowed: true }).mockResolvedValueOnce({ allowed: false });
     expect(await h.worker.run({ enabled: true, ranges: [r(), r(A, 11n, 20n)] })).toMatchObject({ stopReason: "STORAGE_CAP", attempted: 1 });
-    expect(h.coverage.recordGap).toHaveBeenCalledWith({ range: r(A, 11n, 20n), detail: "STORAGE_CAP" });
+    expect(h.coverage.recordGap).toHaveBeenCalledWith({ range: r(A, 11n, 20n), detail: "STORAGE_CAP", workerLeaseToken: "owner" });
     expect(h.lease.acquire).toHaveBeenCalledTimes(1); expect(h.lease.release).toHaveBeenCalledTimes(1);
     for (const status of ["GAP", "UNAVAILABLE"] as const) {
       const source = setup({ captureStatus: status });
@@ -86,6 +87,21 @@ describe("public Swap capture worker", () => {
     expect(await beforeGap.worker.run({ enabled: true, ranges: [r()] })).toMatchObject({ stopReason: "LEASE_LOST" });
     expect(beforeGap.coverage.recordGap).not.toHaveBeenCalled();
     expect(beforeGap.lease.release).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns LEASE_LOST when PostgreSQL rejects a fenced coverage write", async () => {
+    const capture = setup();
+    capture.capture.capture.mockRejectedValueOnce(new PublicSwapHistoryFenceError());
+    expect(await capture.worker.run({ enabled: true, ranges: [r()] })).toMatchObject({
+      status: "STOPPED", stopReason: "LEASE_LOST", attempted: 1, complete: 0,
+    });
+
+    const gap = setup({ storage: false });
+    gap.coverage.recordGap.mockRejectedValueOnce(new PublicSwapHistoryFenceError());
+    expect(await gap.worker.run({ enabled: true, ranges: [r()] })).toMatchObject({
+      status: "STOPPED", stopReason: "LEASE_LOST", attempted: 0, gaps: 0,
+    });
+    expect(gap.lease.release).toHaveBeenCalledTimes(1);
   });
 
   it("renews during a long capture and waits for the in-flight renewal before release", async () => {

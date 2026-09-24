@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { Prisma } from "@prisma/client";
 import {
   PublicSwapHistoryConflictError,
+  PublicSwapHistoryFenceError,
   PublicSwapHistoryRepository,
   publicSwapContentDigest,
   type PublicSwapHistoryCoverageInput,
@@ -14,6 +15,7 @@ const BLOCK_B = `0x${"bb".repeat(32)}`;
 const TX = `0x${"cc".repeat(32)}`;
 
 class MemoryPrisma {
+  $queryRaw = async () => [{ owned: true }];
   observations = new Map<string, Record<string, any>>();
   coverages = new Map<string, Record<string, any>>();
   publicSwapObservation = {
@@ -90,7 +92,8 @@ function observation(blockHash = BLOCK_A): PublicSwapObservationInput {
 function coverage(status: PublicSwapHistoryCoverageInput["status"]): PublicSwapHistoryCoverageInput {
   const successful = status === "EMPTY";
   return { chainId: 4663, poolAddress: POOL, fromBlock: 80n, toBlock: 88n, blockHash: successful ? BLOCK_A : null, source: "public-rpc", status,
-    expectedEventCount: successful ? 0 : null, contentDigest: successful ? publicSwapContentDigest([]) : null };
+    expectedEventCount: successful ? 0 : null, contentDigest: successful ? publicSwapContentDigest([]) : null,
+    workerLeaseToken: "00000000-0000-4000-8000-000000000000" };
 }
 
 describe("public Swap history storage", () => {
@@ -143,6 +146,15 @@ describe("public Swap history storage", () => {
       ["GAP", 2],
     ]);
     expect(empty.status).toBe("EMPTY");
+  });
+
+  it("requires a well-formed token and rejects writes whose PostgreSQL fence is stale", async () => {
+    const db = new MemoryPrisma();
+    const repo = new PublicSwapHistoryRepository(db as any, true);
+    await expect(repo.recordCoverage({ ...coverage("GAP"), workerLeaseToken: undefined as unknown as string })).rejects.toThrow("lease token");
+    db.$queryRaw = async () => [{ owned: false }];
+    await expect(repo.recordCoverage(coverage("GAP"))).rejects.toBeInstanceOf(PublicSwapHistoryFenceError);
+    expect(db.coverages.size).toBe(0);
   });
 
   it("promotes successful empty coverage only when its block anchor matches independent verification", async () => {

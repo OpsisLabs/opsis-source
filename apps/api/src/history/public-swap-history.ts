@@ -2,6 +2,8 @@ import { Prisma, type PrismaClient } from "@prisma/client";
 import { createHash } from "node:crypto";
 
 export const PUBLIC_SWAP_HISTORY_STORAGE_ENABLED = false;
+export const PUBLIC_SWAP_HISTORY_WORKER_LEASE_ID = "public-swap-capture-worker:4663";
+const WORKER_TOKEN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export type PublicSwapObservationInput = {
   chainId: number;
@@ -34,6 +36,8 @@ export type PublicSwapHistoryCoverageInput = {
   detail?: string | null;
   observedAt?: Date;
   retentionExpiresAt?: Date | null;
+  /** Required for enabled storage; checked under the PostgreSQL lease-row lock. */
+  workerLeaseToken: string;
 };
 
 export type PublicSwapCommittedObservation = Pick<PublicSwapObservationInput,
@@ -125,6 +129,7 @@ function validateCoverage(input: PublicSwapHistoryCoverageInput) {
   assert(input.detail == null || input.detail.length <= 500, "Coverage detail is too long");
   assert(input.expectedEventCount == null || (Number.isSafeInteger(input.expectedEventCount) && input.expectedEventCount >= 0), "Invalid expected event count");
   assert(input.contentDigest == null || /^[a-f0-9]{64}$/.test(input.contentDigest), "Invalid content digest");
+  assert(typeof input.workerLeaseToken === "string" && WORKER_TOKEN.test(input.workerLeaseToken), "A valid worker lease token is required for coverage writes");
   if (input.status === "COMPLETE" || input.status === "EMPTY") {
     assert(input.expectedEventCount != null && input.contentDigest != null, "Successful coverage requires a content commitment");
     assert(input.blockHash != null, "Successful coverage requires a range anchor");
@@ -299,6 +304,16 @@ export class PublicSwapHistoryRepository {
     this.requireEnabled();
     const data = validateCoverage(input);
     return this.prisma.$transaction(async (tx) => {
+      // Locking this row serializes writes with lease takeover. PostgreSQL's
+      // clock_timestamp is evaluated after acquiring the lock, unlike now().
+      const fence = await tx.$queryRaw<Array<{ owned: boolean }>>(Prisma.sql`
+        SELECT ("ownerToken" = ${data.workerLeaseToken} AND "expiresAt" > clock_timestamp()) AS owned
+        FROM "PublicSwapHistoryWorkerLease"
+        WHERE "id" = ${PUBLIC_SWAP_HISTORY_WORKER_LEASE_ID}
+        FOR UPDATE
+      `);
+      if (fence.length !== 1 || fence[0]?.owned !== true) throw new PublicSwapHistoryFenceError();
+      const { workerLeaseToken: _workerLeaseToken, ...coverageData } = data;
       const identity = {
         chainId: data.chainId,
         poolAddress: data.poolAddress,
@@ -312,11 +327,18 @@ export class PublicSwapHistoryRepository {
       });
       if (prior && prior.blockHash === data.blockHash && prior.status === data.status && (prior.detail ?? null) === (data.detail ?? null)
         && prior.expectedEventCount === (data.expectedEventCount ?? null)
-        && prior.contentDigest === (data.contentDigest ?? null)
-        && prior.retentionExpiresAt?.getTime() === data.retentionExpiresAt?.getTime()) return prior;
+        && prior.contentDigest === (coverageData.contentDigest ?? null)
+        && prior.retentionExpiresAt?.getTime() === coverageData.retentionExpiresAt?.getTime()) return prior;
       return tx.publicSwapHistoryCoverage.create({
-        data: { ...data, revision: (prior?.revision ?? 0) + 1 },
+        data: { ...coverageData, revision: (prior?.revision ?? 0) + 1 },
       });
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+  }
+}
+
+export class PublicSwapHistoryFenceError extends Error {
+  constructor() {
+    super("Public Swap coverage writer does not own the active PostgreSQL lease");
+    this.name = "PublicSwapHistoryFenceError";
   }
 }

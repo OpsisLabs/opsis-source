@@ -43,9 +43,9 @@ describe("public Swap worker PostgreSQL guards", () => {
   it("records an explicit GAP revision and propagates storage failure", async () => {
     const recordCoverage = vi.fn(async () => ({}));
     const writer = new PostgresWorkerCoverageWriter({ recordCoverage } as unknown as Pick<PublicSwapHistoryRepository, "recordCoverage">);
-    await writer.recordGap({ range, detail: "BUDGET_EXHAUSTED" });
-    expect(recordCoverage).toHaveBeenCalledWith({ ...range, status: "GAP", detail: "BUDGET_EXHAUSTED" });
+    await writer.recordGap({ range, detail: "BUDGET_EXHAUSTED", workerLeaseToken: "00000000-0000-4000-8000-000000000000" });
+    expect(recordCoverage).toHaveBeenCalledWith({ ...range, status: "GAP", detail: "BUDGET_EXHAUSTED", workerLeaseToken: "00000000-0000-4000-8000-000000000000" });
     recordCoverage.mockRejectedValueOnce(new Error("database down"));
-    await expect(writer.recordGap({ range, detail: "STORAGE_CAP" })).rejects.toThrow("database down");
+    await expect(writer.recordGap({ range, detail: "STORAGE_CAP", workerLeaseToken: "00000000-0000-4000-8000-000000000000" })).rejects.toThrow("database down");
   });
 });

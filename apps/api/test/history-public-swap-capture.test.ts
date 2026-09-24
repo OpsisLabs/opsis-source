@@ -132,4 +132,17 @@ describe("bounded public Swap capture preparation", () => {
       if (logs.length) expect(h.ingestObservation).toHaveBeenCalledTimes(1);
     }
   });
+
+  it("passes the same PostgreSQL fence token through successful and failed coverage paths", async () => {
+    const token = "00000000-0000-4000-8000-000000000001";
+    for (const scanResult of [
+      { state: "complete", toBlockHash: HASH, logs: [] } as const,
+      { state: "gap" } as const,
+      { state: "unavailable" } as const,
+    ]) {
+      const h = harness(scanResult);
+      await h.capture.capture(request, { workerLeaseToken: token });
+      expect(h.recordCoverage).toHaveBeenCalledWith(expect.objectContaining({ workerLeaseToken: token }));
+    }
+  });
 });

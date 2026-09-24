@@ -24,6 +24,12 @@ test("local quant workflow validates, runs, and requires export consent", async 
   await expect(page.getByText(/observations loaded/)).toBeVisible();
   await page.getByRole("button", { name: "Run local experiment" }).click();
   await expect(page.getByText("4. Results")).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByRole("img", { name: /50%, 80%, and 95% bands and median/i })).toBeVisible();
+  await expect(page.getByRole("columnheader", { name: "50% low" })).toBeVisible();
+  await expect(page.getByRole("columnheader", { name: "80% high" })).toBeVisible();
+  await expect(page.getByRole("columnheader", { name: "95% low" })).toBeVisible();
+  await expect(page.getByRole("columnheader", { name: "Median" }).last()).toBeVisible();
+  await expect(page.locator(".opsis-quant-fan-table tbody tr")).toHaveCount(190);
   await page.getByLabel("Resampling model").selectOption("historical_moving_block_bootstrap");
   await page.getByLabel("Block length (2–30 days; at most half the sample)").fill("7");
   await page.getByRole("button", { name: "Run local experiment" }).click();
@@ -32,6 +38,10 @@ test("local quant workflow validates, runs, and requires export consent", async 
   await expect(page.getByRole("button", { name: "Export manifest" })).toBeDisabled();
   await page.getByRole("checkbox", { name: /consent to download/i }).check();
   await expect(page.getByRole("button", { name: "Export manifest" })).toBeEnabled();
+  await page.getByRole("button", { name: "中文", exact: true }).click();
+  await expect(page.getByRole("columnheader", { name: "95% 下界" })).toBeVisible();
+  await expect(page.getByRole("img", { name: /50%、80%、95% 区间和中位数/i })).toBeVisible();
+  await page.getByRole("button", { name: "English", exact: true }).click();
   expect(requests.some((url) => url.includes("PRIVATE_CANARY"))).toBe(false);
   expect(requests.some((url) => url.includes("/v1/private/analyze"))).toBe(false);
   await page.setViewportSize({ width: 320, height: 800 });

@@ -54,47 +54,42 @@ export default function QuantWorkbench() {
   useEffect(() => {
     if (!chartRef.current || !run) return;
     const chart = echarts.init(chartRef.current);
+    const bandSeries: echarts.SeriesOption[] = ([0.95, 0.8, 0.5] as const).flatMap((confidence) => {
+      const name = c(`${confidence * 100}% band`, `${confidence * 100}% 区间`);
+      const color = confidence === 0.95 ? "#8cc8ff" : confidence === 0.8 ? "#4f9ee8" : "#1261a0";
+      const stack = `pointwise-${confidence}`;
+      return [
+        { name: `${name}-base`, type: "line", stack, data: run.bootstrap.path.map((p) =>
+          p.bands.find((band) => band.confidence === confidence)!.low),
+          lineStyle: { opacity: 0 }, areaStyle: { opacity: 0 }, symbol: "none", silent: true,
+          tooltip: { show: false }, legendHoverLink: false },
+        { name, type: "line", stack, data: run.bootstrap.path.map((p) => {
+          const band = p.bands.find((entry) => entry.confidence === confidence)!;
+          return band.high - band.low;
+        }), itemStyle: { color }, lineStyle: { opacity: 0 }, areaStyle: { color, opacity: confidence === 0.5 ? 0.24 : confidence === 0.8 ? 0.17 : 0.11 },
+          symbol: "none", tooltip: { show: false } },
+      ];
+    });
     chart.setOption({
       animation: false,
       tooltip: { trigger: "axis" },
       legend: {
-        data: [c("Median", "中位数"), c("Pointwise band", "逐点区间")],
+        data: [c("95% band", "95% 区间"), c("80% band", "80% 区间"), c("50% band", "50% 区间"), c("Median", "中位数")],
       },
       xAxis: { type: "category", data: run.bootstrap.path.map((p) => p.date) },
       yAxis: {
         type: "value",
         axisLabel: { formatter: (v: number) => `${(v * 100).toFixed(0)}%` },
       },
-      series: [
-        {
-          name: "band-base",
-          tooltip: { show: false },
-          type: "line",
-          stack: "confidence",
-          data: run.bootstrap.path.map((p) => p.low),
-          lineStyle: { opacity: 0 },
-          areaStyle: { opacity: 0 },
-          symbol: "none",
-          silent: true,
-        },
-        {
-          name: c("Pointwise band", "逐点区间"),
-          tooltip: { show: false },
-          type: "line",
-          stack: "confidence",
-          data: run.bootstrap.path.map((p) => p.high - p.low),
-          lineStyle: { opacity: 0 },
-          areaStyle: { color: "#8cc8ff", opacity: 0.25 },
-          symbol: "none",
-        },
-        {
-          name: c("Median", "中位数"),
-          type: "line",
-          data: run.bootstrap.path.map((p) => p.median),
-          lineStyle: { color: "#1261a0", width: 2 },
-          symbol: "none",
-        },
-      ],
+      series: [...bandSeries, {
+        name: c("Median", "中位数"),
+        type: "line",
+        data: run.bootstrap.path.map((p) => p.median),
+        itemStyle: { color: "#123f67" },
+        lineStyle: { color: "#123f67", width: 3 },
+        symbol: "none",
+        z: 10,
+      }],
     });
     const resize = () => chart.resize();
     window.addEventListener("resize", resize);
@@ -512,46 +507,42 @@ export default function QuantWorkbench() {
             <div
               ref={chartRef}
               style={{ height: 280, width: "100%" }}
+              role="img"
               aria-label={c(
-                "Pointwise bootstrap bands chart",
-                "逐点自助法区间图",
+                "Pointwise simulation fan chart with 50%, 80%, and 95% bands and median; values are listed in the table below",
+                "逐点模拟扇形图，显示 50%、80%、95% 区间和中位数；数值见下方表格",
               )}
             />
-            <div className="opsis-table-scroll">
-              <table>
+            <div className="opsis-table-scroll opsis-quant-fan-scroll">
+              <table className="opsis-quant-fan-table">
                 <caption>
                   {c(
-                    "Sampled simulation steps; wealth ratios rounded to four decimals (all values in export)",
-                    "模拟步骤抽样；财富比率保留四位小数（导出包含全部数值）",
+                    "Every simulation step; normalized wealth ratios rounded to four decimals (full precision in export)",
+                    "每个模拟步骤；标准化财富比率保留四位小数（导出为完整精度）",
                   )}
                 </caption>
                 <thead>
                   <tr>
                     <th>{c("Step", "步骤")}</th>
-                    <th>{c("Low", "下界")}</th>
+                    <th>{c("50% low", "50% 下界")}</th>
+                    <th>{c("50% high", "50% 上界")}</th>
+                    <th>{c("80% low", "80% 下界")}</th>
+                    <th>{c("80% high", "80% 上界")}</th>
+                    <th>{c("95% low", "95% 下界")}</th>
+                    <th>{c("95% high", "95% 上界")}</th>
                     <th>{c("Median", "中位数")}</th>
-                    <th>{c("High", "上界")}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {run.bootstrap.path
-                    .filter(
-                      (_, i) =>
-                        i === 0 ||
-                        i === run.bootstrap.path.length - 1 ||
-                        i %
-                          Math.max(
-                            1,
-                            Math.floor(run.bootstrap.path.length / 12),
-                          ) ===
-                          0,
-                    )
-                    .map((point) => (
+                  {run.bootstrap.path.map((point) => (
                       <tr key={point.date}>
                         <td>{point.date}</td>
-                        <td>{point.low.toFixed(4)}</td>
+                        {([0.5, 0.8, 0.95] as const).flatMap((confidence) => {
+                          const band = point.bands.find((entry) => entry.confidence === confidence)!;
+                          return [<td key={`${confidence}-low`}>{band.low.toFixed(4)}</td>,
+                            <td key={`${confidence}-high`}>{band.high.toFixed(4)}</td>];
+                        })}
                         <td>{point.median.toFixed(4)}</td>
-                        <td>{point.high.toFixed(4)}</td>
                       </tr>
                     ))}
                 </tbody>

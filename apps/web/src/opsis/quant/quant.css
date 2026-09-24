@@ -13,5 +13,11 @@
 .opsis-quant-metrics span, .opsis-quant-metrics strong { display: block; }
 .opsis-quant-metrics span { color: #5b6d78; font-size: .7rem; }
 .opsis-quant-metrics strong { color: #1261a0; font-size: 1.2rem; }
+.opsis-quant-fan-scroll { max-width: 100%; overscroll-behavior-x: contain; }
+.opsis-quant-fan-table { min-width: 760px; }
+.opsis-quant-fan-table th:nth-child(2), .opsis-quant-fan-table th:nth-child(3) { color: #1261a0; }
+.opsis-quant-fan-table th:nth-child(4), .opsis-quant-fan-table th:nth-child(5) { color: #347eb8; }
+.opsis-quant-fan-table th:nth-child(6), .opsis-quant-fan-table th:nth-child(7) { color: #6d8fac; }
+.opsis-quant-fan-table th:last-child { color: #123f67; }
 .opsis-quant-workbench .opsis-error { color: #9b2c2c; }
 @media (max-width: 640px) { .opsis-quant-grid, .opsis-quant-fields, .opsis-quant-metrics { grid-template-columns: 1fr; } .opsis-quant-workbench { overflow-wrap: anywhere; } }

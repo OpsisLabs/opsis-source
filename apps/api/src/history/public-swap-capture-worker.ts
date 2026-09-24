@@ -1,4 +1,5 @@
 import type { SwapRangeRequest } from "./public-swap-capture.js";
+import { PublicSwapHistoryFenceError } from "./public-swap-history.js";
 
 const MAX_POOLS = 4;
 const MAX_RANGES = 100;
@@ -12,7 +13,7 @@ export type AllowlistedRange = WorkerRange;
 export type CaptureResult = { status: "COMPLETE" | "EMPTY" | "GAP" | "UNAVAILABLE"; rows: number };
 
 export interface PublicSwapCaptureLike {
-  capture(range: WorkerRange, options?: { assertLease: () => Promise<void> }): Promise<CaptureResult>;
+  capture(range: WorkerRange, options?: { assertLease: () => Promise<void>; workerLeaseToken?: string }): Promise<CaptureResult>;
 }
 export interface HistoryWorkerLease {
   /** Lease lifetime in milliseconds, used to schedule safe owner-checked renewal. */
@@ -25,7 +26,7 @@ export interface HistoryWorkerLease {
 export interface RangeAttemptBudget { reserve(input: { kind: "RANGE-ATTEMPT"; range: WorkerRange }): Promise<boolean> }
 export interface StorageHeadroom { check(): Promise<{ allowed: boolean }> }
 export interface WorkerCoverageWriter {
-  recordGap(input: { range: WorkerRange; detail: "BUDGET_EXHAUSTED" | "STORAGE_CAP" }): Promise<void>;
+  recordGap(input: { range: WorkerRange; detail: "BUDGET_EXHAUSTED" | "STORAGE_CAP"; workerLeaseToken: string }): Promise<void>;
 }
 
 export type WorkerPlan = { enabled: boolean; ranges: readonly WorkerRange[] };
@@ -90,23 +91,25 @@ export class PublicSwapCaptureWorker {
         const before = await this.deps.storage.check();
         if (!before.allowed) {
           if (!(await this.tryAssertLease(assertLease))) return { status: "STOPPED", ...counts, stopReason: "LEASE_LOST" };
-          await this.deps.coverage.recordGap({ range, detail: "STORAGE_CAP" });
+          if (!(await this.tryRecordGap(range, "STORAGE_CAP", owner))) return { status: "STOPPED", ...counts, stopReason: "LEASE_LOST" };
           counts.gaps++;
           return { status: "STOPPED", ...counts, stopReason: "STORAGE_CAP" };
         }
         if (!(await this.tryAssertLease(assertLease))) return { status: "STOPPED", ...counts, stopReason: "LEASE_LOST" };
         if (!(await this.deps.budget.reserve({ kind: "RANGE-ATTEMPT", range }))) {
           if (!(await this.tryAssertLease(assertLease))) return { status: "STOPPED", ...counts, stopReason: "LEASE_LOST" };
-          await this.deps.coverage.recordGap({ range, detail: "BUDGET_EXHAUSTED" });
+          if (!(await this.tryRecordGap(range, "BUDGET_EXHAUSTED", owner))) return { status: "STOPPED", ...counts, stopReason: "LEASE_LOST" };
           counts.gaps++;
           return { status: "STOPPED", ...counts, stopReason: "BUDGET_EXHAUSTED" };
         }
         if (!(await this.tryAssertLease(assertLease))) return { status: "STOPPED", ...counts, stopReason: "LEASE_LOST" };
         counts.attempted++;
         let result: CaptureResult;
-        try { result = await this.deps.capture.capture(range, { assertLease }); }
+        try { result = await this.deps.capture.capture(range, { assertLease, workerLeaseToken: owner }); }
         catch (error) {
-          if (error instanceof LeaseLostError || lost) return { status: "STOPPED", ...counts, stopReason: "LEASE_LOST" };
+          if (error instanceof LeaseLostError || error instanceof PublicSwapHistoryFenceError || lost) {
+            return { status: "STOPPED", ...counts, stopReason: "LEASE_LOST" };
+          }
           throw error;
         }
         if (!(await this.tryAssertLease(assertLease))) return { status: "STOPPED", ...counts, stopReason: "LEASE_LOST" };
@@ -120,7 +123,7 @@ export class PublicSwapCaptureWorker {
           if (!after.allowed) {
             const nextRange = ranges[i + 1]!;
             if (!(await this.tryAssertLease(assertLease))) return { status: "STOPPED", ...counts, stopReason: "LEASE_LOST" };
-            await this.deps.coverage.recordGap({ range: nextRange, detail: "STORAGE_CAP" });
+            if (!(await this.tryRecordGap(nextRange, "STORAGE_CAP", owner))) return { status: "STOPPED", ...counts, stopReason: "LEASE_LOST" };
             counts.gaps++;
             return { status: "STOPPED", ...counts, stopReason: "STORAGE_CAP" };
           }
@@ -140,6 +143,16 @@ export class PublicSwapCaptureWorker {
 
   private async tryAssertLease(assertLease: () => Promise<void>): Promise<boolean> {
     try { await assertLease(); return true; } catch { return false; }
+  }
+
+  private async tryRecordGap(range: WorkerRange, detail: "BUDGET_EXHAUSTED" | "STORAGE_CAP", owner: string): Promise<boolean> {
+    try {
+      await this.deps.coverage.recordGap({ range, detail, workerLeaseToken: owner });
+      return true;
+    } catch (error) {
+      if (error instanceof PublicSwapHistoryFenceError) return false;
+      throw error;
+    }
   }
 }
 
