@@ -43,7 +43,6 @@ export function StressReceipt({
     const current = generation.current;
     setBusy(true);
     try {
-      await document.fonts.ready;
       const blob = await renderReceipt(
         receipt(result, shock, custom, include),
         locale,

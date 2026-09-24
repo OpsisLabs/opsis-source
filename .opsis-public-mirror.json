@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "9d8a8815da79f9db53dae752b6c548a20c7f0c054550d74b43e140566ed2fc85",
+  "sourceTreeDigest": "3713768fa00e28602ee4cec3883788a73b8f7b99f04efdf749cb681dde7e5033",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "c599bae760e9c12217232525246f5c973c403d2c1dcc3f78987edc65c722b08e",
@@ -589,7 +589,7 @@
     "apps/web/src/stress/stress.css": "0f2da88ee417ed5ee092a29c5604f1e1595c1aa891cc3c1dd92710ee2b790af5",
     "apps/web/src/stress/StressDial.tsx": "f6293591626a340d2af1c590b86546934dd414bc9cbf0698fd0f5a3de81ba9c6",
     "apps/web/src/stress/StressExplanation.tsx": "fd01df6e7d4e52a7e768a89c04cb4ea436a205fbc042348ca43513034ec67044",
-    "apps/web/src/stress/StressReceipt.tsx": "46eaba248a595341ec2e334cbbc98018acf3b5c6a9194a86ad18080efe17862e",
+    "apps/web/src/stress/StressReceipt.tsx": "b7e45ac30a6e56ef76345256c140ceacb775a97b4ac08cb16e2bd0942fdcd431",
     "apps/web/src/stress/StressTest.tsx": "04ced29865a30c1a0ae4476cdf6c7590c0bfa0dfc9537bb5e0af55af0ed9fff3",
     "apps/web/src/stress/useStressVaultImport.ts": "c8cdb06b302c665ef17a45dec30eabbd10cfb387a26bd6108867412a5e64c1db",
     "apps/web/src/stress/VaultImportChooser.tsx": "b624f292886ef8080388e2cd47fa32f63759bd33c70b8fd5900c9421d07afef3",
@@ -681,7 +681,7 @@
     "e2e/wallet-ai.mock.spec.ts": "a229067837c646d50a1fcb2de04c4ac0e3f83b9c351006990194c06c23345541",
     "identity-policy.json": "0344660da1525234126b8fcf2628b81dbd71924997e832e5eba326437a9cebb7",
     "LICENSE": "c0ea4a896d2c8c394b29f9427589996db826cd501c512279ff0ed3ef48fabbe5",
-    "package.json": "f6eedbbc99fe1d01054eed42fcaae82942d68241a5f705e746b6db3d4ad302f0",
+    "package.json": "605ce1c1203537178368d1956b9a5692e301a3f30da8ba82441fbdd5eed398cb",
     "packages/quant/package.json": "94761a3bdae4bf78a2d350fd7718d2da0496537729806c9d1eb30dbc9ce05fa3",
     "packages/quant/src/correlation.test.ts": "40a3dd02e0cab8bcb5afe8d8f5e3e356c0adb970a026d866ea19f66b69b40787",
     "packages/quant/src/index.test.ts": "9218965748278f8f38d0862509f1dbd9043ab063cb97c65086f3c3fb897e2754",
@@ -713,6 +713,7 @@
     "scripts/release-train.mjs": "7e007a8e8e1dea392b69dd4f9e3c3d9399bcde47dea85ba9846bd8992454d858",
     "scripts/release-train.test.mjs": "97c8367cbe2b2072e21017edf3c5e26f4ab5d94055025b9b6801400bfc128a79",
     "scripts/rpc-cost-benchmark.mjs": "f3e42f15100a1b70e4a740f46dd61d8c88028495a9bdd3fb1b72810c95edb275",
+    "scripts/run-webkit-mock-files.mjs": "a587ca133c90489ebf7c8540d0a711bb580384c1e7e7a51a9eabf050ff6da413",
     "scripts/test-feature-previews.mjs": "44f59ef0fc149ff71018853b707cca380c414d79e4cf96cf94590b26d4e65399",
     "scripts/test-identity-guard.mjs": "fee5c29a1b634e7a52045bc306e3255d75b0551e8b59a2bbb64bb76d919b8538",
     "scripts/test-load-smoke.mjs": "ab4966fdf17e3df35bba94dfea9f7b9e9715221473a16325b825f0bef8476825",
