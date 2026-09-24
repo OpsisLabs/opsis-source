@@ -4,6 +4,7 @@ import {
   encodeFunctionData,
   formatUnits,
   isAddress,
+  keccak256,
   type Abi,
   type Address,
   type Hex,
@@ -204,6 +205,9 @@ type ResolvedTokens = {
   base: ObservedTradeToken;
   quote: ObservedTradeToken;
 };
+type PoolTokenIdentity = { token0: string; token1: string };
+
+const POOL_TOKEN_CACHE_MAX_ENTRIES = 128;
 type RawObservation = {
   side: ObservedTradeSide;
   baseAmountRaw: bigint;
@@ -226,6 +230,7 @@ export interface ObservedTradesSource {
 export class ObservedTradesService implements ObservedTradesSource {
   private readonly dependencies: Dependencies;
   private readonly inflight = new Map<string, Promise<ObservedTradesResponse>>();
+  private readonly poolTokenCache = new Map<string, PoolTokenIdentity>();
 
   constructor(
     private readonly env: Env,
@@ -265,7 +270,13 @@ export class ObservedTradesService implements ObservedTradesSource {
     const run: RpcRun = { rpcUnits: 0 };
     const anchor = await this.captureAnchor(run);
     const pool = await this.resolvePool(pair, fee, anchor, run);
-    const tokens = await this.resolveTokens(pool.address, pair, anchor, run);
+    const tokens = await this.resolveTokens(
+      pool.address,
+      pool.codeHash,
+      pair,
+      anchor,
+      run,
+    );
     const logs = await this.fetchBoundedLogs(pool.address, anchor, requestedWindow, run);
     const decoded = logs.logs.map((log) =>
       decodeObservation(log, pool.address, tokens, anchor, logs.fromBlock),
@@ -418,7 +429,7 @@ export class ObservedTradesService implements ObservedTradesSource {
     fee: ObservedTradesInput["fee"],
     anchor: CapturedAnchor,
     run: RpcRun,
-  ): Promise<{ address: string; fee: number; poolsRequested: number }> {
+  ): Promise<{ address: string; fee: number; poolsRequested: number; codeHash: string }> {
     const fees = fee ? [fee] : [...OBSERVED_TRADES_FEES];
     // One JSON-RPC batch of direct eth_call reads, never a contract multicall:
     // the SDK's Robinhood multicall address does not implement aggregate3.
@@ -465,10 +476,19 @@ export class ObservedTradesService implements ObservedTradesSource {
         failedRead = true;
         continue;
       }
+      let codeHash: string;
+      try {
+        if (!/^0x(?:[0-9a-fA-F]{2})+$/.test(code)) throw new Error("invalid bytecode");
+        codeHash = keccak256(code as Hex).toLowerCase();
+      } catch {
+        failedRead = true;
+        continue;
+      }
       return {
         address: read.address,
         fee: candidateFee,
         poolsRequested: fees.length,
+        codeHash,
       };
     }
     if (failedRead) {
@@ -487,6 +507,7 @@ export class ObservedTradesService implements ObservedTradesSource {
 
   private async resolveTokens(
     pool: string,
+    codeHash: string,
     pair: ReturnType<typeof resolvePair>,
     anchor: CapturedAnchor,
     run: RpcRun,
@@ -496,10 +517,17 @@ export class ObservedTradesService implements ObservedTradesSource {
       method: "eth_call",
       params: [{ to, data }, anchor.hex],
     });
-    const calls: RpcCall[] = [
-      call("token0", pool, encodeFunctionData({ abi: poolAbi, functionName: "token0" })),
-      call("token1", pool, encodeFunctionData({ abi: poolAbi, functionName: "token1" })),
-    ];
+    // Official V3 pool token0/token1 are constructor immutables embedded in
+    // runtime code. The freshly checked factory address and code hash bound
+    // reuse to that exact pool identity; ERC-20 decimals remain fresh reads.
+    const cacheKey = `${OBSERVED_TRADES_CHAIN_ID}:${OBSERVED_TRADES_FACTORY}:${pool}:${codeHash}`;
+    const cachedTokens = this.getCachedPoolTokens(cacheKey);
+    const calls: RpcCall[] = cachedTokens
+      ? []
+      : [
+          call("token0", pool, encodeFunctionData({ abi: poolAbi, functionName: "token0" })),
+          call("token1", pool, encodeFunctionData({ abi: poolAbi, functionName: "token1" })),
+        ];
     if (!pair.base.reviewed) {
       calls.push(
         call(
@@ -518,9 +546,9 @@ export class ObservedTradesService implements ObservedTradesSource {
         ),
       );
     }
-    const results = await this.rpcBatch(calls, run);
-    const token0 = decodeCallAddress(results.get("token0")?.result);
-    const token1 = decodeCallAddress(results.get("token1")?.result);
+    const results = calls.length > 0 ? await this.rpcBatch(calls, run) : new Map();
+    const token0 = cachedTokens?.token0 ?? decodeCallAddress(results.get("token0")?.result);
+    const token1 = cachedTokens?.token1 ?? decodeCallAddress(results.get("token1")?.result);
     if (!token0 || !token1) {
       throw new AppError(
         "OBSERVED_TRADES_MALFORMED",
@@ -551,12 +579,30 @@ export class ObservedTradesService implements ObservedTradesSource {
         "The factory pool tokens did not match the requested pair",
       );
     }
+    if (!cachedTokens) this.cachePoolTokens(cacheKey, { token0, token1 });
     return {
       token0,
       token1,
       base: { ...pair.base, decimals: baseDecimals },
       quote: { ...pair.quote, decimals: quoteDecimals },
     };
+  }
+
+  private getCachedPoolTokens(key: string): PoolTokenIdentity | undefined {
+    const value = this.poolTokenCache.get(key);
+    if (!value) return undefined;
+    this.poolTokenCache.delete(key);
+    this.poolTokenCache.set(key, value);
+    return value;
+  }
+
+  private cachePoolTokens(key: string, value: PoolTokenIdentity): void {
+    this.poolTokenCache.delete(key);
+    this.poolTokenCache.set(key, value);
+    if (this.poolTokenCache.size > POOL_TOKEN_CACHE_MAX_ENTRIES) {
+      const oldest = this.poolTokenCache.keys().next().value;
+      if (oldest !== undefined) this.poolTokenCache.delete(oldest);
+    }
   }
 
   private async fetchBoundedLogs(

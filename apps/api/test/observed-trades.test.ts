@@ -115,13 +115,20 @@ function createHarness(options: {
   fullBlockHash?: string;
   fullBlockTransportCode?: string;
   poolRead?: "error" | "malformed" | "first-error";
+  poolTokenRead?: "malformed";
+  decimalsRead?: "malformed";
+  poolCode?: string | ((read: number) => string);
   budgetUnits?: number;
   env?: Record<string, string>;
 }) {
   let logAttempt = 0;
   let consumed = 0;
   let factoryReads = 0;
+  let poolCodeReads = 0;
   let rpcSubcalls = 0;
+  let anchorReads = 0;
+  let poolTokenReads = 0;
+  let decimalsReads = 0;
   const selectedPool =
     options.poolAddress === null ? null : options.poolAddress ?? POOL;
   const ethCalls: Array<{ to: string; data: string }> = [];
@@ -135,11 +142,19 @@ function createHarness(options: {
     }
     if (to === POOL.toLowerCase()) {
       if (data.startsWith("0x0dfe1681")) {
+        poolTokenReads += 1;
+        if (options.poolTokenRead === "malformed") return "0x1234" as Hex;
         return addressReturn(options.token0 ?? TOKEN0);
       }
       if (data.startsWith("0xd21220a7")) {
+        poolTokenReads += 1;
+        if (options.poolTokenRead === "malformed") return "0x1234" as Hex;
         return addressReturn(options.token1 ?? TOKEN1);
       }
+    }
+    if (data.startsWith("0x313ce567")) {
+      decimalsReads += 1;
+      if (options.decimalsRead === "malformed") return "0x1234" as Hex;
     }
     if (to === TOKEN0.toLowerCase()) {
       return encodeAbiParameters([{ type: "uint8" }], [18]);
@@ -292,6 +307,7 @@ function createHarness(options: {
       rpcSubcalls += 1;
       const method = body.method as string;
       if (method === "eth_getBlockByNumber") {
+        anchorReads += 1;
         const tag = body.params[0];
         if (tag === "latest") {
           return {
@@ -313,7 +329,13 @@ function createHarness(options: {
       if (method === "eth_getCode") {
         const address = String(body.params[0]).toLowerCase();
         if (address === POOL) {
-          return { jsonrpc: "2.0", id: 1, result: "0x600160015500" };
+          poolCodeReads += 1;
+          const poolCode = options.poolCode ?? "0x600160015500";
+          return {
+            jsonrpc: "2.0",
+            id: 1,
+            result: typeof poolCode === "function" ? poolCode(poolCodeReads) : poolCode,
+          };
         }
         return { jsonrpc: "2.0", id: 1, result: options.codes?.[address] ?? "0x" };
       }
@@ -368,6 +390,10 @@ function createHarness(options: {
     attempts: () => logAttempt,
     rpcSubcalls: () => rpcSubcalls,
     ethCalls,
+    poolTokenReads: () => poolTokenReads,
+    decimalsReads: () => decimalsReads,
+    poolCodeReads: () => poolCodeReads,
+    anchorReads: () => anchorReads,
   };
 }
 
@@ -517,6 +543,101 @@ describe("observed trades service", () => {
     expect(ethCalls.some((call) => call.data.startsWith("0x82ad56cb"))).toBe(
       false,
     );
+  });
+
+  it("reuses only pool token identity while keeping each observation anchored and fetching logs", async () => {
+    const {
+      service,
+      rpcSubcalls,
+      poolTokenReads,
+      poolCodeReads,
+      attempts,
+      anchorReads,
+    } = createHarness({ logs: [] });
+    const first = await service.observe({ chainId: 4663, windowBlocks: 50 });
+    const beforeSecond = rpcSubcalls();
+    const second = await service.observe({ chainId: 4663, windowBlocks: 50 });
+
+    expect(first.coverage.rpcUnits - second.coverage.rpcUnits).toBe(2);
+    expect(rpcSubcalls() - beforeSecond).toBe(9);
+    expect(second.coverage.rpcUnits).toBe(9);
+    expect(poolTokenReads()).toBe(2);
+    expect(poolCodeReads()).toBe(2);
+    expect(attempts()).toBe(2);
+    expect(anchorReads()).toBe(4);
+  });
+
+  it("keeps arbitrary token decimals fresh on every observation", async () => {
+    const arbitraryToken = `0x${"33".repeat(20)}`;
+    const { service, poolTokenReads, decimalsReads } = createHarness({
+      logs: [],
+      token0: arbitraryToken,
+      token1: TOKEN0,
+    });
+    const input = { chainId: 4663 as const, contract: arbitraryToken };
+    await service.observe(input);
+    await service.observe(input);
+
+    expect(poolTokenReads()).toBe(2);
+    expect(decimalsReads()).toBe(2);
+  });
+
+  it("does not cache failed or pair-mismatched pool token reads", async () => {
+    const failed = createHarness({ logs: [], poolTokenRead: "malformed" });
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      await expect(failed.service.observe({ chainId: 4663 })).rejects.toMatchObject({
+        code: "OBSERVED_TRADES_MALFORMED",
+      });
+    }
+    expect(failed.poolTokenReads()).toBe(4);
+
+    const mismatched = createHarness({
+      logs: [],
+      token0: TOKEN0,
+      token1: `0x${"44".repeat(20)}`,
+    });
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      await expect(mismatched.service.observe({ chainId: 4663 })).rejects.toMatchObject({
+        code: "OBSERVED_TRADES_MALFORMED",
+      });
+    }
+    expect(mismatched.poolTokenReads()).toBe(4);
+
+    const arbitraryToken = `0x${"33".repeat(20)}`;
+    const badDecimals = createHarness({
+      logs: [],
+      decimalsRead: "malformed",
+      token0: arbitraryToken,
+      token1: TOKEN0,
+    });
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      await expect(
+        badDecimals.service.observe({ chainId: 4663, contract: arbitraryToken }),
+      ).rejects.toMatchObject({ code: "OBSERVED_TRADES_MALFORMED" });
+    }
+    expect(badDecimals.poolTokenReads()).toBe(4);
+  });
+
+  it("misses the token cache when the pool bytecode identity changes", async () => {
+    const { service, poolTokenReads, poolCodeReads } = createHarness({
+      logs: [],
+      poolCode: (read) => (read === 1 ? "0x600160015500" : "0x600260025500"),
+    });
+    await service.observe({ chainId: 4663 });
+    await service.observe({ chainId: 4663 });
+
+    expect(poolCodeReads()).toBe(2);
+    expect(poolTokenReads()).toBe(4);
+  });
+
+  it("keeps pool identity caches scoped to each service instance", async () => {
+    const first = createHarness({ logs: [] });
+    const second = createHarness({ logs: [] });
+    await first.service.observe({ chainId: 4663 });
+    await second.service.observe({ chainId: 4663 });
+
+    expect(first.poolTokenReads()).toBe(2);
+    expect(second.poolTokenReads()).toBe(2);
   });
 
   it("reports discovery unavailable, not a missing pool, when every getPool read fails", async () => {
