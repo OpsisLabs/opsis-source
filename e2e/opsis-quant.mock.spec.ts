@@ -22,6 +22,12 @@ test("local quant workflow validates, runs, and requires export consent", async 
     buffer: Buffer.from(JSON.stringify({ PRIVATE_CANARY: "PRIVATE_CANARY", schemaVersion: 1, instrument: { chainId: 4663, address: "0x0000000000000000000000000000000000000abc", symbol: "TEST" }, quoteCurrency: "USD", clock: "daily_crypto_24_7", provenance: { source: "synthetic fixture", observedAt: "2026-09-01T00:00:00Z" }, synthetic: true, observations: rows })),
   });
   await expect(page.getByText(/observations loaded/)).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Observed daily return histogram" })).toBeVisible();
+  await expect(page.getByText("Observations: 189.")).toBeVisible();
+  await expect(page.getByRole("columnheader", { name: "Lower edge (fraction)" })).toBeVisible();
+  await expect(page.locator(".opsis-quant-histogram-table tbody tr")).toHaveCount(12);
+  await expect(page.getByRole("img", { name: /Observed daily return histogram/ })).toBeVisible();
+  await expect(page.getByText(/Negative tail \(≤ -5%\): 0; Positive tail \(≥ \+5%\): 0/)).toBeVisible();
   await page.getByRole("button", { name: "Run local experiment" }).click();
   await expect(page.getByText("4. Results")).toBeVisible({ timeout: 10_000 });
   await expect(page.getByRole("img", { name: /50%, 80%, and 95% bands and median/i })).toBeVisible();
@@ -39,14 +45,36 @@ test("local quant workflow validates, runs, and requires export consent", async 
   await page.getByRole("checkbox", { name: /consent to download/i }).check();
   await expect(page.getByRole("button", { name: "Export manifest" })).toBeEnabled();
   await page.getByRole("button", { name: "中文", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "观察到的每日收益直方图" })).toBeVisible();
+  await expect(page.getByRole("columnheader", { name: "下边界（比例）" })).toBeVisible();
   await expect(page.getByRole("columnheader", { name: "95% 下界" })).toBeVisible();
   await expect(page.getByRole("img", { name: /50%、80%、95% 区间和中位数/i })).toBeVisible();
   await page.getByRole("button", { name: "English", exact: true }).click();
   expect(requests.some((url) => url.includes("PRIVATE_CANARY"))).toBe(false);
   expect(requests.some((url) => url.includes("/v1/private/analyze"))).toBe(false);
+  expect(requests.some((url) => /dataset|quant.*upload/i.test(url))).toBe(false);
   await page.setViewportSize({ width: 320, height: 800 });
   await expect.poll(
     () => page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
     { timeout: 3_000, message: "Quant settles without horizontal overflow after a viewport resize" },
   ).toBeLessThanOrEqual(1);
+});
+
+test("extreme validated prices show histogram refusal without crashing the workbench", async ({ page }) => {
+  await page.goto("/lab");
+  await page.getByRole("button", { name: /Quant research/ }).click();
+  const rows = Array.from({ length: 40 }, (_, index) => ({
+    date: new Date(Date.UTC(2026, 0, index + 1)).toISOString().slice(0, 10),
+    price: index === 0 ? 1e-300 : 1e300,
+  }));
+  await page.getByLabel("CSV or JSON file").setInputFiles({
+    name: "extreme.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify({ schemaVersion: 1, instrument: { chainId: 4663, address: "0x0000000000000000000000000000000000000abc", symbol: "TEST" }, quoteCurrency: "USD", clock: "daily_crypto_24_7", provenance: { source: "synthetic fixture", observedAt: "2026-09-01T00:00:00Z" }, observations: rows })),
+  });
+  await expect(page.getByText(/Observed return histogram unavailable/)).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Observed daily risk" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "2. Set the experiment" })).toBeVisible();
+  await page.getByRole("button", { name: "中文", exact: true }).click();
+  await expect(page.getByText(/观察收益直方图不可用/)).toBeVisible();
 });

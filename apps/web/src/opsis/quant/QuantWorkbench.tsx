@@ -5,6 +5,7 @@ import {
   realizedStats,
   parseCsv,
   validateDataset,
+  observedReturnHistogram,
   type ExperimentSpec,
   type PriceDataset,
   type QuantRun,
@@ -40,6 +41,7 @@ export default function QuantWorkbench() {
   const [history, setHistory] = useState<StoredRun[]>([]);
   const [consent, setConsent] = useState(false);
   const chartRef = useRef<HTMLDivElement>(null);
+  const histogramRef = useRef<HTMLDivElement>(null);
   const workerRef = useRef<Worker | null>(null);
   const messageId = useRef(0);
 
@@ -98,6 +100,37 @@ export default function QuantWorkbench() {
       chart.dispose();
     };
   }, [run, c]);
+
+  const observedReturns = useMemo(() => dataset?.observations.slice(1).map((row, index) => row.price / dataset.observations[index]!.price - 1) ?? [], [dataset]);
+  const histogramResult = useMemo(() => {
+    if (!observedReturns.length) return { histogram: null, error: "" };
+    try {
+      return { histogram: observedReturnHistogram(observedReturns, 12, 0.05), error: "" };
+    } catch (error) {
+      return { histogram: null, error: error instanceof Error ? error.message : "Histogram unavailable." };
+    }
+  }, [observedReturns]);
+  const histogram = histogramResult.histogram;
+  useEffect(() => {
+    if (!histogramRef.current || !histogram) return;
+    const chart = echarts.init(histogramRef.current);
+    const labels = histogram.counts.map((_, index) => `${index + 1}`);
+    chart.setOption({
+      animation: false,
+      tooltip: { trigger: "axis", formatter: (items: unknown) => {
+        const point = Array.isArray(items) ? items[0] as { dataIndex?: number; value?: number } : {};
+        const index = point.dataIndex ?? 0;
+        return `${c("Return fraction", "收益比例")}: ${histogram.edges[index]!.toString()} to ${histogram.edges[index + 1]!.toString()}<br/>${c("Observed returns", "观察收益")}: ${point.value ?? 0}`;
+      } },
+      grid: { left: 52, right: 16, top: 20, bottom: 52 },
+      xAxis: { type: "category", data: labels, axisLabel: { rotate: 35, hideOverlap: true } },
+      yAxis: { type: "value", minInterval: 1, name: c("Count", "数量") },
+      series: [{ type: "bar", name: c("Observed daily returns", "观察到的每日收益"), data: histogram.counts, itemStyle: { color: "#1261a0" } }],
+    });
+    const resize = () => chart.resize();
+    window.addEventListener("resize", resize);
+    return () => { window.removeEventListener("resize", resize); chart.dispose(); };
+  }, [histogram, c]);
 
   const metadata = (): Omit<PriceDataset, "observations"> => ({
     schemaVersion: 1,
@@ -440,6 +473,21 @@ export default function QuantWorkbench() {
           ) : (
             <p role="alert">{observed.error}</p>
           )}
+          {histogram && (
+            <section aria-labelledby="opsis-return-histogram-title">
+              <h3 id="opsis-return-histogram-title">{c("Observed daily return histogram", "观察到的每日收益直方图")}</h3>
+              <p>{c("Observed sample returns; no future path is inferred.", "观察样本收益；不推断未来路径。")} {c("Observations", "观察数")}: {histogram.observations}. {c("Negative tail (≤ -5%)", "负向尾部（≤ -5%）")}: {histogram.negativeTailCount}; {c("Positive tail (≥ +5%)", "正向尾部（≥ +5%）")}: {histogram.positiveTailCount}.</p>
+              <div ref={histogramRef} className="opsis-quant-histogram" role="img" aria-label={c("Observed daily return histogram; numeric bin counts are listed in the table.", "观察到的每日收益直方图；数值分箱计数见表格。")} />
+              <div className="opsis-table-scroll opsis-quant-histogram-scroll">
+                <table className="opsis-quant-histogram-table">
+                  <caption>{c("Observed daily return bins; edges are raw fractional values with round-trip numeric precision. Left edge included; right edge excluded except the final bin.", "观察到的每日收益分箱；边界以可往返的原始比例数值显示。包含左边界；排除右边界，最后一箱除外。")}</caption>
+                  <thead><tr><th>{c("Bin", "分箱")}</th><th>{c("Lower edge (fraction)", "下边界（比例）")}</th><th>{c("Upper edge (fraction)", "上边界（比例）")}</th><th>{c("Observed count", "观察计数")}</th></tr></thead>
+                  <tbody>{histogram.counts.map((count, index) => <tr key={index}><td>{index + 1}</td><td>{histogram.edges[index]!.toString()}</td><td>{histogram.edges[index + 1]!.toString()}</td><td>{count}</td></tr>)}</tbody>
+                </table>
+              </div>
+            </section>
+          )}
+          {histogramResult.error && <p role="status">{c("Observed return histogram unavailable: sample ratios or bins exceed numeric precision.", "观察收益直方图不可用：样本比值或分箱超出数值精度。")}</p>}
         </div>
       )}
       {run && (

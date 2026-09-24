@@ -69,6 +69,54 @@ export interface RealizedStats {
   warnings: string[];
 }
 
+export interface ReturnHistogram {
+  observations: number;
+  /** Inclusive lower edges and a final exclusive edge; the final bin includes its upper edge. */
+  edges: number[];
+  counts: number[];
+  tailThreshold: number;
+  negativeTailCount: number;
+  positiveTailCount: number;
+}
+
+/** Summarize observed simple returns with deterministic equal-width sample bins. */
+export function observedReturnHistogram(
+  returns: readonly number[],
+  binCount = 12,
+  tailThreshold = 0.05,
+): ReturnHistogram {
+  if (!Array.isArray(returns) || returns.length === 0 || returns.some((value) => !Number.isFinite(value) || value <= -1))
+    throw new Error("Observed returns must be a non-empty list of finite values greater than -1.");
+  if (!Number.isSafeInteger(binCount) || binCount < 1 || binCount > 100)
+    throw new Error("Bin count must be an integer from 1 to 100.");
+  if (!Number.isFinite(tailThreshold) || tailThreshold <= 0)
+    throw new Error("Tail threshold must be a positive finite return fraction.");
+  const min = Math.min(...returns);
+  const max = Math.max(...returns);
+  const halfWidth = max === min ? Math.max(Math.abs(min) * 0.01, 0.005) : 0;
+  const lower = min - halfWidth;
+  const upper = max + halfWidth;
+  const width = (upper - lower) / binCount;
+  const edges = Array.from({ length: binCount + 1 }, (_, index) =>
+    index === binCount ? upper : lower + width * index,
+  );
+  if (edges.some((edge, index) => index > 0 && edge <= edges[index - 1]!))
+    throw new Error("Histogram bins cannot be represented as distinct numeric edges for this sample.");
+  const counts = Array.from({ length: binCount }, () => 0);
+  for (const value of returns) {
+    const index = Math.min(binCount - 1, Math.floor((value - lower) / width));
+    counts[Math.max(0, index)]!++;
+  }
+  return {
+    observations: returns.length,
+    edges,
+    counts,
+    tailThreshold,
+    negativeTailCount: returns.filter((value) => value <= -tailThreshold).length,
+    positiveTailCount: returns.filter((value) => value >= tailThreshold).length,
+  };
+}
+
 export interface BootstrapResult {
   runs: number;
   seed: number;

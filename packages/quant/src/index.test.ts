@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   datasetHash,
+  observedReturnHistogram,
   runQuant,
   validateDataset,
   type PriceDataset,
@@ -24,6 +25,30 @@ const dataset = (count = 40): PriceDataset => ({
     date: new Date(Date.UTC(2026, 0, n + 1)).toISOString().slice(0, 10),
     price: 100 + n,
   })),
+});
+
+describe("observed return histogram", () => {
+  it("declares exact edges, includes both sample endpoints and conserves counts", () => {
+    const histogram = observedReturnHistogram([-0.1, -0.05, 0, 0.05, 0.1], 4, 0.05);
+    expect(histogram.edges).toHaveLength(5);
+    expect(histogram.edges[0]).toBe(-0.1);
+    expect(histogram.edges.at(-1)).toBe(0.1);
+    expect(histogram.counts).toEqual([1, 1, 1, 2]);
+    expect(histogram.counts.reduce((sum, count) => sum + count, 0)).toBe(5);
+    expect(histogram.negativeTailCount).toBe(2);
+    expect(histogram.positiveTailCount).toBe(2);
+  });
+  it("centers identical returns in a declared range and rejects empty or nonfinite input", () => {
+    const histogram = observedReturnHistogram([0, 0, 0], 4);
+    expect(histogram.counts.reduce((sum, count) => sum + count, 0)).toBe(3);
+    expect(histogram.counts[2]).toBe(3);
+    expect(histogram.negativeTailCount).toBe(0);
+    expect(histogram.positiveTailCount).toBe(0);
+    expect(() => observedReturnHistogram([])).toThrow(/non-empty/);
+    expect(() => observedReturnHistogram([0, NaN])).toThrow(/finite/);
+    expect(() => observedReturnHistogram([-1])).toThrow(/greater than -1/);
+    expect(() => observedReturnHistogram([1, 1 + Number.EPSILON * 4], 100)).toThrow(/distinct numeric edges/);
+  });
 });
 
 describe("quant dataset contract", () => {
