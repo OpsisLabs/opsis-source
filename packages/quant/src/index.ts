@@ -56,7 +56,7 @@ export interface ExperimentSpec {
   seed: number;
   researchMode: boolean;
   confidence: number;
-  model?: "historical_iid_bootstrap" | "historical_moving_block_bootstrap";
+  model?: "historical_iid_bootstrap" | "historical_moving_block_bootstrap" | "gbm_parametric_comparison";
   blockLength?: number;
 }
 
@@ -306,7 +306,7 @@ export interface QuantRun {
   datasetHash: string;
   manifest: {
     seed: number;
-    model: "historical_iid_bootstrap" | "historical_moving_block_bootstrap";
+    model: "historical_iid_bootstrap" | "historical_moving_block_bootstrap" | "gbm_parametric_comparison";
     modelVersion: "1";
     blockLength?: number;
     bootstrapRuns: number;
@@ -316,6 +316,7 @@ export interface QuantRun {
     units: "normalized_wealth";
     inputRefs: { instrument: string; quoteCurrency: string };
     assumptions: string[];
+    estimatedParameters?: { dailyLogReturnMean: number; dailyLogReturnSampleVariance: number };
   };
   stats: RealizedStats;
   bootstrap: BootstrapResult;
@@ -758,9 +759,9 @@ export function runQuant(
   if (returns.length > 730)
     throw new Error("This bounded v1 run supports at most 730 daily returns.");
   const model = spec.model ?? "historical_iid_bootstrap";
-  if (model !== "historical_iid_bootstrap" && model !== "historical_moving_block_bootstrap")
+  if (model !== "historical_iid_bootstrap" && model !== "historical_moving_block_bootstrap" && model !== "gbm_parametric_comparison")
     throw new Error("Unsupported bootstrap model.");
-  if (model === "historical_iid_bootstrap" && spec.blockLength !== undefined)
+  if (model !== "historical_moving_block_bootstrap" && spec.blockLength !== undefined)
     throw new Error("Block length applies only to moving-block bootstrap.");
   const blockLength = model === "historical_moving_block_bootstrap" ? spec.blockLength : undefined;
   const maxBlockLength = Math.min(30, Math.floor(returns.length / 2));
@@ -773,6 +774,28 @@ export function runQuant(
   );
   const terminal: number[] = [];
   const random = rng(spec.seed);
+  let logMean = 0;
+  let logVariance = 0;
+  if (model === "gbm_parametric_comparison") {
+    const logReturns = dataset.observations.slice(1).map((row, index) => Math.log(row.price / dataset.observations[index]!.price));
+    if (logReturns.some((value) => !Number.isFinite(value))) throw new Error("Log returns exceed numeric precision limits.");
+    logMean = logReturns.reduce((sum, value) => sum + value, 0) / logReturns.length;
+    logVariance = logReturns.length > 1
+      ? logReturns.reduce((sum, value) => sum + (value - logMean) ** 2, 0) / (logReturns.length - 1)
+      : 0;
+    if (!Number.isFinite(logMean) || !Number.isFinite(logVariance) || logVariance < 0)
+      throw new Error("Estimated log-return parameters exceed numeric precision limits.");
+  }
+  let spareNormal: number | undefined;
+  const normal = (): number => {
+    if (spareNormal !== undefined) { const value = spareNormal; spareNormal = undefined; return value; }
+    const u = Math.max(Number.MIN_VALUE, random());
+    const v = random();
+    const radius = Math.sqrt(-2 * Math.log(u));
+    const angle = 2 * Math.PI * v;
+    spareNormal = radius * Math.sin(angle);
+    return radius * Math.cos(angle);
+  };
   const alpha = (1 - confidence) / 2;
   for (let run = 0; run < runs; run += 1) {
     let value = 1;
@@ -781,10 +804,12 @@ export function runQuant(
       if (cancelled()) throw new Error("cancelled");
       if (blockLength !== undefined && step % blockLength === 0)
         blockStart = Math.floor(random() * (returns.length - blockLength + 1));
-      const sampled = blockLength === undefined
+      const sampled = model === "gbm_parametric_comparison"
+        ? Math.exp(logMean + Math.sqrt(logVariance) * normal())
+        : blockLength === undefined
         ? returns[Math.floor(random() * returns.length)]!
         : returns[blockStart + (step % blockLength)]!;
-      value *= 1 + sampled;
+      value *= model === "gbm_parametric_comparison" ? sampled : 1 + sampled;
       if (!Number.isFinite(value) || value <= 0)
         throw new Error("Numeric overflow or underflow in bootstrap path.");
       draws[step + 1]!.push(value);
@@ -826,11 +851,16 @@ export function runQuant(
       },
       assumptions: [
         "Daily crypto 24/7 clock",
+        ...(model === "gbm_parametric_comparison" ? [
+          "Single-instrument parametric GBM comparison; daily log returns are modeled as independent normal increments with constant sample mean and sample variance estimated from the admitted closed daily observations",
+          "Hypothetical lognormal scenarios, not an observed distribution, forecast, price target, investment advice, or venue/liquidation result",
+        ] : []),
         ...(blockLength === undefined
-          ? ["IID resampling of observed daily returns"]
+          ? model === "gbm_parametric_comparison" ? [] : ["IID resampling of observed daily returns"]
           : [`Moving-block resampling of contiguous observed daily returns (length ${blockLength}); the final block is truncated to the horizon`]),
         "Bands are pointwise intervals over normalized paths, not predictions",
       ],
+      ...(model === "gbm_parametric_comparison" ? { estimatedParameters: { dailyLogReturnMean: logMean, dailyLogReturnSampleVariance: logVariance } } : {}),
     },
     stats,
     bootstrap: {
@@ -1131,7 +1161,7 @@ export async function verifyQuantExport(value: unknown): Promise<QuantExportVeri
       else if (m.model === "joint_portfolio_moving_block_bootstrap") model = "historical_moving_block_bootstrap";
       else throw new Error("Unsupported joint Quant model.");
     } else {
-      if (m.model === "historical_iid_bootstrap" || m.model === "historical_moving_block_bootstrap") model = m.model;
+      if (m.model === "historical_iid_bootstrap" || m.model === "historical_moving_block_bootstrap" || m.model === "gbm_parametric_comparison") model = m.model;
       else throw new Error("Unsupported Quant model.");
     }
     const spec: ExperimentSpec = {

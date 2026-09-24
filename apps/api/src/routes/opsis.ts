@@ -46,6 +46,19 @@ export async function opsisRoutes(app: FastifyInstance, env: Env) {
         env,
         request.headers.authorization,
       );
+      const manifest = {
+        version: 1,
+        chain: { id: 4663, name: "Robinhood Chain" },
+        build: env.BUILD_SHA ?? env.RAILWAY_GIT_COMMIT_SHA ?? null,
+        capabilities: [
+          { id: "research", enabled: env.PRIVATE_MODE_ENABLED, scope: "Robinhood Chain public-identifier research", origin: "live on request", freshness: "checked per request", coverage: "bounded by upstream source coverage", limits: "Provider health and complete coverage are unknown until each lookup." },
+          { id: "tokenControls", enabled: env.PRIVATE_MODE_ENABLED && env.TOKEN_CONTROLS_ENABLED, scope: "Robinhood Chain standard contract controls", origin: "live RPC on request", freshness: "block-anchored per request", coverage: "owner, pause responses and three proxy slots only", limits: "Mint privileges, custom roles, transfer taxes and concentration are not inferred; optional explorer enrichment may be unavailable." },
+          { id: "exitCheck", enabled: env.EXIT_CHECK_ENABLED, scope: "Robinhood Chain official Uniswap V3 standard fee tiers", origin: "live RPC on request", freshness: "block-anchored per quote", coverage: "bounded factory pools and configured RPC quota", limits: "Does not prove transferability, sellability or execution; V4 and other venues are excluded." },
+          { id: "watch", enabled: env.SCOUT_WATCH_ENABLED && env.PORTFOLIO_MODE_ENABLED, scope: "Robinhood Chain user-triggered wallet snapshots", origin: "captured on user request", freshness: "snapshot timestamp; no background monitoring", coverage: "supported assets and upstream discovery coverage", limits: "Not continuous monitoring; missing upstream data stays unknown." },
+          { id: "rwa", enabled: env.RWA_VERIFY_ENABLED, scope: "Existing source-backed RWA verification checks", origin: "live on request", freshness: "checked per request", coverage: "bounded to supported sources and configured RPC quota", limits: "Not an appraisal, eligibility decision or proof of tradability." },
+          { id: "observedTrades", enabled: env.OBSERVED_TRADES_ENABLED, scope: "Robinhood Chain decoded Uniswap V3 Swap logs", origin: "live scan on request", freshness: "anchored to captured block window", coverage: "configured block and log caps", limits: "Observed swaps only; gaps and partial windows remain explicit; transfers are not trades." },
+        ],
+      };
       return {
         expiresAt: new Date(expiresAt).toISOString(),
         chainId: 4663,
@@ -56,6 +69,7 @@ export async function opsisRoutes(app: FastifyInstance, env: Env) {
         rwa: env.RWA_VERIFY_ENABLED,
         observedTrades: env.OBSERVED_TRADES_ENABLED,
         perpExecution: false,
+        manifest,
       };
     },
   );

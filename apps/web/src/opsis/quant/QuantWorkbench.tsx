@@ -429,15 +429,16 @@ export default function QuantWorkbench() {
           <h2>{c("2. Set the experiment", "2. 设置实验")}</h2>
           <p>
             {c(
-              "Choose independent daily draws or contiguous return blocks. Both use the imported history; pointwise bands are scenarios, never predictions.",
-              "选择独立每日抽样或连续收益区块。两者都使用导入的历史数据；逐点区间是情景而非预测。",
+              "Choose historical resampling or a single-instrument parametric GBM comparison. GBM assumes constant log-return parameters; its lognormal paths are hypothetical scenarios, not an observed distribution, forecast, price target, investment advice, or venue/liquidation result.",
+              "选择历史重采样或单一资产参数化 GBM 对比。GBM 假设对数收益参数恒定；其对数正态路径是假设情景，并非观测分布、预测、目标价、投资建议或交易场所/清算结果。",
             )}
           </p>
           <label>
-            {c("Resampling model", "重采样模型")}
+            {c("Simulation model", "模拟模型")}
             <select value={model} onChange={(e) => setModel(e.target.value as NonNullable<ExperimentSpec["model"]>)}>
               <option value="historical_iid_bootstrap">{c("Independent daily returns (IID)", "独立每日收益（IID）")}</option>
               <option value="historical_moving_block_bootstrap">{c("Contiguous return blocks", "连续收益区块")}</option>
+              <option value="gbm_parametric_comparison">{c("Parametric GBM comparison", "参数化 GBM 对比")}</option>
             </select>
           </label>
           {model === "historical_moving_block_bootstrap" && (
@@ -539,7 +540,7 @@ export default function QuantWorkbench() {
           {drawdownResult.error && <p role="status">{c("Observed drawdown unavailable: the dataset is incomplete or exceeds numeric precision.", "观察回撤不可用：数据集不完整或超出数值精度。")}</p>}
         </div>
       )}
-      {dataset && <JointPortfolioPanel key={datasetRevision} first={dataset} spec={jointSpec} />}
+      {dataset && <JointPortfolioPanel key={datasetRevision} first={dataset} spec={jointSpec} singleInstrumentOnly={model === "gbm_parametric_comparison"} />}
       {run && (
         <>
           <div className="opsis-panel">

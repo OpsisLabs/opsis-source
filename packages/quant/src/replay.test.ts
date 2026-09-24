@@ -78,6 +78,17 @@ describe("Quant export replay", () => {
     expect(await verifyQuantExport(changedDate)).toMatchObject({ ok: false });
   });
 
+  it("replays the single-instrument GBM model and detects parameter tampering", async () => {
+    const input = dataset(addressA);
+    const specWithGbm = { ...spec, model: "gbm_parametric_comparison" as const };
+    const run = { datasetHash: await datasetHash(input), ...runQuant(input, specWithGbm) };
+    const file = { exportedAt: "2026-09-22T00:00:00.000Z", dataset: input, run };
+    expect(await verifyQuantExport(file)).toMatchObject({ ok: true, kind: "single" });
+    const changed = structuredClone(file);
+    changed.run.manifest.estimatedParameters!.dailyLogReturnMean += 1e-6;
+    expect(await verifyQuantExport(changed)).toMatchObject({ ok: false });
+  });
+
   it("fails closed for unsupported models or versions, malformed shapes and oversized files", async () => {
     const input = dataset(addressA);
     const run = { datasetHash: await datasetHash(input), ...runQuant(input, spec) };

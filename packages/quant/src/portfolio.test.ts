@@ -56,6 +56,11 @@ describe("joint portfolio bootstrap", () => {
     expect(first.bootstrap.terminal.high).toBeGreaterThan(first.bootstrap.terminal.low);
   });
 
+  it("keeps the single-instrument GBM comparison unavailable to joint portfolios", async () => {
+    await expect(runJointPortfolio(positions(), { ...spec, model: "gbm_parametric_comparison" }))
+      .rejects.toThrow(/Unsupported joint portfolio bootstrap model/);
+  });
+
   it("refuses mismatched dates, currencies, duplicate identities and invalid weights", async () => {
     const shifted = positions();
     shifted[1]!.dataset = series(addressB, opposite.map((value) => -value), 2);

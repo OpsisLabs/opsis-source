@@ -41,7 +41,8 @@ test("local quant workflow validates, runs, and requires export consent", async 
   await expect(page.getByRole("columnheader", { name: "95% low" })).toBeVisible();
   await expect(page.getByRole("columnheader", { name: "Median" }).last()).toBeVisible();
   await expect(page.locator(".opsis-quant-fan-table tbody tr")).toHaveCount(190);
-  await page.getByLabel("Resampling model").selectOption("historical_moving_block_bootstrap");
+  await expect(page.getByText(/single-instrument parametric GBM comparison/)).toBeVisible();
+  await page.getByLabel("Simulation model").selectOption("historical_moving_block_bootstrap");
   await page.getByLabel("Block length (2–30 days; at most half the sample)").fill("7");
   await page.getByRole("button", { name: "Run local experiment" }).click();
   await expect(page.getByText(/historical_moving_block_bootstrap \(7d\)/).first()).toBeVisible({ timeout: 10_000 });
@@ -82,6 +83,30 @@ test("local quant workflow validates, runs, and requires export consent", async 
   await expect(replay.getByRole("alert")).toBeVisible();
   await expect(replay.getByText("Replay matches the exported result.")).toHaveCount(0);
   expect(requests.some((request) => request.includes("PRIVATE_SOURCE_CANARY"))).toBe(false);
+});
+
+test("parametric GBM comparison is labeled bilingually and stays local", async ({ page }) => {
+  await page.goto("/lab");
+  await page.getByRole("button", { name: /Quant research/ }).click();
+  const requests: string[] = [];
+  page.on("request", (request) => requests.push(`${request.url()}${request.postData() ?? ""}`));
+  const rows = Array.from({ length: 190 }, (_, index) => ({
+    date: new Date(Date.UTC(2026, 0, index + 1)).toISOString().slice(0, 10),
+    price: 100 * Math.pow(index % 2 ? 1.02 : 0.98, Math.floor(index / 2)),
+  }));
+  await page.getByLabel("CSV or JSON file").setInputFiles({
+    name: "gbm-local.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify({ schemaVersion: 1, instrument: { chainId: 4663, address: "0x0000000000000000000000000000000000000abc", symbol: "TEST" }, quoteCurrency: "USD", clock: "daily_crypto_24_7", provenance: { source: "local fixture", observedAt: "2026-09-01T00:00:00Z" }, observations: rows })),
+  });
+  await expect(page.getByText(/single-instrument parametric GBM comparison/)).toBeVisible();
+  await page.getByLabel("Simulation model").selectOption("gbm_parametric_comparison");
+  await page.getByRole("button", { name: "Run local experiment" }).click();
+  await expect(page.getByText(/gbm_parametric_comparison/).first()).toBeVisible({ timeout: 10_000 });
+  await page.getByRole("button", { name: "中文", exact: true }).click();
+  await expect(page.getByText(/单一资产参数化 GBM 对比/)).toBeVisible();
+  await expect(page.getByText(/并非观测分布、预测、目标价、投资建议或交易场所\/清算结果/)).toBeVisible();
+  expect(requests.some((url) => /dataset|quant.*upload/i.test(url))).toBe(false);
 });
 
 test("extreme validated prices show histogram refusal without crashing the workbench", async ({ page }) => {
@@ -207,7 +232,12 @@ test("joint portfolio keeps three imports and weights local, preserves the share
   await page.getByLabel("THIRD weight (basis points)").fill("3000");
   await page.getByRole("button", { name: "Inspect observed co-movement" }).click();
   await expect(page.locator(".opsis-quant-correlation-table tbody tr")).toHaveCount(9);
-  await page.getByLabel("Resampling model").selectOption("historical_moving_block_bootstrap");
+  await page.getByLabel("Simulation model").selectOption("gbm_parametric_comparison");
+  await expect(page.getByText(/Joint portfolio runs require a historical resampling model/)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Run joint portfolio locally" })).toBeDisabled();
+  await expect(page.getByLabel("First asset weight (basis points)")).toHaveValue("4000");
+  await page.getByLabel("Simulation model").selectOption("historical_moving_block_bootstrap");
+  await expect(page.getByRole("button", { name: "Run joint portfolio locally" })).toBeEnabled();
   await page.getByLabel("Block length (2–30 days; at most half the sample)").fill("7");
   await page.getByRole("button", { name: "Run joint portfolio locally" }).click();
   await expect(page.getByText(/joint_portfolio_moving_block_bootstrap \(7d\)/)).toBeVisible({ timeout: 10_000 });

@@ -11,7 +11,7 @@ type JointWorkerMessage = {
   issues?: Array<{ message: string }>;
 };
 
-export default function JointPortfolioPanel({ first, spec }: { first: PriceDataset; spec: ExperimentSpec }) {
+export default function JointPortfolioPanel({ first, spec, singleInstrumentOnly = false }: { first: PriceDataset; spec: ExperimentSpec; singleInstrumentOnly?: boolean }) {
   const c = useCopy();
   const [additional, setAdditional] = useState<Array<PriceDataset | null>>([]);
   const [weights, setWeights] = useState<number[]>([5000]);
@@ -107,7 +107,7 @@ export default function JointPortfolioPanel({ first, spec }: { first: PriceDatas
   const weightTotal = positions.reduce((sum, position) => sum + position.weightBps, 0);
   const weightsValid = positions.every((position) => Number.isSafeInteger(position.weightBps) && position.weightBps > 0) && weightTotal === 10_000;
   const start = () => {
-    if (datasets.length < 2 || !weightsValid) return;
+    if (singleInstrumentOnly || datasets.length < 2 || !weightsValid) return;
     workerRef.current?.terminate();
     let worker: Worker;
     try {
@@ -183,6 +183,7 @@ export default function JointPortfolioPanel({ first, spec }: { first: PriceDatas
   return <section className="opsis-panel" aria-labelledby="opsis-joint-title">
     <h2 id="opsis-joint-title">{c("Joint portfolio experiment", "联合投资组合实验")}</h2>
     <p>{c("Add 1–7 additional local JSON datasets. Dates, clock and quote currency must match exactly. The worker resamples the same historical days for all instruments, preserving observed co-movement. No file or weight is uploaded.", "添加 1–7 个本地 JSON 数据集。日期、时钟和报价货币必须完全匹配。工作线程为所有资产重采样相同的历史日期，以保留观察到的共同变化。文件和权重不会上传。")}</p>
+    {singleInstrumentOnly && <p role="status">{c("Joint portfolio runs require a historical resampling model. Switch to IID or contiguous return blocks to run; imported datasets and weights are retained.", "联合投资组合运行需要历史重采样模型。请切换到 IID 或连续收益区块后运行；已导入的数据集和权重会保留。")}</p>}
     <p>{first.instrument.symbol} · {c("first asset", "第一资产")} · {first.observations.length} {c("observations", "条观察")}</p>
     <div className="opsis-quant-fields">
       {assets.map(({ dataset, weightIndex }) => <label key={weightIndex}>{weightIndex === 0 ? c("First asset weight (basis points)", "第一资产权重（基点）") : `${dataset.instrument.symbol} · ${c("weight (basis points)", "权重（基点）")}`}
@@ -200,7 +201,7 @@ export default function JointPortfolioPanel({ first, spec }: { first: PriceDatas
     <p role="status" aria-live="polite">{c("Weights", "权重")}: {weightTotal.toLocaleString()} / 10,000 {c("basis points", "基点")}{!weightsValid && datasets.length >= 2 ? ` · ${c("Positive integer weights must total exactly 10,000.", "正整数权重总和必须恰好为 10,000。")}` : ""}</p>
     {datasets.length >= 2 && additional.every(Boolean) && <CorrelationPanel key={correlationRevision} datasets={datasets} />}
     <p>{c("Daily constant-mix rebalancing; no fees or taxes. Synthetic files are examples, not market history. Pointwise bands are scenarios, not forecasts.", "每日固定权重再平衡；不含费用或税费。合成文件仅为示例，不是市场历史。逐点区间是情景而非预测。")}</p>
-    <button type="button" disabled={datasets.length < 2 || additional.some((item) => item === null) || busy || !weightsValid} onClick={start}>{busy ? c("Running…", "运行中…") : c("Run joint portfolio locally", "在本地运行联合投资组合")}</button>
+    <button type="button" disabled={singleInstrumentOnly || datasets.length < 2 || additional.some((item) => item === null) || busy || !weightsValid} onClick={start}>{busy ? c("Running…", "运行中…") : c("Run joint portfolio locally", "在本地运行联合投资组合")}</button>
     {busy && <button type="button" onClick={cancel}>{c("Cancel and clear worker", "取消并清除工作线程")}</button>}
     {error && <p role="alert" className="opsis-error">{error}</p>}
     {run && <>

@@ -17,6 +17,7 @@ it("only hands public identity across workspaces, never amounts or notes", () =>
 
 const now = Date.UTC(2026, 8, 20, 13, 0, 0, 400);
 function response(expiresAt: number, date?: string) {
+  const enabled = { research: true, tokenControls: false, exitCheck: true, watch: true, rwa: true, observedTrades: true };
   return new Response(
     JSON.stringify({
       expiresAt: new Date(expiresAt).toISOString(),
@@ -27,6 +28,16 @@ function response(expiresAt: number, date?: string) {
       rwa: true,
       observedTrades: true,
       perpExecution: false,
+      manifest: {
+        version: 1,
+        chain: { id: 4663, name: "Robinhood Chain" },
+        build: "a".repeat(40),
+        capabilities: Object.entries(enabled).map(([id, on]) => ({
+          id, enabled: on,
+          scope: "bounded test scope", origin: "live on request",
+          freshness: "per request", coverage: "partial", limits: "provider health unknown",
+        })),
+      },
     }),
     { headers: date === undefined ? {} : { date } },
   );
@@ -88,6 +99,36 @@ it("public capability requests omit credentials and keep CSRF protection", async
   expect(options.credentials).toBe("omit");
   expect(options.headers.authorization).toBeUndefined();
   expect(options.headers["x-chainscout-csrf"]).toBe("1");
+});
+
+it("validates manifest version, shape and parity while accepting older boolean-only fixtures", async () => {
+  const fetcher = vi.fn().mockResolvedValue(response(Date.now() + 60_000));
+  vi.stubGlobal("fetch", fetcher);
+  const parsed = await unlockPreview("", new AbortController().signal);
+  expect(parsed.manifest?.version).toBe(1);
+  expect(parsed.manifest?.capabilities.find((entry) => entry.id === "tokenControls")?.enabled).toBe(false);
+
+  type ManifestFixture = {
+    manifest: {
+      version: number;
+      capabilities: Array<{ enabled: unknown; [key: string]: unknown }>;
+    };
+    [key: string]: unknown;
+  };
+  for (const mutate of [
+    (data: ManifestFixture) => { data.manifest.version = 2; },
+    (data: ManifestFixture) => { data.manifest.capabilities[0].enabled = "true"; },
+    (data: ManifestFixture) => { data.manifest.capabilities.pop(); },
+  ]) {
+    const body = await response(Date.now() + 60_000).json() as ManifestFixture;
+    mutate(body);
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify(body))));
+    await expect(unlockPreview("", new AbortController().signal)).rejects.toThrow("Invalid preview response");
+  }
+  const legacy = await response(Date.now() + 60_000).json() as Record<string, unknown>;
+  delete legacy.manifest;
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify(legacy))));
+  expect((await unlockPreview("", new AbortController().signal)).manifest).toBeUndefined();
 });
 
 it("legacy Vault redirect keeps only a known workspace", () => {

@@ -83,7 +83,23 @@ it("gates reused private engines before parsing and provider work, including exp
       exitCheck: false,
       watch: false,
       perpExecution: false,
+      manifest: {
+        version: 1,
+        chain: { id: 4663, name: "Robinhood Chain" },
+        capabilities: expect.arrayContaining([
+          expect.objectContaining({ id: "research", enabled: true }),
+          expect.objectContaining({ id: "exitCheck", enabled: false }),
+          expect.objectContaining({ id: "observedTrades", enabled: false }),
+        ]),
+      },
     });
+    const manifest = access.json().manifest;
+    expect(manifest.capabilities.map((item: { id: string }) => item.id)).toEqual([
+      "research", "tokenControls", "exitCheck", "watch", "rwa", "observedTrades",
+    ]);
+    expect(manifest.capabilities.every((item: { scope: string; origin: string; freshness: string; coverage: string; limits: string }) =>
+      [item.scope, item.origin, item.freshness, item.coverage, item.limits].every(Boolean),
+    )).toBe(true);
     expect(access.body).not.toContain(key);
     expect(
       (
@@ -107,6 +123,33 @@ it("gates reused private engines before parsing and provider work, including exp
       ).statusCode,
     ).toBe(404);
     expect(provider).toHaveBeenCalledTimes(1);
+  } finally {
+    await app.close();
+  }
+});
+it("publishes manifest capability parity from the configured server flags", async () => {
+  const config = {
+    ...env(),
+    TOKEN_CONTROLS_ENABLED: true,
+    EXIT_CHECK_ENABLED: true,
+    SCOUT_WATCH_ENABLED: true,
+    PORTFOLIO_MODE_ENABLED: true,
+    RWA_VERIFY_ENABLED: false,
+    OBSERVED_TRADES_ENABLED: true,
+    BUILD_SHA: "a".repeat(40),
+  };
+  const app = Fastify();
+  installErrorHandler(app);
+  await opsisRoutes(app, config);
+  try {
+    const response = await app.inject({ method: "POST", url: "/v1/private/opsis/access", headers, payload: {} });
+    expect(response.statusCode).toBe(200);
+    const body = response.json();
+    expect(body.manifest.build).toBe(config.BUILD_SHA);
+    expect(Object.fromEntries(body.manifest.capabilities.map((row: { id: string; enabled: boolean }) => [row.id, row.enabled]))).toEqual({
+      research: true, tokenControls: true, exitCheck: true, watch: true, rwa: false, observedTrades: true,
+    });
+    expect(body.manifest.capabilities.some((row: { id: string }) => /perp|quant|history/i.test(row.id))).toBe(false);
   } finally {
     await app.close();
   }
@@ -203,6 +246,7 @@ it("public access permits anonymous research while retaining capabilities and CS
       exitCheck: false,
       perpExecution: false,
     });
+    expect(result.json().manifest.capabilities.find((item: { id: string }) => item.id === "exitCheck").enabled).toBe(false);
     expect(result.headers["cache-control"]).toBe("private, no-store");
     // Feature-level gates still reject disabled quotes before provider work.
     const quote = await app.inject({

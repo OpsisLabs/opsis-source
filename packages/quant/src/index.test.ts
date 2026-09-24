@@ -212,6 +212,35 @@ it("moving-block bootstrap preserves contiguous return stretches and records its
   }
 });
 
+it("runs seeded single-instrument lognormal GBM comparisons with estimated parameters", () => {
+  const input = dataset(40);
+  const factors = [1.02, 0.97, 1.05, 0.99, 1.01];
+  input.observations.forEach((row, index) => {
+    if (index > 0) row.price = input.observations[index - 1]!.price * factors[(index - 1) % factors.length]!;
+  });
+  const spec = { seed: 4321, bootstrapRuns: 80, confidence: 0.9, researchMode: true, model: "gbm_parametric_comparison" as const };
+  const result = runQuant(input, spec);
+  expect(result).toEqual(runQuant(input, spec));
+  expect(result).not.toEqual(runQuant(input, { ...spec, seed: 4322 }));
+  const logs = input.observations.slice(1).map((row, index) => Math.log(row.price / input.observations[index]!.price));
+  const mean = logs.reduce((sum, value) => sum + value, 0) / logs.length;
+  const variance = logs.reduce((sum, value) => sum + (value - mean) ** 2, 0) / (logs.length - 1);
+  expect(result.manifest.model).toBe("gbm_parametric_comparison");
+  expect(result.manifest.estimatedParameters).toEqual({ dailyLogReturnMean: mean, dailyLogReturnSampleVariance: variance });
+  expect(result.bootstrap.path).toHaveLength(input.observations.length);
+  expect(result.bootstrap.path[0]).toMatchObject({ low: 1, median: 1, high: 1 });
+  expect(result.bootstrap.path.at(-1)!.bands.map((band) => band.confidence)).toEqual([0.5, 0.8, 0.95]);
+  expect(result.manifest.assumptions.join(" ")).toMatch(/not an observed distribution, forecast, price target, investment advice, or venue\/liquidation result/);
+  const flat = dataset(40);
+  flat.observations.forEach((row) => { row.price = 100; });
+  const flatRun = runQuant(flat, spec);
+  expect(flatRun.bootstrap.path.every((point) => point.low === 1 && point.median === 1 && point.high === 1)).toBe(true);
+  const extreme = dataset(40);
+  extreme.observations.forEach((row, index) => { row.price = index % 2 ? 1e300 : 1e-300; });
+  expect(() => runQuant(extreme, spec)).toThrow(/precision|overflow|underflow/i);
+  expect(() => runQuant(input, { ...spec, blockLength: 3 })).toThrow(/Block length/);
+});
+
 it("returns deterministic nested pointwise 50/80/95 bands from each seeded path ensemble", () => {
   const input = dataset();
   input.observations.forEach((row, index) => {
