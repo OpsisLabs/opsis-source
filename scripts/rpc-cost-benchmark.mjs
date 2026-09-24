@@ -67,7 +67,7 @@ function normalizeSwapLogs(logs, address, topic, fromBlock, toBlock) {
 
 export function parseArgs(argv, env = process.env) {
   const values = {};
-  const allowed = ['--endpoint', '--endpoint-env', '--call-to', '--call-data', '--logs-address', '--logs-topic', '--log-window', '--expect-block-hash', '--expect-log-digest'];
+  const allowed = ['--endpoint', '--endpoint-env', '--drpc-key-env', '--call-to', '--call-data', '--logs-address', '--logs-topic', '--log-window', '--expect-block-hash', '--expect-log-digest'];
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (!allowed.includes(arg)) {
@@ -80,11 +80,18 @@ export function parseArgs(argv, env = process.env) {
   if (values['--endpoint'] && values['--endpoint-env']) throw new Error('choose one endpoint source');
   const envName = values['--endpoint-env'];
   if (envName && !/^[A-Za-z_][A-Za-z0-9_]*$/.test(envName)) throw new Error('invalid endpoint environment variable name');
+  const drpcKeyEnvName = values['--drpc-key-env'];
+  if (drpcKeyEnvName && !/^[A-Za-z_][A-Za-z0-9_]*$/.test(drpcKeyEnvName)) throw new Error('invalid dRPC key environment variable name');
+  const drpcKey = drpcKeyEnvName ? env[drpcKeyEnvName] : undefined;
+  if (drpcKeyEnvName && !drpcKey) throw new Error('explicit dRPC key environment variable required');
   const endpoint = values['--endpoint'] ?? (envName ? env[envName] : env.RPC_BENCHMARK_ENDPOINT);
   if (!endpoint) throw new Error('explicit endpoint required');
   let url;
   try { url = new URL(endpoint); } catch { throw new Error('invalid endpoint'); }
   if (url.username || url.password || endpoint.includes('#')) throw new Error('endpoint must not contain credentials or a fragment');
+  if (drpcKeyEnvName && (url.protocol !== 'https:' || url.hostname !== 'lb.drpc.live' || url.port)) {
+    throw new Error('dRPC key environment variable requires an HTTPS lb.drpc.live endpoint');
+  }
   const loopback = ['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname);
   if (url.protocol !== 'https:' && !(url.protocol === 'http:' && loopback)) {
     throw new Error('endpoint must use HTTPS (HTTP is allowed only for localhost tests)');
@@ -108,7 +115,11 @@ export function parseArgs(argv, env = process.env) {
   const expectedLogDigest = values['--expect-log-digest'];
   if (expectedLogDigest !== undefined && !DIGEST_RE.test(expectedLogDigest)) throw new Error('invalid expected log digest');
   if (expectedLogDigest !== undefined && !hasLogs) throw new Error('expected log digest requires a logs fixture');
-  return { endpoint: url.toString(), hasCall, callTo: values['--call-to'], callData: values['--call-data'], hasLogs, logsAddress: values['--logs-address'], logsTopic: values['--logs-topic'], logWindow, expectedBlockHash: expectedBlockHash?.toLowerCase(), expectedLogDigest: expectedLogDigest?.toLowerCase() };
+  return { endpoint: url.toString(), drpcKey, hasCall, callTo: values['--call-to'], callData: values['--call-data'], hasLogs, logsAddress: values['--logs-address'], logsTopic: values['--logs-topic'], logWindow, expectedBlockHash: expectedBlockHash?.toLowerCase(), expectedLogDigest: expectedLogDigest?.toLowerCase() };
+}
+
+export function usageText() {
+  return 'Usage: node scripts/rpc-cost-benchmark.mjs (--endpoint-env ENDPOINT_ENV | --endpoint URL) [--drpc-key-env DRPC_KEY_ENV] [reviewed read-only fixtures]\nPass environment variable names, never credential values, as arguments.\n';
 }
 
 async function readBounded(response) {
@@ -140,7 +151,9 @@ export async function runBenchmark(options, fetchImpl = fetch) {
     try {
       if (summary.attempts > MAX_REQUESTS) throw new Error('request limit exceeded');
       const id = randomUUID();
-      const response = await fetchImpl(options.endpoint, { method: 'POST', redirect: 'error', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id, method, params }), signal: AbortSignal.timeout(TIMEOUT_MS) });
+      const headers = { 'content-type': 'application/json' };
+      if (options.drpcKey) headers['Drpc-Key'] = options.drpcKey;
+      const response = await fetchImpl(options.endpoint, { method: 'POST', redirect: 'error', headers, body: JSON.stringify({ jsonrpc: '2.0', id, method, params }), signal: AbortSignal.timeout(TIMEOUT_MS) });
       const body = await readBounded(response);
       summary.responseBytes += Buffer.byteLength(body);
       entry.responseBytes += Buffer.byteLength(body);
@@ -189,7 +202,12 @@ export async function runBenchmark(options, fetchImpl = fetch) {
 
 async function main() {
   try {
-    const options = parseArgs(process.argv.slice(2));
+    const argv = process.argv.slice(2);
+    if (argv.length === 1 && argv[0] === '--help') {
+      process.stdout.write(usageText());
+      return;
+    }
+    const options = parseArgs(argv);
     const result = await runBenchmark(options);
     process.stdout.write(`${JSON.stringify(result)}\n`);
     process.exitCode = result.failures ? 1 : 0;

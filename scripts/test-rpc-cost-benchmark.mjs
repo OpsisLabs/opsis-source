@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
+import { spawnSync } from 'node:child_process';
 import { once } from 'node:events';
+import { fileURLToPath } from 'node:url';
 import test from 'node:test';
-import { parseArgs, runBenchmark } from './rpc-cost-benchmark.mjs';
+import { parseArgs, runBenchmark, usageText } from './rpc-cost-benchmark.mjs';
 
 const HASH = `0x${'a'.repeat(64)}`;
 const ADDRESS = `0x${'1'.repeat(40)}`;
@@ -65,6 +67,59 @@ test('loads only the named endpoint variable and requires a credential-free HTTP
     assert.throws(() => parseArgs(['--endpoint-env', 'PROSPECTIVE_RPC'], { PROSPECTIVE_RPC: invalid }));
   }
   assert.equal(parseArgs(['--endpoint-env', 'PROSPECTIVE_RPC'], { PROSPECTIVE_RPC: endpoint, OTHER: 'https://ignored.test' }).endpoint, endpoint);
+});
+
+test('reads dRPC key only from the named environment variable and forwards it as Drpc-Key', async () => {
+  const key = 'fake-drpc-key-for-test';
+  const options = parseArgs(['--endpoint-env', 'RPC_URL', '--drpc-key-env', 'DRPC_KEY'], {
+    RPC_URL: 'https://lb.drpc.live/rpc', DRPC_KEY: key, IGNORED_KEY: 'do-not-use',
+  });
+  let requestOptions;
+  const summary = await runBenchmark(options, async (_url, init) => {
+    requestOptions = init;
+    const request = JSON.parse(init.body);
+    const result = request.method === 'eth_chainId' ? '0x1237' : { number: TAG, hash: HASH };
+    return new Response(JSON.stringify({ jsonrpc: '2.0', id: request.id, result }), { status: 200 });
+  });
+  assert.equal(requestOptions.headers['Drpc-Key'], key);
+  assert.equal(requestOptions.headers['content-type'], 'application/json');
+  assert.equal(summary.failures, 0);
+  assert.doesNotMatch(JSON.stringify(summary), new RegExp(key));
+  assert.throws(() => parseArgs(['--endpoint-env', 'RPC_URL', '--drpc-key-env', 'MISSING'], { RPC_URL: 'https://lb.drpc.live/rpc' }), /key environment variable required/);
+  assert.throws(() => parseArgs(['--endpoint-env', 'RPC_URL', '--drpc-key-env', key], { RPC_URL: 'https://lb.drpc.live/rpc' }), /invalid dRPC key environment variable name/);
+  assert.match(usageText(), /--drpc-key-env DRPC_KEY_ENV/);
+});
+
+test('rejects forwarding dRPC credentials to non-dRPC and localhost endpoints before requests', async () => {
+  let requests = 0;
+  for (const endpoint of ['https://rpc.example.test/rpc', 'http://localhost:8545', 'https://localhost:8545', 'https://lb.drpc.live:444/rpc']) {
+    assert.throws(() => {
+      const options = parseArgs(['--endpoint-env', 'RPC_URL', '--drpc-key-env', 'DRPC_KEY'], {
+        RPC_URL: endpoint, DRPC_KEY: 'fake-key-for-test',
+      });
+      return runBenchmark(options, async () => { requests += 1; });
+    }, /requires an HTTPS lb\.drpc\.live endpoint/);
+  }
+  assert.equal(requests, 0);
+});
+
+test('dRPC key stays out of summary and child-process output when requests fail', async () => {
+  const key = 'fake-child-output-key';
+  const options = parseArgs(['--endpoint-env', 'BENCH_ENDPOINT', '--drpc-key-env', 'BENCH_KEY'], {
+    BENCH_ENDPOINT: 'https://lb.drpc.live/robinhood', BENCH_KEY: key,
+  });
+  const summary = await runBenchmark(options, async () => { throw new Error(key); });
+  assert.equal(summary.failures, 1);
+  assert.doesNotMatch(JSON.stringify(summary), new RegExp(key));
+  const script = fileURLToPath(new URL('./rpc-cost-benchmark.mjs', import.meta.url));
+  const child = spawnSync(process.execPath, [script, '--endpoint-env', 'BENCH_ENDPOINT', '--drpc-key-env', 'BENCH_KEY'], {
+    encoding: 'utf8', timeout: 5_000,
+    env: { PATH: process.env.PATH, BENCH_ENDPOINT: 'https://rpc.example.test/rpc', BENCH_KEY: key },
+  });
+  assert.equal(child.status, 2);
+  assert.doesNotMatch(`${child.stdout}\n${child.stderr}`, new RegExp(key));
+  assert.doesNotMatch(`${child.stdout}\n${child.stderr}`, /BENCH_KEY/);
+  assert.match(child.stderr, /benchmark configuration failed/);
 });
 
 test('invalid endpoint configuration makes no RPC request', async () => {
