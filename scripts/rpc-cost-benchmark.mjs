@@ -65,25 +65,31 @@ function normalizeSwapLogs(logs, address, topic, fromBlock, toBlock) {
   return { count: rows.length, digest };
 }
 
-export function parseArgs(argv) {
+export function parseArgs(argv, env = process.env) {
   const values = {};
+  const allowed = ['--endpoint', '--endpoint-env', '--call-to', '--call-data', '--logs-address', '--logs-topic', '--log-window', '--expect-block-hash', '--expect-log-digest'];
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
-    if (!['--endpoint', '--call-to', '--call-data', '--logs-address', '--logs-topic', '--log-window', '--expect-block-hash', '--expect-log-digest'].includes(arg)) {
+    if (!allowed.includes(arg)) {
       throw new Error('unknown argument');
     }
     if (values[arg]) throw new Error('duplicate argument');
     values[arg] = argv[++i];
     if (!values[arg] || values[arg].startsWith('--')) throw new Error('missing argument value');
   }
-  const endpoint = values['--endpoint'] ?? process.env.RPC_BENCHMARK_ENDPOINT;
+  if (values['--endpoint'] && values['--endpoint-env']) throw new Error('choose one endpoint source');
+  const envName = values['--endpoint-env'];
+  if (envName && !/^[A-Za-z_][A-Za-z0-9_]*$/.test(envName)) throw new Error('invalid endpoint environment variable name');
+  const endpoint = values['--endpoint'] ?? (envName ? env[envName] : env.RPC_BENCHMARK_ENDPOINT);
   if (!endpoint) throw new Error('explicit endpoint required');
   let url;
   try { url = new URL(endpoint); } catch { throw new Error('invalid endpoint'); }
+  if (url.username || url.password || endpoint.includes('#')) throw new Error('endpoint must not contain credentials or a fragment');
   const loopback = ['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname);
   if (url.protocol !== 'https:' && !(url.protocol === 'http:' && loopback)) {
     throw new Error('endpoint must use HTTPS (HTTP is allowed only for localhost tests)');
   }
+  if (envName && url.protocol !== 'https:') throw new Error('environment endpoint must use HTTPS');
   const hasCall = values['--call-to'] !== undefined || values['--call-data'] !== undefined;
   if (hasCall && (!ADDRESS_RE.test(values['--call-to'] ?? '') || !DATA_RE.test(values['--call-data'] ?? ''))) {
     throw new Error('eth_call requires a valid reviewed --call-to and --call-data fixture');
@@ -188,7 +194,9 @@ async function main() {
     process.stdout.write(`${JSON.stringify(result)}\n`);
     process.exitCode = result.failures ? 1 : 0;
   } catch (error) {
-    process.stderr.write(`${JSON.stringify({ schema: 'opsis.rpc-cost-benchmark.v1', error: error.message })}\n`);
+    // Error messages can originate in URL parsing or fetch implementations. Never
+    // serialize them: endpoint URLs may contain provider credentials.
+    process.stderr.write(`${JSON.stringify({ schema: 'opsis.rpc-cost-benchmark.v1', error: 'benchmark configuration failed' })}\n`);
     process.exitCode = 2;
   }
 }

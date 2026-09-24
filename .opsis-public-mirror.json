@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "7b1c5453d02fe768cfc73f183b0e9455b6af6f44ef3bf61fd46327c44c8119d2",
+  "sourceTreeDigest": "0ad81d79650f53dbc46d7923871d363876a5098d2c067cb80adb992596d275ec",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "c599bae760e9c12217232525246f5c973c403d2c1dcc3f78987edc65c722b08e",
@@ -726,7 +726,7 @@
     "scripts/readiness-policy.mjs": "87f1b432a07e89bcd307bc89bcbf0c883dcd171a97bcff73f26717db57615aef",
     "scripts/release-train.mjs": "7e007a8e8e1dea392b69dd4f9e3c3d9399bcde47dea85ba9846bd8992454d858",
     "scripts/release-train.test.mjs": "97c8367cbe2b2072e21017edf3c5e26f4ab5d94055025b9b6801400bfc128a79",
-    "scripts/rpc-cost-benchmark.mjs": "f3e42f15100a1b70e4a740f46dd61d8c88028495a9bdd3fb1b72810c95edb275",
+    "scripts/rpc-cost-benchmark.mjs": "4f12976b439fbaa488ffff6b646ab79ed23afd6bf8a8c785eebf9b4b0fc2f532",
     "scripts/run-webkit-mock-files.mjs": "a587ca133c90489ebf7c8540d0a711bb580384c1e7e7a51a9eabf050ff6da413",
     "scripts/test-feature-previews.mjs": "dfc5dbd84738cd8fe4dc84eceaf8e5a215aef22dfe7ca64c307a84617fa311e0",
     "scripts/test-identity-guard.mjs": "fee5c29a1b634e7a52045bc306e3255d75b0551e8b59a2bbb64bb76d919b8538",
@@ -737,7 +737,7 @@
     "scripts/test-private-launch-smoke.mjs": "d2ac6d1fb1e34f3322402d36f69189bda43af33dcc4a63ccdb011b02dfbd52b5",
     "scripts/test-public-export.mjs": "e08bb7eea248a0dbd981a374a3293261f2d614ea6ae683aecbd56d8bb75649ee",
     "scripts/test-public-history.mjs": "a1abcc2959382e85e5ade30bda7e702a5dd0ebf902f9b02aad8a8a744bfe2ac2",
-    "scripts/test-rpc-cost-benchmark.mjs": "120bfad9b27160c9bf053ad17c70d8c177e00b44c6401a68dde6e6e992043fdc",
+    "scripts/test-rpc-cost-benchmark.mjs": "490af1cf4c36ecaabac0e635c794fb2a0c59c177d2fa95163069cb2d7fb9e6f6",
     "scripts/verify-public-tree.mjs": "39998f43e560619f1340070105044252983f2342344c6f772655acf979e9ecd7",
     "tsconfig.base.json": "106ea736491527813ed147545e145b13b677944c1533afaecf6a975c3c433d01"
   }

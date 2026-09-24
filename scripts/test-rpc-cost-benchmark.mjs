@@ -53,6 +53,38 @@ test('requires explicit endpoint and refuses malformed or oversized fixtures', (
   assert.throws(() => parseArgs(['--endpoint', 'https://example.test', '--expect-block-hash', '0x1234']), /invalid expected block hash/);
 });
 
+test('loads only the named endpoint variable and requires a credential-free HTTPS URL', () => {
+  assert.throws(() => parseArgs(['--endpoint-env', 'PROSPECTIVE_RPC'], {}), /explicit endpoint required/);
+  const endpoint = 'https://rpc.example.test/path?api-key=fake-secret';
+  assert.equal(parseArgs(['--endpoint-env', 'PROSPECTIVE_RPC'], { PROSPECTIVE_RPC: endpoint }).endpoint, endpoint);
+  for (const invalid of [
+    'http://rpc.example.test/path?api-key=fake-secret',
+    'https://user:fake-secret@rpc.example.test/rpc',
+    'https://rpc.example.test/rpc#fake-secret',
+  ]) {
+    assert.throws(() => parseArgs(['--endpoint-env', 'PROSPECTIVE_RPC'], { PROSPECTIVE_RPC: invalid }));
+  }
+  assert.equal(parseArgs(['--endpoint-env', 'PROSPECTIVE_RPC'], { PROSPECTIVE_RPC: endpoint, OTHER: 'https://ignored.test' }).endpoint, endpoint);
+});
+
+test('invalid endpoint configuration makes no RPC request', async () => {
+  let requests = 0;
+  assert.throws(() => {
+    const options = parseArgs(['--endpoint-env', 'PROSPECTIVE_RPC'], { PROSPECTIVE_RPC: 'https://user:fake-secret@rpc.example.test' });
+    return runBenchmark(options, async () => { requests += 1; });
+  });
+  assert.equal(requests, 0);
+});
+
+test('RPC failures never expose the endpoint URL or its embedded key', async () => {
+  const endpoint = 'https://rpc.example.test/path?api-key=fake-secret';
+  const options = parseArgs(['--endpoint', endpoint]);
+  const summary = await runBenchmark(options, async () => { throw new Error(`request failed for ${endpoint}`); });
+  const output = JSON.stringify(summary);
+  assert.equal(summary.failures, 1);
+  assert.doesNotMatch(output, /rpc\.example\.test|fake-secret|api-key/);
+});
+
 test('sends only read methods, pins state and logs to the fixed block, and redacts endpoint details', async () => {
   await withRpc((request, res) => {
     assert.ok(['eth_chainId', 'eth_getBlockByNumber', 'eth_call', 'eth_getLogs'].includes(request.method));
