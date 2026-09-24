@@ -57,6 +57,18 @@ test.describe("Opsis local price and perp scenarios", () => {
     await expect(page.getByTestId("opsis-perp-shocks")).toContainText(
       "Closing prices are truncated to eight decimals; displayed moves are approximate.",
     );
+    await page.getByLabel("User-entered collateral (quote units)", { exact: true }).fill("50");
+    await page.getByLabel("User-entered maintenance requirement (bps)", { exact: true }).fill("500");
+    await expect(page.getByTestId("opsis-perp-collateral-leverage")).toContainText("4.00000000×");
+    await expect(page.getByTestId("opsis-perp-collateral")).toContainText("57.18000000");
+    await expect(page.getByTestId("opsis-perp-collateral")).toContainText("0.24000000");
+    await page.getByTestId("opsis-perp-custom-shock-input").fill("12.34");
+    await expect(page.getByTestId("opsis-perp-collateral")).toContainText("61.62132000");
+    await page.getByLabel("User-entered collateral (quote units)", { exact: true }).fill("0");
+    await expect(page.getByTestId("opsis-perp-collateral-leverage")).toHaveCount(0);
+    await expect(page.getByTestId("opsis-perp-collateral-error")).toBeVisible();
+    await page.getByLabel("User-entered collateral (quote units)", { exact: true }).fill("");
+    await expect(page.getByTestId("opsis-perp-collateral-leverage")).toHaveCount(0);
     await page.getByTestId("opsis-perp-custom-shock-input").fill("12.34");
     await expect(page.getByTestId("opsis-perp-custom-shock-result").getByRole("rowheader")).toContainText("+12.34%");
     await expect(page.getByTestId("opsis-perp-custom-shock-result").locator("td")).toHaveText(["112.34000000", "22.85532000"]);

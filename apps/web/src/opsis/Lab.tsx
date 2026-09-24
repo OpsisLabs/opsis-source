@@ -16,6 +16,7 @@ import { safeHttpUrl } from "../dashboard/adapters";
 import QuantWorkbench from "./quant/QuantWorkbench";
 import StockGap from "./StockGap";
 import StockGapSeriesPanel from "./StockGapSeriesPanel";
+import FundingWorkbench from "./quant/FundingWorkbench";
 
 export default function Lab() {
   const c = useCopy();
@@ -130,6 +131,10 @@ export default function Lab() {
             </summary>
             <StockGap />
             <StockGapSeriesPanel />
+          </details>
+          <details className="opsis-lab-methods">
+            <summary>{c("Funding record analysis", "资金费率记录分析")}</summary>
+            <FundingWorkbench />
           </details>
         </>
       ) : failed ? (

@@ -61,12 +61,12 @@ export const toolGuides: ToolGuide[] = [
       "数据探索者、研究者和量化交易者",
     ],
     input: [
-      "Choose captured pools, a shock surface, or import daily prices for local experiments",
-      "选择历史资金池、冲击曲面，或导入日价格进行本地实验",
+      "Choose captured pools or a shock surface; import daily prices or funding records for local experiments",
+      "选择历史资金池或冲击曲面；导入日价格或资金费记录进行本地实验",
     ],
     outcome: [
-      "Captured comparisons, realized risk, seeded bootstrap and manual reference gaps",
-      "历史比较、已实现风险、种子自助抽样及手动参考价差",
+      "Captured comparisons, seeded scenarios, manual reference gaps and realized funding totals",
+      "历史比较、种子情景、手动参考价差及已实现资金费总额",
     ],
     enabled: () => true,
   },
@@ -78,12 +78,12 @@ export const toolGuides: ToolGuide[] = [
       "核查手动假设的永续交易者",
     ],
     input: [
-      "Quantity, entry/exit prices, fees and total funding in one quote currency",
-      "数量、开平价格、费用及同一报价货币的资金费总额",
+      "Quantity, entry/exit prices, fees and funding; optional collateral and maintenance assumption",
+      "数量、开平价格、费用及资金费；可选抵押品与维持保证金假设",
     ],
     outcome: [
-      "Local linear-contract cost breakdown; no margin or execution",
-      "本地线性合约成本明细；无保证金或执行",
+      "Local linear-contract costs and hypothetical collateral buffer; no venue margin or execution",
+      "本地线性合约成本及假设抵押品缓冲；无场所保证金或执行",
     ],
     enabled: () => true,
   },

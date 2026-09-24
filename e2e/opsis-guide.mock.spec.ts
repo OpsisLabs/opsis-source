@@ -62,6 +62,9 @@ test.describe("Opsis tool finder", () => {
     await expect(
       suggestions.getByRole("link", { name: "Open Perp cost scenario ↗" }),
     ).toHaveAttribute("href", "/check/perp-scenario");
+    await expect(
+      suggestions.getByRole("link", { name: "Open Quant Lab for funding records ↗" }),
+    ).toHaveAttribute("href", "/lab");
     expect(lookups).toEqual([]);
     await page
       .getByRole("button", { name: "I explore data & scenarios" })
@@ -72,7 +75,7 @@ test.describe("Opsis tool finder", () => {
     await expect(
       page.getByRole("complementary", { name: "Who this tool is for" }),
     ).toContainText(
-      "Choose captured pools, a shock surface, or import daily prices for local experiments",
+      "Choose captured pools or a shock surface; import daily prices or funding records for local experiments",
     );
   });
   test("does not offer disabled tools and remains usable in Chinese on mobile", async ({

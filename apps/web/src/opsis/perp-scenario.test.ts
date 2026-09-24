@@ -1,5 +1,5 @@
 import { it, expect } from "vitest";
-import { perpCustomShockScenario, perpScenario, perpShockScenarios } from "./perp-scenario";
+import { perpCollateralBuffer, perpCustomShockScenario, perpScenario, perpShockScenarios } from "./perp-scenario";
 const input = {
   side: "long" as const,
   quantity: "2",
@@ -172,4 +172,33 @@ it("accepts the 0.01 percentage-point precision boundary and scales custom plot 
   if (!comparison) throw new Error("Expected representable fixed shocks");
   expect(comparison.customBar?.barWidth).toBe(100);
   expect(Math.max(...comparison.shocks.map((row) => row.barWidth))).toBeLessThan(100);
+});
+
+it("derives user-supplied isolated collateral buffers for entered and shock exits including costs", () => {
+  const result = perpCollateralBuffer(input, "50", "500", "12.34");
+  expect(result.entryLeverage).toBe("4.00000000");
+  expect(result.entered).toEqual({
+    exitNotional: "220.00000000",
+    equity: "68.18000000",
+    maintenanceRequirement: "11.00000000",
+    buffer: "57.18000000",
+  });
+  expect(result.shocks?.[0]).toMatchObject({
+    exitNotional: "160.00000000", equity: "8.24000000",
+    maintenanceRequirement: "8.00000000", buffer: "0.24000000",
+  });
+  expect(result.custom?.buffer).toBe("61.62132000");
+  const short = perpCollateralBuffer({ ...input, side: "short", funding: "-1" }, "50", "500");
+  expect(short.entered.equity).toBe("30.18000000");
+  expect(short.entered.buffer).toBe("19.18000000");
+});
+
+it("leaves unknown collateral inputs unavailable and rejects invalid or excessive precision", () => {
+  for (const [collateral, bps] of [["", "500"], ["50", ""], ["0", "500"], ["-1", "500"], ["50", "1.5"], ["50", "10001"], ["1.000000001", "500"]])
+    expect(() => perpCollateralBuffer(input, collateral, bps)).toThrow();
+  const tiny = {
+    ...input, quantity: "1", entry: "0.00000001", exit: "0.00000001",
+    entryFeeBps: "0", exitFeeBps: "0", funding: "0", otherCosts: "0",
+  };
+  expect(perpCollateralBuffer(tiny, "1", "100")).toMatchObject({ entered: { buffer: "1.00000000" }, shocks: null });
 });

@@ -1,0 +1,13 @@
+.opsis-funding { margin-top: 1rem; padding: 1rem; border: 1px solid #b6c9d8; border-radius: .6rem; }
+.opsis-funding label { display: block; margin: .8rem 0 .35rem; font-weight: 600; }
+.opsis-funding input { max-width: 100%; }
+.opsis-funding button { margin: .5rem .5rem .5rem 0; min-height: 2.5rem; padding: .5rem .8rem; }
+.opsis-funding-download { display: inline-block; margin: .5rem; }
+.opsis-funding-schema { max-width: 100%; overflow-x: auto; white-space: pre; font-size: .75rem; }
+.opsis-funding-example { font-weight: 700; color: #7b4a00; }
+.opsis-funding-chart { width: 100%; height: 280px; min-width: 0; }
+.opsis-funding-table-wrap { max-width: 100%; overflow-x: auto; }
+.opsis-funding-table { width: 100%; min-width: 980px; border-collapse: collapse; }
+.opsis-funding-table th, .opsis-funding-table td { padding: .45rem; border-bottom: 1px solid #d9e1e8; text-align: left; vertical-align: top; }
+.opsis-funding-table td { font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) { .opsis-funding { overflow-wrap: anywhere; } }

@@ -94,12 +94,15 @@ export default function Guide({
             </h2>
             <p>
               {c(
-                "Opening/closing, live funding and venue-specific liquidation remain unavailable. You can calculate a manual linear-contract cost scenario locally; enter your own prices, fees and total funding.",
-                "开平仓、实时资金费及特定场所清算仍不可用。您可以本地计算手动线性合约成本情景；请自行输入价格、费用及资金费总额。",
+                "Opening/closing, live funding and venue-specific liquidation remain unavailable. Enter your own prices, fees, funding and optional collateral for a local scenario. If you have funding records, Quant Lab can total realized payments locally.",
+                "开平仓、实时资金费及特定场所清算仍不可用。您可以输入价格、费用、资金费及可选抵押品进行本地情景计算。如果您有资金费记录，量化实验室可以在本地汇总已实现收付。",
               )}
             </p>
             <Link className="opsis-action" to="/check/perp-scenario">
               {c("Open Perp cost scenario ↗", "打开 永续成本情景 ↗")}
+            </Link>
+            <Link className="opsis-action" to="/lab">
+              {c("Open Quant Lab for funding records ↗", "打开量化实验室分析资金费记录 ↗")}
             </Link>
           </div>
         ) : (

@@ -17,6 +17,10 @@ function display(raw: bigint) {
   const a = (raw < 0n ? -raw : raw).toString().padStart(9, "0");
   return `${raw < 0n ? "-" : ""}${a.slice(0, -8)}.${a.slice(-8)}`;
 }
+const ratioDisplay = (numerator: bigint, denominator: bigint) => {
+  if (denominator <= 0n) throw new Error("Collateral must be positive");
+  return display((numerator * SCALE) / denominator);
+}
 export function perpScenario(input: {
   side: "long" | "short";
   quantity: string;
@@ -260,5 +264,56 @@ export function perpShockScenarios(input: PerpScenarioInput, customNetRaw?: bigi
         negative: net < 0n,
       };
     }),
+  };
+}
+
+/** Local hypothetical isolated-collateral buffer. This is not venue margin math. */
+export function perpCollateralBuffer(
+  input: PerpScenarioInput,
+  collateralText: string,
+  maintenanceBpsText: string,
+  customShock?: string,
+) {
+  const collateral = fixed(collateralText);
+  if (collateral <= 0n) throw new Error("Collateral must be positive");
+  if (!/^(?:0|[1-9]\d{0,4})$/.test(maintenanceBpsText))
+    throw new Error("Maintenance requirement must be whole basis points");
+  const maintenanceBps = BigInt(maintenanceBpsText);
+  if (maintenanceBps > 10_000n)
+    throw new Error("Maintenance requirement must be from 0 to 10000 bps");
+  const comparison = perpShockScenarios(input);
+  const q = fixed(input.quantity), entry = fixed(input.entry);
+  const entryNotional = q * entry / SCALE;
+  const calc = (exit: string, netRaw: bigint) => {
+    const exitNotional = q * fixed(exit) / SCALE;
+    const maintenance = exitNotional * maintenanceBps / 10_000n;
+    const equity = collateral + netRaw;
+    return {
+      exitNotional: display(exitNotional),
+      equity: display(equity),
+      maintenanceRequirement: display(maintenance),
+      buffer: display(equity - maintenance),
+    };
+  };
+  const enteredResult = calculate(
+    input.side, q, entry, fixed(input.exit), fixed(input.entryFeeBps),
+    fixed(input.exitFeeBps), fixed(input.funding, true), fixed(input.otherCosts),
+  );
+  const shockResults = comparison ? SHOCKS.map((percent) => {
+    const exit = entry * BigInt(100 + percent) / 100n;
+    const pnl = calculate(
+      input.side, q, entry, exit, fixed(input.entryFeeBps),
+      fixed(input.exitFeeBps), fixed(input.funding, true), fixed(input.otherCosts),
+    );
+    return calc(display(exit), pnl._netRaw);
+  }) : null;
+  const customResult = customShock === undefined || customShock.trim() === ""
+    ? null
+    : perpCustomShockScenario(input, customShock);
+  return {
+    entryLeverage: ratioDisplay(entryNotional, collateral),
+    entered: calc(input.exit, enteredResult._netRaw),
+    shocks: shockResults,
+    custom: customResult ? calc(customResult.exit, customResult.netRaw) : null,
   };
 }

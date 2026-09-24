@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useCopy } from "./copy";
-import { perpCustomShockScenario, perpScenario, perpShockScenarios } from "./perp-scenario";
+import { perpCollateralBuffer, perpCustomShockScenario, perpScenario, perpShockScenarios } from "./perp-scenario";
 export default function PerpScenario() {
   const c = useCopy();
   const [side, setSide] = useState<"long" | "short">("long");
   const [selectedShock, setSelectedShock] = useState(2);
   const [customShock, setCustomShock] = useState("");
+  const [collateral, setCollateral] = useState("");
+  const [maintenanceBps, setMaintenanceBps] = useState("");
   const [values, setValues] = useState({
     quantity: "",
     entry: "",
@@ -32,6 +34,8 @@ export default function PerpScenario() {
   let comparisonUnavailable = false;
   let customResult: ReturnType<typeof perpCustomShockScenario> = null;
   let customError = false;
+  let collateralResult: ReturnType<typeof perpCollateralBuffer> | null = null;
+  let collateralInvalid = false;
   try {
     result = perpScenario({ side, ...values });
     comparison = perpShockScenarios({ side, ...values });
@@ -49,6 +53,14 @@ export default function PerpScenario() {
   if (customResult) {
     comparison = perpShockScenarios({ side, ...values }, customResult.netRaw);
     comparisonUnavailable = comparison === null;
+  }
+  if (result && collateral.trim() && maintenanceBps.trim()) {
+    try {
+      collateralResult = perpCollateralBuffer({ side, ...values }, collateral.trim(), maintenanceBps.trim(), customError ? undefined : customShock.trim() || undefined);
+    } catch {
+      /* Blank and invalid user assumptions stay unavailable. */
+      collateralInvalid = true;
+    }
   }
   return (
     <section className="opsis-panel">
@@ -148,6 +160,38 @@ export default function PerpScenario() {
             ))}
           </dl>
         )}
+      </section>
+      <section aria-labelledby="perp-collateral-title" data-testid="opsis-perp-collateral">
+        <h2 id="perp-collateral-title">{c("Isolated-collateral hypothetical buffer", "孤立抵押品假设缓冲")}</h2>
+        <p className="opsis-small">{c("Optional local scenario using only your supplied collateral and maintenance requirement. Both use the same quote currency as the position. This is not a venue risk decision.", "可选本地情景，仅使用您输入的抵押品和维持保证金要求。两者与仓位使用相同报价货币。这不是场所风险判断。")}</p>
+        <div className="opsis-two-column">
+          <label>{c("User-entered collateral (quote units)", "用户输入的抵押品（报价单位）")}
+            <input inputMode="decimal" autoComplete="off" value={collateral} onChange={(e) => setCollateral(e.target.value)} aria-describedby="perp-collateral-help" />
+          </label>
+          <label>{c("User-entered maintenance requirement (bps)", "用户输入的维持保证金要求（基点）")}
+            <input inputMode="numeric" autoComplete="off" value={maintenanceBps} onChange={(e) => setMaintenanceBps(e.target.value)} aria-describedby="perp-collateral-help" />
+          </label>
+        </div>
+        <p id="perp-collateral-help" className="opsis-small">{c("Enter both values to calculate. Blank means unknown; collateral must be positive and maintenance must be 0–10000 whole bps. 1 bp = 0.01% of scenario exit notional.", "请输入两项数值后计算。空白表示未知；抵押品必须为正数，维持保证金须为 0–10000 整数基点。1 基点 = 情景退出名义价值的 0.01%。")}</p>
+        {collateralInvalid && <p role="alert" data-testid="opsis-perp-collateral-error">{c("Check the collateral amount and whole-bps maintenance input. Collateral must be positive; maintenance must be 0–10000 bps.", "请检查抵押品金额和整数基点维持保证金输入。抵押品必须为正数；维持保证金须为 0–10000 基点。")}</p>}
+        {collateralResult && <>
+          <p role="status" data-testid="opsis-perp-collateral-leverage">{c("Entry notional / collateral ratio", "入场名义价值／抵押品比率")}: {collateralResult.entryLeverage}×</p>
+          <div style={{ overflowX: "auto" }}>
+            <table>
+              <caption>{c("User-supplied hypothetical buffer; all inputs and results use the same quote currency. Equity equals collateral plus existing scenario net P&L, including fees, funding and other costs.", "用户提供的假设缓冲；所有输入和结果均使用相同报价货币。权益等于抵押品加上现有情景净损益（含费用、资金费和其他成本）。")}</caption>
+              <thead><tr><th scope="col">{c("Case", "情景")}</th><th scope="col">{c("Scenario exit notional", "情景退出名义价值")}</th><th scope="col">{c("Assumed scenario equity after net costs", "假设的情景净成本后权益")}</th><th scope="col">{c("Assumed user-entered maintenance amount", "假设的用户输入维持保证金额")}</th><th scope="col">{c("Hypothetical buffer", "假设缓冲")}</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">{c("Entered close", "输入的平仓情景")}</th><td>{collateralResult.entered.exitNotional}</td><td>{collateralResult.entered.equity}</td><td>{collateralResult.entered.maintenanceRequirement}</td><td>{collateralResult.entered.buffer}</td></tr>
+                {comparison?.shocks.map((shock, index) => {
+                  const row = collateralResult?.shocks?.[index];
+                  return row ? <tr key={shock.percent}><th scope="row">{shock.percent > 0 ? "+" : ""}{shock.percent}%</th><td>{row.exitNotional}</td><td>{row.equity}</td><td>{row.maintenanceRequirement}</td><td>{row.buffer}</td></tr> : null;
+                })}
+                {customResult && collateralResult.custom && <tr><th scope="row">{c("Custom", "自定义")} {customResult.percent}</th><td>{collateralResult.custom.exitNotional}</td><td>{collateralResult.custom.equity}</td><td>{collateralResult.custom.maintenanceRequirement}</td><td>{collateralResult.custom.buffer}</td></tr>}
+              </tbody>
+            </table>
+          </div>
+          <p className="opsis-small">{c("This is only a user-supplied hypothetical buffer. Actual venue equity, variation settlement and funding cycles can differ. It does not calculate liquidation price, margin calls, venue tiers or tradable leverage. Collateral is capital at risk, not a fee; losses may exceed collateral.", "这只是用户提供的假设缓冲。实际场所权益、变动结算和资金费周期可能不同。本工具不计算清算价格、保证金通知、场所等级或可交易杠杆。抵押品是有风险的资本，不是费用；损失可能超过抵押品。")}</p>
+        </>}
       </section>
       {comparison && (
         <section aria-labelledby="perp-shock-title" data-testid="opsis-perp-shocks">
