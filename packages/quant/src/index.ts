@@ -673,6 +673,208 @@ export function runQuant(
   };
 }
 
+export interface JointPortfolioPosition {
+  dataset: PriceDataset;
+  /** Positive integer share of a daily rebalanced portfolio; all positions sum to 10,000. */
+  weightBps: number;
+}
+
+export interface JointPortfolioRun {
+  manifest: {
+    seed: number;
+    model: "joint_portfolio_iid_bootstrap" | "joint_portfolio_moving_block_bootstrap";
+    modelVersion: "1";
+    blockLength?: number;
+    bootstrapRuns: number;
+    confidence: number;
+    researchMode: boolean;
+    horizon: number;
+    units: "normalized_wealth";
+    quoteCurrency: string;
+    clock: Clock;
+    inputRefs: Array<{
+      instrument: string;
+      datasetHash: string;
+      weightBps: number;
+      source: string;
+      observedAt: string;
+      synthetic: boolean;
+    }>;
+    assumptions: string[];
+  };
+  stats: RealizedStats;
+  bootstrap: BootstrapResult;
+}
+
+/** Resample one historical day (or contiguous block) jointly across all assets. */
+export async function runJointPortfolio(
+  positions: readonly JointPortfolioPosition[],
+  spec: ExperimentSpec,
+  cancelled: () => boolean = () => false,
+): Promise<JointPortfolioRun> {
+  if (!Array.isArray(positions) || positions.length < 2 || positions.length > 8)
+    throw new Error("Joint portfolio needs two to eight distinct instruments.");
+  if (positions.some((position) => !Number.isSafeInteger(position.weightBps) || position.weightBps <= 0) ||
+      positions.reduce((sum, position) => sum + position.weightBps, 0) !== 10_000)
+    throw new Error("Positive portfolio weights must sum to exactly 10,000 basis points.");
+  if (!Number.isSafeInteger(spec.seed) || spec.seed < 0 || spec.seed > 4_294_967_295 ||
+      !Number.isSafeInteger(spec.bootstrapRuns) || spec.bootstrapRuns < 1 || spec.bootstrapRuns > MAX_RUNS ||
+      !Number.isFinite(spec.confidence) || spec.confidence < 0.5 || spec.confidence > 0.99 ||
+      typeof spec.researchMode !== "boolean")
+    throw new Error("Seed, bootstrap runs, mode and confidence must be finite bounded values.");
+  const model = spec.model ?? "historical_iid_bootstrap";
+  if (model !== "historical_iid_bootstrap" && model !== "historical_moving_block_bootstrap")
+    throw new Error("Unsupported joint portfolio bootstrap model.");
+  if (model === "historical_iid_bootstrap" && spec.blockLength !== undefined)
+    throw new Error("Block length applies only to moving-block bootstrap.");
+
+  const minimumReturns = spec.researchMode ? 30 : 180;
+  const checked = positions.map(({ dataset }) => validateDataset(dataset, new Date(), { minimumReturns }));
+  for (const validation of checked) {
+    if (!validation.ok) throw new Error(validation.issues.map((item) => item.message).join(" "));
+  }
+  const first = checked[0]!.dataset!;
+  const observations = first.observations.length;
+  const horizon = observations - 1;
+  if (horizon > 730) throw new Error("Joint portfolio runs support at most 730 daily returns.");
+  const keys = new Set<string>();
+  const datasets = checked.map((item) => item.dataset!);
+  for (const dataset of datasets) {
+    const key = `${dataset.instrument.chainId}:${dataset.instrument.address.toLowerCase()}`;
+    if (keys.has(key)) throw new Error("Joint portfolio instruments must be distinct.");
+    keys.add(key);
+    if (dataset.quoteCurrency !== first.quoteCurrency || dataset.clock !== first.clock)
+      throw new Error("Joint portfolio datasets must use the same quote currency and clock.");
+    if (dataset.observations.length !== observations ||
+        dataset.observations.some((row, index) => row.date !== first.observations[index]!.date))
+      throw new Error("Joint portfolio dates must align exactly; missing days are never filled or intersected silently.");
+  }
+  const blockLength = model === "historical_moving_block_bootstrap" ? spec.blockLength : undefined;
+  const maxBlockLength = Math.min(30, Math.floor(horizon / 2));
+  if (model === "historical_moving_block_bootstrap" &&
+      (!Number.isSafeInteger(blockLength) || blockLength! < 2 || blockLength! > maxBlockLength))
+    throw new Error(`Block length must be an integer from 2 to ${maxBlockLength} for this history window.`);
+  const assetReturns = datasets.map((dataset) => dataset.observations.slice(1).map((row, index) =>
+    row.price / dataset.observations[index]!.price - 1));
+  if (assetReturns.some((series) => series.some((value) => !Number.isFinite(value) || value <= -1)))
+    throw new Error("Joint portfolio price ratios exceed numeric precision limits.");
+  const portfolioReturns = Array.from({ length: horizon }, (_, day) =>
+    positions.reduce((sum, position, asset) => sum + position.weightBps / 10_000 * assetReturns[asset]![day]!, 0));
+  if (portfolioReturns.some((value) => !Number.isFinite(value) || value <= -1))
+    throw new Error("Joint portfolio returns exceed numeric precision limits.");
+  const observedPath = [1];
+  for (const value of portfolioReturns) {
+    const next = observedPath[observedPath.length - 1]! * (1 + value);
+    if (!Number.isFinite(next) || next <= 0) throw new Error("Observed portfolio path exceeds numeric precision limits.");
+    observedPath.push(next);
+  }
+  const mean = portfolioReturns.reduce((sum, value) => sum + value, 0) / horizon;
+  const variance = portfolioReturns.reduce((sum, value) => sum + (value - mean) ** 2, 0) / (horizon - 1);
+  let peak = 1;
+  let maxDrawdown = 0;
+  for (const value of observedPath) {
+    peak = Math.max(peak, value);
+    maxDrawdown = Math.min(maxDrawdown, value / peak - 1);
+  }
+  const sortedObserved = [...portfolioReturns].sort((a, b) => a - b);
+  const tailCount = portfolioReturns.filter((value) => value <= quantile(sortedObserved, 0.05)).length;
+
+  const draws: number[][] = Array.from({ length: observations }, () => []);
+  const terminal: number[] = [];
+  const random = rng(spec.seed);
+  for (let run = 0; run < spec.bootstrapRuns; run += 1) {
+    let wealth = 1;
+    let blockStart = 0;
+    for (let step = 0; step < horizon; step += 1) {
+      if (cancelled()) throw new Error("cancelled");
+      if (blockLength !== undefined && step % blockLength === 0)
+        blockStart = Math.floor(random() * (horizon - blockLength + 1));
+      const sampledDay = blockLength === undefined
+        ? Math.floor(random() * horizon)
+        : blockStart + (step % blockLength);
+      // The same sampled day is used for every asset, preserving observed co-movement.
+      wealth *= 1 + portfolioReturns[sampledDay]!;
+      if (!Number.isFinite(wealth) || wealth <= 0)
+        throw new Error("Numeric overflow or underflow in joint portfolio path.");
+      draws[step + 1]!.push(wealth);
+    }
+    terminal.push(wealth);
+  }
+  const alpha = (1 - spec.confidence) / 2;
+  const path = draws.map((values, step) => {
+    const sorted = [...values].sort((a, b) => a - b);
+    const bands = ([0.5, 0.8, 0.95] as const).map((confidence) => {
+      const tail = (1 - confidence) / 2;
+      return { confidence,
+        low: step === 0 ? 1 : quantile(sorted, tail),
+        high: step === 0 ? 1 : quantile(sorted, 1 - tail) };
+    });
+    return {
+      date: `step-${step}`,
+      low: step === 0 ? 1 : quantile(sorted, alpha),
+      median: step === 0 ? 1 : quantile(sorted, 0.5),
+      high: step === 0 ? 1 : quantile(sorted, 1 - alpha),
+      bands,
+    };
+  });
+  const sortedTerminal = terminal.sort((a, b) => a - b);
+  const hashes = await Promise.all(datasets.map((dataset) => datasetHash(dataset)));
+  const stats: RealizedStats = {
+    returns: horizon,
+    totalReturn: observedPath[observedPath.length - 1]! - 1,
+    volatilityAnnualized: Math.sqrt(variance * 365),
+    maxDrawdown,
+    tailCount,
+    warnings: tailCount < 20 ? ["Tail count is below 20; tail interpretation is unstable."] : [],
+  };
+  if (![stats.totalReturn, stats.volatilityAnnualized, stats.maxDrawdown].every(Number.isFinite))
+    throw new Error("Joint portfolio statistics exceed numeric precision limits.");
+  return {
+    manifest: {
+      seed: spec.seed,
+      model: model === "historical_iid_bootstrap" ? "joint_portfolio_iid_bootstrap" : "joint_portfolio_moving_block_bootstrap",
+      modelVersion: "1",
+      ...(blockLength === undefined ? {} : { blockLength }),
+      bootstrapRuns: spec.bootstrapRuns,
+      confidence: spec.confidence,
+      researchMode: spec.researchMode,
+      horizon,
+      units: "normalized_wealth",
+      quoteCurrency: first.quoteCurrency,
+      clock: first.clock,
+      inputRefs: positions.map((position, index) => ({
+        instrument: `${datasets[index]!.instrument.chainId}:${datasets[index]!.instrument.address.toLowerCase()}`,
+        datasetHash: hashes[index]!,
+        weightBps: position.weightBps,
+        source: datasets[index]!.provenance.source,
+        observedAt: datasets[index]!.provenance.observedAt,
+        synthetic: Boolean(datasets[index]!.synthetic),
+      })),
+      assumptions: [
+        "Daily crypto 24/7 clock; exact shared dates and quote currency",
+        "Constant-mix portfolio rebalanced to the stated basis-point weights every day; no fees or taxes",
+        blockLength === undefined
+          ? "Joint IID resampling of observed days preserves cross-asset co-movement"
+          : `Joint moving-block resampling of observed contiguous days (length ${blockLength}) preserves cross-asset co-movement and within-block order`,
+        "Pointwise bands are hypothetical normalized-wealth intervals, not predictions",
+      ],
+    },
+    stats,
+    bootstrap: {
+      runs: spec.bootstrapRuns,
+      seed: spec.seed,
+      horizon,
+      confidence: spec.confidence,
+      terminal: {
+        low: quantile(sortedTerminal, alpha),
+        median: quantile(sortedTerminal, 0.5),
+        high: quantile(sortedTerminal, 1 - alpha),
+      },
+      path,
+    },
+  };
+}
+
 export function exportRun(dataset: PriceDataset, run: QuantRun): string {
   return JSON.stringify(
     { exportedAt: new Date().toISOString(), dataset, run },

@@ -78,3 +78,61 @@ test("extreme validated prices show histogram refusal without crashing the workb
   await page.getByRole("button", { name: "中文", exact: true }).click();
   await expect(page.getByText(/观察收益直方图不可用/)).toBeVisible();
 });
+
+test("joint portfolio keeps both imports and weights local, preserves the shared calendar, and shows numeric bands", async ({ page }) => {
+  await page.goto("/lab");
+  await page.getByRole("button", { name: /Quant research/ }).click();
+  const requests: string[] = [];
+  page.on("request", (request) => requests.push(`${request.url()}${request.postData() ?? ""}`));
+  const rows = Array.from({ length: 190 }, (_, index) => ({
+    date: new Date(Date.UTC(2026, 0, index + 1)).toISOString().slice(0, 10),
+    price: 100 + index,
+  }));
+  const pack = (address: string, symbol: string, observations: typeof rows) => Buffer.from(JSON.stringify({
+    PRIVATE_JOINT_CANARY: "PRIVATE_JOINT_CANARY",
+    schemaVersion: 1,
+    instrument: { chainId: 4663, address, symbol },
+    quoteCurrency: "USD",
+    clock: "daily_crypto_24_7",
+    provenance: { source: "synthetic fixture", observedAt: "2026-09-01T00:00:00Z" },
+    synthetic: true,
+    observations,
+  }));
+  await page.getByLabel("CSV or JSON file").setInputFiles({
+    name: "first.json", mimeType: "application/json",
+    buffer: pack("0x0000000000000000000000000000000000000abc", "FIRST", rows),
+  });
+  await page.getByLabel("Second asset JSON").setInputFiles({
+    name: "second.json", mimeType: "application/json",
+    buffer: pack("0x0000000000000000000000000000000000000def", "SECOND", rows.map((row) => ({ ...row, price: row.price * 2 }))),
+  });
+  await page.getByLabel("First asset weight (%)").fill("60");
+  await page.getByLabel("Resampling model").selectOption("historical_moving_block_bootstrap");
+  await page.getByLabel("Block length (2–30 days; at most half the sample)").fill("7");
+  await page.getByRole("button", { name: "Run joint portfolio locally" }).click();
+  await expect(page.getByText(/joint_portfolio_moving_block_bootstrap \(7d\)/)).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByRole("img", { name: /Joint portfolio pointwise fan chart/ })).toBeVisible();
+  await expect(page.locator(".opsis-quant-joint-chart + .opsis-table-scroll tbody tr")).toHaveCount(190);
+  await expect(page.getByRole("button", { name: "Export joint manifest" })).toBeDisabled();
+  await page.getByRole("checkbox", { name: /consent to download both local datasets/i }).check();
+  await expect(page.getByRole("button", { name: "Export joint manifest" })).toBeEnabled();
+  await page.getByRole("button", { name: "中文", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "联合投资组合实验" })).toBeVisible();
+  await page.getByRole("button", { name: "English", exact: true }).click();
+  expect(requests.some((request) => request.includes("PRIVATE_JOINT_CANARY"))).toBe(false);
+  await page.setViewportSize({ width: 320, height: 800 });
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - innerWidth), { timeout: 3_000 }).toBeLessThanOrEqual(1);
+
+  await page.getByLabel("First asset weight (%)").fill("70");
+  await expect(page.getByText(/joint_portfolio_moving_block_bootstrap \(7d\)/)).toHaveCount(0);
+  await page.getByRole("button", { name: "Run joint portfolio locally" }).click();
+  await expect(page.getByText(/FIRST 70% \/ SECOND 30%/)).toBeVisible({ timeout: 10_000 });
+
+  const shifted = rows.map((row, index) => ({ ...row, date: new Date(Date.UTC(2026, 0, index + 2)).toISOString().slice(0, 10) }));
+  await page.getByLabel("Second asset JSON").setInputFiles({
+    name: "shifted.json", mimeType: "application/json",
+    buffer: pack("0x0000000000000000000000000000000000000def", "SECOND", shifted),
+  });
+  await page.getByRole("button", { name: "Run joint portfolio locally" }).click();
+  await expect(page.getByRole("alert").filter({ hasText: /dates must align exactly/i })).toBeVisible();
+});

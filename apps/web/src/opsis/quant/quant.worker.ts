@@ -1,9 +1,16 @@
-import { datasetHash, runQuant, validateDataset, type ExperimentSpec, type PriceDataset } from "@rh-chain/quant";
+import { datasetHash, runJointPortfolio, runQuant, validateDataset, type ExperimentSpec, type JointPortfolioPosition, type PriceDataset } from "@rh-chain/quant";
 
-type Message = { id: number; dataset: PriceDataset; spec: ExperimentSpec };
+type Message = { id: number; dataset: PriceDataset; spec: ExperimentSpec; kind?: "single" }
+  | { id: number; positions: JointPortfolioPosition[]; spec: ExperimentSpec; kind: "joint" };
 self.onmessage = async (event: MessageEvent<Message>) => {
-  const { id, dataset, spec } = event.data;
+  const { id, spec } = event.data;
   try {
+    if (event.data.kind === "joint") {
+      const result = await runJointPortfolio(event.data.positions, spec, () => false);
+      self.postMessage({ id, type: "joint-result", result });
+      return;
+    }
+    const { dataset } = event.data;
     const validation = validateDataset(dataset);
     if (!validation.ok) {
       self.postMessage({ id, type: "error", issues: validation.issues });

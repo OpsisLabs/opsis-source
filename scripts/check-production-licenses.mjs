@@ -11,13 +11,23 @@ const approved = new Set([
   "SEE LICENSE AT https://gsap.com/standard-license",
   "Standard 'no charge' license: https://gsap.com/standard-license.",
 ]);
+// Anthropic SDK 0.128.0 pulls fast-sha256 1.3.0 through standardwebhooks.
+// Its installed LICENSE was reviewed: it expressly permits use, modification
+// and distribution for commercial and non-commercial purposes. Keep this
+// exception package/version-specific so another Unlicense dependency is not
+// admitted without review.
+const reviewedUnlicense = new Set(["fast-sha256@1.3.0"]);
 
 const inventory = JSON.parse(execFileSync("pnpm", ["licenses", "list", "--prod", "--json"], {
   encoding: "utf8",
   maxBuffer: 16 * 1024 * 1024,
 }));
 const licenses = Object.keys(inventory);
-const unapproved = licenses.filter((license) => !approved.has(license));
+const unapproved = Object.entries(inventory).flatMap(([license, entries]) =>
+  entries
+    .filter((entry) => !approved.has(license) && !(license === "Unlicense" && reviewedUnlicense.has(`${entry.name}@${entry.version}`)))
+    .map((entry) => `${entry.name}@${entry.version} (${license})`)
+);
 if (unapproved.length) {
   console.error(`Unreviewed production licenses: ${unapproved.join(", ")}`);
   process.exit(1);

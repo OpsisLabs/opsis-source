@@ -11,6 +11,7 @@ import {
   type QuantRun,
 } from "@rh-chain/quant";
 import { useCopy } from "../copy";
+import JointPortfolioPanel from "./JointPortfolioPanel";
 import "./quant.css";
 
 type WorkerMessage = {
@@ -25,6 +26,7 @@ type StoredRun = QuantRun & { dataset: PriceDataset };
 export default function QuantWorkbench() {
   const c = useCopy();
   const [dataset, setDataset] = useState<PriceDataset | null>(null);
+  const [datasetRevision, setDatasetRevision] = useState(0);
   const [fileError, setFileError] = useState("");
   const [source, setSource] = useState("User supplied local file");
   const [chainId, setChainId] = useState("4663");
@@ -44,6 +46,14 @@ export default function QuantWorkbench() {
   const histogramRef = useRef<HTMLDivElement>(null);
   const workerRef = useRef<Worker | null>(null);
   const messageId = useRef(0);
+  const jointSpec: ExperimentSpec = useMemo(() => ({
+    bootstrapRuns: runs,
+    seed,
+    confidence: 0.9,
+    researchMode,
+    model,
+    ...(model === "historical_moving_block_bootstrap" ? { blockLength } : {}),
+  }), [runs, seed, researchMode, model, blockLength]);
 
   useEffect(
     () => () => {
@@ -177,6 +187,7 @@ export default function QuantWorkbench() {
           ),
         );
       if (generation !== messageId.current) return;
+      setDatasetRevision((current) => current + 1);
       setDataset(check.dataset);
       setConsent(false);
     } catch (error) {
@@ -257,15 +268,7 @@ export default function QuantWorkbench() {
         ),
       );
     };
-    const spec: ExperimentSpec = {
-      bootstrapRuns: runs,
-      seed: seed,
-      confidence: 0.9,
-      researchMode,
-      model,
-      ...(model === "historical_moving_block_bootstrap" ? { blockLength } : {}),
-    };
-    worker.postMessage({ id, dataset, spec });
+    worker.postMessage({ id, dataset, spec: jointSpec });
   };
   const cancel = () => {
     messageId.current++;
@@ -490,6 +493,7 @@ export default function QuantWorkbench() {
           {histogramResult.error && <p role="status">{c("Observed return histogram unavailable: sample ratios or bins exceed numeric precision.", "观察收益直方图不可用：样本比值或分箱超出数值精度。")}</p>}
         </div>
       )}
+      {dataset && <JointPortfolioPanel key={datasetRevision} first={dataset} spec={jointSpec} />}
       {run && (
         <>
           <div className="opsis-panel">

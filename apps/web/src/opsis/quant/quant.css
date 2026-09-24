@@ -20,6 +20,7 @@
 .opsis-quant-fan-table th:nth-child(6), .opsis-quant-fan-table th:nth-child(7) { color: #6d8fac; }
 .opsis-quant-fan-table th:last-child { color: #123f67; }
 .opsis-quant-histogram { height: 280px; width: 100%; min-width: 0; }
+.opsis-quant-joint-chart { height: 300px; width: 100%; min-width: 0; }
 .opsis-quant-histogram-scroll { max-width: 100%; overscroll-behavior-x: contain; }
 .opsis-quant-histogram-table { min-width: 480px; }
 .opsis-quant-histogram-table td:last-child, .opsis-quant-histogram-table th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
