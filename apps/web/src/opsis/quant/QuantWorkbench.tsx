@@ -13,6 +13,7 @@ import {
 } from "@rh-chain/quant";
 import { useCopy } from "../copy";
 import JointPortfolioPanel from "./JointPortfolioPanel";
+import QuantReplayPanel from "./QuantReplayPanel";
 import "./quant.css";
 
 type WorkerMessage = {
@@ -697,6 +698,7 @@ export default function QuantWorkbench() {
           </div>
         </>
       )}
+      <QuantReplayPanel />
     </section>
   );
 }

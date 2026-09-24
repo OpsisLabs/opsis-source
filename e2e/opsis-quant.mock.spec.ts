@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { readFile } from "node:fs/promises";
 
 const enabled = process.env.VITE_OPSIS_WORKSPACES_ENABLED === "true" && process.env.VITE_OPSIS_PUBLIC_ACCESS_ENABLED === "true";
 test.skip(!enabled, "Opsis workspaces are disabled in this test environment");
@@ -19,7 +20,7 @@ test("local quant workflow validates, runs, and requires export consent", async 
   await page.getByLabel("CSV or JSON file").setInputFiles({
     name: "local.json",
     mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify({ PRIVATE_CANARY: "PRIVATE_CANARY", schemaVersion: 1, instrument: { chainId: 4663, address: "0x0000000000000000000000000000000000000abc", symbol: "TEST" }, quoteCurrency: "USD", clock: "daily_crypto_24_7", provenance: { source: "synthetic fixture", observedAt: "2026-09-01T00:00:00Z" }, synthetic: true, observations: rows })),
+    buffer: Buffer.from(JSON.stringify({ PRIVATE_CANARY: "PRIVATE_CANARY", schemaVersion: 1, instrument: { chainId: 4663, address: "0x0000000000000000000000000000000000000abc", symbol: "TEST" }, quoteCurrency: "USD", clock: "daily_crypto_24_7", provenance: { source: "PRIVATE_SOURCE_CANARY", observedAt: "2026-09-01T00:00:00Z" }, synthetic: true, observations: rows })),
   });
   await expect(page.getByText(/observations loaded/)).toBeVisible();
   await expect(page.getByRole("heading", { name: "Observed daily return histogram" })).toBeVisible();
@@ -48,6 +49,11 @@ test("local quant workflow validates, runs, and requires export consent", async 
   await expect(page.getByRole("button", { name: "Export manifest" })).toBeDisabled();
   await page.getByRole("checkbox", { name: /consent to download/i }).check();
   await expect(page.getByRole("button", { name: "Export manifest" })).toBeEnabled();
+  const [singleDownload] = await Promise.all([
+    page.waitForEvent("download"),
+    page.getByRole("button", { name: "Export manifest" }).click(),
+  ]);
+  const exportedSingle = await readFile(await singleDownload.path());
   await page.getByRole("button", { name: "中文", exact: true }).click();
   await expect(page.getByRole("heading", { name: "观察到的每日收益直方图" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "观察到的峰谷回撤" })).toBeVisible();
@@ -63,6 +69,19 @@ test("local quant workflow validates, runs, and requires export consent", async 
     () => page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
     { timeout: 3_000, message: "Quant settles without horizontal overflow after a viewport resize" },
   ).toBeLessThanOrEqual(1);
+  await page.reload();
+  await page.getByRole("button", { name: /Quant research/ }).click();
+  const replay = page.locator("details").filter({ hasText: "Verify an exported Quant run" });
+  await replay.locator("summary").click();
+  await replay.getByLabel("Exported run JSON").setInputFiles({ name: "single-export.json", mimeType: "application/json", buffer: exportedSingle });
+  await expect(replay.getByText("Replay matches the exported result.")).toBeVisible();
+  await expect(replay).toContainText("historical_moving_block_bootstrap");
+  const changedSingle = JSON.parse(exportedSingle.toString()) as { run: { bootstrap: { terminal: { median: number } } } };
+  changedSingle.run.bootstrap.terminal.median += 0.01;
+  await replay.getByLabel("Exported run JSON").setInputFiles({ name: "tampered-export.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(changedSingle)) });
+  await expect(replay.getByRole("alert")).toBeVisible();
+  await expect(replay.getByText("Replay matches the exported result.")).toHaveCount(0);
+  expect(requests.some((request) => request.includes("PRIVATE_SOURCE_CANARY"))).toBe(false);
 });
 
 test("extreme validated prices show histogram refusal without crashing the workbench", async ({ page }) => {
@@ -99,7 +118,7 @@ test("joint portfolio keeps both imports and weights local, preserves the shared
     instrument: { chainId: 4663, address, symbol },
     quoteCurrency: "USD",
     clock: "daily_crypto_24_7",
-    provenance: { source: "synthetic fixture", observedAt: "2026-09-01T00:00:00Z" },
+    provenance: { source: "PRIVATE_JOINT_SOURCE_CANARY", observedAt: "2026-09-01T00:00:00Z" },
     synthetic: true,
     observations,
   }));
@@ -121,6 +140,11 @@ test("joint portfolio keeps both imports and weights local, preserves the shared
   await expect(page.getByRole("button", { name: "Export joint manifest" })).toBeDisabled();
   await page.getByRole("checkbox", { name: /consent to download both local datasets/i }).check();
   await expect(page.getByRole("button", { name: "Export joint manifest" })).toBeEnabled();
+  const [jointDownload] = await Promise.all([
+    page.waitForEvent("download"),
+    page.getByRole("button", { name: "Export joint manifest" }).click(),
+  ]);
+  const exportedJoint = await readFile(await jointDownload.path());
   await page.getByRole("button", { name: "中文", exact: true }).click();
   await expect(page.getByRole("heading", { name: "联合投资组合实验" })).toBeVisible();
   await page.getByRole("button", { name: "English", exact: true }).click();
@@ -140,4 +164,12 @@ test("joint portfolio keeps both imports and weights local, preserves the shared
   });
   await page.getByRole("button", { name: "Run joint portfolio locally" }).click();
   await expect(page.getByRole("alert").filter({ hasText: /dates must align exactly/i })).toBeVisible();
+  await page.reload();
+  await page.getByRole("button", { name: /Quant research/ }).click();
+  const replay = page.locator("details").filter({ hasText: "Verify an exported Quant run" });
+  await replay.locator("summary").click();
+  await replay.getByLabel("Exported run JSON").setInputFiles({ name: "joint-export.json", mimeType: "application/json", buffer: exportedJoint });
+  await expect(replay.getByText("Replay matches the exported result.")).toBeVisible();
+  await expect(replay).toContainText("joint_portfolio_moving_block_bootstrap");
+  expect(requests.some((request) => request.includes("PRIVATE_JOINT_SOURCE_CANARY"))).toBe(false);
 });

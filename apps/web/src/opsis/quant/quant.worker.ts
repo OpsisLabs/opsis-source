@@ -1,10 +1,30 @@
-import { datasetHash, runJointPortfolio, runQuant, validateDataset, type ExperimentSpec, type JointPortfolioPosition, type PriceDataset } from "@rh-chain/quant";
+import { datasetHash, runJointPortfolio, runQuant, validateDataset, verifyQuantExport, type ExperimentSpec, type JointPortfolioPosition, type PriceDataset } from "@rh-chain/quant";
 
 type Message = { id: number; dataset: PriceDataset; spec: ExperimentSpec; kind?: "single" }
-  | { id: number; positions: JointPortfolioPosition[]; spec: ExperimentSpec; kind: "joint" };
+  | { id: number; positions: JointPortfolioPosition[]; spec: ExperimentSpec; kind: "joint" }
+  | { id: number; rawJson: string; kind: "replay" };
 self.onmessage = async (event: MessageEvent<Message>) => {
-  const { id, spec } = event.data;
+  const { id } = event.data;
   try {
+    if (event.data.kind === "replay") {
+      const verification = await verifyQuantExport(JSON.parse(event.data.rawJson) as unknown);
+      if (!verification.ok) {
+        self.postMessage({ id, type: "replay-error", message: verification.error });
+        return;
+      }
+      const { run, kind } = verification;
+      self.postMessage({ id, type: "replay-result", summary: {
+        kind,
+        model: run.manifest.model,
+        seed: run.manifest.seed,
+        runs: run.manifest.bootstrapRuns,
+        horizon: run.manifest.horizon,
+        inputs: kind === "joint" ? verification.datasets.length : 1,
+        terminalMedian: run.bootstrap.terminal.median,
+      } });
+      return;
+    }
+    const { spec } = event.data;
     if (event.data.kind === "joint") {
       const result = await runJointPortfolio(event.data.positions, spec, () => false);
       self.postMessage({ id, type: "joint-result", result });

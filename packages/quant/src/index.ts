@@ -904,9 +904,134 @@ export async function runJointPortfolio(
 }
 
 export function exportRun(dataset: PriceDataset, run: QuantRun): string {
+  const { dataset: _storedDataset, ...canonicalRun } = run as QuantRun & { dataset?: unknown };
   return JSON.stringify(
-    { exportedAt: new Date().toISOString(), dataset, run },
+    { exportedAt: new Date().toISOString(), dataset, run: canonicalRun },
     null,
     2,
   );
+}
+
+export type QuantExportVerification =
+  | { ok: false; error: string }
+  | { ok: true; kind: "single"; dataset: PriceDataset; run: QuantRun }
+  | { ok: true; kind: "joint"; datasets: PriceDataset[]; run: JointPortfolioRun };
+
+const MAX_EXPORT_BYTES = 8 * 1024 * 1024;
+
+function sortedJson(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(sortedJson).join(",")}]`;
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    return `{${Object.keys(record).sort().map((key) => `${JSON.stringify(key)}:${sortedJson(record[key])}`).join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
+
+function requireKeys(value: unknown, allowed: readonly string[], label: string): void {
+  if (!value || typeof value !== "object" || Array.isArray(value) ||
+      Object.keys(value).some((key) => !allowed.includes(key)))
+    throw new Error(`${label} shape is malformed.`);
+}
+
+function requireDatasetShape(value: unknown): void {
+  requireKeys(value, ["schemaVersion", "instrument", "quoteCurrency", "clock", "provenance", "observations", "synthetic"], "Dataset");
+  const dataset = value as Record<string, unknown>;
+  requireKeys(dataset.instrument, ["chainId", "address", "symbol", "name"], "Instrument");
+  requireKeys(dataset.provenance, ["source", "observedAt", "sourceUrl"], "Provenance");
+  if (Array.isArray(dataset.observations)) {
+    for (const row of dataset.observations) requireKeys(row, ["date", "price"], "Observation");
+  }
+}
+
+/** Replays an exported file locally. This verifies file-content reproducibility, not source provenance. */
+export async function verifyQuantExport(value: unknown): Promise<QuantExportVerification> {
+  try {
+    if (!value || typeof value !== "object" || Array.isArray(value))
+      throw new Error("Export must be a JSON object.");
+    const serialized = JSON.stringify(value);
+    if (!serialized || new TextEncoder().encode(serialized).byteLength > MAX_EXPORT_BYTES)
+      throw new Error("Export exceeds the 8 MB verification limit.");
+    const parsed: unknown = JSON.parse(serialized);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))
+      throw new Error("Export must be a JSON object.");
+    const envelope = parsed as Record<string, unknown>;
+    if (typeof envelope.exportedAt !== "string" || !Number.isFinite(Date.parse(envelope.exportedAt)))
+      throw new Error("Export timestamp is malformed.");
+    const joint = Object.hasOwn(envelope, "datasets");
+    const expectedEnvelopeKeys = joint ? ["exportedAt", "datasets", "run"] : ["exportedAt", "dataset", "run"];
+    if (Object.keys(envelope).length !== expectedEnvelopeKeys.length || expectedEnvelopeKeys.some((key) => !Object.hasOwn(envelope, key)))
+      throw new Error("Export shape is malformed.");
+    const runValue = envelope.run;
+    if (!runValue || typeof runValue !== "object" || Array.isArray(runValue))
+      throw new Error("Run result is malformed.");
+    const runRecord = runValue as Record<string, unknown>;
+    let replayValue: unknown = runValue;
+    if (!joint && Object.hasOwn(runRecord, "dataset")) {
+      if (sortedJson(runRecord.dataset) !== sortedJson(envelope.dataset))
+        throw new Error("Legacy run dataset does not match the exported dataset.");
+      const { dataset: _nestedDataset, ...legacyRun } = runRecord;
+      replayValue = legacyRun;
+    }
+    const manifest = runRecord.manifest;
+    if (!manifest || typeof manifest !== "object" || Array.isArray(manifest))
+      throw new Error("Run manifest is malformed.");
+    const m = manifest as Record<string, unknown>;
+    if (m.modelVersion !== "1") throw new Error("Unsupported Quant model version.");
+    let model: ExperimentSpec["model"];
+    if (joint) {
+      if (m.model === "joint_portfolio_iid_bootstrap") model = "historical_iid_bootstrap";
+      else if (m.model === "joint_portfolio_moving_block_bootstrap") model = "historical_moving_block_bootstrap";
+      else throw new Error("Unsupported joint Quant model.");
+    } else {
+      if (m.model === "historical_iid_bootstrap" || m.model === "historical_moving_block_bootstrap") model = m.model;
+      else throw new Error("Unsupported Quant model.");
+    }
+    const spec: ExperimentSpec = {
+      seed: m.seed as number,
+      bootstrapRuns: m.bootstrapRuns as number,
+      confidence: m.confidence as number,
+      researchMode: m.researchMode as boolean,
+      model,
+      ...(Object.hasOwn(m, "blockLength") ? { blockLength: m.blockLength as number } : {}),
+    };
+    if (joint) {
+      const rawDatasets = envelope.datasets;
+      if (!Array.isArray(rawDatasets) || rawDatasets.length < 2 || rawDatasets.length > 8)
+        throw new Error("Joint export must contain two to eight datasets.");
+      const datasets = rawDatasets.map((raw) => {
+        requireDatasetShape(raw);
+        const checked = validateDataset(raw, new Date(), { minimumReturns: spec.researchMode ? 30 : 180 });
+        if (!checked.ok || !checked.dataset) throw new Error(checked.issues.map((item) => item.message).join(" "));
+        return checked.dataset;
+      });
+      const inputRefs = m.inputRefs;
+      if (!Array.isArray(inputRefs) || inputRefs.length !== datasets.length)
+        throw new Error("Joint manifest inputs are malformed.");
+      const positions = datasets.map((dataset, index) => {
+        const ref: unknown = inputRefs[index];
+        if (!ref || typeof ref !== "object" || !Number.isSafeInteger((ref as Record<string, unknown>).weightBps))
+          throw new Error("Joint manifest weights are malformed.");
+        return { dataset, weightBps: (ref as Record<string, unknown>).weightBps as number };
+      });
+      const replayed = await runJointPortfolio(positions, spec);
+      if (sortedJson(runValue) !== sortedJson(replayed))
+        throw new Error("Exported joint run does not match deterministic replay.");
+      return { ok: true, kind: "joint", datasets, run: replayed };
+    }
+    requireDatasetShape(envelope.dataset);
+    const checked = validateDataset(envelope.dataset, new Date(), { minimumReturns: spec.researchMode ? 30 : 180 });
+    if (!checked.ok || !checked.dataset) throw new Error(checked.issues.map((item) => item.message).join(" "));
+    const dataset = checked.dataset;
+    const datasetDigest = await datasetHash(dataset);
+    if (runRecord.datasetHash !== datasetDigest)
+      throw new Error("Exported dataset hash does not match its dataset.");
+    const replayed = runQuant(dataset, spec);
+    const completeRun: QuantRun = { datasetHash: datasetDigest, ...replayed };
+    if (sortedJson(replayValue) !== sortedJson(completeRun))
+      throw new Error("Exported run does not match deterministic replay.");
+    return { ok: true, kind: "single", dataset, run: completeRun };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "Export could not be verified." };
+  }
 }
