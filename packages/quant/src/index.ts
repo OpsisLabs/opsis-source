@@ -74,6 +74,153 @@ export interface ObservedDrawdown {
   maxDrawdown: number;
 }
 
+export interface CorrelationCell {
+  rowInstrument: string;
+  columnInstrument: string;
+  observations: number;
+  correlation: number | null;
+  /** Directional slope: covariance(row returns, column returns) / variance(column returns). */
+  beta: number | null;
+}
+
+export interface ObservedCorrelationMatrix {
+  /** Chain-qualified IDs in the same order as the input datasets. */
+  instruments: string[];
+  quoteCurrency: string;
+  commonWindow: { startDate: string; endDate: string };
+  matchedReturns: number;
+  warnings: string[];
+  cells: CorrelationCell[][];
+}
+
+const MIN_CORRELATION_RETURNS = 60;
+const PREFERRED_CORRELATION_RETURNS = 120;
+const MAX_CORRELATION_RETURNS = 730;
+
+/**
+ * Compute observed daily-return correlations across a shared set of dates.
+ * This does not fill gaps, substitute instruments, or generate paths.
+ */
+export function observedCorrelationMatrix(
+  datasets: readonly PriceDataset[],
+): ObservedCorrelationMatrix {
+  if (!Array.isArray(datasets) || datasets.length < 2 || datasets.length > 8)
+    throw new Error("Correlation requires between 2 and 8 instruments.");
+
+  const validated = datasets.map((dataset) => {
+    const result = validateDataset(dataset, new Date(), { minimumReturns: 0 });
+    if (!result.ok || !result.dataset)
+      throw new Error(result.issues.map((item) => item.message).join(" "));
+    return result.dataset;
+  });
+  const currency = validated[0]!.quoteCurrency;
+  if (validated.some((dataset) => dataset.quoteCurrency !== currency))
+    throw new Error("Correlation requires the same quote currency for every instrument.");
+  if (validated.some((dataset) => dataset.clock !== "daily_crypto_24_7"))
+    throw new Error("Correlation requires the daily crypto 24/7 clock.");
+
+  const instruments = validated.map((dataset) =>
+    `${dataset.instrument.chainId}:${dataset.instrument.address.toLowerCase()}`,
+  );
+  if (new Set(instruments).size !== instruments.length)
+    throw new Error("Correlation requires distinct chain-qualified instruments.");
+
+  const byDate = validated.map((dataset) =>
+    new Map(dataset.observations.map(({ date, price }) => [date, price])),
+  );
+  const sharedDates = [...byDate[0]!.keys()]
+    .filter((date) => byDate.every((prices) => prices.has(date)))
+    .sort();
+  if (sharedDates.length < 2)
+    throw new Error("At least two shared closed daily observations are required.");
+
+  const returnsByInstrument = validated.map(() => [] as number[]);
+  const returnDates: string[] = [];
+  for (let index = 1; index < sharedDates.length; index += 1) {
+    const priorDate = sharedDates[index - 1]!;
+    const date = sharedDates[index]!;
+    const days =
+      (Date.parse(`${date}T00:00:00Z`) - Date.parse(`${priorDate}T00:00:00Z`)) /
+      86_400_000;
+    if (days !== 1) continue;
+    const rowReturns = byDate.map((prices) => {
+      const prior = prices.get(priorDate)!;
+      const current = prices.get(date)!;
+      const value = current / prior - 1;
+      if (!Number.isFinite(value) || value <= -1)
+        throw new Error("Observed returns exceed numeric precision limits.");
+      return value;
+    });
+    rowReturns.forEach((value, instrumentIndex) =>
+      returnsByInstrument[instrumentIndex]!.push(value),
+    );
+    returnDates.push(date);
+  }
+  const matchedReturns = returnDates.length;
+  if (matchedReturns < MIN_CORRELATION_RETURNS)
+    throw new Error(`At least ${MIN_CORRELATION_RETURNS} synchronized daily returns are required; found ${matchedReturns}.`);
+  if (matchedReturns > MAX_CORRELATION_RETURNS)
+    throw new Error(`Correlation is limited to ${MAX_CORRELATION_RETURNS} synchronized daily returns; found ${matchedReturns}.`);
+
+  const moments = returnsByInstrument.map((values) => {
+    const scale = Math.max(...values.map(Math.abs));
+    if (scale === 0) return { scale, mean: 0, variance: 0 };
+    let mean = 0;
+    let sumSquares = 0;
+    for (let index = 0; index < values.length; index += 1) {
+      const value = values[index]! / scale;
+      const delta = value - mean;
+      mean += delta / (index + 1);
+      sumSquares += delta * (value - mean);
+    }
+    return { scale, mean, variance: sumSquares / values.length };
+  });
+  const pair = (row: number, column: number) => {
+    const rowScale = moments[row]!.scale;
+    const columnScale = moments[column]!.scale;
+    const rowMoment = moments[row]!;
+    const columnMoment = moments[column]!;
+    if (rowScale === 0 || columnScale === 0 || rowMoment.variance <= 0 || columnMoment.variance <= 0)
+      return { correlation: null, beta: null };
+    if (row === column) return { correlation: 1, beta: 1 };
+    let covariance = 0;
+    for (let index = 0; index < matchedReturns; index += 1) {
+      covariance +=
+        (returnsByInstrument[row]![index]! / rowScale - rowMoment.mean) *
+        (returnsByInstrument[column]![index]! / columnScale - columnMoment.mean);
+    }
+    covariance /= matchedReturns;
+    const correlation = covariance / Math.sqrt(rowMoment.variance) / Math.sqrt(columnMoment.variance);
+    const beta = (covariance / columnMoment.variance) * (rowScale / columnScale);
+    if (!Number.isFinite(correlation) || !Number.isFinite(beta))
+      return { correlation: null, beta: null };
+    return { correlation: Math.max(-1, Math.min(1, correlation)), beta };
+  };
+  const cells = instruments.map((rowInstrument, row) =>
+    instruments.map((columnInstrument, column) => {
+      const values = pair(row, column);
+      return {
+        rowInstrument,
+        columnInstrument,
+        observations: matchedReturns,
+        ...values,
+      };
+    }),
+  );
+
+  return {
+    instruments,
+    quoteCurrency: currency,
+    commonWindow: { startDate: sharedDates[0]!, endDate: sharedDates.at(-1)! },
+    matchedReturns,
+    warnings:
+      matchedReturns < PREFERRED_CORRELATION_RETURNS
+        ? [`Correlation uses ${matchedReturns} synchronized returns; 120 or more are preferred.`]
+        : [],
+    cells,
+  };
+}
+
 /** Dated peak-to-trough loss on the observed instrument, with no gap filling. */
 export function observedDrawdown(dataset: PriceDataset): ObservedDrawdown {
   const checked = validateDataset(dataset);

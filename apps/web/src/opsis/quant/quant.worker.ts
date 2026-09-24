@@ -1,11 +1,17 @@
-import { datasetHash, runJointPortfolio, runQuant, validateDataset, verifyQuantExport, type ExperimentSpec, type JointPortfolioPosition, type PriceDataset } from "@rh-chain/quant";
+import { datasetHash, observedCorrelationMatrix, runJointPortfolio, runQuant, validateDataset, verifyQuantExport, type ExperimentSpec, type JointPortfolioPosition, type PriceDataset } from "@rh-chain/quant";
 
 type Message = { id: number; dataset: PriceDataset; spec: ExperimentSpec; kind?: "single" }
   | { id: number; positions: JointPortfolioPosition[]; spec: ExperimentSpec; kind: "joint" }
-  | { id: number; rawJson: string; kind: "replay" };
+  | { id: number; rawJson: string; kind: "replay" }
+  | { id: number; datasets: PriceDataset[]; kind: "correlation" };
 self.onmessage = async (event: MessageEvent<Message>) => {
   const { id } = event.data;
   try {
+    if (event.data.kind === "correlation") {
+      const result = observedCorrelationMatrix(event.data.datasets);
+      self.postMessage({ id, type: "correlation-result", result });
+      return;
+    }
     if (event.data.kind === "replay") {
       const verification = await verifyQuantExport(JSON.parse(event.data.rawJson) as unknown);
       if (!verification.ok) {

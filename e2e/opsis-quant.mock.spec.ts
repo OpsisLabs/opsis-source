@@ -130,6 +130,12 @@ test("joint portfolio keeps both imports and weights local, preserves the shared
     name: "second.json", mimeType: "application/json",
     buffer: pack("0x0000000000000000000000000000000000000def", "SECOND", rows.map((row) => ({ ...row, price: row.price * 2 }))),
   });
+  await page.getByRole("button", { name: "Inspect observed co-movement" }).click();
+  await expect(page.getByText(/189 matched returns/)).toBeVisible();
+  await expect(page.getByRole("img", { name: /Observed daily-return correlation heatmap/ })).toBeVisible();
+  await expect(page.locator(".opsis-quant-correlation-table tbody tr")).toHaveCount(4);
+  await expect(page.locator(".opsis-quant-correlation-table tbody tr").nth(1).locator("td").nth(2)).toHaveText("189");
+  await expect(page.locator(".opsis-quant-correlation-table tbody tr").nth(1).locator("td").nth(3)).toHaveText("1");
   await page.getByLabel("First asset weight (%)").fill("60");
   await page.getByLabel("Resampling model").selectOption("historical_moving_block_bootstrap");
   await page.getByLabel("Block length (2–30 days; at most half the sample)").fill("7");
@@ -147,6 +153,8 @@ test("joint portfolio keeps both imports and weights local, preserves the shared
   const exportedJoint = await readFile(await jointDownload.path());
   await page.getByRole("button", { name: "中文", exact: true }).click();
   await expect(page.getByRole("heading", { name: "联合投资组合实验" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "此样本中哪些资产共同变化？" })).toBeVisible();
+  await expect(page.getByRole("img", { name: /观察到的每日收益相关性热力图/ })).toBeVisible();
   await page.getByRole("button", { name: "English", exact: true }).click();
   expect(requests.some((request) => request.includes("PRIVATE_JOINT_CANARY"))).toBe(false);
   await page.setViewportSize({ width: 320, height: 800 });
@@ -164,6 +172,13 @@ test("joint portfolio keeps both imports and weights local, preserves the shared
   });
   await page.getByRole("button", { name: "Run joint portfolio locally" }).click();
   await expect(page.getByRole("alert").filter({ hasText: /dates must align exactly/i })).toBeVisible();
+  await page.getByLabel("Second asset JSON").setInputFiles({
+    name: "short.json", mimeType: "application/json",
+    buffer: pack("0x0000000000000000000000000000000000000def", "SECOND", rows.slice(-40)),
+  });
+  await page.getByRole("button", { name: "Inspect observed co-movement" }).click();
+  await expect(page.getByRole("alert").filter({ hasText: /At least 60 synchronized daily returns/ })).toBeVisible();
+  await expect(page.locator(".opsis-quant-correlation-table tbody tr")).toHaveCount(0);
   await page.reload();
   await page.getByRole("button", { name: /Quant research/ }).click();
   const replay = page.locator("details").filter({ hasText: "Verify an exported Quant run" });

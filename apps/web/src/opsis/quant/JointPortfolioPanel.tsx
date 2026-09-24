@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import * as echarts from "echarts";
 import { validateDataset, type ExperimentSpec, type JointPortfolioRun, type PriceDataset } from "@rh-chain/quant";
 import { useCopy } from "../copy";
+import CorrelationPanel from "./CorrelationPanel";
 
 type JointWorkerMessage = {
   id: number;
@@ -171,6 +172,7 @@ export default function JointPortfolioPanel({ first, spec }: { first: PriceDatas
       </label>
     </div>
     {second && <p role="status">{second.instrument.symbol} · {c("second asset loaded", "第二资产已载入")} · {100 - firstWeight}% {c("weight", "权重")}</p>}
+    {second && <CorrelationPanel datasets={[first, second]} />}
     <p>{c("Daily constant-mix rebalancing; no fees or taxes. Synthetic files are examples, not market history. Pointwise bands are scenarios, not forecasts.", "每日固定权重再平衡；不含费用或税费。合成文件仅为示例，不是市场历史。逐点区间是情景而非预测。")}</p>
     <button type="button" disabled={!second || busy || !Number.isSafeInteger(firstWeight) || firstWeight < 1 || firstWeight > 99} onClick={start}>{busy ? c("Running…", "运行中…") : c("Run joint portfolio locally", "在本地运行联合投资组合")}</button>
     {busy && <button type="button" onClick={cancel}>{c("Cancel and clear worker", "取消并清除工作线程")}</button>}
