@@ -3,6 +3,7 @@ import {
   datasetHash,
   observedReturnHistogram,
   runQuant,
+  observedDrawdown,
   validateDataset,
   type PriceDataset,
 } from "./index";
@@ -246,4 +247,33 @@ it("refuses invalid moving-block settings while leaving the IID default unchange
   expect(() => runQuant(input, { ...base, model: "historical_iid_bootstrap", blockLength: 3 })).toThrow(/Block length/);
   let checks = 0;
   expect(() => runQuant(input, { ...base, model: "historical_moving_block_bootstrap", blockLength: 3 }, () => ++checks > 2)).toThrow("cancelled");
+});
+
+it("dates observed peak-to-trough drawdown and recovery without treating it as a simulation", () => {
+  const input = dataset(31);
+  input.observations.forEach((row) => { row.price = 100; });
+  const flat = observedDrawdown(input);
+  expect(flat.points).toHaveLength(31);
+  expect(flat.points.every((point) => point.drawdown === 0)).toBe(true);
+  input.observations[10]!.price = 120;
+  input.observations[11]!.price = 60;
+  input.observations[12]!.price = 120;
+  const observed = observedDrawdown(input);
+  expect(observed.points[11]).toEqual({
+    date: input.observations[11]!.date,
+    peakDate: input.observations[10]!.date,
+    drawdown: -0.5,
+  });
+  expect(observed.points[12]!.drawdown).toBe(0);
+  expect(observed.maxDrawdown).toBe(-0.5);
+});
+
+it("refuses gapped or numerically unrepresentable observed drawdown inputs", () => {
+  const gapped = dataset(31);
+  gapped.observations.splice(4, 1);
+  expect(() => observedDrawdown(gapped)).toThrow(/consecutive/);
+  const extreme = dataset(31);
+  extreme.observations.forEach((row) => { row.price = 1e200; });
+  extreme.observations[4]!.price = 1e-200;
+  expect(() => observedDrawdown(extreme)).toThrow(/precision/);
 });

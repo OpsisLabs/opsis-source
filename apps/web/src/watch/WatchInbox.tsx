@@ -88,6 +88,58 @@ export default function WatchInbox({
         "此次观察没有返回所选资产。",
       ),
     })[item.detailCode];
+  const stateLabel = (entry: WatchInboxItem) =>
+    entry.status === "changed"
+      ? c("Changed", "已变化")
+      : entry.status === "unfinished"
+        ? c("Unfinished", "未完成")
+        : c("Unknown coverage", "未知覆盖");
+  const openLinks = (entry: WatchInboxItem) => (
+    <div className="mt-2 flex flex-wrap gap-3">
+      {entry.status === "unfinished" && (
+        <Link
+          className="opsis-text-link"
+          to={workspaceLink("/research", entry.address)}
+        >
+          {c("Fresh research →", "重新研究 →")}
+        </Link>
+      )}
+      {entry.assetContract &&
+        /^0x[a-fA-F0-9]{40}$/.test(entry.assetContract) && (
+          <Link
+            className="opsis-text-link"
+            to={workspaceLink("/check", entry.assetContract)}
+          >
+            {c("Fresh trade check →", "重新交易核查 →")}
+          </Link>
+        )}
+    </div>
+  );
+  const actions = (entry: WatchInboxItem) => (
+    <div className="flex flex-wrap gap-2">
+      <button
+        className="opsis-action"
+        type="button"
+        disabled={busy}
+        onClick={() => onAcknowledge?.(entry)}
+      >
+        {c("Acknowledge", "确认")}
+      </button>
+      <button
+        className="opsis-text-link"
+        type="button"
+        disabled={busy}
+        onClick={() =>
+          onSnooze?.(
+            entry,
+            new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+          )
+        }
+      >
+        {c("Snooze 1 day", "暂停 1 天")}
+      </button>
+    </div>
+  );
   const [drafts, setDrafts] = useState<
     Record<
       string,
@@ -120,7 +172,10 @@ export default function WatchInbox({
     [watches],
   );
   return (
-    <section className="opsis-panel min-w-0 max-w-full [overflow-wrap:anywhere]" aria-labelledby="watch-inbox-title">
+    <section
+      className="opsis-panel min-w-0 max-w-full [overflow-wrap:anywhere]"
+      aria-labelledby="watch-inbox-title"
+    >
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <div>
           <p className="text-xs uppercase tracking-[0.18em] text-[#3569ff]">
@@ -148,111 +203,107 @@ export default function WatchInbox({
           )}
         </p>
       ) : (
-        <div className="mt-5 max-w-full overflow-x-auto overscroll-x-contain">
-          <table className="w-full min-w-[680px] text-left text-sm">
-            <caption className="sr-only">
-              {c("Watch inbox evidence", "Watch 证据收件箱")}
-            </caption>
-            <thead>
-              <tr className="border-b border-black/15 text-xs uppercase tracking-wide opacity-65">
-                <th className="px-2 py-2">{c("State", "状态")}</th>
-                <th className="px-2 py-2">{c("Evidence", "证据")}</th>
-                <th className="px-2 py-2">{c("Observed", "观察时间")}</th>
-                <th className="px-2 py-2">{c("Action", "操作")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visible.map((entry) => (
-                <tr
-                  key={entry.id}
-                  className="border-b border-black/10 align-top"
-                >
-                  <td className="px-2 py-3 font-semibold">
-                    {entry.status === "changed"
-                      ? c("Changed", "已变化")
-                      : entry.status === "unfinished"
-                        ? c("Unfinished", "未完成")
-                        : c("Unknown coverage", "未知覆盖")}
-                  </td>
-                  <td className="px-2 py-3">
-                    <div>{title(entry)}</div>
-                    <div className="mt-1 text-xs opacity-70">
-                      {detail(entry)}
-                    </div>
-                    <div className="mt-1 text-xs opacity-60">
-                      {entry.label} · {entry.address.slice(0, 8)}…
-                    </div>
-                    <div className="mt-1 text-xs opacity-60">
-                      {c("Not checked since", "上次检查")}:{" "}
-                      {new Date(entry.notCheckedSince).toLocaleString()}
-                    </div>
-                    {entry.anchorHash && (
-                      <div className="mt-1 break-all font-mono text-[11px] opacity-55">
-                        {c("Anchor", "锚点")}: {entry.anchorHash}
-                      </div>
-                    )}
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {entry.status === "unfinished" && (
-                        <Link
-                          className="opsis-text-link"
-                          to={workspaceLink("/research", entry.address)}
-                        >
-                          {c("Fresh research →", "重新研究 →")}
-                        </Link>
-                      )}
-                      {entry.assetContract && /^0x[a-fA-F0-9]{40}$/.test(entry.assetContract) && (
-                        <Link
-                          className="opsis-text-link"
-                          to={workspaceLink(
-                            "/check",
-                            entry.assetContract ?? "",
-                          )}
-                        >
-                          {c("Fresh trade check →", "重新交易核查 →")}
-                        </Link>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-2 py-3 whitespace-nowrap">
-                    <div>{new Date(entry.capturedAt).toLocaleString()}</div>
-                    <div className="text-xs opacity-65">
-                      {entry.blockNumber === null
-                        ? c("block unknown", "区块未知")
-                        : `${c("Block", "区块")} ${entry.blockNumber}`}
-                    </div>
-                  </td>
-                  <td className="px-2 py-3">
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        className="opsis-action"
-                        type="button"
-                        disabled={busy}
-                        onClick={() => onAcknowledge?.(entry)}
-                      >
-                        {c("Acknowledge", "确认")}
-                      </button>
-                      <button
-                        className="opsis-text-link"
-                        type="button"
-                        disabled={busy}
-                        onClick={() =>
-                          onSnooze?.(
-                            entry,
-                            new Date(
-                              Date.now() + 24 * 60 * 60 * 1000,
-                            ).toISOString(),
-                          )
-                        }
-                      >
-                        {c("Snooze 1 day", "暂停 1 天")}
-                      </button>
-                    </div>
-                  </td>
+        <>
+          <div className="mt-5 hidden max-w-full overflow-x-auto overscroll-x-contain md:block">
+            <table className="w-full min-w-[680px] text-left text-sm">
+              <caption className="sr-only">
+                {c("Watch inbox evidence", "Watch 证据收件箱")}
+              </caption>
+              <thead>
+                <tr className="border-b border-black/15 text-xs uppercase tracking-wide opacity-65">
+                  <th className="px-2 py-2">{c("State", "状态")}</th>
+                  <th className="px-2 py-2">{c("Evidence", "证据")}</th>
+                  <th className="px-2 py-2">{c("Observed", "观察时间")}</th>
+                  <th className="px-2 py-2">{c("Action", "操作")}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {visible.map((entry) => (
+                  <tr
+                    key={entry.id}
+                    className="border-b border-black/10 align-top"
+                  >
+                    <td className="px-2 py-3 font-semibold">
+                      {stateLabel(entry)}
+                    </td>
+                    <td className="px-2 py-3">
+                      <div>{title(entry)}</div>
+                      <div className="mt-1 text-xs opacity-70">
+                        {detail(entry)}
+                      </div>
+                      <div className="mt-1 break-all text-xs opacity-60">
+                        {entry.label} · {entry.address}
+                      </div>
+                      <div className="mt-1 text-xs opacity-60">
+                        {c("Not checked since", "上次检查")}:{" "}
+                        {new Date(entry.notCheckedSince).toLocaleString()}
+                      </div>
+                      {entry.anchorHash && (
+                        <div className="mt-1 break-all font-mono text-[11px] opacity-55">
+                          {c("Anchor", "锚点")}: {entry.anchorHash}
+                        </div>
+                      )}
+                      {openLinks(entry)}
+                    </td>
+                    <td className="px-2 py-3 whitespace-nowrap">
+                      <div>{new Date(entry.capturedAt).toLocaleString()}</div>
+                      <div className="text-xs opacity-65">
+                        {entry.blockNumber === null
+                          ? c("block unknown", "区块未知")
+                          : `${c("Block", "区块")} ${entry.blockNumber}`}
+                      </div>
+                    </td>
+                    <td className="px-2 py-3">{actions(entry)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-5 space-y-3 md:hidden">
+            {visible.map((entry) => (
+              <article
+                key={entry.id}
+                className="min-w-0 border border-black/15 p-3 text-sm"
+                aria-label={`${stateLabel(entry)}: ${title(entry)}`}
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="font-semibold">{stateLabel(entry)}</span>
+                  <span className="text-xs opacity-65">
+                    {entry.blockNumber === null
+                      ? c("block unknown", "区块未知")
+                      : `${c("Block", "区块")} ${entry.blockNumber}`}
+                  </span>
+                </div>
+                <h3 className="mt-2 font-medium">{title(entry)}</h3>
+                <p className="mt-1 text-xs opacity-75">{detail(entry)}</p>
+                <p className="mt-2 break-all text-xs opacity-65">
+                  {entry.label} · {entry.address}
+                </p>
+                <p className="mt-1 text-xs opacity-65">
+                  {c("Not checked since", "上次检查")}:{" "}
+                  {new Date(entry.notCheckedSince).toLocaleString()}
+                </p>
+                <p className="mt-1 text-xs opacity-65">
+                  {c("Observed", "观察时间")}:{" "}
+                  {new Date(entry.capturedAt).toLocaleString()}
+                </p>
+                <p className="mt-1 text-xs opacity-65">
+                  {c("Evidence source", "证据来源")}:{" "}
+                  {c("Saved Watch snapshots", "已保存的 Watch 快照")}
+                </p>
+                {entry.anchorHash && (
+                  <p className="mt-1 break-all font-mono text-[11px] opacity-65">
+                    {c("Anchor", "锚点")}: {entry.anchorHash}
+                  </p>
+                )}
+                {openLinks(entry)}
+                <div className="mt-3 border-t border-black/10 pt-3">
+                  {actions(entry)}
+                </div>
+              </article>
+            ))}
+          </div>
+        </>
       )}
       {reviewed.length > 0 && (
         <div className="mt-5">

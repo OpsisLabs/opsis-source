@@ -28,6 +28,10 @@ test("local quant workflow validates, runs, and requires export consent", async 
   await expect(page.locator(".opsis-quant-histogram-table tbody tr")).toHaveCount(12);
   await expect(page.getByRole("img", { name: /Observed daily return histogram/ })).toBeVisible();
   await expect(page.getByText(/Negative tail \(≤ -5%\): 0; Positive tail \(≥ \+5%\): 0/)).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Observed peak-to-trough drawdown" })).toBeVisible();
+  await expect(page.getByRole("img", { name: /Observed dated drawdown curve/ })).toBeVisible();
+  await expect(page.locator(".opsis-quant-drawdown-table tbody tr")).toHaveCount(190);
+  await expect(page.getByRole("columnheader", { name: "Peak date" })).toBeVisible();
   await page.getByRole("button", { name: "Run local experiment" }).click();
   await expect(page.getByText("4. Results")).toBeVisible({ timeout: 10_000 });
   await expect(page.getByRole("img", { name: /50%, 80%, and 95% bands and median/i })).toBeVisible();
@@ -46,6 +50,7 @@ test("local quant workflow validates, runs, and requires export consent", async 
   await expect(page.getByRole("button", { name: "Export manifest" })).toBeEnabled();
   await page.getByRole("button", { name: "中文", exact: true }).click();
   await expect(page.getByRole("heading", { name: "观察到的每日收益直方图" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "观察到的峰谷回撤" })).toBeVisible();
   await expect(page.getByRole("columnheader", { name: "下边界（比例）" })).toBeVisible();
   await expect(page.getByRole("columnheader", { name: "95% 下界" })).toBeVisible();
   await expect(page.getByRole("img", { name: /50%、80%、95% 区间和中位数/i })).toBeVisible();

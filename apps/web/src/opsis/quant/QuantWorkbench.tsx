@@ -6,6 +6,7 @@ import {
   parseCsv,
   validateDataset,
   observedReturnHistogram,
+  observedDrawdown,
   type ExperimentSpec,
   type PriceDataset,
   type QuantRun,
@@ -44,6 +45,7 @@ export default function QuantWorkbench() {
   const [consent, setConsent] = useState(false);
   const chartRef = useRef<HTMLDivElement>(null);
   const histogramRef = useRef<HTMLDivElement>(null);
+  const drawdownRef = useRef<HTMLDivElement>(null);
   const workerRef = useRef<Worker | null>(null);
   const messageId = useRef(0);
   const jointSpec: ExperimentSpec = useMemo(() => ({
@@ -121,6 +123,15 @@ export default function QuantWorkbench() {
     }
   }, [observedReturns]);
   const histogram = histogramResult.histogram;
+  const drawdownResult = useMemo(() => {
+    if (!dataset) return { drawdown: null, error: "" };
+    try {
+      return { drawdown: observedDrawdown(dataset), error: "" };
+    } catch (error) {
+      return { drawdown: null, error: error instanceof Error ? error.message : "Drawdown unavailable." };
+    }
+  }, [dataset]);
+  const drawdown = drawdownResult.drawdown;
   useEffect(() => {
     if (!histogramRef.current || !histogram) return;
     const chart = echarts.init(histogramRef.current);
@@ -141,6 +152,24 @@ export default function QuantWorkbench() {
     window.addEventListener("resize", resize);
     return () => { window.removeEventListener("resize", resize); chart.dispose(); };
   }, [histogram, c]);
+  useEffect(() => {
+    if (!drawdownRef.current || !drawdown) return;
+    const chart = echarts.init(drawdownRef.current);
+    chart.setOption({
+      animation: false,
+      tooltip: { trigger: "axis" },
+      grid: { left: 60, right: 16, top: 20, bottom: 60 },
+      xAxis: { type: "category", data: drawdown.points.map((point) => point.date), axisLabel: { hideOverlap: true } },
+      yAxis: { type: "value", max: 0, axisLabel: { formatter: (value: number) => `${value.toFixed(0)}%` } },
+      series: [{ type: "line", name: c("Observed drawdown", "观察到的回撤"),
+        data: drawdown.points.map((point) => point.drawdown * 100),
+        lineStyle: { color: "#bc4f4f", width: 2 }, areaStyle: { color: "#bc4f4f", opacity: 0.12 },
+        symbol: "none", connectNulls: false }],
+    });
+    const resize = () => chart.resize();
+    window.addEventListener("resize", resize);
+    return () => { window.removeEventListener("resize", resize); chart.dispose(); };
+  }, [drawdown, c]);
 
   const metadata = (): Omit<PriceDataset, "observations"> => ({
     schemaVersion: 1,
@@ -491,6 +520,22 @@ export default function QuantWorkbench() {
             </section>
           )}
           {histogramResult.error && <p role="status">{c("Observed return histogram unavailable: sample ratios or bins exceed numeric precision.", "观察收益直方图不可用：样本比值或分箱超出数值精度。")}</p>}
+          {drawdown && (
+            <section aria-labelledby="opsis-observed-drawdown-title">
+              <h3 id="opsis-observed-drawdown-title">{c("Observed peak-to-trough drawdown", "观察到的峰谷回撤")}</h3>
+              <p>{c("Dated observed prices only; each value compares that day's price with the highest earlier or same-day observed price. Missing days are refused, not filled.", "仅使用带日期的观察价格；每个数值将当日价格与此前或当日观察到的最高价格比较。缺失日期会被拒绝，不会填补。")}</p>
+              <p>{c("Observed maximum drawdown", "观察到的最大回撤")}: {(drawdown.maxDrawdown * 100).toFixed(2)}% · {c("Dated observations", "带日期的观察数")}: {drawdown.points.length}</p>
+              <div ref={drawdownRef} className="opsis-quant-histogram" role="img" aria-label={c("Observed dated drawdown curve in percent; exact values and peak dates are in the table below.", "按日期显示的观察回撤百分比曲线；精确数值和峰值日期见下表。")}/>
+              <div className="opsis-table-scroll opsis-quant-histogram-scroll">
+                <table className="opsis-quant-drawdown-table">
+                  <caption>{c("Every observed daily drawdown as a raw fractional value; zero means a new or matched observed peak.", "每个观察日的回撤原始比例值；零表示达到或追平观察到的峰值。")}</caption>
+                  <thead><tr><th>{c("Observation date", "观察日期")}</th><th>{c("Peak date", "峰值日期")}</th><th>{c("Drawdown (fraction)", "回撤（比例）")}</th></tr></thead>
+                  <tbody>{drawdown.points.map((point) => <tr key={point.date}><td>{point.date}</td><td>{point.peakDate}</td><td>{point.drawdown.toString()}</td></tr>)}</tbody>
+                </table>
+              </div>
+            </section>
+          )}
+          {drawdownResult.error && <p role="status">{c("Observed drawdown unavailable: the dataset is incomplete or exceeds numeric precision.", "观察回撤不可用：数据集不完整或超出数值精度。")}</p>}
         </div>
       )}
       {dataset && <JointPortfolioPanel key={datasetRevision} first={dataset} spec={jointSpec} />}

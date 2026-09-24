@@ -72,13 +72,24 @@ test("Opsis Watch conditions and review state persist encrypted across refresh a
     .getByRole("row")
     .filter({ hasText: "Saved condition met" });
   await expect(conditionRow).toBeVisible();
+  await page.setViewportSize({ width: 320, height: 800 });
+  const conditionCard = page
+    .locator("article")
+    .filter({ hasText: "Saved condition met" });
+  await expect(conditionCard).toBeVisible();
+  await expect(conditionCard).toContainText("Changed");
+  await expect(conditionCard).toContainText("Saved Watch snapshots");
+  await expect(conditionCard).toContainText("Anchor");
   await expect(
-    conditionRow.getByRole("link", { name: "Fresh trade check →" }),
+    conditionCard.getByRole("link", { name: "Fresh trade check →" }),
   ).toHaveAttribute("href", `/check?entity=${WATCH_TEST_TOKEN}`);
-  await conditionRow
+  expect(
+    await page.locator("html").evaluate((el) => el.scrollWidth - innerWidth),
+  ).toBeLessThanOrEqual(1);
+  await conditionCard
     .getByRole("button", { name: "Acknowledge", exact: true })
     .click();
-  await expect(conditionRow).toHaveCount(0);
+  await expect(conditionCard).toHaveCount(0);
   await page.getByRole("button", { name: "Lock watchlist" }).click();
   await page.reload();
   await expect(page.getByText(label, { exact: true })).toHaveCount(0);
@@ -89,16 +100,21 @@ test("Opsis Watch conditions and review state persist encrypted across refresh a
     .getByRole("button", { name: "Restore", exact: true })
     .first()
     .click();
-  await expect(conditionRow).toBeVisible();
+  await expect(conditionCard).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Remove", exact: true }),
   ).toBeVisible();
-  await page.setViewportSize({ width: 320, height: 800 });
-  expect(
-    await page.locator("html").evaluate((el) => el.scrollWidth - innerWidth),
-  ).toBeLessThanOrEqual(1);
+  await conditionCard.getByRole("button", { name: "Snooze 1 day" }).click();
+  await expect(conditionCard).toHaveCount(0);
+  await page
+    .getByRole("button", { name: "Restore", exact: true })
+    .last()
+    .click();
+  await expect(conditionCard).toBeVisible();
   await page.getByRole("button", { name: "中文", exact: true }).click();
-  await expect(page.getByText("已达到保存条件", { exact: true })).toBeVisible();
+  await expect(
+    page.locator("article").filter({ hasText: "已达到保存条件" }),
+  ).toBeVisible();
   expect(block).toBe(102);
   expect(requests.join("\n")).not.toContain(label);
   expect(requests.join("\n")).not.toContain(passphrase);

@@ -69,6 +69,34 @@ export interface RealizedStats {
   warnings: string[];
 }
 
+export interface ObservedDrawdown {
+  points: Array<{ date: string; peakDate: string; drawdown: number }>;
+  maxDrawdown: number;
+}
+
+/** Dated peak-to-trough loss on the observed instrument, with no gap filling. */
+export function observedDrawdown(dataset: PriceDataset): ObservedDrawdown {
+  const checked = validateDataset(dataset);
+  if (!checked.ok || !checked.dataset)
+    throw new Error(checked.issues.map((item) => item.message).join(" "));
+  let peak = checked.dataset.observations[0]!.price;
+  let peakDate = checked.dataset.observations[0]!.date;
+  let maxDrawdown = 0;
+  const points = checked.dataset.observations.map(({ date, price }) => {
+    if (price > peak) {
+      peak = price;
+      peakDate = date;
+    }
+    const ratio = price / peak;
+    if (!Number.isFinite(ratio) || ratio <= 0)
+      throw new Error("Price ratios exceed numeric precision limits.");
+    const drawdown = ratio - 1;
+    maxDrawdown = Math.min(maxDrawdown, drawdown);
+    return { date, peakDate, drawdown };
+  });
+  return { points, maxDrawdown };
+}
+
 export interface ReturnHistogram {
   observations: number;
   /** Inclusive lower edges and a final exclusive edge; the final bin includes its upper edge. */
