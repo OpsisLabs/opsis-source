@@ -36,6 +36,44 @@ test.describe("Opsis connected workflows", () => {
       }),
     );
   });
+  test("transaction evidence shows a bounded sourced view without inventing movements", async ({ page }) => {
+    const hash = `0x${"b".repeat(64)}`;
+    const blockHash = `0x${"c".repeat(64)}`;
+    const payload = research();
+    const citations = ["eth_getTransactionByHash", "eth_getTransactionReceipt"].map((method, index) => ({
+      id: `rpc-${index + 1}`,
+      provider: "robinhood-public-rpc",
+      url: `https://robinhoodchain.blockscout.com/tx/${hash}`,
+      fetchedAt: "2026-09-25T01:00:00.000Z",
+      fieldsUsed: ["result.blockHash"],
+      description: method,
+    }));
+    await page.route("**/v1/private/analyze", (route) => route.fulfill({ json: {
+      ...payload,
+      entity: { ...payload.entity, type: "transaction", value: hash, facts: {
+        hash, from: "0x0000000000000000000000000000000000000001",
+        to: "0x0000000000000000000000000000000000000002",
+        value: "0xde0b6b3a7640000", valueEth: "1", status: "0x1",
+        blockNumber: "0x2a", blockHash, gasUsed: "0x5208",
+        transactionEvidenceCoverage: "rpc_pair_block_matched", observationFinality: "current_not_final",
+        tokenTransfers: [{ value: "777 token units" }],
+      }, citations },
+      answer: { ...payload.answer, answer: "A transaction was observed.", facts: {}, confirmedFacts: [], citations },
+    } }));
+    await page.goto(`/research?entity=${hash}`);
+    await page.getByRole("button", { name: "Run research", exact: true }).click();
+    const timeline = page.getByTestId("transaction-timeline");
+    await expect(timeline).toBeVisible();
+    await expect(timeline).toContainText("Current, not final");
+    await expect(timeline).toContainText("42");
+    await expect(timeline).toContainText("21000");
+    await expect(timeline).toContainText(blockHash);
+    await expect(timeline).not.toContainText("777 token units");
+    await page.setViewportSize({ width: 320, height: 800 });
+    expect(await page.locator("html").evaluate((el) => el.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+    await page.getByRole("button", { name: "中文", exact: true }).click();
+    await expect(timeline).toContainText("当前观察，尚未最终确认");
+  });
   test("saves research and checks encrypted, reopens only identity, and clears on lock", async ({
     page,
   }) => {

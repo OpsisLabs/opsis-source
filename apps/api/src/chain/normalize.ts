@@ -75,8 +75,8 @@ function fieldsUsedForDoc(doc: SourceDocumentInput): string[] {
   const url = doc.requestUrl ?? "";
   const response = doc.responseJson as { method?: string; query?: string };
   const method = response?.method;
-  if (method === "eth_getTransactionByHash") return ["result.hash", "result.from", "result.to", "result.value", "result.input", "result.blockNumber"];
-  if (method === "eth_getTransactionReceipt") return ["result.status", "result.gasUsed", "result.contractAddress", "result.logs"];
+  if (method === "eth_getTransactionByHash") return ["result.hash", "result.from", "result.to", "result.value", "result.input", "result.blockNumber", "result.blockHash"];
+  if (method === "eth_getTransactionReceipt") return ["result.transactionHash", "result.status", "result.gasUsed", "result.contractAddress", "result.logs", "result.blockNumber", "result.blockHash"];
   if (method === "eth_getBalance") return ["result"];
   if (method === "eth_getCode") return ["result"];
   if (method === "eth_call" && response.query === "reviewedTokenBalanceSample") {
@@ -130,6 +130,7 @@ function summarizeFacts(type: ChainEntityType, docs: SourceDocumentInput[]): Rec
       hash: primary?.hash ?? valueFromRpc(docs, "hash") ?? valueFromRpc(docs, "transactionHash")
         ?? (rpcTransactionDocs.length > 0 ? docs.find((doc) => (doc.responseJson as { method?: string }).method === "eth_getTransactionByHash")?.entityValue : undefined),
       blockNumber: primary?.block_number ?? valueFromRpc(docs, "blockNumber"),
+      blockHash: primary?.block_hash ?? valueFromRpc(docs, "blockHash"),
       timestamp: primary?.timestamp ?? null,
       status: primary?.status ?? valueFromRpc([...(receipt ? [{ responseJson: receipt }] : [])], "status"),
       from: addressHash(primary?.from) ?? valueFromRpc(docs, "from"),
@@ -149,7 +150,8 @@ function summarizeFacts(type: ChainEntityType, docs: SourceDocumentInput[]): Rec
       rawTrace,
       stateChanges,
       internalTransactionFailure: Boolean(primary?.has_error_in_internal_transactions),
-      failureDetail: primary?.revert_reason ?? primary?.result,
+      failureDetail: typeof primary?.revert_reason === "string" ? primary.revert_reason
+        : typeof primary?.result === "string" ? primary.result : undefined,
       ...(rpcTransactionCoverage ? {
         transactionEvidenceCoverage: rpcTransactionCoverage,
         observationFinality: rpcBlockEvidence ? "current_not_final" : "unknown"

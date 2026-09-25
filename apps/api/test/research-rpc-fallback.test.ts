@@ -129,8 +129,9 @@ describe("Research transaction RPC fallback correlation", () => {
     const provider = transactionRpc({ transaction, receipt });
     const docs = await provider.getTransaction(txHash);
     const facts = normalizeEntity(4663, "transaction", txHash, docs).facts;
-    expect(facts).toMatchObject({ hash: txHash, status: "0x1", transactionEvidenceCoverage: "rpc_pair_block_matched",
+    expect(facts).toMatchObject({ hash: txHash, status: "0x1", blockHash, transactionEvidenceCoverage: "rpc_pair_block_matched",
       observationFinality: "current_not_final" });
+    expect(facts.failureDetail).toBeUndefined();
   });
 
   it.each([

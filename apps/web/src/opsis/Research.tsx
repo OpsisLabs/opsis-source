@@ -13,6 +13,7 @@ import { publicIdentity, researchInputMatchesChoice, workspaceLink, type Capabil
 
 import ReportShelf from "./ReportShelf";
 import { researchReport } from "./reports";
+import { transactionReceiptOutcome, transactionTimelineRows } from "./transactionTimeline";
 
 const ContractControls = lazy(() => import("./ContractControls"));
 const EvidenceMap = lazy(() => import("./EvidenceMap"));
@@ -214,6 +215,77 @@ export default function Research({
                 {result.answer.citations[0]?.fetchedAt ?? c("Unknown", "未知")}
               </p>
               <p className="opsis-result-copy">{result.answer.answer}</p>
+              {result.entity.type === "transaction" && (() => {
+                const rows = transactionTimelineRows(result.entity.facts);
+                const outcome = transactionReceiptOutcome(result.entity.facts.status);
+                const coverage = result.entity.facts.transactionEvidenceCoverage;
+                const finality = result.entity.facts.observationFinality;
+                const source = result.answer.citations[0];
+                return (
+                  <section className="opsis-panel" aria-labelledby="transaction-timeline-title" data-testid="transaction-timeline">
+                    <h3 id="transaction-timeline-title">{c("Transaction observations", "交易观察")}</h3>
+                    <p className="opsis-small">
+                      {coverage === "rpc_pair_block_matched"
+                        ? c("Transaction and receipt RPC evidence present", "存在交易与收据 RPC 证据")
+                        : coverage === "partial"
+                          ? c("Partial transaction evidence", "交易证据不完整")
+                          : c("Transaction evidence coverage unknown", "交易证据覆盖情况未知")}
+                      {" · "}
+                      {finality === "current_not_final"
+                        ? c("Current, not final", "当前观察，尚未最终确认")
+                        : c("Finality unknown", "最终性未知")}
+                    </p>
+                    {(["submitted", "inclusion", "receipt"] as const).map((stage) => {
+                      const stageRows = rows.filter((row) => row.stage === stage);
+                      const stageTitle = stage === "submitted"
+                        ? c("Submitted fields", "提交字段")
+                        : stage === "inclusion"
+                          ? c("Block inclusion", "区块收录")
+                          : c("Receipt observation", "收据观察");
+                      return (
+                        <div key={stage}>
+                          <h4>{stageTitle}</h4>
+                          {stageRows.length ? (
+                            <dl>
+                              {stageRows.map(({ key, value }) => {
+                                const label = ({
+                                  from: c("Sender", "发送方"), to: c("Receiver", "接收方"),
+                                  value: c("Native value", "原生价值"), status: c("Outcome", "结果"),
+                                  block: c("Block number", "区块高度"), blockHash: c("Block hash", "区块哈希"),
+                                  gas: c("Gas used", "已用 Gas"),
+                                } as Record<string, string>)[key];
+                                const display = key === "status"
+                                  ? outcome === "success" ? c("Success", "成功")
+                                    : outcome === "failed" ? c("Failed", "失败")
+                                      : outcome === "pending" ? c("Pending", "待处理")
+                                        : c("Unknown", "未知")
+                                  : value;
+                                return (
+                                  <div key={key}>
+                                    <dt>{label}</dt>
+                                    <dd style={{ overflowWrap: "anywhere" }}>{display}</dd>
+                                  </div>
+                                );
+                              })}
+                            </dl>
+                          ) : (
+                            <p className="opsis-small">{c("No source-reported fields returned for this stage.", "此阶段未返回来源报告的字段。")}</p>
+                          )}
+                        </div>
+                      );
+                    })}
+                    <p className="opsis-small">
+                      {source ? <>
+                        {c("Sources", "来源记录")}: {result.answer.citations.length} · {safeHttpUrl(source.url) ? (
+                          <a href={safeHttpUrl(source.url)!} target="_blank" rel="noreferrer">{source.label}</a>
+                        ) : source.label}
+                        {" · "}{c("Observed", "观察时间")}: {source.fetchedAt}
+                      </> : <>{c("Source", "来源")}: {c("Unknown", "未知")} · {c("Observed", "观察时间")}: {c("Unknown", "未知")}</>}
+                    </p>
+                    <p className="opsis-small">{c("These are transaction-level observations only; they do not trace internal transfers or token movements.", "这些仅是交易级观察；不会追踪内部转账或代币变动。")}</p>
+                  </section>
+                );
+              })()}
               {result.entity.type === "contract" &&
                 result.entity.facts.observation === "latest_rpc_sample" &&
                 result.entity.facts.sourceCoverage === "unavailable" && (
