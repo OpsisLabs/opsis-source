@@ -157,19 +157,20 @@ describe("public Swap history storage", () => {
     expect(db.coverages.size).toBe(0);
   });
 
-  it("promotes successful empty coverage only when its block anchor matches independent verification", async () => {
+  it("never promotes range coverage from one verified block hash", async () => {
     const db = new MemoryPrisma();
     const repo = new PublicSwapHistoryRepository(db as any, true);
     const matching = await repo.recordCoverage(coverage("EMPTY"));
     expect(matching.canonicalStatus).toBe("UNKNOWN");
     await repo.promoteVerifiedCanonicalBlock({ chainId: 4663, blockNumber: 88n, blockHash: BLOCK_A });
-    expect(matching.canonicalStatus).toBe("CANONICAL");
+    expect(matching.canonicalStatus).toBe("UNKNOWN");
 
     const forked = await repo.recordCoverage({ ...coverage("EMPTY"), source: "fork-source" });
     const gap = await repo.recordCoverage(coverage("GAP"));
     const promoted = await repo.promoteVerifiedCanonicalBlock({ chainId: 4663, blockNumber: 88n, blockHash: BLOCK_B });
-    expect(promoted).toMatchObject({ orphanedCoverage: 2 });
-    expect(forked.canonicalStatus).toBe("ORPHANED");
+    expect(promoted).toEqual({ canonical: 0, orphaned: 0 });
+    expect(matching.canonicalStatus).toBe("UNKNOWN");
+    expect(forked.canonicalStatus).toBe("UNKNOWN");
     expect(gap.canonicalStatus).toBe("UNKNOWN");
   });
 

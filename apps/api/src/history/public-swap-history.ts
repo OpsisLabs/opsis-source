@@ -204,7 +204,11 @@ export class PublicSwapHistoryRepository {
     return existing;
   }
 
-  /** Call only after an independent source has verified the canonical hash at this height. */
+  /**
+   * A verified block hash can classify observations at that height, but it
+   * cannot certify a whole range's event count or the other block hashes.
+   * Only promoteVerifiedCanonicalRange may make coverage readable.
+   */
   async promoteVerifiedCanonicalBlock(input: { chainId: number; blockNumber: bigint; blockHash: string }) {
     this.requireEnabled();
     assert(Number.isSafeInteger(input.chainId) && input.chainId > 0, "Invalid chainId");
@@ -219,15 +223,7 @@ export class PublicSwapHistoryRepository {
         where: { chainId: input.chainId, blockNumber: input.blockNumber, blockHash: { not: blockHash } },
         data: { canonicalStatus: "ORPHANED" },
       });
-      const matchingCoverage = await tx.publicSwapHistoryCoverage.updateMany({
-        where: { chainId: input.chainId, toBlock: input.blockNumber, status: { in: ["COMPLETE", "EMPTY"] }, blockHash },
-        data: { canonicalStatus: "CANONICAL" },
-      });
-      const orphanedCoverage = await tx.publicSwapHistoryCoverage.updateMany({
-        where: { chainId: input.chainId, toBlock: input.blockNumber, status: { in: ["COMPLETE", "EMPTY"] }, blockHash: { not: blockHash } },
-        data: { canonicalStatus: "ORPHANED" },
-      });
-      return { canonical: matching.count, orphaned: orphaned.count, canonicalCoverage: matchingCoverage.count, orphanedCoverage: orphanedCoverage.count };
+      return { canonical: matching.count, orphaned: orphaned.count };
     });
   }
 
