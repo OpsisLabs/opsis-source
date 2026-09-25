@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "ce8525f9e3d626cf008e803e98c156f5a0544248fff8cfc298fe4cb7fad39d09",
+  "sourceTreeDigest": "8f343cb77fca2064b1bfa4096e78b38b01c57be91be18d2f040dd8df519675b5",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "c599bae760e9c12217232525246f5c973c403d2c1dcc3f78987edc65c722b08e",
@@ -447,7 +447,7 @@
     "apps/web/src/opsis/legacy-theme.css": "03eefb464dcb31f03e8e8db418da7bf26b4758c60e913fae08058c2f25cf18dd",
     "apps/web/src/opsis/model.test.ts": "fe01668e5484d9cec6ac07674835502ee1e55e3aff82f119b046f8984da26303",
     "apps/web/src/opsis/model.ts": "3b0309e0b0dfae9c2a4cf997fc2fafcfb531bc6ef1ca34b2873a8084752d7e1e",
-    "apps/web/src/opsis/opsis.css": "9f9a66629dce6357ff748bf428d0346524b236bb5122c01ede866def911ca12f",
+    "apps/web/src/opsis/opsis.css": "57e388de30e4e1cd03d014d8fe06e1b6decb2acd61bb304d5d675ad71cc13c40",
     "apps/web/src/opsis/OpsisApp.tsx": "656911cbb637b14ef0002c420f3ed43aaef389a0611e89bf95d1903321b90f2c",
     "apps/web/src/opsis/OpsisCopy.tsx": "81a5d2abe2fe40479b31ea9fad5dc587433527d33e66281a2d9f484a8d702cd3",
     "apps/web/src/opsis/OriginalLanding.tsx": "c86a828adb37ae97dbefdb38e96d3f59113e41dcbee0dd5e2f9a54026706665c",
@@ -680,7 +680,7 @@
     "e2e/opsis-quant.mock.spec.ts": "d7e37ad60d99b7203b1caaed839d9c4d8f4d0321cd9f9cc3ae21eb77abbc9267",
     "e2e/opsis-watch-inbox.mock.spec.ts": "05d39019194cb263b6cb3376a7bd5f169466d01e41ca44384ac9afc0c285af63",
     "e2e/opsis-wiring.mock.spec.ts": "ed709fc35de5a9d6943224da6e7bc15c9c8cc2f12e92373005fb656db8a98d9b",
-    "e2e/opsis.mock.spec.ts": "3b65ae3c5070bb1e424bb2769d06229500b5c0fb53c5c531b0e619fe1fc3ebfb",
+    "e2e/opsis.mock.spec.ts": "36b3e67ac0718de05419eedb478fd0e54c06177d1b4d793ab112fcf99d131e1f",
     "e2e/private-mode.mock.spec.ts": "5a0857bc39f54eb25e598654d60f817e345677cf6945c0ed8ae13dcd5dcd1d69",
     "e2e/product-navigation.mock.spec.ts": "fcecf1660d2f350116d9bc04e243d45305a2b2f8c649f99aca929921023bd966",
     "e2e/quant.mock.spec.ts": "8b24063faff3295e39b580bce3cd82d240ed833eee0e66ebe1e422a28f2a1916",

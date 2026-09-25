@@ -158,7 +158,12 @@ test.describe("opsis preview", () => {
   });
   test("Research result keeps the tools bar scrollable without widening narrow viewports", async ({ page }) => {
     await access(page);
-    await page.route("**/v1/private/analyze", (route) => route.fulfill({ json: research() }));
+    const analysis = research();
+    analysis.answer.confirmedFacts = [{
+      fact: `Address: ${TOKEN}`,
+      sourceIds: ["s1", "s2", "s3", "s4", "s5"],
+    }];
+    await page.route("**/v1/private/analyze", (route) => route.fulfill({ json: analysis }));
     await unlock(page, "/research");
     await page.locator("#research-entity").fill(TOKEN);
     await page.getByLabel("Look up as").selectOption("token");

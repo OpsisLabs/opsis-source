@@ -350,6 +350,9 @@
   gap: 24px;
   align-items: start;
 }
+.opsis-two-column > * {
+  min-width: 0;
+}
 .opsis-panel {
   min-width: 0;
   padding: 28px;
@@ -756,7 +759,7 @@
     margin: 8px 0 28px;
   }
   .opsis-two-column {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .opsis form.opsis-panel {
     position: static;
@@ -836,13 +839,14 @@
 }
 .opsis-evidence-flow {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 26px;
 }
 .opsis-evidence-nodes {
   display: grid;
   gap: 10px;
   align-content: start;
+  min-width: 0;
 }
 .opsis-evidence-nodes button {
   display: flex;
@@ -858,6 +862,7 @@
 }
 .opsis-evidence-nodes button > span:nth-child(2) {
   flex: 1;
+  overflow-wrap: anywhere;
 }
 .opsis-evidence-nodes button[aria-pressed="true"] {
   border-color: var(--ink);
@@ -975,7 +980,7 @@
 }
 @media (max-width: 850px) {
   .opsis-evidence-flow {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .opsis-evidence-sources {
     border-left: 0;
