@@ -72,6 +72,8 @@ export class AlchemyProvider implements Pick<ChainProvider, "name" | "getTransac
   readonly name: "alchemy" | "robinhood-public-rpc";
   private readonly rpcUrl?: string;
   private readonly http: ProviderHttp;
+  private readonly inFlightTransactions = new Map<string, Promise<SourceDocumentInput[]>>();
+  private static readonly MAX_IN_FLIGHT_TRANSACTIONS = 64;
 
   constructor(private readonly env: Env, http?: ProviderHttp) {
     const alchemyUrl = env.ALCHEMY_ROBINHOOD_RPC_URL
@@ -87,6 +89,24 @@ export class AlchemyProvider implements Pick<ChainProvider, "name" | "getTransac
 
   async getTransaction(hash: string): Promise<SourceDocumentInput[]> {
     if (!this.rpcUrl) return [];
+    const key = /^0x[0-9a-f]{64}$/i.test(hash) ? hash.toLowerCase() : undefined;
+    if (key) {
+      const pending = this.inFlightTransactions.get(key);
+      if (pending) return pending;
+      if (this.inFlightTransactions.size < AlchemyProvider.MAX_IN_FLIGHT_TRANSACTIONS) {
+        const request = this.fetchTransaction(hash);
+        let tracked: Promise<SourceDocumentInput[]>;
+        tracked = request.finally(() => {
+          if (this.inFlightTransactions.get(key) === tracked) this.inFlightTransactions.delete(key);
+        });
+        this.inFlightTransactions.set(key, tracked);
+        return tracked;
+      }
+    }
+    return this.fetchTransaction(hash);
+  }
+
+  private async fetchTransaction(hash: string): Promise<SourceDocumentInput[]> {
     const [tx, receipt] = await Promise.all([
       this.rpc("eth_getTransactionByHash", [hash]),
       this.rpc("eth_getTransactionReceipt", [hash])

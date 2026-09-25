@@ -75,6 +75,12 @@ export class ChainEntityResolver {
         })),
         providerRequest(this.alchemy, providerDestinations, () => this.alchemy.getTransaction(identified.value))
       ]));
+      const successfulDocs = providerResults.flatMap((result) => result.status === "fulfilled" ? result.value : []);
+      const explorerDocs = successfulDocs.filter((doc) => doc.provider === this.blockscout.name);
+      const rpcDocs = successfulDocs.filter((doc) => doc.provider === this.alchemy.name);
+      if (explorerDocs.length > 0 && rpcDocs.length > 0) {
+        assertTransactionSourcesAgree(identified.value, explorerDocs, rpcDocs);
+      }
       docs = providerResults.flatMap((result) => result.status === "fulfilled" ? result.value : []);
       if (docs.length === 0) {
         if (stale) return markStale(stale, providerDestinations);
@@ -234,6 +240,80 @@ export class ChainEntityResolver {
       return;
     }
   }
+}
+
+function assertTransactionSourcesAgree(requestedHash: string, explorerDocs: SourceDocumentInput[], rpcDocs: SourceDocumentInput[]): void {
+  const primary = explorerDocs.find((doc) => doc.provider === "blockscout") ?? explorerDocs[0]!;
+  const explorer = asRecord(primary.responseJson) ?? {};
+  const rpcTransaction = asRecord(rpcDocs.find((doc) => rpcMethod(doc) === "eth_getTransactionByHash")?.responseJson);
+  const rpcReceipt = asRecord(rpcDocs.find((doc) => rpcMethod(doc) === "eth_getTransactionReceipt")?.responseJson);
+  const tx = asRecord(rpcTransaction?.result);
+  const receipt = asRecord(rpcReceipt?.result);
+  const conflict = () => { throw new AppError("TRANSACTION_SOURCE_MISMATCH", 502, "Transaction providers returned conflicting evidence"); };
+
+  if (Object.prototype.hasOwnProperty.call(explorer, "hash")) {
+    if (typeof explorer.hash !== "string" || !/^0x[0-9a-f]{64}$/i.test(explorer.hash)
+      || explorer.hash.toLowerCase() !== requestedHash.toLowerCase()) conflict();
+  }
+  if (!tx && !receipt) return;
+  const compare = (left: unknown, right: unknown, kind: "hash" | "quantity" | "address") => {
+    if (left === undefined || right === undefined) return;
+    if (left === null || right === null) {
+      if (left !== right) conflict();
+      return;
+    }
+    if (kind === "hash") {
+      if (typeof left !== "string" || typeof right !== "string" || !/^0x[\da-f]{64}$/i.test(left) || !/^0x[\da-f]{64}$/i.test(right)
+        || left.toLowerCase() !== right.toLowerCase()) conflict();
+    } else if (kind === "address") {
+      if (typeof left !== "string" || typeof right !== "string" || !/^0x[\da-f]{40}$/i.test(left) || !/^0x[\da-f]{40}$/i.test(right)
+        || left.toLowerCase() !== right.toLowerCase()) conflict();
+    } else {
+      const a = parseQuantity(left), b = parseQuantity(right);
+      if (a === undefined || b === undefined || a !== b) conflict();
+    }
+  };
+  compare(explorer.hash, requestedHash, "hash");
+  const rpcBlockHash = tx && Object.prototype.hasOwnProperty.call(tx, "blockHash") ? tx.blockHash : receipt?.blockHash;
+  compare(explorer.block_hash, rpcBlockHash, "hash");
+  const rpcBlockNumber = tx && Object.prototype.hasOwnProperty.call(tx, "blockNumber") ? tx.blockNumber : receipt?.blockNumber;
+  compare(explorer.block_number, rpcBlockNumber, "quantity");
+  compare(blockscoutAddress(explorer.from), tx?.from, "address");
+  compare(blockscoutAddress(explorer.to), tx?.to, "address");
+  compare(explorer.value, tx?.value, "quantity");
+
+  const indexedStatus = transactionStatus(explorer.status);
+  const receiptStatus = transactionStatus(receipt?.status);
+  if (indexedStatus !== undefined && receiptStatus !== undefined && indexedStatus !== receiptStatus) conflict();
+}
+
+function asRecord(value: unknown): Record<string, unknown> | undefined {
+  return value !== null && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : undefined;
+}
+
+function blockscoutAddress(value: unknown): unknown {
+  const address = asRecord(value);
+  return address && Object.prototype.hasOwnProperty.call(address, "hash") ? address.hash : value;
+}
+
+function rpcMethod(doc: SourceDocumentInput): string | undefined {
+  return asRecord(doc.responseJson)?.method as string | undefined;
+}
+
+function parseQuantity(value: unknown): bigint | undefined {
+  if (typeof value === "bigint") return value;
+  if (typeof value !== "string" && typeof value !== "number") return undefined;
+  const text = String(value);
+  if (!/^(?:0x[0-9a-f]+|\d+)$/i.test(text)) return undefined;
+  try { return BigInt(text); } catch { return undefined; }
+}
+
+function transactionStatus(value: unknown): boolean | undefined {
+  if (typeof value !== "string" && typeof value !== "number") return undefined;
+  const status = String(value).toLowerCase();
+  if (["ok", "success", "1", "0x1"].includes(status)) return true;
+  if (["error", "failed", "0", "0x0"].includes(status)) return false;
+  return undefined;
 }
 
 function hasTokenBalanceSource(docs: SourceDocumentInput[]): boolean {

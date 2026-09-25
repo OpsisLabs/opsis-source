@@ -59,7 +59,7 @@ function resolver(blockscout: ChainProvider, alchemy: AlchemyProvider | Record<s
   const rpc = alchemy as AlchemyProvider & { name: string; getTransaction: () => Promise<SourceDocumentInput[]>; getAddressSummary: () => Promise<SourceDocumentInput[]>; getAllowances: () => Promise<SourceDocumentInput[]> };
   return new ChainEntityResolver(env, undefined, undefined, {
     blockscout,
-    alchemy: { name: rpc.name ?? "robinhood-public-rpc", getTransaction: rpc.getTransaction ?? (async () => []),
+    alchemy: { name: rpc.name ?? "robinhood-public-rpc", isConfigured: () => true, getTransaction: rpc.getTransaction?.bind(rpc) ?? (async () => []),
       getAddressSummary: rpc.getAddressSummary ?? (async () => []), getAllowances: rpc.getAllowances ?? (async () => []),
       getTokenMetadataSample: rpc.getTokenMetadataSample?.bind(rpc) },
     goldrush: { name: "goldrush", isConfigured: () => false, getAddressSummary: async () => [] }
@@ -208,14 +208,63 @@ describe("Research transaction RPC fallback correlation", () => {
     });
   });
 
-  it("retains successful Blockscout evidence when the RPC pair contradicts it", async () => {
-    const indexed = { hash: txHash, status: "ok", from: address, to: address, value: "1", block_number: "42" };
+  const indexedData = { hash: txHash, status: "success", from: address, to: address, value: "1", block_number: "42", block_hash: blockHash };
+  function indexedDoc(value: Record<string, unknown> = indexedData): SourceDocumentInput {
     const blockscoutDoc: SourceDocumentInput = { id: "indexed-tx", provider: "blockscout", chainId: 4663,
       entityType: "transaction", entityValue: txHash, requestUrl: "https://robinhoodchain.blockscout.com/api/v2/transactions/example",
-      responseJson: indexed, fetchedAt: now };
-    const result = await resolver(transactionExplorer(async () => [blockscoutDoc]),
-      transactionRpc({ transaction: { ...transaction, hash: `0x${"ef".repeat(32)}` }, receipt })).resolveWithSources("transaction", txHash);
-    expect(result.entity.facts).toMatchObject({ hash: txHash, status: "ok" });
-    expect(result.sources.map((source) => source.provider)).toEqual(["blockscout"]);
+      responseJson: value, fetchedAt: now };
+    return blockscoutDoc;
+  }
+
+  it("accepts matching cross-provider evidence and normalizes decimal/hex quantities", async () => {
+    const result = await resolver(transactionExplorer(async () => [indexedDoc()]), transactionRpc({ transaction, receipt }))
+      .resolveWithSources("transaction", txHash);
+    expect(result.sources.map((source) => source.provider)).toEqual(["blockscout", "robinhood-public-rpc", "robinhood-public-rpc"]);
+  });
+
+  it("unwraps Blockscout address objects while comparing participants", async () => {
+    const objectAddresses = { ...indexedData, from: { hash: address }, to: { hash: `0x${address.slice(2).toUpperCase()}` } };
+    await expect(resolver(transactionExplorer(async () => [indexedDoc(objectAddresses)]), transactionRpc({ transaction, receipt }))
+      .resolveWithSources("transaction", txHash)).resolves.toBeDefined();
+    for (const field of ["from", "to"] as const) {
+      const mismatch = { ...objectAddresses, [field]: { hash: `0x${"00".repeat(19)}43` } };
+      await expect(resolver(transactionExplorer(async () => [indexedDoc(mismatch)]), transactionRpc({ transaction, receipt }))
+        .resolveWithSources("transaction", txHash)).rejects.toThrow("conflicting evidence");
+    }
+  });
+
+  it.each([
+    ["hash", { ...indexedData, hash: `0x${"ef".repeat(32)}` }, transaction, receipt],
+    ["malformed hash", { ...indexedData, hash: "0x1234" }, transaction, receipt],
+    ["block hash", { ...indexedData, block_hash: `0x${"ef".repeat(32)}` }, transaction, receipt],
+    ["block number", { ...indexedData, block_number: "43" }, transaction, receipt],
+    ["status", { ...indexedData, status: "failed" }, transaction, receipt],
+    ["value", { ...indexedData, value: "2" }, transaction, receipt],
+    ["from", { ...indexedData, from: `0x${"00".repeat(19)}43` }, transaction, receipt],
+    ["to", { ...indexedData, to: `0x${"00".repeat(19)}43` }, transaction, receipt],
+    ["pending inclusion", { ...indexedData, block_hash: null, block_number: null }, transaction, receipt]
+  ])("fails closed on conflicting cross-provider %s", async (_field, indexedValue, tx, rcpt) => {
+    await expect(resolver(transactionExplorer(async () => [indexedDoc(indexedValue as Record<string, unknown>)]), transactionRpc({ transaction: tx, receipt: rcpt }))
+      .resolveWithSources("transaction", txHash)).rejects.toThrow("conflicting evidence");
+  });
+
+  it("allows absent optional fields and preserves one-provider fallback", async () => {
+    const rpc = transactionRpc({ transaction, receipt });
+    const result = await resolver(transactionExplorer(async () => [indexedDoc({ hash: txHash })]), rpc).resolveWithSources("transaction", txHash);
+    expect(result.sources).toHaveLength(3);
+    const fallback = await resolver(transactionExplorer(async () => { throw new Error("explorer unavailable"); }), rpc)
+      .resolveWithSources("transaction", txHash);
+    expect(fallback.sources.map((source) => source.provider)).toEqual(["robinhood-public-rpc", "robinhood-public-rpc"]);
+  });
+
+  it("does not make additional RPC requests for consistency checks", async () => {
+    let requestCount = 0;
+    const rpc = new AlchemyProvider(env, { async requestJson(_url, init) {
+      requestCount++;
+      const request = JSON.parse(String(init?.body)) as { method: string };
+      return { result: request.method === "eth_getTransactionByHash" ? transaction : receipt };
+    } });
+    await resolver(transactionExplorer(async () => [indexedDoc()]), rpc).resolveWithSources("transaction", txHash);
+    expect(requestCount).toBe(2);
   });
 });
