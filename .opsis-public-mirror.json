@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "ae652ac6ab533dbd03662afb2c9fc75f03d60271af8ec4f67793d9e09177de17",
+  "sourceTreeDigest": "b5d03b843f865d0584df05bf64396890614455421a7deb0b4782cf5adab1463e",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "c599bae760e9c12217232525246f5c973c403d2c1dcc3f78987edc65c722b08e",
@@ -145,7 +145,7 @@
     "apps/api/test/exit-check-wiring.test.ts": "dff5e524676cddf584c3756c08d0ef67896edfcedb67ffd8561ac247449e4d5e",
     "apps/api/test/exit-check.test.ts": "4fcd318c9c096779c8eccabde01bc4f443e65149072146414508cac3943b1f2d",
     "apps/api/test/explorer-answers.test.ts": "4ef18c0b1c7b34471672e791fb55ea6c8d874fbedeb64eff7501b3505a4d3486",
-    "apps/api/test/fixtures/alchemy-transaction.json": "ada19ddb8e07de842978574237d5b3826ffce36ad604695ffeec6ad26fac6319",
+    "apps/api/test/fixtures/alchemy-transaction.json": "c5cbad520517adcc60a26eaca98b2df52878e4870c63f4f303f7edc287fa0d57",
     "apps/api/test/fixtures/blockscout-address.json": "8ebab0d3c7e4a5bcde0ed406245d8bec6991ae71fb42fdf920c3be5d32e6c67f",
     "apps/api/test/fixtures/blockscout-internal-transactions.json": "cc261d4d141946dbbc4c76a61c540947a9323e6249ba6fa8bcda997f6fad86f4",
     "apps/api/test/fixtures/blockscout-logs.json": "89eb1f890a7a2a7a6bef4e5552798b00733ea65ebaf6a2c63910f2699b43b9ba",

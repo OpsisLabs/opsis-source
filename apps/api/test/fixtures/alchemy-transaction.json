@@ -6,6 +6,7 @@
     "value": "0x1"
   },
   "receipt": {
+    "transactionHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     "status": "0x1",
     "gasUsed": "0x5208",
     "logs": []
