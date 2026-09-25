@@ -156,6 +156,25 @@ test.describe("opsis preview", () => {
       .click();
     await expect(page.getByTestId("opsis-quote")).toHaveCount(0);
   });
+  test("Research result keeps the tools bar scrollable without widening narrow viewports", async ({ page }) => {
+    await access(page);
+    await page.route("**/v1/private/analyze", (route) => route.fulfill({ json: research() }));
+    await unlock(page, "/research");
+    await page.locator("#research-entity").fill(TOKEN);
+    await page.getByLabel("Look up as").selectOption("token");
+    await page.getByRole("button", { name: "Run research", exact: true }).click();
+    await expect(page.getByTestId("opsis-research-result")).toBeVisible();
+    const toolNav = page.getByRole("navigation", { name: "Workspace tools", exact: true });
+    const worldMarkets = toolNav.getByRole("link", { name: "World & markets", exact: true });
+    await expect(worldMarkets).toBeAttached();
+    for (const width of [390, 320]) {
+      await page.setViewportSize({ width, height: 900 });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+      expect(await toolNav.evaluate((nav) => getComputedStyle(nav).overflowX)).toBe("auto");
+      await worldMarkets.scrollIntoViewIfNeeded();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+    }
+  });
   test("quote errors, unsupported pools and changed input do not leave a misleading result", async ({
     page,
   }) => {

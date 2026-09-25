@@ -248,6 +248,9 @@
   border-bottom: 1px solid var(--line);
   overflow-x: auto;
   white-space: nowrap;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
 }
 .opsis-tool-nav span {
   font:
