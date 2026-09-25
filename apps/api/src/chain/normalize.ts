@@ -109,8 +109,26 @@ function summarizeFacts(type: ChainEntityType, docs: SourceDocumentInput[]): Rec
     const providerMethod = typeof primary?.method === "string" && !primary.method.startsWith("eth_")
       ? primary.method
       : undefined;
+    const rpcTransactionDocs = docs.filter((doc) => {
+      const method = (doc.responseJson as { method?: unknown } | undefined)?.method;
+      return method === "eth_getTransactionByHash" || method === "eth_getTransactionReceipt";
+    });
+    const rpcTx = rpcTransactionDocs.find((doc) => (doc.responseJson as { method?: string }).method === "eth_getTransactionByHash")
+      ?.responseJson as { result?: Record<string, unknown> } | undefined;
+    const rpcReceipt = rpcTransactionDocs.find((doc) => (doc.responseJson as { method?: string }).method === "eth_getTransactionReceipt")
+      ?.responseJson as { result?: Record<string, unknown> } | undefined;
+    const rpcBlockEvidence = [rpcTx?.result, rpcReceipt?.result].some((result) =>
+      typeof result?.blockHash === "string" || typeof result?.blockNumber === "string"
+    );
+    const rpcTransactionCoverage = rpcTransactionDocs.length > 0
+      ? (typeof rpcTx?.result?.hash === "string" && typeof rpcReceipt?.result?.transactionHash === "string"
+        && typeof rpcTx.result.blockHash === "string" && typeof rpcTx.result.blockNumber === "string"
+        && typeof rpcReceipt.result.blockHash === "string" && typeof rpcReceipt.result.blockNumber === "string"
+        ? "rpc_pair_block_matched" : "partial")
+      : undefined;
     return {
-      hash: primary?.hash ?? valueFromRpc(docs, "hash"),
+      hash: primary?.hash ?? valueFromRpc(docs, "hash") ?? valueFromRpc(docs, "transactionHash")
+        ?? (rpcTransactionDocs.length > 0 ? docs.find((doc) => (doc.responseJson as { method?: string }).method === "eth_getTransactionByHash")?.entityValue : undefined),
       blockNumber: primary?.block_number ?? valueFromRpc(docs, "blockNumber"),
       timestamp: primary?.timestamp ?? null,
       status: primary?.status ?? valueFromRpc([...(receipt ? [{ responseJson: receipt }] : [])], "status"),
@@ -132,6 +150,10 @@ function summarizeFacts(type: ChainEntityType, docs: SourceDocumentInput[]): Rec
       stateChanges,
       internalTransactionFailure: Boolean(primary?.has_error_in_internal_transactions),
       failureDetail: primary?.revert_reason ?? primary?.result,
+      ...(rpcTransactionCoverage ? {
+        transactionEvidenceCoverage: rpcTransactionCoverage,
+        observationFinality: rpcBlockEvidence ? "current_not_final" : "unknown"
+      } : {}),
       rawSourceCount: docs.length
     };
   }

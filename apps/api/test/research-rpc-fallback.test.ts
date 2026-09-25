@@ -20,6 +20,23 @@ function doc(entityType: "token", method: string, result: unknown, query?: strin
 const stringResult = (value: string) => encodeAbiParameters([{ type: "string" }], [value]);
 const uintResult = (value: bigint) => encodeAbiParameters([{ type: "uint256" }], [value]);
 
+const txHash = `0x${"ab".repeat(32)}`;
+const blockHash = `0x${"cd".repeat(32)}`;
+
+function transactionRpc(results: { transaction: unknown; receipt: unknown }) {
+  return new AlchemyProvider(env, {
+    async requestJson(_url, init) {
+      const request = JSON.parse(String(init?.body)) as { method: string };
+      return { result: request.method === "eth_getTransactionByHash" ? results.transaction : results.receipt };
+    }
+  });
+}
+
+function transactionExplorer(getTransaction: () => Promise<SourceDocumentInput[]>): ChainProvider {
+  return { name: "blockscout", isConfigured: () => true, getTransaction, getAddressSummary: async () => [],
+    getToken: async () => [], getContract: async () => [] };
+}
+
 function rpcProvider(results: Record<string, unknown>) {
   return new AlchemyProvider(env, {
     async requestJson(_url, init) {
@@ -101,5 +118,63 @@ describe("Private Mode explicit token RPC fallback", () => {
     await expect(resolver(explorer(async () => { throw new Error("403"); }), rpc)
       .resolveWithSources("token", address)).rejects.toThrow("403");
     expect(fallbackCalls).toBe(0);
+  });
+});
+
+describe("Research transaction RPC fallback correlation", () => {
+  const transaction = { hash: txHash, from: address, to: address, value: "0x1", blockHash, blockNumber: "0x2a" };
+  const receipt = { transactionHash: txHash, status: "0x1", blockHash, blockNumber: "0x2a", gasUsed: "0x5208" };
+
+  it("accepts a hash and block matched transaction/receipt pair", async () => {
+    const provider = transactionRpc({ transaction, receipt });
+    const docs = await provider.getTransaction(txHash);
+    const facts = normalizeEntity(4663, "transaction", txHash, docs).facts;
+    expect(facts).toMatchObject({ hash: txHash, status: "0x1", transactionEvidenceCoverage: "rpc_pair_block_matched",
+      observationFinality: "current_not_final" });
+  });
+
+  it.each([
+    ["transaction hash", { ...transaction, hash: `0x${"ef".repeat(32)}` }, receipt],
+    ["receipt hash", transaction, { ...receipt, transactionHash: `0x${"ef".repeat(32)}` }],
+    ["block hash", transaction, { ...receipt, blockHash: `0x${"ef".repeat(32)}` }],
+    ["block number", transaction, { ...receipt, blockNumber: "0x2b" }],
+    ["missing transaction hash", { from: address }, receipt],
+    ["malformed transaction hash", { ...transaction, hash: "0x1234" }, receipt],
+    ["missing receipt hash", transaction, { status: "0x1" }],
+    ["malformed receipt hash", transaction, { ...receipt, transactionHash: "0x1234" }],
+    ["non-object transaction result", "malformed", receipt],
+    ["array receipt result", transaction, [receipt]],
+    ["null transaction inclusion contradiction", { ...transaction, blockHash: null }, receipt],
+    ["malformed block hash", transaction, { ...receipt, blockHash: "0x1234" }],
+    ["malformed block number", transaction, { ...transaction, blockNumber: "42" }, { ...receipt, blockNumber: "42" }]
+  ])("rejects a mismatched %s without returning RPC documents", async (_label, tx, rcpt) => {
+    await expect(transactionRpc({ transaction: tx, receipt: rcpt }).getTransaction(txHash))
+      .rejects.toThrow("RPC_TRANSACTION_RESPONSE_MISMATCH");
+  });
+
+  it("keeps pending or missing inclusion evidence explicitly partial and unknown", async () => {
+    const docs = await transactionRpc({ transaction: { ...transaction, blockHash: null, blockNumber: null }, receipt: null })
+      .getTransaction(txHash);
+    expect(normalizeEntity(4663, "transaction", txHash, docs).facts).toMatchObject({
+      hash: txHash, transactionEvidenceCoverage: "partial", observationFinality: "unknown"
+    });
+  });
+
+  it("accepts a receipt-only result as partial evidence", async () => {
+    const docs = await transactionRpc({ transaction: null, receipt }).getTransaction(txHash);
+    expect(normalizeEntity(4663, "transaction", txHash, docs).facts).toMatchObject({
+      hash: txHash, status: "0x1", transactionEvidenceCoverage: "partial", observationFinality: "current_not_final"
+    });
+  });
+
+  it("retains successful Blockscout evidence when the RPC pair contradicts it", async () => {
+    const indexed = { hash: txHash, status: "ok", from: address, to: address, value: "1", block_number: "42" };
+    const blockscoutDoc: SourceDocumentInput = { id: "indexed-tx", provider: "blockscout", chainId: 4663,
+      entityType: "transaction", entityValue: txHash, requestUrl: "https://robinhoodchain.blockscout.com/api/v2/transactions/example",
+      responseJson: indexed, fetchedAt: now };
+    const result = await resolver(transactionExplorer(async () => [blockscoutDoc]),
+      transactionRpc({ transaction: { ...transaction, hash: `0x${"ef".repeat(32)}` }, receipt })).resolveWithSources("transaction", txHash);
+    expect(result.entity.facts).toMatchObject({ hash: txHash, status: "ok" });
+    expect(result.sources.map((source) => source.provider)).toEqual(["blockscout"]);
   });
 });

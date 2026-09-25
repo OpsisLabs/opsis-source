@@ -91,6 +91,7 @@ export class AlchemyProvider implements Pick<ChainProvider, "name" | "getTransac
       this.rpc("eth_getTransactionByHash", [hash]),
       this.rpc("eth_getTransactionReceipt", [hash])
     ]);
+    validateTransactionEvidence(hash, tx, receipt);
     if (tx === null && receipt === null) return [];
     return [
       this.doc("transaction", hash, "eth_getTransactionByHash", tx),
@@ -246,6 +247,57 @@ export class AlchemyProvider implements Pick<ChainProvider, "name" | "getTransac
       responseJson: { method, ...context, result: responseJson },
       fetchedAt: new Date().toISOString()
     };
+  }
+}
+
+function validateTransactionEvidence(requestedHash: string, transaction: unknown, receipt: unknown): void {
+  const requested = requestedHash.toLowerCase();
+  if (!/^0x[0-9a-f]{64}$/i.test(requestedHash)) throw new Error("RPC_TRANSACTION_RESPONSE_MISMATCH");
+  const tx = transaction === null ? undefined : asRpcObject(transaction);
+  const receiptValue = receipt === null ? undefined : asRpcObject(receipt);
+  if (tx && (typeof tx.hash !== "string" || !/^0x[0-9a-f]{64}$/i.test(tx.hash) || tx.hash.toLowerCase() !== requested)) {
+    throw new Error("RPC_TRANSACTION_RESPONSE_MISMATCH");
+  }
+  if (receiptValue && (typeof receiptValue.transactionHash !== "string"
+    || !/^0x[0-9a-f]{64}$/i.test(receiptValue.transactionHash)
+    || receiptValue.transactionHash.toLowerCase() !== requested)) {
+    throw new Error("RPC_TRANSACTION_RESPONSE_MISMATCH");
+  }
+  if (tx && receiptValue) {
+    for (const field of ["blockHash", "blockNumber"] as const) {
+      const txValue = tx[field];
+      const receiptFieldValue = receiptValue[field];
+      if ((txValue === null) !== (receiptFieldValue === null)) {
+        throw new Error("RPC_TRANSACTION_RESPONSE_MISMATCH");
+      }
+      if (txValue === null || receiptFieldValue === null || txValue === undefined || receiptFieldValue === undefined) continue;
+      if (field === "blockHash") {
+        if (typeof txValue !== "string" || typeof receiptFieldValue !== "string"
+          || !/^0x[0-9a-f]{64}$/i.test(txValue) || !/^0x[0-9a-f]{64}$/i.test(receiptFieldValue)
+          || txValue.toLowerCase() !== receiptFieldValue.toLowerCase()) {
+          throw new Error("RPC_TRANSACTION_RESPONSE_MISMATCH");
+        }
+      } else if (canonicalRpcQuantity(txValue) === undefined || canonicalRpcQuantity(receiptFieldValue) === undefined
+        || canonicalRpcQuantity(txValue) !== canonicalRpcQuantity(receiptFieldValue)) {
+        throw new Error("RPC_TRANSACTION_RESPONSE_MISMATCH");
+      }
+    }
+  }
+}
+
+function asRpcObject(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error("RPC_TRANSACTION_RESPONSE_MISMATCH");
+  }
+  return value as Record<string, unknown>;
+}
+
+function canonicalRpcQuantity(value: unknown): string | undefined {
+  if (typeof value !== "string" || !/^0x[0-9a-f]+$/i.test(value)) return undefined;
+  try {
+    return BigInt(value).toString(16);
+  } catch {
+    return undefined;
   }
 }
 
