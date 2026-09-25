@@ -4,6 +4,11 @@
  */
 export const PERP_SIZE_DECIMALS = 8;
 const SIZE_SCALE = 10n ** BigInt(PERP_SIZE_DECIMALS);
+const MAX_BASE_SIZE_INPUT_LENGTH = 40;
+
+function isBoundedNonEmptyString(value: unknown, maxLength: number): value is string {
+  return typeof value === "string" && value.trim().length > 0 && value.length <= maxLength;
+}
 
 export type PerpIntentKind = "open" | "reduce" | "close";
 export type PerpSide = "buy" | "sell";
@@ -23,6 +28,9 @@ export type PerpOrderState =
 
 export type PerpOrderIntent = Readonly<{
   clientOrderId: string;
+  venueId: string;
+  accountId: string;
+  marketId: string;
   side: PerpSide;
   kind: PerpIntentKind;
   reduceOnlyRequested: boolean;
@@ -38,11 +46,13 @@ export type PerpOrderIntent = Readonly<{
 
 export type LifecycleError =
   | "invalid-client-id"
+  | "invalid-scope-id"
   | "invalid-authorization-marker"
   | "invalid-size"
   | "reduce-only-required"
   | "invalid-transition"
   | "client-id-mismatch"
+  | "scope-mismatch"
   | "order-id-mismatch"
   | "order-id-required"
   | "fill-regression"
@@ -54,6 +64,8 @@ export type Result<T> = { ok: true; value: T } | { ok: false; error: LifecycleEr
 
 /** Parse a positive base size exactly, accepting at most eight decimal places. */
 export function parseBaseSize(value: string): bigint | null {
+  if (typeof value !== "string") return null;
+  if (value.length > MAX_BASE_SIZE_INPUT_LENGTH) return null;
   const match = /^(0|[1-9]\d*)(?:\.(\d{1,8}))?$/.exec(value);
   if (!match) return null;
   const fraction = (match[2] ?? "").padEnd(PERP_SIZE_DECIMALS, "0");
@@ -69,12 +81,19 @@ export function formatBaseSize(units: bigint): string {
 
 export function createPerpIntent(input: {
   clientOrderId: string;
+  venueId: string;
+  accountId: string;
+  marketId: string;
   side: PerpSide;
   kind: PerpIntentKind;
   requestedSize: string;
   reduceOnlyRequested: boolean;
 }): Result<PerpOrderIntent> {
-  if (!input.clientOrderId.trim() || input.clientOrderId.length > 128) return { ok: false, error: "invalid-client-id" };
+  if (!input || typeof input !== "object") return { ok: false, error: "invalid-client-id" };
+  if (!isBoundedNonEmptyString(input.clientOrderId, 128)) return { ok: false, error: "invalid-client-id" };
+  if (!isBoundedNonEmptyString(input.venueId, 128) || !isBoundedNonEmptyString(input.accountId, 128) || !isBoundedNonEmptyString(input.marketId, 256)) {
+    return { ok: false, error: "invalid-scope-id" };
+  }
   const requestedSize = parseBaseSize(input.requestedSize);
   if (requestedSize === null) return { ok: false, error: "invalid-size" };
   if (input.kind !== "open" && !input.reduceOnlyRequested) {
@@ -84,6 +103,9 @@ export function createPerpIntent(input: {
     ok: true,
     value: {
       clientOrderId: input.clientOrderId,
+      venueId: input.venueId,
+      accountId: input.accountId,
+      marketId: input.marketId,
       side: input.side,
       kind: input.kind,
       reduceOnlyRequested: input.reduceOnlyRequested,
@@ -97,6 +119,9 @@ export function createPerpIntent(input: {
 
 export type VenueOrderEvent = Readonly<{
   clientOrderId: string;
+  venueId: string;
+  accountId: string;
+  marketId: string;
   orderId?: string;
   type: "accepted" | "open" | "fill" | "canceled" | "rejected" | "not-found";
   cumulativeFilled?: bigint;
@@ -136,7 +161,21 @@ const terminalStates = new Set<PerpOrderState>(["filled", "canceled", "rejected"
 
 /** Apply a correlated venue observation; `not-found` cannot resolve unknown. */
 export function applyVenueEvent(intent: PerpOrderIntent, event: VenueOrderEvent): Result<PerpOrderIntent> {
-  if (event.clientOrderId.length > 128 || (event.orderId !== undefined && (!event.orderId.trim() || event.orderId.length > 128))) {
+  if (!event || typeof event !== "object") return { ok: false, error: "invalid-scope-id" };
+  if (!isBoundedNonEmptyString(event.clientOrderId, 128)) return { ok: false, error: "invalid-client-id" };
+  if (!isBoundedNonEmptyString(event.venueId, 128) || !isBoundedNonEmptyString(event.accountId, 128) || !isBoundedNonEmptyString(event.marketId, 256)) {
+    return { ok: false, error: "invalid-scope-id" };
+  }
+  if (event.cumulativeFilled !== undefined && typeof event.cumulativeFilled !== "bigint") {
+    return { ok: false, error: "invalid-fill-state" };
+  }
+  if (event.type !== "accepted" && event.type !== "open" && event.type !== "fill" && event.type !== "canceled" && event.type !== "rejected" && event.type !== "not-found") {
+    return { ok: false, error: "invalid-transition" };
+  }
+  if (event.venueId !== intent.venueId || event.accountId !== intent.accountId || event.marketId !== intent.marketId) {
+    return { ok: false, error: "scope-mismatch" };
+  }
+  if (event.orderId !== undefined && !isBoundedNonEmptyString(event.orderId, 128)) {
     return { ok: false, error: "order-id-required" };
   }
   if (event.clientOrderId !== intent.clientOrderId) return { ok: false, error: "client-id-mismatch" };
@@ -165,6 +204,17 @@ export function applyVenueEvent(intent: PerpOrderIntent, event: VenueOrderEvent)
   if (event.type === "canceled") {
     if (intent.state !== "cancel-pending" && intent.state !== "cancel-status-unknown" && intent.state !== "submission-unknown" && intent.state !== "open" && intent.state !== "accepted" && intent.state !== "partially-filled") {
       return { ok: false, error: "invalid-transition" };
+    }
+    const filled = event.cumulativeFilled;
+    if (filled !== undefined) {
+      if (filled < intent.cumulativeFilled) return { ok: false, error: "fill-regression" };
+      if (filled > intent.requestedSize) return { ok: false, error: "fill-exceeds-request" };
+      // A cancel acknowledgment can race a final fill; cumulative venue evidence
+      // wins when it shows the requested amount was already completely filled.
+      if (filled === intent.requestedSize) {
+        return { ok: true, value: { ...withOrderId, cumulativeFilled: filled, state: "filled" } };
+      }
+      return { ok: true, value: { ...withOrderId, cumulativeFilled: filled, state: "canceled" } };
     }
     return { ok: true, value: { ...withOrderId, state: "canceled" } };
   }

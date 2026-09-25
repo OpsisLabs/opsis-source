@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "09fdf72b388ef979e4e281a614eb0139a23c4aa474ac859ad26f0838d0e46b7e",
+  "sourceTreeDigest": "eb7a66c9725c89430669fe1344bef28ee6cecaf6eb2c21dcde967ed55b02f12e",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "c599bae760e9c12217232525246f5c973c403d2c1dcc3f78987edc65c722b08e",
@@ -454,10 +454,10 @@
     "apps/web/src/opsis/OpsisApp.tsx": "656911cbb637b14ef0002c420f3ed43aaef389a0611e89bf95d1903321b90f2c",
     "apps/web/src/opsis/OpsisCopy.tsx": "81a5d2abe2fe40479b31ea9fad5dc587433527d33e66281a2d9f484a8d702cd3",
     "apps/web/src/opsis/OriginalLanding.tsx": "c86a828adb37ae97dbefdb38e96d3f59113e41dcbee0dd5e2f9a54026706665c",
-    "apps/web/src/opsis/perp-order-conformance.test.ts": "5095e488bee975fb597a35235bfb445b0d264d7bed53ec16a3d4f27b265b6a89",
+    "apps/web/src/opsis/perp-order-conformance.test.ts": "d1201110722e8ab3dd26699ade67a3545f519ba4bfc8617cfd700bd9486bc49f",
     "apps/web/src/opsis/perp-order-conformance.ts": "28ec1683b3df480209e767494ac2fe9c3ff08ce2306ec27620cc1e9720fd5dde",
-    "apps/web/src/opsis/perp-order-lifecycle.test.ts": "b8e0f5e735405bb72a16c019d3286cdef6e4132affa91935f9ec5623221c862c",
-    "apps/web/src/opsis/perp-order-lifecycle.ts": "eddcd476b107e25237230bf151c91fd0f33bbd0a2f9e890fdbe07558dfbc6093",
+    "apps/web/src/opsis/perp-order-lifecycle.test.ts": "a04371d0c2ed4d893213f1d5f132c1f74e2f44bd4b44723e831f6c47c366c58e",
+    "apps/web/src/opsis/perp-order-lifecycle.ts": "0abadf80980c5ad5f60492676ae6eff052ae0d2d88055ee8676bfb06b5322f48",
     "apps/web/src/opsis/perp-scenario.test.ts": "05bf53f20a093764390bff1b8608c79f32ce57113daddfcef8bcfd88c901cac0",
     "apps/web/src/opsis/perp-scenario.ts": "b074ea3c8d0cc1cd9a674e02a80b98d04d3e97c9f25a993f6d5b16959a0f2d7f",
     "apps/web/src/opsis/PerpScenario.tsx": "86181d023bafe7bbccc81bbd43f300b48044c3efeb3e421381f18e41d9aaf8e0",
