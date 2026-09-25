@@ -45,7 +45,7 @@ test.describe("Opsis connected workflows", () => {
       provider: "robinhood-public-rpc",
       url: `https://robinhoodchain.blockscout.com/tx/${hash}`,
       fetchedAt: "2026-09-25T01:00:00.000Z",
-      fieldsUsed: ["result.blockHash"],
+      fieldsUsed: [index === 1 ? "result.logs" : "result.blockHash"],
       description: method,
     }));
     await page.route("**/v1/private/analyze", (route) => route.fulfill({ json: {
@@ -56,6 +56,11 @@ test.describe("Opsis connected workflows", () => {
         value: "0xde0b6b3a7640000", valueEth: "1", status: "0x1",
         blockNumber: "0x2a", blockHash, gasUsed: "0x5208",
         transactionEvidenceCoverage: "rpc_pair_block_matched", observationFinality: "current_not_final",
+        receiptTransferCoverage: "complete",
+        receiptTransferEvents: [
+          { emitter: "0x0000000000000000000000000000000000000003", from: "0x0000000000000000000000000000000000000001", to: "0x0000000000000000000000000000000000000002", rawAmount: "900719925474099312345", logIndex: "3" },
+          { emitter: "0xnot-an-address", from: "0x0000000000000000000000000000000000000001", to: "0x0000000000000000000000000000000000000002", rawAmount: "99", logIndex: "4" },
+        ],
         tokenTransfers: [{ value: "777 token units" }],
       }, citations },
       answer: { ...payload.answer, answer: "A transaction was observed.", facts: {}, confirmedFacts: [], citations },
@@ -69,10 +74,39 @@ test.describe("Opsis connected workflows", () => {
     await expect(timeline).toContainText("21000");
     await expect(timeline).toContainText(blockHash);
     await expect(timeline).not.toContainText("777 token units");
+    const logs = page.getByTestId("receipt-transfer-observations");
+    await expect(logs).toContainText("Receipt log observations");
+    await expect(logs).toContainText("900719925474099312345");
+    await expect(logs.getByText("99", { exact: true })).toHaveCount(0);
+    await expect(logs).toContainText("They do not verify ERC-20 token movement");
     await page.setViewportSize({ width: 320, height: 800 });
     expect(await page.locator("html").evaluate((el) => el.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
     await page.getByRole("button", { name: "中文", exact: true }).click();
     await expect(timeline).toContainText("当前观察，尚未最终确认");
+    await expect(logs).toContainText("来源报告的 Transfer 形状日志观察");
+    expect(await page.locator("html").evaluate((el) => el.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+  });
+  test("receipt log coverage never turns partial or capped data into an absence claim", async ({ page }) => {
+    const payload = research();
+    const hash = `0x${"d".repeat(64)}`;
+    let transferCoverage: "partial" | "capped" = "partial";
+    await page.route("**/v1/private/analyze", (route) => route.fulfill({ json: {
+      ...payload,
+      entity: { ...payload.entity, type: "transaction", value: hash, facts: {
+        ...payload.entity.facts, receiptTransferCoverage: transferCoverage,
+        receiptTransferEvents: [], transactionEvidenceCoverage: "partial",
+      } },
+    } }));
+    await page.goto(`/research?entity=${hash}`);
+    await page.getByRole("button", { name: "Run research", exact: true }).click();
+    const logs = page.getByTestId("receipt-transfer-observations");
+    await expect(logs).toContainText("Some receipt logs could not be validated");
+    await expect(logs).not.toContainText("No matching Transfer-shaped event");
+    transferCoverage = "capped";
+    await page.reload();
+    await page.getByRole("button", { name: "Run research", exact: true }).click();
+    await expect(page.getByTestId("receipt-transfer-observations")).toContainText("additional matching logs may be omitted");
+    await expect(page.getByTestId("receipt-transfer-observations")).not.toContainText("No matching Transfer-shaped event");
   });
   test("saves research and checks encrypted, reopens only identity, and clears on lock", async ({
     page,

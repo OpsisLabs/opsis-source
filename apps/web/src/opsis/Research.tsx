@@ -13,7 +13,7 @@ import { publicIdentity, researchInputMatchesChoice, workspaceLink, type Capabil
 
 import ReportShelf from "./ReportShelf";
 import { researchReport } from "./reports";
-import { transactionReceiptOutcome, transactionTimelineRows } from "./transactionTimeline";
+import { receiptTransferObservations, transactionReceiptOutcome, transactionTimelineRows } from "./transactionTimeline";
 
 const ContractControls = lazy(() => import("./ContractControls"));
 const EvidenceMap = lazy(() => import("./EvidenceMap"));
@@ -217,13 +217,69 @@ export default function Research({
               <p className="opsis-result-copy">{result.answer.answer}</p>
               {result.entity.type === "transaction" && (() => {
                 const rows = transactionTimelineRows(result.entity.facts);
+                const receiptTransfers = receiptTransferObservations(result.entity.facts);
                 const outcome = transactionReceiptOutcome(result.entity.facts.status);
                 const coverage = result.entity.facts.transactionEvidenceCoverage;
                 const finality = result.entity.facts.observationFinality;
                 const source = result.answer.citations[0];
+                const receiptSource = result.answer.citations.find((citation) => citation.fieldsUsed.includes("result.logs"));
                 return (
                   <section className="opsis-panel" aria-labelledby="transaction-timeline-title" data-testid="transaction-timeline">
                     <h3 id="transaction-timeline-title">{c("Transaction observations", "交易观察")}</h3>
+                    {(receiptTransfers.events.length > 0 ||
+                      receiptTransfers.coverage === "complete" ||
+                      receiptTransfers.coverage === "capped" ||
+                      receiptTransfers.coverage === "partial") && (
+                      <section className="opsis-panel" aria-labelledby="receipt-log-observations-title" data-testid="receipt-transfer-observations">
+                        <h4 id="receipt-log-observations-title">{c("Receipt log observations", "收据日志观察")}</h4>
+                        <p className="opsis-small">
+                          {receiptTransfers.coverage === "complete"
+                            ? receiptTransfers.events.length === 0
+                              ? c("No matching Transfer-shaped event reported in this receipt.", "此收据未报告匹配的 Transfer 形状事件。")
+                              : c("All returned receipt logs were checked for this event shape.", "已检查返回的所有收据日志是否符合此事件形状。")
+                            : receiptTransfers.coverage === "capped"
+                              ? c("Receipt log observations are capped; additional matching logs may be omitted.", "收据日志观察数量受限；可能省略了其他匹配日志。")
+                              : receiptTransfers.coverage === "partial"
+                                ? c("Some receipt logs could not be validated; coverage is partial and absence cannot be concluded.", "部分收据日志无法验证；覆盖不完整，不能据此判断事件不存在。")
+                                : c("Receipt log coverage is unavailable.", "收据日志覆盖不可用。")}
+                        </p>
+                        {receiptTransfers.events.length > 0 && (
+                          <dl>
+                            {receiptTransfers.events.map((event) => (
+                              <div key={`${event.logIndex}:${event.emitter}`}>
+                                <dt>{c("Log index", "日志索引")}</dt>
+                                <dd style={{ overflowWrap: "anywhere" }}>{event.logIndex}</dd>
+                                <dt>{c("Emitter", "发出合约")}</dt>
+                                <dd style={{ overflowWrap: "anywhere" }}>{event.emitter}</dd>
+                                <dt>{c("From", "发送方")}</dt>
+                                <dd style={{ overflowWrap: "anywhere" }}>{event.from}</dd>
+                                <dt>{c("To", "接收方")}</dt>
+                                <dd style={{ overflowWrap: "anywhere" }}>{event.to}</dd>
+                                <dt>{c("Raw amount", "原始数量")}</dt>
+                                <dd style={{ overflowWrap: "anywhere" }}>{event.rawAmount}</dd>
+                              </div>
+                            ))}
+                          </dl>
+                        )}
+                        <p className="opsis-small">
+                          {receiptSource ? <>
+                            {c("Source", "来源")}: {safeHttpUrl(receiptSource.url) ? (
+                              <a href={safeHttpUrl(receiptSource.url)!} target="_blank" rel="noreferrer">{receiptSource.label}</a>
+                            ) : receiptSource.label}
+                            {" · "}{c("Observed", "观察时间")}: {receiptSource.fetchedAt}
+                          </> : <>{c("Source", "来源")}: {c("Unknown", "未知")} · {c("Observed", "观察时间")}: {c("Unknown", "未知")}</>}
+                        </p>
+                        <p className="opsis-small">
+                          {c(
+                            "These are source-reported Transfer-shaped log observations only. They do not verify ERC-20 token movement, token identity, value, balance changes, NFT meaning or internal transfers.",
+                            "这些仅是来源报告的 Transfer 形状日志观察，不能验证 ERC-20 代币转移、代币身份、价值、余额变化、NFT 含义或内部转账。",
+                          )}
+                        </p>
+                      </section>
+                    )}
+                    <p className="opsis-small">
+                      {c("Selected fields grouped by observation stage; this is not a complete transaction sequence.", "按观察阶段归类的部分字段；这不是完整的交易序列。")}
+                    </p>
                     <p className="opsis-small">
                       {coverage === "rpc_pair_block_matched"
                         ? c("Transaction and receipt RPC evidence present", "存在交易与收据 RPC 证据")

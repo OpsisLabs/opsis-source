@@ -6,6 +6,70 @@ export type TransactionTimelineRow = {
 };
 export type TransactionReceiptOutcome = "success" | "failed" | "pending" | "unknown";
 
+export type ReceiptTransferEvent = {
+  emitter: string;
+  from: string;
+  to: string;
+  rawAmount: string;
+  logIndex: string;
+};
+export type ReceiptTransferCoverage = "complete" | "capped" | "partial" | "unavailable";
+export const MAX_RECEIPT_TRANSFER_EVENTS = 64;
+
+const integerString = (value: unknown): value is string =>
+  typeof value === "string" && /^\d+$/.test(value);
+
+/** Accept only bounded, well-formed source-reported Transfer-shaped receipt logs. */
+export function receiptTransferObservations(facts: Record<string, unknown>): {
+  coverage: ReceiptTransferCoverage | undefined;
+  events: ReceiptTransferEvent[];
+} {
+  const rawCoverage = facts.receiptTransferCoverage;
+  const reportedCoverage: ReceiptTransferCoverage | undefined =
+    rawCoverage === "complete" || rawCoverage === "capped" || rawCoverage === "partial" || rawCoverage === "unavailable"
+      ? rawCoverage
+      : undefined;
+  const rawEvents = facts.receiptTransferEvents;
+  if (!reportedCoverage) return { coverage: undefined, events: [] };
+  if (reportedCoverage === "unavailable" || reportedCoverage === "capped") {
+    return { coverage: reportedCoverage, events: [] };
+  }
+  if (!Array.isArray(rawEvents)) {
+    return { coverage: reportedCoverage === "complete" ? "partial" : reportedCoverage, events: [] };
+  }
+  if (rawEvents.length > MAX_RECEIPT_TRANSFER_EVENTS) {
+    return { coverage: "capped", events: [] };
+  }
+
+  const events: ReceiptTransferEvent[] = [];
+  let malformed = false;
+  for (const value of rawEvents) {
+    if (!value || typeof value !== "object") {
+      malformed = true;
+      continue;
+    }
+    const row = value as Record<string, unknown>;
+    if (
+      typeof row.emitter === "string" && /^0x[0-9a-f]{40}$/i.test(row.emitter) &&
+      typeof row.from === "string" && /^0x[0-9a-f]{40}$/i.test(row.from) &&
+      typeof row.to === "string" && /^0x[0-9a-f]{40}$/i.test(row.to) &&
+      integerString(row.rawAmount) && integerString(row.logIndex)
+    ) {
+      events.push({
+        emitter: row.emitter,
+        from: row.from,
+        to: row.to,
+        rawAmount: row.rawAmount,
+        logIndex: row.logIndex,
+      });
+    } else {
+      malformed = true;
+    }
+  }
+  const coverage = malformed && reportedCoverage === "complete" ? "partial" : reportedCoverage;
+  return { coverage, events };
+}
+
 const text = (value: unknown): string | undefined =>
   typeof value === "string" || typeof value === "number" ? String(value) : undefined;
 

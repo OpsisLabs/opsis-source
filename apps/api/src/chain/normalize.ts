@@ -32,7 +32,7 @@ export function normalizeEntity(
   explorerBase = "https://robinhoodchain.blockscout.com"
 ): NormalizedEntity {
   const citations = docs.map((doc) => citation(doc, fieldsUsedForDoc(doc), sourceDescription(doc), explorerBase));
-  const facts = summarizeFacts(type, docs);
+  const facts = summarizeFacts(type, docs, value);
   facts.chainId = chainId;
   facts.explorerUrl = explorerUrl(type, value, explorerBase);
   facts.sourceIds = citations.map((source) => source.id);
@@ -95,7 +95,7 @@ function fieldsUsedForDoc(doc: SourceDocumentInput): string[] {
   return ["hash", "status", "from", "to", "value", "gas_used", "method", "block_number"];
 }
 
-function summarizeFacts(type: ChainEntityType, docs: SourceDocumentInput[]): Record<string, unknown> {
+function summarizeFacts(type: ChainEntityType, docs: SourceDocumentInput[], entityValue: string): Record<string, unknown> {
   const primary = docs[0]?.responseJson as Record<string, unknown> | undefined;
   if (type === "transaction") {
     const receipt = docs.find((doc) => JSON.stringify(doc.responseJson).includes("eth_getTransactionReceipt"))?.responseJson as Record<string, unknown> | undefined;
@@ -117,6 +117,8 @@ function summarizeFacts(type: ChainEntityType, docs: SourceDocumentInput[]): Rec
       ?.responseJson as { result?: Record<string, unknown> } | undefined;
     const rpcReceipt = rpcTransactionDocs.find((doc) => (doc.responseJson as { method?: string }).method === "eth_getTransactionReceipt")
       ?.responseJson as { result?: Record<string, unknown> } | undefined;
+    const receiptTransferObservation = parseReceiptTransferEvents(rpcReceipt?.result, entityValue,
+      rpcTx?.result as Record<string, unknown> | undefined);
     const rpcBlockEvidence = [rpcTx?.result, rpcReceipt?.result].some((result) =>
       typeof result?.blockHash === "string" || typeof result?.blockNumber === "string"
     );
@@ -156,6 +158,8 @@ function summarizeFacts(type: ChainEntityType, docs: SourceDocumentInput[]): Rec
         transactionEvidenceCoverage: rpcTransactionCoverage,
         observationFinality: rpcBlockEvidence ? "current_not_final" : "unknown"
       } : {}),
+      receiptTransferEvents: receiptTransferObservation.events,
+      receiptTransferCoverage: receiptTransferObservation.coverage,
       rawSourceCount: docs.length
     };
   }
@@ -334,6 +338,80 @@ function summarizeFacts(type: ChainEntityType, docs: SourceDocumentInput[]): Rec
     };
   }
   return { value: docs[0]?.entityValue, rawSourceCount: docs.length };
+}
+
+const transferTopic = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
+const maxReceiptLogs = 64;
+
+function parseReceiptTransferEvents(
+  receipt: Record<string, unknown> | undefined,
+  requestedHash: string,
+  transaction?: Record<string, unknown>
+): { events: Array<{ emitter: string; from: string; to: string; rawAmount: string; logIndex: string }>; coverage: "complete" | "partial" | "capped" | "unavailable" } {
+  const unavailable = { events: [] as Array<{ emitter: string; from: string; to: string; rawAmount: string; logIndex: string }>, coverage: "unavailable" as const };
+  if (!isBytes32(requestedHash) || !receipt || typeof receipt.transactionHash !== "string" || !isBytes32(receipt.transactionHash) ||
+      receipt.transactionHash.toLowerCase() !== requestedHash.toLowerCase() || receipt.status !== "0x1" ||
+      !isBytes32(receipt.blockHash) || !isQuantity(receipt.blockNumber)) return unavailable;
+  if (transaction) {
+    if (typeof transaction.hash !== "string" || transaction.hash.toLowerCase() !== receipt.transactionHash.toLowerCase() ||
+        typeof transaction.blockHash !== "string" || !isBytes32(transaction.blockHash) ||
+        transaction.blockHash.toLowerCase() !== receipt.blockHash.toLowerCase() ||
+        !isQuantity(transaction.blockNumber) || BigInt(transaction.blockNumber) !== BigInt(receipt.blockNumber)) return unavailable;
+  }
+  if (!Array.isArray(receipt.logs)) return unavailable;
+  if (receipt.logs.length > maxReceiptLogs) return { ...unavailable, coverage: "capped" };
+
+  let ambiguous = false;
+  const seenLogIndexes = new Set<string>();
+  const events = receipt.logs.flatMap((entry) => {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) { ambiguous = true; return []; }
+    const log = entry as Record<string, unknown>;
+    const topics = Array.isArray(log.topics) ? log.topics : undefined;
+    if (!topics || topics.length === 0 || typeof topics[0] !== "string" || !isBytes32(topics[0])) { ambiguous = true; return []; }
+    if (topics[0].toLowerCase() !== transferTopic) return [];
+    if ((log.removed !== undefined && log.removed !== false) || typeof log.address !== "string" || !isAddress(log.address) ||
+        topics.length !== 3 || topics.some((topic) => typeof topic !== "string" || !isBytes32(topic)) ||
+        !isIndexedAddress(topics[1]) || !isIndexedAddress(topics[2]) ||
+        typeof log.data !== "string" || !/^0x[0-9a-fA-F]{64}$/.test(log.data) ||
+        typeof log.logIndex !== "string" || !isQuantity(log.logIndex)) { ambiguous = true; return []; }
+    for (const key of ["blockHash", "transactionHash"] as const) {
+      if (log[key] !== undefined && (typeof log[key] !== "string" || log[key].toLowerCase() !== receipt[key]?.toString().toLowerCase())) { ambiguous = true; return []; }
+    }
+    if (log.blockNumber !== undefined && !quantitiesEqual(log.blockNumber, receipt.blockNumber)) { ambiguous = true; return []; }
+    if (log.transactionIndex !== undefined && (!isQuantity(log.transactionIndex) ||
+        (receipt.transactionIndex !== undefined && !quantitiesEqual(log.transactionIndex, receipt.transactionIndex)))) { ambiguous = true; return []; }
+    const logIndex = BigInt(log.logIndex).toString();
+    if (seenLogIndexes.has(logIndex)) { ambiguous = true; return []; }
+    seenLogIndexes.add(logIndex);
+    return [{
+      emitter: log.address.toLowerCase(),
+      from: `0x${(topics[1] as string).slice(-40).toLowerCase()}`,
+      to: `0x${(topics[2] as string).slice(-40).toLowerCase()}`,
+      rawAmount: BigInt(log.data).toString(),
+      logIndex
+    }];
+  });
+  return { events, coverage: ambiguous ? "partial" : "complete" };
+}
+
+function isBytes32(value: unknown): value is string {
+  return typeof value === "string" && /^0x[0-9a-fA-F]{64}$/.test(value);
+}
+
+function isAddress(value: string): boolean {
+  return /^0x[0-9a-fA-F]{40}$/.test(value);
+}
+
+function isIndexedAddress(value: unknown): value is string {
+  return typeof value === "string" && /^0x0{24}[0-9a-fA-F]{40}$/i.test(value);
+}
+
+function isQuantity(value: unknown): value is string {
+  return typeof value === "string" && /^0x(?:0|[1-9a-fA-F][0-9a-fA-F]*)$/.test(value);
+}
+
+function quantitiesEqual(left: unknown, right: unknown): boolean {
+  return isQuantity(left) && isQuantity(right) && BigInt(left) === BigInt(right);
 }
 
 function decodeErc20Metadata(field: string, value: unknown): string | number | null {

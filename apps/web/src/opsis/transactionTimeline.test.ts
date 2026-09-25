@@ -1,7 +1,38 @@
 import { describe, expect, it } from "vitest";
-import { transactionReceiptOutcome, transactionTimelineRows } from "./transactionTimeline";
+import { receiptTransferObservations, transactionReceiptOutcome, transactionTimelineRows } from "./transactionTimeline";
 
 describe("transaction observations", () => {
+  it("validates receipt Transfer-shaped observations and caps rendered rows at 64", () => {
+    const address = `0x${"a".repeat(40)}`;
+    const valid = { emitter: address, from: address, to: address, rawAmount: "900719925474099312345", logIndex: "0" };
+    const parsed = receiptTransferObservations({
+      receiptTransferCoverage: "complete",
+      receiptTransferEvents: [valid, { ...valid, rawAmount: "1e9" }, { ...valid, emitter: "bad" }],
+    });
+    expect(parsed).toEqual({ coverage: "partial", events: [valid] });
+    expect(receiptTransferObservations({
+      receiptTransferCoverage: "complete",
+      receiptTransferEvents: [{ ...valid, emitter: "bad" }],
+    })).toEqual({ coverage: "partial", events: [] });
+    const overflow = receiptTransferObservations({
+      receiptTransferCoverage: "complete",
+      receiptTransferEvents: Array.from({ length: 70 }, (_, i) => ({ ...valid, logIndex: String(i) })),
+    });
+    expect(overflow).toEqual({ coverage: "capped", events: [] });
+    expect(receiptTransferObservations({
+      receiptTransferCoverage: "capped",
+      receiptTransferEvents: Array.from({ length: 70 }, (_, i) => ({ ...valid, logIndex: String(i) })),
+    })).toEqual({ coverage: "capped", events: [] });
+    expect(receiptTransferObservations({
+      receiptTransferCoverage: "unavailable",
+      receiptTransferEvents: [valid],
+    })).toEqual({ coverage: "unavailable", events: [] });
+    expect(receiptTransferObservations({
+      receiptTransferCoverage: "unrecognized",
+      receiptTransferEvents: [valid],
+    })).toEqual({ coverage: undefined, events: [] });
+  });
+
   it("groups explicit facts into submitted, inclusion and receipt stages", () => {
     const hash = `0x${"a".repeat(64)}`;
     expect(transactionTimelineRows({

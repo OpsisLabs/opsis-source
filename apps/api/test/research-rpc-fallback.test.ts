@@ -123,7 +123,11 @@ describe("Private Mode explicit token RPC fallback", () => {
 
 describe("Research transaction RPC fallback correlation", () => {
   const transaction = { hash: txHash, from: address, to: address, value: "0x1", blockHash, blockNumber: "0x2a" };
-  const receipt = { transactionHash: txHash, status: "0x1", blockHash, blockNumber: "0x2a", gasUsed: "0x5208" };
+  const transferTopic = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
+  const indexed = (who: string) => `0x${"0".repeat(24)}${who.slice(2)}`;
+  const transferLog = { address, topics: [transferTopic, indexed(address), indexed(`0x${"00".repeat(19)}43`)],
+    data: `0x${"00".repeat(31)}09`, logIndex: "0x0" };
+  const receipt = { transactionHash: txHash, status: "0x1", blockHash, blockNumber: "0x2a", gasUsed: "0x5208", logs: [] as unknown[] };
 
   it("accepts a hash and block matched transaction/receipt pair", async () => {
     const provider = transactionRpc({ transaction, receipt });
@@ -132,6 +136,42 @@ describe("Research transaction RPC fallback correlation", () => {
     expect(facts).toMatchObject({ hash: txHash, status: "0x1", blockHash, transactionEvidenceCoverage: "rpc_pair_block_matched",
       observationFinality: "current_not_final" });
     expect(facts.failureDetail).toBeUndefined();
+  });
+
+  it("extracts only strict Transfer-shaped receipt observations", async () => {
+    const docs = await transactionRpc({ transaction, receipt: { ...receipt, logs: [transferLog] } }).getTransaction(txHash);
+    expect(normalizeEntity(4663, "transaction", txHash, docs).facts).toMatchObject({
+      receiptTransferEvents: [{ emitter: address, from: address, to: `0x${"00".repeat(19)}43`, rawAmount: "9", logIndex: "0" }],
+      receiptTransferCoverage: "complete"
+    });
+  });
+
+  it("does not double-show duplicate indexes or accept unknown removed flags", async () => {
+    const docs = await transactionRpc({ transaction, receipt: { ...receipt, logs: [transferLog,
+      { ...transferLog, data: `0x${"00".repeat(31)}0a` }, { ...transferLog, logIndex: "0x1", removed: "false" }] } }).getTransaction(txHash);
+    expect(normalizeEntity(4663, "transaction", txHash, docs).facts).toMatchObject({
+      receiptTransferEvents: [{ rawAmount: "9", logIndex: "0" }], receiptTransferCoverage: "partial"
+    });
+  });
+
+  it.each([
+    ["failed", { ...receipt, status: "0x0", logs: [transferLog] }, "unavailable"],
+    ["pending", { ...receipt, blockHash: null, logs: [transferLog] }, "unavailable"],
+    ["null logs", { ...receipt, logs: null }, "unavailable"],
+    ["over cap", { ...receipt, logs: Array.from({ length: 65 }, () => transferLog) }, "capped"]
+  ])("reports %s receipt coverage", async (_label, rcpt, coverage) => {
+    const docs = await transactionRpc({ transaction: _label === "pending" ? null : transaction, receipt: rcpt }).getTransaction(txHash);
+    const facts = normalizeEntity(4663, "transaction", txHash, docs).facts;
+    expect(facts.receiptTransferCoverage).toBe(coverage);
+    expect(facts.receiptTransferEvents).toEqual([]);
+  });
+
+  it("keeps valid observations while marking ambiguous malformed logs partial", async () => {
+    const docs = await transactionRpc({ transaction, receipt: { ...receipt, logs: [transferLog, {},
+      { ...transferLog, topics: [transferTopic, "0x1234", transferLog.topics[2]] }] } }).getTransaction(txHash);
+    expect(normalizeEntity(4663, "transaction", txHash, docs).facts).toMatchObject({
+      receiptTransferEvents: [{ emitter: address }], receiptTransferCoverage: "partial"
+    });
   });
 
   it.each([
