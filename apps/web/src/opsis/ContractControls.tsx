@@ -49,6 +49,13 @@ export default function ContractControls({ contract }: { contract: string }) {
     admin: c("ERC-1967 admin slot", "ERC-1967 管理员槽"),
     beacon: c("ERC-1967 beacon slot", "ERC-1967 信标槽"),
   };
+  const uncheckedLabels = {
+    mint_permissions: c("mint permissions", "铸币权限"),
+    transfer_fees: c("transfer fees", "转账费用"),
+    custom_roles: c("custom roles", "自定义角色"),
+    other_proxy_patterns: c("other proxy patterns", "其他代理模式"),
+    holder_concentration: c("holder concentration", "持有者集中度"),
+  };
   return (
     <details className="opsis-panel">
       <summary>{c("Inspect contract controls", "检查合约控制")}</summary>
@@ -119,13 +126,20 @@ export default function ContractControls({ contract }: { contract: string }) {
                     <td style={{ overflowWrap: "anywhere" }}>
                       {data.readings[key].state === "observed"
                         ? data.readings[key].value
-                        : c("Unknown — no valid response", "未知 — 无有效响应")}
+                        : !data.hasCode
+                          ? c("Not read — no code observed", "未读取 — 未观察到代码")
+                          : data.readings[key].reason === "reverted"
+                            ? c("Unknown — read reverted", "未知 — 读取已回退")
+                            : c("Unknown — malformed response", "未知 — 响应格式无效")}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+          <p className="opsis-small">
+            {c("Not evaluated by these standard reads", "这些标准读取未评估")}: {data.coverage.unknown.map((key) => uncheckedLabels[key]).join(" · ")}.
+          </p>
           <p className="opsis-small">
             {data.source} · {data.observedAt} · {c("Block", "区块")}{" "}
             {data.anchor.blockNumber} ·{" "}

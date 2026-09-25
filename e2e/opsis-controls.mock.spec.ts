@@ -82,7 +82,8 @@ test.describe("Opsis standard controls", () => {
       .click();
     const result = page.getByTestId("opsis-controls-result");
     await expect(result).toContainText("STALE");
-    await expect(result).toContainText("Unknown — no valid response");
+    await expect(result).toContainText("Unknown — read reverted");
+    await expect(result).toContainText("Not evaluated by these standard reads: mint permissions · transfer fees");
     await page.setViewportSize({ width: 320, height: 800 });
     expect(
       await page.locator("html").evaluate((el) => el.scrollWidth - innerWidth),

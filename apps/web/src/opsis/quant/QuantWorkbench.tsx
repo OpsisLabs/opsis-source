@@ -133,6 +133,16 @@ export default function QuantWorkbench() {
     }
   }, [dataset]);
   const drawdown = drawdownResult.drawdown;
+  const runEligibility = useMemo(() => dataset
+    ? validateDataset(dataset, new Date(), { minimumReturns: researchMode ? 30 : 180 })
+    : null, [dataset, researchMode]);
+  const eligibilityReason = dataset && runEligibility && !runEligibility.ok
+    ? (dataset.observations.length - 1 < (researchMode ? 30 : 180)
+      ? (researchMode
+        ? c(`Short-window research mode still requires at least 30 daily returns; this dataset has ${dataset.observations.length - 1}.`, `短窗口研究模式仍至少需要 30 个每日收益；此数据集有 ${dataset.observations.length - 1} 个。`)
+        : c(`At least 180 daily returns are required; this dataset has ${dataset.observations.length - 1}. Enable short-window research mode to run with 30 returns.`, `至少需要 180 个每日收益；此数据集有 ${dataset.observations.length - 1} 个。启用短窗口研究模式即可使用 30 个收益运行。`))
+      : runEligibility.issues.map((issue) => issue.message).join(" "))
+    : "";
   useEffect(() => {
     if (!histogramRef.current || !histogram) return;
     const chart = echarts.init(histogramRef.current);
@@ -183,7 +193,7 @@ export default function QuantWorkbench() {
     clock: "daily_crypto_24_7",
     provenance: { source: source.trim(), observedAt: new Date().toISOString() },
   });
-  const loadFile = async (file: File) => {
+  const loadFile = async (file: File, selectedCsvMetadata: Omit<PriceDataset, "observations">) => {
     const generation = ++messageId.current;
     setConsent(false);
     workerRef.current?.terminate();
@@ -204,9 +214,10 @@ export default function QuantWorkbench() {
     try {
       const text = await file.text();
       const loaded = file.name.toLowerCase().endsWith(".csv")
-        ? parseCsv(text, metadata())
+        ? parseCsv(text, selectedCsvMetadata)
         : (JSON.parse(text) as PriceDataset);
-      const check = validateDataset(loaded);
+      // The pre-run card needs at least two observations to show a dated range.
+      const check = validateDataset(loaded, new Date(), { minimumReturns: 1 });
       if (!check.ok)
         throw new Error(check.issues.map((issue) => issue.message).join(" "));
       if (!check.dataset)
@@ -371,7 +382,7 @@ export default function QuantWorkbench() {
               accept=".csv,.json,application/json,text/csv"
               onChange={(event) => {
                 const file = event.target.files?.[0];
-                if (file) void loadFile(file);
+                if (file) void loadFile(file, metadata());
               }}
             />
           </label>
@@ -414,10 +425,17 @@ export default function QuantWorkbench() {
             </label>
           </div>
           {dataset && (
-            <p role="status">
-              {dataset.instrument.symbol} · {dataset.observations.length}{" "}
-              {c("observations loaded", "条观察已载入")}
-            </p>
+            <section aria-label={c("Imported dataset", "导入的数据集")} className="opsis-quant-dataset-card">
+              <p role="status">{c("USER IMPORT / PROVENANCE NOT VERIFIED", "用户导入 / 来源未验证")}</p>
+              {dataset.synthetic && <p>{c("File flags this as synthetic; not independently certified.", "文件将此标记为合成数据；未经独立认证。")}</p>}
+              <p>{c("Instrument", "资产")}: Chain {dataset.instrument.chainId} · {dataset.instrument.address} · {dataset.instrument.symbol}</p>
+              <p>{c("Date range", "日期范围")}: {dataset.observations[0]!.date} – {dataset.observations[dataset.observations.length - 1]!.date}</p>
+              <p>{c("Quote currency", "报价货币")}: {dataset.quoteCurrency}</p>
+              <p>{c("Clock", "时钟")}: {c("Daily crypto, 24/7", "加密资产每日，全天候")}</p>
+              <p>{c("Source", "来源")}: {dataset.provenance.source}</p>
+              <p>{c("Observed at", "观察时间")}: {dataset.provenance.observedAt}</p>
+              <p>{dataset.observations.length} {c("observations loaded", "条观察已载入")}</p>
+            </section>
           )}
           {fileError && (
             <p role="alert" className="opsis-error">
@@ -479,11 +497,12 @@ export default function QuantWorkbench() {
               "短窗口研究模式（显示限制）",
             )}
           </label>
-          <button type="button" disabled={!dataset || busy} onClick={startRun}>
+          <button type="button" disabled={!dataset || !runEligibility?.ok || busy} onClick={startRun}>
             {busy
               ? c("Running…", "运行中…")
               : c("Run local experiment", "运行本地实验")}
           </button>
+          {eligibilityReason && <p role="status" className="opsis-error">{eligibilityReason}</p>}
           {busy && (
             <button type="button" onClick={cancel}>
               {c("Cancel and clear worker", "取消并清除工作线程")}

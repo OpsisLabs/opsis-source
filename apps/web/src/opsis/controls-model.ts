@@ -1,4 +1,7 @@
 import type { TokenControls } from "@rh-chain/shared";
+const expectedUnknown = [
+  "mint_permissions", "transfer_fees", "custom_roles", "other_proxy_patterns", "holder_concentration",
+] as const;
 export function validControls(
   value: unknown,
   contract: string,
@@ -17,6 +20,8 @@ export function validControls(
     v.coverage.rpcCalls < 1 ||
     v.coverage.rpcCalls > 10 ||
     !Array.isArray(v.coverage.unknown) ||
+    v.coverage.unknown.length !== expectedUnknown.length ||
+    v.coverage.unknown.some((field, index) => field !== expectedUnknown[index]) ||
     !v.anchor ||
     !Number.isSafeInteger(v.anchor.blockNumber) ||
     v.anchor.blockNumber < 0 ||

@@ -7,6 +7,64 @@ test.beforeEach(async ({ page }) => {
   await page.route("**/v1/private/opsis/access", (route) => route.fulfill({ json: { expiresAt: new Date(Date.now() + 3_600_000).toISOString(), chainId: 4663, research: true, exitCheck: false, watch: false, rwa: false, observedTrades: false, perpExecution: false } }));
 });
 
+test("pre-run dataset card shows captured CSV identity and provenance labels", async ({ page }) => {
+  await page.goto("/lab");
+  await page.getByRole("button", { name: /Quant research/ }).click();
+  const rows = Array.from({ length: 190 }, (_, index) => `${new Date(Date.UTC(2026, 0, index + 1)).toISOString().slice(0, 10)},${100 + index}`).join("\n");
+  await page.getByLabel("Symbol").fill("CSV_ORIGINAL");
+  await page.getByLabel("Contract / address").fill("0x0000000000000000000000000000000000000abc");
+  await page.getByLabel("Source").fill("Local fixture source");
+  await page.getByLabel("CSV or JSON file").setInputFiles({ name: "local.csv", mimeType: "text/csv", buffer: Buffer.from(`date,price\n${rows}`) });
+  await expect(page.getByText(/USER IMPORT \/ PROVENANCE NOT VERIFIED/)).toBeVisible();
+  await expect(page.getByText(/Chain 4663 · .* · CSV_ORIGINAL/)).toBeVisible();
+  await expect(page.getByText(/Date range: 2026-01-01 – 2026-07-09/)).toBeVisible();
+  await expect(page.getByText("Quote currency: USD")).toBeVisible();
+  await expect(page.getByText(/Daily crypto, 24\/7/)).toBeVisible();
+  await expect(page.getByText("Source: Local fixture source")).toBeVisible();
+  await page.getByLabel("Symbol").fill("EDITED_AFTER_IMPORT");
+  await page.getByLabel("Source").fill("Edited source");
+  await expect(page.getByText(/Chain 4663 · .* · CSV_ORIGINAL/)).toBeVisible();
+  await expect(page.getByText("Source: Local fixture source")).toBeVisible();
+});
+
+test("30-return import is refused by default and accepted in short-window research mode", async ({ page }) => {
+  await page.goto("/lab");
+  await page.getByRole("button", { name: /Quant research/ }).click();
+  const requests: string[] = [];
+  page.on("request", (request) => requests.push(`${request.url()}${request.postData() ?? ""}`));
+  const rows = Array.from({ length: 31 }, (_, index) => ({
+    date: new Date(Date.UTC(2026, 0, index + 1)).toISOString().slice(0, 10),
+    price: 100 + index,
+  }));
+  await page.getByLabel("CSV or JSON file").setInputFiles({
+    name: "short-local.json", mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify({ schemaVersion: 1, instrument: { chainId: 4663, address: "0x0000000000000000000000000000000000000abc", symbol: "SHORT" }, quoteCurrency: "USD", clock: "daily_crypto_24_7", provenance: { source: "Local fixture", observedAt: "2026-09-01T00:00:00Z" }, synthetic: true, observations: rows })),
+  });
+  const runButton = page.getByRole("button", { name: "Run local experiment" });
+  await expect(runButton).toBeDisabled();
+  await expect(page.getByText(/USER IMPORT \/ PROVENANCE NOT VERIFIED/)).toBeVisible();
+  await expect(page.getByText(/File flags this as synthetic; not independently certified/)).toBeVisible();
+  await expect(page.getByText(/At least 180 daily returns are required; this dataset has 30/)).toBeVisible();
+  await page.getByLabel(/Short-window research mode/).check();
+  await expect(runButton).toBeEnabled();
+  const tooShort = rows.slice(0, 30);
+  await page.getByLabel("CSV or JSON file").setInputFiles({
+    name: "too-short.json", mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify({ schemaVersion: 1, instrument: { chainId: 4663, address: "0x0000000000000000000000000000000000000abc", symbol: "SHORT" }, quoteCurrency: "USD", clock: "daily_crypto_24_7", provenance: { source: "Local fixture", observedAt: "2026-09-01T00:00:00Z" }, observations: tooShort })),
+  });
+  await expect(runButton).toBeDisabled();
+  await expect(page.getByText(/Short-window research mode still requires at least 30 daily returns; this dataset has 29/)).toBeVisible();
+  await page.getByLabel("CSV or JSON file").setInputFiles({
+    name: "empty.json", mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify({ schemaVersion: 1, instrument: { chainId: 4663, address: "0x0000000000000000000000000000000000000abc", symbol: "EMPTY" }, quoteCurrency: "USD", clock: "daily_crypto_24_7", provenance: { source: "Local fixture", observedAt: "2026-09-01T00:00:00Z" }, observations: [] })),
+  });
+  await expect(runButton).toBeDisabled();
+  await expect(page.getByRole("alert").filter({ hasText: /At least 1 daily returns are required/ })).toBeVisible();
+  await expect(page.getByText(/USER IMPORT \/ PROVENANCE NOT VERIFIED/)).toHaveCount(0);
+  expect(requests.some((request) => /dataset|quant.*upload/i.test(request))).toBe(false);
+  expect(requests.some((request) => request.includes("Local fixture"))).toBe(false);
+});
+
 test("local quant workflow validates, runs, and requires export consent", async ({ page }) => {
   await page.goto("/lab");
   await page.getByRole("button", { name: /Quant research/ }).click();
