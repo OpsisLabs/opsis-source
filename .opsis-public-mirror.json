@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "aa46736dda704cc4e11e8a0e51caaec4bc673cbf78813b0b9d8ae2868a23cc32",
+  "sourceTreeDigest": "48acb508b765edeea206b07c81a3430f39178ad218f2221b5babea5bba913412",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "c599bae760e9c12217232525246f5c973c403d2c1dcc3f78987edc65c722b08e",
@@ -45,7 +45,7 @@
     "apps/api/src/chain/normalize.ts": "7f573b6ff52db8fad3841735985316326b1a0517af1e618b1283677dc1829a01",
     "apps/api/src/chain/persistence.ts": "0908de970e0b3d6d07220a8e9c963f3c497711fa5b66d8c00c912fdce809596c",
     "apps/api/src/chain/provider-http.ts": "cc885d29a13a246db963825c77df75a06789fc66dcb190fe53e780bdc8dade2a",
-    "apps/api/src/chain/resolver.ts": "b4539ff23471c5911e3251f4b8a027ca1773d3cc7af9b95d07d4b9a0d08e8122",
+    "apps/api/src/chain/resolver.ts": "ff38d6ef9f5b727e7cae3925a713fe7059c9db2cd4125bd5ff88aee17df2f8f0",
     "apps/api/src/chain/rpc-unit-budget.ts": "fa9fb58e655020d95ab2ffaebd529fd4e5b0c561658bcb9eda9c084944d34457",
     "apps/api/src/chain/types.ts": "c41ef2581be77da2caaf500b2602fc32d1714f0eed4c90abf628db5f1155de8b",
     "apps/api/src/chat/repository.ts": "b6ddecec7c8b54c9cb4c34952b713fea3b5e6d7f172dc60c2e903c029f027285",
@@ -183,7 +183,7 @@
     "apps/api/test/portfolio.test.ts": "99197a101cefe7a972c275ac3098749b76e1963fc28517d30a770577e32dcb6a",
     "apps/api/test/privacy-static.test.ts": "053c8083453ee73735e27525d0ca04795b56aa03b7368430a26f58891ca256ab",
     "apps/api/test/privacy.test.ts": "cbbb802a0d040015dba38db2a8a884690c193cd4f9bdb882d912d8158ae24b62",
-    "apps/api/test/private-mode.test.ts": "d37353cf9ad37618666fa7bc1d32e6c87c9a1888d0606514ec1fbd0d0cffd906",
+    "apps/api/test/private-mode.test.ts": "d9cb91ac5a64e6733d62c0f8dcd6abb9c4585cbe8d81159ef6d0269660c75d96",
     "apps/api/test/provider-contract.test.ts": "27890d1410b556551ce9980e37bbfb37b39462d7eb9bcc37b0ac117e2b90b3e7",
     "apps/api/test/provider-http.test.ts": "8c4e6811a3cd536c0c03c77df1a37a1bc51a40eedc3acb28bac22a93075bba53",
     "apps/api/test/public-swap-history-route.test.ts": "ab829d5d64d28fcc91dfaab8b35f881a0ce9eb35883dbe64c5b68eeb2c936f04",

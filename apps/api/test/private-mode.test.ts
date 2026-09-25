@@ -549,8 +549,44 @@ describe("no-account Private Mode", () => {
       activityCoverage: "unavailable"
     });
     expect(result.entity.facts.recentInteractions).toBeUndefined();
+    const explicit = await resolver.resolveWithSources("contract", contract, { privateMode: true });
+    expect(explicit.entity.type).toBe("contract");
+    expect(explicit.entity.facts).toMatchObject({
+      codePresent: true,
+      verified: null,
+      abiAvailable: null,
+      sourceCoverage: "unavailable"
+    });
+    expect(explicit.providerDestinations).toEqual(["blockscout", "robinhood-public-rpc"]);
     await expect(resolver.resolveWithSources("unknown", contract)).rejects.toThrow("blockscout 403");
   });
+
+  it.each(["0x", `0xef0100${"a".repeat(40)}`])(
+    "does not claim an explicit contract from non-contract RPC code %s",
+    async (code) => {
+      const contract = `0x${"7".repeat(40)}`;
+      const resolver = new ChainEntityResolver(loadEnv({ NODE_ENV: "test" }), undefined, undefined, {
+        blockscout: {
+          ...provider({}), name: "blockscout",
+          getContract: vi.fn(async () => { throw new Error("blockscout 403"); })
+        },
+        alchemy: {
+          name: "robinhood-public-rpc", isConfigured: () => true,
+          getTransaction: vi.fn(async () => []),
+          getAddressSummary: vi.fn(async () => [{
+            id: "code", provider: "robinhood-public-rpc", chainId: 4663,
+            entityType: "wallet" as const, entityValue: contract,
+            fetchedAt: new Date().toISOString(), responseJson: { method: "eth_getCode", result: code }
+          }]),
+          getAllowances: vi.fn(async () => [])
+        },
+        goldrush: { ...provider({}), isConfigured: () => false }
+      });
+
+      await expect(resolver.resolveWithSources("contract", contract, { privateMode: true }))
+        .rejects.toThrow("blockscout 403");
+    }
+  );
 
   it("discloses a configured provider that received the identifier and then failed", async () => {
     const source: SourceDocumentInput = {

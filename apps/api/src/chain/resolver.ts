@@ -141,12 +141,24 @@ export class ChainEntityResolver {
         throw error;
       }
     } else if (identified.type === "contract") {
-      providerDestinations.add(this.blockscout.name);
-      try {
-        docs = await this.blockscout.getContract(identified.value, { limit });
-      } catch (error) {
-        if (stale) return markStale(stale, providerDestinations);
-        throw error;
+      if (!options.privateMode) {
+        providerDestinations.add(this.blockscout.name);
+        try {
+          docs = await this.blockscout.getContract(identified.value, { limit });
+        } catch (error) {
+          if (stale) return markStale(stale, providerDestinations);
+          throw error;
+        }
+      } else {
+        const providerResults = await Promise.allSettled(compactProviderRequests([
+          providerRequest(this.blockscout, providerDestinations, () => this.blockscout.getContract(identified.value, { limit })),
+          providerRequest(this.alchemy, providerDestinations, () => this.alchemy.getAddressSummary(identified.value))
+        ]));
+        docs = providerResults.flatMap((result) => result.status === "fulfilled" ? result.value : []);
+        if (docs.length === 0 || (docs.every((doc) => doc.provider !== this.blockscout.name) && !hasContractCode(docs))) {
+          if (stale) return markStale(stale, providerDestinations);
+          throwProviderFailure(providerResults);
+        }
       }
     }
     if (docs.length === 0) {
@@ -214,6 +226,18 @@ function hasTokenBalanceSource(docs: SourceDocumentInput[]): boolean {
     return doc.requestUrl?.includes("/token-balances")
       || doc.requestUrl?.includes("/balances_v2/")
       || response?.query === "reviewedTokenBalanceSample";
+  });
+}
+
+function hasContractCode(docs: SourceDocumentInput[]): boolean {
+  return docs.some((doc) => {
+    const response = doc.responseJson as { method?: unknown; result?: unknown } | undefined;
+    const code = response?.result;
+    return response?.method === "eth_getCode"
+      && typeof code === "string"
+      && /^0x(?:[0-9a-f]{2})+$/i.test(code)
+      && !/^0x0*$/i.test(code)
+      && !delegationTarget(code);
   });
 }
 
