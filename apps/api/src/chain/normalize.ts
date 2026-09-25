@@ -82,6 +82,7 @@ function fieldsUsedForDoc(doc: SourceDocumentInput): string[] {
   if (method === "eth_call" && response.query === "reviewedTokenBalanceSample") {
     return ["items[].token", "items[].value", "contractsChecked", "registryReviewedAt"];
   }
+  if (method === "eth_call" && response.query === "erc20MetadataSample") return ["result", "field"];
   if (method === "eth_call") return ["result", "token", "spender", "query"];
   if (url.includes("/token-transfers") || url.includes("/transfers")) return ["items[].from", "items[].to", "items[].token", "items[].value", "items[].transaction_hash"];
   if (url.includes("/internal-transactions")) return ["items[].from", "items[].to", "items[].value", "items[].success", "items[].error"];
@@ -204,6 +205,40 @@ function summarizeFacts(type: ChainEntityType, docs: SourceDocumentInput[]): Rec
     const deployer = addressHash(addressInfo?.creator_address_hash);
     const distribution = summarizeDistribution(documentItems(docs, "/holders"), token?.total_supply, deployer);
 
+    const rpcMetadata = docs.some((doc) => (doc.responseJson as { query?: unknown } | undefined)?.query === "erc20MetadataSample");
+    if (rpcMetadata) {
+      const metadata: Record<string, unknown> = {};
+      for (const doc of docs) {
+        const response = doc.responseJson as { method?: unknown; query?: unknown; field?: unknown; result?: unknown };
+        if (response.query !== "erc20MetadataSample" || response.method !== "eth_call" || typeof response.field !== "string") continue;
+        metadata[response.field] = decodeErc20Metadata(response.field, response.result);
+      }
+      const name = metadata.name;
+      const symbol = metadata.symbol;
+      const decimals = metadata.decimals;
+      const totalSupply = metadata.totalSupply;
+      const enough = (typeof name === "string" || typeof symbol === "string") &&
+        (typeof decimals === "number" || typeof totalSupply === "string");
+      return {
+        address: docs[0]?.entityValue,
+        name: typeof name === "string" ? name : null,
+        symbol: typeof symbol === "string" ? symbol : null,
+        decimals: typeof decimals === "number" ? decimals : null,
+        totalSupply: typeof totalSupply === "string" ? totalSupply : null,
+        verified: null,
+        proxy: null,
+        holders: null,
+        lifetimeTransfers: null,
+        holderCoverage: "unavailable",
+        activityCoverage: "unavailable",
+        sourceCoverage: "rpc_sample_only",
+        metadataCoverage: enough ? "rpc_partial" : "rpc_insufficient",
+        observation: "latest_rpc_sample",
+        observationFinality: "unknown",
+        blockRelation: "independent_samples_not_same_block_anchored"
+      };
+    }
+
     return {
       address: docs[0]?.entityValue,
       name: token?.name,
@@ -275,6 +310,33 @@ function summarizeFacts(type: ChainEntityType, docs: SourceDocumentInput[]): Rec
     };
   }
   return { value: docs[0]?.entityValue, rawSourceCount: docs.length };
+}
+
+function decodeErc20Metadata(field: string, value: unknown): string | number | null {
+  if (typeof value !== "string" || !/^0x(?:[0-9a-f]{2})+$/i.test(value)) return null;
+  const hex = value.slice(2);
+  if (field === "decimals" || field === "totalSupply") {
+    if (hex.length !== 64) return null;
+    const integer = BigInt(`0x${hex}`);
+    if (field === "decimals") return integer <= 255n ? Number(integer) : null;
+    return integer.toString();
+  }
+  if (field !== "name" && field !== "symbol") return null;
+  if (hex.length < 128 || hex.length % 64 !== 0) return null;
+  const offset = BigInt(`0x${hex.slice(0, 64)}`);
+  if (offset !== 32n) return null;
+  const length = BigInt(`0x${hex.slice(64, 128)}`);
+  const maxLength = field === "name" ? 64n : 32n;
+  if (length < 1n || length > maxLength) return null;
+  const byteLength = Number(length) * 2;
+  const payload = hex.slice(128, 128 + byteLength);
+  const padding = hex.slice(128 + byteLength);
+  if (payload.length !== byteLength || padding.length !== Math.ceil(byteLength / 64) * 64 - byteLength || !/^0*$/.test(padding)) return null;
+  const bytes = Uint8Array.from(payload.match(/.{2}/g) ?? [], (byte) => Number.parseInt(byte, 16));
+  try {
+    const decoded = new TextDecoder("utf-8", { fatal: true }).decode(bytes).trim();
+    return decoded && !/[\u0000-\u001f\u007f]/.test(decoded) ? decoded : null;
+  } catch { return null; }
 }
 
 function decodeWithContractAbi(

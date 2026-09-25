@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from "vitest";
-import { publicIdentity, unlockPreview, workspaceLink, savedLink } from "./model";
+import { publicIdentity, researchInputMatchesChoice, unlockPreview, workspaceLink, savedLink } from "./model";
 it("only hands public identity across workspaces, never amounts or notes", () => {
   const address = "0x" + "a".repeat(40);
   expect(workspaceLink("/check", address)).toBe(`/check?entity=${address}`);
@@ -13,6 +13,16 @@ it("only hands public identity across workspaces, never amounts or notes", () =>
   ])
     expect(publicIdentity(value)).toBe("");
   expect(publicIdentity("0x" + "b".repeat(64))).toHaveLength(66);
+});
+
+it("validates address versus transaction input for Auto and explicit Token choices", () => {
+  const address = "0x" + "a".repeat(40);
+  const hash = "0x" + "b".repeat(64);
+  expect(researchInputMatchesChoice(address, "unknown")).toBe(true);
+  expect(researchInputMatchesChoice(hash, "unknown")).toBe(true);
+  expect(researchInputMatchesChoice(address, "token")).toBe(true);
+  expect(researchInputMatchesChoice(hash, "token")).toBe(false);
+  expect(researchInputMatchesChoice("not an identifier", "unknown")).toBe(false);
 });
 
 const now = Date.UTC(2026, 8, 20, 13, 0, 0, 400);

@@ -9,7 +9,7 @@ import {
 } from "../watch/followWallet";
 import ResearchIntro from "./ResearchIntro";
 import { useCopy } from "./copy";
-import { publicIdentity, workspaceLink, type Capabilities } from "./model";
+import { publicIdentity, researchInputMatchesChoice, workspaceLink, type Capabilities } from "./model";
 
 import ReportShelf from "./ReportShelf";
 import { researchReport } from "./reports";
@@ -28,10 +28,13 @@ export default function Research({
     publicIdentity(new URLSearchParams(location.search).get("entity")),
   );
   const [task, setTask] = useState<ExplorerAnswerTask>("overview");
+  const [entityType, setEntityType] = useState<"unknown" | "token">("unknown");
   const [result, setResult] = useState<PrivateAnalysis | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
   const pending = useRef<AbortController | null>(null);
+  const trimmedEntity = entity.trim();
+  const inputMatchesChoice = researchInputMatchesChoice(trimmedEntity, entityType);
   useEffect(() => () => pending.current?.abort(), []);
   function clear() {
     pending.current?.abort();
@@ -46,7 +49,7 @@ export default function Research({
     setBusy(true);
     try {
       const next = await analyzePrivate(
-        { entity: entity.trim(), task },
+        { entity: trimmedEntity, entityType, task },
         controller.signal,
       );
       if (!controller.signal.aborted) setResult(next);
@@ -89,12 +92,24 @@ export default function Research({
           className="opsis-panel"
           onSubmit={(e) => {
             e.preventDefault();
-            if (publicIdentity(entity)) void run();
+            if (publicIdentity(entity) && inputMatchesChoice) void run();
           }}
         >
           <label htmlFor="research-entity">
             {c("Public address or transaction hash", "公开地址或交易哈希")}
           </label>
+          <label htmlFor="research-entity-type">{c("Look up as", "查询类型")}</label>
+          <select
+            id="research-entity-type"
+            value={entityType}
+            onChange={(e) => {
+              clear();
+              setEntityType(e.target.value as "unknown" | "token");
+            }}
+          >
+            <option value="unknown">{c("Auto", "自动")}</option>
+            <option value="token">{c("Token", "代币")}</option>
+          </select>
           <input
             id="research-entity"
             value={entity}
@@ -106,6 +121,13 @@ export default function Research({
             spellCheck={false}
             placeholder="0x…"
           />
+          {!inputMatchesChoice && trimmedEntity.length > 0 && (
+            <p role="alert" className="opsis-small">
+              {entityType === "token"
+                ? c("Token lookup requires a 0x contract address.", "代币查询需要 0x 合约地址。")
+                : c("Enter a 0x address or transaction hash.", "请输入 0x 地址或交易哈希。")}
+            </p>
+          )}
           <label htmlFor="research-task">
             {c("Your question", "您的问题")}
           </label>
@@ -139,7 +161,7 @@ export default function Research({
           </p>
           <button
             className="opsis-action"
-            disabled={busy || !publicIdentity(entity)}
+            disabled={busy || !publicIdentity(entity) || !inputMatchesChoice}
           >
             {busy
               ? c("Looking up…", "正在查询…")
@@ -206,6 +228,18 @@ export default function Research({
                       {c(
                         "Direct RPC returned code evidence. Any returned native balance is a separate latest-state sample. Contract metadata and indexed history are shown only when available. These observations are not finalized or anchored to one shared block.",
                         "直接 RPC 返回了代码证据。若返回原生余额，则该余额是独立的最新状态采样。合约元数据和索引历史仅在可用时显示。这些观察尚未最终确认，也未锚定至同一个区块。",
+                      )}
+                    </p>
+                  </section>
+                )}
+              {result.entity.type === "token" &&
+                result.entity.facts.metadataCoverage === "rpc_partial" && (
+                  <section className="opsis-panel" data-testid="research-token-rpc-coverage">
+                    <p className="opsis-kicker">{c("LIMITED RPC TOKEN SAMPLE", "有限 RPC 代币采样")}</p>
+                    <p>
+                      {c(
+                        "Available name, symbol, decimals and supply fields are independent latest-state RPC samples, not verified identity and not anchored to one block. Holder count, transfers, verification, proxy status, sellability and indexed activity are unknown.",
+                        "可用的名称、符号、小数位和供应量字段是独立的最新状态 RPC 采样，并非已验证身份，也未锚定至同一区块。持有人数量、转账、验证状态、代理状态、可售性及索引活动均未知。",
                       )}
                     </p>
                   </section>

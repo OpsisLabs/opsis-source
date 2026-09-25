@@ -3,6 +3,7 @@ import { decodeFunctionResult, encodeFunctionData, type Abi, type Hex } from "vi
 import type { Env } from "../config/env.js";
 import type { ChainProvider, SourceDocumentInput } from "./types.js";
 import { createProviderHttp, type ProviderHttp } from "./provider-http.js";
+import { delegationTarget } from "./delegation.js";
 
 const FORBIDDEN_METHODS = new Set(["eth_sendRawTransaction", "eth_sendTransaction", "personal_sign", "eth_sign", "eth_signTypedData"]);
 const ADDRESS_PATTERN = /^0x[0-9a-fA-F]{40}$/;
@@ -107,6 +108,26 @@ export class AlchemyProvider implements Pick<ChainProvider, "name" | "getTransac
       this.doc("wallet", address, "eth_getCode", code),
       this.doc("wallet", address, "eth_getBalance", balance)
     ];
+  }
+
+  /** One explicit-token sample: code plus four standard ERC-20 getters at latest. */
+  async getTokenMetadataSample(address: string): Promise<SourceDocumentInput[]> {
+    if (!this.rpcUrl || !ADDRESS_PATTERN.test(address)) return [];
+    const code = await this.rpc("eth_getCode", [address, "latest"]);
+    const validCode = typeof code === "string" && /^0x(?:[0-9a-f]{2})+$/i.test(code) && !/^0x0*$/i.test(code);
+    if (!validCode || delegationTarget(code)) return [];
+    const fields = [
+      ["name", "0x06fdde03"], ["symbol", "0x95d89b41"], ["decimals", "0x313ce567"], ["totalSupply", "0x18160ddd"]
+    ] as const;
+    const responses = await Promise.all(fields.map(async ([field, data]) => {
+      try {
+        const result = await this.rpc("eth_call", [{ to: address, data }, "latest"]);
+        return this.doc("token", address, "eth_call", result, { query: "erc20MetadataSample", field });
+      } catch {
+        return this.doc("token", address, "eth_call", null, { query: "erc20MetadataSample", field });
+      }
+    }));
+    return [this.doc("token", address, "eth_getCode", code, { query: "erc20MetadataSample" }), ...responses];
   }
 
   async getReviewedAssetBalances(address: string): Promise<SourceDocumentInput[]> {

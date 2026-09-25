@@ -21,6 +21,7 @@ export class ChainEntityResolver {
     getTransaction(hash: string): Promise<SourceDocumentInput[]>;
     getAddressSummary(address: string): Promise<SourceDocumentInput[]>;
     getReviewedAssetBalances?(address: string): Promise<SourceDocumentInput[]>;
+    getTokenMetadataSample?(address: string): Promise<SourceDocumentInput[]>;
     getAllowances(owner: string, targets: AllowanceTarget[]): Promise<SourceDocumentInput[]>;
   };
   private readonly goldrush: Pick<ChainProvider, "name" | "isConfigured" | "getAddressSummary">;
@@ -36,6 +37,7 @@ export class ChainEntityResolver {
         isConfigured?(): boolean;
         getTransaction(hash: string): Promise<SourceDocumentInput[]>;
         getAddressSummary(address: string): Promise<SourceDocumentInput[]>;
+        getTokenMetadataSample?(address: string): Promise<SourceDocumentInput[]>;
         getAllowances(owner: string, targets: AllowanceTarget[]): Promise<SourceDocumentInput[]>;
       };
       goldrush: Pick<ChainProvider, "name" | "isConfigured" | "getAddressSummary">;
@@ -137,8 +139,22 @@ export class ChainEntityResolver {
       try {
         docs = await this.blockscout.getToken(identified.value, { limit });
       } catch (error) {
-        if (stale) return markStale(stale, providerDestinations);
-        throw error;
+        if (options.privateMode && this.alchemy.getTokenMetadataSample) {
+          providerDestinations.add(this.alchemy.name);
+          try {
+            const sample = await this.alchemy.getTokenMetadataSample(identified.value);
+            if (normalizeEntity(this.env.ROBINHOOD_CHAIN_ID, "token", identified.value, sample).facts.metadataCoverage === "rpc_partial") {
+              docs = sample;
+            }
+          } catch {
+            // If the bounded sample cannot establish a token interpretation,
+            // retain the original explorer failure below.
+          }
+        }
+        if (docs.length === 0) {
+          if (stale) return markStale(stale, providerDestinations);
+          throw error;
+        }
       }
     } else if (identified.type === "contract") {
       if (!options.privateMode) {

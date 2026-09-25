@@ -5,6 +5,12 @@ export function publicIdentity(value: string | null): string {
     ? candidate
     : "";
 }
+export function researchInputMatchesChoice(value: string, entityType: "unknown" | "token"): boolean {
+  const candidate = value.trim();
+  return entityType === "token"
+    ? /^0x[a-fA-F0-9]{40}$/.test(candidate)
+    : /^0x(?:[a-fA-F0-9]{40}|[a-fA-F0-9]{64})$/.test(candidate);
+}
 export function workspaceLink(
   path: "/research" | "/research/details" | "/check",
   value: string,
