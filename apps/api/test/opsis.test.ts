@@ -95,7 +95,7 @@ it("gates reused private engines before parsing and provider work, including exp
     });
     const manifest = access.json().manifest;
     expect(manifest.capabilities.map((item: { id: string }) => item.id)).toEqual([
-      "research", "tokenControls", "exitCheck", "watch", "rwa", "observedTrades",
+      "research", "tokenControls", "exitCheck", "watch", "rwa", "observedTrades", "swapPreview",
     ]);
     expect(manifest.capabilities.every((item: { scope: string; origin: string; freshness: string; coverage: string; limits: string }) =>
       [item.scope, item.origin, item.freshness, item.coverage, item.limits].every(Boolean),
@@ -147,8 +147,9 @@ it("publishes manifest capability parity from the configured server flags", asyn
     const body = response.json();
     expect(body.manifest.build).toBe(config.BUILD_SHA);
     expect(Object.fromEntries(body.manifest.capabilities.map((row: { id: string; enabled: boolean }) => [row.id, row.enabled]))).toEqual({
-      research: true, tokenControls: true, exitCheck: true, watch: true, rwa: false, observedTrades: true,
+      research: true, tokenControls: true, exitCheck: true, watch: true, rwa: false, observedTrades: true, swapPreview: false,
     });
+    expect(body.swapPreview).toBe(false);
     expect(body.manifest.capabilities.some((row: { id: string }) => /perp|quant|history/i.test(row.id))).toBe(false);
   } finally {
     await app.close();
@@ -280,5 +281,27 @@ it("public mode lets anonymous requests reach reused read-only engines", async (
     ).toBe(200);
   } finally {
     await app.close();
+  }
+});
+
+it("enables Swap preview only when live quotes and the server-side Uniswap key are both configured", async () => {
+  const base = { ...loadEnv({ NODE_ENV: "test" }), OPSIS_WORKSPACES_ENABLED: true, OPSIS_PUBLIC_ACCESS_ENABLED: true };
+  for (const [overrides, expected] of [
+    [{ UNISWAP_QUOTE_ENABLED: false, UNISWAP_API_KEY: undefined }, false],
+    [{ UNISWAP_QUOTE_ENABLED: true, UNISWAP_API_KEY: undefined }, false],
+    [{ UNISWAP_QUOTE_ENABLED: true, UNISWAP_API_KEY: "server-only-key" }, true],
+  ] as const) {
+    const app = Fastify();
+    installErrorHandler(app);
+    await opsisRoutes(app, { ...base, ...overrides });
+    try {
+      const response = await app.inject({ method: "POST", url: "/v1/private/opsis/access", headers: { "content-type": "application/json" }, payload: {} });
+      const body = response.json();
+      expect(body.swapPreview).toBe(expected);
+      expect(body.manifest.capabilities.find((row: { id: string }) => row.id === "swapPreview")?.enabled).toBe(expected);
+      expect(JSON.stringify(body)).not.toContain("server-only-key");
+    } finally {
+      await app.close();
+    }
   }
 });

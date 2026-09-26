@@ -113,7 +113,7 @@ export const toolGuides: ToolGuide[] = [
       "A route and cost preview before an official-app handoff",
       "前往官方应用前的路线与成本预览",
     ],
-    enabled: () => true,
+    enabled: (c) => Boolean(c.swapPreview),
   },
   {
     path: "/simulate",
@@ -130,7 +130,9 @@ export const toolGuides: ToolGuide[] = [
       "Before/after quantities and portfolio assumptions",
       "交易前后的数量及投资组合假设",
     ],
-    enabled: () => import.meta.env.VITE_TRADE_SIMULATOR_ENABLED === "true",
+    enabled: (c) =>
+      Boolean(c.swapPreview) &&
+      import.meta.env.VITE_TRADE_SIMULATOR_ENABLED === "true",
   },
   {
     path: "/stress-test",

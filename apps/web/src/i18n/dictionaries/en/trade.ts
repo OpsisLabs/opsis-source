@@ -29,7 +29,7 @@ export const trade = {
   "trade.swap.chainLive": "LIVE · CHAIN 4663",
   "trade.swap.unavailable": "LIVE PREVIEW UNAVAILABLE",
   "trade.swap.openUniswapNewQuote": "OPEN OFFICIAL UNISWAP FOR A NEW QUOTE",
-  "trade.swap.disabled": "Live previews are paused right now. You can still open the official Uniswap app safely.",
+  "trade.swap.disabled": "Live previews are switched off on this deployment. You can still open the official Uniswap app, which quotes independently.",
   "trade.swap.noRoute": "Uniswap could not find a route for that amount. Try a smaller amount or continue in Uniswap.",
   "trade.swap.rateLimited": "Live previews are cooling down for a minute. Uniswap can still fetch a new quote directly.",
   "trade.swap.unavailableGeneric": "Live Uniswap previews are temporarily unavailable.",

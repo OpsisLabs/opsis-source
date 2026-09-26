@@ -8,7 +8,7 @@ const key = "a".repeat(64);
 
 async function access(
   page: Page,
-  options: { watch?: boolean; exitCheck?: boolean; expiry?: number } = {},
+  options: { watch?: boolean; exitCheck?: boolean; expiry?: number; swapPreview?: boolean } = {},
 ) {
   await page.route("**/v1/private/opsis/access", (route) => {
     expect(route.request().headers().authorization).toBe(`Preview ${key}`);
@@ -24,6 +24,7 @@ async function access(
         watch: options.watch ?? true,
         rwa: false,
         observedTrades: false,
+        swapPreview: options.swapPreview ?? true,
         perpExecution: false,
       },
     });
@@ -256,7 +257,7 @@ test.describe("opsis preview", () => {
       .getByRole("link", { name: "Trade Check", exact: true })
       .click();
     await expect(
-      page.getByRole("heading", { name: "Not enabled in this preview" }),
+      page.getByRole("heading", { name: "Not enabled on this deployment" }),
     ).toBeVisible();
     await page.getByRole("link", { name: "Saved", exact: true }).click();
     await expect(
@@ -388,5 +389,24 @@ test.describe("opsis preview", () => {
     expect(await page.evaluate(() => document.activeElement?.tagName)).not.toBe(
       "BODY",
     );
+  });
+});
+
+test.describe("opsis swap preview capability", () => {
+  test.skip(!enabled);
+  test("hides Swap preview and never requests a quote when the server has it switched off", async ({ page }) => {
+    let quotes = 0;
+    await page.route("**/v1/swaps/quote", (route) => {
+      quotes++;
+      return route.abort();
+    });
+    await access(page, { swapPreview: false });
+    await unlock(page, "/swap");
+    await expect(page.getByRole("heading", { name: "Not enabled on this deployment" })).toBeVisible();
+    await page.getByRole("navigation", { name: "Workspaces", exact: true }).getByRole("link", { name: /Trade Check/ }).click();
+    const tools = page.getByRole("navigation", { name: "Workspace tools", exact: true });
+    await expect(tools.getByRole("link", { name: "Exit check", exact: true })).toBeVisible();
+    await expect(tools.getByRole("link", { name: "Swap preview", exact: true })).toHaveCount(0);
+    expect(quotes).toBe(0);
   });
 });

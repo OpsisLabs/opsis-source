@@ -49,7 +49,7 @@ test.describe("public Opsis", () => {
     expect(lookups).toBe(0);
     await page.getByRole("link", { name: "Trade Check", exact: true }).click();
     await expect(
-      page.getByRole("heading", { name: "Not enabled in this preview" }),
+      page.getByRole("heading", { name: "Not enabled on this deployment" }),
     ).toBeVisible();
     await page.getByRole("link", { name: "Saved", exact: true }).click();
     await expect(

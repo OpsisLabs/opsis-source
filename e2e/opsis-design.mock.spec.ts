@@ -20,6 +20,7 @@ test.describe("Opsis visual workspaces", () => {
           watch: true,
           rwa: true,
           observedTrades: true,
+          swapPreview: true,
           perpExecution: false,
         },
       }),

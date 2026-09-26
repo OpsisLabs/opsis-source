@@ -29,7 +29,7 @@ export const trade: Record<string, string> = {
   "trade.swap.chainLive": "实时 · 链 4663",
   "trade.swap.unavailable": "实时预览不可用",
   "trade.swap.openUniswapNewQuote": "打开官方 UNISWAP 重新报价",
-  "trade.swap.disabled": "实时预览目前已暂停。你仍可安全地打开官方 Uniswap 应用。",
+  "trade.swap.disabled": "此部署已关闭实时预览。你仍可打开官方 Uniswap 应用，它会独立报价。",
   "trade.swap.noRoute": "Uniswap 无法为该金额找到路由。请尝试更小的金额，或继续在 Uniswap 中操作。",
   "trade.swap.rateLimited": "实时预览正在冷却一分钟。Uniswap 仍可直接获取新报价。",
   "trade.swap.unavailableGeneric": "实时 Uniswap 预览暂时不可用。",

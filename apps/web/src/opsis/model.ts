@@ -18,7 +18,7 @@ export function workspaceLink(
   const id = publicIdentity(value);
   return id ? `${path}?entity=${encodeURIComponent(id)}` : path;
 }
-export type CapabilityId = "research" | "tokenControls" | "exitCheck" | "watch" | "rwa" | "observedTrades";
+export type CapabilityId = "research" | "tokenControls" | "exitCheck" | "watch" | "rwa" | "observedTrades" | "swapPreview";
 export type CapabilityStatus = { id: CapabilityId; enabled: boolean; scope: string; origin: string; freshness: string; coverage: string; limits: string };
 export type CapabilityManifest = { version: 1; chain: { id: 4663; name: string }; build: string | null; capabilities: CapabilityStatus[] };
 export type Capabilities = {
@@ -30,25 +30,29 @@ export type Capabilities = {
   watch: boolean;
   rwa: boolean;
   observedTrades: boolean;
+  swapPreview?: boolean;
   perpExecution: false;
   manifest?: CapabilityManifest;
 };
 
-const capabilityIds: CapabilityId[] = ["research", "tokenControls", "exitCheck", "watch", "rwa", "observedTrades"];
+const requiredCapabilityIds: CapabilityId[] = ["research", "tokenControls", "exitCheck", "watch", "rwa", "observedTrades"];
+// Optional rows let a newer browser build work with an older server manifest.
+const optionalCapabilityIds: CapabilityId[] = ["swapPreview"];
+const capabilityIds: CapabilityId[] = [...requiredCapabilityIds, ...optionalCapabilityIds];
 function parseManifest(value: unknown): CapabilityManifest | undefined {
   if (value === undefined) return undefined; // Older preview fixtures expose the same server-derived booleans.
   if (!value || typeof value !== "object") throw new Error("Invalid preview response");
   const manifest = value as Record<string, unknown>;
   if (manifest.version !== 1 || !manifest.chain || typeof manifest.chain !== "object" || (manifest.chain as Record<string, unknown>).id !== 4663 || (manifest.chain as Record<string, unknown>).name !== "Robinhood Chain" || (manifest.build !== null && (typeof manifest.build !== "string" || !/^[a-f0-9]{40}$/i.test(manifest.build))) || !Array.isArray(manifest.capabilities)) throw new Error("Invalid preview response");
   const rows = manifest.capabilities as unknown[];
-  if (rows.length !== capabilityIds.length) throw new Error("Invalid preview response");
+  if (rows.length < requiredCapabilityIds.length || rows.length > capabilityIds.length) throw new Error("Invalid preview response");
   const capabilities = rows.map((item): CapabilityStatus => {
     if (!item || typeof item !== "object") throw new Error("Invalid preview response");
     const row = item as Record<string, unknown>;
     if (Object.keys(row).sort().join(",") !== "coverage,enabled,freshness,id,limits,origin,scope" || !capabilityIds.includes(row.id as CapabilityId) || typeof row.enabled !== "boolean" || ["scope", "origin", "freshness", "coverage", "limits"].some((key) => typeof row[key] !== "string" || !row[key])) throw new Error("Invalid preview response");
     return row as CapabilityStatus;
   });
-  if (new Set(capabilities.map((item) => item.id)).size !== capabilityIds.length || capabilityIds.some((id) => !capabilities.some((item) => item.id === id))) throw new Error("Invalid preview response");
+  if (new Set(capabilities.map((item) => item.id)).size !== capabilities.length || requiredCapabilityIds.some((id) => !capabilities.some((item) => item.id === id))) throw new Error("Invalid preview response");
   return { version: 1, chain: { id: 4663, name: "Robinhood Chain" }, build: manifest.build as string | null, capabilities };
 }
 export async function unlockPreview(
@@ -90,6 +94,8 @@ export async function unlockPreview(
     data.chainId !== 4663 ||
     (data.tokenControls !== undefined &&
       typeof data.tokenControls !== "boolean") ||
+    (data.swapPreview !== undefined &&
+      typeof data.swapPreview !== "boolean") ||
     data.perpExecution !== false ||
     [
       data.research,
@@ -109,6 +115,7 @@ export async function unlockPreview(
       watch: data.watch,
       rwa: data.rwa,
       observedTrades: data.observedTrades,
+      swapPreview: data.swapPreview ?? false,
     };
     if (manifest.capabilities.some((entry) => entry.enabled !== legacyFlags[entry.id])) throw new Error("Invalid preview response");
   }

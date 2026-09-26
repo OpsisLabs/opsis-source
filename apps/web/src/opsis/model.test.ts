@@ -146,3 +146,30 @@ it("legacy Vault redirect keeps only a known workspace", () => {
   expect(savedLink("?view=reports&entity=private")).toBe("/saved?view=reports");
   expect(savedLink("?view=https://example.com")).toBe("/saved");
 });
+it("accepts an optional Swap preview capability only when its legacy flag agrees", async () => {
+  type Body = { swapPreview?: unknown; manifest: { capabilities: Array<Record<string, unknown>> }; [key: string]: unknown };
+  const withSwap = async (enabled: unknown, legacy: unknown) => {
+    const body = await response(Date.now() + 60_000).json() as Body;
+    body.manifest.capabilities.push({ id: "swapPreview", enabled, scope: "quote preview", origin: "live quote on request", freshness: "short-lived", coverage: "WETH and USDG only", limits: "not an execution" });
+    if (legacy !== undefined) body.swapPreview = legacy;
+    return new Response(JSON.stringify(body));
+  };
+
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(await withSwap(true, true)));
+  const enabled = await unlockPreview("", new AbortController().signal);
+  expect(enabled.swapPreview).toBe(true);
+  expect(enabled.manifest?.capabilities.map((entry) => entry.id)).toContain("swapPreview");
+
+  // An older server without the row still parses, with Swap preview treated as off.
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response(Date.now() + 60_000)));
+  expect((await unlockPreview("", new AbortController().signal)).swapPreview).toBeUndefined();
+
+  for (const bad of [await withSwap(true, false), await withSwap(false, "true"), await withSwap("yes", true)]) {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(bad));
+    await expect(unlockPreview("", new AbortController().signal)).rejects.toThrow("Invalid preview response");
+  }
+  const unknownRow = await response(Date.now() + 60_000).json() as Body;
+  unknownRow.manifest.capabilities.push({ id: "perpExecution", enabled: false, scope: "x", origin: "x", freshness: "x", coverage: "x", limits: "x" });
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify(unknownRow))));
+  await expect(unlockPreview("", new AbortController().signal)).rejects.toThrow("Invalid preview response");
+});

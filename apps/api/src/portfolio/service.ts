@@ -19,6 +19,7 @@ import {
   type RpcSpendBudget
 } from "../chain/robinhood-rpc.js";
 import { AppError } from "../http/errors.js";
+import { REVIEWED_ASSET_SAMPLE_REVIEWED_ON, REVIEWED_ROBINHOOD_ASSET_SAMPLE } from "../chain/reviewed-assets.js";
 import { createPortfolioBudget, type PortfolioBudget } from "./budget.js";
 
 const ADDRESS_PATTERN = /^0x[0-9a-fA-F]{40}$/;
@@ -27,6 +28,7 @@ const MAX_UINT256 = (2n ** 256n - 1n).toString();
 const MAX_TOKENS = 10;
 const MAX_NFTS = 10;
 const MAX_TRANSACTIONS = 10;
+const REVIEWED_SAMPLE_CITATION_ID = "reviewed-asset-sample";
 const MAX_APPROVALS = 10;
 const TRANSFER_TOPIC = keccak256(stringToHex("Transfer(address,address,uint256)"));
 const TRANSFER_SINGLE_TOPIC = keccak256(stringToHex("TransferSingle(address,address,address,uint256,uint256)"));
@@ -108,10 +110,22 @@ export class PortfolioService implements PortfolioSnapshotSource {
     const discoveries = await this.discover(address);
     const degradedSources = discoveries.degraded;
     const byPath = new Map(discoveries.documents.map((document) => [document.path, document]));
-    const discoveredTokenCandidates = uniqueBy(items(byPath.get("token-balances")?.body)
-      .map(parseTokenCandidate)
-      .filter((value): value is ReturnType<typeof parseTokenCandidate> & {} => value !== undefined), (token) => token.contract);
-    const tokenCandidates = discoveredTokenCandidates.slice(0, MAX_TOKENS);
+    // When the indexer cannot list ERC-20 balances, check the fixed reviewed
+    // Robinhood Chain sample directly at the anchor instead of showing none.
+    // This is a bounded sample, never a complete holdings claim.
+    const tokenDiscoveryUnavailable = degradedSources.includes("blockscout:token-balances");
+    const discoveredTokenCandidates = tokenDiscoveryUnavailable
+      ? REVIEWED_ROBINHOOD_ASSET_SAMPLE.map((asset) => ({
+        contract: asset.address.toLowerCase(),
+        name: asset.name,
+        symbol: asset.symbol,
+        sourceId: REVIEWED_SAMPLE_CITATION_ID
+      }))
+      : uniqueBy(items(byPath.get("token-balances")?.body)
+        .map(parseTokenCandidate)
+        .filter((value): value is ReturnType<typeof parseTokenCandidate> & {} => value !== undefined), (token) => token.contract);
+    const tokenCandidateLimit = tokenDiscoveryUnavailable ? REVIEWED_ROBINHOOD_ASSET_SAMPLE.length : MAX_TOKENS;
+    const tokenCandidates = discoveredTokenCandidates.slice(0, tokenCandidateLimit);
     const discoveredNftCandidates = uniqueBy(items(byPath.get("nft")?.body)
       .map(parseNftCandidate)
       .filter((value): value is ReturnType<typeof parseNftCandidate> & {} => value !== undefined), (nft) => `${nft.contract}:${nft.tokenId}`);
@@ -161,12 +175,27 @@ export class PortfolioService implements PortfolioSnapshotSource {
       fetchedAt: anchor.fetchedAt,
       description: `${this.rpcEndpoint.label} read-only reconciliation at captured current block ${anchor.blockNumber}`
     };
-    const citations = [...discoveries.documents.map(citationForDiscovery), rpcCitation];
-    const tokens = tokenCandidates.flatMap((token, index): PortfolioTokenHolding[] => {
+    const reviewedSampleCitation: PortfolioCitation | undefined = tokenDiscoveryUnavailable ? {
+      id: REVIEWED_SAMPLE_CITATION_ID,
+      provider: "robinhood",
+      url: "https://docs.robinhood.com/chain/stock-token-apis/",
+      fetchedAt: anchor.fetchedAt,
+      description: `Fixed ${REVIEWED_ROBINHOOD_ASSET_SAMPLE.length}-asset reviewed Robinhood Chain sample (reviewed ${REVIEWED_ASSET_SAMPLE_REVIEWED_ON}), checked directly because indexer token discovery was unavailable`
+    } : undefined;
+    const citations = [
+      ...discoveries.documents.map(citationForDiscovery),
+      ...(reviewedSampleCitation ? [reviewedSampleCitation] : []),
+      rpcCitation
+    ];
+    let tokenReadFailures = 0;
+    const heldTokens = tokenCandidates.flatMap((token, index): PortfolioTokenHolding[] => {
       const rawBalance = rpcHex(reconciled.get(`token:${index}`));
       const decimalsRaw = rpcHex(reconciled.get(`token-decimals:${index}`));
       const decimals = decimalsRaw === undefined ? undefined : Number(decimalsRaw);
-      if (rawBalance === undefined || decimals === undefined || !Number.isInteger(decimals) || decimals < 0 || decimals > 255) return [];
+      if (rawBalance === undefined || decimals === undefined || !Number.isInteger(decimals) || decimals < 0 || decimals > 255) {
+        tokenReadFailures += 1;
+        return [];
+      }
       const quantity = formatUnits(rawBalance, decimals);
       if (quantity === undefined || BigInt(rawBalance) === 0n) return [];
       return [{
@@ -180,6 +209,7 @@ export class PortfolioService implements PortfolioSnapshotSource {
         sourceIds: [token.sourceId, rpcCitation.id]
       }];
     });
+    const tokens = heldTokens.slice(0, MAX_TOKENS);
     const nfts = nftCandidates.flatMap((nft, index): PortfolioNftHolding[] => {
       const raw = reconciled.get(`nft:${index}`);
       if (raw?.error || typeof raw?.result !== "string") return [];
@@ -396,13 +426,15 @@ export class PortfolioService implements PortfolioSnapshotSource {
     const unlimitedApprovals = activeApprovals.filter((approval) => approval.unlimited);
     const failedTransactions = transactions.filter((transaction) => transaction.status === "failed");
     const truncatedSections = [
-      ...(discoveredTokenCandidates.length > MAX_TOKENS ? [`tokens: ${MAX_TOKENS} of ${discoveredTokenCandidates.length} candidates evaluated`] : []),
+      ...(discoveredTokenCandidates.length > tokenCandidateLimit ? [`tokens: ${tokenCandidateLimit} of ${discoveredTokenCandidates.length} candidates evaluated`] : []),
+      ...(heldTokens.length > tokens.length ? [`tokens: ${tokens.length} of ${heldTokens.length} held tokens returned`] : []),
       ...(discoveredNftCandidates.length > MAX_NFTS ? [`nfts: ${MAX_NFTS} of ${discoveredNftCandidates.length} candidates evaluated`] : []),
       ...(discoveredTransactionCandidates.length > MAX_TRANSACTIONS ? [`activity: ${MAX_TRANSACTIONS} of ${discoveredTransactionCandidates.length} candidates evaluated`] : []),
       ...(verifiedMovements.length > movements.length ? [`movements: ${movements.length} of ${verifiedMovements.length} decoded rows returned`] : [])
     ];
     const unreconciled = {
-      tokens: Math.max(0, discoveredTokenCandidates.length - tokens.length),
+      // A reviewed-sample zero balance is a confirmed observation, not a gap.
+      tokens: tokenDiscoveryUnavailable ? tokenReadFailures : Math.max(0, discoveredTokenCandidates.length - tokens.length),
       nfts: Math.max(0, discoveredNftCandidates.length - nfts.length),
       activity: Math.max(0, discoveredTransactionCandidates.length - transactions.length),
       approvals: Math.max(0, approvalCandidates.length - approvals.length)
@@ -437,6 +469,12 @@ export class PortfolioService implements PortfolioSnapshotSource {
       title: "This bounded snapshot was truncated",
       detail: `${truncatedSections.join("; ")}. Refresh results never claim that omitted candidates were checked or absent.`,
       sourceIds: [rpcCitation.id]
+    });
+    if (reviewedSampleCitation) attention.push({
+      severity: "info",
+      title: "Token list limited to a reviewed sample",
+      detail: `The indexer could not list this wallet's tokens, so only ${REVIEWED_ROBINHOOD_ASSET_SAMPLE.length} reviewed Robinhood Chain assets (USDG, WETH and stock tokens) were checked at the captured block. Other tokens may be held and are not shown.`,
+      sourceIds: [reviewedSampleCitation.id, rpcCitation.id]
     });
     if (Object.values(unreconciled).some((count) => count > 0) || degradedSources.length > 0) attention.push({
       severity: "info",

@@ -22,9 +22,12 @@ export default function ToolNavigation({
   const links: [string, string][] = trade
     ? [
         ["/check", c("Exit check", "退出核查")],
-        ["/swap", c("Swap preview", "兑换预览")],
+        ...(capabilities.swapPreview
+          ? [["/swap", c("Swap preview", "兑换预览")] as [string, string]]
+          : []),
         ["/check/perp-scenario", c("Perp cost scenario", "永续成本情景")],
-        ...(import.meta.env.VITE_TRADE_SIMULATOR_ENABLED === "true"
+        ...(capabilities.swapPreview &&
+        import.meta.env.VITE_TRADE_SIMULATOR_ENABLED === "true"
           ? [
               ["/simulate", c("Trade scenarios", "交易情景")] as [
                 string,

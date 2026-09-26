@@ -30,6 +30,8 @@ import "./studio.css";
 
 const publicAccess =
   import.meta.env.VITE_OPSIS_PUBLIC_ACCESS_ENABLED === "true";
+// A production beta build labels itself BETA; previews keep the PREVIEW label.
+const betaRelease = import.meta.env.VITE_OPSIS_RELEASE_STAGE === "beta";
 
 const SituationRoom = lazy(() => import("../situation/SituationRoom"));
 const Research = lazy(() => import("./Research"));
@@ -55,7 +57,7 @@ function Unavailable() {
   const c = useCopy();
   return (
     <section className="opsis-panel">
-      <h1>{c("Not enabled in this preview", "此预览中未启用")}</h1>
+      <h1>{c("Not enabled on this deployment", "此部署中未启用")}</h1>
       <p>
         {c(
           "This service has not been enabled on both the browser and server. No lookup was sent.",
@@ -105,6 +107,7 @@ function Status({ capabilities }: { capabilities: Capabilities }) {
     { id: "watch", enabled: capabilities.watch, scope: "Robinhood Chain user-triggered wallet snapshots", origin: "captured on user request", freshness: "snapshot timestamp; no background monitoring", coverage: "supported assets", limits: "Not continuous monitoring." },
     { id: "rwa", enabled: capabilities.rwa, scope: "Existing source-backed RWA verification checks", origin: "live on request", freshness: "checked per request", coverage: "bounded sources", limits: "Not an appraisal or proof of tradability." },
     { id: "observedTrades", enabled: capabilities.observedTrades, scope: "Robinhood Chain decoded Uniswap V3 Swap logs", origin: "live scan on request", freshness: "anchored to captured block window", coverage: "configured block and log caps", limits: "Observed swaps only; transfers are not trades." },
+    { id: "swapPreview", enabled: capabilities.swapPreview ?? false, scope: "Robinhood Chain WETH/USDG quote preview", origin: "live quote on request", freshness: "short-lived quote", coverage: "WETH and USDG only", limits: "A preview, not an execution." },
   ];
   const details: Record<string, { label: [string, string]; scope: [string, string]; origin: [string, string]; freshness: [string, string]; coverage: [string, string]; limits: [string, string] }> = {
     research: { label: ["Research", "研究"], scope: ["Robinhood Chain public-identifier research", "Robinhood Chain 公开标识符研究"], origin: ["Live on request", "按请求实时查询"], freshness: ["Checked per request", "每次请求时检查"], coverage: ["Bounded by upstream source coverage", "受上游数据源覆盖范围限制"], limits: ["Provider health and complete coverage are unknown until each lookup.", "每次查询前，提供商运行状况和完整覆盖情况均未知。"] },
@@ -112,6 +115,7 @@ function Status({ capabilities }: { capabilities: Capabilities }) {
     exitCheck: { label: ["Exit quotes", "退出报价"], scope: ["Robinhood Chain official Uniswap V3 standard fee tiers", "Robinhood Chain 官方 Uniswap V3 标准费率层"], origin: ["Live RPC on request", "按请求实时 RPC 查询"], freshness: ["Block-anchored per quote", "每份报价锚定区块"], coverage: ["Bounded pools and configured RPC quota", "受限流动池及配置的 RPC 配额"], limits: ["Does not prove transferability, sellability or execution.", "不证明资产可转移、可出售或可成交。"] },
     watch: { label: ["Watch snapshots", "观察快照"], scope: ["Robinhood Chain user-triggered wallet snapshots", "Robinhood Chain 用户触发的钱包快照"], origin: ["Captured on user request", "按用户请求捕获"], freshness: ["Snapshot timestamp; no background monitoring", "显示快照时间；不在后台监控"], coverage: ["Supported assets and upstream discovery coverage", "受支持资产和上游发现覆盖范围"], limits: ["Not continuous monitoring; missing upstream data stays unknown.", "不提供持续监控；缺失的上游数据保持为未知。"] },
     rwa: { label: ["RWA verification", "RWA 验证"], scope: ["Existing source-backed RWA verification checks", "现有有来源依据的 RWA 验证检查"], origin: ["Live on request", "按请求实时查询"], freshness: ["Checked per request", "每次请求时检查"], coverage: ["Bounded to supported sources and configured RPC quota", "受支持数据源及配置的 RPC 配额限制"], limits: ["Not an appraisal, eligibility decision or proof of tradability.", "不是估值、资格决定或可交易性证明。"] },
+    swapPreview: { label: ["Swap preview", "兑换预览"], scope: ["Robinhood Chain WETH/USDG quote preview through the Uniswap Trade API", "通过 Uniswap Trade API 预览 Robinhood Chain WETH/USDG 报价"], origin: ["Live quote on request", "按请求实时报价"], freshness: ["Short-lived quote; Uniswap requotes before any trade", "短时有效报价；任何交易前由 Uniswap 重新报价"], coverage: ["WETH and USDG only", "仅限 WETH 和 USDG"], limits: ["A preview, not an execution; Opsis never signs or broadcasts.", "仅为预览，不会执行；Opsis 从不签名或广播交易。"] },
     observedTrades: { label: ["Observed trades", "已观察交易"], scope: ["Robinhood Chain decoded Uniswap V3 Swap logs", "Robinhood Chain 解码的 Uniswap V3 Swap 日志"], origin: ["Live scan on request", "按请求实时扫描"], freshness: ["Anchored to captured block window", "锚定已捕获的区块范围"], coverage: ["Configured block and log caps", "受配置的区块和日志上限限制"], limits: ["Observed swaps only; gaps and partial windows remain explicit; transfers are not trades.", "仅表示观察到的兑换；缺口和不完整范围会明确显示；转账不代表交易。"] },
   };
   return (
@@ -423,12 +427,16 @@ export default function OpsisApp() {
             <ToolNavigation capabilities={access} />
             <div className="opsis-preview-note">
               {c(
-                publicAccess
-                  ? "PREVIEW · Robinhood Chain 4663"
-                  : "PRIVATE PREVIEW · Test data only · Robinhood Chain 4663",
-                publicAccess
-                  ? "预览 · Robinhood Chain 4663"
-                  : "私密预览 · 仅限测试数据 · Robinhood Chain 4663",
+                betaRelease
+                  ? "BETA · Robinhood Chain 4663"
+                  : publicAccess
+                    ? "PREVIEW · Robinhood Chain 4663"
+                    : "PRIVATE PREVIEW · Test data only · Robinhood Chain 4663",
+                betaRelease
+                  ? "测试版 · Robinhood Chain 4663"
+                  : publicAccess
+                    ? "预览 · Robinhood Chain 4663"
+                    : "私密预览 · 仅限测试数据 · Robinhood Chain 4663",
               )}
             </div>
             <main id="opsis-content" className="opsis-content" tabIndex={-1}>
@@ -574,9 +582,13 @@ export default function OpsisApp() {
                     <Route
                       path="/swap"
                       element={
-                        <ToolWorkspace>
-                          <Swap />
-                        </ToolWorkspace>
+                        access.swapPreview ? (
+                          <ToolWorkspace>
+                            <Swap />
+                          </ToolWorkspace>
+                        ) : (
+                          <Unavailable />
+                        )
                       }
                     />
                     <Route
@@ -590,8 +602,9 @@ export default function OpsisApp() {
                     <Route
                       path="/simulate"
                       element={
+                        access.swapPreview &&
                         import.meta.env.VITE_TRADE_SIMULATOR_ENABLED ===
-                        "true" ? (
+                          "true" ? (
                           <ToolWorkspace>
                             <Simulator />
                           </ToolWorkspace>
