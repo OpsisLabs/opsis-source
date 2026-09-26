@@ -33,7 +33,7 @@ export const rwa: Record<string, string> = {
   "rwa.consent.title": "确切的网络凭据",
   "rwa.consent.cancelAria": "取消",
   "rwa.consent.body":
-    "若继续，此公开合约可能会发送给 ChainScout、Robinhood 的股票代币 API 和公共 RPC，或 Morpho 的公共 API。若匹配到股票代币，还可能读取其派生的公共 Chainlink 喂价地址。",
+    "若继续，此公开合约可能会发送给 ChainScout、Robinhood 的股票代币 API 和 dRPC Robinhood Chain 网关，或 Morpho 的公共 API。dRPC 是付费网关，可能会将每次读取路由到其网络中的独立节点运营方。若匹配到股票代币，还可能读取其派生的公共 Chainlink 喂价地址。",
   "rwa.consent.publicContract": "公开合约",
   "rwa.consent.noAccount":
     "无账户 cookie、无钱包连接、无 AI 模型，也不保存查询/结果历史。",

@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+const DRPC_KEY_PATTERN = /^[A-Za-z0-9._~+/=-]{16,256}$/;
+
 const envBoolean = z.preprocess((value) => {
   if (typeof value !== "string") return value;
   if (value.toLowerCase() === "true") return true;
@@ -44,6 +46,14 @@ const envSchema = z.object({
   ROBINHOOD_CHAIN_ID: z.coerce.number().int().default(4663),
   ROBINHOOD_EXPLORER_URL: z.string().url().default("https://robinhoodchain.blockscout.com"),
   ROBINHOOD_PUBLIC_RPC_URL: z.string().url().default("https://rpc.mainnet.chain.robinhood.com"),
+  // Server-side Robinhood Chain JSON-RPC transport. The official public RPC is
+  // development-only under Robinhood's hosted-service terms; production reads
+  // use the founder-admitted dRPC gateway (decision D20), with no fallback.
+  ROBINHOOD_RPC_PROVIDER: z.enum(["robinhood-public", "drpc"]).default("robinhood-public"),
+  DRPC_API_KEY: optionalString,
+  DRPC_ROBINHOOD_NETWORK: z.string().regex(/^[a-z0-9-]{1,64}$/).default("robinhood"),
+  // Account-wide monthly dRPC compute-unit fuse (about $50 at $0.30 per million CU).
+  DRPC_MONTHLY_CU_LIMIT: z.coerce.number().int().min(100_000).max(10_000_000_000).default(166_000_000),
   ENABLE_PUBLIC_RPC_FALLBACK: envBoolean.default(false),
   BLOCKSCOUT_API_BASE_URL: z.string().url().default("https://robinhoodchain.blockscout.com/api/v2"),
   BLOCKSCOUT_API_KEY: optionalString,
@@ -250,6 +260,22 @@ const envSchema = z.object({
       });
     }
   }
+  if (env.ROBINHOOD_RPC_PROVIDER === "drpc") {
+    if (!env.DRPC_API_KEY || !DRPC_KEY_PATTERN.test(env.DRPC_API_KEY)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["DRPC_API_KEY"],
+        message: "The dRPC transport requires a DRPC_API_KEY of 16 to 256 URL-safe characters"
+      });
+    }
+    if (env.ROBINHOOD_CHAIN_ID !== 4663) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["ROBINHOOD_CHAIN_ID"],
+        message: "The dRPC transport is admitted for Robinhood Chain ID 4663 only"
+      });
+    }
+  }
   if (env.COLLECTIBLE_CATALOG_ENABLED && env.NODE_ENV !== "test") {
     const tcgdex = new URL(env.TCGDEX_API_BASE_URL);
     const isOfficialTcgdex = tcgdex.protocol === "https:"
@@ -312,6 +338,18 @@ const envSchema = z.object({
   }
   if (env.ENABLE_PUBLIC_RPC_FALLBACK) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: "Public RPC fallback must be disabled in production" });
+  }
+  const chainReadsEnabled = env.PRIVATE_MODE_ENABLED
+    || env.PORTFOLIO_MODE_ENABLED
+    || env.RWA_VERIFY_ENABLED
+    || env.EXIT_CHECK_ENABLED
+    || env.OBSERVED_TRADES_ENABLED;
+  if (chainReadsEnabled && env.ROBINHOOD_RPC_PROVIDER !== "drpc") {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["ROBINHOOD_RPC_PROVIDER"],
+      message: "Production Robinhood Chain reads must use the admitted dRPC transport; the public RPC is development-only"
+    });
   }
   if (env.CSRF_PROTECTION_ENABLED === false) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: "CSRF protection cannot be disabled in production" });

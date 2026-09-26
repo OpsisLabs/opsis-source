@@ -6,7 +6,9 @@ import type { JsonCache } from "../cache/service.js";
 import type { PrismaClient } from "@prisma/client";
 import { z } from "zod";
 import { AiService, type AiLocale } from "../ai/service.js";
+import { AlchemyProvider } from "../chain/alchemy.js";
 import { ChainEntityResolver } from "../chain/resolver.js";
+import { robinhoodRpcEndpoint, rpcRoutingDisclosure, type RpcSpendBudget } from "../chain/robinhood-rpc.js";
 import type { ResolvedEntity } from "../chain/types.js";
 import type { ResolveOptions } from "../chain/types.js";
 import { AppError } from "../http/errors.js";
@@ -59,9 +61,10 @@ export function privateResolverEnvironment(env: Env): Env {
     ...env,
     // Blockscout's public API can independently rate-limit or challenge a
     // server request. Private Mode still needs a useful read-only answer in
-    // that case, so its bounded resolver may fall back to Robinhood's official
-    // public RPC for code and native-balance reads. This override is scoped to
-    // the ephemeral route and does not enable the legacy app-wide fallback.
+    // that case, so its bounded resolver may fall back to the configured
+    // Robinhood Chain RPC transport (dRPC in production, D20) for code and
+    // native-balance reads. This override is scoped to the ephemeral route and
+    // does not enable the legacy app-wide fallback.
     ENABLE_PUBLIC_RPC_FALLBACK: true,
     PROVIDER_MAX_RETRIES: 0,
     PROVIDER_TIMEOUT_MS: Math.min(env.PROVIDER_TIMEOUT_MS, 8_000)
@@ -114,14 +117,18 @@ export async function privateRoutes(
   env: Env,
   prisma?: PrismaClient,
   cache?: JsonCache,
-  dependencies?: PrivateAnalysisDependencies
+  dependencies?: PrivateAnalysisDependencies,
+  rpcSpend?: RpcSpendBudget
 ): Promise<void> {
   // The private first-look path is deliberately bounded: one attempt per
   // public provider call, plus a hard overall deadline for the full resolution.
   // A slow optional upstream should degrade promptly instead of trapping a
   // beginner behind a chain of individually bounded fallbacks.
   const privateResolverEnv = privateResolverEnvironment(env);
-  const resolver = new ChainEntityResolver(privateResolverEnv, cache, prisma);
+  const rpcEndpoint = robinhoodRpcEndpoint(env);
+  const resolver = new ChainEntityResolver(privateResolverEnv, cache, prisma, {
+    alchemy: new AlchemyProvider(privateResolverEnv, undefined, { rpcSpend })
+  });
   // Private Mode is deterministic by design. It never spends provider AI
   // budget and never sends the user's question to OpenAI or Ollama.
   const ai = new AiService({ ...env, AI_PROVIDER: "fallback", OPENAI_API_KEY: undefined });
@@ -176,7 +183,7 @@ export async function privateRoutes(
           clearsOnReload: true,
           modelProvider: "none" as const,
           providerDestinations: resolution.providerDestinations,
-          disclosure: "Only the public chain identifier is user-supplied to the listed data providers. When indexer balances are unavailable, Robinhood Public RPC may also receive ChainScout's fixed 12-contract reviewed sample in one read-only balance call. Your question is not sent to providers or to a model provider."
+          disclosure: `Only the public chain identifier is user-supplied to the listed data providers. When indexer balances are unavailable, the ${rpcEndpoint.label} may also receive ChainScout's fixed 12-contract reviewed sample in one read-only balance call.${rpcRoutingDisclosure(rpcEndpoint)} Your question is not sent to providers or to a model provider.`
         }
       };
     }

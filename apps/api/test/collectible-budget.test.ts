@@ -15,6 +15,8 @@ describe("collectible provider budget", () => {
   it("fails closed in production without Redis", async () => {
     const env = loadEnv({
       NODE_ENV: "production",
+      ROBINHOOD_RPC_PROVIDER: "drpc",
+      DRPC_API_KEY: "test-drpc-key-0123456789abcdef",
       APP_ORIGIN: "https://chainscout.example", JWT_ACCESS_SECRET: "configured-access-secret-at-least-32", JWT_REFRESH_SECRET: "configured-refresh-secret-at-least-32",
       DATABASE_URL: "postgresql://user:password@db.example.com/app", REDIS_URL: "rediss://cache.example.com",
       METRICS_TOKEN: "metrics-secret-at-least-32-characters"

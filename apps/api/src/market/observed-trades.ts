@@ -10,7 +10,14 @@ import {
 } from "viem";
 import { CHAINSCOUT_REVIEWED_ASSETS } from "@rh-chain/shared";
 import type { Env } from "../config/env.js";
-import { createProviderHttp, type ProviderHttp } from "../chain/provider-http.js";
+import type { ProviderHttp } from "../chain/provider-http.js";
+import {
+  createRobinhoodRpcHttp,
+  robinhoodRpcEndpoint,
+  rpcRoutingDisclosure,
+  type RobinhoodRpcEndpoint,
+  type RpcSpendBudget,
+} from "../chain/robinhood-rpc.js";
 import { AppError } from "../http/errors.js";
 import {
   createObservedTradesBudget,
@@ -221,16 +228,21 @@ export interface ObservedTradesSource {
 
 export class ObservedTradesService implements ObservedTradesSource {
   private readonly dependencies: Dependencies;
+  private readonly rpcEndpoint: RobinhoodRpcEndpoint;
 
   constructor(
     private readonly env: Env,
-    dependencies?: Partial<Dependencies>,
+    dependencies?: Partial<Dependencies> & { rpcSpend?: RpcSpendBudget },
   ) {
-    const oneAttemptEnv: Env = { ...env, PROVIDER_MAX_RETRIES: 0 };
+    this.rpcEndpoint = robinhoodRpcEndpoint(env);
     this.dependencies = {
       rpc:
         dependencies?.rpc ??
-        createProviderHttp(oneAttemptEnv, "observed-trades-rpc", 2 * 1024 * 1024),
+        createRobinhoodRpcHttp(env, {
+          providerName: "observed-trades-rpc",
+          spend: dependencies?.rpcSpend,
+          client: { maxRetries: 0, maxResponseBytes: 2 * 1024 * 1024 },
+        }),
       budget: dependencies?.budget ?? createObservedTradesBudget(env),
       now: dependencies?.now ?? (() => new Date()),
     };
@@ -281,7 +293,7 @@ export class ObservedTradesService implements ObservedTradesSource {
         narrowed: logs.narrowed,
         notes: logs.narrowed
           ? [
-              "The requested range matched more logs than the public RPC returns, so ChainScout observed a smaller complete window instead of an incomplete larger one.",
+              "The requested range matched more logs than the RPC provider returns, so ChainScout observed a smaller complete window instead of an incomplete larger one.",
             ]
           : [],
       },
@@ -343,9 +355,9 @@ export class ObservedTradesService implements ObservedTradesSource {
         walletConnectionRequired: false,
         serverStorage: "none",
         modelProvider: "none",
-        providerDestinations: ["Robinhood Public RPC"],
+        providerDestinations: [this.rpcEndpoint.label],
         disclosure:
-          "Your clicked request sent the public token contract, the factory-derived pool address, and a bounded block range to the Robinhood Public RPC, which returned public Swap logs plus, for the displayed rows only, public transaction hashes with their public sender addresses and account code. Those are public chain identifiers, not your wallet. No private wallet, Vault, label, note, ownership, or AI data was sent.",
+          `Your clicked request sent the public token contract, the factory-derived pool address, and a bounded block range to the ${this.rpcEndpoint.label}, which returned public Swap logs plus, for the displayed rows only, public transaction hashes with their public sender addresses and account code. Those are public chain identifiers, not your wallet. No private wallet, Vault, label, note, ownership, or AI data was sent.${rpcRoutingDisclosure(this.rpcEndpoint)}`,
       },
     };
   }
@@ -581,7 +593,7 @@ export class ObservedTradesService implements ObservedTradesSource {
           throw new AppError(
             "OBSERVED_TRADES_RANGE_TOO_WIDE",
             503,
-            "The requested block range matched more logs than the public RPC returns; request a smaller window",
+            "The requested block range matched more logs than the RPC provider returns; request a smaller window",
           );
         }
         throw new AppError(
@@ -621,7 +633,7 @@ export class ObservedTradesService implements ObservedTradesSource {
     throw new AppError(
       "OBSERVED_TRADES_RANGE_TOO_WIDE",
       503,
-      "The requested block range could not be bounded within the public RPC limits",
+      "The requested block range could not be bounded within the RPC provider limits",
     );
   }
 
@@ -816,7 +828,7 @@ export class ObservedTradesService implements ObservedTradesSource {
     run: RpcRun,
   ): Promise<unknown> {
     await this.consumeRpc(1, run);
-    return this.dependencies.rpc.requestJson(this.env.ROBINHOOD_PUBLIC_RPC_URL, {
+    return this.dependencies.rpc.requestJson(this.rpcEndpoint.url, {
       method: "POST",
       redirect: "error",
       headers: { "content-type": "application/json" },
@@ -835,7 +847,7 @@ export class ObservedTradesService implements ObservedTradesSource {
   ): Promise<Map<string, Record<string, unknown>>> {
     await this.consumeRpc(calls.length, run);
     const response = await this.dependencies.rpc.requestJson(
-      this.env.ROBINHOOD_PUBLIC_RPC_URL,
+      this.rpcEndpoint.url,
       {
         method: "POST",
         redirect: "error",

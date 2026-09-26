@@ -20,6 +20,8 @@ describe("portfolio global provider budget", () => {
   it("fails closed in production when the shared Redis guard is unavailable", async () => {
     const env = loadEnv({
       NODE_ENV: "production",
+      ROBINHOOD_RPC_PROVIDER: "drpc",
+      DRPC_API_KEY: "test-drpc-key-0123456789abcdef",
       APP_ORIGIN: "https://chainscout.example",
       DATABASE_URL: "postgresql://db.example/app",
       REDIS_URL: "rediss://redis.example/0",

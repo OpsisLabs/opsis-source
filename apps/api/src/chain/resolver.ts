@@ -29,7 +29,7 @@ export class ChainEntityResolver {
     private readonly env: Env,
     private readonly cache = new JsonCache(undefined, env.CHAIN_CACHE_TTL_SECONDS),
     private readonly prisma?: PrismaClient,
-    providers?: {
+    providers?: Partial<{
       blockscout: ChainProvider;
       alchemy: {
         name: string;
@@ -39,7 +39,7 @@ export class ChainEntityResolver {
         getAllowances(owner: string, targets: AllowanceTarget[]): Promise<SourceDocumentInput[]>;
       };
       goldrush: Pick<ChainProvider, "name" | "isConfigured" | "getAddressSummary">;
-    }
+    }>
   ) {
     this.blockscout = providers?.blockscout ?? new BlockscoutProvider(env);
     this.alchemy = providers?.alchemy ?? new AlchemyProvider(env);

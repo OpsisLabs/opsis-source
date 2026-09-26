@@ -11,6 +11,13 @@ import { keccak256, stringToHex } from "viem";
 import type { Env } from "../config/env.js";
 import { formatUnits } from "../chain/normalize.js";
 import { createProviderHttp, type ProviderHttp } from "../chain/provider-http.js";
+import {
+  createRobinhoodRpcHttp,
+  robinhoodRpcEndpoint,
+  rpcRoutingDisclosure,
+  type RobinhoodRpcEndpoint,
+  type RpcSpendBudget
+} from "../chain/robinhood-rpc.js";
 import { AppError } from "../http/errors.js";
 import { createPortfolioBudget, type PortfolioBudget } from "./budget.js";
 
@@ -66,16 +73,22 @@ export interface PortfolioSnapshotSource {
 export class PortfolioService implements PortfolioSnapshotSource {
   private readonly dependencies: Dependencies;
   private readonly rpcUrl?: string;
+  private readonly rpcEndpoint: RobinhoodRpcEndpoint;
 
-  constructor(private readonly env: Env, dependencies?: Partial<Dependencies>) {
+  constructor(private readonly env: Env, dependencies?: Partial<Dependencies> & { rpcSpend?: RpcSpendBudget }) {
     const oneAttemptEnv: Env = { ...env, PROVIDER_MAX_RETRIES: 0 };
+    this.rpcEndpoint = robinhoodRpcEndpoint(env);
     this.dependencies = {
-      rpc: dependencies?.rpc ?? createProviderHttp(oneAttemptEnv, "robinhood-public-rpc"),
+      rpc: dependencies?.rpc ?? createRobinhoodRpcHttp(env, {
+        providerName: "portfolio-rpc",
+        spend: dependencies?.rpcSpend,
+        client: { maxRetries: 0 }
+      }),
       blockscout: dependencies?.blockscout ?? createProviderHttp(oneAttemptEnv, "blockscout"),
       budget: dependencies?.budget ?? createPortfolioBudget(env),
       now: dependencies?.now ?? (() => new Date())
     };
-    this.rpcUrl = env.ROBINHOOD_PUBLIC_RPC_URL;
+    this.rpcUrl = this.rpcEndpoint.url;
   }
 
   async snapshot(inputAddress: string): Promise<PortfolioSnapshot> {
@@ -142,11 +155,11 @@ export class PortfolioService implements PortfolioSnapshotSource {
     if (nativeRaw === undefined) throw new AppError("PORTFOLIO_PROVIDER_UNAVAILABLE", 503, "The anchored native balance could not be confirmed");
 
     const rpcCitation: PortfolioCitation = {
-      id: "robinhood-public-rpc-anchor",
+      id: `${this.rpcEndpoint.id}-anchor`,
       provider: "robinhood",
       url: new URL(this.rpcUrl).origin,
       fetchedAt: anchor.fetchedAt,
-      description: `Robinhood Public RPC read-only reconciliation at captured current block ${anchor.blockNumber}`
+      description: `${this.rpcEndpoint.label} read-only reconciliation at captured current block ${anchor.blockNumber}`
     };
     const citations = [...discoveries.documents.map(citationForDiscovery), rpcCitation];
     const tokens = tokenCandidates.flatMap((token, index): PortfolioTokenHolding[] => {
@@ -468,8 +481,8 @@ export class PortfolioService implements PortfolioSnapshotSource {
         walletConnectionRequired: false,
         serverStorage: "none",
         browserStorage: "client_encrypted_vault",
-        providerDestinations: ["robinhood_public_rpc", "blockscout"],
-        disclosure: "Blockscout receives this public address for discovery. Robinhood Public RPC receives the address plus derived public contract, transaction, token ID, spender, and operator identifiers needed for exact reads at one captured current block. This anchor is not final and can be reorganized after the response; ChainScout rechecks its block hash before returning. The public RPC is rate-limited and may be unavailable, so ChainScout fails closed and keeps the last encrypted local snapshot. ChainScout does not save the query or response; optional ownership labels and lot context can be stored only inside the encrypted browser Vault."
+        providerDestinations: [this.rpcEndpoint.id === "drpc" ? "drpc" : "robinhood_public_rpc", "blockscout"],
+        disclosure: `Blockscout receives this public address for discovery. The ${this.rpcEndpoint.label} receives the address plus derived public contract, transaction, token ID, spender, and operator identifiers needed for exact reads at one captured current block.${rpcRoutingDisclosure(this.rpcEndpoint)} This anchor is not final and can be reorganized after the response; ChainScout rechecks its block hash before returning. The RPC provider is rate-limited and may be unavailable, so ChainScout fails closed and keeps the last encrypted local snapshot. ChainScout does not save the query or response; optional ownership labels and lot context can be stored only inside the encrypted browser Vault.`
       }
     };
   }

@@ -34,7 +34,7 @@ export const rwa = {
   "rwa.consent.title": "EXACT NETWORK RECEIPT",
   "rwa.consent.cancelAria": "Cancel",
   "rwa.consent.body":
-    "If you continue, this public contract may be sent to ChainScout, Robinhood’s Stock Token API and public RPC, or Morpho’s public API. A matching Stock Token can also cause its derived public Chainlink feed address to be read.",
+    "If you continue, this public contract may be sent to ChainScout, Robinhood’s Stock Token API and the dRPC Robinhood Chain gateway, or Morpho’s public API. dRPC is a paid gateway that may route each read to an independent node operator in its network. A matching Stock Token can also cause its derived public Chainlink feed address to be read.",
   "rwa.consent.publicContract": "PUBLIC CONTRACT",
   "rwa.consent.noAccount":
     "No account cookie, wallet connection, AI model, or saved query/result history.",

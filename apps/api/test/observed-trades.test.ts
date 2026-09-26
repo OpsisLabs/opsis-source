@@ -732,3 +732,28 @@ describe("observed trades route", () => {
     }
   });
 });
+
+describe("observed trades on the admitted dRPC transport", () => {
+  it("sends every read to the credential-free dRPC URL and names dRPC in the receipt", async () => {
+    const key = "test-drpc-key-0123456789abcdef";
+    const buyTx = txHash("a");
+    const { service, rpc } = createHarness({
+      logs: [swapLog({ txHash: buyTx, logIndex: 1, sender: EOA_SENDER, amount0: -1000000000000000000n, amount1: 2500000000n })],
+      senders: { [buyTx]: EOA_SENDER },
+      codes: { [EOA_SENDER]: "0x" },
+      env: { ROBINHOOD_RPC_PROVIDER: "drpc", DRPC_API_KEY: key },
+    });
+    const requestJson = vi.spyOn(rpc, "requestJson");
+
+    const result = await service.observe({ chainId: 4663 });
+
+    expect(result.state).toBe("observed");
+    expect(requestJson).toHaveBeenCalled();
+    expect(new Set(requestJson.mock.calls.map(([url]) => url))).toEqual(new Set(["https://lb.drpc.live/robinhood"]));
+    expect(result.privacy.providerDestinations).toEqual(["dRPC Robinhood Chain gateway"]);
+    expect(result.privacy.disclosure).toContain("to the dRPC Robinhood Chain gateway");
+    expect(result.privacy.disclosure).toContain("independent node operator");
+    expect(result.privacy.disclosure).not.toContain("Robinhood Public RPC");
+    expect(JSON.stringify(result)).not.toContain(key);
+  });
+});

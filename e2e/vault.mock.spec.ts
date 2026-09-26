@@ -311,6 +311,9 @@ test("Portfolio Intelligence sends only one approved public address and encrypts
   await page.getByRole("button", { name: "REVIEW REFRESH" }).click();
   expect(calls).toHaveLength(0);
   await expect(page.getByRole("dialog", { name: "Portfolio refresh permission" })).toContainText("Lots and purchase prices");
+  await expect(page.getByRole("dialog", { name: "Portfolio refresh permission" })).toContainText("the dRPC Robinhood Chain gateway receives the address");
+  await expect(page.getByRole("dialog", { name: "Portfolio refresh permission" })).toContainText("dRPC is a paid gateway that may route each read to an independent node operator in its network.");
+  await expect(page.getByRole("dialog", { name: "Portfolio refresh permission" })).not.toContainText("Robinhood Public RPC");
   await page.getByRole("button", { name: "CONFIRM ONE-TIME REFRESH" }).click();
   await expect(page.getByText("Anchored current snapshot verified and encrypted")).toBeVisible();
 

@@ -53,7 +53,10 @@ export async function healthRoutes(app: FastifyInstance, env: Env, prisma?: Pris
         blockscout: providerConfiguration(Boolean(env.BLOCKSCOUT_API_BASE_URL)),
         alchemy: providerConfiguration(Boolean(env.ALCHEMY_ROBINHOOD_RPC_URL || env.ALCHEMY_API_KEY)),
         uniswap: providerConfiguration(env.UNISWAP_QUOTE_ENABLED && Boolean(env.UNISWAP_API_KEY)),
-        goldrush: providerConfiguration(env.GOLDRUSH_ENABLED && Boolean(env.GOLDRUSH_API_KEY))
+        goldrush: providerConfiguration(env.GOLDRUSH_ENABLED && Boolean(env.GOLDRUSH_API_KEY)),
+        // Names the server-side Robinhood Chain transport without exposing any
+        // endpoint or credential, so operators can confirm production uses dRPC.
+        robinhoodRpc: { transport: env.ROBINHOOD_RPC_PROVIDER, ...providerConfiguration(env.ROBINHOOD_RPC_PROVIDER === "robinhood-public" || Boolean(env.DRPC_API_KEY)) }
       }
     };
     return ok ? { ok: true, ...status } : reply.status(503).send({ ok: false, ...status });

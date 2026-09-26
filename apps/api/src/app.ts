@@ -42,6 +42,7 @@ import { MarketInventoryService, type MarketInventorySource } from "./market/ser
 import { createMarketBudget } from "./market/budget.js";
 import { ObservedTradesService, type ObservedTradesSource } from "./market/observed-trades.js";
 import { createObservedTradesBudget } from "./market/observed-trades-budget.js";
+import { createRobinhoodRpcSpendBudget } from "./chain/robinhood-rpc.js";
 import { openDataRoutes } from "./routes/open-data.js";
 import type { OpenDataLimiter } from "./open-data/limiter.js";
 import { corsOptionsForRequest } from "./http/cors.js";
@@ -104,6 +105,8 @@ export async function buildApp(
     });
   }
   const cache = new JsonCache(redis, env.CHAIN_CACHE_TTL_SECONDS);
+  // One account-wide monthly dRPC fuse shared by every Robinhood Chain reader.
+  const rpcSpend = createRobinhoodRpcSpendBudget(env, redis);
   await app.register(cookie);
   await app.register(cors, {
     delegator: async (request: FastifyRequest) => corsOptionsForRequest(request.url, env),
@@ -155,16 +158,16 @@ export async function buildApp(
   if (env.ENABLE_METRICS) await installMetrics(app);
   await healthRoutes(app, env, prisma, redis);
   await openDataRoutes(app, env, redis, dependencies?.openDataLimiter);
-  await privateRoutes(app, env, prisma, cache, dependencies?.privateAnalysis);
+  await privateRoutes(app, env, prisma, cache, dependencies?.privateAnalysis, rpcSpend);
   await portfolioRoutes(
     app,
     env,
-    dependencies?.portfolioSnapshot ?? new PortfolioService(env, { budget: createPortfolioBudget(env, redis) })
+    dependencies?.portfolioSnapshot ?? new PortfolioService(env, { budget: createPortfolioBudget(env, redis), rpcSpend })
   );
   await rwaRoutes(
     app,
     env,
-    dependencies?.rwaVerification ?? new RwaService(env, { budget: createRwaBudget(env, redis) })
+    dependencies?.rwaVerification ?? new RwaService(env, { budget: createRwaBudget(env, redis), rpcSpend })
   );
   await collectibleRoutes(
     app,
@@ -176,7 +179,7 @@ export async function buildApp(
     env,
     dependencies?.marketInventory ?? new MarketInventoryService(env, { budget: createMarketBudget(env, redis) }),
     new BenchmarkService(env, { budget: createCollectibleBudget(env, redis) }),
-    dependencies?.observedTrades ?? new ObservedTradesService(env, { budget: createObservedTradesBudget(env, redis) })
+    dependencies?.observedTrades ?? new ObservedTradesService(env, { budget: createObservedTradesBudget(env, redis), rpcSpend })
   );
   await authRoutes(app, env, prisma);
   await accountRoutes(app, env, prisma);
@@ -188,7 +191,7 @@ export async function buildApp(
     app,
     env,
     cache,
-    dependencies?.exitCheck ?? new ExitCheckService(env, cache, { budget: createExitCheckBudget(env, redis) })
+    dependencies?.exitCheck ?? new ExitCheckService(env, cache, { budget: createExitCheckBudget(env, redis), rpcSpend })
   );
   await adminRoutes(app, env, prisma);
   if (prisma && env.RETENTION_ENABLED) installRetention(app, prisma, env);

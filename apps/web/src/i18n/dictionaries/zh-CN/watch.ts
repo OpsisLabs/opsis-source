@@ -32,7 +32,7 @@ export const watch = {
   "watch.sampleLabel": "公开示例 · 未验证身份",
   "watch.save": "保存钱包并查询",
   "watch.disclosure":
-    "本次查询仅向 ChainScout、Robinhood Public RPC 和 Blockscout 发送公开地址。私密标签和已保存历史留在本设备上。不使用 AI 模型、不签名、不在后台轮询。",
+    "本次查询仅向 ChainScout、dRPC Robinhood Chain 网关和 Blockscout 发送公开地址。dRPC 是付费网关，可能会将每次读取路由到其网络中的独立节点运营方。私密标签和已保存历史留在本设备上。不使用 AI 模型、不签名、不在后台轮询。",
   "watch.consent": "允许本次公开地址查询",
   "watch.working": "正在查询并加密…",
   "watch.savedBaseline": "基准已保存。稍后刷新，对比更新区块的数据。",

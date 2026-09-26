@@ -6,7 +6,7 @@ export const trades = {
   "trades.page.eyebrow": "BOUNDED WINDOW · ONE VERIFIED POOL",
   "trades.page.title": "The largest swaps ChainScout actually observed.",
   "trades.page.intro":
-    "Choose the default WETH/USDG pair or one token contract. After your click, ChainScout reads a bounded recent block window from the official public RPC and ranks signed Uniswap V3 Swap amounts from that one pool. Nothing is fetched automatically and no wallet connects.",
+    "Choose the default WETH/USDG pair or one token contract. After your click, ChainScout reads a bounded recent block window from the dRPC Robinhood Chain gateway and ranks signed Uniswap V3 Swap amounts from that one pool. Nothing is fetched automatically and no wallet connects.",
 
   "trades.form.tokenLabel": "Token contract (optional)",
   "trades.form.tokenPlaceholder": "0x… — leave blank for WETH/USDG",
@@ -20,7 +20,7 @@ export const trades = {
 
   "trades.consent.title": "Public-address disclosure",
   "trades.consent.body":
-    "Clicking once sends the public token contract, the factory-derived pool address, and the bounded block window to the Robinhood Public RPC. No wallet, Vault, note, or AI data is sent. ChainScout does not fetch before you click and never signs or trades.",
+    "Clicking once sends the public token contract, the factory-derived pool address, and the bounded block window to the dRPC Robinhood Chain gateway. dRPC is a paid gateway that may route each read to an independent node operator in its network. No wallet, Vault, note, or AI data is sent. ChainScout does not fetch before you click and never signs or trades.",
   "trades.consent.button": "OBSERVE RECENT SWAPS",
   "trades.consent.loading": "OBSERVING…",
 

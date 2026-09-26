@@ -80,6 +80,25 @@ describe("Exit Check browser boundary", () => {
     await expect(getExitCheckQuote({ token: WETH, amount: "0.001", outputToken: "USDG" })).rejects.toThrow();
   });
 
+  it("accepts only the development public RPC or the production dRPC provider", async () => {
+    const production = fixture();
+    production.provider = { name: "drpc", cached: false };
+    mock(production);
+    await expect(getExitCheckQuote({ token: WETH, amount: "0.001", outputToken: "USDG" })).resolves.toMatchObject({ provider: { name: "drpc", cached: false } });
+
+    for (const name of ["alchemy", "DRPC", "robinhood_public_rpc", "dRPC Robinhood Chain gateway", "", undefined]) {
+      const unknownProvider = fixture();
+      (unknownProvider as { provider: { name: unknown; cached: boolean } }).provider = { name, cached: false };
+      mock(unknownProvider);
+      await expect(getExitCheckQuote({ token: WETH, amount: "0.001", outputToken: "USDG" }), String(name)).rejects.toThrow();
+    }
+
+    const missingProvider = fixture();
+    delete (missingProvider as { provider?: unknown }).provider;
+    mock(missingProvider);
+    await expect(getExitCheckQuote({ token: WETH, amount: "0.001", outputToken: "USDG" })).rejects.toThrow();
+  });
+
   it("validates input amounts without floating point", () => {
     expect(isValidExitAmount("1.5", 18)).toBe(true);
     expect(isValidExitAmount("1.0000001", 6)).toBe(false);

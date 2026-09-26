@@ -1,7 +1,7 @@
 import { CheckCircle2, Clock, ExternalLink } from "lucide-react";
 
 const COLS = [
-  { t: "RETRIEVE", d: "Discover with Blockscout and verify anchored state through Robinhood Public RPC." },
+  { t: "RETRIEVE", d: "Discover with Blockscout and verify anchored state through the dRPC Robinhood Chain gateway." },
   { t: "NORMALIZE", d: "Standardize transactions, transfers, logs, and approvals." },
   { t: "EXPLAIN", d: "Convert technical records into plain-English answers." },
   { t: "CITE", d: "Attach source links and evidence IDs to every claim." },
@@ -15,7 +15,7 @@ const BULLETS = [
 
 const SOURCES = [
   { id: "src_1", t: "Blockscout address transactions", s: "blockscout", c: "#7cc4f8" },
-  { id: "src_2", t: "Robinhood RPC transaction receipt", s: "robinhood", c: "#7fb069" },
+  { id: "src_2", t: "Robinhood Chain RPC transaction receipt", s: "robinhood", c: "#7fb069" },
   { id: "src_3", t: "Blockscout token transfers", s: "blockscout", c: "#7cc4f8" },
   { id: "src_7", t: "Anchored ERC-20 allowance state", s: "robinhood", c: "#e0738a" },
   { id: "src_9", t: "Contract verification status", s: "blockscout", c: "#7cc4f8" },

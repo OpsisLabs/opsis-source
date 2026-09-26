@@ -5,6 +5,7 @@ describe("environment validation", () => {
   it("allows private-only production without cloud storage but keeps security gates", () => {
     const privateProduction = {
       NODE_ENV: "production", APP_ORIGIN: "https://chainscout.example",
+      ROBINHOOD_RPC_PROVIDER: "drpc", DRPC_API_KEY: "test-drpc-key-0123456789abcdef",
       JWT_ACCESS_SECRET: "configured-access-secret-at-least-32",
       JWT_REFRESH_SECRET: "configured-refresh-secret-at-least-32",
       REDIS_URL: "rediss://cache.example.com", METRICS_TOKEN: "metrics-secret-at-least-32-characters",
@@ -34,6 +35,8 @@ describe("environment validation", () => {
     expect(() => loadEnv({
       NODE_ENV: "production",
       APP_ORIGIN: "https://chainscout.example",
+      ROBINHOOD_RPC_PROVIDER: "drpc",
+      DRPC_API_KEY: "test-drpc-key-0123456789abcdef",
       JWT_ACCESS_SECRET: "configured-access-secret-at-least-32",
       JWT_REFRESH_SECRET: "configured-refresh-secret-at-least-32",
       SMTP_HOST: "smtp.example.com",
@@ -85,10 +88,12 @@ describe("environment validation", () => {
     expect(loadEnv({ NODE_ENV: "test" }).UNISWAP_QUOTE_ENABLED).toBe(false);
   });
 
-  it("uses the configured Robinhood public RPC for zero-cost Portfolio Intelligence", () => {
+  it("uses dRPC for production Portfolio Intelligence and the official public RPC only in development", () => {
     const production = {
       NODE_ENV: "production",
       APP_ORIGIN: "https://chainscout.example",
+      ROBINHOOD_RPC_PROVIDER: "drpc",
+      DRPC_API_KEY: "test-drpc-key-0123456789abcdef",
       JWT_ACCESS_SECRET: "configured-access-secret-at-least-32",
       JWT_REFRESH_SECRET: "configured-refresh-secret-at-least-32",
       DATABASE_URL: "postgresql://user:password@db.example.com/app",

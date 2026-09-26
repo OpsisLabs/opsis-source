@@ -30,6 +30,8 @@ test("confirms the exact public lookup, omits cookies, and explains a Stock Toke
   await page.getByRole("button", { name: "VERIFY EVIDENCE" }).click();
   await expect(page.getByRole("dialog", { name: "EXACT NETWORK RECEIPT" })).toContainText(STOCK);
   await expect(page.getByRole("dialog")).toContainText("No account cookie");
+  await expect(page.getByRole("dialog")).toContainText("Robinhood’s Stock Token API and the dRPC Robinhood Chain gateway");
+  await expect(page.getByRole("dialog")).toContainText("dRPC is a paid gateway that may route each read to an independent node operator in its network.");
   await page.getByRole("button", { name: "CONFIRM PUBLIC LOOKUP" }).click();
 
   await expect(page.getByTestId("rwa-result")).toContainText("AAPL is a canonical Robinhood Stock Token");
