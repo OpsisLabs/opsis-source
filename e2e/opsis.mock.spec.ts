@@ -392,7 +392,7 @@ test.describe("opsis preview", () => {
   });
 });
 
-test.describe("opsis swap preview capability", () => {
+test.describe("opsis preview swap capability", () => {
   test.skip(!enabled);
   test("hides Swap preview and never requests a quote when the server has it switched off", async ({ page }) => {
     let quotes = 0;
