@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   createSuggestionDraft,
   deriveChangelog,
+  reviewedChangelogEvidence,
   suggestionMarkdown,
   suggestionExport,
   validateSuggestion,
@@ -39,5 +40,15 @@ describe("evidence-derived changelog", () => {
     ]);
     expect(entries).toHaveLength(1);
     expect(entries[0]?.date).toBe("2026-09-21");
+  });
+  it("publishes only verified, bilingual release entries without forbidden claims", () => {
+    const entries = deriveChangelog(reviewedChangelogEvidence);
+    expect(entries).toHaveLength(reviewedChangelogEvidence.length);
+    for (const entry of reviewedChangelogEvidence) {
+      expect(entry.status).toBe("shipped");
+      expect(Date.parse(entry.verifiedAt ?? "")).toBeGreaterThanOrEqual(Date.parse(entry.observedAt));
+      expect(entry.titleZh && entry.summaryZh).toBeTruthy();
+      expect(`${entry.title} ${entry.summary}`).not.toMatch(/\b(safe|unsafe|guaranteed|will|free|real-time|best|risk-free)\b/i);
+    }
   });
 });

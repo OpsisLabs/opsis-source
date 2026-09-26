@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "35d46c4989597e1ea45999ff823d02ad3c72e0c4066206adf5adcf5b4c3e0135",
+  "sourceTreeDigest": "3b71f95d465959373ac27f229999acdde4bc39ccc1f59f8054e645d45231f689",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "44317ccd1802e860d42d47f65f15d179725e7a90ce0ecb9af99779c0f70e5276",
@@ -437,9 +437,9 @@
     "apps/web/src/market/math.ts": "904034e184eb239905e8d45b799dadb0293cafebecef7affcf0ce7385dd11dff",
     "apps/web/src/open-data/api.test.ts": "419c2cd60263f2e5cd7d6a16082a5d582ed3f97af96ec043bddef5de79fef4be",
     "apps/web/src/open-data/api.ts": "399a203aeda1433f1a40c43f113bda023f8f9683f9a09d6d03cfe1a3f30ac4b5",
-    "apps/web/src/opsis/community-model.ts": "ae00b6b13f92c4926e191ccd12caf8837bb818aa1d468f7cc238f2c1c18a8462",
-    "apps/web/src/opsis/community.test.ts": "9dfaf3dc1679835c1c16f5660f8d9b288c4a8f39938d7702fbfc328ce855fc59",
-    "apps/web/src/opsis/Community.tsx": "53f89f69bc5790de24a521d867dc7d9e89ff88a594c2469cf06c69a0755675cd",
+    "apps/web/src/opsis/community-model.ts": "228218d750fd9ca1f03e8de5e1e0998f91dcfc0d6316c994862c41a140c4a862",
+    "apps/web/src/opsis/community.test.ts": "9942538cc84b5bfbc2563ad27b0728ef4dcd7b48f802ba46ddef8776a72b9461",
+    "apps/web/src/opsis/Community.tsx": "18c4a164bbdd28a62c2ee743dec220d1aca9694e32d92e9bcf2dc1899c213dbb",
     "apps/web/src/opsis/ContractControls.tsx": "50284eea48915783a056bed825f1b4d8ff0d5e3b43f6e2d84fbc06fd2c2382ec",
     "apps/web/src/opsis/controls-model.test.ts": "53a6979f8fd410e119e96403bcdbe543387b7817af71b3b631027477537b6343",
     "apps/web/src/opsis/controls-model.ts": "f3ee461dead07395a5045c91bcc5341d9f40e1b8139c27b8bfe42cd5b6b061b2",

@@ -89,7 +89,7 @@ export default function Community() {
             <p className="opsis-kicker">SHIPPED / EVIDENCE</p>
             <h2>{c("A changelog built from proof.", "基于证据的更新日志。")}</h2>
             <p className="opsis-muted">{c("Only shipped work with a dated observation, verification and named source appears here.", "只有具备日期观察、验证和明确来源的已发布工作才会显示在这里。")}</p>
-            {entries.length ? entries.map((entry) => <article className="community-entry" key={entry.id}><p className="opsis-kicker">{entry.date} · {entry.workspace.toUpperCase()}</p><h3>{entry.title}</h3><p>{entry.summary}</p><p className="opsis-small">{entry.sourceLabel}</p></article>) : <p className="opsis-small">{c("No reviewed release evidence is available in this preview yet.", "此预览中暂时没有可用的已审核发布证据。")}</p>}
+            {entries.length ? entries.map((entry) => <article className="community-entry" key={entry.id}><p className="opsis-kicker">{entry.date} · {entry.workspace.toUpperCase()}</p><h3>{c(entry.title, entry.titleZh ?? entry.title)}</h3><p>{c(entry.summary, entry.summaryZh ?? entry.summary)}</p><p className="opsis-small">{entry.sourceLabel}</p></article>) : <p className="opsis-small">{c("No reviewed release evidence is available on this deployment yet.", "此部署中暂时没有可用的已审核发布证据。")}</p>}
           </section>
         </div>
       </div>

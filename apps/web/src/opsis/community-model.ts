@@ -21,6 +21,9 @@ export type ChangelogEvidence = {
   releaseId: string;
   title: string;
   summary: string;
+  /** Simplified Chinese copy; English is shown when absent. */
+  titleZh?: string;
+  summaryZh?: string;
   workspace: "research" | "check" | "watch" | "lab";
   status: "shipped" | "in-progress" | "blocked";
   observedAt: string;
@@ -104,8 +107,81 @@ export function deriveChangelog(records: readonly ChangelogEvidence[]): Changelo
 }
 
 /** Only reviewed, dated evidence is eligible for public changelog copy. */
-// Release 26's D18/D19 entries in docs/releases/26-opsis-workspaces.md are
-// explicitly queued preview preparation: they say "No release advance, RC,
-// production promotion or remote push." Keep them out until production
-// verification exists; a preview deployment is not a shipped changelog item.
-export const reviewedChangelogEvidence: readonly ChangelogEvidence[] = [];
+// Each entry is a release candidate merged into main and verified live on the
+// production beta (docs/releases/26-opsis-workspaces.md). Preview-only work is
+// never listed here.
+const RC25_TAGGED = "2026-09-26T04:29:21Z";
+const RC26_TAGGED = "2026-09-26T04:54:37Z";
+const PRODUCTION_VERIFIED = "2026-09-26T04:59:00Z";
+export const reviewedChangelogEvidence: readonly ChangelogEvidence[] = [
+  {
+    id: "rc-25-biggest-trades-1",
+    releaseId: "25-biggest-trades",
+    title: "Biggest observed trades",
+    summary: "Compare the largest observed Uniswap V3 swaps for a token in a bounded recent block window, with exact amounts and transaction sources, then follow a public address into Watch.",
+    titleZh: "最大已观察交易",
+    summaryZh: "在有限的近期区块范围内比较某代币最大的已观察 Uniswap V3 兑换，显示精确数量和交易来源，并可将公开地址添加到观察。",
+    workspace: "research",
+    status: "shipped",
+    observedAt: RC25_TAGGED,
+    verifiedAt: PRODUCTION_VERIFIED,
+    sourceLabel: "Release 25 · rc/25-biggest-trades/1",
+    sourceUrl: null,
+  },
+  {
+    id: "rc-26-research",
+    releaseId: "26-opsis-workspaces",
+    title: "Research with sources",
+    summary: "Look up a Robinhood Chain token, wallet, transaction or contract and see what was found, where it came from and at which block, with limits stated.",
+    titleZh: "附来源的研究",
+    summaryZh: "查询 Robinhood Chain 代币、钱包、交易或合约，查看发现了什么、来自哪里以及对应区块，并注明局限。",
+    workspace: "research",
+    status: "shipped",
+    observedAt: RC26_TAGGED,
+    verifiedAt: PRODUCTION_VERIFIED,
+    sourceLabel: "Release 26 · rc/26-opsis-workspaces/1",
+    sourceUrl: null,
+  },
+  {
+    id: "rc-26-trade-check",
+    releaseId: "26-opsis-workspaces",
+    title: "Exit check at your size",
+    summary: "Quote what a token amount returns from official Uniswap V3 pools at one block, with price impact, fees and an optional three-point size curve. Gas is excluded.",
+    titleZh: "按你的数量核查退出",
+    summaryZh: "在同一区块从官方 Uniswap V3 流动池报价某代币数量可换回多少，显示价格影响、费用和可选的三点数量曲线。不含 Gas。",
+    workspace: "check",
+    status: "shipped",
+    observedAt: RC26_TAGGED,
+    verifiedAt: PRODUCTION_VERIFIED,
+    sourceLabel: "Release 26 · rc/26-opsis-workspaces/1",
+    sourceUrl: null,
+  },
+  {
+    id: "rc-26-watch",
+    releaseId: "26-opsis-workspaces",
+    title: "Encrypted Watch inbox",
+    summary: "Save public wallets under a passphrase in your browser, refresh them on demand, and review what changed, what is unfinished and what coverage is unknown. No background monitoring.",
+    titleZh: "加密观察收件箱",
+    summaryZh: "在浏览器中用口令保存公开钱包，按需刷新，并查看变化、未完成事项和未知覆盖。不在后台监控。",
+    workspace: "watch",
+    status: "shipped",
+    observedAt: RC26_TAGGED,
+    verifiedAt: PRODUCTION_VERIFIED,
+    sourceLabel: "Release 26 · rc/26-opsis-workspaces/1",
+    sourceUrl: null,
+  },
+  {
+    id: "rc-26-quant-lab",
+    releaseId: "26-opsis-workspaces",
+    title: "Quant Lab experiments",
+    summary: "Run seeded bootstrap and comparison experiments on data you import, locally in your browser, and export a manifest that replays exactly.",
+    titleZh: "Quant Lab 实验",
+    summaryZh: "在浏览器本地对你导入的数据运行带种子的自助抽样和对比实验，并导出可精确重放的清单。",
+    workspace: "lab",
+    status: "shipped",
+    observedAt: RC26_TAGGED,
+    verifiedAt: PRODUCTION_VERIFIED,
+    sourceLabel: "Release 26 · rc/26-opsis-workspaces/1",
+    sourceUrl: null,
+  },
+];
