@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "25-biggest-trades",
+  "activeRelease": "26-opsis-workspaces",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement. Exception: dRPC under Opsis decision D20, admitted only while it does not request identity or business verification.",
@@ -298,7 +298,7 @@
       "id": "25-biggest-trades",
       "branch": "codex/25-biggest-trades",
       "tagPrefix": "rc/25-biggest-trades/",
-      "status": "active",
+      "status": "released",
       "dependencies": [
         "23-follow-wallet",
         "21-explorer-answers",
@@ -312,7 +312,7 @@
       "id": "26-opsis-workspaces",
       "branch": "codex/26-opsis-workspaces",
       "tagPrefix": "rc/26-opsis-workspaces/",
-      "status": "queued",
+      "status": "active",
       "dependencies": [
         "25-biggest-trades",
         "03-encrypted-vault",
