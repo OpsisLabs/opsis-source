@@ -682,6 +682,7 @@ export default function OpsisApp() {
               <Link to="/guide">{c("Find your tool", "选择工具")}</Link>
               <Link to="/community">{c("Community", "社区")}</Link>
               <Link to="/privacy">{c("Privacy", "隐私")}</Link>
+              <Link to="/terms">{c("Terms", "条款")}</Link>
               <span>
                 {c(
                   "Local encrypted records · No transaction execution",
