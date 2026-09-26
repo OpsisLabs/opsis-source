@@ -51,9 +51,23 @@ describe("readiness reporting", () => {
       providers: {
         blockscout: { configured: true, status: "not_checked" },
         alchemy: { configured: true, status: "not_checked" },
-        goldrush: { configured: false, status: "disabled" }
+        goldrush: { configured: false, status: "disabled" },
+        robinhoodRpc: { transport: "robinhood-public", configured: true, status: "not_checked" }
       }
     });
+    expect(response.body).not.toMatch(/rpc\.mainnet|lb\.drpc/);
+  });
+
+  it("names the dRPC transport in readiness without exposing its key or endpoint", async () => {
+    const app = Fastify({ logger: false });
+    apps.push(app);
+    const key = "test-drpc-key-0123456789abcdef";
+    await healthRoutes(app, loadEnv({ NODE_ENV: "test", ROBINHOOD_RPC_PROVIDER: "drpc", DRPC_API_KEY: key }));
+
+    const response = await app.inject({ method: "GET", url: "/readyz" });
+    expect(response.json().providers.robinhoodRpc).toEqual({ transport: "drpc", configured: true, status: "not_checked" });
+    expect(response.body).not.toContain(key);
+    expect(response.body).not.toContain("lb.drpc.live");
   });
 
   it("fails readiness when an owned dependency is unavailable", async () => {

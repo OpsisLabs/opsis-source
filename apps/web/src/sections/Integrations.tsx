@@ -12,7 +12,7 @@ const SETS: Record<string, { name: string; d: string; mark: React.ReactNode }[]>
     { name: "TOKEN INDEX", d: "Metadata, holders, and transfer activity", mark: <BarsMark /> },
   ],
   "RPC & ANCHORS": [
-    { name: "ROBINHOOD PUBLIC RPC", d: "Read-only mainnet calls for chain 4663", mark: <DotsMark /> },
+    { name: "DRPC ROBINHOOD CHAIN GATEWAY", d: "Read-only mainnet calls for chain 4663", mark: <DotsMark /> },
     { name: "CAPTURED BLOCK", d: "Every snapshot starts from one current block", mark: <GlobeMark /> },
     { name: "EXACT STATE", d: "Balances and approvals use that block number", mark: <LoopMark /> },
     { name: "DIRECT RECEIPTS", d: "Transactions and logs are verified directly", mark: <BarsMark /> },
@@ -24,7 +24,7 @@ const SETS: Record<string, { name: string; d: string; mark: React.ReactNode }[]>
     { name: "APPROVAL WINDOW", d: "Only discovered approval targets are checked", mark: <DotsMark /> },
     { name: "RECEIPT MOVEMENTS", d: "Owner-involving movements are decoded and bounded", mark: <LoopMark /> },
     { name: "MANUAL VALUE", d: "Reference prices and lot math stay local", mark: <BarsMark /> },
-    { name: "SHARED BUDGET", d: "Redis enforces the zero-cost daily RPC ceiling", mark: <SlantMark /> },
+    { name: "SHARED BUDGET", d: "Redis enforces the daily RPC ceiling", mark: <SlantMark /> },
     { name: "SOURCE RECEIPTS", d: "Every displayed result names its public sources", mark: <LodoMark /> },
   ],
   "AI MODES": [
@@ -110,7 +110,7 @@ export default function Integrations() {
           </h2>
           <p className="max-w-[420px] self-end text-[14.5px] leading-relaxed text-[#1d1d1d]/70 xl:justify-self-end">
             Chain data and explanation modes sit behind internal interfaces. The launch path uses
-            Blockscout discovery, Robinhood Public RPC verification, and encrypted local context.
+            Blockscout discovery, dRPC Robinhood Chain gateway verification, and encrypted local context.
           </p>
         </div>
 

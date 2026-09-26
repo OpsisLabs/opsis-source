@@ -48,6 +48,7 @@ import { createMarketBudget } from "./market/budget.js";
 import { ObservedTradesService, type ObservedTradesSource } from "./market/observed-trades.js";
 import { createObservedTradesBudget } from "./market/observed-trades-budget.js";
 import { RedisObservedTradesCoalescer } from "./market/observed-trades-coalescer.js";
+import { createRobinhoodRpcSpendBudget } from "./chain/robinhood-rpc.js";
 import { openDataRoutes } from "./routes/open-data.js";
 import type { OpenDataLimiter } from "./open-data/limiter.js";
 import { corsOptionsForRequest } from "./http/cors.js";
@@ -112,6 +113,8 @@ export async function buildApp(
     });
   }
   const cache = new JsonCache(redis, env.CHAIN_CACHE_TTL_SECONDS);
+  // One account-wide monthly dRPC fuse shared by every Robinhood Chain reader.
+  const rpcSpend = createRobinhoodRpcSpendBudget(env, redis);
   await app.register(cookie);
   await app.register(cors, {
     delegator: async (request: FastifyRequest) => corsOptionsForRequest(request.url, env),
@@ -163,18 +166,18 @@ export async function buildApp(
   if (env.ENABLE_METRICS) await installMetrics(app);
   await healthRoutes(app, env, prisma, redis);
   await opsisRoutes(app, env);
-  await controlsRoutes(app, env, new ControlsService(env, createPortfolioBudget(env, redis)));
+  await controlsRoutes(app, env, new ControlsService(env, createPortfolioBudget(env, redis), undefined, undefined, rpcSpend));
   await openDataRoutes(app, env, redis, dependencies?.openDataLimiter);
-  await privateRoutes(app, env, prisma, cache, dependencies?.privateAnalysis);
+  await privateRoutes(app, env, prisma, cache, dependencies?.privateAnalysis, rpcSpend);
   await portfolioRoutes(
     app,
     env,
-    dependencies?.portfolioSnapshot ?? new PortfolioService(env, { budget: createPortfolioBudget(env, redis) })
+    dependencies?.portfolioSnapshot ?? new PortfolioService(env, { budget: createPortfolioBudget(env, redis), rpcSpend })
   );
   await rwaRoutes(
     app,
     env,
-    dependencies?.rwaVerification ?? new RwaService(env, { budget: createRwaBudget(env, redis) })
+    dependencies?.rwaVerification ?? new RwaService(env, { budget: createRwaBudget(env, redis), rpcSpend })
   );
   await collectibleRoutes(
     app,
@@ -187,7 +190,7 @@ export async function buildApp(
     dependencies?.marketInventory ?? new MarketInventoryService(env, { budget: createMarketBudget(env, redis) }),
     new BenchmarkService(env, { budget: createCollectibleBudget(env, redis) }),
     dependencies?.observedTrades ?? (() => {
-      const source = new ObservedTradesService(env, { budget: createObservedTradesBudget(env, redis) });
+      const source = new ObservedTradesService(env, { budget: createObservedTradesBudget(env, redis), rpcSpend });
       return redis
         ? new RedisObservedTradesCoalescer(source, redis, env.OBSERVED_TRADES_MIN_BLOCKS, env.OBSERVED_TRADES_MAX_BLOCKS)
         : source;
@@ -204,7 +207,7 @@ export async function buildApp(
     app,
     env,
     cache,
-    dependencies?.exitCheck ?? new ExitCheckService(env, cache, { budget: createExitCheckBudget(env, redis) })
+    dependencies?.exitCheck ?? new ExitCheckService(env, cache, { budget: createExitCheckBudget(env, redis), rpcSpend })
   );
   await adminRoutes(app, env, prisma);
   if (prisma && env.RETENTION_ENABLED) installRetention(app, prisma, env);

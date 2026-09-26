@@ -10,8 +10,8 @@ The release order lives in [`release-train.json`](../release-train.json). It is 
 4. Preparation branches may start from a common foundation. Before activation they must include updated main and be reverified. Record dependencies; never pull a later feature into an earlier release just to obtain shared code.
 5. Production follows only `main`. Preview environments must be isolated from production and access-restricted; do not reuse a service that serves a public production domain.
 6. RC tags are immutable. Fixes receive a new number; an existing tag is never moved.
-7. New vendor spend is capped at $0. Adapters cache, degrade, then disable before free-tier overage.
-8. The selected provider path cannot have a publicly stated KYB/KYC requirement.
+7. New vendor spend is capped at $0. Adapters cache, degrade, then disable before free-tier overage. Exception: the prepaid dRPC Robinhood Chain RPC admitted in Opsis decision D20, behind a fail-closed monthly compute-unit fuse.
+8. The selected provider path cannot have a publicly stated KYB/KYC requirement. Exception: dRPC under D20, admitted only while it does not request identity or business verification.
 9. ChainScout explains and prepares. The official Uniswap app owns transaction signing and execution.
 
 ## Daily workflow

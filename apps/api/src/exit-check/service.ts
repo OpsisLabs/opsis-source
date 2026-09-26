@@ -7,11 +7,14 @@ import {
 import { z } from "zod";
 import { JsonCache } from "../cache/service.js";
 import type { Env } from "../config/env.js";
+import { ProviderRequestError, type ProviderHttp } from "../chain/provider-http.js";
 import {
-  ProviderHttpClient,
-  ProviderRequestError,
-  type ProviderHttp,
-} from "../chain/provider-http.js";
+  createRobinhoodRpcHttp,
+  robinhoodRpcEndpoint,
+  type RobinhoodRpcEndpoint,
+  type RobinhoodRpcProviderId,
+  type RpcSpendBudget
+} from "../chain/robinhood-rpc.js";
 import { AppError } from "../http/errors.js";
 import { createExitCheckBudget, type ExitCheckBudget } from "./budget.js";
 import {
@@ -238,7 +241,7 @@ export type ExitCheckResponse = {
   freshForMs: number;
   quoteIsNotSellabilityProof: true;
   limitations: string[];
-  provider: { name: "robinhood-public-rpc"; cached: boolean };
+  provider: { name: RobinhoodRpcProviderId; cached: boolean };
 };
 
 type Dependencies = {
@@ -261,26 +264,29 @@ export interface ExitCheckSource {
 
 export class ExitCheckService implements ExitCheckSource {
   private readonly dependencies: Dependencies;
+  private readonly rpcEndpoint: RobinhoodRpcEndpoint;
   private readonly inflight = new Map<string, Promise<ExitCheckResponse>>();
 
   constructor(
     private readonly env: Env,
     private readonly cache: JsonCache = new JsonCache(undefined, 15),
-    dependencies?: Partial<Dependencies>,
+    dependencies?: Partial<Dependencies> & { rpcSpend?: RpcSpendBudget },
   ) {
+    this.rpcEndpoint = robinhoodRpcEndpoint(env);
     this.dependencies = {
       rpc:
         dependencies?.rpc ??
-        new ProviderHttpClient({
-          maxRetries: 0,
-          backoffMs: 1,
-          timeoutMs: env.PROVIDER_TIMEOUT_MS,
-          circuitFailureThreshold: 3,
-          circuitResetMs: 60_000,
-          requestBudgetPerMinute: env.PROVIDER_REQUEST_BUDGET_PER_MINUTE,
-          maxConcurrency: 1,
-          providerName: "robinhood-public-rpc",
-          rpcWorkload: "exit-check",
+        createRobinhoodRpcHttp(env, {
+          providerName: "exit-check-rpc",
+          spend: dependencies?.rpcSpend,
+          client: {
+            maxRetries: 0,
+            backoffMs: 1,
+            circuitFailureThreshold: 3,
+            circuitResetMs: 60_000,
+            maxConcurrency: 1,
+            rpcWorkload: "exit-check",
+          },
         }),
       budget: dependencies?.budget ?? createExitCheckBudget(env),
       now: dependencies?.now ?? (() => new Date()),
@@ -793,7 +799,7 @@ export class ExitCheckService implements ExitCheckSource {
       freshForMs: EXIT_CHECK_FRESHNESS_MS,
       quoteIsNotSellabilityProof: true,
       limitations: [...EXIT_CHECK_LIMITATIONS],
-      provider: { name: "robinhood-public-rpc", cached: false },
+      provider: { name: this.rpcEndpoint.id, cached: false },
     };
   }
 
@@ -925,7 +931,7 @@ export class ExitCheckService implements ExitCheckSource {
       freshForMs: EXIT_CHECK_FRESHNESS_MS,
       quoteIsNotSellabilityProof: true,
       limitations: [...EXIT_CHECK_LIMITATIONS],
-      provider: { name: "robinhood-public-rpc", cached: false },
+      provider: { name: this.rpcEndpoint.id, cached: false },
     };
   }
 
@@ -1286,7 +1292,7 @@ export class ExitCheckService implements ExitCheckSource {
           throw new AppError(
             "EXIT_CHECK_RATE_LIMITED",
             503,
-            "The public RPC rate-limited this check; try again shortly",
+            "The Robinhood Chain RPC provider rate-limited this check; try again shortly",
           );
         if (
           error.code === "PROVIDER_BUDGET_EXCEEDED" ||
@@ -1332,7 +1338,7 @@ export class ExitCheckService implements ExitCheckSource {
         throw new AppError(
           "EXIT_CHECK_RATE_LIMITED",
           503,
-          "The public RPC rate-limited this check; try again shortly",
+          "The Robinhood Chain RPC provider rate-limited this check; try again shortly",
         );
       }
       throw new AppError(
@@ -1344,7 +1350,7 @@ export class ExitCheckService implements ExitCheckSource {
   }
 
   private get rpcUrl(): string {
-    return this.env.ROBINHOOD_PUBLIC_RPC_URL;
+    return this.rpcEndpoint.url;
   }
 }
 

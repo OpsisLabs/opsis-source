@@ -35,6 +35,8 @@ import {
   type VaultMarketContext,
   type VaultPortfolioContext,
 } from "./types";
+import { en } from "../i18n/dictionaries/en";
+import { zhCN } from "../i18n/dictionaries/zh-CN";
 
 const passphrase = "correct horse battery staple";
 
@@ -237,6 +239,59 @@ describe("encrypted vault cryptography", () => {
     await expect(verifyBackup(backup, passphrase)).resolves.toMatchObject({
       extractable: false,
     });
+  });
+
+  it("keeps portfolio receipts readable for the legacy public RPC and the production dRPC gateway", async () => {
+    const created = await createVault(passphrase);
+    const legacy = fixturePortfolio();
+    const receipts = [
+      {
+        id: "0d6c9b0a-4c6b-4c9f-9a53-3c1f0f6f2d11",
+        address: legacy.address,
+        providerDestinations: ["drpc", "blockscout"],
+        disclosure: en["portfolio.receipt.disclosure"],
+        approvedAt: "2026-09-25T12:00:00.000Z",
+        outcome: "approved" as const,
+      },
+      {
+        id: "7a1e3d52-9b0f-4f0e-8c61-5d2b7f9e0a22",
+        address: legacy.address,
+        providerDestinations: ["drpc", "blockscout"],
+        disclosure: zhCN["portfolio.receipt.disclosure"],
+        approvedAt: "2026-09-25T12:01:00.000Z",
+        outcome: "failed" as const,
+        resolvedAt: "2026-09-25T12:01:02.000Z",
+      },
+      ...legacy.receipts,
+    ];
+    expect(legacy.receipts[0].providerDestinations).toEqual([
+      "robinhood_public_rpc",
+      "blockscout",
+    ]);
+    const portfolio = createPortfolioContext(
+      {
+        address: legacy.address,
+        label: legacy.label,
+        valuations: legacy.valuations,
+        latestSnapshot: legacy.latestSnapshot,
+        receipts,
+      },
+      legacy,
+    );
+    const record = await encryptPortfolioContext(
+      created.meta,
+      created.key,
+      portfolio,
+    );
+    const decrypted = await decryptPortfolioContext(
+      created.meta,
+      created.key,
+      record,
+    );
+    expect(decrypted).toEqual(portfolio);
+    expect(
+      decrypted.receipts.map((receipt) => receipt.providerDestinations[0]),
+    ).toEqual(["drpc", "drpc", "robinhood_public_rpc"]);
   });
 
   it("encrypts catalog assets and permission receipts as v3 alongside legacy and portfolio records", async () => {

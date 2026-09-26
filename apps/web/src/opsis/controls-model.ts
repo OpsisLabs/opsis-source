@@ -14,7 +14,7 @@ export function validControls(
     v.contract !== contract.toLowerCase() ||
     typeof v.hasCode !== "boolean" ||
     v.methodVersion !== "controls-v1" ||
-    v.source !== "robinhood-public-rpc" ||
+    (v.source !== "robinhood-public-rpc" && v.source !== "drpc") ||
     v.coverage?.state !== "partial" ||
     !Number.isInteger(v.coverage.rpcCalls) ||
     v.coverage.rpcCalls < 1 ||

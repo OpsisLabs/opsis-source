@@ -71,6 +71,7 @@ test("exit check quotes factory pools with exact coverage and no sellability cla
   });
   await page.goto("/exit-check");
   await expect(page).toHaveTitle("Exit Check Estimate | ChainScout");
+  await expect(page.getByText("ChainScout only reads public pool state from the dRPC Robinhood Chain gateway. dRPC is a paid gateway that may route each read to an independent node operator in its network.")).toBeVisible();
   await fillForm(page);
   await page.getByRole("button", { name: "CHECK EXIT ESTIMATE" }).click();
   const quote = page.getByTestId("exit-check-quote");
@@ -116,7 +117,7 @@ test("exit check explains unsupported v4-only tokens and provider failures", asy
   await expect(unsupported.getByText(/Uniswap v4 or another venue/)).toBeVisible();
   mode = "fail";
   await page.getByRole("button", { name: "CHECK EXIT ESTIMATE" }).click();
-  await expect(page.getByTestId("exit-check-error")).toContainText("cooling down");
+  await expect(page.getByTestId("exit-check-error")).toContainText("The Robinhood Chain RPC provider is cooling down. Try again in a minute.");
   await expect(page.getByTestId("exit-check-quote")).toHaveCount(0);
 });
 

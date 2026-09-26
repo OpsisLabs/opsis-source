@@ -8,6 +8,7 @@ import {
 import { controlsRoutes } from "../src/routes/controls.js";
 import { loadEnv } from "../src/config/env.js";
 import { installErrorHandler } from "../src/http/errors.js";
+import { RobinhoodRpcHttp, createRobinhoodRpcSpendBudget, robinhoodRpcEndpoint } from "../src/chain/robinhood-rpc.js";
 const now = Date.parse("2026-09-22T00:00:00Z"),
   hash = `0x${"a".repeat(64)}`,
   contract = `0x${"1".repeat(40)}`;
@@ -153,5 +154,30 @@ describe("bounded standard controls", () => {
     ).toBe(400);
     expect(service.check).not.toHaveBeenCalled();
     await enabled.close();
+  });
+});
+
+describe("standard controls on the admitted dRPC transport", () => {
+  it("sends all nine allowlisted reads to the dRPC URL and reports the drpc source", async () => {
+    const key = "test-drpc-key-0123456789abcdef";
+    const drpcEnv = loadEnv({
+      NODE_ENV: "test",
+      OPSIS_WORKSPACES_ENABLED: "true",
+      TOKEN_CONTROLS_ENABLED: "true",
+      ROBINHOOD_RPC_PROVIDER: "drpc",
+      DRPC_API_KEY: key,
+    });
+    const f = fixture();
+    const inner = { requestJson: vi.fn((url: string, init?: RequestInit) => f.service["rpc"].requestJson(url, init)) };
+    const transport = new RobinhoodRpcHttp(robinhoodRpcEndpoint(drpcEnv), inner, createRobinhoodRpcSpendBudget(drpcEnv), key);
+    const service = new ControlsService(drpcEnv, { consume: vi.fn(async () => {}) }, transport, () => now);
+
+    const result = await service.check(contract);
+
+    expect(result.source).toBe("drpc");
+    expect(new Set(inner.requestJson.mock.calls.map(([url]) => url))).toEqual(new Set(["https://lb.drpc.live/robinhood"]));
+    expect(f.seen.map((x) => x.method)).toContain("eth_getStorageAt");
+    expect(f.seen).toHaveLength(9);
+    expect(JSON.stringify(result)).not.toContain(key);
   });
 });

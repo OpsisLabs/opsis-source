@@ -81,7 +81,7 @@ export const landing: Record<string, string> = {
   "landing.assets.crypto.title": "加密货币与代币",
   "landing.assets.crypto.state": "可用",
   "landing.assets.crypto.copy":
-    "加密的批次与备注，旁边是应请求获取的快照，取自一个已捕获的当前区块，来源于 Robinhood Public RPC，并在返回前重新校验哈希。",
+    "加密的批次与备注，旁边是应请求获取的快照，取自一个已捕获的当前区块，来源于 dRPC Robinhood Chain 网关，并在返回前重新校验哈希。",
   "landing.assets.portfolio.title": "钱包投资组合",
   "landing.assets.portfolio.state": "可用",
   "landing.assets.portfolio.copy":

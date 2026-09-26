@@ -752,6 +752,28 @@ describe("exit-check route", () => {
   });
 });
 
+describe("exit check on the admitted dRPC transport", () => {
+  it("quotes through the credential-free dRPC URL and reports the drpc provider", async () => {
+    const key = "test-drpc-key-0123456789abcdef";
+    const rpc = mockRpc({
+      pools: { 100: POOL_100 },
+      quotes: { 100: 2_567_029n },
+      sqrtPriceX96: 4_014_000_000_000_000_000_000_000n,
+      liquidity: 12_345_678_901_234_567_890n
+    });
+    const requestJson = vi.spyOn(rpc, "requestJson");
+    const env = loadEnv({ NODE_ENV: "test", LOG_LEVEL: "silent", EXIT_CHECK_ENABLED: "true", ROBINHOOD_RPC_PROVIDER: "drpc", DRPC_API_KEY: key });
+    const service = new ExitCheckService(env, new JsonCache(undefined, 15), { rpc, budget: allowBudget(), now: () => new Date("2026-09-11T12:00:00Z") });
+
+    const quote = await service.quote({ token: WETH, amount: "0.001", outputToken: "USDG" });
+
+    expect(quote.supported).toBe(true);
+    expect(quote.provider).toEqual({ name: "drpc", cached: false });
+    expect(new Set(requestJson.mock.calls.map(([url]) => url))).toEqual(new Set(["https://lb.drpc.live/robinhood"]));
+    expect(JSON.stringify(quote)).not.toContain(key);
+  });
+});
+
 function testEnv() {
   return loadEnv({
     NODE_ENV: "test",

@@ -4,6 +4,12 @@ import type { Env } from "../config/env.js";
 import type { ChainProvider, SourceDocumentInput } from "./types.js";
 import { createProviderHttp, type ProviderHttp } from "./provider-http.js";
 import { delegationTarget } from "./delegation.js";
+import {
+  createRobinhoodRpcHttp,
+  robinhoodRpcEndpoint,
+  type RobinhoodRpcProviderId,
+  type RpcSpendBudget
+} from "./robinhood-rpc.js";
 
 const FORBIDDEN_METHODS = new Set(["eth_sendRawTransaction", "eth_sendTransaction", "personal_sign", "eth_sign", "eth_signTypedData"]);
 const ADDRESS_PATTERN = /^0x[0-9a-fA-F]{40}$/;
@@ -69,18 +75,31 @@ export type AllowanceTarget = {
 };
 
 export class AlchemyProvider implements Pick<ChainProvider, "name" | "getTransaction" | "getAddressSummary"> {
-  readonly name: "alchemy" | "robinhood-public-rpc";
+  readonly name: "alchemy" | RobinhoodRpcProviderId;
   private readonly rpcUrl?: string;
   private readonly http: ProviderHttp;
   private readonly inFlightTransactions = new Map<string, Promise<SourceDocumentInput[]>>();
   private static readonly MAX_IN_FLIGHT_TRANSACTIONS = 64;
 
-  constructor(private readonly env: Env, http?: ProviderHttp) {
+  constructor(private readonly env: Env, http?: ProviderHttp, options: { rpcSpend?: RpcSpendBudget } = {}) {
     const alchemyUrl = env.ALCHEMY_ROBINHOOD_RPC_URL
       || (env.ALCHEMY_API_KEY ? `https://robinhood-mainnet.g.alchemy.com/v2/${env.ALCHEMY_API_KEY}` : undefined);
-    this.rpcUrl = alchemyUrl || (env.ENABLE_PUBLIC_RPC_FALLBACK ? env.ROBINHOOD_PUBLIC_RPC_URL : undefined);
-    this.name = alchemyUrl ? "alchemy" : "robinhood-public-rpc";
-    this.http = http ?? createProviderHttp(env, this.name, undefined, "research");
+    if (alchemyUrl) {
+      this.rpcUrl = alchemyUrl;
+      this.name = "alchemy";
+      this.http = http ?? createProviderHttp(env, this.name, undefined, "research");
+      return;
+    }
+    // Without Alchemy, the bounded fallback uses the configured Robinhood Chain
+    // transport: the public RPC in development, dRPC in production (D20).
+    const endpoint = robinhoodRpcEndpoint(env);
+    this.name = endpoint.id;
+    this.rpcUrl = env.ENABLE_PUBLIC_RPC_FALLBACK ? endpoint.url : undefined;
+    this.http = http ?? createRobinhoodRpcHttp(env, {
+      providerName: "research-rpc",
+      spend: options.rpcSpend,
+      client: { rpcWorkload: "research" }
+    });
   }
 
   isConfigured(): boolean {

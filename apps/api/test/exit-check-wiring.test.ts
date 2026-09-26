@@ -61,6 +61,8 @@ vi.mock("../src/chain/provider-http.js", async (importOriginal) => {
 function productionEnv() {
   return loadEnv({
     NODE_ENV: "production",
+    ROBINHOOD_RPC_PROVIDER: "drpc",
+    DRPC_API_KEY: "test-drpc-key-0123456789abcdef",
     LOG_LEVEL: "silent",
     APP_ORIGIN: "https://chainscout.example",
     JWT_ACCESS_SECRET: "configured-access-secret-at-least-32",

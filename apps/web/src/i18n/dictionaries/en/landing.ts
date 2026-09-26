@@ -86,7 +86,7 @@ export const landing = {
   "landing.assets.crypto.title": "Crypto & tokens",
   "landing.assets.crypto.state": "AVAILABLE",
   "landing.assets.crypto.copy":
-    "Encrypted lots and notes beside an on-demand snapshot at one captured current block, sourced from Robinhood Public RPC and hash-rechecked before return.",
+    "Encrypted lots and notes beside an on-demand snapshot at one captured current block, sourced from the dRPC Robinhood Chain gateway and hash-rechecked before return.",
   "landing.assets.portfolio.title": "Wallet portfolio",
   "landing.assets.portfolio.state": "AVAILABLE",
   "landing.assets.portfolio.copy":

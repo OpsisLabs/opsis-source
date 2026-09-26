@@ -119,7 +119,7 @@ async function mockObservedTrades(page: Page, status = 200, body?: unknown) {
           body ?? {
             error: {
               code: "OBSERVED_TRADES_RANGE_TOO_WIDE",
-              message: "The requested block range matched more logs than the public RPC returns",
+              message: "The requested block range matched more logs than the RPC provider returns",
             },
           },
         ),
@@ -155,7 +155,9 @@ test("biggest observed trades fetches only after the explicit consent click", as
   expect(calls).toHaveLength(0);
 
   const consent = page.getByRole("region", { name: /Public-address disclosure/i });
-  await expect(consent).toContainText("Robinhood Public RPC");
+  await expect(consent).toContainText("dRPC Robinhood Chain gateway");
+  await expect(consent).toContainText("dRPC is a paid gateway that may route each read to an independent node operator in its network.");
+  await expect(consent).not.toContainText("Robinhood Public RPC");
   await consent.getByRole("button", { name: /OBSERVE RECENT SWAPS/i }).click();
 
   await expect(page.getByText("5100").first()).toBeVisible();

@@ -32,7 +32,7 @@ export const watch = {
   "watch.sampleLabel": "Public example · not a verified identity",
   "watch.save": "Save wallet & check",
   "watch.disclosure":
-    "This check sends only the public address to ChainScout, Robinhood Public RPC and Blockscout. Private labels and saved history stay on this device. No AI model, signing or background polling.",
+    "This check sends only the public address to ChainScout, the dRPC Robinhood Chain gateway and Blockscout. dRPC is a paid gateway that may route each read to an independent node operator in its network. Private labels and saved history stay on this device. No AI model, signing or background polling.",
   "watch.consent": "Allow this public-address lookup",
   "watch.working": "Checking and encrypting…",
   "watch.savedBaseline":

@@ -20,7 +20,7 @@ import type {
   VaultPortfolioContextDraft,
   VaultPortfolioValuation
 } from "../vault/types";
-import { requestPortfolioSnapshot } from "./api";
+import { PORTFOLIO_APPROVED_DESTINATIONS, requestPortfolioSnapshot } from "./api";
 import { ApprovalManager } from "../approvals/ApprovalManager";
 import { allocationPercent, buildPortfolioMath, formatDisplayDecimal, valueTotals, verifiedHoldingCount, type PortfolioMathRow } from "./math";
 const PortfolioAllocationChart = lazy(() =>
@@ -113,7 +113,7 @@ export function PortfolioPanel({
     const receipt = {
       id: crypto.randomUUID(),
       address: normalizedAddress,
-      providerDestinations: ["robinhood_public_rpc", "blockscout"],
+      providerDestinations: [...PORTFOLIO_APPROVED_DESTINATIONS],
       disclosure: t("portfolio.receipt.disclosure"),
       approvedAt,
       outcome: "approved" as const

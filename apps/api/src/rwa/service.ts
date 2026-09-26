@@ -9,6 +9,13 @@ import {
 } from "viem";
 import type { Env } from "../config/env.js";
 import { createProviderHttp, ProviderRequestError, type ProviderHttp } from "../chain/provider-http.js";
+import {
+  createRobinhoodRpcHttp,
+  robinhoodRpcEndpoint,
+  rpcRoutingDisclosure,
+  type RobinhoodRpcEndpoint,
+  type RpcSpendBudget
+} from "../chain/robinhood-rpc.js";
 import { AppError } from "../http/errors.js";
 import { createRwaBudget, type RwaBudget } from "./budget.js";
 
@@ -125,12 +132,18 @@ export interface RwaVerificationSource { verify(address: string): Promise<RwaVer
 
 export class RwaService implements RwaVerificationSource {
   private readonly dependencies: Dependencies;
+  private readonly rpcEndpoint: RobinhoodRpcEndpoint;
 
-  constructor(private readonly env: Env, dependencies?: Partial<Dependencies>) {
+  constructor(private readonly env: Env, dependencies?: Partial<Dependencies> & { rpcSpend?: RpcSpendBudget }) {
     const oneAttemptEnv: Env = { ...env, PROVIDER_MAX_RETRIES: 0 };
+    this.rpcEndpoint = robinhoodRpcEndpoint(env);
     this.dependencies = {
       http: dependencies?.http ?? createProviderHttp(oneAttemptEnv, "rwa-public-source"),
-      rpc: dependencies?.rpc ?? createProviderHttp(oneAttemptEnv, "robinhood-public-rpc", undefined, "rwa"),
+      rpc: dependencies?.rpc ?? createRobinhoodRpcHttp(env, {
+        providerName: "rwa-rpc",
+        spend: dependencies?.rpcSpend,
+        client: { maxRetries: 0, rpcWorkload: "rwa" }
+      }),
       budget: dependencies?.budget ?? createRwaBudget(env),
       now: dependencies?.now ?? (() => new Date())
     };
@@ -197,7 +210,7 @@ export class RwaService implements RwaVerificationSource {
     const pendingEffectiveAt = effectiveAt && effectiveAt > 0n ? unixIso(effectiveAt) : null;
     const sources: RwaCitation[] = [
       source("robinhood-registry", "Robinhood", `${RHJ_API}/assets`, fetchedAt, "Canonical Stock Token registry and deployment"),
-      source("robinhood-rpc", "Robinhood Public RPC", publicRpcCitationOrigin(this.env.ROBINHOOD_PUBLIC_RPC_URL), anchor.capturedAt, `Direct contract reads at block ${anchor.blockNumber}`),
+      source("robinhood-rpc", this.rpcEndpoint.label, publicRpcCitationOrigin(this.rpcEndpoint.url), anchor.capturedAt, `Direct contract reads at block ${anchor.blockNumber}`),
       source("robinhood-terms", "Robinhood Jersey", "https://robinhood.com/rhj/stocktokens/", fetchedAt, "Issuer product, custody, and redemption statements")
     ];
     if (priceDocument.state === "available") sources.push(source("robinhood-price", "Robinhood", `${RHJ_API}/prices/${asset.symbol}`, fetchedAt, "Underlying-equity quote response; rejected if identity, currency, or timestamp validation fails"));
@@ -289,7 +302,7 @@ export class RwaService implements RwaVerificationSource {
         "Availability and eligibility vary by jurisdiction; this is evidence, not an offer or recommendation."
       ],
       sources,
-      privacy: privacy(["Robinhood Stock Token API", "Robinhood Public RPC", "Chainlink feed directory"], "The pasted contract and derived public feed identifier were sent only to the listed public sources. Nothing was saved by ChainScout or sent to an AI model.")
+      privacy: privacy(["Robinhood Stock Token API", this.rpcEndpoint.label, "Chainlink feed directory"], `The pasted contract and derived public feed identifier were sent only to the listed sources. Nothing was saved by ChainScout or sent to an AI model.${rpcRoutingDisclosure(this.rpcEndpoint)}`)
     };
   }
 
@@ -338,7 +351,7 @@ export class RwaService implements RwaVerificationSource {
         : indexedTotalsMatch ? "confirmed" : "conflict";
     const sources = [
       source("morpho-config", "Morpho", `${MORPHO_API}/v0/vaults-v2/4663:${address}`, fetchedAt, "Vault identity and configuration indexed by Morpho"),
-      source("robinhood-rpc", "Robinhood Public RPC", publicRpcCitationOrigin(this.env.ROBINHOOD_PUBLIC_RPC_URL), anchor.capturedAt, `Direct vault reads at block ${anchor.blockNumber}`)
+      source("robinhood-rpc", this.rpcEndpoint.label, publicRpcCitationOrigin(this.rpcEndpoint.url), anchor.capturedAt, `Direct vault reads at block ${anchor.blockNumber}`)
     ];
     if (stateDocument.state === "available") sources.push(source("morpho-state", "Morpho", `${MORPHO_API}/v1/vaults-v2/4663:${address}/state`, fetchedAt, stateMalformed ? "State response rejected as malformed" : "Indexed vault liquidity and allocation state"));
     if (apyDocument.state === "available") sources.push(source("morpho-apy", "Morpho", `${MORPHO_API}/v1/vaults-v2/4663:${address}/apy-averages?lookback=one_day`, fetchedAt, apyMalformed ? "APY response rejected as malformed" : "Provider-reported trailing one-day APY average"));
@@ -410,7 +423,7 @@ export class RwaService implements RwaVerificationSource {
         "No deposit, withdrawal, eligibility, or redemption transaction is prepared or executed here."
       ],
       sources,
-      privacy: privacy(["Robinhood Public RPC", "Morpho public API"], "The pasted contract was sent to Morpho and Robinhood's public RPC for read-only verification. Nothing was saved by ChainScout or sent to an AI model.")
+      privacy: privacy([this.rpcEndpoint.label, "Morpho public API"], `The pasted contract was sent to Morpho and the ${this.rpcEndpoint.label} for read-only verification. Nothing was saved by ChainScout or sent to an AI model.${rpcRoutingDisclosure(this.rpcEndpoint)}`)
     };
   }
 
@@ -433,9 +446,9 @@ export class RwaService implements RwaVerificationSource {
       sources: [
         source("robinhood-registry", "Robinhood", `${RHJ_API}/assets`, this.dependencies.now().toISOString(), "Canonical Stock Token registry lookup"),
         source("morpho-lookup", "Morpho", `${MORPHO_API}/v0/vaults-v2/4663:${address}`, this.dependencies.now().toISOString(), "Exact-address Vault V2 lookup"),
-        source("robinhood-rpc", "Robinhood Public RPC", publicRpcCitationOrigin(this.env.ROBINHOOD_PUBLIC_RPC_URL), anchor.capturedAt, `Contract bytecode read at block ${anchor.blockNumber}`)
+        source("robinhood-rpc", this.rpcEndpoint.label, publicRpcCitationOrigin(this.rpcEndpoint.url), anchor.capturedAt, `Contract bytecode read at block ${anchor.blockNumber}`)
       ],
-      privacy: privacy(["Robinhood Stock Token API", "Morpho public API", "Robinhood Public RPC"], "The pasted public contract was sent to the listed sources only. Nothing was saved by ChainScout or sent to an AI model.")
+      privacy: privacy(["Robinhood Stock Token API", "Morpho public API", this.rpcEndpoint.label], `The pasted public contract was sent to the listed sources only. Nothing was saved by ChainScout or sent to an AI model.${rpcRoutingDisclosure(this.rpcEndpoint)}`)
     };
   }
 
@@ -456,7 +469,7 @@ export class RwaService implements RwaVerificationSource {
 
   private async rpcSingle(method: string, params: unknown[], run: VerificationRun): Promise<unknown> {
     await this.consumeRpc(1, run);
-    const response = asRecord(await this.dependencies.rpc.requestJson(this.env.ROBINHOOD_PUBLIC_RPC_URL, {
+    const response = asRecord(await this.dependencies.rpc.requestJson(this.rpcEndpoint.url, {
       method: "POST", redirect: "error", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: "rwa", method, params })
     }));
     if (response.error !== undefined || response.result === undefined) throw new AppError("RWA_PROVIDER_UNAVAILABLE", 503, "A direct Robinhood Chain read failed");
@@ -468,7 +481,7 @@ export class RwaService implements RwaVerificationSource {
     const body = calls.map((call) => call.method
       ? { jsonrpc: "2.0", id: call.id, method: call.method, params: call.params ?? [] }
       : { jsonrpc: "2.0", id: call.id, method: "eth_call", params: [{ to: call.to, data: call.data }, blockHex] });
-    const response = await this.dependencies.rpc.requestJson(this.env.ROBINHOOD_PUBLIC_RPC_URL, {
+    const response = await this.dependencies.rpc.requestJson(this.rpcEndpoint.url, {
       method: "POST", redirect: "error", headers: { "content-type": "application/json" }, body: JSON.stringify(body)
     });
     if (!Array.isArray(response)) throw new AppError("RWA_PROVIDER_UNAVAILABLE", 503, "The direct verification response was malformed");

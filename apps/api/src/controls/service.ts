@@ -1,10 +1,13 @@
 import { keccak256, stringToHex } from "viem";
 import type { ControlReading, TokenControls } from "@rh-chain/shared";
 import type { Env } from "../config/env.js";
+import type { ProviderHttp } from "../chain/provider-http.js";
 import {
-  ProviderHttpClient,
-  type ProviderHttp,
-} from "../chain/provider-http.js";
+  createRobinhoodRpcHttp,
+  robinhoodRpcEndpoint,
+  type RobinhoodRpcEndpoint,
+  type RpcSpendBudget,
+} from "../chain/robinhood-rpc.js";
 import type { PortfolioBudget } from "../portfolio/budget.js";
 import { AppError } from "../http/errors.js";
 
@@ -27,25 +30,29 @@ export interface ControlsSource {
 }
 export class ControlsService implements ControlsSource {
   private readonly rpc: ProviderHttp;
+  private readonly rpcEndpoint: RobinhoodRpcEndpoint;
   constructor(
     private readonly env: Env,
     private readonly budget: PortfolioBudget,
     rpc?: ProviderHttp,
     private readonly now: () => number = Date.now,
+    rpcSpend?: RpcSpendBudget,
   ) {
+    this.rpcEndpoint = robinhoodRpcEndpoint(env);
     this.rpc =
       rpc ??
-      new ProviderHttpClient({
-        maxRetries: 0,
-        backoffMs: 1,
-        timeoutMs: env.PROVIDER_TIMEOUT_MS,
-        circuitFailureThreshold: 3,
-        circuitResetMs: 60_000,
-        requestBudgetPerMinute: env.PROVIDER_REQUEST_BUDGET_PER_MINUTE,
-        maxConcurrency: 1,
-        maxResponseBytes: 100_000,
-        providerName: "robinhood-public-rpc",
-        rpcWorkload: "controls",
+      createRobinhoodRpcHttp(env, {
+        providerName: "controls-rpc",
+        spend: rpcSpend,
+        client: {
+          maxRetries: 0,
+          backoffMs: 1,
+          circuitFailureThreshold: 3,
+          circuitResetMs: 60_000,
+          maxConcurrency: 1,
+          maxResponseBytes: 100_000,
+          rpcWorkload: "controls",
+        },
       });
   }
   async check(input: string): Promise<TokenControls> {
@@ -69,7 +76,7 @@ export class ControlsService implements ControlsSource {
       let payload: unknown;
       try {
         payload = await this.rpc.requestJson(
-          this.env.ROBINHOOD_PUBLIC_RPC_URL,
+          this.rpcEndpoint.url,
           {
             method: "POST",
             headers: { "content-type": "application/json" },
@@ -172,7 +179,7 @@ export class ControlsService implements ControlsSource {
       },
       observedAt: new Date(start).toISOString(),
       expiresAt: new Date(start + 30_000).toISOString(),
-      source: "robinhood-public-rpc",
+      source: this.rpcEndpoint.id,
       methodVersion: "controls-v1",
       readings,
       coverage: {

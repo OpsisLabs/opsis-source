@@ -227,10 +227,15 @@ describe("browser privacy static boundary", () => {
       "utf8",
     );
     expect(source).toContain("PROVIDER_MAX_RETRIES: 0");
-    expect(source).toContain(
-      'createProviderHttp(oneAttemptEnv, "robinhood-public-rpc", undefined, "portfolio")',
-    );
+    expect(source).toContain('providerName: "portfolio-rpc"');
+    expect(source).toContain('client: { maxRetries: 0, rpcWorkload: "portfolio" }');
     expect(source).toContain('createProviderHttp(oneAttemptEnv, "blockscout")');
+    // The shared transport also forces zero retries for every paid dRPC call.
+    const transport = readFileSync(
+      resolve(repositoryRoot, "apps/api/src/chain/robinhood-rpc.ts"),
+      "utf8",
+    );
+    expect(transport).toContain("...(paid ? { maxRetries: 0 } : {})");
   });
 
   it("limits RWA networking to one public address with no weak storage or wallet path", () => {
@@ -445,7 +450,7 @@ describe("browser privacy static boundary", () => {
     expect(envExample).toContain("VITE_MARKET_INVENTORY_ENABLED=false");
   });
 
-  it("keeps launch marketing aligned with the anchored zero-cost provider path", () => {
+  it("keeps launch marketing aligned with the anchored admitted provider path", () => {
     const marketing =
       sourceText(resolve(repositoryRoot, "apps/web/src/sections")) +
       "\n" +
@@ -462,7 +467,8 @@ describe("browser privacy static boundary", () => {
     expect(marketing).not.toContain(
       "Provider failure leaves the prior local snapshot unchanged",
     );
-    expect(marketing).toContain("Robinhood Public RPC");
+    expect(marketing).toContain("dRPC Robinhood Chain gateway");
+    expect(marketing).not.toContain("Robinhood Public RPC");
     expect(marketing).toContain("captured current block");
     expect(marketing).toContain("partial provider results are visibly marked");
   });

@@ -84,8 +84,13 @@ export type ExitCheckQuote = {
   freshForMs: number;
   quoteIsNotSellabilityProof: true;
   limitations: string[];
-  provider: { name: "robinhood-public-rpc"; cached: boolean };
+  provider: { name: ExitCheckProviderName; cached: boolean };
 };
+
+// The server's Robinhood Chain RPC transport: the public RPC in development,
+// the admitted dRPC gateway in production. Any other provider fails closed.
+export type ExitCheckProviderName = "robinhood-public-rpc" | "drpc";
+const EXIT_CHECK_PROVIDER_NAMES: ReadonlySet<string> = new Set<ExitCheckProviderName>(["robinhood-public-rpc", "drpc"]);
 
 export const EXIT_CHECK_TOKENS = CHAINSCOUT_REVIEWED_ASSETS;
 
@@ -159,7 +164,8 @@ function assertExitCheckQuote(
     value.limitations.some(
       (item) => typeof item !== "string" || item.length > 500,
     ) ||
-    value.provider?.name !== "robinhood-public-rpc" ||
+    typeof value.provider?.name !== "string" ||
+    !EXIT_CHECK_PROVIDER_NAMES.has(value.provider.name) ||
     typeof value.provider?.cached !== "boolean" ||
     !Number.isFinite(quotedAt) ||
     !Number.isFinite(expiresAt) ||

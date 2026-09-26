@@ -15,7 +15,7 @@ export type TokenControls = {
   };
   observedAt: string;
   expiresAt: string;
-  source: "robinhood-public-rpc";
+  source: "robinhood-public-rpc" | "drpc";
   methodVersion: "controls-v1";
   readings: Record<
     "owner" | "paused" | "implementation" | "admin" | "beacon",
