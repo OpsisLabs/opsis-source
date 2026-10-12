@@ -95,7 +95,7 @@ test.describe("Simplified Chinese localization", () => {
   test("mobile switcher is visible without opening a menu and preserves the public input", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/app");
-    const address = "0x6aa5b565155420b7d192a9a5577dfa5a77a22352";
+    const address = "0x1111111111111111111111111111111111111111";
     await page.getByLabel("Public chain identifier", { exact: true }).fill(address);
     const switcher = page.getByRole("button", { name: "Switch language to 简体中文" }).filter({ visible: true });
     await expect(switcher).toHaveCount(1);

@@ -92,7 +92,7 @@ test.describe("Opsis compact layout", () => {
     await expect(
       page.getByRole("button", { name: /中文/ }),
     ).toHaveCount(1);
-    await expect(page.locator('a[href*="opsis-source"]')).toHaveCount(0);
+    await expect(page.locator('a[href*="github.com"]')).toHaveCount(0);
     await expect(
       page.locator("article header, article main, article img"),
     ).toHaveCount(0);

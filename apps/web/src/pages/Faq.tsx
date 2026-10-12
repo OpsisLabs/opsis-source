@@ -5,7 +5,6 @@ import {
   CircleHelp,
   LockKeyhole,
   ShieldCheck,
-  Sparkles,
   WalletCards,
 } from "lucide-react";
 import { Link } from "react-router";
@@ -29,7 +28,6 @@ const FACTS = [
 ];
 
 const linkClass = "text-[#fa6c34] underline decoration-[#fa6c34]/45 underline-offset-4";
-const externalLinkClass = `${linkClass} hover:text-[#ff9b72]`;
 
 function buildFaqGroups(t: Translate): Array<{ id: string; title: string; intro: string; items: FaqItem[] }> {
   return [
@@ -170,39 +168,6 @@ function buildFaqGroups(t: Translate): Array<{ id: string; title: string; intro:
       ],
     },
     {
-      id: "token",
-      title: t("guide.faq.groups.token.title"),
-      intro: t("guide.faq.groups.token.intro"),
-      items: [
-        {
-          question: t("guide.faq.groups.token.q1"),
-          answer: t("guide.faq.groups.token.a1"),
-        },
-        {
-          question: t("guide.faq.groups.token.q2"),
-          answer: t("guide.faq.groups.token.a2"),
-        },
-        {
-          question: t("guide.faq.groups.token.q3"),
-          answer: t("guide.faq.groups.token.a3"),
-        },
-        {
-          question: t("guide.faq.groups.token.q4"),
-          answer: t("guide.faq.groups.token.a4"),
-        },
-        {
-          question: t("guide.faq.groups.token.q5"),
-          answer: (
-            <>
-              {t("guide.faq.groups.token.a5Prefix")}
-              <a href="https://docs.ponsfamily.com/v2" target="_blank" rel="noreferrer" className={externalLinkClass}>{t("guide.faq.groups.token.a5Link")}</a>
-              {t("guide.faq.groups.token.a5Suffix")}
-            </>
-          ),
-        },
-      ],
-    },
-    {
       id: "project",
       title: t("guide.faq.groups.project.title"),
       intro: t("guide.faq.groups.project.intro"),
@@ -310,11 +275,6 @@ export default function Faq() {
             <p className="mt-3 text-[12.5px] leading-relaxed text-[#9a938a]">{t("guide.faq.source.copy")}</p>
           </div>
         </section>
-
-        <div className="mt-5 flex items-start gap-3 border border-[#6b4a3b] bg-[#2a211e] p-5">
-          <Sparkles size={14} className="mt-0.5 shrink-0 text-[#fa6c34]" />
-          <p className="text-[11.5px] leading-relaxed text-[#b7aea2]"><strong className="text-[#e9e0d1]">{t("guide.faq.tokenReminder.label")}</strong> {t("guide.faq.tokenReminder.copy")}</p>
-        </div>
       </main>
     </div>
   );

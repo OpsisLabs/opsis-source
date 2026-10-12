@@ -260,25 +260,4 @@ export const landing = {
   "landing.footer.terms": "Terms of use",
   "landing.footer.privacy": "Privacy Policy",
 
-  "landing.official.title": "Official Opsis contract",
-  "landing.official.subtitle": "Check here. Don’t trust a ticker alone.",
-  "landing.official.network": "{network} · Chain ID {chainId}",
-  "landing.official.copyAria": "Copy official Opsis contract address",
-  "landing.official.copy": "Copy",
-  "landing.official.copying": "Copying…",
-  "landing.official.copied": "Copied",
-  "landing.official.help":
-    "Match the full address and network. You never need to connect a wallet to copy it.",
-  "landing.official.statusCopied":
-    "Official contract address copied to clipboard.",
-  "landing.official.statusManual":
-    "Automatic copy was blocked. Select and copy the full address below.",
-  "landing.official.manualLabel":
-    "Clipboard blocked. Select and copy this full address:",
-  "landing.official.notLaunched": "Not launched yet — no official CA.",
-  "landing.official.unavailable": "Official contract address unavailable.",
-  "landing.official.notLaunchedCopy":
-    "The Opsis token has not launched. No official contract address has been announced. Ignore tokens claiming to be Opsis until the address is published here.",
-  "landing.official.unavailableCopy":
-    "Don’t rely on addresses from DMs, replies or search results. Wait until the official address and network are available here.",
 } as const;

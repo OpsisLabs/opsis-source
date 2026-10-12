@@ -127,7 +127,7 @@ test("persistent sign-in and workspace quick start make the active flow obvious"
   await expect(quickstart.getByText("02")).toBeVisible();
   await expect(quickstart.getByText("03")).toBeVisible();
   await expect(quickstart.getByText("Paste one public address or transaction hash.")).toBeVisible();
-  await expect(quickstart.getByRole("link", { name: /FULL GUIDE/i })).toHaveAttribute("href", "/guide#private-explorer");
+  await expect(quickstart.getByRole("link", { name: /Find your tool/i })).toHaveAttribute("href", "/guide#private-explorer");
   const contrast = await new AxeBuilder({ page }).include("[role=dialog]").withRules(["color-contrast"]).analyze();
   expect(contrast.violations).toEqual([]);
 

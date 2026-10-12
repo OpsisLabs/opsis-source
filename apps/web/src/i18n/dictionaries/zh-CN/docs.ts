@@ -6,8 +6,6 @@ export const docs: Record<string, string> = {
   "docs.nav.evidence": "证据流水线",
   "docs.nav.adapters": "功能适配器",
   "docs.nav.security": "安全边界",
-  "docs.nav.token": "代币设计",
-
   "docs.header.eyebrow": "技术参考 · ROBINHOOD CHAIN 4663",
   "docs.title.line1": "Opsis",
   "docs.title.line2": "究竟如何运作。",
@@ -203,43 +201,4 @@ export const docs: Record<string, string> = {
   "docs.security.footer":
     "开源有助于人们审查这些选择；它本身并不是安全保证。发布门禁结合了类型化构建、单元与浏览器故障测试、精确提交暂存、终止开关演练以及不可变的发布候选版本。",
 
-  "docs.token.eyebrow": "06 · 设计实验室 · 尚未上线",
-  "docs.token.title": "在不污染产品的前提下设计代币用途。",
-  "docs.token.proposal.title": "提案，并非已发布的代币经济模型",
-  "docs.token.proposal.body":
-    "Opsis 代币计划通过 Robinhood Chain 上的 pons v2 启动。产品用途、供应量、分配、归属、计价资产、费用、创作者税、回购设置、合约和启动 URL 在存在并在链上公开验证之前，均不在此声明为最终条款。",
-  "docs.token.candidates.betaAccess.label": "最低复杂度",
-  "docs.token.candidates.betaAccess.title": "测试版访问通行证",
-  "docs.token.candidates.betaAccess.copy":
-    "可选的钱包证明或许能在公开发布前解锁实验性模块。核心隐私、保险库访问和安全说明应当无需代币即可使用。",
-  "docs.token.candidates.apiQuota.label": "不在 V1 中",
-  "docs.token.candidates.apiQuota.title": "公共 API 配额提升",
-  "docs.token.candidates.apiQuota.copy":
-    "开放数据 v1 没有密钥或代币权益。后续版本可以考虑有界的更高配额，但全局 $0 支出上限和滥用限制仍将优先。",
-  "docs.token.candidates.partnerPerks.label": "合作方资助 · 后续",
-  "docs.token.candidates.partnerPerks.title": "可选的合作方权益",
-  "docs.token.candidates.partnerPerks.copy":
-    "选择加入的商家或协议可以提供范围清晰界定的持有者权益。由合作方出资并履行；Opsis 标注条款，绝不保证可用性、价值或持续性。",
-  "docs.token.candidates.sourceCuration.label": "仅供参考",
-  "docs.token.candidates.sourceCuration.title": "咨询性的来源策展",
-  "docs.token.candidates.sourceCuration.copy":
-    "代币持有者可以提议集成，或表明哪些公开来源值得审查。投票绝不能取代 Opsis 的独立验证，也不能让某个事实变成真的。",
-  "docs.token.good.title": "良好的代币设计",
-  "docs.token.good.item1": "可选、精确、可审计的权益",
-  "docs.token.good.item2":
-    "有用的产品权益，而非被动投机",
-  "docs.token.good.item3":
-    "全局隐私、安全和提供商预算限制仍然优先",
-  "docs.token.good.item4": "官方合约是规范身份",
-  "docs.token.bad.title": "不要构建",
-  "docs.token.bad.item1": "以代币作为门槛的隐私、保险库访问或基本安全事实",
-  "docs.token.bad.item2":
-    "暗示股权、收入分成、收益或保证回报",
-  "docs.token.bad.item3": "付费排名来源、资产或“已验证”声明",
-  "docs.token.bad.item4":
-    "隐藏的发行、分配、管理员权限或可变的经济模型",
-  "docs.token.pons.title": "pons v2 是启动轨道，而非本应用。",
-  "docs.token.pons.body":
-    "官方 pons v2 文档描述了一种由钱包签名的联合曲线启动，随后毕业进入一个流动性头寸被锁定的 Uniswap v4 资金池。Opsis 不在该曲线内运行，不将保险库数据存储在 pons 中，也不把毕业视为产品质量。每一项最终启动条款都必须从已部署的链上记录中读取。",
-  "docs.token.pons.link": "官方 PONS V2 文档",
 };

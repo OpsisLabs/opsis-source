@@ -6,7 +6,6 @@ import { useAuth } from "./store";
 import { useWallet } from "./walletStore";
 import { hasMetaMask, shortAddress } from "./wallet";
 import type { ChatSession, Usage, User } from "./types";
-import OfficialContract from "../product/OfficialContract";
 import LanguageSwitcher from "../i18n/LanguageSwitcher";
 import { useI18n } from "../i18n";
 
@@ -383,7 +382,6 @@ export default function AppShell() {
           </div>
         )}
 
-        <OfficialContract />
         <Outlet context={{ refreshSessions: refresh }} />
       </div>
     </div>

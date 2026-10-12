@@ -3,8 +3,9 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-const forbidden = /chain[ _-]?scout|scout[ _-]?(watch|swap)|\bscoutwatch\b|\bscoutswap\b|\brwa verify\b|\bnoesis\b|eureka²|chatgpt\.site/gi;
+const forbidden = /chain[ _-]?scout|scout[ _-]?(watch|swap)|\bscoutwatch\b|\bscoutswap\b|\bscout\b|\brwa verify\b|\bnoesis\b|eureka²|chatgpt\.site/gi;
 const allowlistPath = "scripts/product-name-allowlist.json";
+const ownFiles = new Set([allowlistPath, "scripts/check-product-name.mjs", "scripts/check-product-name.test.mjs"]);
 // Shipped release ids are immutable: their branches, RC tags and evidence files already exist.
 const releaseId = new RegExp(`\\b\\d{2}-${"sco" + "ut"}-(?:swap|watch)\\b`, "gi");
 
@@ -21,7 +22,7 @@ export function checkProductName(root, policy) {
   }).split("\0").filter(Boolean);
   const violations = [];
   for (const path of new Set(paths)) {
-    if (path === allowlistPath) continue; // The allowlist has to spell the names it permits.
+    if (ownFiles.has(path)) continue; // The check, its test and its allowlist have to spell the names.
     let bytes;
     try { bytes = readFileSync(resolve(root, path)); }
     catch (error) { if (error.code === "ENOENT") continue; throw error; }

@@ -1,13 +1,6 @@
 import path from "path"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
-import officialToken from "./src/product/official-token.json"
-import { resolveOfficialToken } from "./src/product/official-token-config"
-
-if (resolveOfficialToken(officialToken).status === "unavailable") {
-  throw new Error("Invalid official-token.json: publish only a reviewed contract address with its network and chain ID, or keep every identity field null before launch.");
-}
-
 // The API is proxied so the browser talks to a single origin in dev: no CORS
 // preflight, and VITE_API_BASE_URL can stay empty. Point API_PROXY_TARGET
 // somewhere else to develop against a deployed API.

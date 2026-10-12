@@ -29,6 +29,12 @@ describe("Opsis identity in the base dictionaries", () => {
     expect(zhCN["legal.privacy.s08.prefix"]).toBe("Opsis 目前作为独立的源码可用测试版运营。");
     expect(en["legal.privacy.s08.contact"]).toBe("A support and security contact is to be published on this page.");
   });
+  it("omits product-token copy from both locales and presentation overrides", () => {
+    const removedPrefixes = ["docs.token.", "docs.nav.token", "guide.faq.groups.token.", "guide.faq.tokenReminder.", "landing.official."];
+    for (const dictionary of [en, zhCN, opsisOverrides.en, opsisOverrides["zh-CN"]]) {
+      expect(Object.keys(dictionary).filter((key) => removedPrefixes.some((prefix) => key.startsWith(prefix)))).toEqual([]);
+    }
+  });
   it("keeps only overrides that differ from base copy", () => {
     for (const [locale, base] of [["en", en], ["zh-CN", zhCN]] as const) {
       for (const [key, value] of Object.entries(opsisOverrides[locale])) {

@@ -251,23 +251,4 @@ export const landing: Record<string, string> = {
   "landing.footer.terms": "使用条款",
   "landing.footer.privacy": "隐私政策",
 
-  "landing.official.title": "Opsis 官方合约",
-  "landing.official.subtitle": "在此核对。不要只相信一个代币代码。",
-  "landing.official.network": "{network} · 链 ID {chainId}",
-  "landing.official.copyAria": "复制 Opsis 官方合约地址",
-  "landing.official.copy": "复制",
-  "landing.official.copying": "复制中…",
-  "landing.official.copied": "已复制",
-  "landing.official.help":
-    "核对完整地址和网络。复制它从不需要连接钱包。",
-  "landing.official.statusCopied": "官方合约地址已复制到剪贴板。",
-  "landing.official.statusManual":
-    "自动复制被阻止。请在下方选择并复制完整地址。",
-  "landing.official.manualLabel": "剪贴板被阻止。请选择并复制此完整地址：",
-  "landing.official.notLaunched": "尚未上线——暂无官方合约地址。",
-  "landing.official.unavailable": "官方合约地址不可用。",
-  "landing.official.notLaunchedCopy":
-    "Opsis 代币尚未上线。尚未公布官方合约地址。在此处公布地址之前，请忽略任何声称是 Opsis 的代币。",
-  "landing.official.unavailableCopy":
-    "不要依赖来自私信、回复或搜索结果的地址。请等待官方地址和网络在此处公布。",
 };

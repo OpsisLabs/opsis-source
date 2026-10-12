@@ -59,7 +59,7 @@ export const guide: Record<string, string> = {
   "guide.faq.titleLead": "人们在信任之前",
   "guide.faq.titleAccent": "会问的问题。",
   "guide.faq.intro":
-    "先说大白话。不假装每个数据源都完整、每个“已验证”标签含义都相同，也不假装提议中的代币效用已经存在。",
+    "先说大白话。不假装每个数据源都完整、每个“已验证”标签含义都相同。",
   "guide.faq.factsAria": "Opsis 快速事实",
   "guide.faq.fact1.label": "只读",
   "guide.faq.fact1.copy": "不签名、不广播、不托管、不要助记词",
@@ -182,30 +182,6 @@ export const guide: Record<string, string> = {
   "guide.faq.groups.actions.a5":
     "不要这样假设。Opsis 的基础设施围绕 0 美元增量供应商支出约束设计，但用户仍可能需要支付网络 gas、协议或创作者费用、滑点、商家价格、运费、税费、关税、评级费用或其他外部成本。官方场所会显示最终操作成本。",
 
-  "guide.faq.groups.token.title": "Opsis 代币与代币经济",
-  "guide.faq.groups.token.intro":
-    "什么是已计划的，什么只是提议的，以及什么绝不应被暗示。",
-  "guide.faq.groups.token.q1":
-    "有官方的 Opsis 代币合约吗？",
-  "guide.faq.groups.token.a1":
-    "Opsis 代币计划通过 Robinhood Chain 上的 pons v2 上线，但本页面不会把代币合约、代码、计价资产、供应量、分配、费用、创作者税、回购设置或上线 URL 作为最终版本公布。请在部署后核实官方合约；名称和代码都可能被仿冒。",
-  "guide.faq.groups.token.q2": "这个代币实际会做什么？",
-  "guide.faq.groups.token.a2":
-    "目前没有任何产品效用在已上线的状态下获得批准。当前的设计候选包括可选测试版访问、该 API 上线后有界的公共 API 配额提升、咨询性来源策展，以及可选的合作方资助权益。这些都不应对保险库、隐私或基本安全信息设置付费墙，Opsis 也绝不应保证合作方权益。",
-  "guide.faq.groups.token.q3":
-    "代币代表股权、收入、收益或保证回报吗？",
-  "guide.faq.groups.token.a3":
-    "没有陈述或暗示任何此类权利。上线代币可能极度波动，并可能失去全部价值。产品访问、治理、支付、销毁、质押、分配、管理员控制、归属以及任何经济权利，只有在已实现并获批时，才必须被精确描述。",
-  "guide.faq.groups.token.q4":
-    "pons 或 Robinhood 运营或背书 Opsis 吗？",
-  "guide.faq.groups.token.a4":
-    "不暗示任何背书或合作关系。pons v2 是计划的上线协议，Robinhood Chain 是网络，而 Opsis 是一个独立应用。保险库不会把数据存储在 pons 中，产品也不依赖代币毕业。",
-  "guide.faq.groups.token.q5": "pons v2 上线期间会发生什么？",
-  "guide.faq.groups.token.a5Prefix":
-    "官方 pons v2 文档描述了在联合曲线上进行钱包签名的交易，随后毕业进入一个 Uniswap v4 池，其全范围流动性头寸会被锁定。费用、创作者税、计价资产、回购设置和阶段因每次部署的上线而异，互动前必须核实。请参阅",
-  "guide.faq.groups.token.a5Link": "官方 pons v2 文档",
-  "guide.faq.groups.token.a5Suffix": "。",
-
   "guide.faq.groups.project.title": "项目、代码与支持",
   "guide.faq.groups.project.intro":
     "如何审查实现，并理解哪些仍在计划中。",
@@ -228,22 +204,18 @@ export const guide: Record<string, string> = {
     " 了解实现边界，使用 ",
   "guide.faq.groups.project.a3Roadmap": "路线图",
   "guide.faq.groups.project.a3After":
-    " 了解未来发布。提议中的代币效用不是已上线的功能。在真实商店明确选择加入且其确切映射通过审查之前，商家库存也仍然不可用。",
+    " 了解未来发布。在真实商店明确选择加入且其确切映射通过审查之前，商家库存也仍然不可用。",
 
   "guide.faq.bookend.implementation": "想要实现细节？",
   "guide.faq.deeper.title": "再深入一层。",
   "guide.faq.deeper.copy":
-    "查看确切的数据路径、保险库密码学、适配器合约和代币设计护栏。",
+    "查看确切的数据路径、保险库密码学、适配器合约和安全边界。",
   "guide.faq.deeper.action": "打开技术文档",
   "guide.faq.bookend.code": "想审查代码？",
   "guide.faq.source.title": "跟随源代码。",
   "guide.faq.source.copy":
     "直接阅读公开仓库、测试、发布证据和集成登记表。",
   "guide.faq.source.action": "打开 GITHUB",
-  "guide.faq.tokenReminder.label": "代币提醒：",
-  "guide.faq.tokenReminder.copy":
-    "提议中的效用说明卡不是承诺。最终代币机制必须已实现、已审查，并关联到确切的上链合约，Opsis 才会将其描述为已上线。",
-
   "guide.dev.badge": "开放数据 API · V1",
   "guide.dev.titleLead": "有用，因为",
   "guide.dev.titleAccent": "边界很小。",

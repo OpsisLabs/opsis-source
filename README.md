@@ -56,8 +56,8 @@ your purchase prices, ownership notes, photos, and saved chats stay local.**
 - Sign, broadcast, route, or execute transactions; mint or redeem assets.
 - Promise complete portfolio coverage, trustworthy issuers, or accurate manual valuations.
 - Guarantee that a browser will retain local data forever.
-- Enable cloud research or token-paid query packs by default. These are not
-  implied launch features or economic rights simply because code is public.
+- Enable cloud research by default. It is not an implied launch feature simply
+  because code is public.
 
 Network gas, liquidity, and protocol costs may apply at an official execution
 venue. Read-only does **not** mean third-party actions are free.

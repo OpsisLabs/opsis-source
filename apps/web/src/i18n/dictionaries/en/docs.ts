@@ -6,8 +6,6 @@ export const docs = {
   "docs.nav.evidence": "Evidence pipeline",
   "docs.nav.adapters": "Feature adapters",
   "docs.nav.security": "Security boundary",
-  "docs.nav.token": "Token design",
-
   "docs.header.eyebrow": "TECHNICAL REFERENCE · ROBINHOOD CHAIN 4663",
   "docs.title.line1": "How Opsis",
   "docs.title.line2": "actually works.",
@@ -203,43 +201,4 @@ export const docs = {
   "docs.security.footer":
     "Open source helps people inspect these choices; it is not itself a security guarantee. Release gates combine typed builds, unit and browser failure tests, exact-commit staging, kill-switch exercises, and immutable release candidates.",
 
-  "docs.token.eyebrow": "06 · DESIGN LAB · NOT LIVE",
-  "docs.token.title": "Token utility without contaminating the product.",
-  "docs.token.proposal.title": "PROPOSAL, NOT SHIPPED TOKENOMICS",
-  "docs.token.proposal.body":
-    "The Opsis token is planned to launch through pons v2 on Robinhood Chain. Product utility, supply, allocation, vesting, quote asset, fees, creator tax, buyback setting, contract, and launch URL are not stated here as final until they exist and are publicly verified onchain.",
-  "docs.token.candidates.betaAccess.label": "LOWEST COMPLEXITY",
-  "docs.token.candidates.betaAccess.title": "Beta access pass",
-  "docs.token.candidates.betaAccess.copy":
-    "An optional wallet proof could unlock experimental modules before public release. Core privacy, Vault access, and safety explanations should remain available without a token.",
-  "docs.token.candidates.apiQuota.label": "NOT IN V1",
-  "docs.token.candidates.apiQuota.title": "Public API quota boosts",
-  "docs.token.candidates.apiQuota.copy":
-    "Open Data v1 has no keys or token entitlements. A later release could consider a bounded higher quota, but the global $0 spend ceiling and abuse limits would still override it.",
-  "docs.token.candidates.partnerPerks.label": "PARTNER-FUNDED · LATER",
-  "docs.token.candidates.partnerPerks.title": "Optional partner perks",
-  "docs.token.candidates.partnerPerks.copy":
-    "An opted-in merchant or protocol could offer a clearly scoped holder benefit. The partner funds and fulfills it; Opsis labels the terms and never guarantees availability, value, or continuation.",
-  "docs.token.candidates.sourceCuration.label": "ADVISORY ONLY",
-  "docs.token.candidates.sourceCuration.title": "Advisory source curation",
-  "docs.token.candidates.sourceCuration.copy":
-    "Token holders could propose integrations or signal which public sources deserve review. Votes must never replace Opsis's independent verification or make a fact true.",
-  "docs.token.good.title": "GOOD TOKEN DESIGN",
-  "docs.token.good.item1": "Optional, precise, auditable entitlement",
-  "docs.token.good.item2":
-    "Useful product entitlement rather than passive speculation",
-  "docs.token.good.item3":
-    "Global privacy, safety, and provider-budget limits still win",
-  "docs.token.good.item4": "Official contract is the canonical identity",
-  "docs.token.bad.title": "DO NOT BUILD",
-  "docs.token.bad.item1": "Token-gated privacy, Vault access, or basic safety facts",
-  "docs.token.bad.item2":
-    "Implied equity, revenue share, yield, or guaranteed return",
-  "docs.token.bad.item3": "Pay-to-rank sources, assets, or “verified” claims",
-  "docs.token.bad.item4":
-    "Hidden emissions, allocations, admin powers, or mutable economics",
-  "docs.token.pons.title": "pons v2 is the launch rail, not the application.",
-  "docs.token.pons.body":
-    "Official pons v2 documentation describes a wallet-signed bonding-curve launch that graduates into a Uniswap v4 pool with its liquidity position locked. Opsis does not run inside that curve, store Vault data in pons, or treat graduation as product quality. Every final launch term must be read from the deployed record.",
-  "docs.token.pons.link": "OFFICIAL PONS V2 DOCS",
 } as const;

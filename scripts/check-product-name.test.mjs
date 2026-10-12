@@ -23,7 +23,7 @@ test("finds all required spellings in tracked text with exact line numbers", () 
   for (const separator of ["", " ", "-", "_"]) {
     for (const name of ["Watch", "Swap"]) names.push(tool(separator, name));
   }
-  names.push(tool(" ", "Watch").toUpperCase(), tool(" ", "Swap").toUpperCase(), "RWA" + " Verify", "No" + "esis", "EURE" + "KA²", "chatgpt" + ".site");
+  names.push(tool(" ", "Watch").toUpperCase(), tool(" ", "Swap").toUpperCase(), "RWA" + " Verify", "No" + "esis", "EURE" + "KA²", "chatgpt" + ".site", "Sco" + "ut", "SCO" + "UT");
   writeFileSync(join(root, "copy.txt"), "Opsis\r\n" + names.join("\r\n"));
   track("copy.txt");
   const found = checkProductName(root, { allow: [] });
@@ -44,11 +44,11 @@ test("allowlist matches both exact path and case-sensitive matched text", () => 
   assert.throws(() => checkProductName(root, { allow: [{ path: "a.txt", text: name, why: "" }] }));
 }));
 
-test("skips binary and untracked files and permits token symbols and third-party names", () => fixture((root, track) => {
+test("skips binary and untracked files and permits third-party names", () => fixture((root, track) => {
   writeFileSync(join(root, "binary.bin"), Buffer.from(`\0${predecessor()}`));
   writeFileSync(join(root, "invalid.bin"), Buffer.concat([Buffer.from([255]), Buffer.from(predecessor())]));
   writeFileSync(join(root, "untracked.txt"), predecessor());
-  writeFileSync(join(root, "valid.txt"), "Opsis SCOUT Blockscout Uniswap\n");
+  writeFileSync(join(root, "valid.txt"), "Opsis Blockscout blockscout.com Uniswap\n");
   track("binary.bin", "invalid.bin", "valid.txt");
   assert.deepEqual(checkProductName(root, { allow: [] }), []);
 }));

@@ -154,21 +154,6 @@
       "path": "e2e/vault.mock.spec.ts",
       "text": "chainscout",
       "why": "Test of a retained compatibility identifier."
-    },
-    {
-      "path": "scripts/check-product-name.mjs",
-      "text": "eureka²",
-      "why": "The checker defines the forbidden-name pattern."
-    },
-    {
-      "path": "scripts/check-product-name.mjs",
-      "text": "scoutswap",
-      "why": "The checker defines the forbidden-name pattern."
-    },
-    {
-      "path": "scripts/check-product-name.mjs",
-      "text": "scoutwatch",
-      "why": "The checker defines the forbidden-name pattern."
     }
   ]
 }

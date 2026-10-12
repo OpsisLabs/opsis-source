@@ -12,7 +12,7 @@ snapshot; feature availability is controlled separately by deployment settings.
   verified encrypted backup restore. Browser storage is not guaranteed forever.
 - Replay Actions does not infer or reuse historical intent. It uses fresh user
   inputs, fresh evidence, and an official external execution or checkout venue.
-- Token-paid query packs, token economics, and future cloud features must not be
-  presented as enabled rights or current functionality without separate evidence.
+- Future cloud features must not be presented as current functionality without
+  separate evidence.
 - No provider name, trademark, registry match, or code publication implies
   endorsement, authenticity, solvency, custody, redemption eligibility, or returns.

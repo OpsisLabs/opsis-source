@@ -2,7 +2,7 @@ import { fixture, research } from "../apps/web/src/opsis/test-fixtures";
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 const enabled = process.env.VITE_OPSIS_WORKSPACES_ENABLED === "true";
-const TOKEN = "0x6aa5b565155420b7d192a9a5577dfa5a77a22352";
+const TOKEN = "0x1111111111111111111111111111111111111111";
 const POOL = `0x${"a".repeat(40)}`;
 const key = "a".repeat(64);
 

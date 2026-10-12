@@ -30,7 +30,7 @@ export function publicSnapshot(root, revision = "HEAD", policyRevision = revisio
     output.set(path, sourceBlobs.get(cacheKey));
     modes.set(path, mode === "100755" ? 0o755 : 0o644);
   }
-  for (const [destination, template] of [[".github/workflows/public-verify.yml", policy.publicWorkflowTemplate], ["docs/marketing-sourcebook.md", policy.publicClaimsTemplate]]) {
+  for (const [destination, template] of [[".github/workflows/public-verify.yml", policy.publicWorkflowTemplate], ["docs/opsis/30-marketing.md", policy.publicClaimsTemplate]]) {
     if (!template) continue;
     const exists = git(root, ["ls-tree", "--name-only", revision, "--", template]).trim();
     if (exists) output.set(destination, git(root, ["show", `${revision}:${template}`], null));

@@ -7,7 +7,6 @@ import FooterCta from "../sections/FooterCta";
 import AssetUniverse from "../sections/AssetUniverse";
 import ProductWorkflow from "../sections/ProductWorkflow";
 import AvailabilityMatrix from "../sections/AvailabilityMatrix";
-import OfficialContract from "../product/OfficialContract";
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -42,7 +41,6 @@ export default function Home() {
       <TopNav />
       <main id="marketing-main" tabIndex={-1} className="outline-none lg:pl-[220px]">
         <div className="pt-[60px]">
-          <OfficialContract />
           <Hero />
           <AssetUniverse />
           <ProductWorkflow />

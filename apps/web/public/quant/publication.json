@@ -3,7 +3,7 @@
   "publicationSha": "90dcbe698aaf407ccf3658436b3e3df44e412349",
   "baseFileCount": 66,
   "quantHashes": {
-    "app.js": "6b5f1397c68f326cfb648ab57ad91bab879fd2074f45f906d7e714a79223eb78",
+    "app.js": "c71a78ec49ea16bdb51ab5c870f61195a7e0ae2fb914ecbdb275b9151441759b",
     "assets/cashcat.svg": "ed592a2cbf88f8b263eabf34cd7fb3fe2cb296249e4acf179357f1fa16a9039f",
     "assets/cbbtc.svg": "06efde5ab8294fc01f5f4d09c39307feff8d83a1de8a98e5b5cf4c4be28bf9ae",
     "assets/dogo.svg": "3604b15ceb6ae87ca2a429103150e9239a68a2ac4d5c24482b03e5ddd700337a",
@@ -16,7 +16,7 @@
     "assets/usdg.svg": "c7105b5faa8f03b8505fec995f858d22a1fb181afa6b13fa5b6e05c34b60429d",
     "assets/weth.svg": "f117345b083a7f9fc8c1cc3049352a48184c72a78d445838e41aee7f1d083f6d",
     "crypto-data.json": "8c63e4e45a7f6bced9f2d4393f2fe0b89a8f59a6c49c637fa7380bf80fcefc80",
-    "index.html": "233d09279febd82c7b263f66599c7684a86db2d4fcad7f8ef3c88fe3984aff50",
+    "index.html": "d92071b7a68167bdd7aa22a2ea184d476d7e88520d3c54f53dda945baf7ee35f",
     "style.css": "e975878117ce719549248e90f8dc9268b6d57b069d9be6774c8d64bd9ea8969b"
   }
 }

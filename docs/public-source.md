@@ -23,9 +23,9 @@ embedding private authors, commit hashes, repository URLs, or local machine path
 
 Internal release evidence, founder instructions, operational runbooks, private CI,
 recordings, backups, environment secrets, caches, and original identity metadata are excluded.
-An existing privacy regression test reads a marketing-sourcebook path. The public
-mirror supplies a small reviewed claim-boundary counterpart at that path, rather
-than exporting internal marketing plans.
+A privacy regression test reads `docs/opsis/30-marketing.md`. The public mirror
+supplies a small reviewed claim-boundary counterpart at that path, rather than
+exporting internal marketing plans.
 Public CI is a separate verification-only workflow with no deployment credentials.
 
 ## Identity setup: required in every clone

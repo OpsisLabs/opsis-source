@@ -264,7 +264,7 @@ describe("exit-check service", () => {
         curve: true,
       }),
     ).rejects.toMatchObject({ code: "EXIT_CHECK_RPC_LIMIT_EXCEEDED" });
-    const arbitrary = "0x6aa5b565155420b7d192a9a5577dfa5a77a22352";
+    const arbitrary = "0x1111111111111111111111111111111111111111";
     const arbitraryCurve = await new ExitCheckService(
       loadEnv({
         NODE_ENV: "test",
@@ -335,7 +335,7 @@ describe("exit-check service", () => {
   });
 
   it("reads validated decimals for an arbitrary factory-supported V3 token", async () => {
-    const token = "0x6aa5b565155420b7d192a9a5577dfa5a77a22352".toLowerCase();
+    const token = "0x1111111111111111111111111111111111111111".toLowerCase();
     const rpc = mockRpc({
       token: { address: token, decimals: 6, code: "0x60006000" },
       pools: { 3000: POOL_3000 },
@@ -368,7 +368,7 @@ describe("exit-check service", () => {
   });
 
   it("reports a v4-only token as unsupported without a quote or money liquidity", async () => {
-    const token = "0x6aa5b565155420b7d192a9a5577dfa5a77a22352".toLowerCase();
+    const token = "0x1111111111111111111111111111111111111111".toLowerCase();
     const rpc = mockRpc({
       token: { address: token, decimals: 18, code: "0x60006000" },
       pools: {},
@@ -463,7 +463,7 @@ describe("exit-check service", () => {
   });
 
   it("fails closed when factory discovery reverts instead of claiming no V3 pool", async () => {
-    const token = "0x6aa5b565155420b7d192a9a5577dfa5a77a22352".toLowerCase();
+    const token = "0x1111111111111111111111111111111111111111".toLowerCase();
     const rpc = mockRpc({
       token: { address: token, decimals: 18, code: "0x60006000" },
       pools: {},

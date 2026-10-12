@@ -1,4 +1,4 @@
-const TOKEN = "0x6aa5b565155420b7d192a9a5577dfa5a77a22352";
+const TOKEN = "0x1111111111111111111111111111111111111111";
 const WETH = "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73";
 const POOL = `0x${"a".repeat(40)}`;
 export function fixture() {

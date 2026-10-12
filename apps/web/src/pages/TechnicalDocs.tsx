@@ -8,7 +8,6 @@ import {
   CircleAlert,
   Code2,
   Database,
-  ExternalLink,
   Fingerprint,
   Gauge,
   KeyRound,
@@ -17,9 +16,6 @@ import {
   ScanSearch,
   ServerCog,
   ShieldCheck,
-  Sparkles,
-  WalletCards,
-  X,
 } from "lucide-react";
 import { Link } from "react-router";
 import KnowledgeHeader from "./KnowledgeHeader";
@@ -34,7 +30,6 @@ const SECTIONS = [
   ["evidence", "docs.nav.evidence"],
   ["adapters", "docs.nav.adapters"],
   ["security", "docs.nav.security"],
-  ["token", "docs.nav.token"],
 ] as const;
 
 const ARCHITECTURE_MODES = [
@@ -80,13 +75,6 @@ const SECURITY_BOUNDARIES = [
   "killSwitches",
 ] as const;
 
-const TOKEN_CANDIDATES = [
-  "betaAccess",
-  "apiQuota",
-  "partnerPerks",
-  "sourceCuration",
-] as const;
-
 const KEY_LIFECYCLE = [
   "docs.vault.keyLifecycle.item1",
   "docs.vault.keyLifecycle.item2",
@@ -99,20 +87,6 @@ const RECORD_INTEGRITY = [
   "docs.vault.integrity.item2",
   "docs.vault.integrity.item3",
   "docs.vault.integrity.item4",
-] as const;
-
-const TOKEN_GOOD = [
-  "docs.token.good.item1",
-  "docs.token.good.item2",
-  "docs.token.good.item3",
-  "docs.token.good.item4",
-] as const;
-
-const TOKEN_BAD = [
-  "docs.token.bad.item1",
-  "docs.token.bad.item2",
-  "docs.token.bad.item3",
-  "docs.token.bad.item4",
 ] as const;
 
 function DocSection({
@@ -288,45 +262,6 @@ export default function TechnicalDocs() {
               ))}
             </div>
             <p className="mt-5 text-[11px] leading-relaxed text-[#716b65]">{t("docs.security.footer")}</p>
-          </DocSection>
-
-          <DocSection id="token" eyebrow={t("docs.token.eyebrow")} title={t("docs.token.title")}>
-            <div className="mt-5 border border-[#fa6c34] bg-[#fa6c34] p-5 text-[#1d1d1d] sm:p-6">
-              <p className="flex items-center gap-2 font-mono-d text-[9px] font-semibold tracking-[0.14em]"><Sparkles size={13} /> {t("docs.token.proposal.title")}</p>
-              <p className="mt-3 max-w-[780px] text-[12px] font-medium leading-relaxed text-[#1d1d1d]">{t("docs.token.proposal.body")}</p>
-            </div>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              {TOKEN_CANDIDATES.map((id) => (
-                <article key={id} className="border border-[#4a3b35] bg-[#24211f] p-5 sm:p-6">
-                  <p className="font-mono-d text-[8px] tracking-[0.14em] text-[#fa6c34]">{t(`docs.token.candidates.${id}.label`)}</p>
-                  <h3 className="mt-3 text-[20px] text-[#f0e8da]">{t(`docs.token.candidates.${id}.title`)}</h3>
-                  <p className="mt-3 text-[11.5px] leading-relaxed text-[#9a938a]">{t(`docs.token.candidates.${id}.copy`)}</p>
-                </article>
-              ))}
-            </div>
-            <div className="mt-5 grid gap-4 md:grid-cols-2">
-              <article className="border border-[#3d5538] bg-[#20251f] p-5 sm:p-6">
-                <p className="flex items-center gap-2 font-mono-d text-[9px] tracking-[0.13em] text-[#7fb069]"><Check size={13} /> {t("docs.token.good.title")}</p>
-                <ul className="mt-4 space-y-3 text-[11.5px] leading-relaxed text-[#a8a198]">
-                  {TOKEN_GOOD.map((key) => (
-                    <li key={key}>• {t(key)}</li>
-                  ))}
-                </ul>
-              </article>
-              <article className="border border-[#6a3b45] bg-[#282022] p-5 sm:p-6">
-                <p className="flex items-center gap-2 font-mono-d text-[9px] tracking-[0.13em] text-[#e0738a]"><X size={13} /> {t("docs.token.bad.title")}</p>
-                <ul className="mt-4 space-y-3 text-[11.5px] leading-relaxed text-[#aaa197]">
-                  {TOKEN_BAD.map((key) => (
-                    <li key={key}>• {t(key)}</li>
-                  ))}
-                </ul>
-              </article>
-            </div>
-            <div className="mt-5 border border-[#383838] bg-[#222222] p-5 sm:p-6">
-              <div className="flex items-center gap-3"><WalletCards size={17} className="text-[#fa6c34]" /><h3 className="text-[18px] text-[#e9e0d1]">{t("docs.token.pons.title")}</h3></div>
-              <p className="mt-3 max-w-[820px] text-[11.5px] leading-relaxed text-[#9a938a]">{t("docs.token.pons.body")}</p>
-              <a href="https://docs.ponsfamily.com/v2" target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 font-mono-d text-[9px] tracking-[0.12em] text-[#fa6c34] hover:text-[#ff9b72]">{t("docs.token.pons.link")} <ExternalLink size={11} /></a>
-            </div>
           </DocSection>
         </div>
       </main>

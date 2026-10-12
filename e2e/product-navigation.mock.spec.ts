@@ -1,129 +1,18 @@
 import { expect, test, type Page } from "@playwright/test";
-import officialTokenConfiguration from "../apps/web/src/product/official-token.json";
 
-const officialTokenFixture = { status: "published", address: "0x1111111111111111111111111111111111111111", network: "Test network", chainId: 31337 };
-
-async function mockOfficialToken(page: Page, value: unknown) {
-  // Test-only Vite module fixture. There is no runtime override in the product.
-  await page.route("**/src/product/official-token.json*", (route) => route.fulfill({
-    contentType: "application/javascript",
-    body: `export default ${JSON.stringify(value)};`,
-  }));
-}
-
-test("official contract panels show no fake CA before launch on desktop and mobile", async ({ page }) => {
-  await mockOfficialToken(page, { status: "not-launched", address: null, network: null, chainId: null });
-  for (const width of [320, 390, 1440]) {
-    await page.setViewportSize({ width, height: 950 });
-    for (const path of ["/", "/app"]) {
-      await page.goto(`${path}?ca=${officialTokenFixture.address}&network=Fake`);
-      const panel = page.getByRole("region", { name: "Official Opsis contract" });
-      await expect(panel).toBeVisible();
-      await expect(panel).toContainText("Not launched yet — no official CA.");
-      await expect(panel.getByRole("button")).toHaveCount(0);
-      await expect(panel).not.toContainText(officialTokenFixture.address);
-      const box = await panel.boundingBox();
-      expect(box!.y).toBeGreaterThanOrEqual(0);
-      expect(box!.y + box!.height).toBeLessThan(950);
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+test("entry pages omit the removed launch panel in either language", async ({ page, baseURL }) => {
+  for (const locale of ["en", "zh-CN"]) {
+    await page.context().addCookies([{ name: "opsis_locale_v1", value: locale, url: baseURL! }]);
+    for (const width of [390, 1440]) {
+      await page.setViewportSize({ width, height: 950 });
+      for (const path of ["/", "/app"]) {
+        await page.goto(path);
+        await expect(page.locator("html")).toHaveAttribute("lang", locale);
+        await expect(page.getByRole("main").first()).toBeVisible();
+        await expect(page.locator("[data-official-contract]")).toHaveCount(0);
+      }
     }
   }
-});
-
-test("official contract panels use the single committed identity on both entry pages", async ({ page }) => {
-  for (const path of ["/", "/app"]) {
-    await page.goto(path);
-    const panel = page.getByRole("region", { name: "Official Opsis contract" });
-    await expect(panel).toBeVisible();
-    if (officialTokenConfiguration.status === "published") {
-      await expect(panel.locator("code")).toHaveText(String(officialTokenConfiguration.address));
-      await expect(panel).toContainText(`${officialTokenConfiguration.network} · Chain ID ${officialTokenConfiguration.chainId}`);
-    } else {
-      expect(officialTokenConfiguration.status).toBe("not-launched");
-      await expect(panel).toContainText("Not launched yet — no official CA.");
-      await expect(panel.getByRole("button")).toHaveCount(0);
-    }
-  }
-});
-
-test("official contract copy uses the exact configured address with keyboard feedback", async ({ page }) => {
-  await mockOfficialToken(page, officialTokenFixture);
-  await page.addInitScript(() => {
-    Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async (text: string) => { document.documentElement.dataset.copiedContract = text; } } });
-  });
-  for (const path of ["/", "/app"]) {
-    await page.goto(path);
-    const panel = page.getByRole("region", { name: "Official Opsis contract" });
-    await expect(panel).toContainText("Test network · Chain ID 31337");
-    await expect(panel.locator("code")).toHaveText(officialTokenFixture.address);
-    const copy = panel.getByRole("button", { name: "Copy official Opsis contract address" });
-    await copy.focus();
-    await page.keyboard.press("Enter");
-    await expect(panel.getByRole("status")).toHaveText("Official contract address copied to clipboard.");
-    await expect(page.locator("html")).toHaveAttribute("data-copied-contract", officialTokenFixture.address);
-  }
-});
-
-test.describe("official contract touch access", () => {
-  test.use({ hasTouch: true, viewport: { width: 390, height: 844 } });
-
-  test("tap copies the full address on mobile without clipping", async ({ page }) => {
-    await mockOfficialToken(page, officialTokenFixture);
-    await page.addInitScript(() => {
-      Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async (text: string) => { document.documentElement.dataset.copiedContract = text; } } });
-    });
-    for (const path of ["/", "/app"]) {
-      await page.goto(path);
-      const panel = page.getByRole("region", { name: "Official Opsis contract" });
-      await panel.getByRole("button", { name: "Copy official Opsis contract address" }).tap();
-      await expect(page.locator("html")).toHaveAttribute("data-copied-contract", officialTokenFixture.address);
-      await expect(panel.getByRole("status")).toContainText("copied to clipboard");
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    }
-  });
-});
-
-for (const failure of ["denied", "missing"] as const) {
-  test(`official contract supports manual copying when clipboard is ${failure}`, async ({ page }) => {
-    await page.setViewportSize({ width: 320, height: 850 });
-    await mockOfficialToken(page, officialTokenFixture);
-    await page.addInitScript((mode) => {
-      Object.defineProperty(navigator, "clipboard", { configurable: true, value: mode === "missing" ? undefined : { writeText: async () => { throw new DOMException("Blocked", "NotAllowedError"); } } });
-    }, failure);
-    await page.goto("/app");
-    const panel = page.getByRole("region", { name: "Official Opsis contract" });
-    await panel.getByRole("button", { name: "Copy official Opsis contract address" }).click();
-    const manual = panel.getByRole("textbox", { name: "Clipboard blocked. Select and copy this full address:" });
-    await expect(manual).toBeFocused();
-    await expect(manual).toHaveValue(officialTokenFixture.address);
-    await expect(manual).toHaveAttribute("readonly", "");
-    expect(await manual.evaluate((element: HTMLTextAreaElement) => element.selectionEnd - element.selectionStart)).toBe(42);
-    await expect(panel.getByRole("status")).not.toContainText("copied to clipboard");
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  });
-}
-
-test("official contract fails closed if a published identity is malformed", async ({ page }) => {
-  await mockOfficialToken(page, { ...officialTokenFixture, address: "0x123" });
-  await page.goto("/");
-  const panel = page.getByRole("region", { name: "Official Opsis contract" });
-  await expect(panel).toContainText("Official contract address unavailable.");
-  await expect(panel).not.toContainText("Not launched yet");
-  await expect(panel.getByRole("button")).toHaveCount(0);
-  await expect(panel).not.toContainText("0x123");
-});
-
-test("official contract writes the browser clipboard on a real user gesture", async ({ page, context, browserName }) => {
-  test.skip(browserName !== "chromium", "WebKit has no Playwright clipboard permission grant; touch, success and denied paths are tested above.");
-  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
-  await mockOfficialToken(page, officialTokenFixture);
-  await page.goto("/");
-  await page.getByRole("button", { name: "Copy official Opsis contract address" }).click();
-  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(officialTokenFixture.address);
-  // Do not leave a synthetic token identity on the test clipboard.
-  await page.evaluate(async (fixture) => {
-    if (await navigator.clipboard.readText() === fixture) await navigator.clipboard.writeText("");
-  }, officialTokenFixture.address);
 });
 
 const passphrase = "navigation audit passphrase";
@@ -230,7 +119,7 @@ test("desktop product rail explains and switches between every live workspace", 
   await expect(page.getByText("Saved research is separate.", { exact: true })).toHaveCount(0);
   await expect(page.getByRole("link", { name: /OPEN PORTFOLIO/i })).toBeVisible();
   await expect(page.getByRole("link", { name: /ADD AN ASSET/i })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Research" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Research", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Market & Inventory" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Keep your research on this device." })).toBeVisible();
   const scrollbarTheme = await page.locator("html").evaluate((element) => {
@@ -268,14 +157,14 @@ test("first production-style visit introduces the product and remembers dismissa
 test("context help opens the matching optional guide detail", async ({ page }) => {
   await page.goto("/app");
   await page.getByRole("button", { name: "About live swap previews" }).click();
-  await page.getByRole("link", { name: "OPEN GUIDE →" }).click();
+  await page.getByRole("link", { name: "Find your tool →" }).click();
   await expect(page).toHaveURL(/\/guide#swap-preview$/);
   const detail = page.locator("details#swap-preview");
   await expect(detail).toHaveAttribute("open", "");
   await expect(detail.getByText(/minimum received, price impact/i)).toBeVisible();
 });
 
-test("technical docs and FAQ expose the implementation without presenting token ideas as live", async ({ page }) => {
+test("technical docs and FAQ explain the implementation without product-token sections", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 950 });
   await page.goto("/docs");
 
@@ -288,12 +177,8 @@ test("technical docs and FAQ expose the implementation without presenting token 
   await expect(page.getByText("EPHEMERAL LOOKUP")).toBeVisible();
   await expect(page.getByText("LOCAL VAULT")).toBeVisible();
   await expect(page.getByText("PBKDF2-HMAC-SHA-256")).toBeVisible();
-  await expect(
-    page.getByText("PROPOSAL, NOT SHIPPED TOKENOMICS"),
-  ).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Optional partner perks" })).toBeVisible();
-  await expect(page.getByText(/contributor bounties/i)).toHaveCount(0);
-  await expect(page.getByText("DO NOT BUILD")).toBeVisible();
+  await expect(page.locator('section#token')).toHaveCount(0);
+  await expect(page.locator('a[href="#token"]')).toHaveCount(0);
   await expect(
     page.getByRole("link", { name: /VIEW SOURCE/i }),
   ).toHaveCount(0);
@@ -312,15 +197,10 @@ test("technical docs and FAQ expose the implementation without presenting token 
 
   await page.getByText("How is the Vault encrypted?", { exact: true }).click();
   await expect(page.getByText(/random AES-256-GCM data key/i)).toBeVisible();
-  await page.getByText("What would the token actually do?", { exact: true }).click();
-  await expect(page.getByText(/No product utility is approved as live today/i)).toBeVisible();
-  await expect(page.getByText(/optional partner-funded perks/i)).toBeVisible();
-  await page.getByText("What happens during a pons v2 launch?", { exact: true }).click();
-  await expect(
-    page.getByRole("link", { name: "official pons v2 documentation" }),
-  ).toHaveAttribute("href", "https://docs.ponsfamily.com/v2");
+  await expect(page.locator('section#token')).toHaveCount(0);
+  await expect(page.locator('a[href="#token"]')).toHaveCount(0);
 
-  await page.getByRole("link", { name: "START GUIDE" }).click();
+  await page.getByRole("link", { name: "Find your tool", exact: true }).first().click();
   await expect(page).toHaveURL(/\/guide$/);
 });
 

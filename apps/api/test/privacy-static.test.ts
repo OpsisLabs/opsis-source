@@ -485,7 +485,7 @@ describe("browser privacy static boundary", () => {
     const dockerfile = readFileSync(resolve(repositoryRoot, "apps/web/Dockerfile"), "utf8");
     const envExample = readFileSync(resolve(repositoryRoot, ".env.example"), "utf8");
     const roadmap = readFileSync(resolve(repositoryRoot, "apps/web/src/pages/Roadmap.tsx"), "utf8");
-    const sourcebook = readFileSync(resolve(repositoryRoot, "docs/marketing-sourcebook.md"), "utf8");
+    const marketing = readFileSync(resolve(repositoryRoot, "docs/opsis/30-marketing.md"), "utf8");
     expect(replay).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/);
     expect(replay).not.toMatch(/localStorage|sessionStorage|indexedDB|dangerouslySetInnerHTML/);
     expect(replay).not.toMatch(
@@ -500,8 +500,8 @@ describe("browser privacy static boundary", () => {
     expect(dockerfile).toContain("ARG VITE_REPLAY_ACTIONS_ENABLED=false");
     expect(dockerfile).toContain("ENV VITE_REPLAY_ACTIONS_ENABLED=$VITE_REPLAY_ACTIONS_ENABLED");
     expect(envExample).toContain("VITE_REPLAY_ACTIONS_ENABLED=false");
-    expect(`${roadmap}\n${sourcebook}`).not.toMatch(/replay reuses the \*?intent|rebuild a supported historical intent|INTENT PARSER|show every changed assumption|replay[^\n]{0,80}alerts/i);
-    expect(sourcebook).toContain("does not infer or reuse historical intent");
+    expect(`${roadmap}\n${marketing}`).not.toMatch(/replay reuses the \*?intent|rebuild a supported historical intent|INTENT PARSER|show every changed assumption|replay[^\n]{0,80}alerts/i);
+    expect(marketing).toContain("does not infer or reuse historical intent");
   });
 
   it("discloses every class of public identifier derived for direct portfolio verification", () => {
