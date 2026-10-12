@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useLocation } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import {
   getExitCheckQuote,
   isValidExitAmount,
@@ -7,7 +7,10 @@ import {
   type ExitCheckOutputSymbol,
 } from "../exit-check/api";
 import { useCopy } from "./copy";
-import { publicIdentity, workspaceLink, type Capabilities } from "./model";
+import { publicIdentity, workspaceIdentity, workspaceLink, type Capabilities } from "./model";
+
+import { publicSession } from "./public-session";
+import { tradeToolPaths, routeNames } from "./shell-model";
 
 import ReportShelf from "./ReportShelf";
 import { tradeReport } from "./reports";
@@ -22,16 +25,14 @@ export default function TradeCheck({
 }) {
   const c = useCopy();
   const location = useLocation();
-  const [token, setToken] = useState(() => {
-    const value = publicIdentity(
-      new URLSearchParams(location.search).get("entity"),
-    );
-    return value.length === 42 ? value : "";
-  });
-  const [amount, setAmount] = useState("");
-  const [output, setOutput] = useState<ExitCheckOutputSymbol>("WETH");
-  const [curveEnabled, setCurveEnabled] = useState(false);
-  const [result, setResult] = useState<ExitCheckQuote | null>(null);
+  const navigate = useNavigate();
+  const incoming = workspaceIdentity("/check", location.search);
+  const remembered = !incoming || incoming === publicSession.check.token;
+  const [token, setToken] = useState(incoming || publicSession.check.token);
+  const [amount, setAmount] = useState(remembered ? publicSession.check.amount : "");
+  const [output, setOutput] = useState<ExitCheckOutputSymbol>(remembered ? publicSession.check.output : "WETH");
+  const [curveEnabled, setCurveEnabled] = useState(remembered && publicSession.check.curveEnabled);
+  const [result, setResult] = useState<ExitCheckQuote | null>(remembered ? publicSession.check.result : null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
   const [now, setNow] = useState(Date.now);
@@ -42,6 +43,25 @@ export default function TradeCheck({
     const timer = setInterval(() => setNow(Date.now()), 250);
     return () => clearInterval(timer);
   }, [result]);
+  useEffect(() => {
+    publicSession.check = { token: publicIdentity(token), amount, output, curveEnabled, result };
+  }, [token, amount, output, curveEnabled, result]);
+  useEffect(() => {
+    if (incoming && incoming !== token) {
+      pending.current?.abort();
+      // Synchronize explicit router context; amounts never come from a URL.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setToken(incoming);
+      setAmount("");
+      setResult(null);
+      setBusy(false);
+      setError(false);
+    }
+  }, [incoming]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    const path = workspaceLink("/check", incoming || publicSession.check.token);
+    if (`/check${location.search}` !== path) navigate(path, { replace: true });
+  }, [incoming, location.search, navigate]);
   const valid =
     /^0x[a-fA-F0-9]{40}$/.test(token.trim()) && isValidExitAmount(amount, 36);
   function clear() {
@@ -55,6 +75,7 @@ export default function TradeCheck({
     const controller = new AbortController();
     pending.current = controller;
     setBusy(true);
+    navigate(workspaceLink("/check", token), { replace: true });
     try {
       const quote = await getExitCheckQuote(
         {
@@ -365,17 +386,9 @@ export default function TradeCheck({
               {c("Research this token", "研究此代币")}
             </Link>
           )}
-          <Link to="/swap">{c("Swap preview", "兑换预览")}</Link>
-          {import.meta.env.VITE_TRADE_SIMULATOR_ENABLED === "true" && (
-            <Link to="/simulate">
-              {c("Compare trade scenarios", "比较交易情景")}
-            </Link>
-          )}
-          {import.meta.env.VITE_PORTFOLIO_STRESS_TEST_ENABLED === "true" && (
-            <Link to="/stress-test">
-              {c("Apply a local portfolio shock", "应用本地投资组合冲击")}
-            </Link>
-          )}
+          {tradeToolPaths(capabilities).filter((path) => path !== "/check").map((path) => (
+            <Link key={path} to={path}>{c(...routeNames[path])}</Link>
+          ))}
         </div>
       </details>
       <details className="opsis-panel">

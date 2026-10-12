@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import { useState, type FormEvent } from "react";
 import { useI18n } from "../i18n";
 import type { TranslationKey } from "../i18n";
@@ -129,7 +130,7 @@ function ChooserBody({
       {state.phase === "empty" && (
         <p>
           {t("stress.import.empty")}{" "}
-          <a href="/vault">{t("stress.import.emptyLink")}</a>
+          <Link to="/saved">{t("stress.import.emptyLink")}</Link>
         </p>
       )}
 

@@ -12,6 +12,7 @@ import { useI18n } from "../i18n";
 import { useCopy } from "./copy";
 import {
   publicIdentity,
+  workspaceIdentity,
   unlockPreview,
   workspaceLink,
   savedLink,
@@ -23,7 +24,12 @@ import ToolOrientation from "./ToolOrientation";
 import ToolNavigation from "./ToolNavigation";
 import ToolWorkspace from "./ToolWorkspace";
 import OpsisCopy from "./OpsisCopy";
-const Lab = lazy(() => import("./Lab"));
+import NavigationFeedback, { FrontDoorProgress, RouteReady } from "./NavigationFeedback";
+import { chunks } from "./route-chunks";
+import { landingTools, routeTitle } from "./shell-model";
+import { initialTheme, persistTheme, savedTheme } from "./theme";
+import { clearPublicSession } from "./public-session";
+const Lab = lazy(chunks.Lab.load);
 import "./opsis.css";
 import "./legacy-theme.css";
 import "./studio.css";
@@ -33,25 +39,21 @@ const publicAccess =
 // A production beta build labels itself BETA; previews keep the PREVIEW label.
 const betaRelease = import.meta.env.VITE_OPSIS_RELEASE_STAGE === "beta";
 
-const SituationRoom = lazy(() => import("../situation/SituationRoom"));
-const Research = lazy(() => import("./Research"));
-const TradeCheck = lazy(() => import("./TradeCheck"));
-const Watch = lazy(() => import("../watch/ScoutWatch"));
-const Saved = lazy(() => import("./SavedWorkspace"));
-const Rwa = lazy(() => import("../pages/RwaVerify"));
-const Trades = lazy(() => import("../trades/BiggestTrades"));
-const Explorer = lazy(() => import("../pages/PrivateExplorer"));
-const Swap = lazy(() => import("../pages/ScoutSwap"));
-const Privacy = lazy(() =>
-  import("../pages/Legal").then((m) => ({ default: m.PrivacyPage })),
-);
-const Simulator = lazy(() => import("../simulator/TradeSimulator"));
-const Stress = lazy(() => import("../stress/StressTest"));
-const Terms = lazy(() =>
-  import("../pages/Legal").then((m) => ({ default: m.TermsPage })),
-);
-const Guide = lazy(() => import("./Guide"));
-const Community = lazy(() => import("./Community"));
+const SituationRoom = lazy(chunks.SituationRoom.load);
+const Research = lazy(chunks.Research.load);
+const TradeCheck = lazy(chunks.TradeCheck.load);
+const Watch = lazy(chunks.Watch.load);
+const Saved = lazy(chunks.Saved.load);
+const Rwa = lazy(chunks.Rwa.load);
+const Trades = lazy(chunks.Trades.load);
+const Explorer = lazy(chunks.Explorer.load);
+const Swap = lazy(chunks.Swap.load);
+const Privacy = lazy(chunks.Privacy.load);
+const Simulator = lazy(chunks.Simulator.load);
+const Stress = lazy(chunks.Stress.load);
+const Terms = lazy(chunks.Terms.load);
+const Guide = lazy(chunks.Guide.load);
+const Community = lazy(chunks.Community.load);
 
 function Unavailable() {
   const c = useCopy();
@@ -96,7 +98,7 @@ function PublicSearch({ hero = false }: { hero?: boolean }) {
     </form>
   );
 }
-const PerpScenario = lazy(() => import("./PerpScenario"));
+const PerpScenario = lazy(chunks.PerpScenario.load);
 
 function Status({ capabilities }: { capabilities: Capabilities }) {
   const c = useCopy();
@@ -112,11 +114,11 @@ function Status({ capabilities }: { capabilities: Capabilities }) {
   const details: Record<string, { label: [string, string]; scope: [string, string]; origin: [string, string]; freshness: [string, string]; coverage: [string, string]; limits: [string, string] }> = {
     research: { label: ["Research", "研究"], scope: ["Robinhood Chain public-identifier research", "Robinhood Chain 公开标识符研究"], origin: ["Live on request", "按请求实时查询"], freshness: ["Checked per request", "每次请求时检查"], coverage: ["Bounded by upstream source coverage", "受上游数据源覆盖范围限制"], limits: ["Provider health and complete coverage are unknown until each lookup.", "每次查询前，提供商运行状况和完整覆盖情况均未知。"] },
     tokenControls: { label: ["Standard contract controls", "标准合约控制"], scope: ["Robinhood Chain standard contract controls", "Robinhood Chain 标准合约控制"], origin: ["Live RPC on request", "按请求实时 RPC 查询"], freshness: ["Block-anchored per request", "每次请求锚定区块"], coverage: ["Owner, pause responses and three proxy slots only", "仅包括所有者、暂停响应和三个代理槽位"], limits: ["Mint privileges, custom roles, transfer taxes and concentration are not inferred.", "不会推断铸造权限、自定义角色、转账税或持仓集中度。"] },
-    exitCheck: { label: ["Exit quotes", "退出报价"], scope: ["Robinhood Chain official Uniswap V3 standard fee tiers", "Robinhood Chain 官方 Uniswap V3 标准费率层"], origin: ["Live RPC on request", "按请求实时 RPC 查询"], freshness: ["Block-anchored per quote", "每份报价锚定区块"], coverage: ["Bounded pools and configured RPC quota", "受限流动池及配置的 RPC 配额"], limits: ["Does not prove transferability, sellability or execution.", "不证明资产可转移、可出售或可成交。"] },
+    exitCheck: { label: ["Trade Check", "交易核查"], scope: ["Robinhood Chain official Uniswap V3 standard fee tiers", "Robinhood Chain 官方 Uniswap V3 标准费率层"], origin: ["Live RPC on request", "按请求实时 RPC 查询"], freshness: ["Block-anchored per quote", "每份报价锚定区块"], coverage: ["Bounded pools and configured RPC quota", "受限流动池及配置的 RPC 配额"], limits: ["Does not prove transferability, sellability or execution.", "不证明资产可转移、可出售或可成交。"] },
     watch: { label: ["Watch snapshots", "观察快照"], scope: ["Robinhood Chain user-triggered wallet snapshots", "Robinhood Chain 用户触发的钱包快照"], origin: ["Captured on user request", "按用户请求捕获"], freshness: ["Snapshot timestamp; no background monitoring", "显示快照时间；不在后台监控"], coverage: ["Supported assets and upstream discovery coverage", "受支持资产和上游发现覆盖范围"], limits: ["Not continuous monitoring; missing upstream data stays unknown.", "不提供持续监控；缺失的上游数据保持为未知。"] },
-    rwa: { label: ["RWA verification", "RWA 验证"], scope: ["Existing source-backed RWA verification checks", "现有有来源依据的 RWA 验证检查"], origin: ["Live on request", "按请求实时查询"], freshness: ["Checked per request", "每次请求时检查"], coverage: ["Bounded to supported sources and configured RPC quota", "受支持数据源及配置的 RPC 配额限制"], limits: ["Not an appraisal, eligibility decision or proof of tradability.", "不是估值、资格决定或可交易性证明。"] },
+    rwa: { label: ["Stock-token check", "股票代币核查"], scope: ["Existing source-backed RWA verification checks", "现有有来源依据的 RWA 验证检查"], origin: ["Live on request", "按请求实时查询"], freshness: ["Checked per request", "每次请求时检查"], coverage: ["Bounded to supported sources and configured RPC quota", "受支持数据源及配置的 RPC 配额限制"], limits: ["Not an appraisal, eligibility decision or proof of tradability.", "不是估值、资格决定或可交易性证明。"] },
     swapPreview: { label: ["Swap preview", "兑换预览"], scope: ["Robinhood Chain WETH/USDG quote preview through the Uniswap Trade API", "通过 Uniswap Trade API 预览 Robinhood Chain WETH/USDG 报价"], origin: ["Live quote on request", "按请求实时报价"], freshness: ["Short-lived quote; Uniswap requotes before any trade", "短时有效报价；任何交易前由 Uniswap 重新报价"], coverage: ["WETH and USDG only", "仅限 WETH 和 USDG"], limits: ["A preview, not an execution; Opsis never signs or broadcasts.", "仅为预览，不会执行；Opsis 从不签名或广播交易。"] },
-    observedTrades: { label: ["Observed trades", "已观察交易"], scope: ["Robinhood Chain decoded Uniswap V3 Swap logs", "Robinhood Chain 解码的 Uniswap V3 Swap 日志"], origin: ["Live scan on request", "按请求实时扫描"], freshness: ["Anchored to captured block window", "锚定已捕获的区块范围"], coverage: ["Configured block and log caps", "受配置的区块和日志上限限制"], limits: ["Observed swaps only; gaps and partial windows remain explicit; transfers are not trades.", "仅表示观察到的兑换；缺口和不完整范围会明确显示；转账不代表交易。"] },
+    observedTrades: { label: ["Big trades", "大额交易"], scope: ["Robinhood Chain decoded Uniswap V3 Swap logs", "Robinhood Chain 解码的 Uniswap V3 Swap 日志"], origin: ["Live scan on request", "按请求实时扫描"], freshness: ["Anchored to captured block window", "锚定已捕获的区块范围"], coverage: ["Configured block and log caps", "受配置的区块和日志上限限制"], limits: ["Observed swaps only; gaps and partial windows remain explicit; transfers are not trades.", "仅表示观察到的兑换；缺口和不完整范围会明确显示；转账不代表交易。"] },
   };
   return (
     <section className="opsis-panel">
@@ -156,7 +158,7 @@ function RedirectPublic({ to }: { to: "/research" | "/check" }) {
       replace
       to={workspaceLink(
         to,
-        new URLSearchParams(location.search).get("entity") ?? "",
+        workspaceIdentity(to, location.search),
       )}
     />
   );
@@ -165,7 +167,7 @@ export default function OpsisApp() {
   const c = useCopy();
   const { locale, setLocale } = useI18n();
   const location = useLocation();
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [theme, setTheme] = useState(initialTheme);
   const [key, setKey] = useState("");
   const [access, setAccess] = useState<Capabilities | null>(null);
   const [error, setError] = useState(false);
@@ -180,18 +182,28 @@ export default function OpsisApp() {
     return () => {
       pending.current?.abort();
       setOpsisPreviewToken("");
+      clearPublicSession();
       meta.remove();
       document.documentElement.classList.remove("opsis-document");
     };
   }, []);
   useEffect(() => {
-    document.title = `Opsis · ${location.pathname === "/" ? "Research workspace" : location.pathname.slice(1)}`;
-  }, [location.pathname]);
+    document.title = routeTitle(location.pathname, locale);
+  }, [location.pathname, locale]);
+  useEffect(() => {
+    const preference = window.matchMedia("(prefers-color-scheme: dark)");
+    const follow = () => {
+      if (!savedTheme()) setTheme(preference.matches ? "dark" : "light");
+    };
+    preference.addEventListener("change", follow);
+    return () => preference.removeEventListener("change", follow);
+  }, []);
   useEffect(() => {
     if (!access) return;
     const expires = Date.parse(access.expiresAt);
     const lock = () => {
       setOpsisPreviewToken("");
+      clearPublicSession();
       setAccess(null);
       setError(!publicAccess);
     };
@@ -207,12 +219,6 @@ export default function OpsisApp() {
       document.removeEventListener("visibilitychange", wake);
     };
   }, [access]);
-  useEffect(() => {
-    if (access && location.pathname !== "/") {
-      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-      document.getElementById("opsis-content")?.focus({ preventScroll: true });
-    }
-  }, [access, location.pathname]);
   async function unlock() {
     pending.current?.abort();
     const controller = new AbortController();
@@ -250,17 +256,20 @@ export default function OpsisApp() {
     <>
       {access && (
         <OriginalLanding
+          {...{ enabledTools: landingTools(access) }}
           onLock={
             publicAccess
               ? undefined
               : () => {
                   setOpsisPreviewToken("");
+                  clearPublicSession();
                   setAccess(null);
                   setError(false);
                 }
           }
         />
       )}
+      {access && <FrontDoorProgress />}
       <div
         className={`opsis ${access ? (location.pathname === "/" ? "opsis-overview" : "opsis-terminal") : ""}`}
         data-theme={theme}
@@ -268,7 +277,7 @@ export default function OpsisApp() {
       >
         {access && location.pathname !== "/" && (
           <Link to="/" className="opsis-back">
-            ← Back to overview
+            {c("← Back to overview", "← 返回总览")}
           </Link>
         )}
         <a href="#opsis-content" className="opsis-skip">
@@ -285,11 +294,16 @@ export default function OpsisApp() {
               </Link>
             )}
             <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              aria-pressed={theme === "dark"}
+              onClick={() => {
+                const next = theme === "dark" ? "light" : "dark";
+                persistTheme(next);
+                setTheme(next);
+              }}
             >
               {theme === "dark"
-                ? c("Light theme", "浅色主题")
-                : c("Dark theme", "深色主题")}
+                ? c("Theme: Dark", "主题：深色")
+                : c("Theme: Light", "主题：浅色")}
             </button>
             <button onClick={() => setLocale(locale === "en" ? "zh-CN" : "en")}>
               {locale === "en" ? "中文" : "English"}
@@ -298,6 +312,7 @@ export default function OpsisApp() {
               <button
                 onClick={() => {
                   setOpsisPreviewToken("");
+                  clearPublicSession();
                   setAccess(null);
                   setError(false);
                 }}
@@ -319,7 +334,12 @@ export default function OpsisApp() {
                 </button>
               </>
             ) : (
-              <p role="status">{c("Loading Opsis…", "正在加载 Opsis…")}</p>
+              <>
+                <p role="status">{c("Loading your tools…", "正在加载工具…")}</p>
+                <div className="opsis-workspace-placeholder" aria-hidden="true">
+                  <div /><div /><div />
+                </div>
+              </>
             )}
           </main>
         ) : !access ? (
@@ -439,13 +459,14 @@ export default function OpsisApp() {
                     : "私密预览 · 仅限测试数据 · Robinhood Chain 4663",
               )}
             </div>
+            <NavigationFeedback capabilities={access} />
             <main id="opsis-content" className="opsis-content" tabIndex={-1}>
               <ToolOrientation capabilities={access} />
               <Suspense
                 fallback={
-                  <p role="status">
-                    {c("Loading workspace…", "正在加载工作区…")}
-                  </p>
+                  <div className="opsis-workspace-placeholder" aria-hidden="true">
+                    <div /><div /><div />
+                  </div>
                 }
               >
                 <OpsisCopy>
@@ -469,7 +490,6 @@ export default function OpsisApp() {
                       element={
                         access.research ? (
                           <Research
-                            key={location.search}
                             capabilities={access}
                           />
                         ) : (
@@ -483,7 +503,6 @@ export default function OpsisApp() {
                         access.exitCheck &&
                         import.meta.env.VITE_EXIT_CHECK_ENABLED === "true" ? (
                           <TradeCheck
-                            key={location.search}
                             capabilities={access}
                           />
                         ) : (
@@ -656,13 +675,17 @@ export default function OpsisApp() {
                       path="*"
                       element={
                         <section className="opsis-panel">
-                          <h1>{c("This tool is parked", "此工具已暂缓")}</h1>
+                          <h1>{c("Not found", "未找到")}</h1>
                           <p>
                             {c(
                               "It has not been connected to this Opsis preview. Saved records and encrypted export remain available.",
                               "此工具尚未接入 Opsis 预览。已保存的记录和加密导出仍然可用。",
                             )}
                           </p>
+                          <div className="opsis-tool-links">
+                            <Link to="/research">{c("Open Research", "打开研究")}</Link>
+                            <Link to="/guide">{c("Find your tool", "选择工具")}</Link>
+                          </div>
                           <Link to="/saved">
                             {c(
                               "Open Saved and backups",
@@ -673,6 +696,7 @@ export default function OpsisApp() {
                       }
                     />
                   </Routes>
+                  <RouteReady />
                 </OpsisCopy>
               </Suspense>
             </main>

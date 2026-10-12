@@ -16,7 +16,16 @@ export function workspaceLink(
   value: string,
 ): string {
   const id = publicIdentity(value);
-  return id ? `${path}?entity=${encodeURIComponent(id)}` : path;
+  const parameter = path === "/check" ? "token" : "entity";
+  return id && (path !== "/check" || id.length === 42)
+    ? `${path}?${parameter}=${encodeURIComponent(id)}`
+    : path;
+}
+/** Accept legacy entity links, but never read amounts or other context. */
+export function workspaceIdentity(path: "/research" | "/check", search: string): string {
+  const params = new URLSearchParams(search);
+  const id = publicIdentity(path === "/check" ? params.get("token") ?? params.get("entity") : params.get("entity"));
+  return path === "/check" && id.length !== 42 ? "" : id;
 }
 export type CapabilityId = "research" | "tokenControls" | "exitCheck" | "watch" | "rwa" | "observedTrades" | "swapPreview";
 export type CapabilityStatus = { id: CapabilityId; enabled: boolean; scope: string; origin: string; freshness: string; coverage: string; limits: string };

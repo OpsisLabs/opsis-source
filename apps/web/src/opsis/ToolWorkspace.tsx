@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { useLocation } from "react-router";
+import { routeNames } from "./shell-model";
 import { useCopy } from "./copy";
 const pages: Record<string, [string, string, string, string, string]> = {
   "/watch": [
@@ -71,7 +72,7 @@ export default function ToolWorkspace({ children }: { children: ReactNode }) {
       {page && (
         <header className="opsis-studio-heading">
           <div>
-            <p className="opsis-kicker">{page[0]}</p>
+            <p className="opsis-kicker">{c(...(routeNames[pathname] ?? [page[0], page[0]]))}</p>
             <h1>{c(page[1], page[2])}</h1>
           </div>
           <p>{c(page[3], page[4])}</p>

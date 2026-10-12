@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+import { useCopy } from "../opsis/copy";
 import { OPSIS_PRESENTATION } from "../opsis/presentation";
 const displayBrand = OPSIS_PRESENTATION ? "Opsis" : "ChainScout";
 const contextTitle = OPSIS_PRESENTATION ? "Source context" : "Scout AI insight";
@@ -143,6 +145,7 @@ const photoFailed = (event) => {
 };
 const stamp = (s) => new Date(s * 1000).toISOString().slice(11, 16);
 export default function App() {
+  const c = useCopy();
   const [error, setError] = useState(""),
     [edition, setEdition] = useState("eth"),
     [selected, setSelected] = useState(0),
@@ -534,9 +537,9 @@ export default function App() {
                 ))
               : null}
           </section>
-          <a href="/stress-test" className="sr-eth-action" aria-label="Test your ETH exposure">
-            Test your ETH exposure in the Portfolio Stress Test <ArrowUpRight size={12} />
-          </a>
+          <Link to="/stress-test" className="sr-eth-action">
+            {c("Open Portfolio shocks", "打开投资组合冲击")} <ArrowUpRight size={12} />
+          </Link>
         </section>
           </>
         )}

@@ -1,8 +1,8 @@
 import { afterEach, expect, it, vi } from "vitest";
-import { publicIdentity, researchInputMatchesChoice, unlockPreview, workspaceLink, savedLink } from "./model";
+import { publicIdentity, researchInputMatchesChoice, unlockPreview, workspaceLink, workspaceIdentity, savedLink } from "./model";
 it("only hands public identity across workspaces, never amounts or notes", () => {
   const address = "0x" + "a".repeat(40);
-  expect(workspaceLink("/check", address)).toBe(`/check?entity=${address}`);
+  expect(workspaceLink("/check", address)).toBe(`/check?token=${address}`);
   for (const value of [
     null,
     "wallet note",
@@ -172,4 +172,18 @@ it("accepts an optional Swap preview capability only when its legacy flag agrees
   unknownRow.manifest.capabilities.push({ id: "perpExecution", enabled: false, scope: "x", origin: "x", freshness: "x", coverage: "x", limits: "x" });
   vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify(unknownRow))));
   await expect(unlockPreview("", new AbortController().signal)).rejects.toThrow("Invalid preview response");
+});
+
+
+it("reads only validated public URL context and accepts legacy token links", () => {
+  const address = "0x" + "a".repeat(40);
+  const hash = "0x" + "b".repeat(64);
+  expect(workspaceIdentity("/research", `?entity=${hash}&amount=12&note=private`)).toBe(hash);
+  expect(workspaceIdentity("/check", `?token=${address}&amount=12&note=private`)).toBe(address);
+  expect(workspaceIdentity("/check", `?entity=${address}`)).toBe(address);
+  expect(workspaceIdentity("/check", `?token=${hash}`)).toBe("");
+  expect(workspaceLink("/check", hash)).toBe("/check");
+  expect(workspaceIdentity("/research", "?entity=private%20label")).toBe("");
+  expect(workspaceIdentity("/check", `?token=invalid&entity=${address}`)).toBe("");
+  expect(workspaceLink("/research", address)).toBe(`/research?entity=${address}`);
 });
