@@ -1,4 +1,5 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useVaultVisualizations } from "../charts/vault-visualizations-loader";
 import type { PortfolioSnapshot } from "@rh-chain/shared";
 import {
   Activity,
@@ -23,11 +24,6 @@ import type {
 import { PORTFOLIO_APPROVED_DESTINATIONS, requestPortfolioSnapshot } from "./api";
 import { ApprovalManager } from "../approvals/ApprovalManager";
 import { allocationPercent, buildPortfolioMath, formatDisplayDecimal, valueTotals, verifiedHoldingCount, type PortfolioMathRow } from "./math";
-const PortfolioAllocationChart = lazy(() =>
-  import("../charts/VaultVisualizations").then((module) => ({
-    default: module.PortfolioAllocationChart,
-  })),
-);
 
 const ADDRESS = /^0x[0-9a-fA-F]{40}$/;
 
@@ -45,6 +41,8 @@ export function PortfolioPanel({
   onSave: (draft: VaultPortfolioContextDraft, existing?: VaultPortfolioContext, expectedSession?: number) => Promise<VaultPortfolioContext>;
 }) {
   const { t } = useI18n();
+  // Loaded with the panel so the chart renders together with the snapshot.
+  const charts = useVaultVisualizations();
   const activeRef = useRef(true);
   const refreshControllerRef = useRef<AbortController | null>(null);
   const savedRef = useRef(context);
@@ -283,9 +281,7 @@ export function PortfolioPanel({
         approvalsOnly ? <ApprovalManager key={`${snapshot.address}:${snapshot.anchor.blockHash}`} snapshot={snapshot} /> :
         <>
           <SnapshotHeader snapshot={snapshot} totals={totals} label={saved?.label || label} />
-          <Suspense fallback={null}>
-            <PortfolioAllocationChart rows={rows} />
-          </Suspense>
+          {charts && <charts.PortfolioAllocationChart rows={rows} />}
           {snapshot.attention.length > 0 && (
             <div className="grid gap-3 md:grid-cols-2">
               {snapshot.attention.map((item, index) => (

@@ -1,5 +1,5 @@
 import { OPSIS_PRESENTATION } from "../opsis/presentation";
-import { lazy, Suspense, useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useI18n } from "../i18n";
 import { ApiError } from "../dashboard/http";
 import { isObservedTradesEnabled } from "../product/availability";
@@ -21,6 +21,8 @@ import {
   shortAddress,
   tradeSideKey,
 } from "./model";
+// Rendered with the result: a panel revealed later would push the page down under the pointer.
+import QuantityBars from "../opsis/QuantityBars";
 
 const CARD = "rounded-[4px] border border-[#3a3633] bg-[#201e1c]";
 const LABEL = "text-[11px] font-medium uppercase tracking-[0.08em] text-[#aaa39b]";
@@ -229,7 +231,6 @@ export default function BiggestTrades() {
   );
 }
 
-const QuantityBars = lazy(() => import("../opsis/QuantityBars"));
 
 function Result({ data }: { data: ObservedTradesResponse }) {
   const { t } = useI18n();
@@ -328,11 +329,11 @@ function Result({ data }: { data: ObservedTradesResponse }) {
               count: data.observations.length,
             })}
           </h2>
-          {import.meta.env.VITE_OPSIS_WORKSPACES_ENABLED === "true" && <Suspense fallback={null}><QuantityBars
+          {import.meta.env.VITE_OPSIS_WORKSPACES_ENABLED === "true" && <QuantityBars
             title={t("trades.table.caption")} unit={quoteSymbol}
             rows={data.observations.map((row,index) => ({id: row.id, label: String(index+1).padStart(2,"0"), value: row.notionalQuote, detail: `${row.txHash} · ${t(tradeSideKey(row.side))}`}))}
             note={t("trades.result.methodValue")}
-          /></Suspense>}
+          />}
           <ol className="mt-4 space-y-3" aria-label={t("trades.table.caption")}>
             {data.observations.map((observation) => (
               <Observation

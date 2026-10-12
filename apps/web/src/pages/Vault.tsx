@@ -1,7 +1,5 @@
 import { OPSIS_PRESENTATION } from "../opsis/presentation";
 import {
-  lazy,
-  Suspense,
   useCallback,
   useEffect,
   useId,
@@ -11,6 +9,7 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
+import { useVaultVisualizations } from "../charts/vault-visualizations-loader";
 import { Link, useSearchParams } from "react-router";
 import { useBackupDownload } from "../vault/useBackupDownload";
 import { BackupDownloadLink } from "../vault/BackupDownloadLink";
@@ -113,16 +112,6 @@ const CONDITION_DISPLAY_KEYS: Record<NonNullable<VaultAsset["collectible"]>["con
   "near-mint": "vault.card.condition.nearMint",
   mint: "vault.card.condition.mint",
 };
-const CollectibleValueHistoryChart = lazy(() =>
-  import("../charts/VaultVisualizations").then((module) => ({
-    default: module.CollectibleValueHistoryChart,
-  })),
-);
-const VaultRecordMixChart = lazy(() =>
-  import("../charts/VaultVisualizations").then((module) => ({
-    default: module.VaultRecordMixChart,
-  })),
-);
 
 function workspaceFromSearch(searchParams: URLSearchParams): Workspace {
   return vaultWorkspaceFromSearch(searchParams, {
@@ -160,6 +149,8 @@ function emptyAssetDraft(): VaultAssetDraft {
 }
 
 export default function VaultPage({ previewDeals = false }: { previewDeals?: boolean }) {
+  // Load the chart code with the page so charts render together with the records.
+  useVaultVisualizations();
   const { t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
   const platformSupported = isVaultPlatformSupported();
@@ -1358,6 +1349,7 @@ function VaultDashboard({
   onRemoveDemo: () => Promise<void>;
 }) {
   const { t } = useI18n();
+  const charts = useVaultVisualizations();
   const [confirmDemoRemoval, setConfirmDemoRemoval] = useState(false);
   const types = new Set(assets.map((asset) => asset.assetType)).size;
   const demoCount = assets.filter(isVaultDemoAsset).length;
@@ -1370,10 +1362,8 @@ function VaultDashboard({
     <div
       className={`vault-dashboard mt-8 grid gap-5 ${assets.length ? "xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]" : ""}`}
     >
-      {assets.length > 0 && (
-        <Suspense fallback={null}>
-          <VaultRecordMixChart assets={assets} />
-        </Suspense>
+      {assets.length > 0 && charts && (
+        <charts.VaultRecordMixChart assets={assets} />
       )}
       <section className="clip-panel border border-[#383838] bg-[#242424]">
         <div className="grid h-full gap-px bg-[#383838] sm:grid-cols-[1fr_1fr_1fr_auto] xl:grid-cols-2">
@@ -2046,6 +2036,7 @@ function AssetCard({
   onDelete: () => Promise<void>;
 }) {
   const { t } = useI18n();
+  const charts = useVaultVisualizations();
   const [confirm, setConfirm] = useState(false);
   const firstLot = asset.lots[0];
   const latestReference = asset.collectible?.references.reduce<typeof asset.collectible.references[number] | undefined>(
@@ -2183,9 +2174,7 @@ function AssetCard({
             )}
           </p>
         )}
-        <Suspense fallback={null}>
-          <CollectibleValueHistoryChart asset={asset} />
-        </Suspense>
+        {charts && <charts.CollectibleValueHistoryChart asset={asset} />}
         <div className="mt-5 border-t border-[#383838] pt-4">
           {!confirm ? (
             <button

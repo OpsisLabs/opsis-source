@@ -3,7 +3,7 @@ import OneOffCheck from "./OneOffCheck";
 import { workspaceLink } from "../opsis/model";
 import { useCopy } from "../opsis/copy";
 import { OPSIS_PRESENTATION } from "../opsis/presentation";
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { isAddress } from "viem";
 import {
@@ -23,8 +23,9 @@ import { ActivityFeed } from "./ActivityFeed";
 import { WalletOverlap } from "./WalletOverlap";
 import { WatchBriefing } from "./WatchBriefing";
 import WatchInbox from "./WatchInbox";
+// Rendered with the result: a panel revealed later would push the page down under the pointer.
+import QuantityBars from "../opsis/QuantityBars";
 
-const QuantityBars = lazy(() => import("../opsis/QuantityBars"));
 
 const button =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-sm border border-[#63564c] px-4 py-2 text-sm text-[#e9e0d1] transition-colors hover:border-[#fa6c34] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff985e] disabled:cursor-not-allowed disabled:opacity-50";
@@ -713,11 +714,11 @@ function WatchDetail({
       )}
       <div className={panel}>
         <h3 className="text-lg">{t("watch.history")}</h3>
-        {import.meta.env.VITE_OPSIS_WORKSPACES_ENABLED === "true" && <Suspense fallback={null}><QuantityBars
+        {import.meta.env.VITE_OPSIS_WORKSPACES_ENABLED === "true" && <QuantityBars
           title={t("watch.history")} unit="ETH"
           rows={item.snapshots.map((row,index) => ({id: row.anchor.blockHash, label: String(index+1).padStart(2,"0"), value: row.nativeBalanceEth, detail: `${date(row.anchor.fetchedAt)} · ${t("watch.block", { block: row.anchor.blockNumber })}`}))}
           note={locale === "zh-CN" ? "每根柱代表一次独立保存的核查，而非等间隔时间。缺失历史不记为零。" : "Each bar is a separate saved check, not an equal time interval. Missing history is not zero."}
-        /></Suspense>}
+        />}
         <ol className="mt-4 grid gap-3 md:grid-cols-3">
           {item.snapshots.map((row, index) => (
             <li
