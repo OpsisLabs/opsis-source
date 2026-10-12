@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "8cf2c657b8970e80ccb0240bcb3b6270dc16691d1e701981163574df3ab0aaf7",
+  "sourceTreeDigest": "868b21918cc5a3a14d02b80d4327a6613275777f0717ee54724a351fe4331d64",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "44317ccd1802e860d42d47f65f15d179725e7a90ce0ecb9af99779c0f70e5276",
@@ -674,7 +674,7 @@
     "apps/web/src/watch/OneOffCheck.tsx": "22c5387df9b113e256d8e1a5ddd0fde2d7f308834e6f5c03d7000701fd2076ff",
     "apps/web/src/watch/overlap.test.ts": "2a80cfcd792f2a7ee9c9f14b986edfae9b0e5ef5207d8c6379de59c408f39186",
     "apps/web/src/watch/overlap.ts": "4d51a23f28d9dda9acf4247f89768e8c03fbb9d7ee00b688e2cb0e8535f8d0e3",
-    "apps/web/src/watch/ScoutWatch.tsx": "96fcff73468cf3b2ac69902c8808a13d346a0e4230a4828464c2318a0016f598",
+    "apps/web/src/watch/ScoutWatch.tsx": "a5f21efe0211909e30b058f012965e5ee5e6918e73e57f96f1b06cc934df718d",
     "apps/web/src/watch/storage.test.ts": "91e52d34692e7b853808f6dc8b784760c0d14719fb350d23aa5550a27e46042e",
     "apps/web/src/watch/useWatchVault.ts": "aea45a10dcaa79524786384386fd3c19a832dc0064ad1d562072d67851087381",
     "apps/web/src/watch/WalletOverlap.tsx": "d78673f9fef9d4ba5f01b51591206a3c4d26eba4890375114a2929085aa1f4f1",

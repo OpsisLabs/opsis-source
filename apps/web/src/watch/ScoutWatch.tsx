@@ -841,6 +841,12 @@ function WatchDetail({
 }
 
 export default function ScoutWatch({ tradeCheckEnabled = false }: { tradeCheckEnabled?: boolean }) {
+  // The one-off check comes first in Opsis; the legacy build keeps its vault-first flow.
+  if (!OPSIS_PRESENTATION) return <SavedWatch tradeCheckEnabled={tradeCheckEnabled} pending={null} onSaved={() => {}} />;
+  return <OpsisWatch tradeCheckEnabled={tradeCheckEnabled} />;
+}
+
+function OpsisWatch({ tradeCheckEnabled }: { tradeCheckEnabled: boolean }) {
   const c = useCopy();
   const [opened, setOpened] = useState(false);
   const [pending, setPending] = useState<PortfolioSnapshot | null>(null);
@@ -867,7 +873,7 @@ function SavedWatch({ tradeCheckEnabled, pending, onSaved }: { tradeCheckEnabled
           {t("watch.badge")}
         </p>
         <h1 className="mt-4 text-3xl font-medium tracking-tight sm:text-5xl">
-          {c("Watch", "观察")}
+          {t("watch.title")}
         </h1>
         <p className="mt-3 text-xl sm:text-2xl">{t("watch.headline")}</p>
         <p className="mt-3 max-w-2xl text-base leading-relaxed text-[#bbb2a8]">
