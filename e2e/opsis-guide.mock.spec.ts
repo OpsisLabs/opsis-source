@@ -57,7 +57,7 @@ test.describe("Opsis tool finder", () => {
     ).toHaveAttribute("href", "/lab");
     await page.getByRole("button", { name: "I trade perpetuals" }).click();
     await expect(suggestions).toContainText(
-      "Perpetual trading is not available yet",
+      "Opsis has no perp trading.",
     );
     await expect(
       suggestions.getByRole("link", { name: "Open Perp cost scenario →" }),

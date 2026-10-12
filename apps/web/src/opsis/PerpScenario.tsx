@@ -1,13 +1,41 @@
 import { useState } from "react";
 import { useCopy } from "./copy";
-import { perpCollateralBuffer, perpCustomShockScenario, perpScenario, perpShockScenarios } from "./perp-scenario";
-export default function PerpScenario() {
+import {
+  perpCollateralBuffer,
+  perpCostComparison,
+  perpCustomShockScenario,
+  perpFundingOverHold,
+  perpLiquidationEstimate,
+  perpScenario,
+  perpScenarioSummary,
+  perpShockScenarios,
+} from "./perp-scenario";
+import type { Capabilities } from "./model";
+import PerpHandoff from "./PerpHandoff";
+export default function PerpScenario({
+  capabilities,
+}: {
+  capabilities: Capabilities;
+}) {
   const c = useCopy();
   const [side, setSide] = useState<"long" | "short">("long");
   const [selectedShock, setSelectedShock] = useState(2);
   const [customShock, setCustomShock] = useState("");
   const [collateral, setCollateral] = useState("");
   const [maintenanceBps, setMaintenanceBps] = useState("");
+  const [fundingInputs, setFundingInputs] = useState({
+    rateBps: "",
+    intervalHours: "",
+    holdingHours: "",
+  });
+  const [assumptionSets, setAssumptionSets] = useState<
+    {
+      label: string;
+      entryFeeBps: string;
+      exitFeeBps: string;
+      funding: string;
+    }[]
+  >([]);
   const [values, setValues] = useState({
     quantity: "",
     entry: "",
@@ -30,7 +58,8 @@ export default function PerpScenario() {
     otherCosts: c("Other costs in quote currency", "报价货币计价的其他成本"),
   };
   let result: ReturnType<typeof perpScenario> | null = null;
-  let comparison: Exclude<ReturnType<typeof perpShockScenarios>, null> | null = null;
+  let comparison: Exclude<ReturnType<typeof perpShockScenarios>, null> | null =
+    null;
   let comparisonUnavailable = false;
   let customResult: ReturnType<typeof perpCustomShockScenario> = null;
   let customError = false;
@@ -45,7 +74,10 @@ export default function PerpScenario() {
   }
   if (customShock.trim() && result) {
     try {
-      customResult = perpCustomShockScenario({ side, ...values }, customShock.trim());
+      customResult = perpCustomShockScenario(
+        { side, ...values },
+        customShock.trim(),
+      );
     } catch {
       customError = true;
     }
@@ -56,22 +88,123 @@ export default function PerpScenario() {
   }
   if (result && collateral.trim() && maintenanceBps.trim()) {
     try {
-      collateralResult = perpCollateralBuffer({ side, ...values }, collateral.trim(), maintenanceBps.trim(), customError ? undefined : customShock.trim() || undefined);
+      collateralResult = perpCollateralBuffer(
+        { side, ...values },
+        collateral.trim(),
+        maintenanceBps.trim(),
+        customError ? undefined : customShock.trim() || undefined,
+      );
     } catch {
       /* Blank and invalid user assumptions stay unavailable. */
       collateralInvalid = true;
     }
   }
+  let fundingEstimate: ReturnType<typeof perpFundingOverHold> | null = null;
+  let fundingInvalid = false;
+  if (
+    values.quantity &&
+    values.entry &&
+    Object.values(fundingInputs).every((v) => v.trim())
+  ) {
+    try {
+      fundingEstimate = perpFundingOverHold({
+        side,
+        quantity: values.quantity,
+        entry: values.entry,
+        ...fundingInputs,
+      });
+    } catch {
+      fundingInvalid = true;
+    }
+  }
+  let liquidation: ReturnType<typeof perpLiquidationEstimate> | null = null;
+  let liquidationInvalid = false;
+  if (
+    values.quantity &&
+    values.entry &&
+    collateral.trim() &&
+    maintenanceBps.trim()
+  ) {
+    try {
+      liquidation = perpLiquidationEstimate({
+        side,
+        quantity: values.quantity,
+        entry: values.entry,
+        collateral: collateral.trim(),
+        maintenanceBps: maintenanceBps.trim(),
+      });
+    } catch {
+      liquidationInvalid = true;
+    }
+  }
+  const costRows = result
+    ? [
+        {
+          label: c("Current inputs (A)", "当前输入（A）"),
+          entryFeeBps: values.entryFeeBps,
+          exitFeeBps: values.exitFeeBps,
+          funding: values.funding,
+        },
+        ...assumptionSets,
+      ].map((set) => {
+        try {
+          return {
+            set,
+            result: perpCostComparison({ side, ...values }, [set])[0],
+          };
+        } catch {
+          return { set, result: null };
+        }
+      })
+    : null;
+  const summary: string[] | null = result
+    ? perpScenarioSummary(
+        { side, ...values },
+        {
+          heading: c(
+            "Opsis perp scenario: hypothetical, not an order",
+            "Opsis 永续情景：假设，并非订单",
+          ),
+          side: c("Side", "方向"),
+          long: c("Long", "多头"),
+          short: c("Short", "空头"),
+          quantity: labels.quantity,
+          entry: labels.entry,
+          exit: labels.exit,
+          entryFee: c("Entry fee (quote units)", "入场费用（报价单位）"),
+          exitFee: c("Exit fee (quote units)", "退出费用（报价单位）"),
+          funding: labels.funding,
+          otherCosts: labels.otherCosts,
+          net: c("Net result (quote units)", "净结果（报价单位）"),
+          collateral: c("Collateral (quote units)", "抵押品（报价单位）"),
+          maintenance: c(
+            "Maintenance requirement (bps)",
+            "维持保证金要求（基点）",
+          ),
+          liquidation: c("Estimated liquidation price", "估算清算价格"),
+          footer: c(
+            "All figures are your own assumptions. Check the venue's own numbers.",
+            "所有数值均为您自己的假设。请核查场所自身的数字。",
+          ),
+        },
+        liquidation
+          ? {
+              collateral: collateral.trim(),
+              maintenanceBps: maintenanceBps.trim(),
+            }
+          : undefined,
+      )
+    : null;
   return (
-    <section className="opsis-panel">
+    <section className="opsis-panel opsis-perp-scenario">
       <p className="opsis-kicker">
         {c("PERP TOOLS / LOCAL SCENARIO", "永续工具／本地情景")}
       </p>
       <h1>{c("What remains after closing costs?", "平仓成本后还剩多少？")}</h1>
       <p>
         {c(
-          "A manual linear-contract calculation in one quote currency. Supply every fee and the total funding paid or received over your chosen period. No live venue data, wallet connection or order submission.",
-          "以一种报价货币手动计算线性合约。请提供所选期间的每项费用及资金费收付总额。没有实时场所数据、钱包连接或订单提交。",
+          "Model hypothetical holding costs, funding and an estimated liquidation price for a linear contract in one quote currency, using your own numbers. No live venue data, wallet connection or order submission.",
+          "使用您自己的数字，以一种报价货币建立线性合约的假设持仓成本、资金费及清算价格估算。没有实时场所数据、钱包连接或订单提交。",
         )}
       </p>
       <aside
@@ -112,6 +245,95 @@ export default function PerpScenario() {
           "所有金额使用相同报价货币。仅在明确假设该费用为零时输入 0；空白表示未知。1 基点 = 0.01%。",
         )}
       </p>
+      <section
+        aria-labelledby="perp-funding-title"
+        data-testid="opsis-perp-funding"
+      >
+        <h2 id="perp-funding-title">
+          {c("Estimate funding from a rate", "根据费率估算资金费")}
+        </h2>
+        <p className="opsis-small" id="perp-funding-help">
+          {c(
+            "Optional: signed rate up to four decimals, from -1000 to 1000 bps. Positive rates mean longs pay shorts. Interval: 1–24 whole hours. Holding period: 0–87600 whole hours. Partial intervals are not counted; blank means unknown.",
+            "可选：带符号费率最多四位小数，范围为 -1000 至 1000 基点。正费率表示多头向空头支付。间隔：1–24 整数小时。持有期：0–87600 整数小时。不计未完整的间隔；空白表示未知。",
+          )}
+        </p>
+        <div className="opsis-two-column">
+          {(["rateBps", "intervalHours", "holdingHours"] as const).map(
+            (key) => (
+              <label key={key}>
+                {
+                  {
+                    rateBps: c(
+                      "Funding rate per interval (bps)",
+                      "每个间隔的资金费率（基点）",
+                    ),
+                    intervalHours: c(
+                      "Funding interval (hours)",
+                      "资金费间隔（小时）",
+                    ),
+                    holdingHours: c("Holding period (hours)", "持有期（小时）"),
+                  }[key]
+                }
+                <input
+                  inputMode={key === "rateBps" ? "decimal" : "numeric"}
+                  autoComplete="off"
+                  value={fundingInputs[key]}
+                  aria-describedby="perp-funding-help"
+                  onChange={(e) =>
+                    setFundingInputs({
+                      ...fundingInputs,
+                      [key]: e.target.value,
+                    })
+                  }
+                />
+              </label>
+            ),
+          )}
+        </div>
+        {fundingInvalid && (
+          <p role="alert">
+            {c(
+              "Check quantity, entry, rate and whole-hour inputs against the stated ranges. No funding estimate is shown.",
+              "请按所述范围检查数量、入场价、费率和整数小时输入。不显示资金费估算。",
+            )}
+          </p>
+        )}
+        {fundingEstimate && (
+          <div data-testid="opsis-perp-funding-estimate" aria-live="polite">
+            <p>
+              {c("Completed intervals", "完整间隔数")}:{" "}
+              {fundingEstimate.intervals}
+            </p>
+            <p>
+              {c(
+                "Estimated funding per interval: positive paid, negative received",
+                "每个间隔的资金费估算：支付为正，收取为负",
+              )}
+              : {fundingEstimate.perInterval}
+            </p>
+            <p>
+              {c("Estimated total funding", "估算资金费总额")}:{" "}
+              {fundingEstimate.total}
+            </p>
+            <p className="opsis-small">
+              {c(
+                "Uses your entry notional for every interval; venues use the mark price at each funding time, and rates change. The venue's own figure governs.",
+                "每个间隔均使用您的入场名义价值；场所在每次资金费结算时使用标记价格，费率也会变化。以场所自身的数值为准。",
+              )}
+            </p>
+            <button
+              className="opsis-perp-secondary"
+              type="button"
+              onClick={() =>
+                setValues({ ...values, funding: fundingEstimate.total })
+              }
+            >
+              {c("Use as total funding", "用作资金费总额")}
+            </button>
+          </div>
+        )}
+      </section>
       <label>
         {c("Custom closing-price shock (%)", "自定义平仓价格冲击（%）")}
         <input
@@ -161,37 +383,306 @@ export default function PerpScenario() {
           </dl>
         )}
       </section>
-      <section aria-labelledby="perp-collateral-title" data-testid="opsis-perp-collateral">
-        <h2 id="perp-collateral-title">{c("Isolated-collateral hypothetical buffer", "孤立抵押品假设缓冲")}</h2>
-        <p className="opsis-small">{c("Optional local scenario using only your supplied collateral and maintenance requirement. Both use the same quote currency as the position. This is not a venue risk decision.", "可选本地情景，仅使用您输入的抵押品和维持保证金要求。两者与仓位使用相同报价货币。这不是场所风险判断。")}</p>
+      <section
+        aria-labelledby="perp-collateral-title"
+        data-testid="opsis-perp-collateral"
+      >
+        <h2 id="perp-collateral-title">
+          {c("Isolated-collateral hypothetical buffer", "孤立抵押品假设缓冲")}
+        </h2>
+        <p className="opsis-small">
+          {c(
+            "Optional local scenario using only your supplied collateral and maintenance requirement. Both use the same quote currency as the position. This is not a venue risk decision.",
+            "可选本地情景，仅使用您输入的抵押品和维持保证金要求。两者与仓位使用相同报价货币。这不是场所风险判断。",
+          )}
+        </p>
         <div className="opsis-two-column">
-          <label>{c("User-entered collateral (quote units)", "用户输入的抵押品（报价单位）")}
-            <input inputMode="decimal" autoComplete="off" value={collateral} onChange={(e) => setCollateral(e.target.value)} aria-describedby="perp-collateral-help" />
+          <label>
+            {c(
+              "User-entered collateral (quote units)",
+              "用户输入的抵押品（报价单位）",
+            )}
+            <input
+              inputMode="decimal"
+              autoComplete="off"
+              value={collateral}
+              onChange={(e) => setCollateral(e.target.value)}
+              aria-describedby="perp-collateral-help"
+            />
           </label>
-          <label>{c("User-entered maintenance requirement (bps)", "用户输入的维持保证金要求（基点）")}
-            <input inputMode="numeric" autoComplete="off" value={maintenanceBps} onChange={(e) => setMaintenanceBps(e.target.value)} aria-describedby="perp-collateral-help" />
+          <label>
+            {c(
+              "User-entered maintenance requirement (bps)",
+              "用户输入的维持保证金要求（基点）",
+            )}
+            <input
+              inputMode="numeric"
+              autoComplete="off"
+              value={maintenanceBps}
+              onChange={(e) => setMaintenanceBps(e.target.value)}
+              aria-describedby="perp-collateral-help"
+            />
           </label>
         </div>
-        <p id="perp-collateral-help" className="opsis-small">{c("Enter both values to calculate. Blank means unknown; collateral must be positive and maintenance must be 0–10000 whole bps. 1 bp = 0.01% of scenario exit notional.", "请输入两项数值后计算。空白表示未知；抵押品必须为正数，维持保证金须为 0–10000 整数基点。1 基点 = 情景退出名义价值的 0.01%。")}</p>
-        {collateralInvalid && <p role="alert" data-testid="opsis-perp-collateral-error">{c("Check the collateral amount and whole-bps maintenance input. Collateral must be positive; maintenance must be 0–10000 bps.", "请检查抵押品金额和整数基点维持保证金输入。抵押品必须为正数；维持保证金须为 0–10000 基点。")}</p>}
-        {collateralResult && <>
-          <p role="status" data-testid="opsis-perp-collateral-leverage">{c("Entry notional / collateral ratio", "入场名义价值／抵押品比率")}: {collateralResult.entryLeverage}×</p>
-          <div className="opsis-table-scroll opsis-perp-collateral-table">
+        <p id="perp-collateral-help" className="opsis-small">
+          {c(
+            "Enter both values to calculate. Blank means unknown; collateral must be positive and maintenance must be 0–10000 whole bps for the buffer, and 0–9999 for the liquidation estimate. 1 bp = 0.01% of scenario exit notional.",
+            "请输入两项数值后计算。空白表示未知；抵押品必须为正数，缓冲的维持保证金须为 0–10000 整数基点，清算估算须为 0–9999。1 基点 = 情景退出名义价值的 0.01%。",
+          )}
+        </p>
+        {collateralInvalid && (
+          <p role="alert" data-testid="opsis-perp-collateral-error">
+            {c(
+              "Check the collateral amount and whole-bps maintenance input. Collateral must be positive; maintenance must be 0–10000 bps.",
+              "请检查抵押品金额和整数基点维持保证金输入。抵押品必须为正数；维持保证金须为 0–10000 基点。",
+            )}
+          </p>
+        )}
+        <h3>{c("Estimated liquidation price", "估算清算价格")}</h3>
+        <p className="opsis-small">
+          {c(
+            "Estimate for an isolated, linear position: the price at which your collateral plus price P&L equals the maintenance requirement you entered. It ignores fees, funding, mark-price rules and margin tiers. Your venue's own liquidation price governs.",
+            "孤立线性仓位的估算：抵押品加上价格损益等于您输入的维持保证金要求时的价格。忽略费用、资金费、标记价格规则和保证金等级。以您场所自身的清算价格为准。",
+          )}
+        </p>
+        {liquidationInvalid && (
+          <p role="alert" data-testid="opsis-perp-liquidation-error">
+            {c(
+              "No liquidation estimate: enter positive quantity, entry and collateral, and 0–9999 whole maintenance bps.",
+              "不显示清算估算：请输入正数数量、入场价和抵押品，以及 0–9999 整数维持保证金基点。",
+            )}
+          </p>
+        )}
+        {liquidation && (
+          <p aria-live="polite" data-testid="opsis-perp-liquidation">
+            {liquidation.state === "estimate" ? (
+              <>
+                {liquidation.price} · {liquidation.movePercent}%{" "}
+                {c("from entry", "相对入场价")}
+              </>
+            ) : liquidation.reason === "no_positive_price" ? (
+              c(
+                "No positive liquidation price in this model: your collateral covers the entire price fall for this long position.",
+                "此模型没有正数清算价格：您的抵押品覆盖了该多头仓位价格的全部下跌。",
+              )
+            ) : (
+              c(
+                "No estimate shown: your collateral is below the maintenance requirement at entry.",
+                "不显示估算：您的抵押品低于入场时的维持保证金要求。",
+              )
+            )}
+          </p>
+        )}
+        {collateralResult && (
+          <>
+            <p role="status" data-testid="opsis-perp-collateral-leverage">
+              {c(
+                "Entry notional / collateral ratio",
+                "入场名义价值／抵押品比率",
+              )}
+              : {collateralResult.entryLeverage}×
+            </p>
+            <div className="opsis-table-scroll opsis-perp-collateral-table">
+              <table>
+                <caption>
+                  {c(
+                    "User-supplied hypothetical buffer; all inputs and results use the same quote currency. Equity equals collateral plus existing scenario net P&L, including fees, funding and other costs.",
+                    "用户提供的假设缓冲；所有输入和结果均使用相同报价货币。权益等于抵押品加上现有情景净损益（含费用、资金费和其他成本）。",
+                  )}
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">{c("Case", "情景")}</th>
+                    <th scope="col">
+                      {c("Scenario exit notional", "情景退出名义价值")}
+                    </th>
+                    <th scope="col">
+                      {c(
+                        "Assumed scenario equity after net costs",
+                        "假设的情景净成本后权益",
+                      )}
+                    </th>
+                    <th scope="col">
+                      {c(
+                        "Assumed user-entered maintenance amount",
+                        "假设的用户输入维持保证金额",
+                      )}
+                    </th>
+                    <th scope="col">{c("Hypothetical buffer", "假设缓冲")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">{c("Entered close", "输入的平仓情景")}</th>
+                    <td>{collateralResult.entered.exitNotional}</td>
+                    <td>{collateralResult.entered.equity}</td>
+                    <td>{collateralResult.entered.maintenanceRequirement}</td>
+                    <td>{collateralResult.entered.buffer}</td>
+                  </tr>
+                  {comparison?.shocks.map((shock, index) => {
+                    const row = collateralResult?.shocks?.[index];
+                    return row ? (
+                      <tr key={shock.percent}>
+                        <th scope="row">
+                          {shock.percent > 0 ? "+" : ""}
+                          {shock.percent}%
+                        </th>
+                        <td>{row.exitNotional}</td>
+                        <td>{row.equity}</td>
+                        <td>{row.maintenanceRequirement}</td>
+                        <td>{row.buffer}</td>
+                      </tr>
+                    ) : null;
+                  })}
+                  {customResult && collateralResult.custom && (
+                    <tr>
+                      <th scope="row">
+                        {c("Custom", "自定义")} {customResult.percent}
+                      </th>
+                      <td>{collateralResult.custom.exitNotional}</td>
+                      <td>{collateralResult.custom.equity}</td>
+                      <td>{collateralResult.custom.maintenanceRequirement}</td>
+                      <td>{collateralResult.custom.buffer}</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <p className="opsis-small">
+              {c(
+                "This is only a user-supplied hypothetical buffer. Actual venue equity, variation settlement and funding cycles can differ. This buffer is not venue margin math and does not calculate margin calls, venue tiers or tradable leverage. Collateral is capital at risk, not a fee; losses may exceed collateral.",
+                "这只是用户提供的假设缓冲。实际场所权益、变动结算和资金费周期可能不同。此缓冲不是场所保证金计算，不计算保证金通知、场所等级或可交易杠杆。抵押品是有风险的资本，不是费用；损失可能超过抵押品。",
+              )}
+            </p>
+          </>
+        )}
+      </section>
+      <section
+        aria-labelledby="perp-assumptions-title"
+        data-testid="opsis-perp-assumptions"
+      >
+        <h2 id="perp-assumptions-title">
+          {c("Compare assumptions", "比较假设")}
+        </h2>
+        <p className="opsis-small">
+          {c(
+            "Set A uses your current inputs. Add up to two sets of your own fee and total-funding assumptions. Labels are your text, limited to 24 characters and kept only on this page; Opsis chooses no venue. Total costs include the same other costs in every set. Blank or invalid inputs mean unknown.",
+            "A 组使用您的当前输入。最多添加两组您自己的费用和资金费总额假设。标签是您的文本，最多 24 个字符，仅保留在本页面；Opsis 不选择任何场所。每组总成本均包含相同的其他成本。空白或无效输入表示未知。",
+          )}
+        </p>
+        {assumptionSets.map((set, index) => (
+          <fieldset
+            key={index}
+            data-testid={`opsis-perp-assumption-${index + 1}`}
+          >
+            <legend>
+              {index === 0 ? c("Set B", "B 组") : c("Set C", "C 组")}
+            </legend>
+            <div className="opsis-two-column">
+              {(["label", "entryFeeBps", "exitFeeBps", "funding"] as const).map(
+                (key) => (
+                  <label key={key}>
+                    {
+                      {
+                        label: c("Your label", "您的标签"),
+                        entryFeeBps: labels.entryFeeBps,
+                        exitFeeBps: labels.exitFeeBps,
+                        funding: labels.funding,
+                      }[key]
+                    }
+                    <input
+                      value={set[key]}
+                      maxLength={key === "label" ? 24 : undefined}
+                      inputMode={key === "label" ? "text" : "decimal"}
+                      autoComplete="off"
+                      onChange={(e) =>
+                        setAssumptionSets(
+                          assumptionSets.map((row, i) =>
+                            i === index
+                              ? { ...row, [key]: e.target.value }
+                              : row,
+                          ),
+                        )
+                      }
+                    />
+                  </label>
+                ),
+              )}
+            </div>
+            <button
+              className="opsis-perp-secondary"
+              type="button"
+              onClick={() =>
+                setAssumptionSets(assumptionSets.filter((_, i) => i !== index))
+              }
+            >
+              {c("Remove set", "移除该组")}
+            </button>
+          </fieldset>
+        ))}
+        <button
+              className="opsis-perp-secondary"
+          type="button"
+          disabled={assumptionSets.length >= 2}
+          onClick={() =>
+            setAssumptionSets([
+              ...assumptionSets,
+              { label: "", entryFeeBps: "", exitFeeBps: "", funding: "" },
+            ])
+          }
+        >
+          {c("Add assumption set", "添加假设组")}
+        </button>
+        {costRows && (
+          <div className="opsis-table-scroll opsis-perp-cost-table">
             <table>
-              <caption>{c("User-supplied hypothetical buffer; all inputs and results use the same quote currency. Equity equals collateral plus existing scenario net P&L, including fees, funding and other costs.", "用户提供的假设缓冲；所有输入和结果均使用相同报价货币。权益等于抵押品加上现有情景净损益（含费用、资金费和其他成本）。")}</caption>
-              <thead><tr><th scope="col">{c("Case", "情景")}</th><th scope="col">{c("Scenario exit notional", "情景退出名义价值")}</th><th scope="col">{c("Assumed scenario equity after net costs", "假设的情景净成本后权益")}</th><th scope="col">{c("Assumed user-entered maintenance amount", "假设的用户输入维持保证金额")}</th><th scope="col">{c("Hypothetical buffer", "假设缓冲")}</th></tr></thead>
+              <caption>
+                {c(
+                  "Hypothetical cost comparison in the same quote currency; same side, quantity and entry/closing prices for every set",
+                  "相同报价货币的假设成本比较；每组的方向、数量及开平价格相同",
+                )}
+              </caption>
+              <thead>
+                <tr>
+                  {[
+                    c("Your assumption set", "您的假设组"),
+                    c("Entry fee", "入场费用"),
+                    c("Exit fee", "退出费用"),
+                    c("Total funding", "资金费总额"),
+                    c("Total costs", "总成本"),
+                    c("Net result", "净结果"),
+                  ].map((label) => (
+                    <th key={label} scope="col">
+                      {label}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
               <tbody>
-                <tr><th scope="row">{c("Entered close", "输入的平仓情景")}</th><td>{collateralResult.entered.exitNotional}</td><td>{collateralResult.entered.equity}</td><td>{collateralResult.entered.maintenanceRequirement}</td><td>{collateralResult.entered.buffer}</td></tr>
-                {comparison?.shocks.map((shock, index) => {
-                  const row = collateralResult?.shocks?.[index];
-                  return row ? <tr key={shock.percent}><th scope="row">{shock.percent > 0 ? "+" : ""}{shock.percent}%</th><td>{row.exitNotional}</td><td>{row.equity}</td><td>{row.maintenanceRequirement}</td><td>{row.buffer}</td></tr> : null;
-                })}
-                {customResult && collateralResult.custom && <tr><th scope="row">{c("Custom", "自定义")} {customResult.percent}</th><td>{collateralResult.custom.exitNotional}</td><td>{collateralResult.custom.equity}</td><td>{collateralResult.custom.maintenanceRequirement}</td><td>{collateralResult.custom.buffer}</td></tr>}
+                {costRows.map((row, index) => (
+                  <tr key={index}>
+                    <th scope="row">
+                      {row.set.label || c("Unlabeled set", "未命名组")}
+                    </th>
+                    {(
+                      [
+                        "entryFee",
+                        "exitFee",
+                        "funding",
+                        "totalCosts",
+                        "net",
+                      ] as const
+                    ).map((key) => (
+                      <td key={key}>
+                        {row.result ? row.result[key] : c("Unknown", "未知")}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
-          <p className="opsis-small">{c("This is only a user-supplied hypothetical buffer. Actual venue equity, variation settlement and funding cycles can differ. It does not calculate liquidation price, margin calls, venue tiers or tradable leverage. Collateral is capital at risk, not a fee; losses may exceed collateral.", "这只是用户提供的假设缓冲。实际场所权益、变动结算和资金费周期可能不同。本工具不计算清算价格、保证金通知、场所等级或可交易杠杆。抵押品是有风险的资本，不是费用；损失可能超过抵押品。")}</p>
-        </>}
+        )}
       </section>
       {comparison && (
         <section aria-labelledby="perp-shock-title" data-testid="opsis-perp-shocks">
@@ -298,10 +789,11 @@ export default function PerpScenario() {
       )}
       <p className="opsis-receipt">
         {c(
-          "Calculated locally in memory, truncated to eight decimals per term. No assumed funding frequency or annualization. Collateral is not a fee. Margin tiers, liquidation, inverse/quanto contracts, collateral FX, partial fills and venue rounding are outside this model. A scenario is not a close quote or a guarantee. Opening and closing remain unavailable pending an admitted venue for Canada/US.",
-          "仅在本地内存计算，每项截断至八位小数。不假设资金费频率或年化。抵押品不是费用。保证金等级、清算、反向／Quanto 合约、抵押品汇率、部分成交及场所取整规则均在模型外。情景并非平仓报价或保证。加拿大／美国场所准入前，开仓和平仓仍不可用。",
+          "Calculated locally in memory at eight-decimal precision. Cost terms truncate toward zero; liquidation price rounds toward earlier liquidation. Funding frequency is only what you enter; no annualization. Collateral is not a fee. This is not venue margin math: margin tiers, mark-price rules, inverse/quanto contracts, collateral FX, partial fills and venue rounding are outside this model. A scenario is hypothetical, not a close quote. Opsis does not place, route, transmit or receive orders. The venue's own figure governs.",
+          "仅在本地内存以八位小数精度计算。成本项向零截断；清算价格向更早清算的方向取整。资金费频率仅使用您的输入；不年化。抵押品不是费用。这不是场所保证金计算：保证金等级、标记价格规则、反向／Quanto 合约、抵押品汇率、部分成交及场所取整规则均在模型外。情景是假设，并非平仓报价。Opsis 不放置、路由、传输或接收订单。以场所自身的数值为准。",
         )}
       </p>
+      <PerpHandoff capabilities={capabilities} summary={summary} />
     </section>
   );
 }

@@ -1,4 +1,4 @@
-/** Local linear-contract scenario only. No margin/liquidation/execution model. */
+/** Local linear-contract costs and isolated liquidation estimate, not venue margin math or execution. */
 const SCALE = 100_000_000n;
 function fixed(value: string, signed = false): bigint {
   if (
@@ -20,7 +20,7 @@ function display(raw: bigint) {
 const ratioDisplay = (numerator: bigint, denominator: bigint) => {
   if (denominator <= 0n) throw new Error("Collateral must be positive");
   return display((numerator * SCALE) / denominator);
-}
+};
 export function perpScenario(input: {
   side: "long" | "short";
   quantity: string;
@@ -62,6 +62,182 @@ export function perpScenario(input: {
 }
 
 type PerpScenarioInput = Parameters<typeof perpScenario>[0];
+
+function wholeHours(value: string, min: bigint, max: bigint): bigint {
+  if (!/^(?:0|[1-9]\d{0,4})$/.test(value))
+    throw new Error("Hours must be whole numbers");
+  const hours = BigInt(value);
+  if (hours < min || hours > max) throw new Error("Hours out of range");
+  return hours;
+}
+
+/** Constant entry notional and rate; count completed funding intervals only. */
+export function perpFundingOverHold(input: {
+  side: "long" | "short";
+  quantity: string;
+  entry: string;
+  rateBps: string;
+  intervalHours: string;
+  holdingHours: string;
+}) {
+  if (!["long", "short"].includes(input.side)) throw new Error("Invalid side");
+  const q = fixed(input.quantity),
+    entry = fixed(input.entry);
+  if (q <= 0n || entry <= 0n)
+    throw new Error("Positive quantity and entry required");
+  if (!/^-?(?:0|[1-9]\d{0,3})(?:\.\d{1,4})?$/.test(input.rateBps))
+    throw new Error("Funding rate must use at most four decimal places");
+  const rate = fixed(input.rateBps, true);
+  if (rate < -1000n * SCALE || rate > 1000n * SCALE)
+    throw new Error("Funding rate must be from -1000 to 1000 bps");
+  const interval = wholeHours(input.intervalHours, 1n, 24n);
+  const hold = wholeHours(input.holdingHours, 0n, 87600n);
+  const intervals = hold / interval;
+  const perInterval =
+    (q * entry * rate * (input.side === "long" ? 1n : -1n)) /
+    (10_000n * SCALE * SCALE);
+  return {
+    intervals: intervals.toString(),
+    perInterval: display(perInterval),
+    total: display(perInterval * intervals),
+  };
+}
+
+/** Isolated linear position, no fees/funding/mark rules/tiers. Round to earlier liquidation. */
+export function perpLiquidationEstimate(input: {
+  side: "long" | "short";
+  quantity: string;
+  entry: string;
+  collateral: string;
+  maintenanceBps: string;
+}):
+  | { state: "estimate"; price: string; movePercent: string }
+  | {
+      state: "none";
+      reason: "no_positive_price" | "below_maintenance_at_entry";
+    } {
+  if (!["long", "short"].includes(input.side)) throw new Error("Invalid side");
+  const q = fixed(input.quantity),
+    entry = fixed(input.entry),
+    collateral = fixed(input.collateral);
+  if (q <= 0n || entry <= 0n || collateral <= 0n)
+    throw new Error("Positive quantity, entry and collateral required");
+  if (!/^(?:0|[1-9]\d{0,3})$/.test(input.maintenanceBps))
+    throw new Error("Maintenance must be whole bps from 0 to 9999");
+  const maintenance = BigInt(input.maintenanceBps);
+  const notional = q * entry;
+  if (collateral * SCALE * 10_000n < notional * maintenance)
+    return { state: "none", reason: "below_maintenance_at_entry" };
+  const long = input.side === "long";
+  const numerator =
+    (notional + (long ? -1n : 1n) * collateral * SCALE) * 10_000n;
+  if (numerator <= 0n) return { state: "none", reason: "no_positive_price" };
+  const denominator = q * (10_000n + (long ? -maintenance : maintenance));
+  const price = long
+    ? (numerator + denominator - 1n) / denominator
+    : numerator / denominator;
+  const move = ((price - entry) * 10_000n) / entry;
+  const absolute = move < 0n ? -move : move;
+  return {
+    state: "estimate",
+    price: display(price),
+    movePercent: `${move < 0n ? "-" : move > 0n ? "+" : ""}${absolute / 100n}.${(absolute % 100n).toString().padStart(2, "0")}`,
+  };
+}
+
+/** Compare only the user's fee/funding assumptions; preserve labels and order. */
+export function perpCostComparison(
+  base: PerpScenarioInput,
+  sets: {
+    label: string;
+    entryFeeBps: string;
+    exitFeeBps: string;
+    funding: string;
+  }[],
+) {
+  perpScenario(base);
+  if (sets.length < 1 || sets.length > 3)
+    throw new Error("Use one to three assumption sets");
+  return sets.map((set) => {
+    if (!set.label.trim() || set.label.length > 24)
+      throw new Error("Use a label of 1 to 24 characters");
+    const result = calculate(
+      base.side,
+      fixed(base.quantity),
+      fixed(base.entry),
+      fixed(base.exit),
+      fixed(set.entryFeeBps),
+      fixed(set.exitFeeBps),
+      fixed(set.funding, true),
+      fixed(base.otherCosts),
+    );
+    const gross =
+      (fixed(base.quantity) *
+        (fixed(base.exit) - fixed(base.entry)) *
+        (base.side === "long" ? 1n : -1n)) /
+      SCALE;
+    return {
+      label: set.label,
+      entryFee: result.entryFee,
+      exitFee: result.exitFee,
+      funding: result.funding,
+      totalCosts: display(gross - result._netRaw),
+      net: result.net,
+    };
+  });
+}
+
+/** Plain text only. Every label is localized by the caller; no region or venue. */
+export function perpScenarioSummary(
+  input: PerpScenarioInput,
+  labels: {
+    heading: string;
+    side: string;
+    long: string;
+    short: string;
+    quantity: string;
+    entry: string;
+    exit: string;
+    entryFee: string;
+    exitFee: string;
+    funding: string;
+    otherCosts: string;
+    net: string;
+    collateral: string;
+    maintenance: string;
+    liquidation: string;
+    footer: string;
+  },
+  optional?: { collateral: string; maintenanceBps: string },
+): string[] {
+  const result = perpScenario(input);
+  const lines = [
+    labels.heading,
+    `${labels.side}: ${input.side === "long" ? labels.long : labels.short}`,
+    `${labels.quantity}: ${display(fixed(input.quantity))}`,
+    `${labels.entry}: ${display(fixed(input.entry))}`,
+    `${labels.exit}: ${display(fixed(input.exit))}`,
+    `${labels.entryFee}: ${result.entryFee}`,
+    `${labels.exitFee}: ${result.exitFee}`,
+    `${labels.funding}: ${result.funding}`,
+    `${labels.otherCosts}: ${result.otherCosts}`,
+    `${labels.net}: ${result.net}`,
+  ];
+  if (optional) {
+    try {
+      const estimate = perpLiquidationEstimate({ ...input, ...optional });
+      lines.push(
+        `${labels.collateral}: ${display(fixed(optional.collateral))}`,
+      );
+      lines.push(`${labels.maintenance}: ${optional.maintenanceBps}`);
+      if (estimate.state === "estimate")
+        lines.push(`${labels.liquidation}: ${estimate.price}`);
+    } catch {
+      /* Invalid optional assumptions stay unknown. */
+    }
+  }
+  return [...lines, labels.footer];
+}
 const SHOCKS = [-20, -10, 0, 10, 20] as const;
 
 /** User-entered percentage points, bounded to -95.00..500.00 in 0.01 steps. */

@@ -34,7 +34,11 @@ test.describe("opsis preview perp hand-off", () => {
     const interactionRequests: string[] = [];
     let interacting = false;
     page.on("request", (request) => {
-      if (interacting) interactionRequests.push(request.url());
+      // Idle route prefetching and late font loads fetch first-party static files
+      // and carry no data. Anything else, or anything cross-origin, is a leak.
+      const sameOrigin = new URL(request.url()).origin === new URL(page.url()).origin;
+      const staticFile = request.method() === "GET" && ["script", "stylesheet", "font", "image"].includes(request.resourceType());
+      if (interacting && (!sameOrigin || !staticFile)) interactionRequests.push(request.url());
       const url = new URL(request.url());
       if (["fetch", "xhr", "ping"].includes(request.resourceType()) || url.hostname !== "localhost") requests.push(request.url());
     });
@@ -42,8 +46,9 @@ test.describe("opsis preview perp hand-off", () => {
     const section = handoff(page);
     await expect(section).toBeVisible();
     await page.waitForLoadState("networkidle");
-    expect(requests).toHaveLength(1);
-    expect(requests[0]).toContain("/v1/private/opsis/access");
+    // The development build can run the access check twice; nothing else may leave the page.
+    expect(requests.length).toBeGreaterThan(0);
+    expect(requests.every((url) => url.endsWith("/v1/private/opsis/access"))).toBe(true);
     requests.length = 0;
     interacting = true;
     const localState = () => page.evaluate(() => ({

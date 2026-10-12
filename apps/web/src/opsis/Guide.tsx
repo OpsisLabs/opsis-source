@@ -87,14 +87,14 @@ export default function Guide({
           <div className="opsis-panel">
             <h2>
               {c(
-                "Perpetual trading is not available yet.",
-                "永续合约交易尚未开放。",
+                "Opsis has no perp trading.",
+                "Opsis 不提供永续合约交易。",
               )}
             </h2>
             <p>
               {c(
-                "Opening/closing, live funding and venue-specific liquidation remain unavailable. Enter your own prices, fees, funding and optional collateral for a local scenario. If you have funding records, Quant Lab can total realized payments locally.",
-                "开平仓、实时资金费及特定场所清算仍不可用。您可以输入价格、费用、资金费及可选抵押品进行本地情景计算。如果您有资金费记录，量化实验室可以在本地汇总已实现收付。",
+                "The Perp cost scenario models holding cost, funding and an estimated liquidation price from your own numbers. Where the directory is switched on, it lists venues by the region you state; Opsis does not verify eligibility or rank venues. The venue's own figure governs. If you have funding records, Quant Lab can total realized payments locally.",
+                "永续成本情景使用您自己的数字建立持仓成本、资金费及清算价格估算。目录开启时，按您声明的地区列出场所；Opsis 不验证资格，也不对场所排名。以场所自身的数值为准。如果您有资金费记录，量化实验室可以在本地汇总已实现收付。",
               )}
             </p>
             <Link className="opsis-action" to="/check/perp-scenario">

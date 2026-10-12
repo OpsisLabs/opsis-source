@@ -1,26 +1,14 @@
 import { test, expect } from "@playwright/test";
+import { mockLocalScenarioAccess } from "./opsis-local-scenarios.helpers";
 const enabled =
   process.env.VITE_OPSIS_WORKSPACES_ENABLED === "true" &&
   process.env.VITE_OPSIS_PUBLIC_ACCESS_ENABLED === "true";
 test.describe("Opsis local price and perp scenarios", () => {
   test.skip(!enabled);
   test.beforeEach(async ({ page }) => {
-    await page.route("**/v1/private/opsis/access", (r) =>
-      r.fulfill({
-        json: {
-          expiresAt: new Date(Date.now() + 3600000).toISOString(),
-          chainId: 4663,
-          research: false,
-          exitCheck: false,
-          watch: false,
-          rwa: false,
-          observedTrades: false,
-          perpExecution: false,
-        },
-      }),
-    );
+    await mockLocalScenarioAccess(page);
   });
-  test("perp costs stay local, unknown inputs refuse, short direction and bilingual mobile", async ({
+  test("opsis preview perp costs stay local, unknown inputs refuse, short direction and bilingual mobile", async ({
     page,
   }) => {
     const requests: string[] = [];
@@ -115,7 +103,7 @@ test.describe("Opsis local price and perp scenarios", () => {
     ).toBeLessThanOrEqual(1);
     expect(requests).toEqual([]);
   });
-  test("stock oracle uses its existing multiplier and refuses different currencies", async ({
+  test("opsis preview stock oracle uses its existing multiplier and refuses different currencies", async ({
     page,
   }) => {
     const sent: string[] = [];

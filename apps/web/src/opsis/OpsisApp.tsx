@@ -550,7 +550,7 @@ export default function OpsisApp() {
                     />
                     <Route
                       path="/check/perp-scenario"
-                      element={<PerpScenario />}
+                      element={<PerpScenario capabilities={access} />}
                     />
                     <Route path="/lab" element={<Lab />} />
                     <Route

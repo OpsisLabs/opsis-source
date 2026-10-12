@@ -79,12 +79,12 @@ export const toolGuides: ToolGuide[] = [
       "核查手动假设的永续交易者",
     ],
     input: [
-      "Quantity, entry/exit prices, fees and funding; optional collateral and maintenance assumption",
-      "数量、开平价格、费用及资金费；可选抵押品与维持保证金假设",
+      "Quantity, entry/exit prices, fees and total funding; optional funding rate/holding period, collateral and maintenance",
+      "数量、开平价格、费用及资金费总额；可选资金费率／持有期、抵押品及维持保证金",
     ],
     outcome: [
-      "Local linear-contract costs and hypothetical collateral buffer; no venue margin or execution",
-      "本地线性合约成本及假设抵押品缓冲；无场所保证金或执行",
+      "Hypothetical holding cost, funding and estimated liquidation from your own numbers; no perp trading. When switched on, the directory lists venues by your stated region; the venue's own figure governs",
+      "以您的数字建立假设持仓成本、资金费及清算估算；不提供永续交易。目录开启时按您声明的地区列出场所；以场所自身的数值为准",
     ],
     enabled: () => true,
   },
@@ -288,8 +288,8 @@ export const audiences: {
     id: "perp",
     name: ["I trade perpetuals", "我交易永续合约"],
     task: [
-      "Estimate manual linear-contract costs; venue trading remains unavailable",
-      "估算手动线性合约成本；场所交易仍不可用",
+      "Model hypothetical holding cost, funding and estimated liquidation from your own numbers; Opsis has no perp trading. A directory by your stated region appears only when switched on",
+      "以您的数字建立假设持仓成本、资金费及清算估算；Opsis 不提供永续交易。按您声明的地区列出的目录仅在开启时显示",
     ],
     paths: [],
   },
