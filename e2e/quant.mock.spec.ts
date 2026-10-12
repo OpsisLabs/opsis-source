@@ -8,7 +8,7 @@ test("preserved quant lab loads its dated snapshot and supports token comparison
   page.on("pageerror", error => errors.push(error.message));
   await page.goto("/quant/index.html");
   await expect(page.locator("body")).toHaveAttribute("data-ready", "true");
-  await expect(page).toHaveTitle("Crypto Quant Lab · ChainScout");
+  await expect(page).toHaveTitle("Crypto Quant Lab · Opsis");
   await expect(page.locator("#captureStamp")).toContainText("Prices are captured observations");
   await expect(page.locator("#poolCount")).not.toHaveText("—");
   await page.locator("#compareNav").click();
