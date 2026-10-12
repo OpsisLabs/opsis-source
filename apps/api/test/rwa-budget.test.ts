@@ -8,7 +8,7 @@ describe("RWA public-RPC budget", () => {
       NODE_ENV: "production",
       ROBINHOOD_RPC_PROVIDER: "drpc",
       DRPC_API_KEY: "test-drpc-key-0123456789abcdef",
-      APP_ORIGIN: "https://chainscout.example",
+      APP_ORIGIN: "https://opsis.example",
       JWT_ACCESS_SECRET: "configured-access-secret-at-least-32",
       JWT_REFRESH_SECRET: "configured-refresh-secret-at-least-32",
       DATABASE_URL: "postgresql://user:pass@db.example/app",

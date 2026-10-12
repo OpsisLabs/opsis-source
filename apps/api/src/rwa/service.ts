@@ -230,8 +230,8 @@ export class RwaService implements RwaVerificationSource {
         ? `Registry and onchain multiplier agree at ${multiplierText}. Raw balances do not rebase.`
         : `Registry reports ${trimDecimal(asset.currentMultiplier)} while the contract reports ${multiplierText}.`, ["robinhood-registry", "robinhood-rpc"]),
       check("rights", "What the token represents", "claim", "Robinhood describes this as a tokenized debt security providing economic exposure—not ownership or shareholder rights in the underlying stock.", ["robinhood-terms"]),
-      check("custody", "Backing and custody", "claim", "The issuer states that underlying assets are held 1:1 with a licensed custodian. ChainScout has not independently audited that custody.", ["robinhood-terms"]),
-      check("redemption", "Minting and redemption", "warning", "Direct mint/burn is for authorized participants. Any issuer redemption path can be jurisdiction-limited and require KYC/AML; ChainScout does not determine eligibility or execute it.", ["robinhood-terms"]),
+      check("custody", "Backing and custody", "claim", "The issuer states that underlying assets are held 1:1 with a licensed custodian. Opsis has not independently audited that custody.", ["robinhood-terms"]),
+      check("redemption", "Minting and redemption", "warning", "Direct mint/burn is for authorized participants. Any issuer redemption path can be jurisdiction-limited and require KYC/AML; Opsis does not determine eligibility or execute it.", ["robinhood-terms"]),
       check("jurisdiction", "Geographic eligibility", "warning", "Robinhood's published Stock Token materials describe geographic restrictions including U.S. persons, Canada, the United Kingdom, and Switzerland. Rules can change; check the current issuer terms for your situation.", ["robinhood-terms"]),
       check("quote", "Underlying quote coverage", priceDocument.state === "unavailable" || quoteResult.state === "empty" ? "missing" : quoteResult.state === "malformed" ? "conflict" : quote?.tradingHalted || quote?.state === "stale" ? "warning" : "confirmed", priceDocument.state === "unavailable"
         ? `Robinhood's quote endpoint was unavailable (${priceDocument.code}); no bid or ask was shown.`
@@ -239,7 +239,7 @@ export class RwaService implements RwaVerificationSource {
           ? "Robinhood returned a valid quote collection with no matching exact-deployment quote; no bid or ask was shown."
         : quoteResult.state === "malformed" || !quote
           ? "The quote response failed contract deployment, USD currency, numeric, or timestamp validation; no bid or ask was shown."
-          : `${quote.bid} / ${quote.ask} ${quote.currency} raw underlying bid/ask, generated ${quote.generatedAt}; ${quote.tradingHalted ? "trading halt reported" : quote.state === "stale" ? "older than ChainScout's five-minute display threshold" : "within ChainScout's five-minute display threshold"}.`, priceDocument.state === "available" ? ["robinhood-price"] : []),
+          : `${quote.bid} / ${quote.ask} ${quote.currency} raw underlying bid/ask, generated ${quote.generatedAt}; ${quote.tradingHalted ? "trading halt reported" : quote.state === "stale" ? "older than Opsis's five-minute display threshold" : "within Opsis's five-minute display threshold"}.`, priceDocument.state === "available" ? ["robinhood-price"] : []),
       check("actions", "Corporate-action coverage", actionsDocument.state === "unavailable" ? "missing" : !actionsSchemaValid ? "conflict" : allCorporateActions.length > 20 ? "warning" : "confirmed", actionsDocument.state === "unavailable"
         ? `Robinhood's corporate-action endpoint was unavailable (${actionsDocument.code}); zero actions was not assumed.`
         : !actionsSchemaValid
@@ -260,12 +260,12 @@ export class RwaService implements RwaVerificationSource {
     const pendingEvidenceComplete = pendingMultiplier !== undefined && effectiveAt !== undefined;
     const onchainPending = pendingEvidenceComplete && effectiveAt > 0n ? formatUnits(pendingMultiplier, 18) : null;
     checks.push(check("scheduled-multiplier", "Scheduled UI multiplier", !pendingEvidenceComplete ? "missing" : registryPending === onchainPending ? "confirmed" : "conflict", !pendingEvidenceComplete
-      ? "The contract's scheduled multiplier evidence could not be decoded; ChainScout did not assume there was no pending change."
+      ? "The contract's scheduled multiplier evidence could not be decoded; Opsis did not assume there was no pending change."
       : registryPending === onchainPending
         ? onchainPending ? `Registry and contract pending multiplier agree at ${onchainPending}; the contract reports the effective time.` : "Registry and contract both report no scheduled UI multiplier change."
         : `Registry reports ${registryPending ?? "no pending multiplier"}, while the contract reports ${onchainPending ?? "no active pending multiplier"}.`, ["robinhood-registry", "robinhood-rpc"]));
     checks.push(check("token-pause", "Token pause evidence", tokenPaused === undefined ? "missing" : tokenPaused ? "warning" : "confirmed", tokenPaused === undefined
-      ? "tokenPaused() could not be decoded; ChainScout did not assume transfers were unpaused."
+      ? "tokenPaused() could not be decoded; Opsis did not assume transfers were unpaused."
       : tokenPaused
         ? "The Stock Token contract reports tokenPaused=true. Transfer availability may be restricted even if other evidence is current."
         : "The Stock Token contract reports tokenPaused=false at the captured block.", ["robinhood-rpc"]));
@@ -302,7 +302,7 @@ export class RwaService implements RwaVerificationSource {
         "Availability and eligibility vary by jurisdiction; this is evidence, not an offer or recommendation."
       ],
       sources,
-      privacy: privacy(["Robinhood Stock Token API", this.rpcEndpoint.label, "Chainlink feed directory"], `The pasted contract and derived public feed identifier were sent only to the listed sources. Nothing was saved by ChainScout or sent to an AI model.${rpcRoutingDisclosure(this.rpcEndpoint)}`)
+      privacy: privacy(["Robinhood Stock Token API", this.rpcEndpoint.label, "Chainlink feed directory"], `The pasted contract and derived public feed identifier were sent only to the listed sources. Nothing was saved by Opsis or sent to an AI model.${rpcRoutingDisclosure(this.rpcEndpoint)}`)
     };
   }
 
@@ -368,16 +368,16 @@ export class RwaService implements RwaVerificationSource {
           ? "Contract name, symbol, underlying asset, and underlying decimals agree with Morpho's record."
           : "Direct contract identity or underlying decimals and Morpho's indexed record do not fully agree.", ["morpho-config", "robinhood-rpc"]),
         check("listing", "Morpho listing", listing === true ? "confirmed" : listing === false ? "warning" : listingMalformed ? "conflict" : "missing", listing === true
-          ? "Morpho currently marks this vault listed. Listing is a provider classification, not a ChainScout endorsement."
+          ? "Morpho currently marks this vault listed. Listing is a provider classification, not a Opsis endorsement."
           : listing === false
             ? "Morpho currently marks this vault unlisted. Review the owner, curator, gates, and source contract carefully."
             : listingMalformed
-              ? "Morpho's listing response was malformed; ChainScout did not assume listed or unlisted."
+              ? "Morpho's listing response was malformed; Opsis did not assume listed or unlisted."
               : listingDocument.state === "unavailable"
-                ? `Morpho listing status was unavailable (${listingDocument.code}); ChainScout did not assume listed or unlisted.`
+                ? `Morpho listing status was unavailable (${listingDocument.code}); Opsis did not assume listed or unlisted.`
                 : listingResult.state === "empty"
-                  ? "Morpho returned a valid listing collection with no matching vault record; ChainScout did not assume listed or unlisted."
-                  : "Morpho listing status was unavailable; ChainScout did not assume listed or unlisted.", listingDocument.state === "available" ? ["morpho-listing"] : ["morpho-config"]),
+                  ? "Morpho returned a valid listing collection with no matching vault record; Opsis did not assume listed or unlisted."
+                  : "Morpho listing status was unavailable; Opsis did not assume listed or unlisted.", listingDocument.state === "available" ? ["morpho-listing"] : ["morpho-config"]),
         check("vault-totals", "Direct vs indexed totals", indexedTotalsStatus, !state || indexedBlock === null
           ? stateMalformed ? "Morpho's indexed state response was malformed; direct totals are still shown." : `Morpho's indexed state was unavailable${stateDocument.state === "unavailable" ? ` (${stateDocument.code})` : ""}; direct totals are still shown.`
           : indexedBlock !== anchor.blockNumber
@@ -387,11 +387,11 @@ export class RwaService implements RwaVerificationSource {
             : "Direct current totals and Morpho's indexed totals differ. This can reflect index lag, but the difference is not hidden.", state ? ["morpho-state", "robinhood-rpc"] : ["robinhood-rpc"]),
         check("liquidity", "Indexed withdrawals", state ? "warning" : stateMalformed ? "conflict" : "missing", state
           ? `${state.withdrawableAssetsRaw} raw underlying units were indexed as withdrawable. Eligibility and executable output remain unknown until an official transaction requotes.`
-          : stateMalformed ? "Morpho's indexed liquidity response was malformed. ChainScout did not infer withdrawability from ERC-4626 max methods." : `Morpho's indexed liquidity state was unavailable${stateDocument.state === "unavailable" ? ` (${stateDocument.code})` : ""}. ChainScout did not infer withdrawability from ERC-4626 max methods.`, stateDocument.state === "available" ? ["morpho-state"] : ["morpho-config"]),
+          : stateMalformed ? "Morpho's indexed liquidity response was malformed. Opsis did not infer withdrawability from ERC-4626 max methods." : `Morpho's indexed liquidity state was unavailable${stateDocument.state === "unavailable" ? ` (${stateDocument.code})` : ""}. Opsis did not infer withdrawability from ERC-4626 max methods.`, stateDocument.state === "available" ? ["morpho-state"] : ["morpho-config"]),
         check("yield", "Trailing yield", apy ? "warning" : apyMalformed ? "conflict" : "missing", apy
           ? `${formatPercent(apy.apy)} trailing one-day APY reported by Morpho${apy.indexedBlock === null ? "" : ` at indexed block ${apy.indexedBlock}`}. It is variable historical data—not a forecast or guarantee.`
           : apyMalformed ? "Morpho's APY response was malformed; no yield was invented." : `No supported APY response was available${apyDocument.state === "unavailable" ? ` (${apyDocument.code})` : ""}; no yield was invented.`, apyDocument.state === "available" ? ["morpho-apy"] : ["morpho-config"]),
-        check("controls", "Vault controls", "warning", `${config.timelockSeconds} second timelock · owner ${config.owner} · curator ${config.curator} · ${Object.values(config.gates).filter(Boolean).length} configured gates · ${[config.managementFeeWad, config.performanceFeeWad].filter(Boolean).length} configured fee fields. Review these public controls; ChainScout does not rate their safety.`, ["morpho-config"])
+        check("controls", "Vault controls", "warning", `${config.timelockSeconds} second timelock · owner ${config.owner} · curator ${config.curator} · ${Object.values(config.gates).filter(Boolean).length} configured gates · ${[config.managementFeeWad, config.performanceFeeWad].filter(Boolean).length} configured fee fields. Review these public controls; Opsis does not rate their safety.`, ["morpho-config"])
       ],
       morpho: {
         name: config.name,
@@ -423,7 +423,7 @@ export class RwaService implements RwaVerificationSource {
         "No deposit, withdrawal, eligibility, or redemption transaction is prepared or executed here."
       ],
       sources,
-      privacy: privacy([this.rpcEndpoint.label, "Morpho public API"], `The pasted contract was sent to Morpho and the ${this.rpcEndpoint.label} for read-only verification. Nothing was saved by ChainScout or sent to an AI model.${rpcRoutingDisclosure(this.rpcEndpoint)}`)
+      privacy: privacy([this.rpcEndpoint.label, "Morpho public API"], `The pasted contract was sent to Morpho and the ${this.rpcEndpoint.label} for read-only verification. Nothing was saved by Opsis or sent to an AI model.${rpcRoutingDisclosure(this.rpcEndpoint)}`)
     };
   }
 
@@ -435,20 +435,20 @@ export class RwaService implements RwaVerificationSource {
       headline: isContract ? "No supported RWA registry match" : "This address is not a contract at the captured block",
       summary: isContract
         ? "The contract is not an exact chain-4663 deployment in Robinhood's Stock Token registry and was not recognized by Morpho's Vault V2 API. A ticker, image, NFT, certificate, or issuer statement alone cannot prove backing or physical authenticity."
-        : "No bytecode was present at the captured block. ChainScout cannot verify it as a tokenized asset or vault.",
+        : "No bytecode was present at the captured block. Opsis cannot verify it as a tokenized asset or vault.",
       anchor: publicAnchor(anchor),
       checks: [
         check("stock-registry", "Robinhood Stock Token registry", "unsupported", "No exact deployment match was found. Name or ticker similarity is deliberately ignored.", ["robinhood-registry"]),
         check("morpho-registry", "Morpho Vault V2", "unsupported", "Morpho's exact-address endpoint did not recognize this contract as a V2 vault.", ["morpho-lookup"]),
         check("physical", "Physical authenticity", "unsupported", "Onchain ownership does not prove a physical object exists, is authentic, insured, held by a custodian, or redeemable.", [])
       ],
-      limitations: ["Unsupported means ChainScout lacks a supported primary-source registry match; it is not an accusation of fraud."],
+      limitations: ["Unsupported means Opsis lacks a supported primary-source registry match; it is not an accusation of fraud."],
       sources: [
         source("robinhood-registry", "Robinhood", `${RHJ_API}/assets`, this.dependencies.now().toISOString(), "Canonical Stock Token registry lookup"),
         source("morpho-lookup", "Morpho", `${MORPHO_API}/v0/vaults-v2/4663:${address}`, this.dependencies.now().toISOString(), "Exact-address Vault V2 lookup"),
         source("robinhood-rpc", this.rpcEndpoint.label, publicRpcCitationOrigin(this.rpcEndpoint.url), anchor.capturedAt, `Contract bytecode read at block ${anchor.blockNumber}`)
       ],
-      privacy: privacy(["Robinhood Stock Token API", "Morpho public API", this.rpcEndpoint.label], `The pasted public contract was sent to the listed sources only. Nothing was saved by ChainScout or sent to an AI model.${rpcRoutingDisclosure(this.rpcEndpoint)}`)
+      privacy: privacy(["Robinhood Stock Token API", "Morpho public API", this.rpcEndpoint.label], `The pasted public contract was sent to the listed sources only. Nothing was saved by Opsis or sent to an AI model.${rpcRoutingDisclosure(this.rpcEndpoint)}`)
     };
   }
 

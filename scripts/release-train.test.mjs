@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { execFileSync, spawnSync } from "node:child_process";
 
 function fixture(t, parallelPreparation = true, prefix = "release") {
-  const root = mkdtempSync(join(tmpdir(), "chainscout-release-policy-test-"));
+  const root = mkdtempSync(join(tmpdir(), "opsis-release-policy-test-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   mkdirSync(join(root, "scripts"));
   copyFileSync(new URL("./release-train.mjs", import.meta.url), join(root, "scripts/release-train.mjs"));

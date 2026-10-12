@@ -86,7 +86,7 @@ export async function buildApp(
       }
     },
     // Fastify's default request logs include the raw URL and remote address.
-    // ChainScout emits the bounded route-template summary below instead.
+    // Opsis emits the bounded route-template summary below instead.
     logController: new LogController({ disableRequestLogging: true }),
     // Do not let Fastify consume X-Forwarded-For. Railway documents
     // X-Real-IP as its client-address header, and the rate-limit key accepts it
@@ -131,7 +131,7 @@ export async function buildApp(
   });
   await app.register(swagger, {
     openapi: {
-      info: { title: "ChainScout API", version: "0.1.0" },
+      info: { title: "Opsis API", version: "0.1.0" },
       tags: [
         { name: "auth" },
         { name: "entities" },

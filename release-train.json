@@ -36,7 +36,7 @@
       "branch": "release/02-privacy-foundation",
       "tagPrefix": "rc/02-privacy-foundation/",
       "status": "released",
-      "outcome": "Use ChainScout without becoming a profile",
+      "outcome": "Use Opsis without becoming a profile",
       "shipGate": "Private Mode needs no account; browser tokens are not readable by JavaScript; private fields never enter logs, analytics, or saved server records; legacy cloud data can be exported and deleted."
     },
     {
@@ -99,7 +99,7 @@
       "branch": "release/09-open-data-api",
       "tagPrefix": "rc/09-open-data-api/",
       "status": "released",
-      "outcome": "Reuse ChainScout's reviewed public support data",
+      "outcome": "Reuse Opsis's reviewed public support data",
       "shipGate": "The capped API exposes a two-entry reviewed static support registry plus independently derived syntax normalization; it contains no Vault data or restricted upstream payloads and cannot create paid overage."
     },
     {
@@ -118,7 +118,7 @@
       "tagPrefix": "rc/11-approval-manager/",
       "status": "released",
       "outcome": "Understand discovered spending permissions and prepare a safe external revocation",
-      "shipGate": "Current ERC20, ERC721 and operator permissions are anchored, source-linked and explicitly bounded by discovery coverage; revoked, unknown and unavailable are distinct; no safety verdict or exhaustive scan is implied. External revocation requires a verified chain-supported destination, explicit disclosure of network costs and user-controlled execution; ChainScout never signs or broadcasts."
+      "shipGate": "Current ERC20, ERC721 and operator permissions are anchored, source-linked and explicitly bounded by discovery coverage; revoked, unknown and unavailable are distinct; no safety verdict or exhaustive scan is implied. External revocation requires a verified chain-supported destination, explicit disclosure of network costs and user-controlled execution; Opsis never signs or broadcasts."
     },
     {
       "order": 12,
@@ -138,7 +138,7 @@
       "currentSlice": "Card Price Check: standalone public reference prices only. Automatic live offers and sold-listing aggregation remain access-restricted and unshipped; the listing ship gate below is not claimed complete.",
       "outcome": "Check source-linked collectible reference prices without confusing references with live offers",
       "shipGate": "The shipped Card Price Check slice keeps exact card identity, timestamps, currencies and source links visible; stale, missing and failed prices remain explicit. Optional artwork is click-only. Reference prices are not appraisals, available inventory or executable offers. English/Chinese and desktop/mobile checks pass; automatic offer aggregation remains disabled.",
-      "deferredScope": "Automatic offers and sold-listing aggregation remain unshipped and access-restricted. Advancing Scout Watch does not enable or certify them.",
+      "deferredScope": "Automatic offers and sold-listing aggregation remain unshipped and access-restricted. Advancing Watch does not enable or certify them.",
       "deferredShipGate": "Supported authorized free-tier sources distinguish printing, condition and grade, list known landed costs and timestamp every offer. Sold-price evidence is independently labeled and never fabricated; unknown shipping and weak matches cannot rank as guaranteed cheapest. Provider limits fail closed without overage; unsupported venues use explicit search handoffs rather than claimed live listings."
     },
     {
@@ -276,8 +276,8 @@
         "21-explorer-answers",
         "14-scout-watch"
       ],
-      "outcome": "Follow a verified public wallet into Scout Watch from any result that shows one",
-      "shipGate": "One reusable chain-aware follow action appears only for a supported-chain public address that is not the zero, dead or a classified-contract address; unknown classification is labelled a public address, never an EOA or proven wallet. The action links to Scout Watch carrying the public address only, pre-fills it without automatic consent, lookup or save, and guides locked/create/unlocked states without losing the address. Encrypted Vault labels never enter a URL. Wallet-result, transaction-participant, invalid/zero/dead/contract, feature-disabled and locked/unlocked flows are tested with no new provider, key, signing, payment or recurring spend."
+      "outcome": "Follow a verified public wallet into Watch from any result that shows one",
+      "shipGate": "One reusable chain-aware follow action appears only for a supported-chain public address that is not the zero, dead or a classified-contract address; unknown classification is labelled a public address, never an EOA or proven wallet. The action links to Watch carrying the public address only, pre-fills it without automatic consent, lookup or save, and guides locked/create/unlocked states without losing the address. Encrypted Vault labels never enter a URL. Wallet-result, transaction-participant, invalid/zero/dead/contract, feature-disabled and locked/unlocked flows are tested with no new provider, key, signing, payment or recurring spend."
     },
     {
       "order": 25,

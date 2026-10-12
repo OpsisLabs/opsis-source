@@ -1,10 +1,10 @@
 import { readinessPasses } from "./readiness-policy.mjs";
-const scope = process.env.CHAINSCOUT_LAUNCH_SCOPE ?? "cloud";
-const target = requiredUrl("CHAINSCOUT_LOAD_URL");
-const durationSeconds = boundedInteger(process.env.CHAINSCOUT_LOAD_SECONDS, 30, 5, 120);
-const concurrency = boundedInteger(process.env.CHAINSCOUT_LOAD_CONCURRENCY, 2, 1, 10);
-const pauseMs = boundedInteger(process.env.CHAINSCOUT_LOAD_PAUSE_MS, 100, 25, 2_000);
-const p95LimitMs = boundedInteger(process.env.CHAINSCOUT_LOAD_P95_MS, 1_500, 50, 10_000);
+const scope = process.env.OPSIS_LAUNCH_SCOPE ?? "cloud";
+const target = requiredUrl("OPSIS_LOAD_URL");
+const durationSeconds = boundedInteger(process.env.OPSIS_LOAD_SECONDS, 30, 5, 120);
+const concurrency = boundedInteger(process.env.OPSIS_LOAD_CONCURRENCY, 2, 1, 10);
+const pauseMs = boundedInteger(process.env.OPSIS_LOAD_PAUSE_MS, 100, 25, 2_000);
+const p95LimitMs = boundedInteger(process.env.OPSIS_LOAD_P95_MS, 1_500, 50, 10_000);
 const deadline = Date.now() + durationSeconds * 1_000;
 const durations = [];
 let failures = 0;

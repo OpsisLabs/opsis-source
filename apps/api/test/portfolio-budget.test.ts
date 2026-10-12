@@ -22,7 +22,7 @@ describe("portfolio global provider budget", () => {
       NODE_ENV: "production",
       ROBINHOOD_RPC_PROVIDER: "drpc",
       DRPC_API_KEY: "test-drpc-key-0123456789abcdef",
-      APP_ORIGIN: "https://chainscout.example",
+      APP_ORIGIN: "https://opsis.example",
       DATABASE_URL: "postgresql://db.example/app",
       REDIS_URL: "rediss://redis.example/0",
       JWT_ACCESS_SECRET: "production-access-secret-at-least-32",

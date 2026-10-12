@@ -40,6 +40,6 @@ if (actualLockfileSha !== baseline.lockfileSha256) {
 
 console.warn(
   `WARNING: npm audit was unavailable after ${attempts} network-only failures. `
-  + `pnpm-lock.yaml matches the exact baseline audited at ${baseline.workflowRun}; `
+  + `pnpm-lock.yaml matches the exact baseline audited for commit ${baseline.auditedCommit}; `
   + "current container vulnerability scans remain mandatory."
 );

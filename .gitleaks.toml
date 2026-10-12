@@ -4,6 +4,6 @@ useDefault = true
 [[allowlists]]
 description = "Only generated SHA-256 content hashes in the verified public-tree manifest"
 condition = "AND"
-paths = ['''^\.chainscout-public-mirror\.json$''']
+paths = ['''^\.opsis-public-mirror\.json$''']
 regexTarget = "secret"
 regexes = ['''^[a-f0-9]{64}$''']

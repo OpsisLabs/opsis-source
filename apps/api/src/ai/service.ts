@@ -720,8 +720,8 @@ function transactionFeesView(entity: NormalizedEntity, locale: AiLocale): { answ
   const answer = fee && display
     ? fee.source === "actual"
       ? display.exact
-        ? t(locale, `The available receipt reports a paid network fee of exactly ${display.text} ETH, paid to the network—not to ChainScout or a data provider.`, `现有回执报告的已支付网络手续费为确切的 ${display.text} ETH，支付给网络——而不是 ChainScout 或数据提供商。`)
-        : t(locale, `The available receipt reports a paid network fee of about ${display.text} ETH (rounded; the exact amount is in the cited facts), paid to the network—not to ChainScout or a data provider.`, `现有回执报告的已支付网络手续费约为 ${display.text} ETH（已四舍五入；确切金额见引用事实），支付给网络——而不是 ChainScout 或数据提供商。`)
+        ? t(locale, `The available receipt reports a paid network fee of exactly ${display.text} ETH, paid to the network—not to Opsis or a data provider.`, `现有回执报告的已支付网络手续费为确切的 ${display.text} ETH，支付给网络——而不是 Opsis 或数据提供商。`)
+        : t(locale, `The available receipt reports a paid network fee of about ${display.text} ETH (rounded; the exact amount is in the cited facts), paid to the network—not to Opsis or a data provider.`, `现有回执报告的已支付网络手续费约为 ${display.text} ETH（已四舍五入；确切金额见引用事实），支付给网络——而不是 Opsis 或数据提供商。`)
       : fee.source === "estimate"
         ? t(locale, `The receipt reports a ${fee.type} network amount of about ${display.text} ETH. That is not a confirmed paid fee; the final charge depends on actual execution.`, `回执报告的 ${fee.type} 网络金额约为 ${display.text} ETH。这并不是已确认支付的手续费；最终费用取决于实际执行。`)
         : t(locale, `The exact total fee was not returned. The reported gas used and gas price imply a gas component of about ${display.text} ETH; on an L2 there may be additional components, so this is not the total fee.`, `没有返回确切的总费用。根据报告的 gas 使用量和 gas 价格推算出的 gas 组成部分约为 ${display.text} ETH；在 L2 上可能还有其他组成部分，因此这不是总手续费。`)
@@ -971,7 +971,7 @@ function beginnerPrimaryFact(entity: NormalizedEntity, locale: AiLocale): { answ
       });
       const reviewedSample = facts.tokenBalanceCoverage === "reviewed_asset_sample";
       const holdingText = reviewedSample
-        ? t(locale, `${tokenBalances.length} positive token balance${tokenBalances.length === 1 ? "" : "s"} in ChainScout's reviewed contract sample`, `ChainScout 已审查的合约样本中有 ${tokenBalances.length} 个正数代币余额`)
+        ? t(locale, `${tokenBalances.length} positive token balance${tokenBalances.length === 1 ? "" : "s"} in Opsis's reviewed contract sample`, `Opsis 已审查的合约样本中有 ${tokenBalances.length} 个正数代币余额`)
         : t(locale, `${tokenBalances.length} positive token balance${tokenBalances.length === 1 ? "" : "s"}`, `${tokenBalances.length} 个正数代币余额`);
       if (reviewedSample) {
         const bySymbol = new Map(tokenBalances.map((holding) => [

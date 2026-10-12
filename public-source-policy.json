@@ -8,6 +8,7 @@
     "docker-compose.yml", "playwright.config.ts", "playwright.webkit.config.ts",
     "playwright.open-data-disabled.config.ts", "release-train.json",
     ".github/security/pnpm-audit-baseline.json",
+    "scripts/product-name-allowlist.json",
     "docs/dependency-licenses.md",
     "docs/release-train.md", "docs/public-source.md"
   ],

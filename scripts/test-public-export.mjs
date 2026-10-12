@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { exportPublic, selected } from "./export-public.mjs";
 
-const fixture = mkdtempSync(join(tmpdir(), "chainscout-export-test-"));
+const fixture = mkdtempSync(join(tmpdir(), "opsis-export-test-"));
 const source = join(fixture, "source");
 const target = join(fixture, "public");
 const policy = { prefixes: ["apps/"], files: ["README.md", "LICENSE", "public-source-policy.json"], scriptExtension: ".mjs", publicWorkflowTemplate: "template.yml" };

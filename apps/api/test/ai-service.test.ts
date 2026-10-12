@@ -177,7 +177,7 @@ describe("AI answer boundary", () => {
       }
     });
 
-    expect(answer.answer).toContain("3 positive token balances in ChainScout's reviewed contract sample");
+    expect(answer.answer).toContain("3 positive token balances in Opsis's reviewed contract sample");
     expect(answer.answer).toContain("tokenized assets AAPL, NVDA, SPY");
     expect(answer.answer).toContain("native balance of 0.803388 ETH for network fees");
     expect(answer.answer).toContain("not the wallet's complete asset list");

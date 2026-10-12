@@ -37,8 +37,8 @@ export function publicSnapshot(root, revision = "HEAD", policyRevision = revisio
     else if (revision === policyRevision) throw new Error(`missing reviewed public template: ${template}`);
   }
   const hashes = Object.fromEntries([...output].sort(([a], [b]) => a.localeCompare(b)).map(([path, bytes]) => [path, digest(bytes)]));
-  const snapshot = { format: "chainscout.public-source.v1", sourceTreeDigest: digest(JSON.stringify(hashes)), files: hashes };
-  output.set(".chainscout-public-mirror.json", Buffer.from(JSON.stringify(snapshot, null, 2) + "\n"));
+  const snapshot = { format: "opsis.public-source.v1", sourceTreeDigest: digest(JSON.stringify(hashes)), files: hashes };
+  output.set(".opsis-public-mirror.json", Buffer.from(JSON.stringify(snapshot, null, 2) + "\n"));
   return { output, modes, snapshot };
 }
 
@@ -46,14 +46,14 @@ export function exportPublic(root, target, check = false) {
   root = resolve(root); target = resolve(target);
   if (target === root || target.startsWith(root + sep) || root.startsWith(target + sep) || target === dirname(target)) throw new Error("destination must be a separate dedicated directory, not an ancestor or child of the private repo");
   if (git(root, ["status", "--porcelain"]).trim()) throw new Error("commit and review the private working tree before exporting");
-  const marker = resolve(target, ".chainscout-public-mirror.json");
+  const marker = resolve(target, ".opsis-public-mirror.json");
   let previous = [];
   if (existsSync(target)) {
     if (lstatSync(target).isSymbolicLink()) throw new Error("symlink destination refused");
     if (!existsSync(marker) && readdirSync(target).length) throw new Error("nonempty destination has no public-mirror marker");
     if (existsSync(marker)) {
       const manifest = JSON.parse(readFileSync(marker, "utf8"));
-      if (manifest.format !== "chainscout.public-source.v1") throw new Error("invalid mirror marker");
+      if (manifest.format !== "opsis.public-source.v1") throw new Error("invalid mirror marker");
       previous = Object.keys(manifest.files);
     }
     if (existsSync(resolve(target, ".git"))) {

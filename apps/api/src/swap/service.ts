@@ -5,12 +5,12 @@ import type { Env } from "../config/env.js";
 import { ProviderHttpClient, ProviderRequestError, type ProviderHttp } from "../chain/provider-http.js";
 import {
   PREVIEW_SWAPPER,
-  SCOUT_SWAP_CHAIN_ID,
-  SCOUT_SWAP_FRESHNESS_MS,
-  SCOUT_SWAP_SLIPPAGE_PERCENT,
+  SWAP_PREVIEW_CHAIN_ID,
+  SWAP_PREVIEW_FRESHNESS_MS,
+  SWAP_PREVIEW_SLIPPAGE_PERCENT,
   UNISWAP_ROUTER_2_1_1,
   tokensForDirection,
-  type ScoutSwapDirection
+  type SwapPreviewDirection
 } from "./constants.js";
 
 const rawAmount = z.string().regex(/^\d{1,78}$/);
@@ -40,12 +40,12 @@ const rawQuoteSchema = z.object({
   }).passthrough()
 });
 
-export type ScoutSwapRequest = {
-  direction: ScoutSwapDirection;
+export type SwapPreviewRequest = {
+  direction: SwapPreviewDirection;
   amount: string;
 };
 
-export type ScoutSwapQuote = {
+export type SwapPreviewQuote = {
   pair: "WETH/USDG";
   chain: { id: 4663; name: "Robinhood Chain" };
   input: { symbol: "WETH" | "USDG"; address: string; amount: string };
@@ -87,7 +87,7 @@ export class SwapQuoteProviderError extends Error {
 }
 
 export interface SwapQuoteSource {
-  requestQuote(request: ScoutSwapRequest): Promise<unknown>;
+  requestQuote(request: SwapPreviewRequest): Promise<unknown>;
 }
 
 export class UniswapQuoteSource implements SwapQuoteSource {
@@ -111,7 +111,7 @@ export class UniswapQuoteSource implements SwapQuoteSource {
     });
   }
 
-  async requestQuote(request: ScoutSwapRequest): Promise<unknown> {
+  async requestQuote(request: SwapPreviewRequest): Promise<unknown> {
     if (this.now() < this.pausedUntil) throw new SwapQuoteProviderError("rate_limited");
     if (!this.env.UNISWAP_API_KEY) throw new SwapQuoteProviderError("unavailable");
     const { input, output } = tokensForDirection(request.direction);
@@ -129,12 +129,12 @@ export class UniswapQuoteSource implements SwapQuoteSource {
         body: JSON.stringify({
           type: "EXACT_INPUT",
           amount: amount.toString(),
-          tokenInChainId: SCOUT_SWAP_CHAIN_ID,
-          tokenOutChainId: SCOUT_SWAP_CHAIN_ID,
+          tokenInChainId: SWAP_PREVIEW_CHAIN_ID,
+          tokenOutChainId: SWAP_PREVIEW_CHAIN_ID,
           tokenIn: input.address,
           tokenOut: output.address,
           swapper: PREVIEW_SWAPPER,
-          slippageTolerance: SCOUT_SWAP_SLIPPAGE_PERCENT,
+          slippageTolerance: SWAP_PREVIEW_SLIPPAGE_PERCENT,
           routingPreference: "BEST_PRICE",
           permitAmount: "EXACT"
         })
@@ -156,8 +156,8 @@ export class UniswapQuoteSource implements SwapQuoteSource {
   }
 }
 
-export class ScoutSwapService {
-  private readonly inflight = new Map<string, Promise<ScoutSwapQuote>>();
+export class SwapPreviewService {
+  private readonly inflight = new Map<string, Promise<SwapPreviewQuote>>();
 
   constructor(
     private readonly env: Env,
@@ -166,7 +166,7 @@ export class ScoutSwapService {
     private readonly now: () => number = Date.now
   ) {}
 
-  async quote(request: ScoutSwapRequest): Promise<ScoutSwapQuote> {
+  async quote(request: SwapPreviewRequest): Promise<SwapPreviewQuote> {
     const { input } = tokensForDirection(request.direction);
     parseSwapAmount(request.amount, input.decimals);
 
@@ -175,8 +175,8 @@ export class ScoutSwapService {
       amount: canonicalSwapAmount(request.amount)
     };
 
-    const key = `scout-swap:${canonicalRequest.direction}:${canonicalRequest.amount}`;
-    const cached = await this.cache.get<ScoutSwapQuote>(key);
+    const key = `swap-preview:${canonicalRequest.direction}:${canonicalRequest.amount}`;
+    const cached = await this.cache.get<SwapPreviewQuote>(key);
     if (cached && Date.parse(cached.expiresAt) > this.now()) {
       return {
         ...cached,
@@ -198,7 +198,7 @@ export class ScoutSwapService {
     return operation;
   }
 
-  private async fetchAndNormalize(request: ScoutSwapRequest): Promise<ScoutSwapQuote> {
+  private async fetchAndNormalize(request: SwapPreviewRequest): Promise<SwapPreviewQuote> {
     const raw = await this.source.requestQuote(request);
     return normalizeQuote(raw, request, this.now());
   }
@@ -227,7 +227,7 @@ export function canonicalSwapAmount(value: string): string {
   return trimmed ? `${whole}.${trimmed}` : whole!;
 }
 
-export function normalizeQuote(raw: unknown, request: ScoutSwapRequest, now: number): ScoutSwapQuote {
+export function normalizeQuote(raw: unknown, request: SwapPreviewRequest, now: number): SwapPreviewQuote {
   const parsed = rawQuoteSchema.safeParse(raw);
   if (!parsed.success) throw new SwapQuoteProviderError("malformed_response");
   const response = parsed.data;
@@ -277,7 +277,7 @@ export function normalizeQuote(raw: unknown, request: ScoutSwapRequest, now: num
 
   return {
     pair: "WETH/USDG",
-    chain: { id: SCOUT_SWAP_CHAIN_ID, name: "Robinhood Chain" },
+    chain: { id: SWAP_PREVIEW_CHAIN_ID, name: "Robinhood Chain" },
     input: { symbol: input.symbol, address: input.address, amount },
     output: {
       symbol: output.symbol,
@@ -292,14 +292,14 @@ export function normalizeQuote(raw: unknown, request: ScoutSwapRequest, now: num
       protocols
     },
     priceImpactPercent: typeof quote.priceImpact === "number" ? quote.priceImpact : null,
-    slippageTolerancePercent: SCOUT_SWAP_SLIPPAGE_PERCENT,
+    slippageTolerancePercent: SWAP_PREVIEW_SLIPPAGE_PERCENT,
     estimatedGas: { nativeAmount: gasNative, usdAmount: gasUsd, paidBy: isUniswapX ? "filler_or_user" : "user" },
     simulation: { status: simulationStatus, reasons: failureReasons },
     approvalMayBeRequired: response.isTokenApprovalApplicable ?? true,
     transactionPreview: {
       explanationOnly: true,
       unsigned: true,
-      chainId: SCOUT_SWAP_CHAIN_ID,
+      chainId: SWAP_PREVIEW_CHAIN_ID,
       sender: null,
       target: response.routing === "CLASSIC" ? UNISWAP_ROUTER_2_1_1 : null,
       action: isUniswapX
@@ -309,16 +309,16 @@ export function normalizeQuote(raw: unknown, request: ScoutSwapRequest, now: num
       canBroadcast: false
     },
     quotedAt: new Date(now).toISOString(),
-    expiresAt: new Date(now + SCOUT_SWAP_FRESHNESS_MS).toISOString(),
-    freshForMs: SCOUT_SWAP_FRESHNESS_MS,
+    expiresAt: new Date(now + SWAP_PREVIEW_FRESHNESS_MS).toISOString(),
+    freshForMs: SWAP_PREVIEW_FRESHNESS_MS,
     provider: { name: "Uniswap", requestId: response.requestId, cached: false },
     handoffUrl: uniswapHandoffUrl(input.address, output.address, amount),
     disclosures: [
       "Uniswap fetches a new quote before execution; this preview is not a guaranteed price.",
       "You may pay network gas, liquidity-provider or protocol fees, price impact, slippage, and token-specific fees.",
       "Your wallet address is not sent for this preview; Uniswap receives the pair, amount, and a fixed non-user preview address.",
-      "ChainScout may hold this pair and amount in a short quote cache for less than 30 seconds; no historical transaction or account is linked to it.",
-      "ChainScout cannot sign, approve, submit, or broadcast this transaction."
+      "Opsis may hold this pair and amount in a short quote cache for less than 30 seconds; no historical transaction or account is linked to it.",
+      "Opsis cannot sign, approve, submit, or broadcast this transaction."
     ]
   };
 }
@@ -330,7 +330,7 @@ function trimAmount(value: string, maxDecimals: number): string {
 }
 
 function deriveClassicMinimum(outputAmount: string): string {
-  const slippageBps = BigInt(Math.round(SCOUT_SWAP_SLIPPAGE_PERCENT * 100));
+  const slippageBps = BigInt(Math.round(SWAP_PREVIEW_SLIPPAGE_PERCENT * 100));
   return ((BigInt(outputAmount) * (10_000n - slippageBps)) / 10_000n).toString();
 }
 

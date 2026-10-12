@@ -3,7 +3,7 @@ import { z } from "zod";
 import { JsonCache } from "../cache/service.js";
 import type { Env } from "../config/env.js";
 import { AppError } from "../http/errors.js";
-import { ScoutSwapService, SwapQuoteProviderError, type SwapQuoteSource } from "../swap/service.js";
+import { SwapPreviewService, SwapQuoteProviderError, type SwapQuoteSource } from "../swap/service.js";
 
 const quoteBody = z.object({
   direction: z.enum(["WETH_TO_USDG", "USDG_TO_WETH"]),
@@ -16,7 +16,7 @@ export async function swapRoutes(
   cache: JsonCache,
   source?: SwapQuoteSource
 ): Promise<void> {
-  const service = new ScoutSwapService(env, cache, source);
+  const service = new SwapPreviewService(env, cache, source);
 
   for (const path of ["/v1/swaps/quote", "/v1/private/trade-simulator/quote"]) app.post(path, {
     config: {
@@ -28,7 +28,7 @@ export async function swapRoutes(
       throw new AppError("TRADE_SIMULATOR_DISABLED", 503, "Trade Simulator is not enabled in this build");
     }
     if (!env.UNISWAP_QUOTE_ENABLED) {
-      throw new AppError("SCOUT_SWAP_DISABLED", 503, "Live Scout Swap previews are temporarily turned off");
+      throw new AppError("SWAP_PREVIEW_DISABLED", 503, "Live Swap preview previews are temporarily turned off");
     }
     const body = quoteBody.parse(request.body);
     try {

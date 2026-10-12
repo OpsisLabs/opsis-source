@@ -17,14 +17,14 @@ const MAX_PROVIDER_RESULTS = 25;
 const MAX_RESULTS = 8;
 const CARD_ID = /^[a-zA-Z0-9][a-zA-Z0-9.-]{0,79}$/;
 const IMAGE_SEGMENT = /^[a-zA-Z0-9._-]{1,80}$/;
-const SEARCH_QUERY = `query ChainScoutCatalogSearch($name: String!, $localId: String) {
+const SEARCH_QUERY = `query OpsisCatalogSearch($name: String!, $localId: String) {
   cards(filters: { name: $name, localId: $localId }, pagination: { page: 1, itemsPerPage: 25 }) {
     id
     localId
     name
   }
 }`;
-const DETAIL_QUERY = `query ChainScoutCatalogDetail($id: ID!) {
+const DETAIL_QUERY = `query OpsisCatalogDetail($id: ID!) {
   card(id: $id) {
     id
     localId
@@ -82,7 +82,7 @@ export class CollectibleCatalogService implements CollectibleCatalogSource {
       truncated: exactSet.length > MAX_RESULTS || body.length === MAX_PROVIDER_RESULTS,
       fetchedAt: this.dependencies.now().toISOString(),
       source: { provider: "tcgdex", url: SOURCE_URL, licenseUrl: LICENSE_URL },
-      privacy: privacyReceipt("The confirmed English card name, optional collector number, and optional set ID were sent transiently to ChainScout. ChainScout requested only id, localId, and name from TCGdex GraphQL; no artwork, pricing, ownership fields, or AI model was requested.")
+      privacy: privacyReceipt("The confirmed English card name, optional collector number, and optional set ID were sent transiently to Opsis. Opsis requested only id, localId, and name from TCGdex GraphQL; no artwork, pricing, ownership fields, or AI model was requested.")
     };
   }
 
@@ -97,7 +97,7 @@ export class CollectibleCatalogService implements CollectibleCatalogSource {
     const card = parseDetail(body, language, cardId, sourceUrl, this.dependencies.now());
     return {
       card,
-      privacy: privacyReceipt("The selected public card ID was sent transiently to ChainScout. ChainScout requested allowlisted card and set identity metadata plus the catalog image base from TCGdex GraphQL. Marketplace pricing, printing claims, ownership fields, and AI models were not requested.")
+      privacy: privacyReceipt("The selected public card ID was sent transiently to Opsis. Opsis requested allowlisted card and set identity metadata plus the catalog image base from TCGdex GraphQL. Marketplace pricing, printing claims, ownership fields, and AI models were not requested.")
     };
   }
 
@@ -106,7 +106,7 @@ export class CollectibleCatalogService implements CollectibleCatalogSource {
     try {
       return await this.dependencies.http.requestJson(`${this.env.TCGDEX_API_BASE_URL.replace(/\/$/, "")}/graphql`, {
         method: "POST",
-        headers: { accept: "application/json", "content-type": "application/json", "user-agent": "ChainScout/collectible-catalog" },
+        headers: { accept: "application/json", "content-type": "application/json", "user-agent": "Opsis/collectible-catalog" },
         body: JSON.stringify({ query, variables }),
         redirect: "error"
       });

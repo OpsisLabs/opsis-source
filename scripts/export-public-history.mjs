@@ -24,9 +24,9 @@ export function exportHistory(root, target, sync = false) {
   let oldTip;
   if (sync) {
     if (git(target, ["branch", "--show-current"]) !== "main" || git(target, ["status", "--porcelain"])) throw new Error("public main must be clean before sync");
-    if (git(target, ["config", "--get", "chainscout.repositoryRole"]) !== "public") throw new Error("destination is not a guarded public clone");
+    if (git(target, ["config", "--get", "opsis.repositoryRole"]) !== "public") throw new Error("destination is not a guarded public clone");
     verifyHistory(root, target);
-    ledger = JSON.parse(readFileSync(resolve(target, ".git/chainscout-history-map.json"), "utf8"));
+    ledger = JSON.parse(readFileSync(resolve(target, ".git/opsis-history-map.json"), "utf8"));
     git(root, ["merge-base", "--is-ancestor", ledger.at(-1).source, tip]);
     oldTip = git(target, ["rev-parse", "HEAD"]);
   }
@@ -35,7 +35,7 @@ export function exportHistory(root, target, sync = false) {
   if (!revisions.length) { console.log("Public history already matches; no commits created."); return; }
   mkdirSync(target, { recursive: true });
   if (!sync) git(target, ["init", "-b", "main"]);
-  for (const [key, value] of Object.entries({ "user.name": policy.name, "user.email": policy.email, "user.useConfigOnly": "true", "commit.gpgsign": "false", "core.hooksPath": ".githooks", "chainscout.repositoryRole": "public" })) git(target, ["config", "--local", key, value]);
+  for (const [key, value] of Object.entries({ "user.name": policy.name, "user.email": policy.email, "user.useConfigOnly": "true", "commit.gpgsign": "false", "core.hooksPath": ".githooks", "opsis.repositoryRole": "public" })) git(target, ["config", "--local", key, value]);
   const blobs = new Map();
   for (const revision of revisions) {
     const [authorDate, committerDate, parents, ...body] = git(root, ["show", "-s", "--format=%aI%n%cI%n%P%n%B", revision]).split("\n");
@@ -70,13 +70,13 @@ export function exportHistory(root, target, sync = false) {
   if (sync) git(target, ["read-tree", "--reset", "-u", "HEAD"]);
   else git(target, ["checkout-index", "-a"]);
   // The private/public mapping stays in .git and is never part of a public tree.
-  writeFileSync(resolve(target, ".git/chainscout-history-map.json"), JSON.stringify(ledger, null, 2) + "\n", { mode: 0o600 });
+  writeFileSync(resolve(target, ".git/opsis-history-map.json"), JSON.stringify(ledger, null, 2) + "\n", { mode: 0o600 });
   verifyHistory(root, target);
   console.log(`Created ${revisions.length} filtered commits with exact original author/committer dates and parent structure. No remote configured or pushed.`);
 }
 
 export function verifyHistory(root, target) {
-  const ledger = JSON.parse(readFileSync(resolve(target, ".git/chainscout-history-map.json"), "utf8"));
+  const ledger = JSON.parse(readFileSync(resolve(target, ".git/opsis-history-map.json"), "utf8"));
   if (!ledger.length || git(target, ["rev-parse", "HEAD"]) !== ledger.at(-1).public) throw new Error("public HEAD differs from the privately recorded export; preserve unrelated changes");
   const mapping = new Map(ledger.map(item => [item.source, item.public]));
   if (Number(git(target, ["rev-list", "--count", "HEAD"])) !== ledger.length) throw new Error("public commit count differs");

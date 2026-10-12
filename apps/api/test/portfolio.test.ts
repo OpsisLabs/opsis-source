@@ -242,13 +242,13 @@ afterEach(async () => {
 });
 
 describe("anchored portfolio snapshot", () => {
-  it("keeps Scout Watch closed by default and does not call a provider", async () => {
+  it("keeps Watch closed by default and does not call a provider", async () => {
     const app = Fastify({ logger: false }); apps.push(app); installErrorHandler(app);
     const snapshot = vi.fn();
     await portfolioRoutes(app, portfolioEnv(), { snapshot });
     const response = await app.inject({ method: "POST", url: "/v1/private/watch/snapshot", payload: { address: OWNER } });
     expect(response.statusCode).toBe(503);
-    expect(response.json().error.code).toBe("SCOUT_WATCH_DISABLED");
+    expect(response.json().error.code).toBe("WATCH_DISABLED");
     expect(snapshot).not.toHaveBeenCalled();
     expect(response.headers["cache-control"]).toBe("private, no-store");
   });
@@ -257,7 +257,7 @@ describe("anchored portfolio snapshot", () => {
     const app = Fastify({ logger: false }); apps.push(app); installErrorHandler(app);
     const { service } = makeService();
     const snapshot = vi.spyOn(service, "snapshot");
-    await portfolioRoutes(app, { ...portfolioEnv(), SCOUT_WATCH_ENABLED: true }, service);
+    await portfolioRoutes(app, { ...portfolioEnv(), WATCH_ENABLED: true }, service);
     for (const payload of [{ address: OWNER, label: "PRIVATE-CANARY" }, { address: OWNER, snapshots: [] }, { address: "invalid" }]) {
       expect((await app.inject({ method: "POST", url: "/v1/private/watch/snapshot", payload })).statusCode).toBe(400);
     }
@@ -272,7 +272,7 @@ describe("anchored portfolio snapshot", () => {
   it("also disables Watch when the underlying portfolio feature is disabled", async () => {
     const app = Fastify({ logger: false }); apps.push(app); installErrorHandler(app);
     const snapshot = vi.fn();
-    await portfolioRoutes(app, { ...portfolioEnv(false), SCOUT_WATCH_ENABLED: true }, { snapshot });
+    await portfolioRoutes(app, { ...portfolioEnv(false), WATCH_ENABLED: true }, { snapshot });
     expect((await app.inject({ method: "POST", url: "/v1/private/watch/snapshot", payload: { address: OWNER } })).statusCode).toBe(503);
     expect(snapshot).not.toHaveBeenCalled();
   });

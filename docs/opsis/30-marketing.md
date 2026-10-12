@@ -4,7 +4,7 @@ This public counterpart preserves claim-boundary regression coverage without
 publishing internal marketing plans. The public README describes the source
 snapshot; feature availability is controlled separately by deployment settings.
 
-- ChainScout is an independent, read-only asset intelligence workspace.
+- Opsis is an independent, read-only asset intelligence workspace.
 - Public-provider evidence and private owner-entered records are different things.
 - Missing provider data is not zero holdings, zero activity, or proof of safety.
 - A current-block snapshot is not a finality guarantee.

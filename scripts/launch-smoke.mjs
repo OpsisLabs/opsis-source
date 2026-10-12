@@ -1,9 +1,9 @@
 import { readinessPasses } from "./readiness-policy.mjs";
-const scope = process.env.CHAINSCOUT_LAUNCH_SCOPE ?? "cloud";
-const webBase = requiredUrl("CHAINSCOUT_WEB_URL");
-const apiBase = requiredUrl("CHAINSCOUT_API_URL");
-const expectedSha = process.env.CHAINSCOUT_EXPECTED_SHA?.trim();
-const timeoutMs = boundedInteger(process.env.CHAINSCOUT_SMOKE_TIMEOUT_MS, 15_000, 1_000, 60_000);
+const scope = process.env.OPSIS_LAUNCH_SCOPE ?? "cloud";
+const webBase = requiredUrl("OPSIS_WEB_URL");
+const apiBase = requiredUrl("OPSIS_API_URL");
+const expectedSha = process.env.OPSIS_EXPECTED_SHA?.trim();
+const timeoutMs = boundedInteger(process.env.OPSIS_SMOKE_TIMEOUT_MS, 15_000, 1_000, 60_000);
 
 const checks = [
   ["web home", new URL("/", webBase), 200],
@@ -44,7 +44,7 @@ if (scope === "private-only") {
   for (const path of ["/v1/auth/wallet/nonce", "/v1/chat/sessions"]) {
     const response = await fetch(new URL(path, webBase), {
       method: "POST", redirect: "error", signal: AbortSignal.timeout(timeoutMs),
-      headers: { "Content-Type": "application/json", "x-chainscout-csrf": "1", Origin: webBase.origin }, body: "{}"
+      headers: { "Content-Type": "application/json", "x-opsis-csrf": "1", Origin: webBase.origin }, body: "{}"
     });
     const body = await response.json();
     if (response.status !== 503 || body.error?.code !== "CLOUD_WORKSPACE_UNAVAILABLE") throw new Error(`private-only boundary failed: ${path}`);

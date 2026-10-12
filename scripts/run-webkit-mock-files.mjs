@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 const repoRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 const files = [
   "e2e/private-mode.mock.spec.ts",
-  "e2e/scout-swap.mock.spec.ts",
+  "e2e/swap-preview.mock.spec.ts",
   "e2e/exit-check.mock.spec.ts",
   "e2e/vault.mock.spec.ts",
   "e2e/rwa.mock.spec.ts",

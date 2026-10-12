@@ -34,11 +34,11 @@ try {
   const child = spawn(process.execPath, [resolve("scripts/load-smoke.mjs")], {
     env: {
       ...process.env,
-      CHAINSCOUT_LOAD_URL: `http://127.0.0.1:${address.port}/readyz`,
-      CHAINSCOUT_LOAD_SECONDS: "5",
-      CHAINSCOUT_LOAD_CONCURRENCY: "1",
-      CHAINSCOUT_LOAD_PAUSE_MS: "100",
-      CHAINSCOUT_LOAD_P95_MS: "10000"
+      OPSIS_LOAD_URL: `http://127.0.0.1:${address.port}/readyz`,
+      OPSIS_LOAD_SECONDS: "5",
+      OPSIS_LOAD_CONCURRENCY: "1",
+      OPSIS_LOAD_PAUSE_MS: "100",
+      OPSIS_LOAD_P95_MS: "10000"
     },
     stdio: ["ignore", "pipe", "pipe"]
   });

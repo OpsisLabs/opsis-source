@@ -11,7 +11,7 @@ const USDG = REVIEWED_ROBINHOOD_ASSET_SAMPLE[0].address.toLowerCase();
 const AAPL = REVIEWED_ROBINHOOD_ASSET_SAMPLE[2].address.toLowerCase();
 
 function env() {
-  return loadEnv({ NODE_ENV: "test", PORTFOLIO_MODE_ENABLED: "true", SCOUT_WATCH_ENABLED: "true" });
+  return loadEnv({ NODE_ENV: "test", PORTFOLIO_MODE_ENABLED: "true", WATCH_ENABLED: "true" });
 }
 
 /** Every reviewed token holds `balances[index]` (hex) with its reviewed decimals. */

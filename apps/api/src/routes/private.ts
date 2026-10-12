@@ -183,7 +183,7 @@ export async function privateRoutes(
           clearsOnReload: true,
           modelProvider: "none" as const,
           providerDestinations: resolution.providerDestinations,
-          disclosure: `Only the public chain identifier is user-supplied to the listed data providers. When indexer balances are unavailable, the ${rpcEndpoint.label} may also receive ChainScout's fixed 12-contract reviewed sample in one read-only balance call.${rpcRoutingDisclosure(rpcEndpoint)} Your question is not sent to providers or to a model provider.`
+          disclosure: `Only the public chain identifier is user-supplied to the listed data providers. When indexer balances are unavailable, the ${rpcEndpoint.label} may also receive Opsis's fixed 12-contract reviewed sample in one read-only balance call.${rpcRoutingDisclosure(rpcEndpoint)} Your question is not sent to providers or to a model provider.`
         }
       };
     }

@@ -18,8 +18,8 @@ export async function portfolioRoutes(
   }, async (request, reply) => {
     reply.header("Cache-Control", "private, no-store");
     reply.header("Pragma", "no-cache");
-    if (!env.SCOUT_WATCH_ENABLED || !env.PORTFOLIO_MODE_ENABLED) {
-      throw new AppError("SCOUT_WATCH_DISABLED", 503, "Scout Watch is not enabled in this build");
+    if (!env.WATCH_ENABLED || !env.PORTFOLIO_MODE_ENABLED) {
+      throw new AppError("WATCH_DISABLED", 503, "Watch is not enabled in this build");
     }
     const { address } = snapshotBody.parse(request.body);
     return source.snapshot(address);

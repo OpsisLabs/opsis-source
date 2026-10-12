@@ -479,7 +479,7 @@ export class PortfolioService implements PortfolioSnapshotSource {
     if (Object.values(unreconciled).some((count) => count > 0) || degradedSources.length > 0) attention.push({
       severity: "info",
       title: "Some indexed candidates were not shown",
-      detail: "ChainScout only shows holdings and activity that reconciled against the captured RPC snapshot. Provider gaps and newer or mismatched indexer rows are omitted.",
+      detail: "Opsis only shows holdings and activity that reconciled against the captured RPC snapshot. Provider gaps and newer or mismatched indexer rows are omitted.",
       sourceIds: [rpcCitation.id]
     });
 
@@ -520,7 +520,7 @@ export class PortfolioService implements PortfolioSnapshotSource {
         serverStorage: "none",
         browserStorage: "client_encrypted_vault",
         providerDestinations: [this.rpcEndpoint.id === "drpc" ? "drpc" : "robinhood_public_rpc", "blockscout"],
-        disclosure: `Blockscout receives this public address for discovery. The ${this.rpcEndpoint.label} receives the address plus derived public contract, transaction, token ID, spender, and operator identifiers needed for exact reads at one captured current block.${rpcRoutingDisclosure(this.rpcEndpoint)} This anchor is not final and can be reorganized after the response; ChainScout rechecks its block hash before returning. The RPC provider is rate-limited and may be unavailable, so ChainScout fails closed and keeps the last encrypted local snapshot. ChainScout does not save the query or response; optional ownership labels and lot context can be stored only inside the encrypted browser Vault.`
+        disclosure: `Blockscout receives this public address for discovery. The ${this.rpcEndpoint.label} receives the address plus derived public contract, transaction, token ID, spender, and operator identifiers needed for exact reads at one captured current block.${rpcRoutingDisclosure(this.rpcEndpoint)} This anchor is not final and can be reorganized after the response; Opsis rechecks its block hash before returning. The RPC provider is rate-limited and may be unavailable, so Opsis fails closed and keeps the last encrypted local snapshot. Opsis does not save the query or response; optional ownership labels and lot context can be stored only inside the encrypted browser Vault.`
       }
     };
   }

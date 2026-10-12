@@ -6,9 +6,9 @@ import { ProviderRequestError, type ProviderHttp } from "../src/chain/provider-h
 import { loadEnv } from "../src/config/env.js";
 import { installErrorHandler } from "../src/http/errors.js";
 import { swapRoutes } from "../src/routes/swaps.js";
-import { PREVIEW_SWAPPER, SCOUT_SWAP_TOKENS } from "../src/swap/constants.js";
+import { PREVIEW_SWAPPER, SWAP_PREVIEW_TOKENS } from "../src/swap/constants.js";
 import {
-  ScoutSwapService,
+  SwapPreviewService,
   SwapQuoteProviderError,
   UniswapQuoteSource,
   normalizeQuote,
@@ -25,11 +25,11 @@ function classicQuote(overrides: Record<string, unknown> = {}) {
     isTokenApprovalApplicable: true,
     permitData: null,
     quote: {
-      input: { amount: "10000000000000000", token: SCOUT_SWAP_TOKENS.WETH.address },
+      input: { amount: "10000000000000000", token: SWAP_PREVIEW_TOKENS.WETH.address },
       output: {
         amount: "36450000",
         minimumAmount: "36267750",
-        token: SCOUT_SWAP_TOKENS.USDG.address,
+        token: SWAP_PREVIEW_TOKENS.USDG.address,
         recipient: PREVIEW_SWAPPER
       },
       routeString: "100% · WETH → USDG · v4 0.05%",
@@ -64,7 +64,7 @@ afterEach(async () => {
   await Promise.all(apps.splice(0).map((app) => app.close()));
 });
 
-describe("Scout Swap quote route", () => {
+describe("Swap preview quote route", () => {
   it("returns a sanitized, fresh, read-only WETH/USDG preview and caches repeats", async () => {
     const source = { requestQuote: vi.fn().mockResolvedValue(classicQuote()) };
     const app = await quoteApp(source);
@@ -80,7 +80,7 @@ describe("Scout Swap quote route", () => {
       input: { symbol: "WETH", amount: "0.01" },
       output: {
         symbol: "USDG",
-        address: SCOUT_SWAP_TOKENS.USDG.address,
+        address: SWAP_PREVIEW_TOKENS.USDG.address,
         amount: "36.45",
         minimumReceived: "36.26775",
         minimumSource: "provider"
@@ -124,7 +124,7 @@ describe("Scout Swap quote route", () => {
       payload: { direction: "WETH_TO_USDG", amount: "1" }
     });
     expect(off.statusCode).toBe(503);
-    expect(off.json().error.code).toBe("SCOUT_SWAP_DISABLED");
+    expect(off.json().error.code).toBe("SWAP_PREVIEW_DISABLED");
 
     const noRoute = await quoteApp({ requestQuote: vi.fn().mockRejectedValue(new SwapQuoteProviderError("no_route")) });
     const missing = await noRoute.inject({
@@ -209,11 +209,11 @@ describe("Scout Swap quote route", () => {
       routing: "CLASSIC",
       isTokenApprovalApplicable: true,
       quote: {
-        input: { amount: "1000000", token: SCOUT_SWAP_TOKENS.USDG.address },
+        input: { amount: "1000000", token: SWAP_PREVIEW_TOKENS.USDG.address },
         output: {
           amount: "532000000000000",
           minimumAmount: "529340000000000",
-          token: SCOUT_SWAP_TOKENS.WETH.address
+          token: SWAP_PREVIEW_TOKENS.WETH.address
         },
         route: [[{ type: "v4-pool" }]],
         gasFee: "12000000000000"
@@ -230,7 +230,7 @@ describe("Scout Swap quote route", () => {
       input: { symbol: "USDG", amount: "1" },
       output: { symbol: "WETH", amount: "0.000532", minimumReceived: "0.00052934" }
     });
-    expect(response.json().handoffUrl).toContain(`inputCurrency=${SCOUT_SWAP_TOKENS.USDG.address}`);
+    expect(response.json().handoffUrl).toContain(`inputCurrency=${SWAP_PREVIEW_TOKENS.USDG.address}`);
   });
 
   it("preserves an exact eighteen-decimal WETH output instead of rounding it to zero", async () => {
@@ -238,8 +238,8 @@ describe("Scout Swap quote route", () => {
       requestId: "small-reverse-quote",
       routing: "CLASSIC",
       quote: {
-        input: { amount: "1000000", token: SCOUT_SWAP_TOKENS.USDG.address },
-        output: { amount: "1", minimumAmount: "1", token: SCOUT_SWAP_TOKENS.WETH.address },
+        input: { amount: "1000000", token: SWAP_PREVIEW_TOKENS.USDG.address },
+        output: { amount: "1", minimumAmount: "1", token: SWAP_PREVIEW_TOKENS.WETH.address },
         route: [[{ type: "v4-pool" }]],
       },
     }) };
@@ -257,11 +257,11 @@ describe("Uniswap quote safety", () => {
   it("keeps transaction execution and provider credentials out of the browser feature", () => {
     const featureSource = [
       new URL("../src/swap/service.ts", import.meta.url),
-      new URL("../../web/src/pages/ScoutSwap.tsx", import.meta.url),
+      new URL("../../web/src/pages/SwapPreview.tsx", import.meta.url),
       new URL("../../web/src/swap/api.ts", import.meta.url)
     ].map((url) => readFileSync(url, "utf8")).join("\n");
     const browserSource = [
-      new URL("../../web/src/pages/ScoutSwap.tsx", import.meta.url),
+      new URL("../../web/src/pages/SwapPreview.tsx", import.meta.url),
       new URL("../../web/src/swap/api.ts", import.meta.url)
     ].map((url) => readFileSync(url, "utf8")).join("\n");
 
@@ -273,7 +273,7 @@ describe("Uniswap quote safety", () => {
 
   it("accepts the official singular simulation failure field as a preview warning", () => {
     const raw = classicQuote({
-      output: { amount: "1000000", minimumAmount: "995000", token: SCOUT_SWAP_TOKENS.USDG.address },
+      output: { amount: "1000000", minimumAmount: "995000", token: SWAP_PREVIEW_TOKENS.USDG.address },
       txFailureReason: "SIMULATION_UNAVAILABLE",
       priceImpact: undefined
     });
@@ -290,22 +290,22 @@ describe("Uniswap quote safety", () => {
       quotedAt
     )).toThrowError(SwapQuoteProviderError);
     expect(() => normalizeQuote(
-      classicQuote({ input: { amount: "20000000000000000", token: SCOUT_SWAP_TOKENS.WETH.address } }),
+      classicQuote({ input: { amount: "20000000000000000", token: SWAP_PREVIEW_TOKENS.WETH.address } }),
       { direction: "WETH_TO_USDG", amount: "0.01" },
       quotedAt
     )).toThrowError(SwapQuoteProviderError);
     expect(() => normalizeQuote(
-      classicQuote({ output: { amount: "1000000", minimumAmount: "1000001", token: SCOUT_SWAP_TOKENS.USDG.address } }),
+      classicQuote({ output: { amount: "1000000", minimumAmount: "1000001", token: SWAP_PREVIEW_TOKENS.USDG.address } }),
       { direction: "WETH_TO_USDG", amount: "0.01" },
       quotedAt
     )).toThrowError(SwapQuoteProviderError);
     expect(() => normalizeQuote(
-      { ...classicQuote({ output: { amount: "1000000", token: SCOUT_SWAP_TOKENS.USDG.address } }), routing: "DUTCH_V3" },
+      { ...classicQuote({ output: { amount: "1000000", token: SWAP_PREVIEW_TOKENS.USDG.address } }), routing: "DUTCH_V3" },
       { direction: "WETH_TO_USDG", amount: "0.01" },
       quotedAt
     )).toThrowError(SwapQuoteProviderError);
     expect(() => normalizeQuote(
-      classicQuote({ output: { amount: "9".repeat(79), minimumAmount: "1", token: SCOUT_SWAP_TOKENS.USDG.address } }),
+      classicQuote({ output: { amount: "9".repeat(79), minimumAmount: "1", token: SWAP_PREVIEW_TOKENS.USDG.address } }),
       { direction: "WETH_TO_USDG", amount: "0.01" },
       quotedAt
     )).toThrowError(SwapQuoteProviderError);
@@ -313,7 +313,7 @@ describe("Uniswap quote safety", () => {
 
   it("derives and labels a CLASSIC preview floor when the optional provider minimum is absent", () => {
     const quote = normalizeQuote(
-      classicQuote({ output: { amount: "1000000", token: SCOUT_SWAP_TOKENS.USDG.address } }),
+      classicQuote({ output: { amount: "1000000", token: SWAP_PREVIEW_TOKENS.USDG.address } }),
       { direction: "WETH_TO_USDG", amount: "0.01" },
       quotedAt
     );
@@ -350,7 +350,7 @@ describe("Uniswap quote safety", () => {
 
   it("coalesces simultaneous identical requests into one provider call", async () => {
     const source = { requestQuote: vi.fn().mockResolvedValue(classicQuote()) };
-    const service = new ScoutSwapService(enabledEnv(), new JsonCache(undefined, 15), source, () => quotedAt);
+    const service = new SwapPreviewService(enabledEnv(), new JsonCache(undefined, 15), source, () => quotedAt);
     const request = { direction: "WETH_TO_USDG" as const, amount: "0.01" };
     const [first, second] = await Promise.all([service.quote(request), service.quote(request)]);
     expect(first).toEqual(second);

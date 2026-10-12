@@ -2,9 +2,18 @@ import { describe, expect, it } from "vitest";
 import { loadEnv } from "../src/config/env.js";
 
 describe("environment validation", () => {
+  it("reads the legacy Watch flag only when the new flag is absent", () => {
+    expect(loadEnv({ NODE_ENV: "test" }).WATCH_ENABLED).toBe(false);
+    expect(loadEnv({ NODE_ENV: "test", SCOUT_WATCH_ENABLED: "true" }).WATCH_ENABLED).toBe(true);
+    expect(loadEnv({ NODE_ENV: "test", WATCH_ENABLED: "true" }).WATCH_ENABLED).toBe(true);
+    expect(loadEnv({ NODE_ENV: "test", WATCH_ENABLED: "false", SCOUT_WATCH_ENABLED: "true" }).WATCH_ENABLED).toBe(false);
+    expect(loadEnv({ NODE_ENV: "test", WATCH_ENABLED: "true", SCOUT_WATCH_ENABLED: "false" }).WATCH_ENABLED).toBe(true);
+    expect(() => loadEnv({ NODE_ENV: "test", WATCH_ENABLED: "invalid", SCOUT_WATCH_ENABLED: "true" })).toThrow();
+    expect(() => loadEnv({ NODE_ENV: "test", SCOUT_WATCH_ENABLED: "invalid" })).toThrow();
+  });
   it("allows private-only production without cloud storage but keeps security gates", () => {
     const privateProduction = {
-      NODE_ENV: "production", APP_ORIGIN: "https://chainscout.example",
+      NODE_ENV: "production", APP_ORIGIN: "https://opsis.example",
       ROBINHOOD_RPC_PROVIDER: "drpc", DRPC_API_KEY: "test-drpc-key-0123456789abcdef",
       JWT_ACCESS_SECRET: "configured-access-secret-at-least-32",
       JWT_REFRESH_SECRET: "configured-refresh-secret-at-least-32",
@@ -34,7 +43,7 @@ describe("environment validation", () => {
     expect(() => loadEnv({ NODE_ENV: "production" })).toThrow();
     expect(() => loadEnv({
       NODE_ENV: "production",
-      APP_ORIGIN: "https://chainscout.example",
+      APP_ORIGIN: "https://opsis.example",
       ROBINHOOD_RPC_PROVIDER: "drpc",
       DRPC_API_KEY: "test-drpc-key-0123456789abcdef",
       JWT_ACCESS_SECRET: "configured-access-secret-at-least-32",
@@ -50,7 +59,7 @@ describe("environment validation", () => {
   it("fails production closed when retention or protected metrics are unavailable", () => {
     const production = {
       NODE_ENV: "production",
-      APP_ORIGIN: "https://chainscout.example",
+      APP_ORIGIN: "https://opsis.example",
       JWT_ACCESS_SECRET: "configured-access-secret-at-least-32",
       JWT_REFRESH_SECRET: "configured-refresh-secret-at-least-32",
       DATABASE_URL: "postgresql://user:password@db.example.com/app",
@@ -65,8 +74,8 @@ describe("environment validation", () => {
     expect(() => loadEnv({ ...production, RETENTION_INTERVAL_HOURS: "25" })).toThrow();
     expect(() => loadEnv({ ...production, RETENTION_SOURCE_DAYS: "91" })).toThrow();
     expect(() => loadEnv({ ...production, RETENTION_USAGE_DAYS: "91" })).toThrow();
-    expect(() => loadEnv({ ...production, APP_ORIGIN: "http://chainscout.example" })).toThrow(/canonical HTTPS origin/);
-    expect(() => loadEnv({ ...production, APP_ORIGIN: "https://chainscout.example/path" })).toThrow(/canonical HTTPS origin/);
+    expect(() => loadEnv({ ...production, APP_ORIGIN: "http://opsis.example" })).toThrow(/canonical HTTPS origin/);
+    expect(() => loadEnv({ ...production, APP_ORIGIN: "https://opsis.example/path" })).toThrow(/canonical HTTPS origin/);
     expect(() => loadEnv({ ...production, JWT_ACCESS_SECRET: "short-secret" })).toThrow(/at least 32/);
     expect(() => loadEnv({ ...production, JWT_REFRESH_SECRET: production.JWT_ACCESS_SECRET })).toThrow(/must be distinct/);
     expect(() => loadEnv({ ...production, METRICS_TOKEN: production.JWT_ACCESS_SECRET })).toThrow(/must be distinct/);
@@ -77,7 +86,7 @@ describe("environment validation", () => {
     expect(loadEnv({ NODE_ENV: "test", AI_PROVIDER: "ollama" }).AI_PROVIDER).toBe("ollama");
   });
 
-  it("requires a server-side Uniswap key only when live Scout Swap quotes are enabled", () => {
+  it("requires a server-side Uniswap key only when live Swap preview quotes are enabled", () => {
     expect(() => loadEnv({ NODE_ENV: "test", UNISWAP_QUOTE_ENABLED: "true" })).toThrow(/UNISWAP_API_KEY/);
     const enabled = loadEnv({
       NODE_ENV: "test",
@@ -91,7 +100,7 @@ describe("environment validation", () => {
   it("uses dRPC for production Portfolio Intelligence and the official public RPC only in development", () => {
     const production = {
       NODE_ENV: "production",
-      APP_ORIGIN: "https://chainscout.example",
+      APP_ORIGIN: "https://opsis.example",
       ROBINHOOD_RPC_PROVIDER: "drpc",
       DRPC_API_KEY: "test-drpc-key-0123456789abcdef",
       JWT_ACCESS_SECRET: "configured-access-secret-at-least-32",
@@ -147,7 +156,7 @@ describe("environment validation", () => {
     });
   });
 
-  it("pins enabled RWA Verify to the official Robinhood endpoint and chain", () => {
+  it("pins enabled Stock-token check to the official Robinhood endpoint and chain", () => {
     expect(loadEnv({
       NODE_ENV: "development",
       RWA_VERIFY_ENABLED: "true",

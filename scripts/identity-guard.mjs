@@ -46,19 +46,19 @@ export function main(args = process.argv.slice(2)) {
   } else if (mode === "history") {
     console.log(`Identity guard: ${inspectCommits(rest.length ? rest : ["--all"], policy)} commits checked.`);
   } else if (mode === "push") {
-    const role = git(["config", "--get", "chainscout.repositoryRole"]);
-    const expectedRemote = git(["config", "--get", "chainscout.allowedPushUrl"]);
+    const role = git(["config", "--get", "opsis.repositoryRole"]);
+    const expectedRemote = git(["config", "--get", "opsis.allowedPushUrl"]);
     if (rest[1] !== expectedRemote) throw new Error("push destination differs from this clone's approved destination");
     if (!["private", "public"].includes(role)) throw new Error("install the identity guard for this clone first");
     for (const line of readFileSync(0, "utf8").trim().split("\n").filter(Boolean)) {
-      const [, localSha, remoteRef, remoteSha] = line.split(/\s+/);
+      const [, localSha, remoteRef] = line.split(/\s+/);
       if (/^0+$/.test(localSha)) throw new Error("remote deletion requires separate review");
       if (role === "public") {
         if (remoteRef !== "refs/heads/main") throw new Error("public mirror only accepts its main branch");
-        inspectCommits([localSha], policy);
+        inspectCommits([localSha, "--not", "--remotes"], policy);
         execFileSync(process.execPath, ["scripts/verify-public-tree.mjs", localSha], { stdio: "inherit" });
       } else {
-        inspectCommits(/^0+$/.test(remoteSha) ? [localSha, "--not", `--remotes=${rest[0]}`] : [`${remoteSha}..${localSha}`], policy);
+        inspectCommits([localSha, "--not", "--remotes"], policy);
       }
     }
   } else throw new Error("usage: identity-guard.mjs commit | message FILE | history [REVISIONS] | push REMOTE URL");

@@ -23,7 +23,7 @@ await new Promise((resolveListen, reject) => { server.once("error", reject); ser
 try {
   const url = `http://127.0.0.1:${server.address().port}`;
   const run = (scope) => new Promise((resolveExit, reject) => {
-    const child = spawn(process.execPath, [resolve("scripts/launch-smoke.mjs")], { env: { ...process.env, CHAINSCOUT_WEB_URL: url, CHAINSCOUT_API_URL: url, CHAINSCOUT_EXPECTED_SHA: sha, CHAINSCOUT_LAUNCH_SCOPE: scope }, stdio: "ignore" });
+    const child = spawn(process.execPath, [resolve("scripts/launch-smoke.mjs")], { env: { ...process.env, OPSIS_WEB_URL: url, OPSIS_API_URL: url, OPSIS_EXPECTED_SHA: sha, OPSIS_LAUNCH_SCOPE: scope }, stdio: "ignore" });
     child.once("error", reject); child.once("exit", resolveExit);
   });
   assert.equal(await run("private-only"), 0);

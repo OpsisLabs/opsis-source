@@ -9,7 +9,7 @@ import {
   type Address,
   type Hex,
 } from "viem";
-import { CHAINSCOUT_REVIEWED_ASSETS } from "@rh-chain/shared";
+import { REVIEWED_ASSETS } from "@rh-chain/shared";
 import type { Env } from "../config/env.js";
 import {
   ProviderRequestError,
@@ -330,7 +330,7 @@ export class ObservedTradesService implements ObservedTradesSource {
         narrowed: logs.narrowed,
         notes: logs.narrowed
           ? [
-              "The requested range matched more logs than the RPC provider returns, so ChainScout observed a smaller complete window instead of an incomplete larger one.",
+              "The requested range matched more logs than the RPC provider returns, so Opsis observed a smaller complete window instead of an incomplete larger one.",
             ]
           : [],
       },
@@ -1078,7 +1078,7 @@ export function resolvePair(contract?: string): {
 }
 
 function reviewedToken(symbol: "WETH" | "USDG"): ObservedTradeToken {
-  const token = CHAINSCOUT_REVIEWED_ASSETS[symbol];
+  const token = REVIEWED_ASSETS[symbol];
   return {
     address: token.address.toLowerCase(),
     symbol: token.symbol,
