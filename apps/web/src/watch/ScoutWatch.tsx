@@ -1,3 +1,5 @@
+import type { PortfolioSnapshot } from "@rh-chain/shared";
+import OneOffCheck from "./OneOffCheck";
 import { workspaceLink } from "../opsis/model";
 import { useCopy } from "../opsis/copy";
 import { OPSIS_PRESENTATION } from "../opsis/presentation";
@@ -50,6 +52,7 @@ function evidenceUrl(value: string) {
 
 function Access({ session }: { session: WatchSession }) {
   const { t } = useI18n();
+  const c = useCopy();
   const [searchParams] = useSearchParams();
   // A Follow handoff must survive the locked/create states. The address lives in
   // the URL only; it is shown here as a guide and consumed after unlock.
@@ -133,9 +136,9 @@ function Access({ session }: { session: WatchSession }) {
       )}
       <Link
         className="mt-3 inline-flex min-h-11 items-center text-sm text-[#ff985e] underline"
-        to="/vault?view=assets"
+        to="/saved?view=assets"
       >
-        {t("watch.manageVault")}
+        {c("Saved", "已保存")}
       </Link>
     </section>
   );
@@ -838,6 +841,22 @@ function WatchDetail({
 }
 
 export default function ScoutWatch({ tradeCheckEnabled = false }: { tradeCheckEnabled?: boolean }) {
+  const c = useCopy();
+  const [opened, setOpened] = useState(false);
+  const [pending, setPending] = useState<PortfolioSnapshot | null>(null);
+  return <div className="space-y-6">
+    {!opened ? <>
+      <OneOffCheck onSave={(snapshot) => { setPending(snapshot); setOpened(true); }} />
+      <button className="opsis-secondary" onClick={() => setOpened(true)}>{c("Open encrypted watchlist", "打开加密观察列表")}</button>
+    </> : <>
+      <button className="opsis-secondary" onClick={() => { setOpened(false); setPending(null); }}>{c("Run another one-off check", "运行另一次单次核查")}</button>
+      <SavedWatch tradeCheckEnabled={tradeCheckEnabled} pending={pending} onSaved={() => setPending(null)} />
+    </>}
+  </div>;
+}
+
+function SavedWatch({ tradeCheckEnabled, pending, onSaved }: { tradeCheckEnabled: boolean; pending: PortfolioSnapshot | null; onSaved: () => void }) {
+  const c = useCopy();
   const { t } = useI18n();
   const session = useWatchVault();
   return (
@@ -848,7 +867,7 @@ export default function ScoutWatch({ tradeCheckEnabled = false }: { tradeCheckEn
           {t("watch.badge")}
         </p>
         <h1 className="mt-4 text-3xl font-medium tracking-tight sm:text-5xl">
-          {t("watch.title")}
+          {c("Watch", "观察")}
         </h1>
         <p className="mt-3 text-xl sm:text-2xl">{t("watch.headline")}</p>
         <p className="mt-3 max-w-2xl text-base leading-relaxed text-[#bbb2a8]">
@@ -920,7 +939,14 @@ export default function ScoutWatch({ tradeCheckEnabled = false }: { tradeCheckEn
           </button>
         </section>
       ) : (
-        session.phase === "unlocked" && <Workspace session={session} tradeCheckEnabled={tradeCheckEnabled} />
+        session.phase === "unlocked" && <>
+          {pending && <section className={panel}>
+            <p className="break-all">{pending.address}</p>
+            <p>{c("Save the snapshot you just checked. No additional public lookup is sent.", "保存刚刚核查的快照，不发送额外的公开查询。")}</p>
+            <button className={primary} disabled={session.busy} onClick={() => void session.saveSnapshot(pending, onSaved)}>{c("Save checked snapshot", "保存已核查快照")}</button>
+          </section>}
+          <Workspace session={session} tradeCheckEnabled={tradeCheckEnabled} />
+        </>
       )}
       <p className="text-xs leading-relaxed text-[#bbb2a8]">
         {t("watch.storageNote")}

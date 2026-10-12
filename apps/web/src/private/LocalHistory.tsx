@@ -58,7 +58,7 @@ export function LocalHistory({
       {history.phase === "empty" && (
         <Link
           className={`${button} inline-flex items-center bg-[#fa6c34] !text-[#1d1d1d]`}
-          to="/vault?view=assets"
+          to="/saved?view=assets"
         >
           {reports ? t("cloud.history.createForReports") : t("cloud.history.createForChats")}
         </Link>
@@ -188,7 +188,7 @@ export function LocalHistory({
       </p>
       <Link
         className="inline-flex min-h-11 items-center text-sm text-[#ff985e] underline"
-        to="/vault?view=assets"
+        to="/saved?view=assets"
       >
         {t("cloud.history.setupLink")}
       </Link>

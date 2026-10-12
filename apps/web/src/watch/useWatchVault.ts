@@ -240,6 +240,15 @@ export function useWatchVault() {
       );
       setNotice(previous ? "watch.savedRefresh" : "watch.savedBaseline");
     });
+  const saveSnapshot = (snapshot: PortfolioSnapshot, onSaved: () => void) =>
+    run(async (current, assertActive) => {
+      if ((current.watches?.length ?? 0) >= WATCH_LIMIT || current.watches?.some((row) => row.address === snapshot.address))
+        throw new Error(t("watch.error.duplicateOrLimit"));
+      assertActive();
+      await commit(current, captureWatch(snapshot, ""), assertActive);
+      setNotice("watch.savedBaseline");
+      onSaved();
+    });
   const rename = (id: string, label: string) =>
     run(async (current, assertActive) => {
       const item = current.watches?.find((row) => row.id === id);
@@ -304,6 +313,7 @@ export function useWatchVault() {
     enter,
     lock,
     refresh,
+    saveSnapshot,
     rename,
     remove,
     acknowledge,
