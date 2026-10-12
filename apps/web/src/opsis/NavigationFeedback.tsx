@@ -65,7 +65,7 @@ export default function NavigationFeedback({ capabilities }: { capabilities: Cap
   return (
     <div className="opsis-navigation-progress" data-pending={Boolean(path)} data-testid="opsis-navigation-progress">
       {path && <span className="opsis-progress-line" aria-hidden="true" />}
-      <span className="sr-only" role="status" aria-live="polite">
+      <span className="sr-only" aria-live="polite">
         {path ? c(`Loading ${routeName(path, locale)}…`, `正在加载${routeName(path, locale)}…`) : ""}
       </span>
     </div>
@@ -78,7 +78,10 @@ export function RouteReady() {
   useLayoutEffect(() => { finishNavigation(); }, [pathname, search]);
   useEffect(() => {
     if (pathname === "/") {
-      document.querySelector<HTMLIFrameElement>(".opsis-original-film")?.focus({ preventScroll: true });
+      // Focusing the frame resets focus inside it, so leave it alone when the
+      // film has already returned focus to the control that opened the tool.
+      const film = document.querySelector<HTMLIFrameElement>(".opsis-original-film");
+      if (film && document.activeElement !== film) film.focus({ preventScroll: true });
       return;
     }
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
@@ -99,7 +102,7 @@ export function FrontDoorProgress() {
   const { locale } = useI18n();
   const c = useCopy();
   if (pathname !== "/" || !path) return null;
-  return <div className="opsis-front-door-progress" role="status" aria-live="polite">
+  return <div className="opsis-front-door-progress" aria-live="polite">
     <span aria-hidden="true" />
     <span className="sr-only">{c(`Loading ${routeName(path, locale)}…`, `正在加载${routeName(path, locale)}…`)}</span>
   </div>;

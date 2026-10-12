@@ -157,7 +157,7 @@ test.describe("Opsis connected workflows", () => {
       page.getByText(`My notes / conditions: ${note}`, { exact: true }),
     ).toBeVisible();
     const fresh = page.getByRole("link", { name: "Run a new trade check" });
-    await expect(fresh).toHaveAttribute("href", `/check?entity=${TOKEN}`);
+    await expect(fresh).toHaveAttribute("href", `/check?token=${TOKEN}`);
     await fresh.click();
     await expect(page.getByLabel("Amount to check")).toHaveValue("");
     expect(quotes).toBe(0);
@@ -238,6 +238,7 @@ test.describe("Opsis connected workflows", () => {
       return r.abort();
     });
     await page.goto("/watch");
+    await page.getByRole("button", { name: "Open encrypted watchlist", exact: true }).click();
     await page.getByLabel("Vault passphrase", { exact: true }).fill(passphrase);
     await page
       .getByLabel("Confirm passphrase", { exact: true })
@@ -265,7 +266,7 @@ test.describe("Opsis connected workflows", () => {
     const link = page.getByRole("link", { name: "Check a new amount" }).first();
     await expect(link).toHaveAttribute(
       "href",
-      `/check?entity=${WATCH_TEST_TOKEN}`,
+      `/check?token=${WATCH_TEST_TOKEN}`,
     );
     await link.click();
     await expect(page.getByLabel("Token contract · chain 4663")).toHaveValue(
@@ -308,7 +309,7 @@ test.describe("Opsis connected workflows", () => {
       .filter({ hasText: "More research tools" })
       .click();
     await page
-      .getByRole("link", { name: "Detailed Explorer", exact: true })
+      .getByRole("link", { name: "Detailed research", exact: true })
       .click();
     await expect(page).toHaveURL(
       new RegExp(`/research/details\\?entity=${TOKEN}$`),

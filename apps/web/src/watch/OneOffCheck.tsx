@@ -30,12 +30,6 @@ export default function OneOffCheck({
       aria-label={c("One-off public wallet check", "单次公开钱包核查")}
     >
       <h2>{c("Check a public wallet", "核查公开钱包")}</h2>
-      <p>
-        {c(
-          "Run a check without a passphrase. The address and result stay in memory for this visit; nothing from this check is saved unless you choose to save it.",
-          "无需口令即可核查。地址和结果仅在本次访问的内存中保留；只有选择保存后，才会保存本次核查。",
-        )}
-      </p>
       <form
         className="space-y-4"
         onSubmit={async (event) => {
@@ -101,6 +95,12 @@ export default function OneOffCheck({
           {busy ? c("Checking…", "正在核查…") : c("Run a check", "运行核查")}
         </button>
       </form>
+      <p className="text-sm">
+        {c(
+          "Run a check without a passphrase. The address and result stay in memory for this visit; nothing from this check is saved unless you choose to save it.",
+          "无需口令即可核查。地址和结果仅在本次访问的内存中保留；只有选择保存后，才会保存本次核查。",
+        )}
+      </p>
       {error && <p role="alert">{error}</p>}
       {snapshot && (
         <div

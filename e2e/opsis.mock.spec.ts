@@ -269,9 +269,9 @@ test.describe("opsis preview", () => {
       .click();
     await expect(page.getByRole("img", {name:/Interactive captured pool map/})).toBeVisible();
     await page
-      .getByRole("button", { name: "Light theme", exact: true })
+      .getByRole("button", { name: "Theme: Light", exact: true })
       .click();
-    await expect(page.locator(".opsis")).toHaveAttribute("data-theme", "light");
+    await expect(page.locator(".opsis")).toHaveAttribute("data-theme", "dark");
     await page.getByRole("button", { name: "中文", exact: true }).click();
     await expect(
       page
@@ -374,10 +374,10 @@ test.describe("opsis preview", () => {
   }) => {
     await access(page);
     await unlock(page, "/research");
-    for (const theme of ["dark", "light"]) {
-      if (theme === "light")
+    for (const theme of ["light", "dark"]) {
+      if (theme === "dark")
         await page
-          .getByRole("button", { name: "Light theme", exact: true })
+          .getByRole("button", { name: "Theme: Light", exact: true })
           .click();
       const results = await new AxeBuilder({ page })
         .include(".opsis")

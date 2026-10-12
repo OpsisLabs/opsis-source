@@ -7,11 +7,11 @@ afterEach(() => vi.unstubAllGlobals());
 function preference(dark: boolean) {
   vi.stubGlobal("window", { matchMedia: vi.fn().mockReturnValue({ matches: dark }) });
 }
-it("uses the system preference only without a valid saved choice", () => {
+it("uses the brand default without a valid saved choice, whatever the system preference", () => {
   const storage = { getItem: vi.fn().mockReturnValue(null) };
   vi.stubGlobal("localStorage", storage);
   preference(true);
-  expect(initialTheme()).toBe("dark");
+  expect(initialTheme()).toBe("light");
   preference(false);
   expect(initialTheme()).toBe("light");
   storage.getItem.mockReturnValue("dark");
@@ -36,10 +36,10 @@ it("tolerates both storage methods and the localStorage getter throwing", () => 
   const unavailable = () => { throw new Error("Storage unavailable"); };
   vi.stubGlobal("localStorage", { getItem: unavailable, setItem: unavailable });
   expect(savedTheme()).toBeNull();
-  expect(initialTheme()).toBe("dark");
+  expect(initialTheme()).toBe("light");
   expect(() => persistTheme("light")).not.toThrow();
   Object.defineProperty(globalThis, "localStorage", { configurable: true, get: unavailable });
-  expect(initialTheme()).toBe("dark");
+  expect(initialTheme()).toBe("light");
   expect(() => persistTheme("light")).not.toThrow();
 });
 

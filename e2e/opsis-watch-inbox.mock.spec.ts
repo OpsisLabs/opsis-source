@@ -36,6 +36,7 @@ test("Opsis Watch conditions and review state persist encrypted across refresh a
     return r.fulfill({ json: watchFixture(block++) });
   });
   await page.goto("/watch");
+  await page.getByRole("button", { name: "Open encrypted watchlist", exact: true }).click();
   await page.getByLabel("Vault passphrase", { exact: true }).fill(passphrase);
   await page.getByLabel("Confirm passphrase", { exact: true }).fill(passphrase);
   await page
@@ -82,7 +83,7 @@ test("Opsis Watch conditions and review state persist encrypted across refresh a
   await expect(conditionCard).toContainText("Anchor");
   await expect(
     conditionCard.getByRole("link", { name: "Fresh trade check →" }),
-  ).toHaveAttribute("href", `/check?entity=${WATCH_TEST_TOKEN}`);
+  ).toHaveAttribute("href", `/check?token=${WATCH_TEST_TOKEN}`);
   expect(
     await page.locator("html").evaluate((el) => el.scrollWidth - innerWidth),
   ).toBeLessThanOrEqual(1);
@@ -93,6 +94,7 @@ test("Opsis Watch conditions and review state persist encrypted across refresh a
   await page.getByRole("button", { name: "Lock watchlist" }).click();
   await page.reload();
   await expect(page.getByText(label, { exact: true })).toHaveCount(0);
+  await page.getByRole("button", { name: "Open encrypted watchlist", exact: true }).click();
   await page.getByLabel("Vault passphrase", { exact: true }).fill(passphrase);
   await page.getByRole("button", { name: "Unlock watchlist" }).click();
   await page.getByRole("button", { name: /Show reviewed \/ snoozed/ }).click();

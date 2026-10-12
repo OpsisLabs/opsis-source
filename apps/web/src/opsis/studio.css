@@ -108,7 +108,7 @@
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 .opsis .opsis-content select,
 .opsis .opsis-content textarea {
-  background: #fff;
+  background: var(--panel);
   color: var(--ink);
   border-color: #20135240;
   border-radius: 0;
@@ -211,7 +211,7 @@
   gap: 10px;
   padding: 10px 15px;
   border: 1px solid var(--line);
-  background: #fff;
+  background: var(--panel);
 }
 .opsis .opsis-engine-content .stress-negative,
 .opsis .opsis-content [class~="text-[#ffada3]"],
@@ -236,7 +236,7 @@
   background: var(--ground);
 }
 .opsis .opsis-engine-content .stress-result {
-  background: #fff;
+  background: var(--panel);
   padding: 28px;
   border: 1px solid var(--line);
 }
@@ -275,7 +275,7 @@
   display: flex;
   gap: 0;
   border: 1px solid var(--line);
-  background: #fff;
+  background: var(--panel);
   margin-bottom: 0;
   width: fit-content;
 }
@@ -307,7 +307,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) 300px;
   border: 1px solid var(--line);
-  background: #fff;
+  background: var(--panel);
 }
 .opsis .opsis-lab-plot {
   min-width: 0;
@@ -518,7 +518,7 @@
   white-space: nowrap;
 }
 .opsis .opsis-lab-data tr[data-selected="true"] {
-  background: #e9e6ff;
+  background: var(--panel-hover);
 }
 .opsis .opsis-lab-data td button {
   display: flex;
@@ -707,7 +707,7 @@
 .opsis .opsis-token-comparison {
   margin-top: 32px;
   padding: 24px;
-  background: #fff;
+  background: var(--panel);
   border: 1px solid var(--line);
 }
 .opsis .opsis-token-choices {
@@ -786,7 +786,9 @@
 }
 .opsis .opsis-content .stress-primary,
 .opsis .opsis-content .stress-segment button[aria-pressed="true"] {
-  color: #fff;
+  color: var(--button-ink);
+  background: var(--button);
+  border-color: var(--button);
 }
 .opsis .opsis-content .stress-page button[aria-pressed="true"],
 .opsis .opsis-content .stress-primary:hover,
@@ -850,7 +852,7 @@
   padding: 18px;
   text-align: left;
   border: 1px solid var(--line);
-  background: #fff;
+  background: var(--panel);
   color: var(--ink);
   min-width: 0;
 }

@@ -63,7 +63,7 @@ test("opsis preview shell navigation", async ({ page }) => {
 
   await workspace(page, "Trade Check").click();
   await expect(page.getByTestId("opsis-navigation-progress")).toHaveAttribute("data-pending", "true");
-  await expect(page.getByTestId("opsis-navigation-progress").getByRole("status")).toHaveText("Loading Trade Check…");
+  await expect(page.getByTestId("opsis-navigation-progress").locator("[aria-live=polite]")).toHaveText("Loading Trade Check…");
   await expect(page.getByTestId("opsis-research-result")).toBeVisible();
   await expect(page.getByText("Loading page", { exact: true })).toHaveCount(0);
   await expect(page.getByText("Loading workspace…", { exact: true })).toHaveCount(0);

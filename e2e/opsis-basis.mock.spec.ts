@@ -46,6 +46,7 @@ test("basis import race is guarded and Chinese mobile layout stays within viewpo
   await page.goto("/lab");
   await page.getByRole("button", { name: /Quant research/ }).click();
   await page.locator("summary").filter({ hasText: "Mark / index basis dataset" }).click();
+  await page.getByRole("button", { name: "Theme: Light", exact: true }).click();
   await expect(page.locator(".opsis")).toHaveAttribute("data-theme", "dark");
   const darkBackground = await page.locator(".opsis-basis button").first().evaluate((element) => getComputedStyle(element).backgroundColor);
   expect(darkBackground).not.toBe("rgba(0, 0, 0, 0)");

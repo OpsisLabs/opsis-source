@@ -30,7 +30,7 @@ test.describe("Opsis tool finder", () => {
     });
     await page.goto("/guide");
     await expect(
-      page.getByRole("heading", { name: "What brings you here?" }),
+      page.getByRole("heading", { name: "Find your tool", level: 1 }),
     ).toBeVisible();
     await page.screenshot({
       path: "output/opsis-guidance/finder-desktop.png",
@@ -45,7 +45,7 @@ test.describe("Opsis tool finder", () => {
     await page.getByRole("button", { name: "I'm holding assets" }).click();
     await expect(
       suggestions.getByRole("link", {
-        name: "Open Wallet watch ↗",
+        name: "Open Watch ↗",
         exact: true,
       }),
     ).toHaveAttribute("href", "/watch");
@@ -131,7 +131,7 @@ test.describe("Opsis tool finder", () => {
       .click();
     await expect(page).toHaveURL(/\/guide$/);
     await expect(
-      page.getByRole("heading", { name: "What brings you here?" }),
+      page.getByRole("heading", { name: "Find your tool", level: 1 }),
     ).toBeVisible();
     await expect(
       page

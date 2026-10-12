@@ -46,11 +46,13 @@ import('./scene.js?v=data-18').then(async({createScanner})=>{scene=await createS
 // Hover reveals desktop navigation; focus and touch provide equivalent access.
 const rail=$('#sidebar'),railPanel=$('#sidebar-panel'),railToggle=$('#sidebar-toggle');
 function showRail(open){rail.classList.toggle('is-open',open);railPanel.inert=!open;railToggle.setAttribute('aria-expanded',String(open));railToggle.setAttribute('aria-label',open?c('Close navigation','关闭导航'):c('Open navigation','打开导航'))}
-rail.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'&&matchMedia('(min-width:851px)').matches)showRail(true)});
+let hoverOpenedAt=0;
+rail.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'&&matchMedia('(min-width:851px)').matches&&!rail.classList.contains('is-open')){hoverOpenedAt=performance.now();showRail(true)}});
 rail.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'&&!rail.querySelector(':focus-visible'))showRail(false)});
 rail.addEventListener('focusin',e=>{if(e.target.matches(':focus-visible'))showRail(true)});
 rail.addEventListener('focusout',e=>{if(e.relatedTarget&&!rail.contains(e.relatedTarget))showRail(false)});
-railToggle.addEventListener('click',()=>showRail(!rail.classList.contains('is-open')));
+// A click that follows the hover which just opened the rail keeps it open instead of toggling it shut.
+railToggle.addEventListener('click',()=>{const open=rail.classList.contains('is-open');if(open&&performance.now()-hoverOpenedAt<800){hoverOpenedAt=0;return}showRail(!open)});
 rail.addEventListener('keydown',e=>{if(e.key==='Escape'){railToggle.focus();showRail(false);e.preventDefault()}});
 document.addEventListener('pointerdown',e=>{if(!rail.contains(e.target))showRail(false)});
 railPanel.addEventListener('click',e=>{if(e.target.closest('button')&&!matchMedia('(hover:hover)').matches)showRail(false)});

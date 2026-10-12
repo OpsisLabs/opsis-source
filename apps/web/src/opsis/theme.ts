@@ -8,8 +8,9 @@ export function savedTheme(): Theme | null {
 }
 export function initialTheme(): Theme {
   const saved = savedTheme();
-  if (saved) return saved;
-  return typeof window !== "undefined" && window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  // D15: the default is electric-blue navigation around the light paper surface;
+  // the dark surface is an explicit choice.
+  return saved ?? "light";
 }
 export function persistTheme(theme: Theme): void {
   try { localStorage.setItem(themeKey, theme); } catch { /* Storage may be unavailable. */ }
