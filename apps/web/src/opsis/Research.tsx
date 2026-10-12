@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useLocation } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { analyzePrivate, type PrivateAnalysis } from "../private/api";
 import { safeHttpUrl } from "../dashboard/adapters";
 import type { ExplorerAnswerTask } from "../dashboard/types";
@@ -9,7 +9,9 @@ import {
 } from "../watch/followWallet";
 import ResearchIntro from "./ResearchIntro";
 import { useCopy } from "./copy";
-import { publicIdentity, researchInputMatchesChoice, workspaceLink, type Capabilities } from "./model";
+import { publicIdentity, workspaceIdentity, researchInputMatchesChoice, workspaceLink, type Capabilities } from "./model";
+
+import { publicSession } from "./public-session";
 
 import ReportShelf from "./ReportShelf";
 import { researchReport } from "./reports";
@@ -25,18 +27,39 @@ export default function Research({
 }) {
   const c = useCopy();
   const location = useLocation();
+  const navigate = useNavigate();
+  const incoming = workspaceIdentity("/research", location.search);
+  const remembered = !incoming || incoming === publicSession.research.entity;
   const [entity, setEntity] = useState(() =>
-    publicIdentity(new URLSearchParams(location.search).get("entity")),
+    incoming || publicSession.research.entity,
   );
-  const [task, setTask] = useState<ExplorerAnswerTask>("overview");
-  const [entityType, setEntityType] = useState<"unknown" | "token">("unknown");
-  const [result, setResult] = useState<PrivateAnalysis | null>(null);
+  const [task, setTask] = useState<ExplorerAnswerTask>(remembered ? publicSession.research.task : "overview");
+  const [entityType, setEntityType] = useState<"unknown" | "token">(remembered ? publicSession.research.entityType : "unknown");
+  const [result, setResult] = useState<PrivateAnalysis | null>(remembered ? publicSession.research.result : null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
   const pending = useRef<AbortController | null>(null);
   const trimmedEntity = entity.trim();
   const inputMatchesChoice = researchInputMatchesChoice(trimmedEntity, entityType);
   useEffect(() => () => pending.current?.abort(), []);
+  useEffect(() => {
+    publicSession.research = { entity: publicIdentity(entity), task, entityType, result };
+  }, [entity, task, entityType, result]);
+  useEffect(() => {
+    if (incoming && incoming !== entity) {
+      pending.current?.abort();
+      // Synchronize explicit router context without initiating a lookup.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setEntity(incoming);
+      setResult(null);
+      setBusy(false);
+      setError(false);
+    }
+  }, [incoming]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    const path = workspaceLink("/research", incoming || publicSession.research.entity);
+    if (`/research${location.search}` !== path) navigate(path, { replace: true });
+  }, [incoming, location.search, navigate]);
   function clear() {
     pending.current?.abort();
     setBusy(false);
@@ -48,6 +71,7 @@ export default function Research({
     const controller = new AbortController();
     pending.current = controller;
     setBusy(true);
+    navigate(workspaceLink("/research", trimmedEntity), { replace: true });
     try {
       const next = await analyzePrivate(
         { entity: trimmedEntity, entityType, task },
@@ -482,17 +506,17 @@ export default function Research({
               result?.entity.value ?? entity,
             )}
           >
-            {c("Detailed Explorer", "详细浏览器")}
+            {c("Detailed research", "详细研究")}
           </Link>
           {capabilities.rwa && (
             <Link to="/rwa">
-              {c("Verify a stock token or vault", "验证股票代币或金库")}
+              {c("Stock-token check", "股票代币核查")}
             </Link>
           )}
           {capabilities.observedTrades &&
             import.meta.env.VITE_OBSERVED_TRADES_ENABLED === "true" && (
               <Link to="/biggest-trades">
-                {c("Largest observed V3 trades", "已观察到的最大 V3 交易")}
+                {c("Big trades", "大额交易")}
               </Link>
             )}
         </div>

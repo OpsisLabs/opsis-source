@@ -31,12 +31,25 @@
   background: #1000ff;
 }
 .opsis {
+  --surface-ground: #151127;
+  --surface-panel: #211b36;
+  --surface-hover: #302944;
+  --surface-ink: #f4f1ff;
+  --surface-soft: #c8c4da;
+  --surface-line: #8d87ad;
+  --surface-accent: #b9b0ff;
+  --surface-button: #d6d0ff;
+  --surface-button-ink: #171127;
+  --surface-negative: #ffb4be;
+  --surface-positive: #9de3be;
+  --surface-info: #9fd6ff;
+  --surface-purple: #d3b4ff;
   --ground: #1000ff;
   --panel: #170ce6;
   --panel-hover: #291df3;
   --ink: #fff;
   --soft: #d1ceff;
-  --line: #ffffff42;
+  --line: #8981ff;
   --accent: #fff;
   --button: #fff;
   --button-ink: #1000ff;
@@ -49,17 +62,86 @@
   min-height: 100dvh;
 }
 .opsis[data-theme="light"] {
-  --ground: #f4f3ff;
-  --panel: #fff;
-  --panel-hover: #e8e5ff;
-  --ink: #160b79;
-  --soft: #514b7a;
-  --line: #22127e35;
-  --accent: #1000ff;
-  --button: #1000ff;
-  --button-ink: #fff;
+  --surface-ground: #f7f7f2;
+  --surface-panel: #fff;
+  --surface-hover: #eeedf9;
+  --surface-ink: #181249;
+  --surface-soft: #59546e;
+  --surface-line: #817d92;
+  --surface-accent: #1000ff;
+  --surface-button: #1000ff;
+  --surface-button-ink: #fff;
+  --surface-negative: #a12137;
+  --surface-positive: #176b46;
+  --surface-info: #185e8a;
+  --surface-purple: #633696;
   color-scheme: light;
 }
+/* More specific than the inherited studio adapter: both surfaces use tokens. */
+.opsis[data-theme] .opsis-content {
+  --ground: var(--surface-ground);
+  --panel: var(--surface-panel);
+  --panel-hover: var(--surface-hover);
+  --ink: var(--surface-ink);
+  --soft: var(--surface-soft);
+  --line: var(--surface-line);
+  --accent: var(--surface-accent);
+  --button: var(--surface-button);
+  --button-ink: var(--surface-button-ink);
+  --ink-2: var(--panel);
+  --ink-3: var(--panel-hover);
+  --text-primary: var(--ink);
+  --text-secondary: var(--soft);
+  --text-muted: var(--soft);
+  --orange: var(--accent);
+}
+.opsis[data-theme="dark"] .opsis-content { color-scheme: dark; }
+.opsis[data-theme="light"] .opsis-content { color-scheme: light; }
+.opsis[data-theme] .opsis-content .opsis-legacy {
+  --ink-2: var(--panel);
+  --ink-3: var(--panel-hover);
+  --orange: var(--accent);
+}
+.opsis[data-theme] .opsis-content input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.opsis[data-theme] .opsis-content select,
+.opsis[data-theme] .opsis-content textarea {
+  background: var(--panel);
+  color: var(--ink);
+  border-color: var(--line);
+}
+.opsis[data-theme] .opsis-content input::placeholder { color: var(--soft); }
+.opsis[data-theme] .opsis-content input[type="range"] { accent-color: var(--accent); }
+.opsis[data-theme] .opsis-content :is(.opsis-vault-controls button, .stress-result, .opsis-lab-mode, .opsis-lab-workbench) {
+  background: var(--panel);
+  color: var(--ink);
+}
+.opsis[data-theme] .opsis-content :is(.stress-negative, .stress-compare-error, [class~="text-[#ffada3]"], [class~="text-[#ffabbc]"], [class~="text-[#e0738a]"], [class~="text-[#ffbbca]"]) {
+  color: var(--surface-negative) !important;
+}
+.opsis[data-theme] .opsis-content :is(.stress-positive, [class~="text-[#7fb069]"], [class~="text-[#99d6b3]"], [class~="text-[#9fc68f]"]) {
+  color: var(--surface-positive) !important;
+}
+.opsis[data-theme] .opsis-content [class~="text-[#7cc4f8]"] { color: var(--surface-info) !important; }
+.opsis[data-theme] .opsis-content [class~="text-[#c9a6ff]"] { color: var(--surface-purple) !important; }
+.opsis-navigation-progress {
+  height: 3px;
+  background: var(--surface-ground);
+  position: relative;
+}
+.opsis-front-door-progress { position: fixed; inset: 0 0 auto; height: 3px; z-index: 100; background: #1000ff; }
+.opsis-front-door-progress > span:first-child { display: block; height: 100%; background: #d1ceff; animation: opsis-progress 1s ease-in-out infinite alternate; transform-origin: left; }
+.opsis-progress-line {
+  display: block;
+  position: absolute;
+  inset: 0;
+  background: var(--surface-accent);
+  animation: opsis-progress 1s ease-in-out infinite alternate;
+  transform-origin: left;
+}
+@keyframes opsis-progress { from { transform: scaleX(0.25); } to { transform: scaleX(1); } }
+.opsis-workspace-placeholder { min-height: 60vh; padding-top: 24px; }
+.opsis-workspace-placeholder > div { height: 20px; width: 60%; background: var(--panel-hover); margin-bottom: 24px; }
+.opsis-workspace-placeholder > div:last-child { width: 100%; height: 250px; }
 .opsis * {
   box-sizing: border-box;
 }
@@ -241,6 +323,8 @@
   font-size: 12px;
 }
 .opsis-tool-nav {
+  height: 46px;
+  flex-shrink: 0;
   display: flex;
   gap: 22px;
   align-items: center;
@@ -815,6 +899,7 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .opsis-front-door-progress > span:first-child { animation: none; }
   .opsis * {
     animation: none !important;
     transition: none !important;
