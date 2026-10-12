@@ -368,7 +368,7 @@ export class RwaService implements RwaVerificationSource {
           ? "Contract name, symbol, underlying asset, and underlying decimals agree with Morpho's record."
           : "Direct contract identity or underlying decimals and Morpho's indexed record do not fully agree.", ["morpho-config", "robinhood-rpc"]),
         check("listing", "Morpho listing", listing === true ? "confirmed" : listing === false ? "warning" : listingMalformed ? "conflict" : "missing", listing === true
-          ? "Morpho currently marks this vault listed. Listing is a provider classification, not a Opsis endorsement."
+          ? "Morpho currently marks this vault listed. Listing is a provider classification, not an Opsis endorsement."
           : listing === false
             ? "Morpho currently marks this vault unlisted. Review the owner, curator, gates, and source contract carefully."
             : listingMalformed

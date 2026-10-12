@@ -3,7 +3,7 @@
   "info": {
     "title": "Opsis Open Data API",
     "version": "1.0.0",
-    "description": "Two capped credentialless routes for a Opsis-reviewed static support registry and Opsis-derived syntax normalization. Intended for server-to-server or same-origin use; cross-origin browser CORS is deliberately disabled. No provider calls or Vault data."
+    "description": "Two capped credentialless routes for an Opsis-reviewed static support registry and Opsis-derived syntax normalization. Intended for server-to-server or same-origin use; cross-origin browser CORS is deliberately disabled. No provider calls or Vault data."
   },
   "servers": [{ "url": "/", "description": "Current Opsis origin" }],
   "security": [],

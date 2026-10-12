@@ -139,7 +139,7 @@ test("separates Morpho listing, indexed liquidity, and variable yield from endor
       indexedBlock: 33439990, configIndexedBlock: 33439988, apyIndexedBlock: 33439989, indexLagBlocks: 10, trailing24hApy: "0.0362605711219608"
     },
     checks: [
-      { id: "listing", label: "Morpho listing", status: "confirmed", detail: "Listing is a provider classification, not a Opsis endorsement.", sourceIds: [] },
+      { id: "listing", label: "Morpho listing", status: "confirmed", detail: "Listing is a provider classification, not an Opsis endorsement.", sourceIds: [] },
       { id: "liquidity", label: "Indexed withdrawals", status: "warning", detail: "Eligibility and executable output remain unknown.", sourceIds: [] }
     ],
     limitations: ["APY is trailing indexed data and is not guaranteed.", "ERC-4626 maxWithdraw is not used as general liquidity evidence."]

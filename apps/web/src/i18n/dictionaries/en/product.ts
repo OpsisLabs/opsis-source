@@ -74,7 +74,7 @@ export const product = {
   "product.tour.step1.lookup.description": "Use a public wallet, token, transaction, or contract. The view is temporary and nothing is added to your Vault automatically.",
   "product.tour.step1.save.eyebrow": "SAVE PRIVATELY",
   "product.tour.step1.save.title": "Build your own asset view.",
-  "product.tour.step1.save.description": "Keep purchase prices, notes, photos, holdings, and local portfolio context encrypted in this browser—not in a Opsis account.",
+  "product.tour.step1.save.description": "Keep purchase prices, notes, photos, holdings, and local portfolio context encrypted in this browser—not in an Opsis account.",
   "product.tour.step2.eyebrow": "YOUR FIRST WIN",
   "product.tour.step2.title": "What brought you here?",
   "product.tour.step2.description": "Pick one. Opsis will take you straight to the right workspace.",

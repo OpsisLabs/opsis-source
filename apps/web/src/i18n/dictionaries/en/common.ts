@@ -81,10 +81,10 @@ export const common = {
     "Review Opsis's bounded public support registry and syntax-normalization API when the developer surface is enabled.",
   "metadata.login.title": "Sign In | Opsis",
   "metadata.login.description":
-    "Optionally sign in to a Opsis cloud workspace using a wallet message signature or account credentials.",
+    "Optionally sign in to an Opsis cloud workspace using a wallet message signature or account credentials.",
   "metadata.register.title": "Create Account | Opsis",
   "metadata.register.description":
-    "Optionally create a Opsis cloud workspace; the encrypted browser-local Vault remains separate.",
+    "Optionally create an Opsis cloud workspace; the encrypted browser-local Vault remains separate.",
   "metadata.cloud.title": "Cloud Workspace | Opsis",
   "metadata.cloud.description": "Your optional signed-in Opsis workspace.",
 } as const;
