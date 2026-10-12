@@ -33,13 +33,13 @@ Public CI is a separate verification-only workflow with no deployment credential
 Git does not activate repository hooks on clone. Run:
 
 ```bash
-git config --local user.name ChainScout
-git config --local user.email source@chainscout.invalid
+git config --local user.name Opsis
+git config --local user.email source@opsis.invalid
 git config --local user.useConfigOnly true
 git config --local commit.gpgsign false
 git config --local core.hooksPath .githooks
-git config --local chainscout.repositoryRole public
-git config --local chainscout.allowedPushUrl "$(git remote get-url --push origin)"
+git config --local opsis.repositoryRole public
+git config --local opsis.allowedPushUrl "$(git remote get-url --push origin)"
 node scripts/identity-guard.mjs commit
 ```
 
@@ -69,7 +69,7 @@ address is intentionally not a personal, verified GitHub email or contact mailbo
 3. Export filtered history into a **new, separate, empty directory**:
 
    ```bash
-   node scripts/export-public-history.mjs /absolute/path/to/chainscout-public
+   node scripts/export-public-history.mjs /absolute/path/to/opsis-public
    ```
 
 4. Inspect the exported file list. Scan **the exported tree** with an independently
@@ -89,8 +89,8 @@ address is intentionally not a personal, verified GitHub email or contact mailbo
    ```bash
    node scripts/identity-guard.mjs history HEAD
    # From the private source clone:
-   node scripts/export-public.mjs /absolute/path/to/chainscout-public --check
-   node scripts/export-public-history.mjs /absolute/path/to/chainscout-public --verify
+   node scripts/export-public.mjs /absolute/path/to/opsis-public --check
+   node scripts/export-public-history.mjs /absolute/path/to/opsis-public --verify
    ```
 
 7. Audit the complete new Git history for secrets, then push only public `main`.
@@ -101,7 +101,7 @@ address is intentionally not a personal, verified GitHub email or contact mailbo
 1. Finish and test a change in the private source clone. Commit it there.
 2. In the public clone, fetch and fast-forward `main`. Stop for unrelated local
    work or unexpected upstream changes; do not overwrite them.
-3. Run `node scripts/export-public-history.mjs /absolute/path/to/chainscout-public --sync`
+3. Run `node scripts/export-public-history.mjs /absolute/path/to/opsis-public --sync`
    from the private clone against the public clone. It
    refuses a dirty source, dirty public destination, or a non-`main` public branch.
    Existing commits are never rewritten. Each new source commit becomes one
@@ -111,14 +111,14 @@ address is intentionally not a personal, verified GitHub email or contact mailbo
 4. Review the appended commits and rerun the full-history secret/identity checks.
    Verify dates/count/topology with `--verify` and current file parity with the
    snapshot exporter's `--check`. An unchanged source history creates no commits.
-5. Push public `main`. This **does not deploy** ChainScout. Follow the private
+5. Push public `main`. This **does not deploy** Opsis. Follow the private
    release process separately for production.
 
 The snapshot exporter never commits or pushes; the history exporter creates local
 commits but never pushes, configures a remote, or creates a GitHub repository.
 Neither reads ignored environment files. `--check` and `--verify` are read-only.
 The source/public hash mapping stays only in the public clone's
-`.git/chainscout-history-map.json`; retain it privately for future synchronization.
+`.git/opsis-history-map.json`; retain it privately for future synchronization.
 Do not commit it or export the `.git` directory. A new clone without that ledger
 must stop for reviewed recovery, not guess a mapping or force-push.
 Keep the two clones separate. Set the approved public push URL explicitly after

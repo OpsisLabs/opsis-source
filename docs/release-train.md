@@ -1,4 +1,4 @@
-# ChainScout parallel preparation and sequential release train
+# Opsis parallel preparation and sequential release train
 
 The release order lives in [`release-train.json`](../release-train.json). It is the single source of truth for branch names, status, outcomes, and ship gates.
 
@@ -12,7 +12,7 @@ The release order lives in [`release-train.json`](../release-train.json). It is 
 6. RC tags are immutable. Fixes receive a new number; an existing tag is never moved.
 7. New vendor spend is capped at $0. Adapters cache, degrade, then disable before free-tier overage. Exception: the prepaid dRPC Robinhood Chain RPC admitted in Opsis decision D20, behind a fail-closed monthly compute-unit fuse.
 8. The selected provider path cannot have a publicly stated KYB/KYC requirement. Exception: dRPC under D20, admitted only while it does not request identity or business verification.
-9. ChainScout explains and prepares. The official Uniswap app owns transaction signing and execution.
+9. Opsis explains and prepares. The official Uniswap app owns transaction signing and execution.
 
 ## Daily workflow
 

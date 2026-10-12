@@ -1,20 +1,16 @@
-> **Opsis (working name).** This private repository starts from ChainScout's code as an additive pivot. The product direction, scope and build order are in [docs/opsis/](docs/opsis/README.md). Everything below this note is the inherited ChainScout README; update it when the rebrand release ships.
+> **Opsis** is a research and trading-intelligence hub built on this repository’s existing engines. The product direction, scope and build order are in [docs/opsis/](docs/opsis/README.md). Opsis is the final name (decision D22).
 
 <p align="center">
-  <img src="docs/assets/chainscout-source.svg" alt="ChainScout — public facts, private context. Explore, understand, keep privately." width="100%" />
+  <img src="docs/assets/opsis-source.svg" alt="Opsis — public facts, private context. Explore, understand, keep privately." width="100%" />
 </p>
 
 <p align="center">
-  <a href="https://www.chainscout.net">Website</a> ·
-  <a href="https://www.chainscout.net/guide">Start guide</a> ·
-  <a href="https://www.chainscout.net/docs">Technical docs</a> ·
-  <a href="https://www.chainscout.net/faq">FAQ</a> ·
   <a href="LICENSE">License: PolyForm Noncommercial 1.0.0</a>
 </p>
 
 ```text
   +----------------------------------------------------------------+
-  |  CHAINSCOUT                                      CHAIN // 4663 |
+  |  OPSIS                                           CHAIN // 4663 |
   |                                                                |
   |  Public chain facts  --->  Clear explanations                  |
   |  Your private context --->  Your encrypted, local Vault        |
@@ -25,7 +21,7 @@
 
 # Understand what you own. Keep your context private.
 
-ChainScout is a read-only asset intelligence workspace for **Robinhood Chain**.
+Opsis is a read-only asset intelligence workspace for **Robinhood Chain**.
 Explore wallets and transactions, inspect tokenized-asset claims, preview supported
 swaps, and keep your own crypto, NFT, Pokémon card, collectible, and real-world
 asset records together in an encrypted, browser-local Vault.
@@ -43,12 +39,12 @@ your purchase prices, ownership notes, photos, and saved chats stay local.**
 
 | Workspace | What it does | Important boundary |
 | --- | --- | --- |
-| **Private Explorer** | Explain a public wallet, token, contract, or transaction with source-linked facts and follow-up questions. | No account or wallet connection required. Provider gaps are reported, not invented away. |
+| **Research** | Explain a public wallet, token, contract, or transaction with source-linked facts and follow-up questions. | No account or wallet connection required. Provider gaps are reported, not invented away. |
 | **Encrypted Vault** | Track assets, exact purchase lots, notes, local photos, and dated values. Export, restore, recover, and lock your records. | Browser-local ciphertext; not automatic cloud sync. Manual ownership and valuations are your claims. |
 | **Local chat history** | Opt into encrypted autosave by unlocking the Vault in Explorer. Reopen saved conversations and include them in backups. | Same browser profile and site origin. Saved answers are dated snapshots, not refreshed evidence. |
 | **Portfolio Intelligence** | Build a read-only holdings/activity snapshot and combine it with private local context. | Coverage is bounded and provider-dependent. A captured current block is not a finality guarantee. |
-| **RWA Verify** | Check exact-address Stock Token and Morpho vault identity, source evidence, and limitations. | A registry match is not proof of physical authenticity, solvency, redemption eligibility, or safety. |
-| **Scout Swap** | Inspect a supported WETH/USDG preview, freshness, minimum received, costs, and simulation information. | Official Uniswap independently requotes and owns signing/execution. ChainScout never submits a trade. |
+| **Stock-token check** | Check exact-address Stock Token and Morpho vault identity, source evidence, and limitations. | A registry match is not proof of physical authenticity, solvency, redemption eligibility, or safety. |
+| **Swap preview** | Inspect a supported WETH/USDG preview, freshness, minimum received, costs, and simulation information. | Official Uniswap independently requotes and owns signing/execution. Opsis never submits a trade. |
 | **Collectible Catalog** | Match supported Pokémon card identity and attach owner-reported variant, condition, grading, photos, and references. | Catalog metadata and permitted image paths do not authenticate a card or establish its value. Manual entry remains available. |
 | **Market & Inventory** | Compare supported public observations and approved merchant mappings with private landed-cost inputs. | Opt-in, flag-controlled. Coverage and freshness vary; unsupported venues use outbound handoffs. |
 | **Replay Actions** | Rebuild a supported trade or purchase with fresh inputs and current evidence. | Flag-controlled. It does not infer or reuse historical intent, calldata, approvals, or checkout sessions. |
@@ -84,7 +80,7 @@ flowchart LR
 The API validates identifiers, applies request limits and provider budgets,
 normalizes the available evidence, and returns citations and limitations.
 Supported AI paths can explain those facts; a deterministic fallback remains
-available. Public Private Explorer uses the privacy-specific route and reports
+available. Public Research uses the privacy-specific route and reports
 the actual destinations in its privacy receipt. Optional cloud/AI paths have
 different data boundaries and must not be confused with that mode.
 
@@ -190,7 +186,7 @@ POST /v1/public/open-data/v1/normalize
 
 It returns reviewed static support information and syntactic normalization—not
 proof of ownership, current market prices, or transaction safety. The separate
-Private Explorer endpoint is `POST /v1/private/analyze`. Specialist private
+Research endpoint is `POST /v1/private/analyze`. Specialist private
 routes support explicit consent receipts and bounded public lookups.
 See the [Open Data specification](apps/web/public/open-data-v1.openapi.json).
 
@@ -210,7 +206,7 @@ access-control workaround is implied by this repository.
 ## Development map
 
 ```text
-chainscout/
+opsis/
 |-- apps/
 |   |-- api/           Fastify routes, providers, evidence, limits, migrations
 |   `-- web/           React workspace, local encryption, asset tools, design
@@ -258,15 +254,14 @@ See [the public-source workflow](docs/public-source.md) for synchronization,
 identity setup, audit requirements, and verification. Do not use `git push --mirror`
 from a private development clone. Public pushes do not deploy the product.
 
-Commit metadata uses `ChainScout <source@chainscout.invalid>`; the reserved address
+Commit metadata uses `Opsis <source@opsis.invalid>`; the reserved address
 is deliberately not a personal mailbox. This avoids personal author/email
 attribution in project commits, **not GitHub activity attribution or anonymity**.
 Local hooks must be installed per clone and can be bypassed; CI is a secondary
 detection layer, not a way to undo an already published identity.
 
 For suspected vulnerabilities, do not post secrets or exploit details in public
-issues. Use the repository's private vulnerability-reporting channel when enabled;
-otherwise request a private contact through [the project](https://www.chainscout.net).
+issues. A support and security contact is to be published on this page.
 
 ## Rights, dependencies and independence
 
@@ -280,17 +275,16 @@ license from the applicable rights holders; publishing the code is not permissio
 to sell it or run a commercial hosted clone.
 
 The complete [LICENSE](LICENSE) controls; this paragraph is only a summary.
-For commercial licensing enquiries, contact the maintainers through the
-[ChainScout organization](https://github.com/ChainScoutAi). No personal contact
-details or copyright ownership transfers are implied by project commit identities.
+For commercial licensing enquiries, a maintainer contact is to be published on this page.
+No personal contact details or copyright ownership transfers are implied by project commit identities.
 This license does not retroactively change the terms of earlier revisions.
-It grants no trademark rights or permission to imply ChainScout endorsement.
+It grants no trademark rights or permission to imply Opsis endorsement.
 
 Dependencies and third-party bundled assets retain their own terms;
 see [dependency licensing](docs/dependency-licenses.md) and
 [third-party notices](apps/web/public/THIRD_PARTY_NOTICES.txt). A project license
 does not grant rights to third-party artwork, trademarks, or provider data.
 
-ChainScout is an independent project. Robinhood, Uniswap, Morpho, Pokémon, and
+Opsis is an independent project. Robinhood, Uniswap, Morpho, Pokémon, and
 other referenced providers or brands do not imply sponsorship or endorsement.
 The software is informational, not investment advice or an assurance about an asset.

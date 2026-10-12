@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-labelledby="title desc">
-  <title id="title">ChainScout — public facts, private context</title>
+  <title id="title">Opsis — public facts, private context</title>
   <desc id="desc">A flat charcoal and orange technical banner with three connected geometric panels: explore, understand, and keep privately.</desc>
   <rect width="1200" height="420" fill="#1d1d1d"/>
   <path d="M0 0h1200v8H0z" fill="#fa6c34"/>
   <g stroke="#36322f" fill="none"><path d="M40 55h1120M40 365h1120M775 55v310"/><path d="M40 380v12m1120-12v12"/></g>
-  <g font-family="monospace" fill="#fa6c34"><text x="48" y="42" font-size="13" letter-spacing="3">CHAINSCOUT / PUBLIC SOURCE</text><text x="928" y="42" font-size="13" letter-spacing="2">ROBINHOOD CHAIN</text></g>
+  <g font-family="monospace" fill="#fa6c34"><text x="48" y="42" font-size="13" letter-spacing="3">OPSIS / PUBLIC SOURCE</text><text x="928" y="42" font-size="13" letter-spacing="2">ROBINHOOD CHAIN</text></g>
   <g font-family="Arial,Helvetica,sans-serif" fill="#eee5d5"><text x="48" y="146" font-size="61" font-weight="700" letter-spacing="-2">Public facts.</text><text x="48" y="218" font-size="61" font-weight="700" letter-spacing="-2">Private context.</text><text x="50" y="272" font-size="19" fill="#b5aa9d">One workspace for your assets. Your context stays yours.</text></g>
   <g font-family="monospace" font-size="12" letter-spacing="2"><rect x="50" y="307" width="127" height="29" fill="#fa6c34"/><text x="64" y="327" fill="#1d1d1d">READ-ONLY</text><text x="199" y="327" fill="#b5aa9d">SOURCE-LINKED / LOCAL ENCRYPTION</text></g>
   <g font-family="monospace"><path d="M825 95h283l25 25v46H825z" fill="#fa6c34"/><text x="847" y="139" fill="#1d1d1d" font-size="18">01 / EXPLORE</text><path d="M980 168v26m-6-6 6 6 6-6" fill="none" stroke="#fa6c34" stroke-width="2"/><path d="M825 201h308v57H825z" fill="#252422" stroke="#5f5248"/><text x="847" y="237" fill="#eee5d5" font-size="18">02 / UNDERSTAND</text><path d="M980 260v26m-6-6 6 6 6-6" fill="none" stroke="#fa6c34" stroke-width="2"/><path d="M825 293h308v39l-18 18H825z" fill="#252422" stroke="#5f5248"/><text x="847" y="328" fill="#eee5d5" font-size="18">03 / KEEP PRIVATELY</text></g>
