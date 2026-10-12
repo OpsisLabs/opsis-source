@@ -1,21 +1,10 @@
 let pendingPath = "";
-let startTimer: ReturnType<typeof setTimeout> | undefined;
 const listeners = new Set<() => void>();
 export function beginNavigation(path: string) {
-  clearTimeout(startTimer);
-  // Capture listeners run before the router's root click handler. A store
-  // notification schedules a React sync flush at a microtask checkpoint, which
-  // can occur between native listeners. Wait for the whole event to finish.
-  startTimer = setTimeout(() => {
-    startTimer = undefined;
-    pendingPath = path;
-    listeners.forEach((notify) => notify());
-  }, 0);
+  pendingPath = path;
+  listeners.forEach((notify) => notify());
 }
 export function finishNavigation() {
-  // RouteReady may commit an instant route before the deferred start runs.
-  clearTimeout(startTimer);
-  startTimer = undefined;
   pendingPath = "";
   listeners.forEach((notify) => notify());
 }
@@ -41,7 +30,7 @@ function chunk<T>(path: string, importer: () => Promise<T>) {
   return { path, prefetch, load: () => {
     // Lazy render can start after a programmatic or front-door navigation.
     // Notify outside render so the retained workspace can show progress too.
-    if (!loaded) beginNavigation(path);
+    if (!loaded) queueMicrotask(() => beginNavigation(path));
     return prefetch();
   } };
 }

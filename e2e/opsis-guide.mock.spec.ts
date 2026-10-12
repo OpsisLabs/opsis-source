@@ -126,7 +126,10 @@ test.describe("Opsis tool finder", () => {
     const landing = page.frameLocator(
       'iframe[title="Opsis overview — interactive chain"]',
     );
+    // The film has two "Find your tool" buttons: the hero call to action and
+    // one in the side rail. Use the hero's.
     await landing
+      .locator(".hero-actions")
       .getByRole("button", { name: "Find your tool", exact: false })
       .click();
     await expect(page).toHaveURL(/\/guide$/);

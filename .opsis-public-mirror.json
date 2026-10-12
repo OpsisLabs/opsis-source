@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "30c6c94340af777d53466f783728044f06d0889a64f0b32cb9ea5200f6eee242",
+  "sourceTreeDigest": "44b3a8cdb3b3f4cf36775e2b5ef0133b53cff92999cd7203b4971d36a4850c19",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "54fbd8d184f67c14afa40d70fcefef7c5211195c2eb43e649f15e901f92c9ee5",
@@ -505,8 +505,7 @@
     "apps/web/src/opsis/ReportShelf.tsx": "43cf05f15ce3d29aa0e30299cc66653e072dedaf9874a688c75e27cecc4a0847",
     "apps/web/src/opsis/Research.tsx": "74576f81ca06b05865b99f8ca61add86fff6a90a46d5def92371ca30d37c2e02",
     "apps/web/src/opsis/ResearchIntro.tsx": "8efaeb732dcef755b27519b535dcb5e462c3cd2841a73510949d69df73a93148",
-    "apps/web/src/opsis/route-chunks.test.ts": "7fd3a13fb6fc749c566e738af3619dc4c6f46a39fb65e503fe72a27b6f6a70af",
-    "apps/web/src/opsis/route-chunks.ts": "589fe3aa1c9f542e8353b75bd62950b2bb2b3330a11ff376b9a97e648c3a553b",
+    "apps/web/src/opsis/route-chunks.ts": "7e1a32f89ed4c4d0fc154ef9b3fda826327199640c53b2bcfa1820b168d8d026",
     "apps/web/src/opsis/SavedWorkspace.tsx": "18481125137fa306e7857be3e8114651ccf6f7869520086775991ff0b68909cf",
     "apps/web/src/opsis/shell-model.test.ts": "1780ad066e69463c8a935286c30b0010411298c30d59313d5f3c291914425bc3",
     "apps/web/src/opsis/shell-model.ts": "b57f297c967502d8d72ba2122c1d0004156fea3494a4c2c1e9ea7ad283dfa856",
@@ -716,7 +715,7 @@
     "e2e/opsis-exit-curve.mock.spec.ts": "958da74887e793e459a805128769586dc6dbc45f407babf3ac53d42af95a7e27",
     "e2e/opsis-front-door.mock.spec.ts": "09ad0a037425b613b73a0f20060718469788624f276767e79fd3a36c322db555",
     "e2e/opsis-funding.mock.spec.ts": "414bf786ca352a3ba3b30a852cf96e483a4acbe5fe876c135eef5f0f37eea111",
-    "e2e/opsis-guide.mock.spec.ts": "59918b19ecbc4be15d5065a51df52d594afd3154db71ff25712df0c71e3d1007",
+    "e2e/opsis-guide.mock.spec.ts": "b4689c3c7c54d65f82441cca73a98b4b3a651ba16392ea1ba2f8ad8bf7286f56",
     "e2e/opsis-layout.mock.spec.ts": "ceecc601c23ecb03944f6a3c4362c04013034bbd0edcc2f5fc6e6a26c953a56e",
     "e2e/opsis-local-scenarios.helpers.ts": "c8d7d72fce7f3bf93bc9c8c9781b00bb242de76f0564db5f16692233f23e4e43",
     "e2e/opsis-local-scenarios.mock.spec.ts": "5cdcc450aa0ef30b6e0ab4b69134a517f87e74c8d87ea0bfa874d1cbb27b7793",
