@@ -2,17 +2,17 @@ export const docs: Record<string, string> = {
   "docs.nav.aria": "技术文档章节",
   "docs.nav.onThisPage": "本页目录",
   "docs.nav.architecture": "架构",
-  "docs.nav.vault": "加密保险库",
+  "docs.nav.vault": "已保存",
   "docs.nav.evidence": "证据流水线",
   "docs.nav.adapters": "功能适配器",
   "docs.nav.security": "安全边界",
   "docs.nav.token": "代币设计",
 
   "docs.header.eyebrow": "技术参考 · ROBINHOOD CHAIN 4663",
-  "docs.title.line1": "ChainScout",
+  "docs.title.line1": "Opsis",
   "docs.title.line2": "究竟如何运作。",
   "docs.header.description":
-    "ChainScout 是一个只读的资产情报层，外加一个浏览器加密的所有权层。它解析精确的公开标识符，规范化有边界的证据，标注不确定性，并将让某项资产真正属于你的私密上下文留在服务器之外。",
+    "Opsis 是一个只读的资产情报层，外加一个浏览器加密的所有权层。它解析精确的公开标识符，规范化有边界的证据，标注不确定性，并将让某项资产真正属于你的私密上下文留在服务器之外。",
   "docs.header.viewSource": "查看源代码",
   "docs.header.readFaq": "阅读常见问题",
 
@@ -26,7 +26,7 @@ export const docs: Record<string, string> = {
   "docs.architecture.eyebrow": "01 · 数据路径",
   "docs.architecture.title": "三种模式，三条不同的边界。",
   "docs.architecture.intro":
-    "ChainScout 将未保存的公开查询，与主动选择加入的加密本地历史及所有权记录区分开来。云端研究推迟到未来的更新，并非发布所依赖的功能。",
+    "Opsis 将未保存的公开查询，与主动选择加入的加密本地历史及所有权记录区分开来。云端研究推迟到未来的更新，并非发布所依赖的功能。",
   "docs.architecture.mode.ephemeral.name": "临时查询",
   "docs.architecture.mode.ephemeral.input": "公开标识符",
   "docs.architecture.mode.ephemeral.path": "同源 API",
@@ -107,11 +107,11 @@ export const docs: Record<string, string> = {
   "docs.adapters.eyebrow": "04 · 功能契约",
   "docs.adapters.title": "不同的资产需要不同的证明。",
   "docs.adapters.introEnabled":
-    "当前创始人测试版构建中，私密链上查询、Scout Swap、投资组合、RWA 验证和收藏品目录已启用。市场与库存、开放数据和重放操作即将推出。",
+    "当前创始人测试版构建中，研究、兑换预览、投资组合、股票代币核查和收藏品目录已启用。市场与库存、开放数据和重放操作即将推出。",
   "docs.adapters.introGated":
-    "当前创始人测试版构建中，私密链上查询、Scout Swap、投资组合、RWA 验证已启用。收藏品目录、市场与库存、开放数据和重放操作即将推出。",
+    "当前创始人测试版构建中，研究、兑换预览、投资组合、股票代币核查已启用。收藏品目录、市场与库存、开放数据和重放操作即将推出。",
   "docs.adapters.comingSoon": "即将推出",
-  "docs.adapters.privateExplorer.name": "私密链上查询",
+  "docs.adapters.privateExplorer.name": "研究",
   "docs.adapters.privateExplorer.input":
     "一个公开的钱包、交易、代币或合约",
   "docs.adapters.privateExplorer.process":
@@ -120,14 +120,14 @@ export const docs: Record<string, string> = {
     "附来源链接的事实、覆盖范围、风险和通俗说明",
   "docs.adapters.privateExplorer.limit":
     "默认不保存；可选加密的本地对话历史",
-  "docs.adapters.scoutSwap.name": "Scout Swap",
-  "docs.adapters.scoutSwap.input": "WETH/USDG 方向与确切金额",
-  "docs.adapters.scoutSwap.process":
+  "docs.adapters.swapPreview.name": "兑换预览",
+  "docs.adapters.swapPreview.input": "WETH/USDG 方向与确切金额",
+  "docs.adapters.swapPreview.process":
     "使用固定非用户预览地址的只读 Uniswap 路径",
-  "docs.adapters.scoutSwap.output":
+  "docs.adapters.swapPreview.output":
     "最低接收量、价格影响、模拟、路径成本、官方交接",
-  "docs.adapters.scoutSwap.limit": "ChainScout 绝不签名或广播",
-  "docs.adapters.portfolio.name": "投资组合",
+  "docs.adapters.swapPreview.limit": "Opsis 绝不签名或广播",
+  "docs.adapters.portfolio.name": "已保存",
   "docs.adapters.portfolio.input": "一个已批准的 Robinhood Chain 地址",
   "docs.adapters.portfolio.process":
     "捕获当前区块，核对直接读取结果，重新校验区块哈希",
@@ -135,7 +135,7 @@ export const docs: Record<string, string> = {
     "有边界的持仓、活动、变动、授权、覆盖范围",
   "docs.adapters.portfolio.limit":
     "当前锚点并非最终值；部分数据会保持标注",
-  "docs.adapters.rwaVerify.name": "RWA 验证",
+  "docs.adapters.rwaVerify.name": "股票代币核查",
   "docs.adapters.rwaVerify.input": "一个公开的代币或保险库合约",
   "docs.adapters.rwaVerify.process":
     "合约优先的身份、预言机、角色、保险库和来源检查",
@@ -165,7 +165,7 @@ export const docs: Record<string, string> = {
   "docs.adapters.openData.input":
     "一次经审核的支持注册表读取，或一个公开的 EVM 地址",
   "docs.adapters.openData.process":
-    "静态 ChainScout 元组或确定性的语法规范化",
+    "静态 Opsis 元组或确定性的语法规范化",
   "docs.adapters.openData.output":
     "带版本的注解、限制和人工验证链接",
   "docs.adapters.openData.limit":
@@ -184,13 +184,13 @@ export const docs: Record<string, string> = {
   "docs.security.title": "隐私由一道道边界组成。",
   "docs.security.noSigner.title": "无签名方",
   "docs.security.noSigner.copy":
-    "ChainScout 绝不索要助记词，也不批准、签名、路由、提交或广播交易。",
+    "Opsis 绝不索要助记词，也不批准、签名、路由、提交或广播交易。",
   "docs.security.networkReceipts.title": "明确的网络凭据",
   "docs.security.networkReceipts.copy":
     "敏感的公开关联只在界面指明目的地和字段后才会发送。涉及保险库状态时，已批准的尝试会先被加密。",
   "docs.security.sameOrigin.title": "同源浏览器 API",
   "docs.security.sameOrigin.copy":
-    "浏览器调用始终停留在 ChainScout 来源上。Nginx 代理到 API；匿名私有路由会省略凭据。",
+    "浏览器调用始终停留在 Opsis 来源上。Nginx 代理到 API；匿名私有路由会省略凭据。",
   "docs.security.boundedDestinations.title": "有界目的地",
   "docs.security.boundedDestinations.copy":
     "提供商主机、方法、字段、响应大小、重试、并发和预算都按适配器加以约束。",
@@ -207,7 +207,7 @@ export const docs: Record<string, string> = {
   "docs.token.title": "在不污染产品的前提下设计代币用途。",
   "docs.token.proposal.title": "提案，并非已发布的代币经济模型",
   "docs.token.proposal.body":
-    "ChainScout 代币计划通过 Robinhood Chain 上的 pons v2 启动。产品用途、供应量、分配、归属、计价资产、费用、创作者税、回购设置、合约和启动 URL 在存在并在链上公开验证之前，均不在此声明为最终条款。",
+    "Opsis 代币计划通过 Robinhood Chain 上的 pons v2 启动。产品用途、供应量、分配、归属、计价资产、费用、创作者税、回购设置、合约和启动 URL 在存在并在链上公开验证之前，均不在此声明为最终条款。",
   "docs.token.candidates.betaAccess.label": "最低复杂度",
   "docs.token.candidates.betaAccess.title": "测试版访问通行证",
   "docs.token.candidates.betaAccess.copy":
@@ -219,11 +219,11 @@ export const docs: Record<string, string> = {
   "docs.token.candidates.partnerPerks.label": "合作方资助 · 后续",
   "docs.token.candidates.partnerPerks.title": "可选的合作方权益",
   "docs.token.candidates.partnerPerks.copy":
-    "选择加入的商家或协议可以提供范围清晰界定的持有者权益。由合作方出资并履行；ChainScout 标注条款，绝不保证可用性、价值或持续性。",
+    "选择加入的商家或协议可以提供范围清晰界定的持有者权益。由合作方出资并履行；Opsis 标注条款，绝不保证可用性、价值或持续性。",
   "docs.token.candidates.sourceCuration.label": "仅供参考",
   "docs.token.candidates.sourceCuration.title": "咨询性的来源策展",
   "docs.token.candidates.sourceCuration.copy":
-    "代币持有者可以提议集成，或表明哪些公开来源值得审查。投票绝不能取代 ChainScout 的独立验证，也不能让某个事实变成真的。",
+    "代币持有者可以提议集成，或表明哪些公开来源值得审查。投票绝不能取代 Opsis 的独立验证，也不能让某个事实变成真的。",
   "docs.token.good.title": "良好的代币设计",
   "docs.token.good.item1": "可选、精确、可审计的权益",
   "docs.token.good.item2":
@@ -240,6 +240,6 @@ export const docs: Record<string, string> = {
     "隐藏的发行、分配、管理员权限或可变的经济模型",
   "docs.token.pons.title": "pons v2 是启动轨道，而非本应用。",
   "docs.token.pons.body":
-    "官方 pons v2 文档描述了一种由钱包签名的联合曲线启动，随后毕业进入一个流动性头寸被锁定的 Uniswap v4 资金池。ChainScout 不在该曲线内运行，不将保险库数据存储在 pons 中，也不把毕业视为产品质量。每一项最终启动条款都必须从已部署的链上记录中读取。",
+    "官方 pons v2 文档描述了一种由钱包签名的联合曲线启动，随后毕业进入一个流动性头寸被锁定的 Uniswap v4 资金池。Opsis 不在该曲线内运行，不将保险库数据存储在 pons 中，也不把毕业视为产品质量。每一项最终启动条款都必须从已部署的链上记录中读取。",
   "docs.token.pons.link": "官方 PONS V2 文档",
 };

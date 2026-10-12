@@ -22,9 +22,9 @@ import { ApiError } from "../dashboard/http";
 import { useI18n } from "../i18n";
 import {
   SWAP_TOKENS,
-  getScoutSwapQuote,
+  getSwapQuote,
   officialUniswapUrl,
-  type ScoutSwapQuote,
+  type SwapQuote,
   type SwapDirection,
 } from "../swap/api";
 
@@ -94,7 +94,7 @@ function formatUsdCost(value: string, notSupplied: string): string {
   });
 }
 
-export function QuotePanel({ quote, elapsedMs }: { quote: ScoutSwapQuote; elapsedMs: number }) {
+export function QuotePanel({ quote, elapsedMs }: { quote: SwapQuote; elapsedMs: number }) {
   const { t, locale } = useI18n();
   const stale = elapsedMs >= quote.freshForMs;
   const seconds = Math.max(0, Math.ceil((quote.freshForMs - elapsedMs) / 1000));
@@ -181,7 +181,7 @@ export function QuotePanel({ quote, elapsedMs }: { quote: ScoutSwapQuote; elapse
           <dl className="mt-5 space-y-3 border-t border-[#383838] pt-4 font-mono-d text-[9.5px]">
             <div className="flex justify-between gap-4"><dt className="text-[#635d5a]">{t("trade.quote.chain")}</dt><dd className="text-[#9a938a]">4663</dd></div>
             <div className="flex justify-between gap-4"><dt className="text-[#635d5a]">{t("trade.quote.userWallet")}</dt><dd className="text-[#7fb069]">{t("trade.quote.notShared")}</dd></div>
-            <div className="flex justify-between gap-4"><dt className="text-[#635d5a]">{t("trade.quote.chainscout")}</dt><dd className="text-[#7fb069]">{t("trade.quote.cannotSign")}</dd></div>
+            <div className="flex justify-between gap-4"><dt className="text-[#635d5a]">{t("trade.quote.opsis")}</dt><dd className="text-[#7fb069]">{t("trade.quote.cannotSign")}</dd></div>
           </dl>
         </section>
       </div>
@@ -215,11 +215,11 @@ export function QuotePanel({ quote, elapsedMs }: { quote: ScoutSwapQuote; elapse
   );
 }
 
-export default function ScoutSwap() {
+export default function SwapPreview() {
   const { t } = useI18n();
   const [direction, setDirection] = useState<SwapDirection>("WETH_TO_USDG");
   const [amount, setAmount] = useState("0.01");
-  const [quote, setQuote] = useState<ScoutSwapQuote | null>(null);
+  const [quote, setQuote] = useState<SwapQuote | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<{ code: string; message: string } | null>(null);
   const [quoteReceivedAtMs, setQuoteReceivedAtMs] = useState<number | null>(null);
@@ -257,14 +257,14 @@ export default function ScoutSwap() {
     controllerRef.current?.abort();
     controllerRef.current = controller;
     try {
-      const next = await getScoutSwapQuote({ direction, amount }, controller.signal);
+      const next = await getSwapQuote({ direction, amount }, controller.signal);
       setQuoteReceivedAtMs(performance.now());
       setElapsedMs(0);
       setQuote(next);
     } catch (requestError) {
       if (controller.signal.aborted) return;
       const code = requestError instanceof ApiError ? requestError.code : "SWAP_PROVIDER_UNAVAILABLE";
-      const message = code === "SCOUT_SWAP_DISABLED"
+      const message = code === "SWAP_DISABLED"
         ? t("trade.swap.disabled")
         : code === "SWAP_NO_ROUTE"
           ? t("trade.swap.noRoute")
@@ -287,7 +287,7 @@ export default function ScoutSwap() {
           <span className="flex h-9 w-9 items-center justify-center bg-[#fa6c34]" style={{ clipPath: "polygon(0 0,100% 0,100% 72%,72% 100%,0 100%)" }}>
             <img src="/logo.svg" alt="" className="h-5 w-5" />
           </span>
-          <span className="hidden font-mono-d text-[11px] tracking-[0.14em] text-[#d6ccba] sm:block">CHAINSCOUT</span>
+          <span className="hidden font-mono-d text-[11px] tracking-[0.14em] text-[#d6ccba] sm:block">OPSIS</span>
         </Link>
         <div className="mx-auto flex items-center gap-2 font-mono-d text-[9.5px] tracking-[0.14em] text-[#635d5a] sm:text-[10.5px]">
           <span className="h-1.5 w-1.5 rounded-full bg-[#fa6c34]" />

@@ -1,4 +1,4 @@
-import type { ScoutSwapQuote } from "../swap/api";
+import type { SwapQuote } from "../swap/api";
 import { translateCurrent } from "../i18n/translate";
 import { scenario } from "./model";
 
@@ -13,7 +13,7 @@ export type TradeCard = {
 };
 
 // Deliberate allowlist: never serialize a quote, Vault record, wallet or label.
-export function tradeCard(quote: ScoutSwapQuote, weth: string, usdg: string, reference: string, includeBalances = false, now = Date.now()): TradeCard {
+export function tradeCard(quote: SwapQuote, weth: string, usdg: string, reference: string, includeBalances = false, now = Date.now()): TradeCard {
   const result = scenario(quote, weth, usdg, reference, now);
   return {
     input: `${quote.input.amount} ${quote.input.symbol}`,
@@ -41,7 +41,7 @@ export async function renderTradeCard(card: TradeCard): Promise<Blob> {
   };
   ctx.fillStyle = "#1d1d1d"; ctx.fillRect(0, 0, 1200, 1200);
   ctx.fillStyle = "#fa6c34"; ctx.fillRect(0, 0, 1200, 118);
-  text("CHAINSCOUT", 64, 77, 40, "#1d1d1d", 510, 700);
+  text("OPSIS", 64, 77, 40, "#1d1d1d", 510, 700);
   text(translateCurrent("trade.card.header"), 634, 72, 24, "#1d1d1d", 502, 700);
   text(translateCurrent("trade.card.whatIf"), 64, 199, 25, "#fa6c34", 1072, 700);
   text(card.input, 64, 302, 86, "#e9e0d1", 1072, 700);
@@ -64,6 +64,6 @@ export async function renderTradeCard(card: TradeCard): Promise<Blob> {
   text(translateCurrent("trade.card.notLiveOffer"), 64, 975, 24, "#b5ada2");
   if (card.warning) text(translateCurrent("trade.card.warning"), 64, 1015, 24, "#fa6c34");
   text(translateCurrent("trade.card.tryWhatIf"), 64, 1101, 40, "#e9e0d1", 1072, 700);
-  text("www.chainscout.net/simulate", 64, 1151, 32, "#fa6c34", 1072, 700);
+  text("www.opsis.net/simulate", 64, 1151, 32, "#fa6c34", 1072, 700);
   return new Promise((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error(translateCurrent("trade.card.errorExportFailed"))), "image/png"));
 }

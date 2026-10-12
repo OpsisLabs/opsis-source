@@ -4,10 +4,10 @@ export const landing: Record<string, string> = {
   "landing.nav.availability": "可用范围",
   "landing.nav.safety": "安全",
   "landing.nav.faq": "常见问题",
-  "landing.nav.guide": "指南",
-  "landing.nav.homeLabel": "ChainScout 主页",
+  "landing.nav.guide": "选择工具",
+  "landing.nav.homeLabel": "Opsis 主页",
   "landing.nav.sectionsLabel": "首页栏目",
-  "landing.nav.openExplorer": "打开链上查询",
+  "landing.nav.openExplorer": "打开研究",
   "landing.nav.openMenu": "打开导航菜单",
   "landing.nav.mobileSectionsLabel": "移动端首页栏目",
 
@@ -22,7 +22,7 @@ export const landing: Record<string, string> = {
   "landing.sidebar.index.faq": "常见问题",
   "landing.sidebar.founderBeta": "创始人测试版",
   "landing.sidebar.founderCopy": "可用工具与即将上线的适配器相互区分。",
-  "landing.sidebar.startGuide": "开始使用指南",
+  "landing.sidebar.startGuide": "选择工具",
 
   "landing.hero.badge": "私密多资产工作台",
   "landing.hero.headline1": "看清你的资产。",
@@ -36,8 +36,8 @@ export const landing: Record<string, string> = {
   "landing.hero.category.pokemon": "宝可梦 / TCG",
   "landing.hero.category.collectibles": "收藏品",
   "landing.hero.category.manual": "任意手动资产",
-  "landing.hero.openVault": "打开私密保险库",
-  "landing.hero.tryExplorer": "试用链上查询",
+  "landing.hero.openVault": "打开已保存",
+  "landing.hero.tryExplorer": "打开研究",
   "landing.hero.noWallet": "无需钱包即可探索。你的保险库不会有服务器副本。",
   "landing.hero.illustrative": "示意资产堆叠",
   "landing.hero.privateContext": "私密上下文 · 公开证据",
@@ -77,7 +77,7 @@ export const landing: Record<string, string> = {
   "landing.assets.titleA": "一个私密记录，",
   "landing.assets.titleB": "容纳每一种资产。",
   "landing.assets.copy":
-    "ChainScout 将公开、可溯源的证据与私密的所有者上下文相结合，绝不将二者混为一谈。",
+    "Opsis 将公开、可溯源的证据与私密的所有者上下文相结合，绝不将二者混为一谈。",
   "landing.assets.crypto.title": "加密货币与代币",
   "landing.assets.crypto.state": "可用",
   "landing.assets.crypto.copy":
@@ -123,16 +123,16 @@ export const landing: Record<string, string> = {
   "landing.workflow.understand.signal": "无需账户 · 即用即走",
   "landing.workflow.understand.copy":
     "解读钱包、交易、代币或合约。无需创建画像，即可查看活动、授权、风险提示和引用。",
-  "landing.workflow.understand.action": "启动私密链上查询",
+  "landing.workflow.understand.action": "打开研究",
   "landing.workflow.track.title": "追踪",
   "landing.workflow.track.signal": "加密 · 浏览器本地",
   "landing.workflow.track.copy":
     "保存手动资产、确切的买入批次、私密备注、本地处理过的照片、投资组合快照和带日期的参考价值。",
-  "landing.workflow.track.action": "打开本地保险库",
+  "landing.workflow.track.action": "打开已保存",
   "landing.workflow.act.title": "谨慎行动",
   "landing.workflow.act.signal": "只读 · 官方交接",
   "landing.workflow.act.copy":
-    "核实代币化资产证据，或预览当前 WETH/USDG 兑换路径。ChainScout 绝不签署、提交或广播。",
+    "核实代币化资产证据，或预览当前 WETH/USDG 兑换路径。Opsis 绝不签署、提交或广播。",
   "landing.workflow.act.action": "核实公开证据",
 
   "landing.availability.eyebrow": "本版本有哪些功能？",
@@ -143,14 +143,14 @@ export const landing: Record<string, string> = {
   "landing.availability.group.available": "创始人版本可用",
   "landing.availability.group.comingSoon": "即将上线",
   "landing.availability.group.next": "本次发布之后",
-  "landing.availability.item.explorer": "私密链上查询",
-  "landing.availability.item.vault": "加密保险库",
+  "landing.availability.item.explorer": "研究",
+  "landing.availability.item.vault": "已保存",
   "landing.availability.item.manualRecords":
     "手动加密货币 / NFT / RWA / 收藏品记录",
   "landing.availability.item.charts": "带日期的收藏品价值历史图表",
-  "landing.availability.item.portfolio": "投资组合智能",
-  "landing.availability.item.rwa": "RWA 验证",
-  "landing.availability.item.swap": "Scout Swap",
+  "landing.availability.item.portfolio": "已保存",
+  "landing.availability.item.rwa": "股票代币核查",
+  "landing.availability.item.swap": "兑换预览",
   "landing.availability.item.tcgdex": "TCGdex 辅助的收藏品身份",
   "landing.availability.item.market": "市场与库存",
   "landing.availability.item.replay": "重放操作",
@@ -166,8 +166,8 @@ export const landing: Record<string, string> = {
   "landing.safety.titleB": "诚实的边界。",
   "landing.safety.copy":
     "公开事实、提供商观察和所有者录入的记录会被分别标注。图表绝不会把手动输入的价值升级为市场价格。",
-  "landing.safety.isTitle": "CHAINSCOUT 是什么",
-  "landing.safety.isNotTitle": "CHAINSCOUT 不是什么",
+  "landing.safety.isTitle": "OPSIS 是什么",
+  "landing.safety.isNotTitle": "OPSIS 不是什么",
   "landing.safety.is1": "一个加密的浏览器本地资产保险库",
   "landing.safety.is2": "一个只读的 Robinhood Chain 浏览器助手",
   "landing.safety.is3": "一个可溯源的公开证据工作区",
@@ -179,7 +179,7 @@ export const landing: Record<string, string> = {
   "landing.safety.isNot5": "任何会签署或广播交易的东西",
   "landing.safety.readOnly.title": "只读",
   "landing.safety.readOnly.copy":
-    "ChainScout 不签署、不提交、不授权、不买入、不卖出，也不转移资金。",
+    "Opsis 不签署、不提交、不授权、不买入、不卖出，也不转移资金。",
   "landing.safety.precision.title": "拒绝虚假精度",
   "landing.safety.precision.copy":
     "未知、过时、部分、手动和不可用的状态都会保持可见。",
@@ -195,7 +195,7 @@ export const landing: Record<string, string> = {
   "landing.faq.goDeeper": "深入了解",
   "landing.faq.goDeeperCopy":
     "查看当前版本矩阵、分步工作流程、技术内部细节、隐私约束和 API 契约。",
-  "landing.faq.openGuide": "打开功能指南",
+  "landing.faq.openGuide": "选择工具",
   "landing.faq.readDocs": "阅读技术文档",
   "landing.faq.viewFullFaq": "查看完整常见问题",
   "landing.faq.q1": "我能追踪宝可梦卡牌和实体收藏品吗？",
@@ -206,25 +206,25 @@ export const landing: Record<string, string> = {
   "landing.faq.q2": "仪表盘图表的数据来自哪里？",
   "landing.faq.a2":
     "保险库图表仅使用你加密的买入批次、所有者录入的带日期参考，或你明确刷新过的公开快照。它们不是隐藏的实时数据源、评估或价格预测。每个图表都包含精确数值表。",
-  "landing.faq.q3": "我的保险库会同步到 ChainScout 服务器吗？",
+  "landing.faq.q3": "我的保险库会同步到 Opsis 服务器吗？",
   "landing.faq.a3":
     "不会。保险库记录在本浏览器中使用 WebCrypto 加密，并存储在 IndexedDB 中。请导出加密备份，因为浏览器存储可能被清除或驱逐，而且另一个源或设备无法自动看到此保险库。",
   "landing.faq.q4": "我需要连接钱包吗？",
   "landing.faq.a4":
-    "不需要。私密链上查询、Scout Swap、RWA 验证和本地保险库都无需连接钱包。解锁本地保险库，即可将新的浏览器对话加密保存在此浏览器中。云端研究是未来的更新。",
-  "landing.faq.q5": "ChainScout 会交易、购买卡牌或转移资金吗？",
+    "不需要。研究、兑换预览、股票代币核查和本地保险库都无需连接钱包。解锁本地保险库，即可将新的浏览器对话加密保存在此浏览器中。云端研究是未来的更新。",
+  "landing.faq.q5": "Opsis 会交易、购买卡牌或转移资金吗？",
   "landing.faq.a5":
-    "不会。ChainScout 是只读的。它可以解读公开证据，并在支持时创建官方外部交接，但它绝不签署、广播、结账或存储支付状态。",
+    "不会。Opsis 是只读的。它可以解读公开证据，并在支持时创建官方外部交接，但它绝不签署、广播、结账或存储支付状态。",
   "landing.faq.q6": "AI 或提供商数据会出错吗？",
   "landing.faq.a6":
-    "会。AI 可能出错，索引器可能滞后，提供商可能失败，手动参考也可能过时。ChainScout 会保留引用、隐私凭据、锚点详情以及明确的不完整或不可用状态，方便你审查证据。",
+    "会。AI 可能出错，索引器可能滞后，提供商可能失败，手动参考也可能过时。Opsis 会保留引用、隐私凭据、锚点详情以及明确的不完整或不可用状态，方便你审查证据。",
 
   "landing.footer.badge": "从分散的资产到一份私密记录",
   "landing.footer.titleA": "追踪重要的事。",
   "landing.footer.titleB": "留住上下文。",
   "landing.footer.copy":
     "从一份加密的本地记录开始，无论是加密货币、NFT、代币化资产、宝可梦卡牌，还是任何其他你拥有的东西。只有在你明确要求时，才添加公开证据。",
-  "landing.footer.openVault": "打开私密保险库",
+  "landing.footer.openVault": "打开已保存",
   "landing.footer.pages": "页面",
   "landing.footer.page.homepage": "首页",
   "landing.footer.page.whatToTrack": "追踪什么",
@@ -245,16 +245,16 @@ export const landing: Record<string, string> = {
   "landing.footer.band.sourceLinked": "来源可溯",
   "landing.footer.band.evidence": "证据保持可审查",
   "landing.footer.band.copy":
-    "ChainScout 将加密的浏览器本地资产保险库与只读、可溯源的 Robinhood Chain 工具相结合。仅供参考，不构成财务建议或评估。",
-  "landing.footer.bigWord": "保险库",
+    "Opsis 将加密的浏览器本地资产保险库与只读、可溯源的 Robinhood Chain 工具相结合。仅供参考，不构成财务建议或评估。",
+  "landing.footer.bigWord": "已保存",
   "landing.footer.disclaimer": "仅供参考。不构成财务建议。",
   "landing.footer.terms": "使用条款",
   "landing.footer.privacy": "隐私政策",
 
-  "landing.official.title": "ChainScout 官方合约",
+  "landing.official.title": "Opsis 官方合约",
   "landing.official.subtitle": "在此核对。不要只相信一个代币代码。",
   "landing.official.network": "{network} · 链 ID {chainId}",
-  "landing.official.copyAria": "复制 ChainScout 官方合约地址",
+  "landing.official.copyAria": "复制 Opsis 官方合约地址",
   "landing.official.copy": "复制",
   "landing.official.copying": "复制中…",
   "landing.official.copied": "已复制",
@@ -267,7 +267,7 @@ export const landing: Record<string, string> = {
   "landing.official.notLaunched": "尚未上线——暂无官方合约地址。",
   "landing.official.unavailable": "官方合约地址不可用。",
   "landing.official.notLaunchedCopy":
-    "ChainScout 代币尚未上线。尚未公布官方合约地址。在此处公布地址之前，请忽略任何声称是 ChainScout 的代币。",
+    "Opsis 代币尚未上线。尚未公布官方合约地址。在此处公布地址之前，请忽略任何声称是 Opsis 的代币。",
   "landing.official.unavailableCopy":
     "不要依赖来自私信、回复或搜索结果的地址。请等待官方地址和网络在此处公布。",
 };

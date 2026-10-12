@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const LOCALE_COOKIE = "chainscout_locale_v1";
+const LOCALE_COOKIE = "opsis_locale_v1";
 
 test.describe("Simplified Chinese localization", () => {
   test.beforeEach(async ({ context }) => {
@@ -79,7 +79,7 @@ test.describe("Simplified Chinese localization", () => {
       "读懂这条链。",
     );
     await expect(page.getByText("私密查询", { exact: true })).toBeVisible();
-    await expect(page).toHaveTitle(/私密链上查询/);
+    await expect(page).toHaveTitle(/研究/);
 
     await page.goto("/vault");
     await expect(page.getByText("创建你的私密保险库").first()).toBeVisible();
@@ -156,7 +156,7 @@ test.describe("Simplified Chinese localization", () => {
 
     await page.getByRole("button", { name: "FEATURES" }).click();
     const drawer = page.getByRole("dialog", {
-      name: "ChainScout feature menu",
+      name: "Opsis feature menu",
     });
     await expect(drawer).toBeVisible();
     await drawer

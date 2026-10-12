@@ -2,17 +2,17 @@ export const cloud: Record<string, string> = {
   "cloud.availability.message":
     "云端研究将在后续更新中推出。无需账户或连接钱包，即可使用加密的本地聊天记录和本地保险库。",
 
-  "cloud.rail.brand": "CHAINSCOUT",
+  "cloud.rail.brand": "OPSIS",
   "cloud.rail.newSession": "新建会话",
   "cloud.rail.creating": "正在创建…",
-  "cloud.rail.scoutSwap": "SCOUT SWAP",
+  "cloud.rail.swapPreview": "兑换预览",
   "cloud.rail.private": "私密",
-  "cloud.rail.vault": "保险库",
-  "cloud.rail.rwa": "RWA",
-  "cloud.rail.guide": "指南",
+  "cloud.rail.vault": "已保存",
+  "cloud.rail.rwa": "股票代币核查",
+  "cloud.rail.guide": "选择工具",
   "cloud.rail.sessions": "会话",
   "cloud.rail.aiMessages": "AI 消息",
-  "cloud.rail.chainLookups": "链上查询",
+  "cloud.rail.chainLookups": "研究",
   "cloud.rail.accountPrivacy": "账户隐私",
   "cloud.rail.logOut": "退出登录",
 
@@ -219,9 +219,9 @@ export const cloud: Record<string, string> = {
   "cloud.http.portfolioBudgetUnavailable":
     "免费套餐的投资组合安全防护不可用，刷新已故障关闭。请稍后重试。",
   "cloud.http.rwaVerifyDisabled":
-    "RWA 验证已暂停。未发送或保存任何合约数据。",
+    "股票代币核查已暂停。未发送或保存任何合约数据。",
   "cloud.http.rwaDailyBudget":
-    "今日的免费 RWA 验证额度已用完。请明天再试。",
+    "今日的免费 股票代币核查额度已用完。请明天再试。",
   "cloud.http.rwaBudgetUnavailable":
     "免费套餐的 RWA 安全防护不可用，验证已故障关闭。",
   "cloud.http.rwaAnchorChanged":
@@ -235,13 +235,13 @@ export const cloud: Record<string, string> = {
   "cloud.http.collectibleBudgetUnavailable":
     "免费目录安全防护不可用，查询已故障关闭。你仍可手动添加该收藏品。",
   "cloud.http.collectibleRequestLimit":
-    "此次查询超出了 ChainScout 的目录请求限制。请缩小范围，或手动添加该收藏品。",
+    "此次查询超出了 Opsis 的目录请求限制。请缩小范围，或手动添加该收藏品。",
   "cloud.http.collectibleProviderRateLimited":
     "免费目录提供商受到速率限制。请稍后重试，或手动添加该收藏品。",
   "cloud.http.collectibleProviderUnavailable":
     "收藏品目录暂时不可用。你的加密保险库未受影响，手动录入仍可使用。",
   "cloud.http.collectibleProviderMalformed":
-    "目录返回了 ChainScout 无法安全验证的数据。未保存任何内容；请改用手动录入。",
+    "目录返回了 Opsis 无法安全验证的数据。未保存任何内容；请改用手动录入。",
   "cloud.http.collectibleNotFound":
     "未找到完全匹配的目录卡牌。请调整匹配条件，或手动添加该收藏品。",
   "cloud.http.marketInventoryDisabled":
@@ -255,7 +255,7 @@ export const cloud: Record<string, string> = {
   "cloud.http.marketProviderUnavailable":
     "市场提供商不可用。已批准的公共标识符可能已经发送；你之前的加密观察记录未受影响。",
   "cloud.http.marketProviderMalformed":
-    "提供商返回了 ChainScout 无法安全验证的数据。未保存任何新内容。",
+    "提供商返回了 Opsis 无法安全验证的数据。未保存任何新内容。",
   "cloud.http.marketMerchantNotApproved":
     "该资产不存在经过审核的实时商家映射。请改用仅点击式搜索跳转。",
   "cloud.http.marketMappingChanged":
@@ -269,12 +269,12 @@ export const cloud: Record<string, string> = {
   "cloud.http.requestFailed": "请求失败。",
   "cloud.http.sessionExpired": "你的会话已过期。请重新登录。",
 
-  "cloud.auth.brand": "CHAINSCOUT",
+  "cloud.auth.brand": "OPSIS",
   "cloud.auth.savedResearch": "已保存的研究",
   "cloud.auth.readOnly": "只读 · 无交易 · 无授权",
   "cloud.auth.disclaimer": "仅供参考，不构成财务建议。",
-  "cloud.auth.openPrivateExplorer": "打开私密链上查询",
-  "cloud.auth.openLocalVault": "打开本地保险库",
+  "cloud.auth.openPrivateExplorer": "打开研究",
+  "cloud.auth.openLocalVault": "打开已保存",
   "cloud.auth.metamaskNotDetected": "此浏览器中未检测到 MetaMask。",
   "cloud.auth.installMetamask": "安装 METAMASK",
   "cloud.auth.walletVerified": "钱包已验证",
@@ -287,7 +287,7 @@ export const cloud: Record<string, string> = {
   "cloud.auth.signatureNote":
     "MetaMask 会要求你签署一条简短消息。这可以证明你控制该地址。它不是交易，不会转移资金，也不会授予任何授权。",
   "cloud.auth.login.title": "欢迎回来",
-  "cloud.auth.login.titlePrivate": "以私密方式使用 ChainScout",
+  "cloud.auth.login.titlePrivate": "以私密方式使用 Opsis",
   "cloud.auth.login.sub":
     "连接钱包登录，继续你的 Robinhood Chain 研究。",
   "cloud.auth.login.subPrivate":
@@ -295,13 +295,13 @@ export const cloud: Record<string, string> = {
   "cloud.auth.login.footerFirst": "第一次来？",
   "cloud.auth.login.footerPrivate": "了解私密工具如何运作：",
   "cloud.auth.login.createAccount": "创建账户",
-  "cloud.auth.login.featureGuide": "功能指南",
+  "cloud.auth.login.featureGuide": "选择工具",
   "cloud.auth.register.title": "创建你的账户",
-  "cloud.auth.register.titlePrivate": "以私密方式使用 ChainScout",
+  "cloud.auth.register.titlePrivate": "以私密方式使用 Opsis",
   "cloud.auth.register.sub":
     "连接钱包并选择一个用户名。无需邮箱，无需密码。免费套餐每月包含 500 条 AI 消息和 5,000 次链上查询。",
   "cloud.auth.register.subPrivate":
-    "使用私密链上查询或本地保险库无需账户。",
+    "使用研究或本地保险库无需账户。",
   "cloud.auth.register.footer": "已经有账户了？",
   "cloud.auth.register.signIn": "登录",
 
@@ -407,7 +407,7 @@ export const cloud: Record<string, string> = {
   "cloud.deals.benchmarks.exampleTcgdex": "喷火龙 · Base Set 4",
   "cloud.deals.benchmarks.exampleYgo": "黑魔导",
   "cloud.deals.benchmarks.disclosure":
-    "点击下方按钮只会将此公共卡牌 ID 和提供商选择发送给 ChainScout，然后将该 ID 发送给 {provider}。不会发送钱包、所有权、评级、备注或买入价格。公共参考响应可能会被缓存；此视图不会保存到你的保险库。",
+    "点击下方按钮只会将此公共卡牌 ID 和提供商选择发送给 Opsis，然后将该 ID 发送给 {provider}。不会发送钱包、所有权、评级、备注或买入价格。公共参考响应可能会被缓存；此视图不会保存到你的保险库。",
   "cloud.deals.benchmarks.loading": "正在加载参考价格…",
   "cloud.deals.benchmarks.fetch": "获取公共价格参考",
   "cloud.deals.benchmarks.verifyError": "无法验证参考响应。",

@@ -93,7 +93,7 @@ async function rawHistoryRecords(page: Page) {
 
 test("local chat history survives a real browser restart and exports only ciphertext", async ({ browserName }) => {
   test.setTimeout(90_000);
-  const directory = await mkdtemp(join(tmpdir(), "chainscout-history-profile-"));
+  const directory = await mkdtemp(join(tmpdir(), "opsis-history-profile-"));
   const engine = browserName === "webkit" ? webkit : chromium;
   const options = { headless: true, baseURL: APP_ORIGIN, ...(browserName === "chromium" ? { channel: "chrome" } : {}) };
   let context = await engine.launchPersistentContext(directory, options);
@@ -275,7 +275,7 @@ test("Private Mode needs no account or wallet, renders citations, and clears on 
     if (url.origin !== APP_ORIGIN) externalOrigins.add(url.origin);
   });
   await page.route("**/v1/private/analyze", async (route) => {
-    expect(route.request().headers()["x-chainscout-csrf"]).toBe("1");
+    expect(route.request().headers()["x-opsis-csrf"]).toBe("1");
     expect(route.request().postDataJSON()).toMatchObject({ entity: address, entityType: "unknown" });
     await new Promise((resolve) => setTimeout(resolve, 250));
     await route.fulfill({
@@ -355,7 +355,7 @@ test("Private Mode needs no account or wallet, renders citations, and clears on 
   await expect(page.getByText("DETERMINISTIC ANSWER · CITED")).toBeVisible();
   await expect(page.getByTestId("privacy-receipt")).toContainText("BLOCKSCOUT");
   expect(apiPaths).toEqual(["/v1/private/analyze"]);
-  expect(await page.evaluate(() => document.cookie)).not.toContain("chainscout_");
+  expect(await page.evaluate(() => document.cookie)).not.toContain("opsis_");
 
   await page.reload();
   await expect(page.getByRole("heading", { name: "Your explanation will appear here" })).toBeVisible();
@@ -387,7 +387,7 @@ test("Private Mode validates locally and shows bounded provider failures on mobi
   expect(calls).toBe(1);
 });
 
-test("Private Explorer goal chips match the identifier and send a bounded task", async ({ page }) => {
+test("Research goal chips match the identifier and send a bounded task", async ({ page }) => {
   const submitted: Array<Record<string, unknown>> = [];
   await page.route("**/v1/private/analyze", async (route) => {
     submitted.push(route.request().postDataJSON());
@@ -423,7 +423,7 @@ test("Private Explorer goal chips match the identifier and send a bounded task",
   expect(submitted[1]?.task).toBeUndefined();
 });
 
-test("Private Explorer offers resolved token goals and runs a verification task", async ({ page }) => {
+test("Research offers resolved token goals and runs a verification task", async ({ page }) => {
   const submitted: Array<Record<string, unknown>> = [];
   await page.route("**/v1/private/analyze", async (route) => {
     submitted.push(route.request().postDataJSON());
@@ -450,8 +450,8 @@ test("Private Explorer offers resolved token goals and runs a verification task"
   });
 });
 
-test("Private Explorer localizes goal chips into Simplified Chinese", async ({ page, context }) => {
-  await context.addCookies([{ name: "chainscout_locale_v1", value: "zh-CN", url: APP_ORIGIN }]);
+test("Research localizes goal chips into Simplified Chinese", async ({ page, context }) => {
+  await context.addCookies([{ name: "opsis_locale_v1", value: "zh-CN", url: APP_ORIGIN }]);
   await page.goto("/app");
   await page.getByLabel("公开链标识符").fill(address);
   await expect(page.getByRole("button", { name: "它持有什么？" })).toBeVisible();
@@ -459,7 +459,7 @@ test("Private Explorer localizes goal chips into Simplified Chinese", async ({ p
   await expect(page.getByRole("button", { name: "What does it hold?" })).toHaveCount(0);
 });
 
-test("Private Explorer never renders an unsafe provider URL as a link", async ({ page }) => {
+test("Research never renders an unsafe provider URL as a link", async ({ page }) => {
   const response = walletGoalResponse();
   response.entity.citations = [{
     id: "unsafe-source",
@@ -480,7 +480,7 @@ test("Private Explorer never renders an unsafe provider URL as a link", async ({
   await expect(page.locator('a[href^="javascript:"]')).toHaveCount(0);
 });
 
-test("Private Explorer leads with the answer and keeps evidence behind an expander", async ({ page }) => {
+test("Research leads with the answer and keeps evidence behind an expander", async ({ page }) => {
   await page.route("**/v1/private/analyze", (route) => route.fulfill({ json: walletGoalResponse() }));
 
   await page.goto("/app");
@@ -505,7 +505,7 @@ test("Private Explorer leads with the answer and keeps evidence behind an expand
   expect(positions).toBe(true);
 });
 
-test("Private Explorer discards a stale reply when the identifier changes mid-request", async ({ page }) => {
+test("Research discards a stale reply when the identifier changes mid-request", async ({ page }) => {
   let release!: () => void;
   const gate = new Promise<void>((resolve) => { release = resolve; });
   let calls = 0;
@@ -550,7 +550,7 @@ test("local history saves the submitted question, not text edited afterwards", a
   await expect(transcript).not.toContainText("EDITED-AFTER-SAVE-CANARY");
 });
 
-test("Private Explorer keeps resolved-type goals across a goal pick and resets them on identifier change", async ({ page }) => {
+test("Research keeps resolved-type goals across a goal pick and resets them on identifier change", async ({ page }) => {
   await page.route("**/v1/private/analyze", (route) => {
     const entity = String(route.request().postDataJSON().entity ?? "");
     return route.fulfill({ json: entity.length === 66 ? transactionGoalResponse() : tokenGoalResponse() });

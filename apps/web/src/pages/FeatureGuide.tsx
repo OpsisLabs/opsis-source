@@ -44,7 +44,7 @@ const STARTING_PATHS = [
 ] as const;
 
 const SPECIALIST_IDS = new Set([
-  "scout-swap",
+  "swap-preview",
   "rwa-verify",
   "collectible-catalog",
   "market-inventory",

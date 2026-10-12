@@ -130,7 +130,7 @@ test("opsis preview watch one-off provider error and Chinese copy", async ({
   await page.route("**/v1/private/watch/snapshot", (route) =>
     route.fulfill({
       status: 503,
-      json: { error: { code: "SCOUT_WATCH_DISABLED" } },
+      json: { error: { code: "WATCH_DISABLED" } },
     }),
   );
   await access(page, "/watch");

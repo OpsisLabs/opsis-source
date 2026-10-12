@@ -25,7 +25,7 @@ registerECharts([
   AriaComponent,
 ]);
 
-export function ChainScoutChart({
+export function EvidenceChart({
   option,
   label,
   height = 260,

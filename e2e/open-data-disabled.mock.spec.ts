@@ -12,7 +12,7 @@ test("cloud-off build offers private tools without requesting a wallet signature
     await expect(page.getByRole("button", { name: "CONNECT WALLET" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "Open local Vault" })).toBeVisible();
   }
-  await page.getByRole("link", { name: "Open Private Explorer" }).click();
+  await page.getByRole("link", { name: "Open Research" }).click();
   await expect(page).toHaveURL(/\/app$/);
   expect(requests).toEqual([]);
 });
@@ -32,7 +32,7 @@ test("flag-off build redirects the direct developer route without an Open Data r
 
 test("production-default build keeps dormant Vault workspaces unavailable", async ({ page }) => {
   await page.addInitScript(() => {
-    document.cookie = "chainscout_onboarding_seen=1; path=/; SameSite=Lax";
+    document.cookie = "opsis_onboarding_seen=1; path=/; SameSite=Lax";
   });
   await page.goto("/guide");
   for (const id of ["collectible-catalog", "market-inventory", "replay-actions", "open-data-api"]) {

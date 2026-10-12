@@ -1,3 +1,4 @@
+import { isWatchEnabled } from "./product/availability";
 import { lazy, Suspense, type ReactNode } from "react";
 import { Navigate, Route, Routes } from "react-router";
 import Home from "./pages/Home";
@@ -7,13 +8,13 @@ import { useI18n } from "./i18n";
 
 const OpsisApp = lazy(() => import("./opsis/OpsisApp"));
 const Roadmap = lazy(() => import("./pages/Roadmap"));
-const ScoutSwap = lazy(() => import("./pages/ScoutSwap"));
+const SwapPreview = lazy(() => import("./pages/SwapPreview"));
 const TradeSimulator = lazy(() => import("./simulator/TradeSimulator"));
 const CardPriceCheck = lazy(() => import("./deals/CardPriceCheck"));
 const BiggestTrades = lazy(() => import("./trades/BiggestTrades"));
 const KolTracker = lazy(() => import("./kol/KolTracker"));
 const SituationRoom = lazy(() => import("./situation/SituationRoom"));
-const ScoutWatch = lazy(() => import("./watch/ScoutWatch"));
+const WatchPage = lazy(() => import("./watch/WatchPage"));
 const StressTest = lazy(() => import("./stress/StressTest"));
 const ExitCheck = lazy(() => import("./exit-check/ExitCheck"));
 const PrivateExplorer = lazy(() => import("./pages/PrivateExplorer"));
@@ -113,7 +114,7 @@ export default function App() {
             path="/swap"
             element={
               <DeferredPage>
-                <ScoutSwap />
+                <SwapPreview />
               </DeferredPage>
             }
           />
@@ -122,7 +123,7 @@ export default function App() {
           <Route path="/biggest-trades" element={import.meta.env.VITE_OBSERVED_TRADES_ENABLED === "true" ? <DeferredPage><BiggestTrades /></DeferredPage> : <Navigate to="/guide" replace />} />
           <Route path="/kol-tracker" element={import.meta.env.VITE_KOL_TRACKER_ENABLED === "true" ? <DeferredPage><KolTracker /></DeferredPage> : <Navigate to="/guide" replace />} />
           <Route path="/situation-room" element={import.meta.env.VITE_SITUATION_ROOM_ENABLED === "true" ? <DeferredPage><SituationRoom /></DeferredPage> : <Navigate to="/guide" replace />} />
-          <Route path="/watch" element={import.meta.env.VITE_SCOUT_WATCH_ENABLED === "true" ? <DeferredPage><ScoutWatch /></DeferredPage> : <Navigate to="/guide" replace />} />
+          <Route path="/watch" element={isWatchEnabled() ? <DeferredPage><WatchPage /></DeferredPage> : <Navigate to="/guide" replace />} />
           <Route path="/stress-test" element={import.meta.env.VITE_PORTFOLIO_STRESS_TEST_ENABLED === "true" ? <DeferredPage><StressTest /></DeferredPage> : <Navigate to="/guide" replace />} />
           <Route path="/exit-check" element={import.meta.env.VITE_EXIT_CHECK_ENABLED === "true" ? <DeferredPage><ExitCheck /></DeferredPage> : <Navigate to="/guide" replace />} />
           <Route

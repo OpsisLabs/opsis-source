@@ -1,3 +1,4 @@
+import { isWatchEnabled } from "../product/availability";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { analyzePrivate, type PrivateAnalysis } from "../private/api";
@@ -428,7 +429,7 @@ export default function Research({
                 </Link>
               ) : follow &&
                 capabilities.watch &&
-                import.meta.env.VITE_SCOUT_WATCH_ENABLED === "true" ? (
+                isWatchEnabled() ? (
                 <Link
                   className="opsis-action"
                   to={`/watch?address=${encodeURIComponent(follow.address)}`}

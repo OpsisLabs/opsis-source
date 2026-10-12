@@ -57,7 +57,7 @@ test("rebuilds a fresh trade without transmitting history, cookies, or the old a
     amount: "0.25",
   });
   expect(quoteCalls[0]!.headers.cookie).toBeUndefined();
-  expect(quoteCalls[0]!.headers["x-chainscout-csrf"]).toBe("1");
+  expect(quoteCalls[0]!.headers["x-opsis-csrf"]).toBe("1");
   for (const forbidden of [address, transactionHash, "3.25", "12.75", cookieCanary])
     expect(quoteCalls[0]!.body).not.toContain(forbidden);
   await expect(
@@ -318,7 +318,7 @@ function officialHandoff(amount: string) {
 }
 
 function directoryFixture() {
-  return { schemaVersion: 1, source: "chainscout_reviewed_registry", loadedAt: "2026-08-12T12:00:00.000Z", limitations: [], merchants: [{ id: "sample-store", name: "Sample Store", permissionReviewedAt: "2026-08-01", permissionEvidenceUrl: "https://merchant.example/permission/", mappings: [{ canonicalAssetId: "tcgdex:en:base1-4", sku: "CARD-4", productId: "42", variantLabel: "Holo", condition: "Near mint", reviewedAt: "2026-08-01", evidenceUrl: "https://merchant.example/product/card/" }] }] };
+  return { schemaVersion: 1, source: "opsis_reviewed_registry", loadedAt: "2026-08-12T12:00:00.000Z", limitations: [], merchants: [{ id: "sample-store", name: "Sample Store", permissionReviewedAt: "2026-08-01", permissionEvidenceUrl: "https://merchant.example/permission/", mappings: [{ canonicalAssetId: "tcgdex:en:base1-4", sku: "CARD-4", productId: "42", variantLabel: "Holo", condition: "Near mint", reviewedAt: "2026-08-01", evidenceUrl: "https://merchant.example/product/card/" }] }] };
 }
 
 function merchantFixture() {

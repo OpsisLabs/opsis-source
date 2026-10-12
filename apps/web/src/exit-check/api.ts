@@ -1,4 +1,4 @@
-import { CHAINSCOUT_REVIEWED_ASSETS } from "@rh-chain/shared";
+import { REVIEWED_ASSETS } from "@rh-chain/shared";
 import { privateApi } from "../dashboard/http";
 import { translateCurrent } from "../i18n/translate";
 
@@ -92,7 +92,7 @@ export type ExitCheckQuote = {
 export type ExitCheckProviderName = "robinhood-public-rpc" | "drpc";
 const EXIT_CHECK_PROVIDER_NAMES: ReadonlySet<string> = new Set<ExitCheckProviderName>(["robinhood-public-rpc", "drpc"]);
 
-export const EXIT_CHECK_TOKENS = CHAINSCOUT_REVIEWED_ASSETS;
+export const EXIT_CHECK_TOKENS = REVIEWED_ASSETS;
 
 export async function getExitCheckQuote(
   request: {

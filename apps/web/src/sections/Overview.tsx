@@ -45,7 +45,7 @@ export default function Overview() {
             explains them.
           </p>
           <p className="mt-8 max-w-[560px] text-[26px] font-medium leading-[1.3] tracking-[-0.02em] text-[#d6ccba] md:text-[30px]">
-            ChainScout translates raw on-chain data into plain-language answers,
+            Opsis translates raw on-chain data into plain-language answers,
             with source links and citations for anyone who wants to verify the details.
           </p>
         </div>

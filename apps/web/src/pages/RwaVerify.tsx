@@ -90,7 +90,7 @@ export default function RwaVerify() {
       {!OPSIS_PRESENTATION && (      <header className="sticky top-0 z-30 flex h-[64px] items-center border-b border-[#2e2e2e] bg-[#1d1d1d]/95 px-4 backdrop-blur sm:px-6">
         <Link to="/" className="flex items-center gap-3" aria-label={t("rwa.header.home")}>
           <span className="flex h-9 w-9 items-center justify-center bg-[#fa6c34]" style={{ clipPath: "polygon(0 0,100% 0,100% 72%,72% 100%,0 100%)" }}><img src="/logo.svg" alt="" className="h-5 w-5" /></span>
-          <span className="hidden font-mono-d text-[11px] tracking-[0.14em] text-[#d6ccba] sm:block">CHAINSCOUT</span>
+          <span className="hidden font-mono-d text-[11px] tracking-[0.14em] text-[#d6ccba] sm:block">OPSIS</span>
         </Link>
         <div className="mx-auto flex items-center gap-2 font-mono-d text-[9.5px] tracking-[0.14em] text-[#c9a6ff] sm:text-[10.5px]"><BadgeCheck size={13} /> {t("rwa.header.badge")}</div>
         <nav className="flex items-center gap-4 font-mono-d text-[9px] text-[#7f7972] sm:text-[10px]"><Link to="/vault" className="hover:text-[#e9e0d1]">{t("rwa.header.vault")}</Link><Link to="/app" className="hover:text-[#e9e0d1]">{t("rwa.header.privateMode")}</Link></nav>

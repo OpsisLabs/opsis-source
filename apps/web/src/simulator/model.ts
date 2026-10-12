@@ -1,4 +1,4 @@
-import type { ScoutSwapQuote } from "../swap/api";
+import type { SwapQuote } from "../swap/api";
 import { translateCurrent } from "../i18n/translate";
 const SCALE = 10n ** 18n;
 export function units(value: string): bigint {
@@ -11,7 +11,7 @@ export function decimal(value: bigint): string {
   const part = (value % SCALE).toString().padStart(18, "0").replace(/0+$/, "");
   return part ? `${whole}.${part}` : whole.toString();
 }
-export function scenario(quote: ScoutSwapQuote, weth: string, usdg: string, wethReference: string, now = Date.now()) {
+export function scenario(quote: SwapQuote, weth: string, usdg: string, wethReference: string, now = Date.now()) {
   if (!Number.isFinite(Date.parse(quote.expiresAt)) || Date.parse(quote.expiresAt) <= now || Date.parse(quote.quotedAt) > now + 5000) throw new Error(translateCurrent("trade.error.quoteExpiredOrInvalid"));
   if (quote.simulation.status === "failed") throw new Error(translateCurrent("trade.error.simulationFailed"));
   const balances = { WETH: units(weth), USDG: units(usdg) };

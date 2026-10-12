@@ -27,7 +27,7 @@ describe.each(["en", "zh-CN"] as const)(
         expect(html).not.toMatch(/<(?:header|main|nav|img)\b/);
         expect(html).not.toContain('role="group"');
         expect(html).not.toContain("CHAIN");
-        expect(html).not.toContain("chainscout-source");
+        expect(html).not.toContain("opsis-source");
         expect(html).not.toContain("security/advisories");
       },
     );

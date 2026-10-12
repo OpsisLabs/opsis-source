@@ -1,10 +1,10 @@
-import { CHAINSCOUT_REVIEWED_ASSETS } from "@rh-chain/shared";
+import { REVIEWED_ASSETS } from "@rh-chain/shared";
 import { privateApi } from "../dashboard/http";
 import { translateCurrent } from "../i18n/translate";
 
 export type SwapDirection = "WETH_TO_USDG" | "USDG_TO_WETH";
 
-export type ScoutSwapQuote = {
+export type SwapQuote = {
   pair: "WETH/USDG";
   chain: { id: number; name: string };
   input: { symbol: "WETH" | "USDG"; address: string; amount: string };
@@ -39,18 +39,18 @@ export type ScoutSwapQuote = {
   disclosures: string[];
 };
 
-export const SWAP_TOKENS = CHAINSCOUT_REVIEWED_ASSETS;
+export const SWAP_TOKENS = REVIEWED_ASSETS;
 const UNISWAP_ROUTER_2_1_1 = "0x8876789976decbfcbbbe364623c63652db8c0904";
 
-export async function getScoutSwapQuote(request: {
+export async function getSwapQuote(request: {
   direction: SwapDirection;
   amount: string;
-}, signal?: AbortSignal, simulator = false): Promise<ScoutSwapQuote> {
+}, signal?: AbortSignal, simulator = false): Promise<SwapQuote> {
   const canonicalRequest = { ...request, amount: canonicalSwapAmount(request.amount) };
   const response = simulator
-    ? await privateApi<ScoutSwapQuote>("/v1/private/trade-simulator/quote", canonicalRequest, signal)
-    : await privateApi<ScoutSwapQuote>("/v1/swaps/quote", canonicalRequest, signal);
-  assertScoutSwapQuote(response, canonicalRequest);
+    ? await privateApi<SwapQuote>("/v1/private/trade-simulator/quote", canonicalRequest, signal)
+    : await privateApi<SwapQuote>("/v1/swaps/quote", canonicalRequest, signal);
+  assertSwapQuote(response, canonicalRequest);
   return response;
 }
 
@@ -74,8 +74,8 @@ export function officialUniswapUrl(direction: SwapDirection, amount: string): st
   return `https://app.uniswap.org/swap?${params.toString()}`;
 }
 
-function assertScoutSwapQuote(
-  value: ScoutSwapQuote,
+function assertSwapQuote(
+  value: SwapQuote,
   request: { direction: SwapDirection; amount: string },
 ): void {
   const input = request.direction === "WETH_TO_USDG" ? SWAP_TOKENS.WETH : SWAP_TOKENS.USDG;

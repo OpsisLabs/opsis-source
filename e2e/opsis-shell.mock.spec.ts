@@ -35,7 +35,7 @@ async function contentTop(page: Page) {
 }
 
 test("opsis preview shell navigation", async ({ page }) => {
-  test.skip(!enabled || process.env.VITE_EXIT_CHECK_ENABLED !== "true" || process.env.VITE_SCOUT_WATCH_ENABLED !== "true");
+  test.skip(!enabled || process.env.VITE_EXIT_CHECK_ENABLED !== "true" || process.env.VITE_WATCH_ENABLED !== "true");
   await page.emulateMedia({ colorScheme: "light" });
   await access(page);
   let analyses = 0;

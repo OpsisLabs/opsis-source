@@ -1,12 +1,12 @@
 export const trades = {
-  "trades.metadata.title": "Biggest observed trades — ChainScout",
+  "trades.metadata.title": "Big trades",
   "trades.metadata.description":
     "Observe the largest recent signed Uniswap V3 Swap amounts in one factory-verified pool over a bounded block window.",
 
-  "trades.page.eyebrow": "BOUNDED WINDOW · ONE VERIFIED POOL",
-  "trades.page.title": "The largest swaps ChainScout actually observed.",
+  "trades.page.eyebrow": "Big trades",
+  "trades.page.title": "Big trades",
   "trades.page.intro":
-    "Choose the default WETH/USDG pair or one token contract. After your click, ChainScout reads a bounded recent block window from the dRPC Robinhood Chain gateway and ranks signed Uniswap V3 Swap amounts from that one pool. Nothing is fetched automatically and no wallet connects.",
+    "Choose the default WETH/USDG pair or one token contract. After your click, Opsis reads a bounded recent block window from the dRPC Robinhood Chain gateway and ranks signed Uniswap V3 Swap amounts from that one pool. Nothing is fetched automatically and no wallet connects.",
 
   "trades.form.tokenLabel": "Token contract (optional)",
   "trades.form.tokenPlaceholder": "0x… — leave blank for WETH/USDG",
@@ -20,11 +20,11 @@ export const trades = {
 
   "trades.consent.title": "Public-address disclosure",
   "trades.consent.body":
-    "Clicking once sends the public token contract, the factory-derived pool address, and the bounded block window to the dRPC Robinhood Chain gateway. dRPC is a paid gateway that may route each read to an independent node operator in its network. No wallet, Vault, note, or AI data is sent. ChainScout does not fetch before you click and never signs or trades.",
+    "Clicking once sends the public token contract, the factory-derived pool address, and the bounded block window to the dRPC Robinhood Chain gateway. dRPC is a paid gateway that may route each read to an independent node operator in its network. No wallet, Vault, note, or AI data is sent. Opsis does not fetch before you click and never signs or trades.",
   "trades.consent.button": "OBSERVE RECENT SWAPS",
   "trades.consent.loading": "OBSERVING…",
 
-  "trades.disabled.title": "Biggest observed trades are unavailable",
+  "trades.disabled.title": "Big trades unavailable",
   "trades.disabled.body":
     "This build has the observed-trades feature off. Nothing was requested and no provider was called.",
 
@@ -72,9 +72,9 @@ export const trades = {
   "trades.limitations.title": "What this does not claim",
   "trades.privacy.label": "Privacy receipt",
 
-  "product.feature.biggest-trades.label": "Biggest Observed Trades",
-  "product.feature.biggest-trades.shortLabel": "Biggest trades",
-  "product.feature.biggest-trades.helpLabel": "About observed trades",
+  "product.feature.biggest-trades.label": "Big trades",
+  "product.feature.biggest-trades.shortLabel": "Big trades",
+  "product.feature.biggest-trades.helpLabel": "About Big trades",
   "product.feature.biggest-trades.eyebrow": "BOUNDED WINDOW · ONE VERIFIED POOL",
   "product.feature.biggest-trades.navHint": "Compare largest observed swaps",
   "product.feature.biggest-trades.summary":
@@ -92,5 +92,5 @@ export const trades = {
   "product.feature.biggest-trades.step.3":
     "Inspect exact window timestamps, scanned counts, and largest signed buys/sells.",
   "product.feature.biggest-trades.step.4":
-    "Follow only a verified public EOA sender through the Scout Watch handoff.",
+    "Follow only a verified public EOA sender through the Watch handoff.",
 };

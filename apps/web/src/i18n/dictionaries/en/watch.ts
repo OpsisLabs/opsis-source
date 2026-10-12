@@ -1,5 +1,5 @@
 export const watch = {
-  "watch.title": "Scout Watch",
+  "watch.title": "Watch",
   "watch.headline": "Follow wallets. Catch the changes.",
   "watch.intro":
     "Keep a private watchlist of Robinhood Chain wallets. Check again to see what changed—not another wall of numbers.",
@@ -18,7 +18,7 @@ export const watch = {
   "watch.lock": "Lock watchlist",
   "watch.backup": "Export encrypted backup",
   "watch.backupReady": "Encrypted backup ready. Keep it somewhere safe.",
-  "watch.manageVault": "Restore a backup or manage your Vault",
+  "watch.manageVault": "Open Saved to restore or manage encrypted storage",
   "watch.storageNote":
     "Local-only: use this same browser and site. Clearing site data or browser eviction can remove it. Export backups. Locks when you leave the tab or after 10 minutes idle.",
   "watch.recoveryTitle": "Save your recovery key",
@@ -32,7 +32,7 @@ export const watch = {
   "watch.sampleLabel": "Public example · not a verified identity",
   "watch.save": "Save wallet & check",
   "watch.disclosure":
-    "This check sends only the public address to ChainScout, the dRPC Robinhood Chain gateway and Blockscout. dRPC is a paid gateway that may route each read to an independent node operator in its network. Private labels and saved history stay on this device. No AI model, signing or background polling.",
+    "This check sends only the public address to Opsis, the dRPC Robinhood Chain gateway and Blockscout. dRPC is a paid gateway that may route each read to an independent node operator in its network. Private labels and saved history stay on this device. No AI model, signing or background polling.",
   "watch.consent": "Allow this public-address lookup",
   "watch.working": "Checking and encrypting…",
   "watch.savedBaseline":
@@ -93,7 +93,7 @@ export const watch = {
   "watch.addressLink": "Open address evidence",
   "watch.follow.wallet": "FOLLOW THIS WALLET",
   "watch.follow.publicAddress": "FOLLOW THIS PUBLIC ADDRESS",
-  "watch.follow.aria": "Follow {address} in Scout Watch",
+  "watch.follow.aria": "Follow {address} in Watch",
   "watch.prefill.waiting":
     "A public address ({address}) is waiting to follow. Unlock or create your Vault to continue—nothing is looked up or saved yet.",
   "watch.explore": "Explain this wallet",
@@ -136,30 +136,30 @@ export const watch = {
   "watch.error.refresh":
     "This check could not finish. Existing saved snapshots were kept; try again later.",
   "watch.error.disabled":
-    "Scout Watch is temporarily unavailable. Your encrypted watchlist is unchanged.",
-  "watch.metadata.title": "Scout Watch | Private wallet watchlist | ChainScout",
+    "Watch is temporarily unavailable. Your encrypted watchlist is unchanged.",
+  "watch.metadata.title": "Watch | Private wallet watchlist | Opsis",
   "watch.metadata.description":
     "Save Robinhood Chain wallets privately and compare exact balance changes and newly observed activity between on-demand checks.",
-  "product.feature.scout-watch.label": "Scout Watch",
-  "product.feature.scout-watch.shortLabel": "Watchlist",
-  "product.feature.scout-watch.helpLabel": "About Scout Watch",
-  "product.feature.scout-watch.eyebrow": "PRIVATE WATCHLIST · ON DEMAND",
-  "product.feature.scout-watch.navHint": "See what changed in a wallet",
-  "product.feature.scout-watch.summary":
+  "product.feature.watch.label": "Watch",
+  "product.feature.watch.shortLabel": "Watch",
+  "product.feature.watch.helpLabel": "About Watch",
+  "product.feature.watch.eyebrow": "PRIVATE WATCHLIST · ON DEMAND",
+  "product.feature.watch.navHint": "See what changed in a wallet",
+  "product.feature.watch.summary":
     "Save wallets locally, compare changes, browse a combined activity feed and find shared token holdings.",
-  "product.feature.scout-watch.bestFor":
+  "product.feature.watch.bestFor":
     "Returning to wallets you follow without reconstructing the last view.",
-  "product.feature.scout-watch.privacy":
+  "product.feature.watch.privacy":
     "Labels and three snapshots per wallet are encrypted in your local Vault. Only the public address is sent on an approved refresh.",
-  "product.feature.scout-watch.boundary":
+  "product.feature.watch.boundary":
     "Manual, bounded, non-final checks. Not continuous alerts, trade attribution, profit tracking or a safety verdict.",
-  "product.feature.scout-watch.step.1":
+  "product.feature.watch.step.1":
     "Create or unlock your encrypted watchlist directly on the Watch page.",
-  "product.feature.scout-watch.step.2":
+  "product.feature.watch.step.2":
     "Paste a Robinhood wallet address, review the public lookup and save a baseline.",
-  "product.feature.scout-watch.step.3":
+  "product.feature.watch.step.3":
     "Refresh later to compare exact balances, or open Activity feed and Wallet overlap to explore your saved checks together.",
-  "product.feature.scout-watch.step.4":
+  "product.feature.watch.step.4":
     "Export an encrypted backup; your watchlist is local to this browser and site.",
   "watch.briefing.title": "Across your watchlist",
   "watch.briefing.badge": "LOCAL · ON DEMAND",

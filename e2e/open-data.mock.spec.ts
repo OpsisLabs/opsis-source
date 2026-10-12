@@ -16,9 +16,9 @@ function asset(symbol: "WETH" | "USDG", address: string, decimals: number) {
     name,
     symbol,
     decimals,
-    registryStatus: "chainscout_supported",
-    identityConfidence: "chainscout_reviewed_static_match",
-    provenance: { derivation: "chainscout_static_review", upstreamPayloadIncluded: false, redistributionClass: "chainscout_reviewed_reference", reviewedAt: "2026-08-12T21:31:50.000Z" },
+    registryStatus: "opsis_supported",
+    identityConfidence: "opsis_reviewed_static_match",
+    provenance: { derivation: "opsis_static_review", upstreamPayloadIncluded: false, redistributionClass: "opsis_reviewed_reference", reviewedAt: "2026-08-12T21:31:50.000Z" },
     sources: [{ id: "robinhood-chain-contracts", title: "Robinhood Chain contract reference", url: "https://docs.robinhood.com/chain/contracts/", kind: "primary_reference", purpose: "human_verification_link_only" }, { id: `blockscout-token-${address.toLowerCase()}`, title: `${symbol} contract on the Robinhood Chain explorer`, url: `https://robinhoodchain.blockscout.com/token/${address}`, kind: "human_verification", purpose: "human_verification_link_only" }],
     limitations: ["Reviewed launch-registry reference only.", "Not a safety or value claim."],
   };
@@ -34,14 +34,14 @@ test("developer page documents and exercises only the two credentialless zero-pr
       return route.fulfill({ json: {
         schemaVersion: 1,
         registryVersion: "2026-08-12.1",
-        chainscoutSourceRevision: "1".repeat(40),
+        opsisSourceRevision: "1".repeat(40),
         chain: { id: 4663, namespace: "eip155", name: "Robinhood Chain" },
         assets: [asset("WETH", WETH, 18), asset("USDG", USDG, 6)],
         assetsShown: 2,
-        completeFor: "chainscout_reviewed_launch_registry",
+        completeFor: "opsis_reviewed_launch_registry",
         generatedAt: "2026-08-12T21:31:50.000Z",
-        provenance: { upstreamPayloadIncluded: false, redistributionClass: "chainscout_reviewed_reference" },
-        rights: { chainscoutAuthored: ["response schema"], excludedFromLicenseClaim: ["third-party marks"] },
+        provenance: { upstreamPayloadIncluded: false, redistributionClass: "opsis_reviewed_reference" },
+        rights: { opsisAuthored: ["response schema"], excludedFromLicenseClaim: ["third-party marks"] },
         limitations: ["Complete only for the reviewed launch registry."],
         cap: { anonymousRequestsPerHour: 60, scope: "pseudonymous_network_client" },
       } });
@@ -57,7 +57,7 @@ test("developer page documents and exercises only the two credentialless zero-pr
         existenceVerified: false,
         registryMatch: null,
         explorerUrl: `https://robinhoodchain.blockscout.com/address/${UNKNOWN}`,
-        provenance: { derivation: "deterministic_syntax_normalization", upstreamPayloadIncluded: false, redistributionClass: "chainscout_derived_normalization", reviewedAt: "2026-08-12T21:31:50.000Z" },
+        provenance: { derivation: "deterministic_syntax_normalization", upstreamPayloadIncluded: false, redistributionClass: "opsis_derived_normalization", reviewedAt: "2026-08-12T21:31:50.000Z" },
         limitations: ["Syntax only; existence is not verified.", "Explorer link is a handoff only.", "Unknown address; no type is inferred."],
       } });
     }

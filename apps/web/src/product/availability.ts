@@ -53,7 +53,7 @@ export function isProductFeatureEnabled(id: string) {
   if (id === "kol-tracker") return import.meta.env.VITE_KOL_TRACKER_ENABLED === "true";
   if (id === "portfolio-stress-test") return import.meta.env.VITE_PORTFOLIO_STRESS_TEST_ENABLED === "true";
   if (id === "situation-room") return import.meta.env.VITE_SITUATION_ROOM_ENABLED === "true";
-  if (id === "scout-watch") return import.meta.env.VITE_SCOUT_WATCH_ENABLED === "true";
+  if (id === "watch") return isWatchEnabled();
   if (id === "card-price-check") return import.meta.env.VITE_CARD_PRICE_CHECK_ENABLED === "true";
   if (id === "trade-simulator") return import.meta.env.VITE_TRADE_SIMULATOR_ENABLED === "true";
   if (id === "biggest-trades") return isObservedTradesEnabled();
@@ -94,4 +94,18 @@ export function vaultWorkspaceFromSearch(
   if (requested === "market" && availability.marketInventory) return requested;
   if (requested === "replay" && availability.replayActions) return requested;
   return "assets";
+}
+
+export function watchBuildEnabled(flags: {
+  VITE_WATCH_ENABLED?: string;
+  VITE_SCOUT_WATCH_ENABLED?: string;
+}) {
+  return (flags.VITE_WATCH_ENABLED ?? flags.VITE_SCOUT_WATCH_ENABLED) === "true";
+}
+
+export function isWatchEnabled() {
+  return watchBuildEnabled({
+    VITE_WATCH_ENABLED: import.meta.env.VITE_WATCH_ENABLED,
+    VITE_SCOUT_WATCH_ENABLED: import.meta.env.VITE_SCOUT_WATCH_ENABLED,
+  });
 }

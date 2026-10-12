@@ -249,7 +249,7 @@ test("enforces exact ISO publish dates on each context source", () => {
   assert.equal(parseEthMarketSnapshot(accepted, CAPTURE_MS).status, "valid");
 });
 
-test("requires each context card to disclose its source and ChainScout summary fields", () => {
+test("requires each context card to disclose its source and Opsis summary fields", () => {
   for (const field of ["source", "summary", "originalTitle", "whyItMatters"]) {
     const payload = clone(captured);
     delete payload.newsContext[1][field];

@@ -21,7 +21,7 @@ import { captureWatch } from "./model";
 import { watchFixture } from "./fixture";
 const passphrase = "watch-test-only-passphrase";
 
-describe("encrypted Scout Watch lifecycle", () => {
+describe("encrypted Watch lifecycle", () => {
   beforeEach(async () => {
     await deleteLocalVault();
   });

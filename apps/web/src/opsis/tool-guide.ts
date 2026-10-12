@@ -1,3 +1,4 @@
+import { isWatchEnabled } from "../product/availability";
 import type { Capabilities } from "./model";
 type Copy = [string, string];
 export type ToolGuide = {
@@ -51,7 +52,7 @@ export const toolGuides: ToolGuide[] = [
       "您主动请求的核查之间的变化；无后台提醒",
     ],
     enabled: (c) =>
-      c.watch && import.meta.env.VITE_SCOUT_WATCH_ENABLED === "true",
+      c.watch && isWatchEnabled(),
   },
   {
     path: "/lab",

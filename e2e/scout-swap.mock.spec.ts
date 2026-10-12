@@ -36,7 +36,7 @@ test("trade simulator one-click example exports a private-by-default PNG and cle
   const downloadPromise = page.waitForEvent("download");
   await page.getByRole("link", { name: "Download PNG" }).click();
   const download = await downloadPromise;
-  expect(download.suggestedFilename()).toBe("chainscout-trade-card.png");
+  expect(download.suggestedFilename()).toBe("opsis-trade-card.png");
   const bytes = await readFile((await download.path())!);
   expect(bytes.subarray(0, 8).toString("hex")).toBe("89504e470d0a1a0a");
   expect(bytes.readUInt32BE(16)).toBe(1200);
@@ -45,8 +45,8 @@ test("trade simulator one-click example exports a private-by-default PNG and cle
     await page.setViewportSize({ width, height: 900 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
   }
-  if (process.env.CHAINSCOUT_CARD_SHOT) {
-    await page.getByRole("img", { name: /Your Trade Card preview/ }).screenshot({ path: process.env.CHAINSCOUT_CARD_SHOT });
+  if (process.env.OPSIS_CARD_SHOT) {
+    await page.getByRole("img", { name: /Your Trade Card preview/ }).screenshot({ path: process.env.OPSIS_CARD_SHOT });
   }
   await page.getByLabel("Include my entered balances in the image").check();
   await expect(card.getByRole("link", { name: "Download PNG" })).toHaveCount(0);
@@ -111,7 +111,7 @@ test("trade simulator compares quantities, keeps balances private and invalidate
   await expect(page.getByRole("cell", { name: "136.45", exact: true })).toBeVisible();
   await expect(page.getByText(/Liquidity-provider, protocol and token-specific fees may also apply/)).toBeVisible();
   await expect(page.getByText(/minimum output is not a total-cost guarantee/)).toBeVisible();
-  if (process.env.CHAINSCOUT_PREVIEW_SHOT) await page.screenshot({ path: process.env.CHAINSCOUT_PREVIEW_SHOT, fullPage: true });
+  if (process.env.OPSIS_PREVIEW_SHOT) await page.screenshot({ path: process.env.OPSIS_PREVIEW_SHOT, fullPage: true });
   for (const width of [320, 390]) {
     await page.setViewportSize({ width, height: 900 });
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
@@ -172,7 +172,7 @@ function quoteFixture(stale = false, warning = false) {
       "Uniswap fetches a new quote before execution; this preview is not a guaranteed price.",
       "You may pay network gas, liquidity-provider or protocol fees, price impact, slippage, and token-specific fees.",
       "Your wallet address is not sent for this preview; Uniswap receives the pair, amount, and a fixed non-user preview address.",
-      "ChainScout cannot sign, approve, submit, or broadcast this transaction.",
+      "Opsis cannot sign, approve, submit, or broadcast this transaction.",
     ],
   };
 }
@@ -194,14 +194,14 @@ async function mockQuote(page: Page, options: { stale?: boolean; warning?: boole
   return () => calls;
 }
 
-test("Scout Swap explains a fresh quote and hands off only to official Uniswap", async ({ page }) => {
+test("Swap preview explains a fresh quote and hands off only to official Uniswap", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
   const calls = await mockQuote(page, { delayMs: 300 });
   await page.goto("/swap");
 
-  await expect(page).toHaveTitle("Scout Swap Preview | ChainScout");
+  await expect(page).toHaveTitle("Swap preview | Opsis");
   await expect(page.getByRole("heading", { name: /See the trade/i })).toBeVisible();
-  await expect(page.getByText("Scout Swap · read-only preview", { exact: true })).toBeVisible();
+  await expect(page.getByText("Swap preview · read-only preview", { exact: true })).toBeVisible();
   await expect(page.getByText(/official Uniswap app requotes and handles every approval, signature and transaction/)).toBeVisible();
   await expect(page.getByText("NO WALLET DATA")).toBeVisible();
   await page.getByLabel("Wrapped Ether").fill("0.01");
@@ -227,13 +227,13 @@ test("Scout Swap explains a fresh quote and hands off only to official Uniswap",
   );
   if (process.env.QA_SCREENSHOTS === "1") {
     await page.waitForTimeout(700);
-    await page.screenshot({ path: "output/qa/scout-swap-desktop.png", fullPage: true });
+    await page.screenshot({ path: "output/qa/swap-preview-desktop.png", fullPage: true });
   }
   expect(calls()).toBe(1);
 });
 
 for (const width of [1024, 1100, 1279, 1280]) {
-  test(`Scout Swap form and results remain separate while scrolling at ${width}px`, async ({ page }) => {
+  test(`Swap preview form and results remain separate while scrolling at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 800 });
     await page.emulateMedia({ reducedMotion: "reduce" });
     await mockQuote(page);
@@ -283,7 +283,7 @@ test("provider failure degrades to a clear official-app path on mobile", async (
   await expect(fallback).toBeVisible();
   await expect(fallback).toHaveAttribute("href", /^https:\/\/app\.uniswap\.org\/swap\?chain=robinhood&/);
   if (process.env.QA_SCREENSHOTS === "1") {
-    await page.screenshot({ path: "output/qa/scout-swap-mobile-fallback.png", fullPage: true });
+    await page.screenshot({ path: "output/qa/swap-preview-mobile-fallback.png", fullPage: true });
   }
 });
 

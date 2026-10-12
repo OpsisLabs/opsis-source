@@ -17,7 +17,7 @@ export function interpolate(template: string, params?: TranslateParams): string 
 }
 
 export function lookup(locale: Locale, key: string): string | undefined {
-  // Opsis names replace legacy ChainScout wording only in the Opsis build.
+  // Presentation-specific wording is selected only in the Opsis build.
   if (OPSIS_PRESENTATION) {
     const overrides = opsisOverrides[locale === "zh-CN" ? "zh-CN" : "en"];
     if (Object.prototype.hasOwnProperty.call(overrides, key)) return overrides[key];

@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { portfolioScenario, scenarioPoints } from "./lab-data";
-import { opsisTemplate } from "./presentation";
 import { interpolate } from "../i18n/translate";
 describe("native Lab preserves the captured scenario method", () => {
   it("matches the published default basket and cost formula", () => {
@@ -14,11 +13,11 @@ describe("native Lab preserves the captured scenario method", () => {
     expect(new Set(p.map((v) => v.id)).size).toBe(2501);
     expect(p.every((v) => [v.x, v.y, v.z].every(Number.isFinite))).toBe(true);
   });
-  it("renames UI templates without rewriting interpolated private data", () => {
+  it("interpolates named UI templates without rewriting private data", () => {
     expect(
-      interpolate(opsisTemplate("ChainScout: {label}"), {
-        label: "My ChainScout wallet",
+      interpolate("Opsis: {label}", {
+        label: "My private wallet",
       }),
-    ).toBe("Opsis: My ChainScout wallet");
+    ).toBe("Opsis: My private wallet");
   });
 });

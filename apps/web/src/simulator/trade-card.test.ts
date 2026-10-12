@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ScoutSwapQuote } from "../swap/api";
+import type { SwapQuote } from "../swap/api";
 import { tradeCard } from "./trade-card";
 
 const now = Date.parse("2026-09-10T12:00:10Z");
@@ -8,7 +8,7 @@ const quote = {
   output: { symbol: "USDG", amount: "25.123456789123456789", minimumReceived: "24.123456789123456789" },
   simulation: { status: "passed" }, quotedAt: "2026-09-10T12:00:00Z", expiresAt: "2026-09-10T12:00:30Z",
   estimatedGas: { nativeAmount: "0.000012" }, provider: { requestId: "never-export-provider-id" },
-} as ScoutSwapQuote;
+} as SwapQuote;
 
 describe("Trade Cards", () => {
   it("exports an allowlist, excluding balances and provider identifiers by default", () => {

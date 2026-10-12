@@ -8,7 +8,7 @@ import { cloudWorkspaceEnabled, cloudUnavailableMessage } from "./cloudAvailabil
 import { useI18n } from "../i18n";
 
 function LogoMark({ className = "w-7 h-7" }: { className?: string }) {
-  return <img src="/logo.svg" alt="ChainScout" className={className} />;
+  return <img src="/logo.svg" alt="Opsis" className={className} />;
 }
 
 function AuthLayout({

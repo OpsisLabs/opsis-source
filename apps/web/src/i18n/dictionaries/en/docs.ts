@@ -2,17 +2,17 @@ export const docs = {
   "docs.nav.aria": "Technical documentation sections",
   "docs.nav.onThisPage": "ON THIS PAGE",
   "docs.nav.architecture": "Architecture",
-  "docs.nav.vault": "Encrypted Vault",
+  "docs.nav.vault": "Saved",
   "docs.nav.evidence": "Evidence pipeline",
   "docs.nav.adapters": "Feature adapters",
   "docs.nav.security": "Security boundary",
   "docs.nav.token": "Token design",
 
   "docs.header.eyebrow": "TECHNICAL REFERENCE · ROBINHOOD CHAIN 4663",
-  "docs.title.line1": "How ChainScout",
+  "docs.title.line1": "How Opsis",
   "docs.title.line2": "actually works.",
   "docs.header.description":
-    "ChainScout is a read-only asset-intelligence layer plus a browser-encrypted ownership layer. It resolves exact public identifiers, normalizes bounded evidence, labels uncertainty, and keeps the private context that makes an asset yours off the server.",
+    "Opsis is a read-only asset-intelligence layer plus a browser-encrypted ownership layer. It resolves exact public identifiers, normalizes bounded evidence, labels uncertainty, and keeps the private context that makes an asset yours off the server.",
   "docs.header.viewSource": "VIEW SOURCE",
   "docs.header.readFaq": "READ THE FAQ",
 
@@ -26,7 +26,7 @@ export const docs = {
   "docs.architecture.eyebrow": "01 · DATA PATHS",
   "docs.architecture.title": "Three modes, three different boundaries.",
   "docs.architecture.intro":
-    "ChainScout separates unsaved public lookups from opt-in encrypted local history and ownership records. Cloud research is deferred to a future update, not a launch dependency.",
+    "Opsis separates unsaved public lookups from opt-in encrypted local history and ownership records. Cloud research is deferred to a future update, not a launch dependency.",
   "docs.architecture.mode.ephemeral.name": "EPHEMERAL LOOKUP",
   "docs.architecture.mode.ephemeral.input": "Public identifier",
   "docs.architecture.mode.ephemeral.path": "Same-origin API",
@@ -107,11 +107,11 @@ export const docs = {
   "docs.adapters.eyebrow": "04 · FEATURE CONTRACTS",
   "docs.adapters.title": "Different assets need different proof.",
   "docs.adapters.introEnabled":
-    "Current founder-beta build: Private Explorer, Scout Swap, Portfolio, RWA Verify, and Collectible Catalog are enabled. Market & Inventory, Open Data, and Replay Actions are coming soon.",
+    "Current founder-beta build: Research, Swap preview, Portfolio, Stock-token check, and Collectible Catalog are enabled. Market & Inventory, Open Data, and Replay Actions are coming soon.",
   "docs.adapters.introGated":
-    "Current founder-beta build: Private Explorer, Scout Swap, Portfolio, RWA Verify are enabled. Collectible Catalog, Market & Inventory, Open Data, and Replay Actions are coming soon.",
+    "Current founder-beta build: Research, Swap preview, Portfolio, Stock-token check are enabled. Collectible Catalog, Market & Inventory, Open Data, and Replay Actions are coming soon.",
   "docs.adapters.comingSoon": "COMING SOON",
-  "docs.adapters.privateExplorer.name": "PRIVATE EXPLORER",
+  "docs.adapters.privateExplorer.name": "Research",
   "docs.adapters.privateExplorer.input":
     "One public wallet, transaction, token, or contract",
   "docs.adapters.privateExplorer.process":
@@ -120,14 +120,14 @@ export const docs = {
     "Source-linked facts, coverage, risks, and plain English",
   "docs.adapters.privateExplorer.limit":
     "Unsaved by default; optional encrypted local chat history",
-  "docs.adapters.scoutSwap.name": "SCOUT SWAP",
-  "docs.adapters.scoutSwap.input": "WETH/USDG direction and exact amount",
-  "docs.adapters.scoutSwap.process":
+  "docs.adapters.swapPreview.name": "Swap preview",
+  "docs.adapters.swapPreview.input": "WETH/USDG direction and exact amount",
+  "docs.adapters.swapPreview.process":
     "Read-only Uniswap route using a fixed non-user preview address",
-  "docs.adapters.scoutSwap.output":
+  "docs.adapters.swapPreview.output":
     "Minimum, impact, simulation, route cost, official handoff",
-  "docs.adapters.scoutSwap.limit": "ChainScout never signs or broadcasts",
-  "docs.adapters.portfolio.name": "PORTFOLIO",
+  "docs.adapters.swapPreview.limit": "Opsis never signs or broadcasts",
+  "docs.adapters.portfolio.name": "Saved",
   "docs.adapters.portfolio.input": "One approved Robinhood Chain address",
   "docs.adapters.portfolio.process":
     "Capture current block, reconcile direct reads, recheck block hash",
@@ -135,7 +135,7 @@ export const docs = {
     "Bounded holdings, activity, movements, approvals, coverage",
   "docs.adapters.portfolio.limit":
     "Current anchor is not final; partial data stays marked",
-  "docs.adapters.rwaVerify.name": "RWA VERIFY",
+  "docs.adapters.rwaVerify.name": "Stock-token check",
   "docs.adapters.rwaVerify.input": "One public token or vault contract",
   "docs.adapters.rwaVerify.process":
     "Contract-first identity, oracle, role, vault, and source checks",
@@ -165,7 +165,7 @@ export const docs = {
   "docs.adapters.openData.input":
     "One reviewed support-registry read or one public EVM address",
   "docs.adapters.openData.process":
-    "Static ChainScout tuple or deterministic syntax normalization",
+    "Static Opsis tuple or deterministic syntax normalization",
   "docs.adapters.openData.output":
     "Versioned annotations, limitations, and human-verification links",
   "docs.adapters.openData.limit":
@@ -184,13 +184,13 @@ export const docs = {
   "docs.security.title": "Privacy is a collection of boundaries.",
   "docs.security.noSigner.title": "NO SIGNER",
   "docs.security.noSigner.copy":
-    "ChainScout never asks for a seed phrase and does not approve, sign, route, submit, or broadcast transactions.",
+    "Opsis never asks for a seed phrase and does not approve, sign, route, submit, or broadcast transactions.",
   "docs.security.networkReceipts.title": "EXPLICIT NETWORK RECEIPTS",
   "docs.security.networkReceipts.copy":
     "Sensitive public associations are sent only after the UI names the destination and fields. The approved attempt is encrypted first where Vault state is involved.",
   "docs.security.sameOrigin.title": "SAME-ORIGIN BROWSER API",
   "docs.security.sameOrigin.copy":
-    "Browser calls stay on the ChainScout origin. Nginx proxies to the API; credentials are omitted on anonymous private routes.",
+    "Browser calls stay on the Opsis origin. Nginx proxies to the API; credentials are omitted on anonymous private routes.",
   "docs.security.boundedDestinations.title": "BOUNDED DESTINATIONS",
   "docs.security.boundedDestinations.copy":
     "Provider hosts, methods, fields, response sizes, retries, concurrency, and budgets are constrained per adapter.",
@@ -207,7 +207,7 @@ export const docs = {
   "docs.token.title": "Token utility without contaminating the product.",
   "docs.token.proposal.title": "PROPOSAL, NOT SHIPPED TOKENOMICS",
   "docs.token.proposal.body":
-    "The ChainScout token is planned to launch through pons v2 on Robinhood Chain. Product utility, supply, allocation, vesting, quote asset, fees, creator tax, buyback setting, contract, and launch URL are not stated here as final until they exist and are publicly verified onchain.",
+    "The Opsis token is planned to launch through pons v2 on Robinhood Chain. Product utility, supply, allocation, vesting, quote asset, fees, creator tax, buyback setting, contract, and launch URL are not stated here as final until they exist and are publicly verified onchain.",
   "docs.token.candidates.betaAccess.label": "LOWEST COMPLEXITY",
   "docs.token.candidates.betaAccess.title": "Beta access pass",
   "docs.token.candidates.betaAccess.copy":
@@ -219,11 +219,11 @@ export const docs = {
   "docs.token.candidates.partnerPerks.label": "PARTNER-FUNDED · LATER",
   "docs.token.candidates.partnerPerks.title": "Optional partner perks",
   "docs.token.candidates.partnerPerks.copy":
-    "An opted-in merchant or protocol could offer a clearly scoped holder benefit. The partner funds and fulfills it; ChainScout labels the terms and never guarantees availability, value, or continuation.",
+    "An opted-in merchant or protocol could offer a clearly scoped holder benefit. The partner funds and fulfills it; Opsis labels the terms and never guarantees availability, value, or continuation.",
   "docs.token.candidates.sourceCuration.label": "ADVISORY ONLY",
   "docs.token.candidates.sourceCuration.title": "Advisory source curation",
   "docs.token.candidates.sourceCuration.copy":
-    "Token holders could propose integrations or signal which public sources deserve review. Votes must never replace ChainScout's independent verification or make a fact true.",
+    "Token holders could propose integrations or signal which public sources deserve review. Votes must never replace Opsis's independent verification or make a fact true.",
   "docs.token.good.title": "GOOD TOKEN DESIGN",
   "docs.token.good.item1": "Optional, precise, auditable entitlement",
   "docs.token.good.item2":
@@ -240,6 +240,6 @@ export const docs = {
     "Hidden emissions, allocations, admin powers, or mutable economics",
   "docs.token.pons.title": "pons v2 is the launch rail, not the application.",
   "docs.token.pons.body":
-    "Official pons v2 documentation describes a wallet-signed bonding-curve launch that graduates into a Uniswap v4 pool with its liquidity position locked. ChainScout does not run inside that curve, store Vault data in pons, or treat graduation as product quality. Every final launch term must be read from the deployed record.",
+    "Official pons v2 documentation describes a wallet-signed bonding-curve launch that graduates into a Uniswap v4 pool with its liquidity position locked. Opsis does not run inside that curve, store Vault data in pons, or treat graduation as product quality. Every final launch term must be read from the deployed record.",
   "docs.token.pons.link": "OFFICIAL PONS V2 DOCS",
 } as const;

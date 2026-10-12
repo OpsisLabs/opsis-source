@@ -4,7 +4,7 @@ import { APP_ORIGIN } from "./support/origin";
 const enabled = process.env.VITE_SITUATION_ROOM_ENABLED === "true";
 test.beforeEach(async ({ context }) => {
   await context.addCookies([
-    { name: "chainscout_product_tour_seen_v1", value: "1", url: APP_ORIGIN },
+    { name: "opsis_product_tour_seen_v1", value: "1", url: APP_ORIGIN },
   ]);
 });
 test("situation room closed by default", async ({ page }) => {
@@ -27,7 +27,7 @@ test("situation room selects reports, compares windows, opens insight and export
   });
   await page.goto("/situation-room");
   await expect(page.locator(".situation-surface h1")).toHaveText(
-    "Situation Room.",
+    "World & markets.",
   );
   await expect(page.locator(".sr-edition")).toContainText("captured data");
   await expect(page.getByTestId("eth-market-brief")).toBeVisible();
@@ -113,7 +113,7 @@ test("situation room eth market brief shows captured single-venue data, dated so
   await expect(page.getByTestId("eth-market-price")).toContainText("Last $2,606.31");
   await expect(page.getByTestId("eth-market-price")).toContainText("24h +6.67%");
   const context = page.getByTestId("eth-market-context");
-  await expect(context).toContainText("CHAINSCOUT SUMMARY");
+  await expect(context).toContainText("OPSIS SUMMARY");
   await expect(context).toContainText(
     "Ether ETF flows reverse before today's rally",
   );

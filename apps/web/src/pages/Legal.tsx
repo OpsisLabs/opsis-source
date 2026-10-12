@@ -34,7 +34,7 @@ function OpsisShell({
 }
 
 function LogoMark({ className = "w-7 h-7" }: { className?: string }) {
-  return <img src="/logo.svg" alt="ChainScout" className={className} />;
+  return <img src="/logo.svg" alt="Opsis" className={className} />;
 }
 
 function LegacyShell({
@@ -68,9 +68,7 @@ function LegacyShell({
             <LogoMark />
           </span>
           <span className="font-mono-d text-[11px] leading-4 text-[#9a938a]">
-            CHAIN
-            <br />
-            SCOUT
+            Opsis
           </span>
         </Link>
         <LanguageSwitcher />
@@ -266,37 +264,9 @@ export function PrivacyPage() {
       </Section>
 
       <Section n="08" title={t("legal.privacy.s08.title")}>
-        {OPSIS_PRESENTATION ? (
-          <>
-            <p>{t("legal.privacy.s08.prefix")}</p>
-            <p>{t("legal.privacy.s08.contact")}</p>
-            <p>{t("legal.privacy.s08.suffix")}</p>
-          </>
-        ) : (
-          <>
-            <p>
-              {t("legal.privacy.s08.prefix")}
-              <a
-                href="https://github.com/ChainScoutAi/chainscout-source/issues"
-                target="_blank"
-                rel="noreferrer"
-                className="text-[#fa6c34] underline underline-offset-4"
-              >
-                {t("legal.privacy.s08.issuesLink")}
-              </a>
-              {t("legal.privacy.s08.between")}
-              <a
-                href="https://github.com/ChainScoutAi/ChainScoutAI/security/advisories/new"
-                target="_blank"
-                rel="noreferrer"
-                className="text-[#fa6c34] underline underline-offset-4"
-              >
-                {t("legal.privacy.s08.vulnerabilityLink")}
-              </a>
-              {t("legal.privacy.s08.suffix")}
-            </p>
-          </>
-        )}
+        <p>{t("legal.privacy.s08.prefix")}</p>
+        <p>{t("legal.privacy.s08.contact")}</p>
+        <p>{t("legal.privacy.s08.suffix")}</p>
       </Section>
       <Section n="09" title={t("legal.privacy.s09.title")}>
         <p>{t("legal.privacy.s09.p1")}</p>

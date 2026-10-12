@@ -18,15 +18,15 @@ export const market = {
   "market.crypto.eyebrow": "LIVE PUBLIC CONTEXT",
   "market.crypto.title": "Robinhood token pools",
   "market.crypto.description":
-    "DEX Screener prices the pair's base token. The searched contract can be the quote token, so ChainScout shows the priced address explicitly and never silently inverts it.",
+    "DEX Screener prices the pair's base token. The searched contract can be the quote token, so Opsis shows the priced address explicitly and never silently inverts it.",
   "market.crypto.contractLabel": "TOKEN CONTRACT",
   "market.crypto.contractPlaceholder": "0x…",
   "market.crypto.review": "REVIEW EXACT-CONTRACT LOOKUP",
-  "market.crypto.summaryChainScout": "Robinhood Chain 4663 · {contract}",
+  "market.crypto.summaryOpsis": "Robinhood Chain 4663 · {contract}",
   "market.crypto.summaryProvider":
     "Robinhood token-pairs lookup · {contract}",
   "market.crypto.disclosure":
-    "The exact public chain ID and token contract go transiently to ChainScout and DEX Screener. Ownership, lots, costs, labels, notes, photos, other assets, cookies, wallet connections, and AI are excluded.",
+    "The exact public chain ID and token contract go transiently to Opsis and DEX Screener. Ownership, lots, costs, labels, notes, photos, other assets, cookies, wallet connections, and AI are excluded.",
 
   "market.cryptoObs.eyebrow": "ENCRYPTED OBSERVATIONS",
   "market.cryptoObs.title": "Indexed pool context",
@@ -48,7 +48,7 @@ export const market = {
   "market.cryptoObs.showing":
     "Showing 6 of {total} encrypted exact-contract pool observations in this compact view. Open the source for the broader indexed list.",
   "market.cryptoObs.truncated":
-    "Provider collection reached ChainScout's observed safety bound; additional pools may be omitted.",
+    "Provider collection reached Opsis's observed safety bound; additional pools may be omitted.",
 
   "market.merchant.eyebrow": "OPT-IN MERCHANTS ONLY",
   "market.merchant.title": "Reviewed Woo inventory",
@@ -64,12 +64,12 @@ export const market = {
   "market.merchant.mappingEvidence": "EXACT MAPPING EVIDENCE",
   "market.merchant.review": "REVIEW MERCHANT LOOKUP",
   "market.merchant.approvedMerchant": "approved merchant {merchant}",
-  "market.merchant.summaryChainScout":
+  "market.merchant.summaryOpsis":
     "Merchant ID {merchant} · canonical asset {asset} · reviewed SKU {sku} · expected product ID {productId} · mapping reviewed {reviewedAt}",
   "market.merchant.summaryProvider":
     "Exact reviewed SKU {sku} · expected product ID {productId}",
   "market.merchant.disclosure":
-    "The public canonical asset ID, approved merchant ID, reviewed SKU, expected product ID, and mapping review date go transiently to ChainScout. Only the reviewed SKU and expected product ID go to that opted-in merchant. Ownership, lots, costs, labels, notes, photos, other assets, cookies, wallet connections, and AI are excluded.",
+    "The public canonical asset ID, approved merchant ID, reviewed SKU, expected product ID, and mapping review date go transiently to Opsis. Only the reviewed SKU and expected product ID go to that opted-in merchant. Ownership, lots, costs, labels, notes, photos, other assets, cookies, wallet connections, and AI are excluded.",
   "market.merchant.returnNotSupplied": "Merchant return policy not supplied",
 
   "market.merchantObs.eyebrow": "REVIEWED MERCHANT OBSERVATIONS",
@@ -116,7 +116,7 @@ export const market = {
   "market.comparison.eyebrow": "ENCRYPTED LOCAL MATH",
   "market.comparison.title": "Add a landed-cost comparison",
   "market.comparison.description":
-    "Blank means unknown. Type 0 when a cost is explicitly zero. ChainScout never estimates tax, duty, shipping, or exchange rates.",
+    "Blank means unknown. Type 0 when a cost is explicitly zero. Opsis never estimates tax, duty, shipping, or exchange rates.",
   "market.comparison.providerLocked":
     "Merchant identity, condition, unit price, currency, and availability are locked to the reviewed response. Only your quantity and local cost fields can change.",
   "market.comparison.linkedAsset": "LINKED ASSET",
@@ -166,7 +166,7 @@ export const market = {
   "market.dialog.eyebrow": "EXACT NETWORK RECEIPT",
   "market.dialog.title": "Confirm this public lookup",
   "market.dialog.cancelAria": "Cancel market lookup",
-  "market.dialog.sentToChainScout": "SENT TO CHAINSCOUT",
+  "market.dialog.sentToOpsis": "SENT TO OPSIS",
   "market.dialog.sentToProviders": "SENT TO {providers}",
   "market.dialog.disclosureTail":
     "The encrypted permission attempt is saved before the request. Indexed market facts are not an executable quote, complete inventory, appraisal, or recommendation.",
@@ -192,12 +192,12 @@ export const market = {
   "market.notice.comparisonRemoved":
     "The selected local comparison was removed from the encrypted Vault.",
   "market.notice.reconfirmed":
-    "You reconfirmed this owner-entered offer for the current unlocked session. ChainScout did not contact its source.",
+    "You reconfirmed this owner-entered offer for the current unlocked session. Opsis did not contact its source.",
 
   "market.error.directoryLoad":
     "The approved merchant directory could not be loaded.",
   "market.error.receiptSave":
-    "The encrypted permission receipt could not be saved. {message} ChainScout did not contact a market provider.",
+    "The encrypted permission receipt could not be saved. {message} Opsis did not contact a market provider.",
   "market.error.providerLocalSave":
     "The provider returned a result and the approved public identifier was sent, but {reason} The result was not persisted; the prior encrypted observation remains unchanged.",
   "market.error.requestFailed":
@@ -218,7 +218,7 @@ export const market = {
   "market.handoff.eyebrow": "UNSUPPORTED VENUES",
   "market.handoff.title": "Precise click-only searches",
   "market.handoff.description":
-    "These links contain only public card identity. ChainScout does not fetch, pre-load, rank, or claim inventory from the destination. Review the exact query before opening.",
+    "These links contain only public card identity. Opsis does not fetch, pre-load, rank, or claim inventory from the destination. Review the exact query before opening.",
   "market.handoff.collectibleLabel": "ENCRYPTED COLLECTIBLE",
   "market.handoff.chooseCollectible":
     "Choose a catalog-matched collectible",

@@ -62,21 +62,21 @@ type HorizonIdea = {
 
 const RELEASES: Release[] = [
   {
-    id: "scout-swap",
+    id: "swap-preview",
     number: "01",
-    branch: "release/01-scout-swap",
-    titleKey: "roadmap.release.scout-swap.title",
-    eyebrowKey: "roadmap.release.scout-swap.eyebrow",
-    summaryKey: "roadmap.release.scout-swap.summary",
-    outcomeKey: "roadmap.release.scout-swap.outcome",
+    branch: "release/01-swap-preview",
+    titleKey: "roadmap.release.swap-preview.title",
+    eyebrowKey: "roadmap.release.swap-preview.eyebrow",
+    summaryKey: "roadmap.release.swap-preview.summary",
+    outcomeKey: "roadmap.release.swap-preview.outcome",
     icon: Repeat2,
     capabilities: [
-      { kickerKey: "roadmap.release.scout-swap.cap1.kicker", titleKey: "roadmap.release.scout-swap.cap1.title", signalKey: "roadmap.release.scout-swap.cap1.signal", bars: [32, 48, 40, 66, 58, 88] },
-      { kickerKey: "roadmap.release.scout-swap.cap2.kicker", titleKey: "roadmap.release.scout-swap.cap2.title", signalKey: "roadmap.release.scout-swap.cap2.signal", bars: [72, 62, 52, 44, 36, 28] },
-      { kickerKey: "roadmap.release.scout-swap.cap3.kicker", titleKey: "roadmap.release.scout-swap.cap3.title", signalKey: "roadmap.release.scout-swap.cap3.signal", bars: [24, 31, 46, 55, 74, 92] },
+      { kickerKey: "roadmap.release.swap-preview.cap1.kicker", titleKey: "roadmap.release.swap-preview.cap1.title", signalKey: "roadmap.release.swap-preview.cap1.signal", bars: [32, 48, 40, 66, 58, 88] },
+      { kickerKey: "roadmap.release.swap-preview.cap2.kicker", titleKey: "roadmap.release.swap-preview.cap2.title", signalKey: "roadmap.release.swap-preview.cap2.signal", bars: [72, 62, 52, 44, 36, 28] },
+      { kickerKey: "roadmap.release.swap-preview.cap3.kicker", titleKey: "roadmap.release.swap-preview.cap3.title", signalKey: "roadmap.release.swap-preview.cap3.signal", bars: [24, 31, 46, 55, 74, 92] },
     ],
-    gateKey: "roadmap.release.scout-swap.gate",
-    snapshot: "scout-swap-rc1",
+    gateKey: "roadmap.release.swap-preview.gate",
+    snapshot: "swap-preview-rc1",
   },
   {
     id: "privacy-foundation",

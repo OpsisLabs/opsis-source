@@ -1,8 +1,8 @@
 import { Link } from "react-router";
 import { useCopy } from "../opsis/copy";
 import { OPSIS_PRESENTATION } from "../opsis/presentation";
-const displayBrand = OPSIS_PRESENTATION ? "Opsis" : "ChainScout";
-const contextTitle = OPSIS_PRESENTATION ? "Source context" : "Scout AI insight";
+const displayBrand = OPSIS_PRESENTATION ? "Opsis" : "Opsis";
+const contextTitle = OPSIS_PRESENTATION ? "Source context" : "Opsis AI insight";
 import { data, newsUrl, marketUrl } from "./data.js";
 import "./styles.css";
 import { useState, useEffect, useRef, useMemo } from "react";
@@ -357,7 +357,7 @@ export default function App() {
       ? events.filter((v) => saved.includes(v.id))
       : events;
     const text =
-      "# " + displayBrand + " " + (OPSIS_PRESENTATION ? "World & markets" : "Situation Room") + " — 10 September 2026\n\nNews capture: " +
+      "# " + displayBrand + " " + (OPSIS_PRESENTATION ? "World & markets" : "World & markets") + " — 10 September 2026\n\nNews capture: " +
       data.news.capturedAt +
       "\nMarket capture: " +
       data.market.capturedAt +
@@ -365,7 +365,7 @@ export default function App() {
       list
         .map(
           (v) =>
-            `## ${v.title}\nPublished: ${v.time}\n${v.summary}\n\n${OPSIS_PRESENTATION ? "Source context" : "Scout AI context"} (prepared for this capture): ${v.insight}\nSource: ${v.url}\n\n`,
+            `## ${v.title}\nPublished: ${v.time}\n${v.summary}\n\n${OPSIS_PRESENTATION ? "Source context" : "Opsis AI context"} (prepared for this capture): ${v.insight}\nSource: ${v.url}\n\n`,
         )
         .join("") +
       "\nPrice observations are contextual, not proof of causation.\n";
@@ -383,7 +383,7 @@ export default function App() {
         <nav
           className="sr-edition-switch"
           role="tablist"
-          aria-label={OPSIS_PRESENTATION ? "World & markets edition" : "Situation Room edition"}
+          aria-label={OPSIS_PRESENTATION ? "World & markets edition" : "World & markets edition"}
         >
           <button
             role="tab"
@@ -410,7 +410,7 @@ export default function App() {
               <div>
                 <p className="sr-overline">SITUATION ROOM / ETH EDITION</p>
                 <h1>
-                  {OPSIS_PRESENTATION ? "World & markets" : "Situation Room"}<span>.</span>
+                  {OPSIS_PRESENTATION ? "World & markets" : "World & markets"}<span>.</span>
                 </h1>
                 <p>
                   Ethereum market brief: captured Coinbase ETH/USD data with
@@ -546,7 +546,7 @@ export default function App() {
           <Link to="/stress-test" className="sr-eth-action" aria-label="Test your ETH exposure">
             {OPSIS_PRESENTATION
               ? c("Test your ETH exposure in Portfolio shocks", "在投资组合冲击中测试你的 ETH 敞口")
-              : "Test your ETH exposure in the Portfolio Stress Test"}{" "}
+              : "Test your ETH exposure in the Portfolio shocks"}{" "}
             <ArrowUpRight size={12} />
           </Link>
         </section>
@@ -568,7 +568,7 @@ export default function App() {
           <div>
             <p className="sr-overline">WORLD EVENTS / ONCHAIN INTELLIGENCE</p>
             <h1>
-              {OPSIS_PRESENTATION ? "World & markets" : "Situation Room"}<span>.</span>
+              {OPSIS_PRESENTATION ? "World & markets" : "World & markets"}<span>.</span>
             </h1>
             <p>Follow the announcement. Examine the reaction.</p>
             <small className="sr-edition">

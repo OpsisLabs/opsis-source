@@ -3,8 +3,8 @@ import type { EChartsCoreOption } from "echarts/core";
 import type { VaultAsset } from "../vault/types";
 import { allocationPercent, valueTotals } from "../portfolio/math";
 import {
-  ChainScoutChart,
-} from "./ChainScoutChart";
+  EvidenceChart,
+} from "./EvidenceChart";
 import { CHART_COLORS, darkAxis, darkGrid, darkTooltip } from "./theme";
 import { useI18n, type TranslateParams, type TranslationKey } from "../i18n";
 
@@ -78,7 +78,7 @@ export function VaultRecordMixChart({ assets }: { assets: VaultAsset[] }) {
       copy={t("vault.chart.mixCopy")}
     >
       <div className="record-mix-visual">
-      <div className="record-mix-chart"><ChainScoutChart
+      <div className="record-mix-chart"><EvidenceChart
         option={option}
         label={t("vault.chart.mixAria", { details: data.map((item) => `${item.name} ${item.value}`).join(", ") })}
         height={190}
@@ -162,7 +162,7 @@ export function CollectibleValueHistoryChart({ asset }: { asset: VaultAsset }) {
               {t("vault.chart.latestDatedEntry")} <strong className="font-medium text-[#e9e0d1]">{points.at(-1)?.value} {currency}</strong>
               <span className="block text-[12px] text-[#aaa39b]">{points.at(-1)?.date} · {points.at(-1)?.label}</span>
             </p>
-            <ChainScoutChart
+            <EvidenceChart
               option={option}
               label={t("vault.chart.historyAria", { name: asset.name, currency })}
               height={240}
@@ -253,7 +253,7 @@ export function PortfolioAllocationChart({
                   ? t("vault.chart.referencedHolding.one", { currency, count: entries.length })
                   : t("vault.chart.referencedHolding.other", { currency, count: entries.length })}
               </p>
-              <ChainScoutChart
+              <EvidenceChart
                 option={option}
                 label={t("vault.chart.allocationAria", { currency, details: entries.map((entry) => `${entry.symbol} ${entry.percent.toFixed(2)} percent`).join(", ") })}
                 height={Math.max(190, entries.length * 42 + 75)}

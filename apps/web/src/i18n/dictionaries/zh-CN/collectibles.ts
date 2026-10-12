@@ -2,7 +2,7 @@ export const collectibles: Record<string, string> = {
   "collectibles.catalog.eyebrow": "收藏品目录",
   "collectibles.catalog.title": "匹配卡牌。所有权保持私密。",
   "collectibles.catalog.description":
-    "TCGdex 提供英文卡牌与系列身份，以及可选的低分辨率目录缩略图。ChainScout 会在该图片进入加密保险库前在本地进行净化。版本或变体、品相、评级、证书、价值、真实性和库存仍为持有者声明；不会请求市场价。",
+    "TCGdex 提供英文卡牌与系列身份，以及可选的低分辨率目录缩略图。Opsis 会在该图片进入加密保险库前在本地进行净化。版本或变体、品相、评级、证书、价值、真实性和库存仍为持有者声明；不会请求市场价。",
   "collectibles.providerOriginalLanguage":
     "卡牌名称、系列、稀有度和插画师均以 TCGdex 提供的原始语言显示。",
   "collectibles.catalog.addWithout": "不通过目录添加",
@@ -25,7 +25,7 @@ export const collectibles: Record<string, string> = {
   "collectibles.catalog.detailResolved":
     "目录身份已解析。下方的持有者详情仍保留在本地，未经 TCGdex 验证。",
   "collectibles.catalog.receiptSaveFailed":
-    "加密的权限凭据无法保存，因此 ChainScout 未联系目录。",
+    "加密的权限凭据无法保存，因此 Opsis 未联系目录。",
   "collectibles.catalog.requestFailed":
     "目录请求失败。手动保险库路径仍然可用。",
   "collectibles.catalog.collectorNumber": "收藏编号 #{number}",
@@ -33,15 +33,15 @@ export const collectibles: Record<string, string> = {
   "collectibles.catalog.truncated":
     "结果有界且已截断。请添加系列 ID 或收藏编号以缩小查询范围。",
   "collectibles.catalog.license":
-    "社区目录元数据由 TCGdex 依据其数据库许可提供。ChainScout 与 TCGdex、Nintendo、The Pokémon Company、任何市场或任何评级机构均无关联，也未获其认可。名称和商标归各自所有者所有。",
+    "社区目录元数据由 TCGdex 依据其数据库许可提供。Opsis 与 TCGdex、Nintendo、The Pokémon Company、任何市场或任何评级机构均无关联，也未获其认可。名称和商标归各自所有者所有。",
   "collectibles.receipt.disclosureSearch":
-    "ChainScout 会收到已确认的英文卡牌名称、可选的收藏编号和可选的系列 ID。TCGdex 仅收到名称和可选的收藏编号。所有权及其他私密字段仍加密保存在此浏览器中。",
+    "Opsis 会收到已确认的英文卡牌名称、可选的收藏编号和可选的系列 ID。TCGdex 仅收到名称和可选的收藏编号。所有权及其他私密字段仍加密保存在此浏览器中。",
   "collectibles.receipt.disclosureDetail":
-    "ChainScout 和 TCGdex 会收到所选的公开卡牌 ID。TCGdex 返回允许列表内的身份元数据和目录图片路径；浏览器在没有 Cookie 或引用来源的情况下直接获取该低分辨率图片。所有权及其他私密字段仍加密保存在此浏览器中。",
+    "Opsis 和 TCGdex 会收到所选的公开卡牌 ID。TCGdex 返回允许列表内的身份元数据和目录图片路径；浏览器在没有 Cookie 或引用来源的情况下直接获取该低分辨率图片。所有权及其他私密字段仍加密保存在此浏览器中。",
   "collectibles.permission.eyebrow": "精确网络凭据",
   "collectibles.permission.title": "确认此次目录查询",
   "collectibles.permission.cancelAria": "取消目录查询",
-  "collectibles.permission.sentToChainScout": "发送给 CHAINSCOUT",
+  "collectibles.permission.sentToOpsis": "发送给 OPSIS",
   "collectibles.permission.sentToTcgdex": "发送给 TCGDEX",
   "collectibles.permission.encryptedTitle": "本地加密",
   "collectibles.permission.encryptedText":
@@ -125,9 +125,9 @@ export const collectibles: Record<string, string> = {
   "collectibles.owner.grader.bgs": "BGS",
   "collectibles.owner.grader.other": "其他",
   "collectibles.api.englishOnly": "收藏品目录目前仅支持英文元数据",
-  "collectibles.api.invalidSearch": "ChainScout 返回了无效的收藏品搜索响应",
-  "collectibles.api.invalidDetail": "ChainScout 返回了无效的收藏品详情响应",
-  "collectibles.api.invalidPrivacy": "ChainScout 返回了无效的收藏品隐私凭据",
+  "collectibles.api.invalidSearch": "Opsis 返回了无效的收藏品搜索响应",
+  "collectibles.api.invalidDetail": "Opsis 返回了无效的收藏品详情响应",
+  "collectibles.api.invalidPrivacy": "Opsis 返回了无效的收藏品隐私凭据",
   "collectibles.thumbnail.unavailable": "目录缩略图不可用",
   "collectibles.thumbnail.invalidType": "目录缩略图类型无效",
   "collectibles.thumbnail.invalidSize": "目录缩略图大小无效",

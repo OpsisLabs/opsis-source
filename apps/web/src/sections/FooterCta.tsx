@@ -65,8 +65,6 @@ export default function FooterCta() {
               <Link to="/docs" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">{t("landing.footer.resource.docs")}</Link>
               <Link to="/faq" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">{t("landing.footer.resource.fullFaq")}</Link>
               <a href="https://robinhoodchain.blockscout.com" target="_blank" rel="noreferrer" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">{t("landing.footer.resource.blockscout")}</a>
-              <a href="https://github.com/ChainScoutAi/chainscout-source" target="_blank" rel="noreferrer" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">{t("landing.footer.resource.source")}</a>
-              <a href="https://github.com/ChainScoutAi/chainscout-source/issues" target="_blank" rel="noreferrer" className="block border-b border-[#2e2e2e] py-2.5 text-[13.5px] text-[#9a938a] transition-colors hover:text-[#e9e0d1]">{t("landing.footer.resource.support")}</a>
             </div>
           </div>
         </div>
@@ -107,7 +105,7 @@ export default function FooterCta() {
         </div>
 
         <div className="flex flex-col items-center justify-between gap-3 border-t border-[#1d1d1d]/20 bg-[#1d1d1d] px-8 py-5 text-[12px] text-[#9a938a] md:flex-row md:px-12">
-          <span>© ChainScout, 2026</span>
+          <span>© Opsis, 2026</span>
           <span className="font-mono-d tracking-widest text-[#635d5a]">····················</span>
           <span>{t("landing.footer.disclaimer")}</span>
           <span className="flex gap-8">

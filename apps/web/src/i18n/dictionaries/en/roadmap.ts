@@ -1,19 +1,19 @@
 export const roadmap = {
-  "roadmap.sidebar.homeLabel": "Back to ChainScout home",
+  "roadmap.sidebar.homeLabel": "Back to Opsis home",
   "roadmap.sidebar.productPath": "PRODUCT PATH",
   "roadmap.sidebar.releaseRoadmap": "Release roadmap",
   "roadmap.sidebar.sequential": "SEQUENTIAL",
   "roadmap.sidebar.oneAtATime": "One release at a time",
 
-  "roadmap.nav.homeLabel": "ChainScout home",
+  "roadmap.nav.homeLabel": "Opsis home",
   "roadmap.nav.home": "HOME",
   "roadmap.nav.releases": "RELEASES",
   "roadmap.nav.utility": "UTILITY",
   "roadmap.nav.privacy": "PRIVACY",
   "roadmap.nav.protocol": "PROTOCOL",
   "roadmap.nav.releaseProtocol": "RELEASE PROTOCOL",
-  "roadmap.nav.tryExplorer": "TRY THE EXPLORER",
-  "roadmap.nav.tryExplorerShort": "TRY EXPLORER",
+  "roadmap.nav.tryExplorer": "Open Research",
+  "roadmap.nav.tryExplorerShort": "Open Research",
   "roadmap.nav.toggle": "Toggle navigation",
 
   "roadmap.trajectory.zeroSpend": "$0 NEW SPEND",
@@ -32,24 +32,24 @@ export const roadmap = {
   "roadmap.release.check.ux": "UX",
   "roadmap.release.check.safety": "SAFETY",
 
-  "roadmap.release.scout-swap.eyebrow": "LIVE ROUTE. CLEAR OUTCOME.",
-  "roadmap.release.scout-swap.title": "Scout Swap",
-  "roadmap.release.scout-swap.summary":
+  "roadmap.release.swap-preview.eyebrow": "LIVE ROUTE. CLEAR OUTCOME.",
+  "roadmap.release.swap-preview.title": "Swap preview",
+  "roadmap.release.swap-preview.summary":
     "Preview a current Uniswap route, understand every tradeoff, then continue in the official app.",
-  "roadmap.release.scout-swap.outcome": "Preview a live swap",
-  "roadmap.release.scout-swap.cap1.kicker": "LIVE QUOTE",
-  "roadmap.release.scout-swap.cap1.title":
+  "roadmap.release.swap-preview.outcome": "Preview a live swap",
+  "roadmap.release.swap-preview.cap1.kicker": "LIVE QUOTE",
+  "roadmap.release.swap-preview.cap1.title":
     "Current WETH/USDG route, price impact, gas, and minimum received",
-  "roadmap.release.scout-swap.cap1.signal": "FREE API / FRESH",
-  "roadmap.release.scout-swap.cap2.kicker": "SIMULATION",
-  "roadmap.release.scout-swap.cap2.title":
+  "roadmap.release.swap-preview.cap1.signal": "FREE API / FRESH",
+  "roadmap.release.swap-preview.cap2.kicker": "SIMULATION",
+  "roadmap.release.swap-preview.cap2.title":
     "Plain-English predicted balance changes and failure states",
-  "roadmap.release.scout-swap.cap2.signal": "EXPLAIN ONLY",
-  "roadmap.release.scout-swap.cap3.kicker": "UNISWAP HANDOFF",
-  "roadmap.release.scout-swap.cap3.title":
+  "roadmap.release.swap-preview.cap2.signal": "EXPLAIN ONLY",
+  "roadmap.release.swap-preview.cap3.kicker": "UNISWAP HANDOFF",
+  "roadmap.release.swap-preview.cap3.title":
     "Open the official Uniswap app with pair and amount prefilled",
-  "roadmap.release.scout-swap.cap3.signal": "REQUOTES THERE",
-  "roadmap.release.scout-swap.gate":
+  "roadmap.release.swap-preview.cap3.signal": "REQUOTES THERE",
+  "roadmap.release.swap-preview.gate":
     "Fresh quote and successful simulation; all user-paid costs disclosed; no signing method exists.",
 
   "roadmap.release.privacy-foundation.eyebrow":
@@ -57,7 +57,7 @@ export const roadmap = {
   "roadmap.release.privacy-foundation.title": "Privacy Foundation",
   "roadmap.release.privacy-foundation.summary":
     "Make no-account Private Mode the default and remove private details from server storage, logs, and browser-readable credentials.",
-  "roadmap.release.privacy-foundation.outcome": "Use ChainScout privately",
+  "roadmap.release.privacy-foundation.outcome": "Use Opsis privately",
   "roadmap.release.privacy-foundation.cap1.kicker": "PRIVATE MODE",
   "roadmap.release.privacy-foundation.cap1.title":
     "Research public assets with no account and no permanent server-side history",
@@ -74,7 +74,7 @@ export const roadmap = {
     "Private fields never enter logs, analytics, saved server records, or unapproved network requests.",
 
   "roadmap.release.encrypted-vault.eyebrow": "YOUR ASSETS. YOUR DEVICE.",
-  "roadmap.release.encrypted-vault.title": "Encrypted Asset Vault",
+  "roadmap.release.encrypted-vault.title": "Saved",
   "roadmap.release.encrypted-vault.summary":
     "Track purchase lots, notes, photos, grades, and manual assets in one encrypted browser Vault.",
   "roadmap.release.encrypted-vault.outcome": "Track every asset privately",
@@ -94,7 +94,7 @@ export const roadmap = {
     "Plaintext never crosses the network; encryption, recovery, corruption, eviction, and deletion states pass.",
 
   "roadmap.release.portfolio-intelligence.eyebrow": "ONE VIEW. LESS NOISE.",
-  "roadmap.release.portfolio-intelligence.title": "Portfolio Intelligence",
+  "roadmap.release.portfolio-intelligence.title": "Saved",
   "roadmap.release.portfolio-intelligence.summary":
     "Combine holdings, cost basis, activity, approvals, performance, and plain-English transaction explanations.",
   "roadmap.release.portfolio-intelligence.outcome":
@@ -193,23 +193,23 @@ export const roadmap = {
   "roadmap.release.replay-actions.cap3.kicker": "OFFICIAL HANDOFF",
   "roadmap.release.replay-actions.cap3.title":
     "Let Uniswap or the merchant requote, sign, charge, fulfill, and support",
-  "roadmap.release.replay-actions.cap3.signal": "CHAINSCOUT NEVER EXECUTES",
+  "roadmap.release.replay-actions.cap3.signal": "OPSIS NEVER EXECUTES",
   "roadmap.release.replay-actions.gate":
-    "No historic execution payload survives; every action starts fresh and leaves ChainScout before signing or payment.",
+    "No historic execution payload survives; every action starts fresh and leaves Opsis before signing or payment.",
 
   "roadmap.release.open-data-api.eyebrow": "PUBLIC FACTS. REUSABLE EVIDENCE.",
-  "roadmap.release.open-data-api.title": "ChainScout Open Data",
+  "roadmap.release.open-data-api.title": "Opsis Open Data",
   "roadmap.release.open-data-api.summary":
     "Expose one deliberately small, capped static support registry plus independently derived syntax normalization.",
   "roadmap.release.open-data-api.outcome":
-    "Reuse ChainScout public intelligence",
+    "Reuse Opsis public intelligence",
   "roadmap.release.open-data-api.cap1.kicker": "TWO-ROUTE V1",
   "roadmap.release.open-data-api.cap1.title":
     "Read the reviewed WETH/USDG support registry or normalize one EVM address",
   "roadmap.release.open-data-api.cap1.signal": "OPENAPI",
   "roadmap.release.open-data-api.cap2.kicker": "SAFE DATA CLASS",
   "roadmap.release.open-data-api.cap2.title":
-    "Separate reviewed static references from ChainScout-derived normalization—never Vault or provider payloads",
+    "Separate reviewed static references from Opsis-derived normalization—never Vault or provider payloads",
   "roadmap.release.open-data-api.cap2.signal": "HUMAN LINKS",
   "roadmap.release.open-data-api.cap3.kicker": "HARD BUDGET",
   "roadmap.release.open-data-api.cap3.title":
@@ -251,9 +251,9 @@ export const roadmap = {
   "roadmap.loop.release.note": "Merge to main and move staging ahead",
 
   "roadmap.horizon.api.eyebrow": "OPEN INTELLIGENCE LAYER",
-  "roadmap.horizon.api.title": "ChainScout Open Data",
+  "roadmap.horizon.api.title": "Opsis Open Data",
   "roadmap.horizon.api.summary":
-    "Let another application reuse a tiny, documented set of ChainScout-authored support annotations without proxying provider data.",
+    "Let another application reuse a tiny, documented set of Opsis-authored support annotations without proxying provider data.",
   "roadmap.horizon.api.outcome":
     "A bounded foundation for reusable public facts",
   "roadmap.horizon.api.feature1":
@@ -284,10 +284,10 @@ export const roadmap = {
   "roadmap.horizon.find.signal2": "EXACT MATCH",
   "roadmap.horizon.find.signal3": "STOCK CONFIDENCE",
   "roadmap.horizon.find.boundary":
-    "Unsupported stores get a searchable deep link; ChainScout never bypasses logins, CAPTCHA, robots, or marketplace terms.",
+    "Unsupported stores get a searchable deep link; Opsis never bypasses logins, CAPTCHA, robots, or marketplace terms.",
 
   "roadmap.horizon.buy.eyebrow": "BEST REAL OUTCOME",
-  "roadmap.horizon.buy.title": "Scout Price & Purchase",
+  "roadmap.horizon.buy.title": "Price & Purchase",
   "roadmap.horizon.buy.summary":
     "Compare the outcome the buyer receives—not the most attractive headline number—then continue through the official venue.",
   "roadmap.horizon.buy.outcome":
@@ -302,7 +302,7 @@ export const roadmap = {
   "roadmap.horizon.buy.signal2": "REPUTATION",
   "roadmap.horizon.buy.signal3": "OFFICIAL HANDOFF",
   "roadmap.horizon.buy.boundary":
-    "ChainScout prepares and explains. Uniswap or the merchant owns signatures, payment details, fulfillment, and execution.",
+    "Opsis prepares and explains. Uniswap or the merchant owns signatures, payment details, fulfillment, and execution.",
 
   "roadmap.horizon.trust.eyebrow": "PHYSICAL + DIGITAL PROOF",
   "roadmap.horizon.trust.title": "Trust & Phygital Advisor",
@@ -340,7 +340,7 @@ export const roadmap = {
     "Purchase prices, wallet groupings, notes, photos, and profit or loss stay encrypted on the device.",
   "roadmap.privacy.promises.clearPermission.title": "Clear permission",
   "roadmap.privacy.promises.clearPermission.body":
-    "Before an AI request, ChainScout shows the exact public facts that will leave the Vault.",
+    "Before an AI request, Opsis shows the exact public facts that will leave the Vault.",
   "roadmap.privacy.promises.minimalFootprint.title": "Minimal footprint",
   "roadmap.privacy.promises.minimalFootprint.body":
     "Private Mode needs no account, seed phrase, advertising tracker, or permanent server-side portfolio.",
@@ -348,7 +348,7 @@ export const roadmap = {
   "roadmap.privacy.promises.deleteAnytime.body":
     "One clear action removes the local Vault, remembered wallets, photos, caches, and encryption keys.",
 
-  "roadmap.hero.badge": "CHAINSCOUT PRODUCT ROADMAP",
+  "roadmap.hero.badge": "OPSIS PRODUCT ROADMAP",
   "roadmap.hero.train": "R01-R10 / ENGINEERING TRAIN",
   "roadmap.hero.titleLine1": "From explorer",
   "roadmap.hero.titleLine2": "to informed action.",
@@ -382,14 +382,14 @@ export const roadmap = {
   "roadmap.utility.doableEyebrow": "DOABLE BY DESIGN",
   "roadmap.utility.doableTitle": "Adapters, not one giant scraper.",
   "roadmap.utility.doableBody":
-    "Start with onchain state and official APIs. Add approved marketplace integrations, opted-in WooCommerce product data, merchant-submitted feeds, and permitted Product/Offer metadata. Every adapter reports freshness and can fail independently without taking down the rest of ChainScout.",
+    "Start with onchain state and official APIs. Add approved marketplace integrations, opted-in WooCommerce product data, merchant-submitted feeds, and permitted Product/Offer metadata. Every adapter reports freshness and can fail independently without taking down the rest of Opsis.",
 
   "roadmap.privacySection.eyebrow":
     "RELEASES 02—03 / VAULT PRIVACY MODEL",
   "roadmap.privacySection.titleLine1": "Private by design.",
   "roadmap.privacySection.titleLine2": "Useful by default.",
   "roadmap.privacySection.intro":
-    "A portfolio should make people feel informed and in control—not watched. The Vault is designed to keep sensitive ownership context on the device while ChainScout works with public asset facts.",
+    "A portfolio should make people feel informed and in control—not watched. The Vault is designed to keep sensitive ownership context on the device while Opsis works with public asset facts.",
   "roadmap.privacySection.designTarget":
     "DESIGN TARGET / EACH PROTECTION MUST PASS ITS RELEASE GATE",
   "roadmap.privacySection.receiptEyebrow": "YOUR PRIVACY RECEIPT",
@@ -410,7 +410,7 @@ export const roadmap = {
   "roadmap.privacySection.reviewable": "CLEAR / REVIEWABLE",
   "roadmap.privacySection.trustEyebrow": "THE TRUST HOOK",
   "roadmap.privacySection.trustTitle":
-    "ChainScout knows the assets. It does not need to know which ones are yours.",
+    "Opsis knows the assets. It does not need to know which ones are yours.",
   "roadmap.privacySection.badge.vault": "ENCRYPTED VAULT",
   "roadmap.privacySection.badge.noAccount": "NO ACCOUNT",
   "roadmap.privacySection.badge.noTrackers": "NO TRACKERS",
@@ -429,11 +429,11 @@ export const roadmap = {
   "roadmap.protocol.identityRule.label": "IDENTITY RULE",
   "roadmap.protocol.identityRule.value":
     "NO SALES-GATED OR KYB-REQUIRED PROVIDERS.",
-  "roadmap.protocol.brand": "CHAINSCOUT / ROBINHOOD CHAIN",
+  "roadmap.protocol.brand": "OPSIS / ROBINHOOD CHAIN",
   "roadmap.protocol.tagline": "Understand here. Execute in official tools.",
   "roadmap.protocol.cta": "EXPLORE THE CURRENT BUILD",
 
-  "roadmap.footer.copyright": "© ChainScout, 2026",
+  "roadmap.footer.copyright": "© Opsis, 2026",
   "roadmap.footer.workflow": "BUILD / TEST / TAG / MERGE",
   "roadmap.footer.terms": "Terms",
   "roadmap.footer.privacy": "Privacy",

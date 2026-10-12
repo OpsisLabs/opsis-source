@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
 const enabled = process.env.VITE_OBSERVED_TRADES_ENABLED === "true";
-const followEnabled = process.env.VITE_SCOUT_WATCH_ENABLED === "true";
+const followEnabled = process.env.VITE_WATCH_ENABLED === "true";
 const EOA = `0x${"aa".repeat(20)}`;
 const CONTRACT = `0x${"bb".repeat(20)}`;
 const POOL = `0x${"5a".repeat(20)}`;
@@ -150,7 +150,7 @@ test("biggest observed trades fetches only after the explicit consent click", as
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/biggest-trades");
   await expect(
-    page.getByRole("heading", { name: /largest swaps ChainScout actually observed/i }),
+    page.getByRole("heading", { name: /largest swaps Opsis actually observed/i }),
   ).toBeVisible();
   expect(calls).toHaveLength(0);
 
@@ -195,7 +195,7 @@ test("biggest observed trades stays usable on mobile in English and Chinese", as
     .filter({ visible: true })
     .click();
   await expect(
-    page.getByRole("heading", { name: /ChainScout 实际观察到的最大交易/ }),
+    page.getByRole("heading", { name: /Opsis 实际观察到的最大交易/ }),
   ).toBeVisible();
   expect(
     await page.evaluate(
@@ -216,7 +216,7 @@ test("biggest observed trades surfaces a bounded error with a retry", async ({
   await expect(page.getByRole("button", { name: /TRY AGAIN/i })).toBeVisible();
 });
 
-test("biggest observed trades hides the shared follow action when Scout Watch is disabled", async ({
+test("biggest observed trades hides the shared follow action when Watch is disabled", async ({
   page,
 }) => {
   test.skip(!enabled || followEnabled);
@@ -257,7 +257,7 @@ test("biggest observed trades clears stale results on input change and unmount",
   await page.getByRole("link", { name: "Guide" }).first().click();
   await expect(page).toHaveURL(/\/guide$/);
   await expect(
-    page.getByRole("heading", { name: /largest swaps ChainScout actually observed/i }),
+    page.getByRole("heading", { name: /largest swaps Opsis actually observed/i }),
   ).toHaveCount(0);
   await page
     .getByRole("link", { name: /Biggest Observed Trades/i })

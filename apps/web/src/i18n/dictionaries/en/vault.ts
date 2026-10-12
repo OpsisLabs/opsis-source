@@ -1,10 +1,10 @@
 export const vault = {
-  "vault.header.homeLabel": "ChainScout home",
-  "vault.header.encryptedVault": "ENCRYPTED VAULT",
+  "vault.header.homeLabel": "Opsis home",
+  "vault.header.encryptedVault": "Saved",
   "vault.header.lock": "LOCK",
-  "vault.header.explorer": "EXPLORER →",
+  "vault.header.explorer": "Research →",
 
-  "vault.hero.eyebrow": "Your private Vault",
+  "vault.hero.eyebrow": "Saved",
   "vault.hero.title.line1": "Your assets.",
   "vault.hero.title.line2": "Encrypted on this device.",
   "vault.hero.description":
@@ -134,7 +134,7 @@ export const vault = {
   "vault.editor.referenceLabel": "REFERENCE {n} SOURCE LABEL",
   "vault.editor.purchaseLots": "PURCHASE LOTS",
   "vault.editor.purchaseLotsDescription":
-    "Exact decimal strings; ChainScout does not round money or quantities.",
+    "Exact decimal strings; Opsis does not round money or quantities.",
   "vault.editor.addLot": "+ ADD LOT",
   "vault.editor.certificateLocked":
     "This owner-entered certificate describes one copy, so its quantity and lot count stay fixed at one.",
@@ -248,13 +248,13 @@ export const vault = {
   "vault.backupRecovery.submit": "RECOVER BACKUP & ROTATE CODE",
 
   "vault.recoverySecret.downloadTitle":
-    "ChainScout encrypted vault recovery code",
+    "Opsis encrypted vault recovery code",
   "vault.recoverySecret.downloadNote":
     "Keep this file separate from your encrypted vault backup and passphrase. Anyone with this code and access to the local vault or backup can reset the passphrase.",
   "vault.recoverySecret.eyebrow": "SHOWING ONCE",
   "vault.recoverySecret.title": "Save your recovery code now",
   "vault.recoverySecret.description":
-    "This high-entropy code can reset a forgotten passphrase and is not stored anywhere. Keep it separate from the encrypted backup. ChainScout cannot recreate it.",
+    "This high-entropy code can reset a forgotten passphrase and is not stored anywhere. Keep it separate from the encrypted backup. Opsis cannot recreate it.",
   "vault.recoverySecret.copied": "COPIED",
   "vault.recoverySecret.copyBlocked": "COPY BLOCKED · DOWNLOAD",
   "vault.recoverySecret.copy": "COPY CODE",
@@ -265,7 +265,7 @@ export const vault = {
   "vault.import.titleNested": "Restore this backup",
   "vault.import.title": "Have an encrypted backup?",
   "vault.import.description":
-    "ChainScout verifies the wrapped key and decrypts every record before replacing anything. The file and passphrase stay inside this page.",
+    "Opsis verifies the wrapped key and decrypts every record before replacing anything. The file and passphrase stay inside this page.",
   "vault.import.fileAria": "Encrypted vault backup",
   "vault.field.backupPassphrase": "BACKUP PASSPHRASE",
   "vault.import.typeReplace": "TYPE {phrase}",
@@ -290,7 +290,7 @@ export const vault = {
   "vault.unsupported.eyebrow": "VAULT UNAVAILABLE",
   "vault.unsupported.title": "Secure local storage is not available",
   "vault.unsupported.description":
-    "Use a current browser over HTTPS with Web Crypto and IndexedDB enabled. ChainScout fails closed instead of saving unencrypted data.",
+    "Use a current browser over HTTPS with Web Crypto and IndexedDB enabled. Opsis fails closed instead of saving unencrypted data.",
   "vault.field.decimalError":
     "Enter a decimal such as 1 or 185.50, without commas or minus signs.",
 
@@ -299,17 +299,17 @@ export const vault = {
   "vault.notice.locked":
     "Vault locked. The decryption key was removed from page memory.",
   "vault.notice.lockedAcrossTabs":
-    "Vault locked across open ChainScout tabs.",
+    "Vault locked across open Opsis tabs.",
   "vault.notice.changedUnlock":
     "This Vault changed in another tab. Unlock again to load the newest revision.",
   "vault.notice.createdOtherTab":
-    "A Vault was created in another ChainScout tab. Unlock it here to continue.",
+    "A Vault was created in another Opsis tab. Unlock it here to continue.",
   "vault.notice.deletionPendingOtherTab":
-    "Deletion is pending in another ChainScout tab. Vault operations are disabled until the browser finishes.",
+    "Deletion is pending in another Opsis tab. Vault operations are disabled until the browser finishes.",
   "vault.notice.deletionCancelled":
     "Local deletion did not complete. The Vault remains locked and unchanged.",
   "vault.notice.deletedOtherTab":
-    "This Vault was deleted in another ChainScout tab.",
+    "This Vault was deleted in another Opsis tab.",
   "vault.notice.autoLocked":
     "Vault auto-locked after 10 minutes without activity.",
   "vault.notice.lockedHidden":
@@ -324,7 +324,7 @@ export const vault = {
   "vault.notice.demoLoaded":
     "{count} clearly labeled demo records were encrypted and saved locally. No provider was contacted.",
   "vault.notice.demoNoneLeft":
-    "No unchanged ChainScout demo records remain in this Vault.",
+    "No unchanged Opsis demo records remain in this Vault.",
   "vault.notice.demoRemoved":
     "{count} demo records were removed. Your other encrypted records were untouched.",
   "vault.notice.catalogSaved":
@@ -376,7 +376,7 @@ export const vault = {
     "This visualization uses encrypted purchase lots and owner-entered dated reference sources. It is not a live price feed, appraisal, sale record, or authenticity claim.",
   "vault.chart.localReferenceAllocation": "LOCAL REFERENCE ALLOCATION",
   "vault.chart.allocationCopy":
-    "Values are grouped by matching owner-entered currency. ChainScout never invents foreign-exchange conversion or mixes currencies into one total.",
+    "Values are grouped by matching owner-entered currency. Opsis never invents foreign-exchange conversion or mixes currencies into one total.",
   "vault.chart.allocationTooltipSuffix": "{percent}% of {currency} references",
   "vault.chart.referencedHolding.one":
     "{currency} · {count} REFERENCED HOLDING",
@@ -419,14 +419,14 @@ export const vault = {
   "vault.db.deletionFailed": "IndexedDB deletion failed",
   "vault.db.openFailed": "IndexedDB open failed",
   "vault.db.openBlocked":
-    "Another ChainScout tab is upgrading the vault. Close it, then try again.",
+    "Another Opsis tab is upgrading the vault. Close it, then try again.",
   "vault.db.conflictSave":
     "This vault changed in another tab. Lock and unlock again before saving.",
   "vault.db.requestFailed": "IndexedDB request failed",
   "vault.db.transactionFailed": "IndexedDB transaction failed",
   "vault.db.transactionAborted": "IndexedDB transaction aborted",
   "vault.db.unsupportedBrowser":
-    "This browser does not provide IndexedDB, so ChainScout cannot safely create a local vault.",
+    "This browser does not provide IndexedDB, so Opsis cannot safely create a local vault.",
 
   "vault.photo.invalidDimensions":
     "Image dimensions are invalid or too large",
@@ -436,13 +436,13 @@ export const vault = {
   "vault.photo.invalid": "Invalid photo",
   "vault.photo.readFailed": "Photo read failed",
 
-  "vault.demo.converted": "Converted from a ChainScout demo record",
+  "vault.demo.converted": "Converted from an Opsis demo record",
   "vault.demo.note.weth":
     "Fictional example lot for testing the encrypted manual-record workflow. It is not a wallet balance or price claim.",
   "vault.demo.note.charizard":
     "Fictional owner record for testing collectible fields and the dated reference chart. This does not prove identity, condition, ownership, or value.",
   "vault.demo.note.apple":
-    "Fictional local lot linked to the public Robinhood Chain contract used by the RWA Verify sample. Not proof of ownership or redemption rights.",
+    "Fictional local lot linked to the public Robinhood Chain contract used by the Stock-token check sample. Not proof of ownership or redemption rights.",
   "vault.demo.note.nft":
     "Synthetic NFT record for layout and workflow testing only. It is not an onchain token or ownership claim.",
   "vault.demo.ref.manual": "Example manual reference",
@@ -479,7 +479,7 @@ export const vault = {
   "vault.crypto.unsupportedRecordVersion":
     "The encrypted-vault backup contains an unsupported record version.",
   "vault.crypto.invalidBackupFormat":
-    "This is not a supported ChainScout encrypted-vault backup.",
+    "This is not a supported Opsis encrypted-vault backup.",
   "vault.crypto.backupIncomplete":
     "The encrypted-vault backup is incomplete.",
   "vault.crypto.backupDuplicateRecords":
@@ -495,7 +495,7 @@ export const vault = {
   "vault.crypto.quotaExceeded":
     "This browser is out of storage space. Export your encrypted backup, then free space before trying again.",
   "vault.crypto.versionError":
-    "This browser has a newer vault format than this build can open. Do not delete it; update ChainScout first.",
+    "This browser has a newer vault format than this build can open. Do not delete it; update Opsis first.",
   "vault.crypto.generic":
     "The local vault could not complete that action. Nothing was sent to a server.",
   "vault.crypto.invalidVaultMeta":

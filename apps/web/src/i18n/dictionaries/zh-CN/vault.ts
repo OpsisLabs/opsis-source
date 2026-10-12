@@ -1,10 +1,10 @@
 export const vault: Record<string, string> = {
-  "vault.header.homeLabel": "ChainScout 首页",
-  "vault.header.encryptedVault": "加密保险库",
+  "vault.header.homeLabel": "Opsis 首页",
+  "vault.header.encryptedVault": "已保存",
   "vault.header.lock": "锁定",
-  "vault.header.explorer": "私密链上查询 →",
+  "vault.header.explorer": "研究 →",
 
-  "vault.hero.eyebrow": "你的私密保险库",
+  "vault.hero.eyebrow": "已保存",
   "vault.hero.title.line1": "你的资产。",
   "vault.hero.title.line2": "加密保存在此设备上。",
   "vault.hero.description":
@@ -28,7 +28,7 @@ export const vault: Record<string, string> = {
   "vault.disclosure.forgotPassphrase": "忘记口令了？使用恢复码",
   "vault.disclosure.settingsDelete": "保险库设置 · 删除本地数据",
 
-  "vault.tab.portfolio": "投资组合情报",
+  "vault.tab.portfolio": "已保存",
   "vault.tab.collectibles": "收藏品目录",
   "vault.tab.market": "市场与库存",
   "vault.tab.replay": "重放操作",
@@ -129,7 +129,7 @@ export const vault: Record<string, string> = {
   "vault.editor.referenceLabel": "参考 {n} 来源标签",
   "vault.editor.purchaseLots": "买入批次",
   "vault.editor.purchaseLotsDescription":
-    "精确小数字符串；ChainScout 不会对金额或数量进行四舍五入。",
+    "精确小数字符串；Opsis 不会对金额或数量进行四舍五入。",
   "vault.editor.addLot": "+ 添加批次",
   "vault.editor.certificateLocked":
     "该持有者输入的证书只描述一份副本，因此其数量和批次数固定为一。",
@@ -239,13 +239,13 @@ export const vault: Record<string, string> = {
   "vault.backupRecovery.authenticating": "正在认证每条记录…",
   "vault.backupRecovery.submit": "恢复备份并轮换恢复码",
 
-  "vault.recoverySecret.downloadTitle": "ChainScout 加密保险库恢复码",
+  "vault.recoverySecret.downloadTitle": "Opsis 加密保险库恢复码",
   "vault.recoverySecret.downloadNote":
     "请将此文件与加密保险库备份及口令分开存放。任何同时持有此恢复码并能访问本地保险库或备份的人都可以重置口令。",
   "vault.recoverySecret.eyebrow": "仅显示一次",
   "vault.recoverySecret.title": "立即保存你的恢复码",
   "vault.recoverySecret.description":
-    "此高熵恢复码可用于重置遗忘的口令，且不会存储在任何地方。请将其与加密备份分开存放。ChainScout 无法重新生成它。",
+    "此高熵恢复码可用于重置遗忘的口令，且不会存储在任何地方。请将其与加密备份分开存放。Opsis 无法重新生成它。",
   "vault.recoverySecret.copied": "已复制",
   "vault.recoverySecret.copyBlocked": "复制被阻止 · 下载",
   "vault.recoverySecret.copy": "复制恢复码",
@@ -256,7 +256,7 @@ export const vault: Record<string, string> = {
   "vault.import.titleNested": "还原此备份",
   "vault.import.title": "有加密备份吗？",
   "vault.import.description":
-    "ChainScout 会先验证包装密钥并解密每条记录，然后再替换任何内容。文件和口令都保留在此页面内。",
+    "Opsis 会先验证包装密钥并解密每条记录，然后再替换任何内容。文件和口令都保留在此页面内。",
   "vault.import.fileAria": "加密保险库备份",
   "vault.field.backupPassphrase": "备份口令",
   "vault.import.typeReplace": "输入 {phrase}",
@@ -281,23 +281,23 @@ export const vault: Record<string, string> = {
   "vault.unsupported.eyebrow": "保险库不可用",
   "vault.unsupported.title": "安全本地存储不可用",
   "vault.unsupported.description":
-    "请使用启用 Web Crypto 和 IndexedDB 的现代浏览器，并通过 HTTPS 访问。ChainScout 会故障关闭，而不会保存未加密数据。",
+    "请使用启用 Web Crypto 和 IndexedDB 的现代浏览器，并通过 HTTPS 访问。Opsis 会故障关闭，而不会保存未加密数据。",
   "vault.field.decimalError":
     "请输入类似 1 或 185.50 的小数，不要包含逗号或负号。",
 
   "vault.error.locked": "保险库已锁定",
   "vault.error.sessionChanged": "保险库会话已更改",
   "vault.notice.locked": "保险库已锁定。解密密钥已从页面内存中移除。",
-  "vault.notice.lockedAcrossTabs": "保险库已在所有打开的 ChainScout 标签页中锁定。",
+  "vault.notice.lockedAcrossTabs": "保险库已在所有打开的 Opsis 标签页中锁定。",
   "vault.notice.changedUnlock":
     "此保险库已在另一个标签页中更改。请重新解锁以加载最新修订。",
   "vault.notice.createdOtherTab":
-    "另一个 ChainScout 标签页创建了保险库。请在此处解锁以继续。",
+    "另一个 Opsis 标签页创建了保险库。请在此处解锁以继续。",
   "vault.notice.deletionPendingOtherTab":
-    "另一个 ChainScout 标签页正在等待删除。在浏览器完成之前，保险库操作已禁用。",
+    "另一个 Opsis 标签页正在等待删除。在浏览器完成之前，保险库操作已禁用。",
   "vault.notice.deletionCancelled":
     "本地删除未完成。保险库仍保持锁定且未更改。",
-  "vault.notice.deletedOtherTab": "此保险库已在另一个 ChainScout 标签页中被删除。",
+  "vault.notice.deletedOtherTab": "此保险库已在另一个 Opsis 标签页中被删除。",
   "vault.notice.autoLocked": "保险库在 10 分钟无操作后自动锁定。",
   "vault.notice.lockedHidden": "页面被隐藏或离开，保险库已锁定。",
   "vault.notice.created": "保险库已创建。解密密钥仅存在于本页面的内存中。",
@@ -307,7 +307,7 @@ export const vault: Record<string, string> = {
   "vault.notice.demoComplete": "完整的加密演示集已在此保险库中。",
   "vault.notice.demoLoaded":
     "已成功加密并本地保存 {count} 条清晰标注的演示记录。未联系任何提供商。",
-  "vault.notice.demoNoneLeft": "此保险库中已没有未修改的 ChainScout 演示记录。",
+  "vault.notice.demoNoneLeft": "此保险库中已没有未修改的 Opsis 演示记录。",
   "vault.notice.demoRemoved":
     "已移除 {count} 条演示记录。你的其他加密记录未受影响。",
   "vault.notice.catalogSaved": "目录身份和持有者输入字段已加密并保存在本地。",
@@ -352,7 +352,7 @@ export const vault: Record<string, string> = {
     "此可视化使用加密的买入批次和持有者输入的带日期参考来源。它并非实时价格行情、评估、成交记录或真实性声明。",
   "vault.chart.localReferenceAllocation": "本地参考配置",
   "vault.chart.allocationCopy":
-    "价值按匹配的持有者输入货币分组。ChainScout 绝不凭空进行外汇换算，也不会将不同货币合并为一个总额。",
+    "价值按匹配的持有者输入货币分组。Opsis 绝不凭空进行外汇换算，也不会将不同货币合并为一个总额。",
   "vault.chart.allocationTooltipSuffix": "{currency} 参考的 {percent}%",
   "vault.chart.referencedHolding.one": "{currency} · {count} 项参考持有",
   "vault.chart.referencedHolding.other": "{currency} · {count} 项参考持有",
@@ -384,13 +384,13 @@ export const vault: Record<string, string> = {
   "vault.db.revisionOutOfRange": "加密保险库备份的修订号超出范围。",
   "vault.db.deletionFailed": "IndexedDB 删除失败",
   "vault.db.openFailed": "IndexedDB 打开失败",
-  "vault.db.openBlocked": "另一个 ChainScout 标签页正在升级保险库。请关闭它后重试。",
+  "vault.db.openBlocked": "另一个 Opsis 标签页正在升级保险库。请关闭它后重试。",
   "vault.db.conflictSave": "此保险库已在另一个标签页中更改。请锁定并重新解锁后再保存。",
   "vault.db.requestFailed": "IndexedDB 请求失败",
   "vault.db.transactionFailed": "IndexedDB 事务失败",
   "vault.db.transactionAborted": "IndexedDB 事务已中止",
   "vault.db.unsupportedBrowser":
-    "此浏览器不提供 IndexedDB，因此 ChainScout 无法安全地创建本地保险库。",
+    "此浏览器不提供 IndexedDB，因此 Opsis 无法安全地创建本地保险库。",
 
   "vault.photo.invalidDimensions": "图片尺寸无效或过大",
   "vault.photo.tooLarge": "图片尺寸过大",
@@ -399,13 +399,13 @@ export const vault: Record<string, string> = {
   "vault.photo.invalid": "图片无效",
   "vault.photo.readFailed": "照片读取失败",
 
-  "vault.demo.converted": "由 ChainScout 演示记录转换而来",
+  "vault.demo.converted": "由 Opsis 演示记录转换而来",
   "vault.demo.note.weth":
     "用于测试加密手动记录流程的虚构示例批次。它不是钱包余额或价格声明。",
   "vault.demo.note.charizard":
     "用于测试收藏品字段和带日期参考图表的虚构持有者记录。它不能证明身份、品相、所有权或价值。",
   "vault.demo.note.apple":
-    "与 RWA 验证示例所用公开 Robinhood Chain 合约关联的虚构本地批次。不证明所有权或赎回权。",
+    "与 股票代币核查示例所用公开 Robinhood Chain 合约关联的虚构本地批次。不证明所有权或赎回权。",
   "vault.demo.note.nft":
     "仅用于布局和工作流测试的合成 NFT 记录。它不是链上代币，也不构成所有权声明。",
   "vault.demo.ref.manual": "示例手动参考",
@@ -432,7 +432,7 @@ export const vault: Record<string, string> = {
   "vault.crypto.unsupportedRecordVersion":
     "加密保险库备份包含不受支持的记录版本。",
   "vault.crypto.invalidBackupFormat":
-    "这不是受支持的 ChainScout 加密保险库备份。",
+    "这不是受支持的 Opsis 加密保险库备份。",
   "vault.crypto.backupIncomplete": "加密保险库备份不完整。",
   "vault.crypto.backupDuplicateRecords": "加密保险库备份包含重复记录。",
   "vault.crypto.capacityRecords": "此保险库最多支持 {max} 条加密记录。",
@@ -443,7 +443,7 @@ export const vault: Record<string, string> = {
   "vault.crypto.quotaExceeded":
     "此浏览器存储空间不足。请先导出加密备份，释放空间后再重试。",
   "vault.crypto.versionError":
-    "此浏览器中的保险库格式比当前版本更新。请不要删除它；请先更新 ChainScout。",
+    "此浏览器中的保险库格式比当前版本更新。请不要删除它；请先更新 Opsis。",
   "vault.crypto.generic": "本地保险库无法完成该操作。未向服务器发送任何内容。",
   "vault.crypto.invalidVaultMeta":
     "本地保险库元数据无效，或使用了不受支持的格式。",

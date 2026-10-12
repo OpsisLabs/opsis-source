@@ -402,7 +402,7 @@ test("an expired cookie session rotates once and never exposes tokens to JavaScr
   await expect(page.getByText("9/5000")).toBeVisible();
   expect(refreshCalls).toBe(1);
   expect(await page.evaluate(() => localStorage.getItem("rh_auth"))).toBeNull();
-  expect(await page.evaluate(() => document.cookie)).not.toContain("chainscout_access");
+  expect(await page.evaluate(() => document.cookie)).not.toContain("opsis_access");
 });
 
 test("a late 401 does not rotate or clear an already refreshed session", async ({ page }) => {

@@ -6,20 +6,19 @@ import { toFollowableWallet, type WalletClassification } from "./followWallet";
 
 /**
  * The single, chain-aware "Follow this wallet" action. Later releases (for
- * example the Biggest Trades worker) should render this component rather than
+ * example the Big trades worker) should render this component rather than
  * building a new link, so the consent boundary and URL shape stay identical.
  *
  * Props:
  * - address: the public address to follow.
- * - chainId: only chains Scout Watch supports render an action.
+ * - chainId: only chains Watch supports render an action.
  * - classification: "wallet" shows the verified-wallet wording; "unknown"
  *   honestly shows a public-address wording; "contract" renders nothing.
  * - variant: "primary" is the flat orange call to action, "row" is the compact
  *   bordered action used in lists.
  *
- * It links to Scout Watch with the public address only. It performs no lookup,
- * save or consent and never places an encrypted label in the URL. When Scout
- * Watch is disabled the action fails closed and renders nothing.
+ * It links to Watch with the public address only. It performs no lookup,
+ * save or consent and never places an encrypted label in the URL. When Watch is disabled the action fails closed and renders nothing.
  */
 export type FollowWalletActionProps = {
   address: string;
@@ -43,7 +42,7 @@ export function FollowWalletAction({
 }: FollowWalletActionProps) {
   const { t } = useI18n();
   const target = toFollowableWallet({ address, chainId, classification });
-  if (!target || !isProductFeatureEnabled("scout-watch")) return null;
+  if (!target || !isProductFeatureEnabled("watch")) return null;
 
   const label =
     target.classification === "unknown"

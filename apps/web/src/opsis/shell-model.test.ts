@@ -54,7 +54,7 @@ it("omits switched-off trade links and preserves the canonical tab order", () =>
 });
 it("passes only enabled front-door tools and never enables execution", () => {
   vi.stubEnv("VITE_EXIT_CHECK_ENABLED", "true");
-  vi.stubEnv("VITE_SCOUT_WATCH_ENABLED", "true");
+  vi.stubEnv("VITE_WATCH_ENABLED", "true");
   expect(landingTools(capabilities, flags)).toEqual(["research", "check", "watch", "rwa", "quant", "world", "saved", "guide"]);
   expect(landingTools({ ...capabilities, swapPreview: true }, flags)).toContain("swap");
   expect(landingTools({ ...capabilities, research: false, exitCheck: false, watch: false, rwa: false }, { ...flags, world: false })).toEqual(["quant", "saved", "guide"]);

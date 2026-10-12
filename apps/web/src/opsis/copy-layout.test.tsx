@@ -51,7 +51,7 @@ describe("canonical UI copy", () => {
     // Legal sentences are deliberately frozen pending founder review. Block explorer
     // and observed swaps describe evidence, not an Opsis destination.
     const retired =
-      /\b(?:Private Explorer|Wallet Explorer|Detailed Explorer|Entity research|Scout Watch|Wallet watch|Scout Swap|Swap Lab|Exit check|Exit quotes|Trade Simulator|Stress Test|RWA Verify|Asset Proof|Situation Room|World Map|Holdings & Vault)\b|私密链上查询|退出核查|RWA 验证|态势室|世界地图|兑换实验室/iu;
+      /\b(?:Private Explorer|Wallet Explorer|Detailed Explorer|Entity research|Wallet watch|Swap Lab|Exit check|Exit quotes|Trade Simulator|Stress Test|Asset Proof|Situation Room|World Map|Holdings & Vault)\b|私密链上查询|退出核查|RWA 验证|态势室|世界地图|兑换实验室/iu;
     // The Opsis build reads shared dictionaries through the Opsis overrides.
     for (const dictionary of [
       { ...en, ...opsisOverrides.en },

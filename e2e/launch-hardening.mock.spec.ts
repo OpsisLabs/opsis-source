@@ -5,7 +5,7 @@ const address = "0x0000000000000000000000000000000000000042";
 const passphrase = "launch hardening vault passphrase";
 
 async function dismissTour(page: Page) {
-  await page.context().addCookies([{ name: "chainscout_product_tour_seen_v1", value: "1", domain: "localhost", path: "/", sameSite: "Strict" }]);
+  await page.context().addCookies([{ name: "opsis_product_tour_seen_v1", value: "1", domain: "localhost", path: "/", sameSite: "Strict" }]);
 }
 
 async function assertNoSeriousAxeViolations(page: Page) {
@@ -32,11 +32,11 @@ test("key launch surfaces pass automated serious/critical accessibility checks",
 test("public routes expose route-specific canonical metadata", async ({ page }) => {
   await dismissTour(page);
   for (const expected of [
-    { path: "/", title: "ChainScout — Private Multi-Asset Command Center" },
-    { path: "/app", title: "Private Explorer | ChainScout" },
-    { path: "/vault", title: "Encrypted Asset Vault | ChainScout" },
-    { path: "/docs", title: "Technical Docs | ChainScout" },
-    { path: "/privacy", title: "Privacy Policy | ChainScout" },
+    { path: "/", title: "Opsis — Private Multi-Asset Command Center" },
+    { path: "/app", title: "Research | Opsis" },
+    { path: "/vault", title: "Saved | Opsis" },
+    { path: "/docs", title: "Technical Docs | Opsis" },
+    { path: "/privacy", title: "Privacy Policy | Opsis" },
   ]) {
     await page.goto(expected.path);
     await expect(page).toHaveTitle(expected.title);
@@ -53,10 +53,10 @@ test("license and security guidance distinguish source availability from commerc
   await dismissTour(page);
   await page.goto("/privacy");
   await expect(page.getByText(/independent source-available beta/)).toBeVisible();
-  await expect(page.getByRole("link", { name: "private vulnerability reporting" })).toHaveAttribute("href", "https://github.com/ChainScoutAi/ChainScoutAI/security/advisories/new");
+  await expect(page.getByText("A support and security contact is to be published on this page.", { exact: true })).toBeVisible();
   await expect(page.locator("main")).not.toContainText("independent open-source beta");
   await page.goto("/faq");
-  await page.getByText("Is ChainScout open source?", { exact: true }).click();
+  await page.getByText("Is Opsis open source?", { exact: true }).click();
   await expect(page.getByText(/source-available under PolyForm Noncommercial 1.0.0/)).toBeVisible();
   await expect(page.getByText(/commercial use outside those permissions requires a separate license/)).toBeVisible();
 });
@@ -77,10 +77,10 @@ test("keyboard tour makes the background inert, supports reflow, and restores fo
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/app");
-  const trigger = page.getByRole("button", { name: /Open the ChainScout 60-second tour/i });
+  const trigger = page.getByRole("button", { name: /Open the Opsis 60-second tour/i });
   await trigger.focus();
   await page.keyboard.press("Enter");
-  const tour = page.getByRole("dialog", { name: "ChainScout product tour" });
+  const tour = page.getByRole("dialog", { name: "Opsis product tour" });
   await expect(tour).toBeVisible();
   await expect(page.locator("[data-route-content]")).toHaveAttribute("inert", "");
   await expect(page.locator("[data-desktop-rail]")).toHaveAttribute("inert", "");
@@ -119,7 +119,7 @@ test("persistent sign-in and workspace quick start make the active flow obvious"
   await trigger.focus();
   await page.keyboard.press("Enter");
 
-  const quickstart = page.getByRole("dialog", { name: "Private Explorer" });
+  const quickstart = page.getByRole("dialog", { name: "Research" });
   await expect(quickstart).toBeVisible();
   await expect(page.locator("[data-route-content]")).toHaveAttribute("inert", "");
   await expect(page.locator("[data-desktop-rail]")).toHaveAttribute("inert", "");
@@ -177,7 +177,7 @@ test("Vault demo set is local-only, encrypted, persistent, and removable as a gr
     };
   })));
   expect(rawVault).not.toContain("[DEMO] Charizard");
-  expect(rawVault).not.toContain("CHAINSCOUT DEMO DATA");
+  expect(rawVault).not.toContain("OPSIS DEMO DATA");
 
   await page.reload();
   await expect(page.getByRole("heading", { name: "Unlock on this device" })).toBeVisible();
@@ -208,7 +208,7 @@ test("mobile new-user journey moves from a private lookup into one encrypted wor
   await expect(page.getByText("This public wallet has a small recent activity sample.")).toBeVisible();
 
   await page.getByRole("button", { name: "FEATURES" }).click();
-  await page.getByRole("dialog", { name: "ChainScout feature menu" }).getByRole("link", { name: /Manual Asset Records/i }).click();
+  await page.getByRole("dialog", { name: "Opsis feature menu" }).getByRole("link", { name: /Manual Asset Records/i }).click();
   await page.getByLabel("VAULT PASSPHRASE").fill(passphrase);
   await page.getByLabel("CONFIRM PASSPHRASE").fill(passphrase);
   await page.getByRole("button", { name: "CREATE ENCRYPTED VAULT" }).click();
@@ -220,9 +220,9 @@ test("mobile new-user journey moves from a private lookup into one encrypted wor
   await page.getByRole("button", { name: "ENCRYPT & SAVE" }).click();
   await expect(page.getByRole("heading", { name: "Launch journey asset" })).toBeVisible();
 
-  for (const feature of [/Portfolio Intelligence/i, /Collectible Catalog/i, /Market & Inventory/i, /Replay Actions/i]) {
+  for (const feature of [/Saved/i, /Collectible Catalog/i, /Market & Inventory/i, /Replay Actions/i]) {
     await page.getByRole("button", { name: "FEATURES" }).click();
-    await page.getByRole("dialog", { name: "ChainScout feature menu" }).getByRole("link", { name: feature }).click();
+    await page.getByRole("dialog", { name: "Opsis feature menu" }).getByRole("link", { name: feature }).click();
     await expect(page).toHaveURL(/\/vault\?view=/);
   }
   await page.getByRole("button", { name: /BACKUP · RECOVERY/i }).click();
@@ -243,7 +243,7 @@ test("optional cloud-account deletion completes in the browser and clears the se
       requests.push({ method: request.method(), body: null });
       return route.fulfill({
         status: 200,
-        headers: { "content-type": "application/json", "content-disposition": "attachment; filename=chainscout-account-export.json", "cache-control": "no-store" },
+        headers: { "content-type": "application/json", "content-disposition": "attachment; filename=opsis-account-export.json", "cache-control": "no-store" },
         body: JSON.stringify({ schemaVersion: 1, account: { id: "user-1" }, sessions: [] }),
       });
     }
@@ -259,13 +259,13 @@ test("optional cloud-account deletion completes in the browser and clears the se
   await expect(page.getByRole("heading", { name: /Your data stays under your control/i })).toBeVisible();
   const download = page.waitForEvent("download");
   await page.getByRole("button", { name: "EXPORT JSON" }).click();
-  await expect((await download).suggestedFilename()).toMatch(/^chainscout-account-export-/);
-  await page.getByPlaceholder("DELETE MY CHAINSCOUT ACCOUNT").fill("DELETE MY CHAINSCOUT ACCOUNT");
+  await expect((await download).suggestedFilename()).toMatch(/^opsis-account-export-/);
+  await page.getByPlaceholder("DELETE MY OPSIS ACCOUNT").fill("DELETE MY OPSIS ACCOUNT");
   await page.getByRole("button", { name: "DELETE MY ACCOUNT" }).click();
   await expect(page).toHaveURL(/\/$/);
   expect(requests).toEqual([
     { method: "GET", body: null },
-    { method: "DELETE", body: { confirmation: "DELETE MY CHAINSCOUT ACCOUNT" } },
+    { method: "DELETE", body: { confirmation: "DELETE MY OPSIS ACCOUNT" } },
   ]);
 });
 
@@ -314,7 +314,7 @@ test("marketing home makes the multi-asset Vault apparent and honors reduced mot
   expect(transform).toBe("none");
 
   await page.goto("/docs");
-  await expect(page.getByText(/RWA Verify, and Collectible Catalog are enabled/i)).toBeVisible();
+  await expect(page.getByText(/Stock-token check, and Collectible Catalog are enabled/i)).toBeVisible();
   await expect(page.locator("details").filter({ hasText: "COLLECTIBLES" }).getByText("COMING SOON")).toHaveCount(0);
 });
 

@@ -82,7 +82,7 @@ export async function renderReceipt(
   ctx.fillRect(0, 0, 1200, 1200);
   ctx.fillStyle = "#fa6c34";
   ctx.fillRect(0, 0, 1200, 112);
-  text("CHAINSCOUT / STRESS TEST", 74, 36, "#1d1d1d", 700);
+  text("OPSIS / STRESS TEST", 74, 36, "#1d1d1d", 700);
   text(t("stress.receipt.hypothetical"), 175, 24, "#d8b778", 600);
   text(
     t(card.scope === "all" ? "stress.receipt.all" : "stress.receipt.single"),
@@ -125,7 +125,7 @@ export async function renderReceipt(
     "#c9c0b6",
   );
   text(t("stress.receipt.cta"), 1090, 42, "#eee5d8", 700);
-  text("www.chainscout.net/stress-test", 1148, 32, "#fa6c34");
+  text("www.opsis.net/stress-test", 1148, 32, "#fa6c34");
   return new Promise((resolve, reject) =>
     canvas.toBlob(
       (blob) =>

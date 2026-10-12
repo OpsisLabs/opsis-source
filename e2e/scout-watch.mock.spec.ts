@@ -9,9 +9,9 @@ import {
 
 const passphrase = "test-only-watch-passphrase";
 const label = "PRIVATE-WATCH-LABEL-私密";
-const enabled = process.env.VITE_SCOUT_WATCH_ENABLED === "true";
+const enabled = process.env.VITE_WATCH_ENABLED === "true";
 
-test("scout watch overlap selects exact saved holdings, filters locally and persists securely", async ({
+test("Watch overlap selects exact saved holdings, filters locally and persists securely", async ({
   page,
 }) => {
   test.skip(!enabled);
@@ -107,7 +107,7 @@ test("scout watch overlap selects exact saved holdings, filters locally and pers
   expect(bodies).toHaveLength(3);
 });
 
-test("scout watch combined feed filters locally, deduplicates and clears on lock", async ({
+test("Watch combined feed filters locally, deduplicates and clears on lock", async ({
   page,
 }) => {
   test.skip(!enabled);
@@ -216,7 +216,7 @@ test("scout watch combined feed filters locally, deduplicates and clears on lock
 });
 test.beforeEach(async ({ context }) => {
   await context.addCookies([
-    { name: "chainscout_product_tour_seen_v1", value: "1", url: APP_ORIGIN },
+    { name: "opsis_product_tour_seen_v1", value: "1", url: APP_ORIGIN },
   ]);
 });
 async function create(page: Page) {
@@ -243,7 +243,7 @@ async function refresh(page: Page) {
   await detail.getByLabel("Allow this public-address lookup").check();
   await detail.getByRole("button", { name: "Refresh public data" }).click();
 }
-test("scout watch prefills a handed-off public address without auto lookup or consent", async ({
+test("Watch prefills a handed-off public address without auto lookup or consent", async ({
   page,
 }) => {
   test.skip(!enabled);
@@ -271,7 +271,7 @@ test("scout watch prefills a handed-off public address without auto lookup or co
   ).not.toBeChecked();
   expect(requests).toHaveLength(afterExisting);
 });
-test("scout watch closed by default does not mount a Vault or call data providers", async ({
+test("Watch closed by default does not mount a Vault or call data providers", async ({
   page,
 }) => {
   test.skip(enabled);
@@ -286,7 +286,7 @@ test("scout watch closed by default does not mount a Vault or call data provider
   ).toHaveCount(0);
   expect(requests).toEqual([]);
 });
-test("scout watch saves, compares, persists, exports and removes without private-data uploads", async ({
+test("Watch saves, compares, persists, exports and removes without private-data uploads", async ({
   page,
 }) => {
   test.skip(!enabled);
@@ -373,7 +373,7 @@ test("scout watch saves, compares, persists, exports and removes without private
   ).toBeVisible();
   expect(errors).toEqual([]);
 });
-test("scout watch preserves its last good check on provider failure, wrong-address response and same block", async ({
+test("Watch preserves its last good check on provider failure, wrong-address response and same block", async ({
   page,
 }) => {
   test.skip(!enabled);
@@ -408,7 +408,7 @@ test("scout watch preserves its last good check on provider failure, wrong-addre
     ).toHaveCount(0);
   }
 });
-test("scout watch distinguishes missing holdings and supports Chinese/mobile/keyboard accessibility", async ({
+test("Watch distinguishes missing holdings and supports Chinese/mobile/keyboard accessibility", async ({
   page,
 }) => {
   test.skip(!enabled);
@@ -451,14 +451,14 @@ test("scout watch distinguishes missing holdings and supports Chinese/mobile/key
       `overflow ${width}`,
     ).toBeLessThanOrEqual(1);
   }
-  if (process.env.CHAINSCOUT_WATCH_SHOT)
+  if (process.env.OPSIS_WATCH_SHOT)
     await page.screenshot({
-      path: process.env.CHAINSCOUT_WATCH_SHOT,
+      path: process.env.OPSIS_WATCH_SHOT,
       fullPage: true,
     });
   expect(count).toBe(2);
 });
-test("scout watch cancels delayed refreshes on lock and locks on another tab's update", async ({
+test("Watch cancels delayed refreshes on lock and locks on another tab's update", async ({
   page,
   context,
 }) => {
@@ -490,7 +490,7 @@ test("scout watch cancels delayed refreshes on lock and locks on another tab's u
   const other = await context.newPage();
   await other.goto("/guide");
   await other.evaluate(() => {
-    const bus = new BroadcastChannel("chainscout-vault-control-v1");
+    const bus = new BroadcastChannel("opsis-vault-control-v1");
     bus.postMessage({ event: "changed" });
     bus.close();
   });
@@ -500,7 +500,7 @@ test("scout watch cancels delayed refreshes on lock and locks on another tab's u
   await expect(page.getByRole("heading", { name: label })).toHaveCount(0);
 });
 
-test("scout watch rejects transaction hashes, supports multiple wallets and retains only three checks", async ({
+test("Watch rejects transaction hashes, supports multiple wallets and retains only three checks", async ({
   page,
 }) => {
   test.skip(!enabled);
@@ -576,7 +576,7 @@ test("scout watch rejects transaction hashes, supports multiple wallets and reta
   ).toHaveCount(1);
 });
 
-test("scout watch briefing summarizes saved changes, filters locally and drills into wallet detail", async ({
+test("Watch briefing summarizes saved changes, filters locally and drills into wallet detail", async ({
   page,
 }) => {
   test.skip(!enabled);
@@ -650,7 +650,7 @@ test("scout watch briefing summarizes saved changes, filters locally and drills 
   expect(bodies).toHaveLength(requests);
 });
 
-test("scout watch briefing keeps gaps, failed and older evidence explicit", async ({
+test("Watch briefing keeps gaps, failed and older evidence explicit", async ({
   page,
 }) => {
   test.skip(!enabled);
@@ -719,7 +719,7 @@ test("scout watch briefing keeps gaps, failed and older evidence explicit", asyn
   ).toBeVisible();
 });
 
-test("scout watch briefing clears on lock and supports Chinese and mobile", async ({
+test("Watch briefing clears on lock and supports Chinese and mobile", async ({
   page,
 }) => {
   test.skip(!enabled);
@@ -770,7 +770,7 @@ test("scout watch briefing clears on lock and supports Chinese and mobile", asyn
   ).toHaveCount(0);
 });
 
-test("scout watch briefing keeps the filter reachable across comparable, baseline and deleted wallets", async ({
+test("Watch briefing keeps the filter reachable across comparable, baseline and deleted wallets", async ({
   page,
 }) => {
   test.skip(!enabled);
@@ -816,7 +816,7 @@ test("scout watch briefing keeps the filter reachable across comparable, baselin
   await expect(briefing.getByLabel("Briefing wallet filter")).toBeVisible();
 });
 
-test("scout watch briefing refocuses the selected wallet on repeated drill-down and stays compact in other tabs", async ({
+test("Watch briefing refocuses the selected wallet on repeated drill-down and stays compact in other tabs", async ({
   page,
 }) => {
   test.skip(!enabled);
@@ -863,7 +863,7 @@ test("scout watch briefing refocuses the selected wallet on repeated drill-down 
   ).toBeVisible();
 });
 
-test("scout watch briefing empty action focuses the add form", async ({
+test("Watch briefing empty action focuses the add form", async ({
   page,
 }) => {
   test.skip(!enabled);
@@ -878,7 +878,7 @@ test("scout watch briefing empty action focuses the add form", async ({
   await expect(page.locator("#watch-address-input")).toBeFocused();
 });
 
-test("scout watch briefing keeps two missing NFT ids from one contract distinct", async ({
+test("Watch briefing keeps two missing NFT ids from one contract distinct", async ({
   page,
 }) => {
   test.skip(!enabled);
@@ -1027,7 +1027,7 @@ test("private explorer follows a public wallet and transaction participants with
   // to eight with a visible remainder count and a source reference.
   await page.getByLabel("Public chain identifier").fill(txHash);
   await page.getByRole("button", { name: "EXPLAIN PRIVATELY", exact: true }).click();
-  const panel = page.getByRole("region", { name: "Follow on Scout Watch" });
+  const panel = page.getByRole("region", { name: "Follow on Watch" });
   const participantLinks = panel.getByRole("link", {
     name: /FOLLOW THIS PUBLIC ADDRESS/,
   });

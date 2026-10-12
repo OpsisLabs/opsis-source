@@ -172,7 +172,7 @@ function Workspace({ session, tradeCheckEnabled }: { session: WatchSession; trad
   const { t } = useI18n();
   const c = useCopy();
   const [searchParams] = useSearchParams();
-  // Optional handoff from the Private Explorer: prefill a validated public
+  // Optional handoff from the Research: prefill a validated public
   // address only. Consent, lookup and saving stay explicit user actions.
   const [prefillAddress] = useState(() => {
     const requested = searchParams.get("address")?.trim() ?? "";
@@ -840,7 +840,7 @@ function WatchDetail({
   );
 }
 
-export default function ScoutWatch({ tradeCheckEnabled = false }: { tradeCheckEnabled?: boolean }) {
+export default function WatchPage({ tradeCheckEnabled = false }: { tradeCheckEnabled?: boolean }) {
   // The one-off check comes first in Opsis; the legacy build keeps its vault-first flow.
   if (!OPSIS_PRESENTATION) return <SavedWatch tradeCheckEnabled={tradeCheckEnabled} pending={null} onSaved={() => {}} />;
   return <OpsisWatch tradeCheckEnabled={tradeCheckEnabled} />;

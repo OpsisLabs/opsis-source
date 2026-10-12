@@ -22,14 +22,14 @@ export type ProductFeature = {
 };
 
 export const PRODUCT_FEATURES: ProductFeature[] = [
-  { id: "portfolio-stress-test", group: "explore", label: "Portfolio Stress Test", shortLabel: "Stress Test", helpLabel: "About portfolio stress testing", path: "/stress-test", eyebrow: "TRY A WHAT-IF · NO WALLET", navHint: "See your portfolio's exposure", summary: "Change a hypothetical price and see the effect on a sample or manually entered portfolio.", bestFor: "Understanding concentration and a chosen scenario.", privacy: "Page-memory calculations; no wallet or provider lookup.", boundary: "Assumed values, not forecasts or a diversification score.", steps: ["Try an example and drag the slider.", "Compare single-position and all-position moves.", "Enter values or preview a share card."] },
-  {"id": "situation-room", "group": "explore", "label": "Situation Room", "shortLabel": "World events", "helpLabel": "About Situation Room", "path": "/situation-room", "eyebrow": "NEWS CONTEXT · OBSERVED PRICES", "navHint": "Explore news and market reactions", "summary": "Explore source-linked news on a globe and compare observed crypto prices around publication.", "bestFor": "Checking the timing and context of reports beside dated price observations.", "privacy": "The published edition loads static public data. No wallet, private records, model requests or background polling.", "boundary": "A dated capture with prepared AI context. Publication timing does not establish causation; gaps stay unknown and pool prices are not executable quotes.", "steps": ["Select a report on the globe or in the feed.", "Compare the 15, 30 and 60 minute observation windows.", "Open AI insight for context, calculated price changes and follow-up checks.", "Inspect source details and save a local situation brief."]},
+  { id: "portfolio-stress-test", group: "explore", label: "Portfolio shocks", shortLabel: "Portfolio shocks", helpLabel: "About portfolio stress testing", path: "/stress-test", eyebrow: "TRY A WHAT-IF · NO WALLET", navHint: "See your portfolio's exposure", summary: "Change a hypothetical price and see the effect on a sample or manually entered portfolio.", bestFor: "Understanding concentration and a chosen scenario.", privacy: "Page-memory calculations; no wallet or provider lookup.", boundary: "Assumed values, not forecasts or a diversification score.", steps: ["Try an example and drag the slider.", "Compare single-position and all-position moves.", "Enter values or preview a share card."] },
+  {"id": "situation-room", "group": "explore", "label": "World & markets", "shortLabel": "World & markets", "helpLabel": "About World & markets", "path": "/situation-room", "eyebrow": "NEWS CONTEXT · OBSERVED PRICES", "navHint": "Explore news and market reactions", "summary": "Explore source-linked news on a globe and compare observed crypto prices around publication.", "bestFor": "Checking the timing and context of reports beside dated price observations.", "privacy": "The published edition loads static public data. No wallet, private records, model requests or background polling.", "boundary": "A dated capture with prepared AI context. Publication timing does not establish causation; gaps stay unknown and pool prices are not executable quotes.", "steps": ["Select a report on the globe or in the feed.", "Compare the 15, 30 and 60 minute observation windows.", "Open AI insight for context, calculated price changes and follow-up checks.", "Inspect source details and save a local situation brief."]},
   { id: "kol-tracker", group: "explore", label: "KOL Tracker", shortLabel: "KOL calls", helpLabel: "About KOL Tracker", path: "/kol-tracker", eyebrow: "ORIGINAL POSTS · SOURCE HISTORY", navHint: "Track calls, coins and context", summary: "Review original KOL posts with real profiles, coin filters and prepared source context.", bestFor: "Checking what an author actually said before following a thesis.", privacy: "Static public sources; watch selections and saved receipts stay in this session. No account, polling or model requests.", boundary: "Selected dated history, not a comprehensive or live feed. No performance, accuracy or wallet ownership is inferred.", steps: ["Choose a KOL or token to filter source posts.", "Inspect targets, deadlines, conditions and the original X post.", "Compare calls, explore the timeline and reveal prepared AI context.", "Save a receipt in this session or download its source record."] },
-  { id: "scout-watch", group: "explore", label: "Scout Watch", shortLabel: "Watchlist", helpLabel: "About Scout Watch", path: "/watch", eyebrow: "PRIVATE WATCHLIST · ON DEMAND", navHint: "See what changed in a wallet", summary: "Save wallets locally and compare balances and newly observed activity between checks.", bestFor: "Returning to wallets you follow without reconstructing the last view.", privacy: "Labels and three snapshots per wallet are encrypted in your local Vault. Only the public address is sent on an approved refresh.", boundary: "Manual, bounded, non-final checks. Not continuous alerts, trade attribution, profit tracking or a safety verdict.", steps: ["Create or unlock your encrypted watchlist directly on the Watch page.", "Paste a Robinhood wallet address, review the public lookup and save a baseline.", "Refresh later and compare exact balances, missing entries and newly observed transactions.", "Export an encrypted backup; your watchlist is local to this browser and site."] },
-  { id: "biggest-trades", group: "explore", label: "Biggest Observed Trades", shortLabel: "Biggest trades", helpLabel: "About observed trades", path: "/biggest-trades", eyebrow: "BOUNDED WINDOW · ONE VERIFIED POOL", navHint: "Compare largest observed swaps", summary: "Observe the largest recent signed Uniswap V3 Swap amounts in one factory-verified pool over a bounded recent block window.", bestFor: "Checking what actually swapped in one exact pool without a chain-wide, all-venue, or all-day claim.", privacy: "Only the public token contract, the factory-derived pool, and the bounded block window are sent after you click. No wallet, Vault, or AI data.", boundary: "A partial observation window, not a live feed, price, ranking of people, or profit signal. Each row is one signed Swap event that can coexist with flash loans and multi-hop routes.", steps: ["Keep the default WETH/USDG pair or paste one token contract.", "Review the public-address disclosure and click once to observe.", "Inspect exact window timestamps, scanned counts, and largest signed buys/sells.", "Follow only a verified public EOA sender through the Scout Watch handoff."] },
+  { id: "watch", group: "explore", label: "Watch", shortLabel: "Watchlist", helpLabel: "About Watch", path: "/watch", eyebrow: "PRIVATE WATCHLIST · ON DEMAND", navHint: "See what changed in a wallet", summary: "Save wallets locally and compare balances and newly observed activity between checks.", bestFor: "Returning to wallets you follow without reconstructing the last view.", privacy: "Labels and three snapshots per wallet are encrypted in your local Vault. Only the public address is sent on an approved refresh.", boundary: "Manual, bounded, non-final checks. Not continuous alerts, trade attribution, profit tracking or a safety verdict.", steps: ["Create or unlock your encrypted watchlist directly on the Watch page.", "Paste a Robinhood wallet address, review the public lookup and save a baseline.", "Refresh later and compare exact balances, missing entries and newly observed transactions.", "Export an encrypted backup; your watchlist is local to this browser and site."] },
+  { id: "biggest-trades", group: "explore", label: "Biggest Observed Trades", shortLabel: "Big trades", helpLabel: "About observed trades", path: "/biggest-trades", eyebrow: "BOUNDED WINDOW · ONE VERIFIED POOL", navHint: "Compare largest observed swaps", summary: "Observe the largest recent signed Uniswap V3 Swap amounts in one factory-verified pool over a bounded recent block window.", bestFor: "Checking what actually swapped in one exact pool without a chain-wide, all-venue, or all-day claim.", privacy: "Only the public token contract, the factory-derived pool, and the bounded block window are sent after you click. No wallet, Vault, or AI data.", boundary: "A partial observation window, not a live feed, price, ranking of people, or profit signal. Each row is one signed Swap event that can coexist with flash loans and multi-hop routes.", steps: ["Keep the default WETH/USDG pair or paste one token contract.", "Review the public-address disclosure and click once to observe.", "Inspect exact window timestamps, scanned counts, and largest signed buys/sells.", "Follow only a verified public EOA sender through the Watch handoff."] },
   { id: "card-price-check", group: "explore", label: "Card Price Check", shortLabel: "Card prices", helpLabel: "About card price references", path: "/card-prices", eyebrow: "PICK A CARD · CHECK THE CONTEXT", navHint: "Pokémon & Yu-Gi-Oh! prices", summary: "Look up public card price references across supported markets without a wallet or Vault.", bestFor: "Getting price context before researching a collectible or seller's asking price.", privacy: "Only the public card ID and provider choice are sent after you click. No ownership, grades, notes or purchase prices are sent.", boundary: "Reference prices are not live offers, exact graded-card values, appraisals or guaranteed bargains. USD and EUR stay separate.", steps: ["Pick a named example, or search the Pokémon catalog.", "Click to retrieve public price references.", "Compare currencies, variants, price metrics and source timestamps.", "Open the cited provider or investigate exact listings independently."] },
-  { id: "trade-simulator", group: "explore", label: "Trade Simulator", shortLabel: "Simulator", helpLabel: "About trade scenarios", path: "/simulate", eyebrow: "PRIVATE WHAT-IF", navHint: "Compare before and after", summary: "Model a WETH/USDG trade with a fresh quote and entered balances.", bestFor: "Comparing exact quantities and two-token allocation before independent execution.", privacy: "Balances and reference prices stay local; only pair and amount reach the quote provider.", boundary: "Not a guaranteed execution or full-wallet valuation; native ETH fees are separate. Saved reports are historical.", steps: ["Enter balances, amount and a reference price.", "Request a fresh quote.", "Compare expected and minimum outputs.", "Unlock local history to save an encrypted report."] },
-  { id: "exit-check", group: "explore", label: "Exit Check", shortLabel: "Exit check", helpLabel: "About the exit estimate", path: "/exit-check", eyebrow: "READ-ONLY POOL ESTIMATE", navHint: "Estimate what a token could return", summary: "Quote the official Uniswap V3 factory pools for one token and amount at a captured, rechecked block.", bestFor: "Understanding the bounded pool depth and exact fee and price impact before doing your own research.", privacy: "Only the public token contract, amount, and output choice reach the dRPC Robinhood Chain gateway. dRPC is a paid gateway that may route each read to an independent node operator in its network.", boundary: "A quote is not proof of transferability, sellability, or guaranteed execution. ChainScout never signs or broadcasts.", steps: ["Enter a public token contract and an amount.", "Review the selected factory pool, exact fee, and same-block price impact.", "Open the official Uniswap app only if you choose to continue."] },
+  { id: "trade-simulator", group: "explore", label: "Trade scenarios", shortLabel: "Simulator", helpLabel: "About trade scenarios", path: "/simulate", eyebrow: "PRIVATE WHAT-IF", navHint: "Compare before and after", summary: "Model a WETH/USDG trade with a fresh quote and entered balances.", bestFor: "Comparing exact quantities and two-token allocation before independent execution.", privacy: "Balances and reference prices stay local; only pair and amount reach the quote provider.", boundary: "Not a guaranteed execution or full-wallet valuation; native ETH fees are separate. Saved reports are historical.", steps: ["Enter balances, amount and a reference price.", "Request a fresh quote.", "Compare expected and minimum outputs.", "Unlock local history to save an encrypted report."] },
+  { id: "exit-check", group: "explore", label: "Trade Check", shortLabel: "Exit check", helpLabel: "About the exit estimate", path: "/exit-check", eyebrow: "READ-ONLY POOL ESTIMATE", navHint: "Estimate what a token could return", summary: "Quote the official Uniswap V3 factory pools for one token and amount at a captured, rechecked block.", bestFor: "Understanding the bounded pool depth and exact fee and price impact before doing your own research.", privacy: "Only the public token contract, amount, and output choice reach the dRPC Robinhood Chain gateway. dRPC is a paid gateway that may route each read to an independent node operator in its network.", boundary: "A quote is not proof of transferability, sellability, or guaranteed execution. Opsis never signs or broadcasts.", steps: ["Enter a public token contract and an amount.", "Review the selected factory pool, exact fee, and same-block price impact.", "Open the official Uniswap app only if you choose to continue."] },
   { id: "collectible-deal-finder", group: "vault", label: "Collectible Deal Finder", shortLabel: "Deal Finder", helpLabel: "About collectible comparisons", path: "/vault?view=deals", eyebrow: "PRIVATE SHOPPING RESEARCH", navHint: "Find and compare exact cards", summary: "Build precise collectible searches and compare saved offer costs.", bestFor: "Separating asking prices, sold evidence and complete landed costs.", privacy: "Your shopping brief stays local until you open a named marketplace. Saved offers are encrypted in your Vault.", boundary: "No live feed is implied; only reviewed opted-in merchants supply provider offers. Search handoffs and owner-entered prices are labeled separately.", steps: ["Unlock your Vault and identify the collectible.", "Specify printing, condition and grade.", "Inspect supported searches or reviewed merchant offers.", "Save exact comparable offers with all known costs."] },
   {
     id: "approval-manager", group: "vault", label: "Approval Manager", shortLabel: "Approvals",
@@ -44,8 +44,8 @@ export const PRODUCT_FEATURES: ProductFeature[] = [
   {
     id: "private-explorer",
     group: "explore",
-    label: "Private Explorer",
-    shortLabel: "Explorer",
+    label: "Research",
+    shortLabel: "Research",
     helpLabel: "About private lookup",
     path: "/app",
     eyebrow: "NO ACCOUNT · EPHEMERAL",
@@ -65,9 +65,9 @@ export const PRODUCT_FEATURES: ProductFeature[] = [
     ],
   },
   {
-    id: "scout-swap",
+    id: "swap-preview",
     group: "explore",
-    label: "Scout Swap",
+    label: "Swap preview",
     shortLabel: "Swap preview",
     helpLabel: "About live swap previews",
     path: "/swap",
@@ -79,7 +79,7 @@ export const PRODUCT_FEATURES: ProductFeature[] = [
     privacy:
       "No wallet is requested. Uniswap receives the pair, amount, and a fixed non-user preview address.",
     boundary:
-      "ChainScout cannot approve, sign, submit, or broadcast. Uniswap independently requotes before execution.",
+      "Opsis cannot approve, sign, submit, or broadcast. Uniswap independently requotes before execution.",
     steps: [
       "Choose the direction and enter an exact amount.",
       "Request a time-limited live preview.",
@@ -89,8 +89,8 @@ export const PRODUCT_FEATURES: ProductFeature[] = [
   {
     id: "rwa-verify",
     group: "explore",
-    label: "RWA Verify",
-    shortLabel: "RWA evidence",
+    label: "Stock-token check",
+    shortLabel: "Stock-token check",
     helpLabel: "About tokenized-asset evidence",
     path: "/rwa",
     eyebrow: "CONTRACT FIRST · CITED",
@@ -111,8 +111,8 @@ export const PRODUCT_FEATURES: ProductFeature[] = [
   {
     id: "portfolio-intelligence",
     group: "vault",
-    label: "Portfolio Intelligence",
-    shortLabel: "Portfolio",
+    label: "Saved",
+    shortLabel: "Saved",
     helpLabel: "About local portfolio snapshots",
     path: "/vault?view=portfolio",
     eyebrow: "ENCRYPTED · ON DEMAND",
@@ -189,7 +189,7 @@ export const PRODUCT_FEATURES: ProductFeature[] = [
     privacy:
       "Historical hashes, wallet addresses, lots, labels, and costs stay inside the unlocked Vault. A new swap sends only direction and amount; a purchase lookup sends the exact reviewed merchant mapping after an encrypted local receipt is saved.",
     boundary:
-      "ChainScout never reuses calldata, approvals, carts, coupons, quantities, or orders. Uniswap or the merchant owns the new action.",
+      "Opsis never reuses calldata, approvals, carts, coupons, quantities, or orders. Uniswap or the merchant owns the new action.",
     steps: [
       "Choose a supported historical movement pattern or a current reviewed offer.",
       "Enter a new swap amount or explicitly select the new offer.",
@@ -206,8 +206,8 @@ export const PRODUCT_FEATURES: ProductFeature[] = [
     eyebrow: "TWO ROUTES · ZERO PROVIDER CALLS",
     navHint: "Reuse reviewed public facts",
     summary:
-      "Read ChainScout's two-entry launch support registry or normalize EVM-address syntax through a tightly capped v1 API.",
-    bestFor: "Developers who need a reviewed two-asset support reference or ChainScout-derived syntax normalization without importing private Vault or upstream-provider data.",
+      "Read Opsis's two-entry launch support registry or normalize EVM-address syntax through a tightly capped v1 API.",
+    bestFor: "Developers who need a reviewed two-asset support reference or Opsis-derived syntax normalization without importing private Vault or upstream-provider data.",
     privacy:
       "No account or API key is used. The normalizer receives one public address in a POST body; routes reject browser credentials and never call a provider.",
     boundary:

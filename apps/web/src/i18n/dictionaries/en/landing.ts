@@ -4,10 +4,10 @@ export const landing = {
   "landing.nav.availability": "Availability",
   "landing.nav.safety": "Safety",
   "landing.nav.faq": "FAQ",
-  "landing.nav.guide": "Guide",
-  "landing.nav.homeLabel": "ChainScout home",
+  "landing.nav.guide": "Find your tool",
+  "landing.nav.homeLabel": "Opsis home",
   "landing.nav.sectionsLabel": "Homepage sections",
-  "landing.nav.openExplorer": "OPEN EXPLORER",
+  "landing.nav.openExplorer": "Open Research",
   "landing.nav.openMenu": "Open navigation menu",
   "landing.nav.mobileSectionsLabel": "Mobile homepage sections",
 
@@ -23,7 +23,7 @@ export const landing = {
   "landing.sidebar.founderBeta": "FOUNDER BETA",
   "landing.sidebar.founderCopy":
     "Available tools are separated from coming-soon adapters.",
-  "landing.sidebar.startGuide": "Start guide",
+  "landing.sidebar.startGuide": "Find your tool",
 
   "landing.hero.badge": "PRIVATE MULTI-ASSET COMMAND CENTER",
   "landing.hero.headline1": "Know what you own.",
@@ -37,8 +37,8 @@ export const landing = {
   "landing.hero.category.pokemon": "POKÉMON / TCG",
   "landing.hero.category.collectibles": "COLLECTIBLES",
   "landing.hero.category.manual": "ANY MANUAL ASSET",
-  "landing.hero.openVault": "OPEN PRIVATE VAULT",
-  "landing.hero.tryExplorer": "TRY THE EXPLORER",
+  "landing.hero.openVault": "Open Saved",
+  "landing.hero.tryExplorer": "Open Research",
   "landing.hero.noWallet":
     "No wallet needed to explore. No server copy of your Vault.",
   "landing.hero.illustrative": "ILLUSTRATIVE ASSET STACK",
@@ -82,7 +82,7 @@ export const landing = {
   "landing.assets.titleA": "One private record for",
   "landing.assets.titleB": "every kind of asset.",
   "landing.assets.copy":
-    "ChainScout combines public, source-linked evidence with private owner context without pretending they are the same thing.",
+    "Opsis combines public, source-linked evidence with private owner context without pretending they are the same thing.",
   "landing.assets.crypto.title": "Crypto & tokens",
   "landing.assets.crypto.state": "AVAILABLE",
   "landing.assets.crypto.copy":
@@ -128,16 +128,16 @@ export const landing = {
   "landing.workflow.understand.signal": "NO ACCOUNT · EPHEMERAL",
   "landing.workflow.understand.copy":
     "Explain a wallet, transaction, token, or contract. Inspect activity, approvals, risk notes, and citations without creating a profile.",
-  "landing.workflow.understand.action": "START PRIVATE EXPLORER",
+  "landing.workflow.understand.action": "Open Research",
   "landing.workflow.track.title": "Track",
   "landing.workflow.track.signal": "ENCRYPTED · BROWSER-LOCAL",
   "landing.workflow.track.copy":
     "Save manual assets, exact purchase lots, private notes, locally processed photos, portfolio snapshots, and dated reference values.",
-  "landing.workflow.track.action": "OPEN LOCAL VAULT",
+  "landing.workflow.track.action": "Open Saved",
   "landing.workflow.act.title": "Act carefully",
   "landing.workflow.act.signal": "READ-ONLY · OFFICIAL HANDOFF",
   "landing.workflow.act.copy":
-    "Verify tokenized-asset evidence or preview a current WETH/USDG route. ChainScout never signs, submits, or broadcasts.",
+    "Verify tokenized-asset evidence or preview a current WETH/USDG route. Opsis never signs, submits, or broadcasts.",
   "landing.workflow.act.action": "VERIFY PUBLIC EVIDENCE",
 
   "landing.availability.eyebrow": "WHAT WORKS IN THIS BUILD?",
@@ -148,14 +148,14 @@ export const landing = {
   "landing.availability.group.available": "AVAILABLE IN FOUNDER BUILD",
   "landing.availability.group.comingSoon": "COMING SOON",
   "landing.availability.group.next": "NEXT, AFTER THIS RELEASE",
-  "landing.availability.item.explorer": "Private Explorer",
-  "landing.availability.item.vault": "Encrypted Vault",
+  "landing.availability.item.explorer": "Research",
+  "landing.availability.item.vault": "Saved",
   "landing.availability.item.manualRecords":
     "Manual crypto / NFT / RWA / collectible records",
   "landing.availability.item.charts": "Dated collectible value-history charts",
-  "landing.availability.item.portfolio": "Portfolio Intelligence",
-  "landing.availability.item.rwa": "RWA Verify",
-  "landing.availability.item.swap": "Scout Swap",
+  "landing.availability.item.portfolio": "Saved",
+  "landing.availability.item.rwa": "Stock-token check",
+  "landing.availability.item.swap": "Swap preview",
   "landing.availability.item.tcgdex": "TCGdex-assisted collectible identity",
   "landing.availability.item.market": "Market & Inventory",
   "landing.availability.item.replay": "Replay Actions",
@@ -172,8 +172,8 @@ export const landing = {
   "landing.safety.titleB": "Honest limits.",
   "landing.safety.copy":
     "Public facts, provider observations, and owner-entered records are labeled separately. A chart never upgrades a manual value into a market price.",
-  "landing.safety.isTitle": "WHAT CHAINSCOUT IS",
-  "landing.safety.isNotTitle": "WHAT CHAINSCOUT IS NOT",
+  "landing.safety.isTitle": "WHAT OPSIS IS",
+  "landing.safety.isNotTitle": "WHAT OPSIS IS NOT",
   "landing.safety.is1": "An encrypted browser-local asset Vault",
   "landing.safety.is2": "A read-only Robinhood Chain explorer assistant",
   "landing.safety.is3": "A source-linked public evidence workspace",
@@ -188,7 +188,7 @@ export const landing = {
     "Anything that signs or broadcasts transactions",
   "landing.safety.readOnly.title": "READ-ONLY",
   "landing.safety.readOnly.copy":
-    "ChainScout does not sign, submit, approve, buy, sell, or move funds.",
+    "Opsis does not sign, submit, approve, buy, sell, or move funds.",
   "landing.safety.precision.title": "NO FALSE PRECISION",
   "landing.safety.precision.copy":
     "Unknown, stale, partial, manual, and unavailable states remain visible.",
@@ -204,7 +204,7 @@ export const landing = {
   "landing.faq.goDeeper": "GO DEEPER",
   "landing.faq.goDeeperCopy":
     "See the current-build matrix, step-by-step workflows, technical internals, privacy constraints, and API contracts.",
-  "landing.faq.openGuide": "OPEN FEATURE GUIDE",
+  "landing.faq.openGuide": "Find your tool",
   "landing.faq.readDocs": "READ TECHNICAL DOCS",
   "landing.faq.viewFullFaq": "VIEW FULL FAQ",
   "landing.faq.q1": "Can I track Pokémon cards and physical collectibles?",
@@ -215,25 +215,25 @@ export const landing = {
   "landing.faq.q2": "Where do the dashboard charts get their data?",
   "landing.faq.a2":
     "Vault charts use only your encrypted purchase lots, owner-entered dated references, or a public snapshot that you explicitly refreshed. They are not hidden live feeds, appraisals, or price predictions. Every chart includes an exact-value table.",
-  "landing.faq.q3": "Does my Vault sync to ChainScout servers?",
+  "landing.faq.q3": "Does my Vault sync to Opsis servers?",
   "landing.faq.a3":
     "No. Vault records are encrypted in this browser with WebCrypto and stored in IndexedDB. Export an encrypted backup because browser storage can be cleared or evicted, and another origin or device cannot see this Vault automatically.",
   "landing.faq.q4": "Do I need to connect a wallet?",
   "landing.faq.a4":
-    "No. Private Explorer, Scout Swap, RWA Verify, and the local Vault need no wallet connection. Unlock your local Vault to save new Explorer conversations encrypted in this browser. Cloud research is a future update.",
-  "landing.faq.q5": "Does ChainScout trade, buy cards, or move funds?",
+    "No. Research, Swap preview, Stock-token check, and the local Vault need no wallet connection. Unlock your local Vault to save new Explorer conversations encrypted in this browser. Cloud research is a future update.",
+  "landing.faq.q5": "Does Opsis trade, buy cards, or move funds?",
   "landing.faq.a5":
-    "No. ChainScout is read-only. It can explain public evidence and create an official external handoff where supported, but it never signs, broadcasts, checks out, or stores payment state.",
+    "No. Opsis is read-only. It can explain public evidence and create an official external handoff where supported, but it never signs, broadcasts, checks out, or stores payment state.",
   "landing.faq.q6": "Can AI or provider data be wrong?",
   "landing.faq.a6":
-    "Yes. AI can be wrong, indexers can lag, providers can fail, and a manual reference can become stale. ChainScout preserves citations, privacy receipts, anchor details, and explicit incomplete or unavailable states so you can inspect the evidence.",
+    "Yes. AI can be wrong, indexers can lag, providers can fail, and a manual reference can become stale. Opsis preserves citations, privacy receipts, anchor details, and explicit incomplete or unavailable states so you can inspect the evidence.",
 
   "landing.footer.badge": "From scattered assets to one private record",
   "landing.footer.titleA": "Track what matters.",
   "landing.footer.titleB": "Keep the context.",
   "landing.footer.copy":
     "Start with an encrypted local record for crypto, an NFT, a tokenized asset, a Pokémon card, or anything else you own. Add public evidence only when you explicitly ask for it.",
-  "landing.footer.openVault": "OPEN PRIVATE VAULT",
+  "landing.footer.openVault": "Open Saved",
   "landing.footer.pages": "PAGES",
   "landing.footer.page.homepage": "Homepage",
   "landing.footer.page.whatToTrack": "What to track",
@@ -254,16 +254,16 @@ export const landing = {
   "landing.footer.band.sourceLinked": "SOURCE-LINKED",
   "landing.footer.band.evidence": "Evidence stays inspectable",
   "landing.footer.band.copy":
-    "ChainScout combines an encrypted browser-local asset Vault with read-only, source-linked Robinhood Chain tools. Informational only, not financial advice or an appraisal.",
-  "landing.footer.bigWord": "Vault",
+    "Opsis combines an encrypted browser-local asset Vault with read-only, source-linked Robinhood Chain tools. Informational only, not financial advice or an appraisal.",
+  "landing.footer.bigWord": "Saved",
   "landing.footer.disclaimer": "Informational only. Not financial advice.",
   "landing.footer.terms": "Terms of use",
   "landing.footer.privacy": "Privacy Policy",
 
-  "landing.official.title": "Official ChainScout contract",
+  "landing.official.title": "Official Opsis contract",
   "landing.official.subtitle": "Check here. Don’t trust a ticker alone.",
   "landing.official.network": "{network} · Chain ID {chainId}",
-  "landing.official.copyAria": "Copy official ChainScout contract address",
+  "landing.official.copyAria": "Copy official Opsis contract address",
   "landing.official.copy": "Copy",
   "landing.official.copying": "Copying…",
   "landing.official.copied": "Copied",
@@ -278,7 +278,7 @@ export const landing = {
   "landing.official.notLaunched": "Not launched yet — no official CA.",
   "landing.official.unavailable": "Official contract address unavailable.",
   "landing.official.notLaunchedCopy":
-    "The ChainScout token has not launched. No official contract address has been announced. Ignore tokens claiming to be ChainScout until the address is published here.",
+    "The Opsis token has not launched. No official contract address has been announced. Ignore tokens claiming to be Opsis until the address is published here.",
   "landing.official.unavailableCopy":
     "Don’t rely on addresses from DMs, replies or search results. Wait until the official address and network are available here.",
 } as const;

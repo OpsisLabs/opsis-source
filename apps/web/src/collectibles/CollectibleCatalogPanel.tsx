@@ -242,7 +242,7 @@ function PermissionDialog({ pending, returnFocus, onCancel, onConfirm }: { pendi
           <button ref={cancelRef} type="button" onClick={onCancel} aria-label={t("collectibles.permission.cancelAria")} className="p-2 text-[#635d5a] hover:text-[#f0e8da]"><X size={16} /></button>
         </div>
         <div className="mt-5 border border-[#383838] bg-[#1d1d1d] p-4">
-          <p className="font-mono-d text-[8px] tracking-wider text-[#635d5a]">{t("collectibles.permission.sentToChainScout")}</p>
+          <p className="font-mono-d text-[8px] tracking-wider text-[#635d5a]">{t("collectibles.permission.sentToOpsis")}</p>
           <p className="mt-2 break-words font-mono-d text-[10px] text-[#d6ccba]">{pending.summary}</p>
         </div>
         <div className="mt-3 border border-[#383838] bg-[#1d1d1d] p-4">

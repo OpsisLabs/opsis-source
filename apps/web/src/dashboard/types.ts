@@ -2,7 +2,7 @@ export type ChainEntityType = "wallet" | "transaction" | "token" | "contract" | 
 export type Severity = "info" | "low" | "medium" | "high";
 
 /**
- * Mirrors the API's bounded goal metadata for the Private Explorer. A task only
+ * Mirrors the API's bounded goal metadata for the Research. A task only
  * selects a deterministic presentation path; freeform questions omit it.
  */
 export const EXPLORER_ANSWER_TASKS = [

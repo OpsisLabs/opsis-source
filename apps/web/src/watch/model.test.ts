@@ -7,7 +7,7 @@ import {
 } from "./model";
 import { watchFixture, WATCH_TEST_ADDRESS, WATCH_TEST_TOKEN } from "./fixture";
 
-describe("Scout Watch exact and bounded comparisons", () => {
+describe("Watch exact and bounded comparisons", () => {
   it("retains wei and large integer precision, signs, and decimal scale", () => {
     expect(
       difference(

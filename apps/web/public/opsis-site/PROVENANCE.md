@@ -1,4 +1,4 @@
-# Original Opsis / EUREKA² front door
+# Original Opsis front door
 
 Restored from `https://github.com/OpsisLabs/Opsis`, revision `5f5f966`, `dist/`, on 20 September 2026 under founder decision D12. The original CSS, scene geometry, fonts, illustrations, previews and particle-transition implementation are preserved. Three.js carries its original MIT license in `assets/vendor/LICENSE`; font licenses accompany the fonts.
 

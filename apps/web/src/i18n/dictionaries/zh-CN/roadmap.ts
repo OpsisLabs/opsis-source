@@ -1,19 +1,19 @@
 export const roadmap: Record<string, string> = {
-  "roadmap.sidebar.homeLabel": "返回 ChainScout 主页",
+  "roadmap.sidebar.homeLabel": "返回 Opsis 主页",
   "roadmap.sidebar.productPath": "产品路径",
   "roadmap.sidebar.releaseRoadmap": "发布路线图",
   "roadmap.sidebar.sequential": "顺序推进",
   "roadmap.sidebar.oneAtATime": "一次一个版本",
 
-  "roadmap.nav.homeLabel": "ChainScout 主页",
+  "roadmap.nav.homeLabel": "Opsis 主页",
   "roadmap.nav.home": "首页",
   "roadmap.nav.releases": "版本",
   "roadmap.nav.utility": "实用工具",
   "roadmap.nav.privacy": "隐私",
   "roadmap.nav.protocol": "协议",
   "roadmap.nav.releaseProtocol": "发布协议",
-  "roadmap.nav.tryExplorer": "试用链上查询",
-  "roadmap.nav.tryExplorerShort": "试用链上查询",
+  "roadmap.nav.tryExplorer": "打开研究",
+  "roadmap.nav.tryExplorerShort": "打开研究",
   "roadmap.nav.toggle": "切换导航",
 
   "roadmap.trajectory.zeroSpend": "$0 新增支出",
@@ -32,31 +32,31 @@ export const roadmap: Record<string, string> = {
   "roadmap.release.check.ux": "用户体验",
   "roadmap.release.check.safety": "安全",
 
-  "roadmap.release.scout-swap.eyebrow": "实时路径。清晰结果。",
-  "roadmap.release.scout-swap.title": "Scout Swap",
-  "roadmap.release.scout-swap.summary":
+  "roadmap.release.swap-preview.eyebrow": "实时路径。清晰结果。",
+  "roadmap.release.swap-preview.title": "兑换预览",
+  "roadmap.release.swap-preview.summary":
     "预览当前的 Uniswap 兑换路径，理解每一项取舍，然后前往官方应用继续操作。",
-  "roadmap.release.scout-swap.outcome": "预览一笔实时兑换",
-  "roadmap.release.scout-swap.cap1.kicker": "实时报价",
-  "roadmap.release.scout-swap.cap1.title":
+  "roadmap.release.swap-preview.outcome": "预览一笔实时兑换",
+  "roadmap.release.swap-preview.cap1.kicker": "实时报价",
+  "roadmap.release.swap-preview.cap1.title":
     "当前 WETH/USDG 路径、价格影响、Gas 和最低接收量",
-  "roadmap.release.scout-swap.cap1.signal": "免费 API / 实时",
-  "roadmap.release.scout-swap.cap2.kicker": "模拟",
-  "roadmap.release.scout-swap.cap2.title":
+  "roadmap.release.swap-preview.cap1.signal": "免费 API / 实时",
+  "roadmap.release.swap-preview.cap2.kicker": "模拟",
+  "roadmap.release.swap-preview.cap2.title":
     "通俗易懂地预测余额变化和失败状态",
-  "roadmap.release.scout-swap.cap2.signal": "仅解释",
-  "roadmap.release.scout-swap.cap3.kicker": "UNISWAP 交接",
-  "roadmap.release.scout-swap.cap3.title":
+  "roadmap.release.swap-preview.cap2.signal": "仅解释",
+  "roadmap.release.swap-preview.cap3.kicker": "UNISWAP 交接",
+  "roadmap.release.swap-preview.cap3.title":
     "打开官方 Uniswap 应用，并预填交易对和金额",
-  "roadmap.release.scout-swap.cap3.signal": "在该处重新报价",
-  "roadmap.release.scout-swap.gate":
+  "roadmap.release.swap-preview.cap3.signal": "在该处重新报价",
+  "roadmap.release.swap-preview.gate":
     "报价保持新鲜且模拟成功；所有用户自付费用均已披露；不存在任何签名方法。",
 
   "roadmap.release.privacy-foundation.eyebrow": "使用它，而不成为一份画像",
   "roadmap.release.privacy-foundation.title": "隐私基础",
   "roadmap.release.privacy-foundation.summary":
     "将无需账户的私密模式设为默认，并从服务器存储、日志和浏览器可读凭据中移除私密细节。",
-  "roadmap.release.privacy-foundation.outcome": "私密地使用 ChainScout",
+  "roadmap.release.privacy-foundation.outcome": "私密地使用 Opsis",
   "roadmap.release.privacy-foundation.cap1.kicker": "私密模式",
   "roadmap.release.privacy-foundation.cap1.title":
     "无需账户、不留下永久服务器端历史，即可研究公开资产",
@@ -73,7 +73,7 @@ export const roadmap: Record<string, string> = {
     "私密字段绝不进入日志、分析、已保存的服务器记录或未经批准的网络请求。",
 
   "roadmap.release.encrypted-vault.eyebrow": "你的资产。你的设备。",
-  "roadmap.release.encrypted-vault.title": "加密资产保险库",
+  "roadmap.release.encrypted-vault.title": "已保存",
   "roadmap.release.encrypted-vault.summary":
     "在一个加密的浏览器保险库中追踪买入批次、备注、照片、评级和手动资产。",
   "roadmap.release.encrypted-vault.outcome": "私密地追踪每一项资产",
@@ -93,7 +93,7 @@ export const roadmap: Record<string, string> = {
     "明文绝不跨网络传输；加密、恢复、损坏、驱逐和删除状态均通过验证。",
 
   "roadmap.release.portfolio-intelligence.eyebrow": "一个视图。更少噪音。",
-  "roadmap.release.portfolio-intelligence.title": "投资组合智能",
+  "roadmap.release.portfolio-intelligence.title": "已保存",
   "roadmap.release.portfolio-intelligence.summary":
     "整合持仓、成本基础、活动、授权、表现，以及通俗易懂的交易解读。",
   "roadmap.release.portfolio-intelligence.outcome": "看懂整个投资组合",
@@ -189,22 +189,22 @@ export const roadmap: Record<string, string> = {
   "roadmap.release.replay-actions.cap3.kicker": "官方交接",
   "roadmap.release.replay-actions.cap3.title":
     "让 Uniswap 或商家重新报价、签署、收款、履约并提供支持",
-  "roadmap.release.replay-actions.cap3.signal": "CHAINSCOUT 绝不执行",
+  "roadmap.release.replay-actions.cap3.signal": "OPSIS 绝不执行",
   "roadmap.release.replay-actions.gate":
-    "不保留任何历史执行载荷；每个操作都从零开始，并在签名或付款前离开 ChainScout。",
+    "不保留任何历史执行载荷；每个操作都从零开始，并在签名或付款前离开 Opsis。",
 
   "roadmap.release.open-data-api.eyebrow": "公开事实。可复用证据。",
-  "roadmap.release.open-data-api.title": "ChainScout 开放数据",
+  "roadmap.release.open-data-api.title": "Opsis 开放数据",
   "roadmap.release.open-data-api.summary":
     "公开一个刻意精简、有上限的静态支持注册表，以及独立派生的语法规范化。",
-  "roadmap.release.open-data-api.outcome": "复用 ChainScout 公开情报",
+  "roadmap.release.open-data-api.outcome": "复用 Opsis 公开情报",
   "roadmap.release.open-data-api.cap1.kicker": "双路由 V1",
   "roadmap.release.open-data-api.cap1.title":
     "读取经审核的 WETH/USDG 支持注册表，或规范化一个 EVM 地址",
   "roadmap.release.open-data-api.cap1.signal": "OPENAPI",
   "roadmap.release.open-data-api.cap2.kicker": "安全数据类别",
   "roadmap.release.open-data-api.cap2.title":
-    "将经审核的静态引用与 ChainScout 派生的规范化区分开——绝不含保险库或提供商载荷",
+    "将经审核的静态引用与 Opsis 派生的规范化区分开——绝不含保险库或提供商载荷",
   "roadmap.release.open-data-api.cap2.signal": "人工链接",
   "roadmap.release.open-data-api.cap3.kicker": "硬性预算",
   "roadmap.release.open-data-api.cap3.title":
@@ -245,9 +245,9 @@ export const roadmap: Record<string, string> = {
   "roadmap.loop.release.note": "合并到 main 并将预发布环境推进",
 
   "roadmap.horizon.api.eyebrow": "开放情报层",
-  "roadmap.horizon.api.title": "ChainScout 开放数据",
+  "roadmap.horizon.api.title": "Opsis 开放数据",
   "roadmap.horizon.api.summary":
-    "让另一个应用复用一小套有文档记录、由 ChainScout 编写的支持注解，而无需代理提供商数据。",
+    "让另一个应用复用一小套有文档记录、由 Opsis 编写的支持注解，而无需代理提供商数据。",
   "roadmap.horizon.api.outcome": "可复用公开事实的有界基础",
   "roadmap.horizon.api.feature1":
     "仅两条无需凭据的 v1 路由：经审核的 WETH/USDG 支持和 EVM 地址语法规范化",
@@ -276,10 +276,10 @@ export const roadmap: Record<string, string> = {
   "roadmap.horizon.find.signal2": "精确匹配",
   "roadmap.horizon.find.signal3": "库存置信度",
   "roadmap.horizon.find.boundary":
-    "不受支持的商店会获得可搜索的深度链接；ChainScout 绝不绕过登录、CAPTCHA、robots 或市场条款。",
+    "不受支持的商店会获得可搜索的深度链接；Opsis 绝不绕过登录、CAPTCHA、robots 或市场条款。",
 
   "roadmap.horizon.buy.eyebrow": "最佳真实结果",
-  "roadmap.horizon.buy.title": "Scout 比价与购买",
+  "roadmap.horizon.buy.title": "比价与购买",
   "roadmap.horizon.buy.summary":
     "比较买家实际得到的结果——而不是最吸引眼球的标题数字——然后通过官方场所继续。",
   "roadmap.horizon.buy.outcome": "找到最佳可信路径并打开结账",
@@ -293,7 +293,7 @@ export const roadmap: Record<string, string> = {
   "roadmap.horizon.buy.signal2": "信誉",
   "roadmap.horizon.buy.signal3": "官方交接",
   "roadmap.horizon.buy.boundary":
-    "ChainScout 负责准备和解释。Uniswap 或商家掌握签名、支付详情、履约和执行。",
+    "Opsis 负责准备和解释。Uniswap 或商家掌握签名、支付详情、履约和执行。",
 
   "roadmap.horizon.trust.eyebrow": "实体 + 数字证明",
   "roadmap.horizon.trust.title": "信任与实体数字顾问",
@@ -330,7 +330,7 @@ export const roadmap: Record<string, string> = {
     "买入价格、钱包分组、备注、照片和盈亏都加密保存在设备上。",
   "roadmap.privacy.promises.clearPermission.title": "明确许可",
   "roadmap.privacy.promises.clearPermission.body":
-    "在发起 AI 请求之前，ChainScout 会展示将离开保险库的确切公开事实。",
+    "在发起 AI 请求之前，Opsis 会展示将离开保险库的确切公开事实。",
   "roadmap.privacy.promises.minimalFootprint.title": "最小足迹",
   "roadmap.privacy.promises.minimalFootprint.body":
     "私密模式无需账户、助记词、广告追踪器或永久服务器端投资组合。",
@@ -338,7 +338,7 @@ export const roadmap: Record<string, string> = {
   "roadmap.privacy.promises.deleteAnytime.body":
     "一个明确的操作即可移除本地保险库、记住的钱包、照片、缓存和加密密钥。",
 
-  "roadmap.hero.badge": "CHAINSCOUT 产品路线图",
+  "roadmap.hero.badge": "OPSIS 产品路线图",
   "roadmap.hero.train": "R01-R10 / 工程序列",
   "roadmap.hero.titleLine1": "从浏览器，",
   "roadmap.hero.titleLine2": "到知情的行动。",
@@ -371,13 +371,13 @@ export const roadmap: Record<string, string> = {
   "roadmap.utility.doableEyebrow": "设计上可落地",
   "roadmap.utility.doableTitle": "是适配器，而不是一个巨型爬虫。",
   "roadmap.utility.doableBody":
-    "从链上状态和官方 API 开始。加入经批准的市场的集成、选择加入的 WooCommerce 产品数据、商家提交的数据源，以及获准的 Product/Offer 元数据。每个适配器都会报告时效，并且可以独立失败，而不会拖垮 ChainScout 的其他部分。",
+    "从链上状态和官方 API 开始。加入经批准的市场的集成、选择加入的 WooCommerce 产品数据、商家提交的数据源，以及获准的 Product/Offer 元数据。每个适配器都会报告时效，并且可以独立失败，而不会拖垮 Opsis 的其他部分。",
 
   "roadmap.privacySection.eyebrow": "版本 02—03 / 保险库隐私模型",
   "roadmap.privacySection.titleLine1": "生而私密。",
   "roadmap.privacySection.titleLine2": "默认好用。",
   "roadmap.privacySection.intro":
-    "投资组合应当让人感到知情和掌控——而不是被监视。保险库旨在将敏感的所有权上下文留在设备上，同时 ChainScout 处理公开资产事实。",
+    "投资组合应当让人感到知情和掌控——而不是被监视。保险库旨在将敏感的所有权上下文留在设备上，同时 Opsis 处理公开资产事实。",
   "roadmap.privacySection.designTarget":
     "设计目标 / 每项保护都必须通过其版本关卡",
   "roadmap.privacySection.receiptEyebrow": "你的隐私凭据",
@@ -397,7 +397,7 @@ export const roadmap: Record<string, string> = {
   "roadmap.privacySection.reviewable": "清晰 / 可审查",
   "roadmap.privacySection.trustEyebrow": "信任钩子",
   "roadmap.privacySection.trustTitle":
-    "ChainScout 了解这些资产。它不需要知道哪些资产是你的。",
+    "Opsis 了解这些资产。它不需要知道哪些资产是你的。",
   "roadmap.privacySection.badge.vault": "加密保险库",
   "roadmap.privacySection.badge.noAccount": "无账户",
   "roadmap.privacySection.badge.noTrackers": "无追踪器",
@@ -416,11 +416,11 @@ export const roadmap: Record<string, string> = {
   "roadmap.protocol.identityRule.label": "身份规则",
   "roadmap.protocol.identityRule.value":
     "没有销售门槛或要求 KYB 的提供商。",
-  "roadmap.protocol.brand": "CHAINSCOUT / ROBINHOOD CHAIN",
+  "roadmap.protocol.brand": "OPSIS / ROBINHOOD CHAIN",
   "roadmap.protocol.tagline": "在这里理解。在官方工具中执行。",
   "roadmap.protocol.cta": "探索当前版本",
 
-  "roadmap.footer.copyright": "© ChainScout, 2026",
+  "roadmap.footer.copyright": "© Opsis, 2026",
   "roadmap.footer.workflow": "构建 / 测试 / 标记 / 合并",
   "roadmap.footer.terms": "条款",
   "roadmap.footer.privacy": "隐私",

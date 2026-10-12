@@ -1,6 +1,6 @@
 import { OPSIS_PRESENTATION } from "../opsis/presentation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getScoutSwapQuote, type ScoutSwapQuote, type SwapDirection } from "../swap/api";
+import { getSwapQuote, type SwapQuote, type SwapDirection } from "../swap/api";
 import { LocalHistory, SavedConversation } from "../private/LocalHistory";
 import { useLocalHistory } from "../private/useLocalHistory";
 import { useI18n } from "../i18n";
@@ -12,7 +12,7 @@ export default function TradeSimulator() {
   const { t } = useI18n();
   const [direction, setDirection] = useState<SwapDirection>("WETH_TO_USDG");
   const [amount, setAmount] = useState("0.01"), [weth, setWeth] = useState(""), [usdg, setUsdg] = useState(""), [reference, setReference] = useState("");
-  const [quote, setQuote] = useState<ScoutSwapQuote | null>(null), [error, setError] = useState("");
+  const [quote, setQuote] = useState<SwapQuote | null>(null), [error, setError] = useState("");
   const [busy, setBusy] = useState(false), [clock, setClock] = useState(() => Date.now());
   const [deadline, setDeadline] = useState(0), [monotonic, setMonotonic] = useState(0);
   const [saved, setSaved] = useState<VaultConversation | null>(null);
@@ -41,7 +41,7 @@ export default function TradeSimulator() {
       units(inputs.weth); units(inputs.usdg); if (units(inputs.reference) <= 0n) throw new Error(t("trade.simulator.errorReference")); if (units(inputs.amount) <= 0n) throw new Error(t("trade.simulator.errorAmount"));
       if (units(inputs.amount) > units(inputs.direction === "WETH_TO_USDG" ? inputs.weth : inputs.usdg)) throw new Error(t("trade.error.insufficientBalance"));
       setBusy(true);
-      const next = await getScoutSwapQuote({ direction: inputs.direction, amount: inputs.amount }, controller.signal, true);
+      const next = await getSwapQuote({ direction: inputs.direction, amount: inputs.amount }, controller.signal, true);
       if (!controller.signal.aborted) { const received = performance.now(); setDeadline(received + next.freshForMs); setMonotonic(received); setClock(Date.now()); setQuote(next); }
     } catch (failure) { if (!controller.signal.aborted) setError(failure instanceof Error ? failure.message : t("trade.simulator.errorUnavailable")); }
     finally { if (!controller.signal.aborted) setBusy(false); }

@@ -1,5 +1,5 @@
 export const watch = {
-  "watch.title": "Scout Watch",
+  "watch.title": "观察",
   "watch.headline": "关注钱包。看清变化。",
   "watch.intro":
     "私密保存 Robinhood Chain 钱包关注列表。下次查询时，直接查看变化，不必重新梳理一堆数字。",
@@ -18,7 +18,7 @@ export const watch = {
   "watch.lock": "锁定关注列表",
   "watch.backup": "导出加密备份",
   "watch.backupReady": "加密备份已准备好，请妥善保管。",
-  "watch.manageVault": "恢复备份或管理保险库",
+  "watch.manageVault": "打开已保存以恢复或管理加密存储",
   "watch.storageNote":
     "仅保存在本地：请使用同一浏览器和网站。清除网站数据或浏览器回收存储可能导致数据丢失，请导出备份。离开标签页或闲置 10 分钟后自动锁定。",
   "watch.recoveryTitle": "保存恢复密钥",
@@ -32,7 +32,7 @@ export const watch = {
   "watch.sampleLabel": "公开示例 · 未验证身份",
   "watch.save": "保存钱包并查询",
   "watch.disclosure":
-    "本次查询仅向 ChainScout、dRPC Robinhood Chain 网关和 Blockscout 发送公开地址。dRPC 是付费网关，可能会将每次读取路由到其网络中的独立节点运营方。私密标签和已保存历史留在本设备上。不使用 AI 模型、不签名、不在后台轮询。",
+    "本次查询仅向 Opsis、dRPC Robinhood Chain 网关和 Blockscout 发送公开地址。dRPC 是付费网关，可能会将每次读取路由到其网络中的独立节点运营方。私密标签和已保存历史留在本设备上。不使用 AI 模型、不签名、不在后台轮询。",
   "watch.consent": "允许本次公开地址查询",
   "watch.working": "正在查询并加密…",
   "watch.savedBaseline": "基准已保存。稍后刷新，对比更新区块的数据。",
@@ -89,7 +89,7 @@ export const watch = {
   "watch.addressLink": "查看地址证据",
   "watch.follow.wallet": "关注此钱包",
   "watch.follow.publicAddress": "关注此公开地址",
-  "watch.follow.aria": "在 Scout Watch 中关注 {address}",
+  "watch.follow.aria": "在 观察 中关注 {address}",
   "watch.prefill.waiting":
     "有一个公开地址（{address}）等待关注。解锁或创建您的保险库以继续——目前不会查询或保存任何内容。",
   "watch.explore": "解读此钱包",
@@ -124,30 +124,30 @@ export const watch = {
   "watch.error.storage": "本地加密存储不可用。请检查浏览器存储权限后重试。",
   "watch.error.locked": "操作完成前关注列表已锁定。",
   "watch.error.refresh": "本次查询未完成，已有快照已保留，请稍后重试。",
-  "watch.error.disabled": "Scout Watch 暂时不可用。加密关注列表未变。",
-  "watch.metadata.title": "Scout Watch | 私密钱包关注列表 | ChainScout",
+  "watch.error.disabled": "观察 暂时不可用。加密关注列表未变。",
+  "watch.metadata.title": "观察 | 私密钱包关注列表 | Opsis",
   "watch.metadata.description":
     "私密保存 Robinhood Chain 钱包，对比手动查询之间的精确余额变化和新发现的活动。",
-  "product.feature.scout-watch.label": "Scout Watch",
-  "product.feature.scout-watch.shortLabel": "关注列表",
-  "product.feature.scout-watch.helpLabel": "关于 Scout Watch",
-  "product.feature.scout-watch.eyebrow": "私密关注列表 · 手动查询",
-  "product.feature.scout-watch.navHint": "查看钱包发生了什么变化",
-  "product.feature.scout-watch.summary":
+  "product.feature.watch.label": "观察",
+  "product.feature.watch.shortLabel": "观察",
+  "product.feature.watch.helpLabel": "关于观察",
+  "product.feature.watch.eyebrow": "私密关注列表 · 手动查询",
+  "product.feature.watch.navHint": "查看钱包发生了什么变化",
+  "product.feature.watch.summary":
     "在本地保存钱包，对比变化、浏览动态汇总并发现共同持有的代币。",
-  "product.feature.scout-watch.bestFor":
+  "product.feature.watch.bestFor":
     "再次查看关注的钱包，无需重新整理之前的信息。",
-  "product.feature.scout-watch.privacy":
+  "product.feature.watch.privacy":
     "标签及每个钱包的三次快照加密保存在本地保险库。经许可刷新时仅发送公开地址。",
-  "product.feature.scout-watch.boundary":
+  "product.feature.watch.boundary":
     "手动、有限样本、非最终确认的查询。不是持续提醒、交易意图判断、利润追踪或安全结论。",
-  "product.feature.scout-watch.step.1":
+  "product.feature.watch.step.1":
     "直接在 Watch 页面创建或解锁加密关注列表。",
-  "product.feature.scout-watch.step.2":
+  "product.feature.watch.step.2":
     "粘贴 Robinhood 钱包地址，查看公开查询说明并保存基准。",
-  "product.feature.scout-watch.step.3":
+  "product.feature.watch.step.3":
     "稍后刷新以对比精确余额，或打开动态汇总和共同持仓，一起查看已保存的检查。",
-  "product.feature.scout-watch.step.4":
+  "product.feature.watch.step.4":
     "导出加密备份；关注列表仅保存在当前浏览器和网站。",
   "watch.briefing.title": "关注列表概览",
   "watch.briefing.badge": "本地 · 手动",

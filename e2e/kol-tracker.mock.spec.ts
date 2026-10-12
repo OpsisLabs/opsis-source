@@ -5,7 +5,7 @@ import { APP_ORIGIN } from "./support/origin";
 const enabled = process.env.VITE_KOL_TRACKER_ENABLED === "true";
 test.beforeEach(async ({ context, page }) => {
   await context.addCookies([
-    { name: "chainscout_product_tour_seen_v1", value: "1", url: APP_ORIGIN },
+    { name: "opsis_product_tour_seen_v1", value: "1", url: APP_ORIGIN },
   ]);
   await page.emulateMedia({ reducedMotion: "reduce" });
 });
@@ -150,7 +150,7 @@ test("kol tracker coherent leaderboard to profile to source, paper P&L and recei
   );
   await page.getByLabel("Paper stake per call").selectOption("100");
   await expect(page.locator(".kol-profile-metrics")).toContainText("+$8.44");
-  await page.getByRole("button", { name: "Scout brief", exact: true }).click();
+  await page.getByRole("button", { name: "Opsis brief", exact: true }).click();
   await page
     .getByRole("button", { name: "What can I measure?", exact: true })
     .click();
@@ -184,7 +184,7 @@ test("kol tracker coherent leaderboard to profile to source, paper P&L and recei
   await page.getByRole("button", { name: "Export", exact: true }).click();
   const file = await download;
   expect(file.suggestedFilename()).toBe(
-    "chainscout-call-2090108668930830569.json",
+    "opsis-call-2090108668930830569.json",
   );
   const exported = JSON.parse(await readFile((await file.path())!, "utf8"));
   expect(exported.actualWalletPnl).toBeNull();
@@ -562,7 +562,7 @@ test("kol tracker premium call feed, chosen comparisons and activity drilldown a
   await expect(page.locator(".kol-history-item")).toHaveCount(1);
   await page.getByRole("button", { name: "Clear date", exact: true }).click();
   await expect(page.locator(".kol-history-item")).toHaveCount(11);
-  await page.getByRole("button", { name: "Scout brief", exact: true }).click();
+  await page.getByRole("button", { name: "Opsis brief", exact: true }).click();
   await page
     .getByRole("button", { name: "What is missing?", exact: true })
     .click();
@@ -615,7 +615,7 @@ test("kol tracker premium encrypted device save survives reload and rejects wron
   const encrypted = await page.evaluate(
     () =>
       new Promise<string>((resolve, reject) => {
-        const request = indexedDB.open("chainscout-kol-research", 1);
+        const request = indexedDB.open("opsis-kol-research", 1);
         request.onsuccess = () => {
           const db = request.result;
           const tx = db.transaction("workspace", "readonly");
@@ -714,6 +714,6 @@ test("kol tracker premium storage failure preserves file backup and makes no per
     .getByRole("button", { name: "Download backup", exact: true })
     .click();
   expect((await download).suggestedFilename()).toBe(
-    "chainscout-kol-workspace.encrypted.json",
+    "opsis-kol-workspace.encrypted.json",
   );
 });

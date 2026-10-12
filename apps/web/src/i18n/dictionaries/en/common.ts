@@ -39,52 +39,52 @@ export const common = {
   "common.value.unknownNotZero": "Unknown — not zero",
   "common.units.eth": "ETH",
   "common.brand.tagline": "Your private workspace",
-  "common.brand.name": "ChainScout",
-  "metadata.home.title": "ChainScout — Private Multi-Asset Command Center",
+  "common.brand.name": "Opsis",
+  "metadata.home.title": "Opsis — Private Multi-Asset Command Center",
   "metadata.home.description":
     "Track crypto, NFTs, tokenized assets, Pokémon cards, collectibles, and anything else in one encrypted local Vault—then inspect source-linked Robinhood Chain activity.",
-  "metadata.explorer.title": "Private Explorer | ChainScout",
+  "metadata.explorer.title": "Research | Opsis",
   "metadata.explorer.description":
     "Explain a public Robinhood Chain wallet, transaction, token, or contract with source-linked evidence—without connecting a wallet or creating an account.",
-  "metadata.vault.title": "Encrypted Asset Vault | ChainScout",
+  "metadata.vault.title": "Saved | Opsis",
   "metadata.vault.description":
     "Track crypto, NFTs, tokenized assets, cards, collectibles, purchase lots, photos, and dated values in an encrypted browser-local Vault.",
-  "metadata.rwa.title": "RWA Verify | ChainScout",
+  "metadata.rwa.title": "Stock-token check | Opsis",
   "metadata.rwa.description":
     "Review source-linked Robinhood Chain tokenized-asset identity, custody, oracle, yield, and redemption evidence with explicit limitations.",
-  "metadata.swap.title": "Scout Swap Preview | ChainScout",
+  "metadata.swap.title": "Swap preview | Opsis",
   "metadata.swap.description":
     "Preview a current Robinhood Chain swap route, simulation, price impact, and network cost before handing execution to the official Uniswap app.",
-  "metadata.simulator.title": "Trade Simulator | ChainScout",
+  "metadata.simulator.title": "Trade scenarios | Opsis",
   "metadata.simulator.description":
     "Compare private what-if trade scenarios and their portfolio effects from a fresh quote without executing anything.",
-  "metadata.guide.title": "Feature Guide | ChainScout",
+  "metadata.guide.title": "Find your tool | Opsis",
   "metadata.guide.description":
-    "Follow clear workflows for ChainScout's private Explorer, encrypted Vault, portfolio tools, RWA verification, and read-only swap previews.",
-  "metadata.docs.title": "Technical Docs | ChainScout",
+    "Follow clear workflows for Opsis's Research, encrypted Vault, portfolio tools, Stock-token check, and read-only swap previews.",
+  "metadata.docs.title": "Technical Docs | Opsis",
   "metadata.docs.description":
-    "Read how ChainScout handles public chain data, citations, encrypted browser-local records, provider boundaries, and read-only transaction previews.",
-  "metadata.faq.title": "FAQ | ChainScout",
+    "Read how Opsis handles public chain data, citations, encrypted browser-local records, provider boundaries, and read-only transaction previews.",
+  "metadata.faq.title": "FAQ | Opsis",
   "metadata.faq.description":
-    "Answers about ChainScout privacy, wallet connections, encrypted Vault storage, public data sources, asset coverage, and safety boundaries.",
-  "metadata.roadmap.title": "Product Roadmap | ChainScout",
+    "Answers about Opsis privacy, wallet connections, encrypted Vault storage, public data sources, asset coverage, and safety boundaries.",
+  "metadata.roadmap.title": "Product Roadmap | Opsis",
   "metadata.roadmap.description":
-    "Explore ChainScout's reviewed product roadmap and the release gates behind its private, read-only multi-asset workspace.",
-  "metadata.privacy.title": "Privacy Policy | ChainScout",
+    "Explore Opsis's reviewed product roadmap and the release gates behind its private, read-only multi-asset workspace.",
+  "metadata.privacy.title": "Privacy Policy | Opsis",
   "metadata.privacy.description":
-    "Understand what ChainScout processes, what stays encrypted in your browser, what reaches public providers, and how optional account data can be removed.",
-  "metadata.terms.title": "Terms of Use | ChainScout",
+    "Understand what Opsis processes, what stays encrypted in your browser, what reaches public providers, and how optional account data can be removed.",
+  "metadata.terms.title": "Terms of Use | Opsis",
   "metadata.terms.description":
-    "Review the terms and limitations for ChainScout's informational, read-only, non-custodial tools.",
-  "metadata.developers.title": "Open Data API | ChainScout",
+    "Review the terms and limitations for Opsis's informational, read-only, non-custodial tools.",
+  "metadata.developers.title": "Open Data API | Opsis",
   "metadata.developers.description":
-    "Review ChainScout's bounded public support registry and syntax-normalization API when the developer surface is enabled.",
-  "metadata.login.title": "Sign In | ChainScout",
+    "Review Opsis's bounded public support registry and syntax-normalization API when the developer surface is enabled.",
+  "metadata.login.title": "Sign In | Opsis",
   "metadata.login.description":
-    "Optionally sign in to a ChainScout cloud workspace using a wallet message signature or account credentials.",
-  "metadata.register.title": "Create Account | ChainScout",
+    "Optionally sign in to a Opsis cloud workspace using a wallet message signature or account credentials.",
+  "metadata.register.title": "Create Account | Opsis",
   "metadata.register.description":
-    "Optionally create a ChainScout cloud workspace; the encrypted browser-local Vault remains separate.",
-  "metadata.cloud.title": "Cloud Workspace | ChainScout",
-  "metadata.cloud.description": "Your optional signed-in ChainScout workspace.",
+    "Optionally create a Opsis cloud workspace; the encrypted browser-local Vault remains separate.",
+  "metadata.cloud.title": "Cloud Workspace | Opsis",
+  "metadata.cloud.description": "Your optional signed-in Opsis workspace.",
 } as const;

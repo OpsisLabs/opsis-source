@@ -2,7 +2,7 @@ export const portfolio = {
   "portfolio.panel.eyebrow": "ANCHORED PORTFOLIO LENS",
   "portfolio.panel.titleApprovals": "Know who can move your assets.",
   "portfolio.panel.titleDefault": "One local view of what you own.",
-  "portfolio.panel.description": "Refresh one public Robinhood Chain address on demand. ChainScout captures one current block, verifies every direct read against that exact anchor, rechecks its hash, then encrypts the snapshot, your label, and your reference prices only inside this Vault. The anchor is current, not final.",
+  "portfolio.panel.description": "Refresh one public Robinhood Chain address on demand. Opsis captures one current block, verifies every direct read against that exact anchor, rechecks its hash, then encrypts the snapshot, your label, and your reference prices only inside this Vault. The anchor is current, not final.",
   "portfolio.panel.noAutoRefresh": "NO AUTO-REFRESH · NO WALLET CONNECTION",
   "portfolio.panel.staleSnapshot": "The encrypted snapshot below belongs to {address}. Review and confirm a refresh to replace it with this address.",
 
@@ -21,7 +21,7 @@ export const portfolio = {
   "portfolio.permission.eyebrow": "EXACT NETWORK RECEIPT · CONFIRM BEFORE SENDING",
   "portfolio.permission.sentTitle": "SENT FOR THIS REFRESH",
   "portfolio.permission.sentDerived": "Derived public contract, transaction, token ID, spender + operator identifiers",
-  "portfolio.permission.sentApi": "ChainScout API",
+  "portfolio.permission.sentApi": "Opsis API",
   "portfolio.permission.sentRpc": "dRPC Robinhood Chain gateway",
   "portfolio.permission.sentBlockscout": "Blockscout discovery",
   "portfolio.permission.staysTitle": "STAYS ENCRYPTED IN THIS BROWSER",
@@ -29,18 +29,18 @@ export const portfolio = {
   "portfolio.permission.staysOtherAddresses": "Other saved addresses",
   "portfolio.permission.staysLots": "Lots and purchase prices",
   "portfolio.permission.staysPrivate": "Notes, photos, Vault ID and passphrase",
-  "portfolio.permission.disclosure": "The address is public chain data, but its association with you can be sensitive. Blockscout receives the address for discovery; the dRPC Robinhood Chain gateway receives the address plus derived public contract, transaction, token ID, spender, and operator identifiers needed for exact reads at one captured current block. dRPC is a paid gateway that may route each read to an independent node operator in its network. This anchor is not final and can reorganize after the response; ChainScout rechecks its hash before returning. The RPC gateway is rate-limited, so ChainScout fails closed and keeps your last encrypted local snapshot when it is unavailable. ChainScout does not save the query or response, and no AI model receives the portfolio.",
+  "portfolio.permission.disclosure": "The address is public chain data, but its association with you can be sensitive. Blockscout receives the address for discovery; the dRPC Robinhood Chain gateway receives the address plus derived public contract, transaction, token ID, spender, and operator identifiers needed for exact reads at one captured current block. dRPC is a paid gateway that may route each read to an independent node operator in its network. This anchor is not final and can reorganize after the response; Opsis rechecks its hash before returning. The RPC gateway is rate-limited, so Opsis fails closed and keeps your last encrypted local snapshot when it is unavailable. Opsis does not save the query or response, and no AI model receives the portfolio.",
   "portfolio.permission.verifying": "VERIFYING ONE BLOCK…",
   "portfolio.permission.confirm": "CONFIRM ONE-TIME REFRESH",
   "portfolio.permission.cancel": "CANCEL · SEND NOTHING",
 
-  "portfolio.receipt.disclosure": "Blockscout receives this public address for discovery. The dRPC Robinhood Chain gateway receives the address plus derived public contract, transaction, token ID, spender, and operator identifiers needed for exact reads at one captured current block. dRPC is a paid gateway that may route each read to an independent node operator in its network. This anchor is not final; ChainScout rechecks its hash before returning. The RPC gateway is rate-limited and may be unavailable, so ChainScout keeps the last encrypted local snapshot.",
+  "portfolio.receipt.disclosure": "Blockscout receives this public address for discovery. The dRPC Robinhood Chain gateway receives the address plus derived public contract, transaction, token ID, spender, and operator identifiers needed for exact reads at one captured current block. dRPC is a paid gateway that may route each read to an independent node operator in its network. This anchor is not final; Opsis rechecks its hash before returning. The RPC gateway is rate-limited and may be unavailable, so Opsis keeps the last encrypted local snapshot.",
 
   "portfolio.notice.refreshVerified": "Anchored current snapshot verified and encrypted inside this local Vault.",
-  "portfolio.notice.priceSaved": "Reference price encrypted locally. It was not sent to ChainScout or a provider.",
+  "portfolio.notice.priceSaved": "Reference price encrypted locally. It was not sent to Opsis or a provider.",
   "portfolio.notice.labelSaved": "Wallet label encrypted locally. It never crossed the network.",
 
-  "portfolio.error.invalidSnapshot": "ChainScout returned an invalid portfolio snapshot",
+  "portfolio.error.invalidSnapshot": "Opsis returned an invalid portfolio snapshot",
   "portfolio.error.receiptSaveFailed": "The encrypted permission receipt could not be saved, so nothing was sent. Unlock again before retrying.",
   "portfolio.error.snapshotSaveFailed": "The address was sent and the anchored refresh completed, but the encrypted snapshot save failed. Your prior snapshot remains unchanged; the encrypted attempt receipt was kept.",
   "portfolio.error.snapshotUnverified": "The anchored portfolio snapshot could not be verified.",
@@ -84,7 +84,7 @@ export const portfolio = {
   "portfolio.activity.partialDecode": " · PARTIAL DECODE",
 
   "portfolio.approvals.eyebrow": "APPROVALS FOUND IN THIS WINDOW",
-  "portfolio.approvals.description": "This is not a complete approval inventory. ChainScout checks only approval targets discovered in the bounded fetched activity, then reads their state at the same captured current block.",
+  "portfolio.approvals.description": "This is not a complete approval inventory. Opsis checks only approval targets discovered in the bounded fetched activity, then reads their state at the same captured current block.",
   "portfolio.approvals.empty": "No approval target was confirmed in this window.",
   "portfolio.approvals.activeBroadAccess": "ACTIVE BROAD ACCESS",
   "portfolio.approvals.active": "ACTIVE",
@@ -116,6 +116,6 @@ export const portfolio = {
 
   "portfolio.math.gainNoReference": "Add a local reference price to estimate value.",
   "portfolio.math.gainNoAsset": "Link a Vault asset by contract, ETH, or contract:tokenId to compare cost.",
-  "portfolio.math.gainMismatch": "Onchain quantity and entered lots do not match; ChainScout will not invent a disposal method.",
+  "portfolio.math.gainMismatch": "Onchain quantity and entered lots do not match; Opsis will not invent a disposal method.",
   "portfolio.math.gainMixedCurrency": "Cost basis is missing or uses a different/mixed currency.",
 } as const;

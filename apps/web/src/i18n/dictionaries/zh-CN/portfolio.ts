@@ -2,7 +2,7 @@ export const portfolio: Record<string, string> = {
   "portfolio.panel.eyebrow": "锚定投资组合透视",
   "portfolio.panel.titleApprovals": "看清谁能动用你的资产。",
   "portfolio.panel.titleDefault": "本地一览你持有的资产。",
-  "portfolio.panel.description": "按需刷新一个公开的 Robinhood Chain 地址。ChainScout 会捕获一个当前区块，依据该确切锚点核验每一次直接读取，重新检查其哈希，然后仅在本地保险库中加密快照、你的标签和你的参考价格。该锚点是当前状态，而非最终状态。",
+  "portfolio.panel.description": "按需刷新一个公开的 Robinhood Chain 地址。Opsis 会捕获一个当前区块，依据该确切锚点核验每一次直接读取，重新检查其哈希，然后仅在本地保险库中加密快照、你的标签和你的参考价格。该锚点是当前状态，而非最终状态。",
   "portfolio.panel.noAutoRefresh": "无自动刷新 · 不连接钱包",
   "portfolio.panel.staleSnapshot": "下方加密快照属于 {address}。请查看并确认刷新，以将其替换为此地址。",
 
@@ -21,7 +21,7 @@ export const portfolio: Record<string, string> = {
   "portfolio.permission.eyebrow": "精确网络凭据 · 发送前确认",
   "portfolio.permission.sentTitle": "本次刷新发送的内容",
   "portfolio.permission.sentDerived": "派生的公开合约、交易、代币 ID、支出方 + 操作方标识符",
-  "portfolio.permission.sentApi": "ChainScout API",
+  "portfolio.permission.sentApi": "Opsis API",
   "portfolio.permission.sentRpc": "dRPC Robinhood Chain gateway",
   "portfolio.permission.sentBlockscout": "Blockscout 发现",
   "portfolio.permission.staysTitle": "保留在此浏览器中加密",
@@ -29,18 +29,18 @@ export const portfolio: Record<string, string> = {
   "portfolio.permission.staysOtherAddresses": "其他已保存的地址",
   "portfolio.permission.staysLots": "批次与买入价格",
   "portfolio.permission.staysPrivate": "备注、照片、保险库 ID 和口令",
-  "portfolio.permission.disclosure": "该地址是公开的链上数据，但它与你的关联可能较为敏感。Blockscout 会接收该地址用于发现；dRPC Robinhood Chain 网关会接收该地址，以及在某个捕获的当前区块上进行精确读取所需的派生公开合约、交易、代币 ID、支出方和操作方标识符。dRPC 是付费网关，可能会将每次读取路由到其网络中的独立节点运营方。该锚点并非最终状态，可能在响应后重组；ChainScout 会在返回前重新检查其哈希。该 RPC 网关有速率限制，因此当它不可用时，ChainScout 会故障关闭并保留你上一次的加密本地快照。ChainScout 不会保存查询或响应，也没有任何 AI 模型会接收该投资组合。",
+  "portfolio.permission.disclosure": "该地址是公开的链上数据，但它与你的关联可能较为敏感。Blockscout 会接收该地址用于发现；dRPC Robinhood Chain 网关会接收该地址，以及在某个捕获的当前区块上进行精确读取所需的派生公开合约、交易、代币 ID、支出方和操作方标识符。dRPC 是付费网关，可能会将每次读取路由到其网络中的独立节点运营方。该锚点并非最终状态，可能在响应后重组；Opsis 会在返回前重新检查其哈希。该 RPC 网关有速率限制，因此当它不可用时，Opsis 会故障关闭并保留你上一次的加密本地快照。Opsis 不会保存查询或响应，也没有任何 AI 模型会接收该投资组合。",
   "portfolio.permission.verifying": "正在核验一个区块…",
   "portfolio.permission.confirm": "确认一次性刷新",
   "portfolio.permission.cancel": "取消 · 不发送任何内容",
 
-  "portfolio.receipt.disclosure": "Blockscout 会接收此公开地址用于发现。dRPC Robinhood Chain 网关会接收该地址，以及在某个捕获的当前区块上进行精确读取所需的派生公开合约、交易、代币 ID、支出方和操作方标识符。dRPC 是付费网关，可能会将每次读取路由到其网络中的独立节点运营方。该锚点并非最终状态；ChainScout 会在返回前重新检查其哈希。该 RPC 网关有速率限制，可能不可用，因此 ChainScout 会保留上一次的加密本地快照。",
+  "portfolio.receipt.disclosure": "Blockscout 会接收此公开地址用于发现。dRPC Robinhood Chain 网关会接收该地址，以及在某个捕获的当前区块上进行精确读取所需的派生公开合约、交易、代币 ID、支出方和操作方标识符。dRPC 是付费网关，可能会将每次读取路由到其网络中的独立节点运营方。该锚点并非最终状态；Opsis 会在返回前重新检查其哈希。该 RPC 网关有速率限制，可能不可用，因此 Opsis 会保留上一次的加密本地快照。",
 
   "portfolio.notice.refreshVerified": "已核验锚定的当前快照，并在此本地保险库内加密。",
-  "portfolio.notice.priceSaved": "参考价格已在本地加密。未发送给 ChainScout 或任何提供方。",
+  "portfolio.notice.priceSaved": "参考价格已在本地加密。未发送给 Opsis 或任何提供方。",
   "portfolio.notice.labelSaved": "钱包标签已在本地加密。它从未经过网络传输。",
 
-  "portfolio.error.invalidSnapshot": "ChainScout 返回了无效的投资组合快照",
+  "portfolio.error.invalidSnapshot": "Opsis 返回了无效的投资组合快照",
   "portfolio.error.receiptSaveFailed": "无法保存加密授权凭据，因此未发送任何内容。请重新解锁后再试。",
   "portfolio.error.snapshotSaveFailed": "地址已发送且锚定刷新已完成，但加密快照保存失败。你之前的快照保持不变；加密的尝试凭据已保留。",
   "portfolio.error.snapshotUnverified": "无法核验锚定的投资组合快照。",
@@ -84,7 +84,7 @@ export const portfolio: Record<string, string> = {
   "portfolio.activity.partialDecode": " · 部分解析",
 
   "portfolio.approvals.eyebrow": "此窗口内发现的授权",
-  "portfolio.approvals.description": "这不是完整的授权清单。ChainScout 仅检查在限定范围内已获取活动中发现的授权目标，然后在同一捕获的当前区块读取其状态。",
+  "portfolio.approvals.description": "这不是完整的授权清单。Opsis 仅检查在限定范围内已获取活动中发现的授权目标，然后在同一捕获的当前区块读取其状态。",
   "portfolio.approvals.empty": "在此窗口内未确认任何授权目标。",
   "portfolio.approvals.activeBroadAccess": "有效 · 广泛访问权限",
   "portfolio.approvals.active": "有效",
@@ -116,6 +116,6 @@ export const portfolio: Record<string, string> = {
 
   "portfolio.math.gainNoReference": "添加本地参考价格以估算价值。",
   "portfolio.math.gainNoAsset": "通过合约、ETH 或 contract:tokenId 关联保险库资产，以比较成本。",
-  "portfolio.math.gainMismatch": "链上数量与录入批次不匹配；ChainScout 不会臆造处置方式。",
+  "portfolio.math.gainMismatch": "链上数量与录入批次不匹配；Opsis 不会臆造处置方式。",
   "portfolio.math.gainMixedCurrency": "成本基础缺失，或使用了不同/混合的币种。",
 };

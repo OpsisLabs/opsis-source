@@ -2,7 +2,7 @@ export const collectibles = {
   "collectibles.catalog.eyebrow": "COLLECTIBLE CATALOG",
   "collectibles.catalog.title": "Match the card. Keep ownership private.",
   "collectibles.catalog.description":
-    "TCGdex supplies English card and set identity plus an optional low-resolution catalog thumbnail. ChainScout sanitizes that image locally before it enters the encrypted Vault. Printing or variant, condition, grade, certificate, value, authenticity, and inventory remain owner claims; marketplace prices are not requested.",
+    "TCGdex supplies English card and set identity plus an optional low-resolution catalog thumbnail. Opsis sanitizes that image locally before it enters the encrypted Vault. Printing or variant, condition, grade, certificate, value, authenticity, and inventory remain owner claims; marketplace prices are not requested.",
   "collectibles.providerOriginalLanguage":
     "Card name, set, rarity, and illustrator are shown in the original language supplied by TCGdex.",
   "collectibles.catalog.addWithout": "ADD WITHOUT CATALOG",
@@ -26,7 +26,7 @@ export const collectibles = {
   "collectibles.catalog.detailResolved":
     "Catalog identity resolved. Owner details below remain local and are not verified by TCGdex.",
   "collectibles.catalog.receiptSaveFailed":
-    "The encrypted permission receipt could not be saved, so ChainScout did not contact the catalog.",
+    "The encrypted permission receipt could not be saved, so Opsis did not contact the catalog.",
   "collectibles.catalog.requestFailed":
     "The catalog request failed. The manual Vault path is still available.",
   "collectibles.catalog.collectorNumber": "COLLECTOR #{number}",
@@ -34,15 +34,15 @@ export const collectibles = {
   "collectibles.catalog.truncated":
     "Results are bounded and truncated. Add a set ID or collector number to narrow the lookup.",
   "collectibles.catalog.license":
-    "Community catalog metadata is supplied by TCGdex under its database license. ChainScout is not affiliated with or endorsed by TCGdex, Nintendo, The Pokémon Company, any marketplace, or any grading company. Names and trademarks remain the property of their respective owners.",
+    "Community catalog metadata is supplied by TCGdex under its database license. Opsis is not affiliated with or endorsed by TCGdex, Nintendo, The Pokémon Company, any marketplace, or any grading company. Names and trademarks remain the property of their respective owners.",
   "collectibles.receipt.disclosureSearch":
-    "ChainScout receives the confirmed English card name, optional collector number, and optional set ID. TCGdex receives only the name and optional collector number. Ownership and other private fields remain encrypted in this browser.",
+    "Opsis receives the confirmed English card name, optional collector number, and optional set ID. TCGdex receives only the name and optional collector number. Ownership and other private fields remain encrypted in this browser.",
   "collectibles.receipt.disclosureDetail":
-    "ChainScout and TCGdex receive the selected public card ID. TCGdex returns allowlisted identity metadata and a catalog image path; the browser fetches the low-resolution image directly without cookies or a referrer. Ownership and other private fields remain encrypted in this browser.",
+    "Opsis and TCGdex receive the selected public card ID. TCGdex returns allowlisted identity metadata and a catalog image path; the browser fetches the low-resolution image directly without cookies or a referrer. Ownership and other private fields remain encrypted in this browser.",
   "collectibles.permission.eyebrow": "EXACT NETWORK RECEIPT",
   "collectibles.permission.title": "Confirm this catalog lookup",
   "collectibles.permission.cancelAria": "Cancel catalog lookup",
-  "collectibles.permission.sentToChainScout": "SENT TO CHAINSCOUT",
+  "collectibles.permission.sentToOpsis": "SENT TO OPSIS",
   "collectibles.permission.sentToTcgdex": "SENT TO TCGDEX",
   "collectibles.permission.encryptedTitle": "ENCRYPTED LOCALLY",
   "collectibles.permission.encryptedText":
@@ -136,11 +136,11 @@ export const collectibles = {
   "collectibles.api.englishOnly":
     "Collectible Catalog currently supports English metadata only",
   "collectibles.api.invalidSearch":
-    "ChainScout returned an invalid collectible search response",
+    "Opsis returned an invalid collectible search response",
   "collectibles.api.invalidDetail":
-    "ChainScout returned an invalid collectible detail response",
+    "Opsis returned an invalid collectible detail response",
   "collectibles.api.invalidPrivacy":
-    "ChainScout returned an invalid collectible privacy receipt",
+    "Opsis returned an invalid collectible privacy receipt",
   "collectibles.thumbnail.unavailable": "Catalog thumbnail is unavailable",
   "collectibles.thumbnail.invalidType":
     "Catalog thumbnail has an invalid type",

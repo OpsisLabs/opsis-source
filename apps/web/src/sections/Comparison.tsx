@@ -48,7 +48,7 @@ export default function Comparison() {
             <div className="px-7 py-4 font-mono-d text-[11px] tracking-wider text-[#1d1d1d]/50">COMPARED WITH</div>
             <div />
             <div className="border-l border-[#1d1d1d]/15 px-7 py-4 font-mono-d text-[11px] tracking-wider text-[#1d1d1d]">
-              CHAINSCOUT
+              OPSIS
             </div>
           </div>
           {ROWS.map((r, i) => (

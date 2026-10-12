@@ -1,9 +1,9 @@
 export const rwa = {
-  "rwa.header.home": "ChainScout home",
-  "rwa.header.badge": "RWA VERIFY",
-  "rwa.header.vault": "VAULT",
+  "rwa.header.home": "Opsis home",
+  "rwa.header.badge": "Stock-token check",
+  "rwa.header.vault": "Saved",
   "rwa.header.privateMode": "PRIVATE MODE",
-  "rwa.eyebrow": "RWA Verify · public evidence",
+  "rwa.eyebrow": "Stock-token check · public evidence",
   "rwa.title.line1": "Know what the token",
   "rwa.title.line2": "actually represents.",
   "rwa.description":
@@ -17,7 +17,7 @@ export const rwa = {
   "rwa.disclosure.history.value": "NONE",
   "rwa.disclosure.ai.label": "AI UPLOAD",
   "rwa.disclosure.ai.value": "NONE",
-  "rwa.form.title": "RWA EVIDENCE INSPECTOR",
+  "rwa.form.title": "Stock-token check",
   "rwa.form.network": "ROBINHOOD CHAIN · 4663",
   "rwa.form.addressLabel": "TOKEN OR VAULT CONTRACT",
   "rwa.form.addressPlaceholder": "0x…",
@@ -34,7 +34,7 @@ export const rwa = {
   "rwa.consent.title": "EXACT NETWORK RECEIPT",
   "rwa.consent.cancelAria": "Cancel",
   "rwa.consent.body":
-    "If you continue, this public contract may be sent to ChainScout, Robinhood’s Stock Token API and the dRPC Robinhood Chain gateway, or Morpho’s public API. dRPC is a paid gateway that may route each read to an independent node operator in its network. A matching Stock Token can also cause its derived public Chainlink feed address to be read.",
+    "If you continue, this public contract may be sent to Opsis, Robinhood’s Stock Token API and the dRPC Robinhood Chain gateway, or Morpho’s public API. dRPC is a paid gateway that may route each read to an independent node operator in its network. A matching Stock Token can also cause its derived public Chainlink feed address to be read.",
   "rwa.consent.publicContract": "PUBLIC CONTRACT",
   "rwa.consent.noAccount":
     "No account cookie, wallet connection, AI model, or saved query/result history.",

@@ -97,7 +97,7 @@ test("market lookup and exact landed-cost inputs stay cookie-free and encrypted"
         schemaVersion: 1,
         merchants: [],
         loadedAt: "2026-08-11T12:00:00.000Z",
-        source: "chainscout_reviewed_registry",
+        source: "opsis_reviewed_registry",
         limitations: [],
       }),
     });
@@ -130,7 +130,7 @@ test("market lookup and exact landed-cost inputs stay cookie-free and encrypted"
   await page
     .getByRole("button", { name: "REVIEW EXACT-CONTRACT LOOKUP" })
     .click();
-  await expect(dialog).toContainText("SENT TO CHAINSCOUT");
+  await expect(dialog).toContainText("SENT TO OPSIS");
   await expect(dialog).toContainText("SENT TO DEX SCREENER");
   await expect(dialog).toContainText(contract);
   await dialog.getByRole("button", { name: "SAVE RECEIPT + LOOK UP" }).click();
@@ -273,11 +273,11 @@ test("an approved Woo mapping locks provider facts, accepts only local costs, an
             ],
             permissionReviewedAt: "2026-08-11",
             permissionEvidenceUrl:
-              "https://merchant.example/chainscout-permission/",
+              "https://merchant.example/opsis-permission/",
           },
         ],
         loadedAt: "2026-08-11T12:00:00.000Z",
-        source: "chainscout_reviewed_registry",
+        source: "opsis_reviewed_registry",
         limitations: [],
       }),
     }),
@@ -372,7 +372,7 @@ test("an approved Woo mapping locks provider facts, accepts only local costs, an
     "Exact reviewed SKU CHAR-BASE-4-NM · expected product ID 42",
   );
   await expect(permission).toContainText(
-    "reviewed SKU, expected product ID, and mapping review date go transiently to ChainScout",
+    "reviewed SKU, expected product ID, and mapping review date go transiently to Opsis",
   );
   await page
     .getByRole("dialog")
@@ -801,7 +801,7 @@ async function downloadBuffer(download: Download): Promise<Buffer> {
 
 function backupFile(buffer: Buffer) {
   return {
-    name: "chainscout-market-vault.encrypted.json",
+    name: "opsis-market-vault.encrypted.json",
     mimeType: "application/json",
     buffer,
   };

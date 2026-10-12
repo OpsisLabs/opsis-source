@@ -1,4 +1,4 @@
-/* Scoped adapter for the shipped ChainScout tools. Layout and data logic stay intact. */
+/* Scoped adapter for the shipped Opsis tools. Layout and data logic stay intact. */
 .opsis .opsis-legacy [class~="bg-[#171615]"],
 .opsis .opsis-legacy [class~="!bg-[#171615]"],
 .opsis .opsis-legacy [class*="bg-[#171615]/"],

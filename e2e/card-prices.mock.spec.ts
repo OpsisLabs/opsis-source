@@ -21,7 +21,7 @@ test("card price check preserves exact data and inputs when switching English an
   await page.getByRole("button", { name: "Check Charizard", exact: true }).click();
   await expect(page.getByText("USD 55.50", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Switch language to 简体中文" }).filter({ visible: true }).first().click();
-  await expect(page).toHaveTitle("卡牌价格查询 | ChainScout");
+  await expect(page).toHaveTitle("卡牌价格查询 | Opsis");
   const snapshot = page.getByRole("region", { name: "卡牌价格快照" });
   await expect(snapshot.getByText("USD 55.50", { exact: true })).toBeVisible();
   await expect(snapshot.getByText("市场参考价", { exact: true })).toBeVisible();
@@ -39,7 +39,7 @@ test("card price check preserves exact data and inputs when switching English an
   await expect(page.getByLabel("卡牌名称", { exact: true })).toHaveValue("Pikachu");
   expect(calls).toBe(1);
 });
-test.beforeEach(async ({ page }) => { await page.context().addCookies([{ name: "chainscout_product_tour_seen_v1", value: "1", url: APP_ORIGIN, sameSite: "Strict" }]); });
+test.beforeEach(async ({ page }) => { await page.context().addCookies([{ name: "opsis_product_tour_seen_v1", value: "1", url: APP_ORIGIN, sameSite: "Strict" }]); });
 
 test("card price check is closed by default, including direct links", async ({ page }) => {
   test.skip(enabled, "closed-build check"); let calls = 0;
@@ -54,7 +54,7 @@ test("card price check examples separate currencies, keep all metrics and need n
   await page.route("**/v1/private/cards/prices", async route => { calls.push(route.request().postDataJSON()); await route.fulfill({ json: fixture() }); });
   await page.goto("/");
   await expect(page.getByRole("link", { name: /NEW Card Price Check/ })).toHaveAttribute("href", "/card-prices");
-  await page.goto("/card-prices?cardId=base1-4"); await expect(page).toHaveTitle("Card Price Check | ChainScout"); expect(calls).toEqual([]);
+  await page.goto("/card-prices?cardId=base1-4"); await expect(page).toHaveTitle("Card Price Check | Opsis"); expect(calls).toEqual([]);
   await page.getByRole("button", { name: "Check Charizard", exact: true }).click();
   const snapshot = page.getByRole("region", { name: "Card price snapshot", exact: true });
   await expect(snapshot.getByText("USD 55.50", { exact: true })).toBeVisible();
@@ -70,7 +70,7 @@ test("card price check examples separate currencies, keep all metrics and need n
   for (const width of [320, 390, 1440]) { await page.setViewportSize({ width, height: 1000 }); expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1); }
   const axe = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
   expect(axe.violations.filter(v => ["critical", "serious"].includes(v.impact ?? ""))).toEqual([]);
-  if (process.env.CHAINSCOUT_PRICE_SHOT) await page.screenshot({ path: process.env.CHAINSCOUT_PRICE_SHOT, fullPage: true });
+  if (process.env.OPSIS_PRICE_SHOT) await page.screenshot({ path: process.env.OPSIS_PRICE_SHOT, fullPage: true });
   await page.getByLabel("Card name", { exact: true }).fill("Pikachu"); await expect(snapshot).toHaveCount(0);
   await page.reload(); await expect(snapshot).toHaveCount(0); expect(calls).toEqual([input]); expect(errors).toEqual([]);
 });

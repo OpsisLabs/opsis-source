@@ -18,14 +18,14 @@ export const market: Record<string, string> = {
   "market.crypto.eyebrow": "实时公开背景",
   "market.crypto.title": "Robinhood 代币池",
   "market.crypto.description":
-    "DEX Screener 为交易对的基础代币定价。被搜索的合约可能是报价代币，因此 ChainScout 会明确显示实际定价的地址，绝不悄悄反转。",
+    "DEX Screener 为交易对的基础代币定价。被搜索的合约可能是报价代币，因此 Opsis 会明确显示实际定价的地址，绝不悄悄反转。",
   "market.crypto.contractLabel": "代币合约",
   "market.crypto.contractPlaceholder": "0x…",
   "market.crypto.review": "查看精确合约查询",
-  "market.crypto.summaryChainScout": "Robinhood Chain 4663 · {contract}",
+  "market.crypto.summaryOpsis": "Robinhood Chain 4663 · {contract}",
   "market.crypto.summaryProvider": "Robinhood 代币交易对查询 · {contract}",
   "market.crypto.disclosure":
-    "确切的公开链 ID 和代币合约会临时发送给 ChainScout 和 DEX Screener。所有权、批次、成本、标签、备注、照片、其他资产、Cookie、钱包连接和 AI 均被排除。",
+    "确切的公开链 ID 和代币合约会临时发送给 Opsis 和 DEX Screener。所有权、批次、成本、标签、备注、照片、其他资产、Cookie、钱包连接和 AI 均被排除。",
 
   "market.cryptoObs.eyebrow": "加密观测记录",
   "market.cryptoObs.title": "已索引的资金池背景",
@@ -47,7 +47,7 @@ export const market: Record<string, string> = {
   "market.cryptoObs.showing":
     "此精简视图显示 {total} 条加密的精确合约资金池观测中的 6 条。打开来源以查看更完整的索引列表。",
   "market.cryptoObs.truncated":
-    "提供商返回的集合已达到 ChainScout 观测到的安全上限；可能省略了其他资金池。",
+    "提供商返回的集合已达到 Opsis 观测到的安全上限；可能省略了其他资金池。",
 
   "market.merchant.eyebrow": "仅限选择加入的商家",
   "market.merchant.title": "经审核的 Woo 库存",
@@ -63,12 +63,12 @@ export const market: Record<string, string> = {
   "market.merchant.mappingEvidence": "精确映射证据",
   "market.merchant.review": "查看商家查询",
   "market.merchant.approvedMerchant": "已批准商家 {merchant}",
-  "market.merchant.summaryChainScout":
+  "market.merchant.summaryOpsis":
     "商家 ID {merchant} · 规范资产 {asset} · 已审核 SKU {sku} · 预期商品 ID {productId} · 映射审核于 {reviewedAt}",
   "market.merchant.summaryProvider":
     "确切的已审核 SKU {sku} · 预期商品 ID {productId}",
   "market.merchant.disclosure":
-    "公开的规范资产 ID、已批准商家 ID、已审核 SKU、预期商品 ID 和映射审核日期会临时发送给 ChainScout。只有已审核 SKU 和预期商品 ID 会发送给该选择加入的商家。所有权、批次、成本、标签、备注、照片、其他资产、Cookie、钱包连接和 AI 均被排除。",
+    "公开的规范资产 ID、已批准商家 ID、已审核 SKU、预期商品 ID 和映射审核日期会临时发送给 Opsis。只有已审核 SKU 和预期商品 ID 会发送给该选择加入的商家。所有权、批次、成本、标签、备注、照片、其他资产、Cookie、钱包连接和 AI 均被排除。",
   "market.merchant.returnNotSupplied": "未提供商家退货政策",
 
   "market.merchantObs.eyebrow": "经审核的商家观测记录",
@@ -112,7 +112,7 @@ export const market: Record<string, string> = {
   "market.comparison.eyebrow": "加密本地计算",
   "market.comparison.title": "添加到手成本比较",
   "market.comparison.description":
-    "留空表示未知。成本明确为零时请输入 0。ChainScout 从不估算税费、关税、运费或汇率。",
+    "留空表示未知。成本明确为零时请输入 0。Opsis 从不估算税费、关税、运费或汇率。",
   "market.comparison.providerLocked":
     "商家身份、品相、单价、货币和可用性已锁定为经审核的响应。只有数量和本地成本字段可以更改。",
   "market.comparison.linkedAsset": "关联资产",
@@ -162,7 +162,7 @@ export const market: Record<string, string> = {
   "market.dialog.eyebrow": "精确网络凭据",
   "market.dialog.title": "确认此公开查询",
   "market.dialog.cancelAria": "取消市场查询",
-  "market.dialog.sentToChainScout": "发送至 CHAINSCOUT",
+  "market.dialog.sentToOpsis": "发送至 OPSIS",
   "market.dialog.sentToProviders": "发送至 {providers}",
   "market.dialog.disclosureTail":
     "加密的授权尝试会在请求之前保存。已索引的市场信息并非可执行报价、完整库存、估价或推荐。",
@@ -187,11 +187,11 @@ export const market: Record<string, string> = {
     "本人录入的报价已加密保存。在此解锁会话中，它只会与具有相同关联身份、货币、品相、数量和地区的完整比较进行排名。",
   "market.notice.comparisonRemoved": "所选的本地比较已从加密保险库中删除。",
   "market.notice.reconfirmed":
-    "你已为当前解锁会话重新确认此本人录入的报价。ChainScout 未联系其来源。",
+    "你已为当前解锁会话重新确认此本人录入的报价。Opsis 未联系其来源。",
 
   "market.error.directoryLoad": "无法加载已批准的商家目录。",
   "market.error.receiptSave":
-    "无法保存加密的授权凭据。{message} ChainScout 未联系任何市场提供商。",
+    "无法保存加密的授权凭据。{message} Opsis 未联系任何市场提供商。",
   "market.error.providerLocalSave":
     "提供商返回了结果，且已发送经批准的公开标识符，但{reason} 结果未持久化；先前加密的观测保持不变。",
   "market.error.requestFailed":
@@ -209,7 +209,7 @@ export const market: Record<string, string> = {
   "market.handoff.eyebrow": "不支持的平台",
   "market.handoff.title": "精确的仅点击搜索",
   "market.handoff.description":
-    "这些链接仅包含公开的卡牌身份。ChainScout 不会从目标站点抓取、预加载、排名或声称其库存。打开前请核对确切的查询内容。",
+    "这些链接仅包含公开的卡牌身份。Opsis 不会从目标站点抓取、预加载、排名或声称其库存。打开前请核对确切的查询内容。",
   "market.handoff.collectibleLabel": "加密收藏品",
   "market.handoff.chooseCollectible": "选择目录匹配的收藏品",
   "market.handoff.searchOnly": "仅搜索 · 无实时数据",

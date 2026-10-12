@@ -61,7 +61,7 @@ const EVIDENCE = [
 
 const ADAPTERS = [
   { id: "privateExplorer", badge: "PR", gated: false },
-  { id: "scoutSwap", badge: "SC", gated: false },
+  { id: "swapPreview", badge: "SC", gated: false },
   { id: "portfolio", badge: "PO", gated: false },
   { id: "rwaVerify", badge: "RW", gated: false },
   { id: "collectibles", badge: "CO", gated: !COLLECTIBLE_CATALOG_ENABLED },
@@ -165,9 +165,6 @@ export default function TechnicalDocs() {
               {t("docs.header.description")}
             </p>
             <div className="mt-8 flex flex-wrap gap-2">
-              <a href="https://github.com/ChainScoutAi/chainscout-source" target="_blank" rel="noreferrer" className="clip-btn-sm inline-flex items-center gap-2 bg-[#fa6c34] px-5 py-3 font-mono-d text-[9px] font-semibold tracking-[0.1em] text-[#1d1d1d] hover:bg-[#ff7c48]">
-                {t("docs.header.viewSource")} <ExternalLink size={12} />
-              </a>
               <Link to="/faq" className="inline-flex items-center gap-2 border border-[#484848] px-5 py-3 font-mono-d text-[9px] tracking-[0.1em] text-[#c7bdb0] hover:border-[#fa6c34] hover:text-[#f0e8da]">
                 {t("docs.header.readFaq")} <ArrowRight size={12} />
               </Link>

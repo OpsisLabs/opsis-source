@@ -283,7 +283,7 @@ export default function PrivateExplorer() {
   );
   const nextGoals = result ? goalsForEntity(result.entity.type) : [];
   const follow =
-    result && isProductFeatureEnabled("scout-watch")
+    result && isProductFeatureEnabled("watch")
       ? followTargetsFor(result)
       : { primary: null, participants: [] };
   const visibleParticipants = follow.participants.slice(
@@ -311,7 +311,7 @@ export default function PrivateExplorer() {
             <img src="/logo.svg" alt="" className="h-5 w-5" />
           </span>
           <span className="hidden font-mono-d text-[11px] tracking-[0.14em] text-[#d6ccba] sm:block">
-            CHAINSCOUT
+            OPSIS
           </span>
         </Link>
         <div className="mx-auto flex items-center gap-2 font-mono-d text-[9.5px] tracking-[0.14em] text-[#7fb069] sm:text-[10.5px]">

@@ -1,12 +1,12 @@
 import { isAddress } from "viem";
 
 /**
- * Chain-aware "Follow this wallet" contract shared by the Private Explorer and
- * later workers (for example the Biggest Trades worker). This module is pure and
+ * Chain-aware "Follow this wallet" contract shared by the Research and
+ * later workers (for example the Big trades worker). This module is pure and
  * has no React, provider or Vault dependency so any surface can reuse it.
  *
  * Honesty rules:
- * - Only a syntactically valid EVM address on a chain Scout Watch supports can
+ * - Only a syntactically valid EVM address on a chain Watch supports can
  *   be followed.
  * - The zero address and the dead/burn address are never followed.
  * - A known contract is never followed. Address objects that explicitly carry

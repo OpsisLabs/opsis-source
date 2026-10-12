@@ -7,7 +7,7 @@ test("portfolio stress test closed by default", async ({ page }) => {
   await page.goto("/stress-test");
   await expect(page).toHaveURL(/\/guide$/);
   await expect(page.locator(".stress-page")).toHaveCount(0);
-  await expect(page.getByRole("link", { name: /Stress Test/ })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: /Portfolio shocks/ })).toHaveCount(0);
 });
 
 test("portfolio stress test instantly compares allocation and price moves without a wallet or provider", async ({
@@ -146,7 +146,7 @@ test("portfolio stress test exports a CSP-compatible image and invalidates old p
   const download = page.waitForEvent("download");
   await page.getByRole("link", { name: "Download image" }).click();
   expect((await download).suggestedFilename()).toBe(
-    "chainscout-stress-test.png",
+    "opsis-stress-test.png",
   );
   await page.getByLabel("Include total portfolio values in the image").check();
   await expect(preview).toHaveCount(0);
@@ -784,7 +784,7 @@ test("portfolio stress test clears imported values when the Vault locks in anoth
   const other = await context.newPage();
   await other.goto("/guide");
   await other.evaluate(() => {
-    const bus = new BroadcastChannel("chainscout-vault-control-v1");
+    const bus = new BroadcastChannel("opsis-vault-control-v1");
     bus.postMessage({ event: "changed" });
     bus.close();
   });

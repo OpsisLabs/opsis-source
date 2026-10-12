@@ -19,7 +19,7 @@ test("confirms the exact public lookup, omits cookies, and explains a Stock Toke
   await page.route("**/v1/private/rwa/verify", async (route) => {
     const request = route.request();
     expect(request.headers().cookie).toBeUndefined();
-    expect(request.headers()["x-chainscout-csrf"]).toBe("1");
+    expect(request.headers()["x-opsis-csrf"]).toBe("1");
     expect(request.postDataJSON()).toEqual({ address: STOCK });
     await route.fulfill({ status: 200, contentType: "application/json", headers: { "cache-control": "private, no-store" }, body: JSON.stringify(stockResult()) });
   });
@@ -108,7 +108,7 @@ test("renders unsupported physical authenticity without a fraud verdict", async 
     summary: "The contract has no supported exact-address registry match. A token or certificate cannot prove backing or physical authenticity.",
     stock: undefined,
     checks: [{ id: "physical", label: "Physical authenticity", status: "unsupported", detail: "Onchain ownership does not prove a physical object exists, is authentic, insured, held by a custodian, or redeemable.", sourceIds: [] }],
-    limitations: ["Unsupported means ChainScout lacks a supported registry match; it is not an accusation of fraud."]
+    limitations: ["Unsupported means Opsis lacks a supported registry match; it is not an accusation of fraud."]
   });
   await page.goto("/rwa");
   await page.getByLabel("RWA contract address").fill(STOCK);
@@ -139,7 +139,7 @@ test("separates Morpho listing, indexed liquidity, and variable yield from endor
       indexedBlock: 33439990, configIndexedBlock: 33439988, apyIndexedBlock: 33439989, indexLagBlocks: 10, trailing24hApy: "0.0362605711219608"
     },
     checks: [
-      { id: "listing", label: "Morpho listing", status: "confirmed", detail: "Listing is a provider classification, not a ChainScout endorsement.", sourceIds: [] },
+      { id: "listing", label: "Morpho listing", status: "confirmed", detail: "Listing is a provider classification, not a Opsis endorsement.", sourceIds: [] },
       { id: "liquidity", label: "Indexed withdrawals", status: "warning", detail: "Eligibility and executable output remain unknown.", sourceIds: [] }
     ],
     limitations: ["APY is trailing indexed data and is not guaranteed.", "ERC-4626 maxWithdraw is not used as general liquidity evidence."]

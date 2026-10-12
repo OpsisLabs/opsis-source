@@ -84,7 +84,7 @@ function mock(value: unknown) {
   return fetchMock;
 }
 
-describe("Exit Check browser boundary", () => {
+describe("Trade Check browser boundary", () => {
   it("sends only the token, amount, and output choice and accepts a consistent quote", async () => {
     const fetchMock = mock(fixture());
     await expect(

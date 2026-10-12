@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import configuration from "./official-token.json";
 import { resolveOfficialToken } from "./official-token-config";
 
-// Synthetic identity used only in tests; it is not a ChainScout contract.
+// Synthetic identity used only in tests; it is not a Opsis contract.
 const published = { status: "published", address: "0x1111111111111111111111111111111111111111", network: "Test network", chainId: 31337 };
 
 describe("official token identity", () => {

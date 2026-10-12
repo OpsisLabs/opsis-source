@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import type { ScoutSwapQuote } from "../swap/api";
+import type { SwapQuote } from "../swap/api";
 import { scenario, units, decimal } from "./model";
-const quote = { input: { symbol: "WETH", amount: "0.01" }, output: { symbol: "USDG", amount: "25", minimumReceived: "24" }, simulation: { status: "passed" }, quotedAt: "2026-09-09T10:00:00Z", expiresAt: "2026-09-09T10:00:30Z" } as ScoutSwapQuote;
+const quote = { input: { symbol: "WETH", amount: "0.01" }, output: { symbol: "USDG", amount: "25", minimumReceived: "24" }, simulation: { status: "passed" }, quotedAt: "2026-09-09T10:00:00Z", expiresAt: "2026-09-09T10:00:30Z" } as SwapQuote;
 const now = Date.parse("2026-09-09T10:00:10Z");
 describe("trade scenarios", () => {
   it("keeps smallest units exact", () => expect(decimal(units("0.000000000000000001"))).toBe("0.000000000000000001"));

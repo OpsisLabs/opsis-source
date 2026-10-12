@@ -1,8 +1,8 @@
 export const stress = {
-  "stress.metadata.title": "组合压力测试 | ChainScout",
+  "stress.metadata.title": "Opsis · 投资组合冲击",
   "stress.metadata.description":
     "试试假设的市场波动，无需钱包或账户，查看组合集中度与情景影响。",
-  "stress.eyebrow": "组合压力测试",
+  "stress.eyebrow": "投资组合冲击",
   "stress.title": "如果你最大的持仓下跌，会怎样？",
   "stress.intro": "选择价格变动，看看组合总值如何变化。",
   "stress.example": "示例组合 · 非实时持仓",
@@ -72,9 +72,9 @@ export const stress = {
   "stress.receipt.notForecast":
     "假设价格。未计入费用、税费、流动性或相关性模型。",
   "stress.receipt.cta": "试试你自己的假设情景。",
-  "product.feature.portfolio-stress-test.label": "组合压力测试",
-  "product.feature.portfolio-stress-test.shortLabel": "压力测试",
-  "product.feature.portfolio-stress-test.helpLabel": "关于组合压力测试",
+  "product.feature.portfolio-stress-test.label": "投资组合冲击",
+  "product.feature.portfolio-stress-test.shortLabel": "投资组合冲击",
+  "product.feature.portfolio-stress-test.helpLabel": "关于投资组合冲击",
   "product.feature.portfolio-stress-test.eyebrow": "试试假设情景 · 无需钱包",
   "product.feature.portfolio-stress-test.navHint": "查看你的组合敞口",
   "product.feature.portfolio-stress-test.summary":
@@ -173,7 +173,7 @@ export const stress = {
   "stress.import.badge": "已选 Vault 数值 · 非完整实时组合",
   "stress.import.loading": "正在检查此设备上的本地 Vault……",
   "stress.import.empty": "此设备上未找到本地 Vault。",
-  "stress.import.emptyLink": "创建 Vault",
+  "stress.import.emptyLink": "打开已保存",
   "stress.import.passphrase": "Vault 口令",
   "stress.import.unlock": "解锁并选择",
   "stress.import.unlocking": "正在解锁……",

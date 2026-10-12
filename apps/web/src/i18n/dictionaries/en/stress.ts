@@ -1,8 +1,8 @@
 export const stress = {
-  "stress.metadata.title": "Portfolio Stress Test | ChainScout",
+  "stress.metadata.title": "Opsis · Portfolio shocks",
   "stress.metadata.description":
     "Try a hypothetical market move. See portfolio concentration and scenario impact without a wallet or account.",
-  "stress.eyebrow": "PORTFOLIO STRESS TEST",
+  "stress.eyebrow": "Portfolio shocks",
   "stress.title": "What if your biggest holding drops?",
   "stress.intro": "Choose a price change. See what happens to your total.",
   "stress.example": "Illustrative portfolio · not live holdings",
@@ -77,8 +77,8 @@ export const stress = {
   "stress.receipt.notForecast":
     "Assumed prices. No fees, taxes, liquidity or correlation model.",
   "stress.receipt.cta": "Try your own what-if.",
-  "product.feature.portfolio-stress-test.label": "Portfolio Stress Test",
-  "product.feature.portfolio-stress-test.shortLabel": "Stress Test",
+  "product.feature.portfolio-stress-test.label": "Portfolio shocks",
+  "product.feature.portfolio-stress-test.shortLabel": "Portfolio shocks",
   "product.feature.portfolio-stress-test.helpLabel":
     "About portfolio stress testing",
   "product.feature.portfolio-stress-test.eyebrow": "TRY A WHAT-IF · NO WALLET",
@@ -190,7 +190,7 @@ export const stress = {
     "Selected Vault values · not complete live portfolio",
   "stress.import.loading": "Checking this device for a local Vault…",
   "stress.import.empty": "No local Vault found on this device.",
-  "stress.import.emptyLink": "Create a Vault",
+  "stress.import.emptyLink": "Open Saved",
   "stress.import.passphrase": "Vault passphrase",
   "stress.import.unlock": "Unlock and choose",
   "stress.import.unlocking": "Unlocking…",

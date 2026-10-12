@@ -3,8 +3,6 @@ import {
   Check,
   ChevronDown,
   CircleHelp,
-  ExternalLink,
-  Github,
   LockKeyhole,
   ShieldCheck,
   Sparkles,
@@ -214,7 +212,6 @@ function buildFaqGroups(t: Translate): Array<{ id: string; title: string; intro:
           answer: (
             <>
               {t("guide.faq.groups.project.a1Prefix")}
-              <a href="https://github.com/ChainScoutAi/chainscout-source" target="_blank" rel="noreferrer" className={externalLinkClass}>github.com/ChainScoutAi/chainscout-source</a>
               {t("guide.faq.groups.project.a1Suffix")}
             </>
           ),
@@ -311,7 +308,6 @@ export default function Faq() {
             <Bookend label={t("guide.faq.bookend.code")} />
             <h2 className="mt-3 text-[22px] text-[#e9e0d1]">{t("guide.faq.source.title")}</h2>
             <p className="mt-3 text-[12.5px] leading-relaxed text-[#9a938a]">{t("guide.faq.source.copy")}</p>
-            <a href="https://github.com/ChainScoutAi/chainscout-source" target="_blank" rel="noreferrer" className="mt-5 inline-flex items-center gap-2 font-mono-d text-[9px] tracking-[0.11em] text-[#fa6c34]">{t("guide.faq.source.action")} <Github size={12} /><ExternalLink size={10} /></a>
           </div>
         </section>
 

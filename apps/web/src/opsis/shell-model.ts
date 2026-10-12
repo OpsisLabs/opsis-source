@@ -1,3 +1,4 @@
+import { isWatchEnabled } from "../product/availability";
 import type { Capabilities } from "./model";
 
 export const routeNames: Record<string, readonly [string, string]> = {
@@ -51,7 +52,7 @@ export function landingTools(capabilities: Capabilities, flags = toolFlags): str
   return [
     ...(capabilities.research ? ["research"] : []),
     ...(capabilities.exitCheck && import.meta.env.VITE_EXIT_CHECK_ENABLED === "true" ? ["check"] : []),
-    ...(capabilities.watch && import.meta.env.VITE_SCOUT_WATCH_ENABLED === "true" ? ["watch"] : []),
+    ...(capabilities.watch && isWatchEnabled() ? ["watch"] : []),
     ...(capabilities.rwa ? ["rwa"] : []),
     "quant", ...(flags.world ? ["world"] : []), "saved", "guide",
     ...(capabilities.swapPreview ? ["swap"] : []),

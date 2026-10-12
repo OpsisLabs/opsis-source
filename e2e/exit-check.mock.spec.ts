@@ -58,7 +58,7 @@ async function fillForm(page: Page) {
 }
 
 test.beforeEach(async ({ page }) => {
-  await page.context().addCookies([{ name: "chainscout_product_tour_seen_v1", value: "1", url: APP_ORIGIN, sameSite: "Strict" }]);
+  await page.context().addCookies([{ name: "opsis_product_tour_seen_v1", value: "1", url: APP_ORIGIN, sameSite: "Strict" }]);
 });
 
 test("exit check quotes factory pools with exact coverage and no sellability claim", async ({ page }) => {
@@ -70,8 +70,8 @@ test("exit check quotes factory pools with exact coverage and no sellability cla
     await route.fulfill({ json: fixture() });
   });
   await page.goto("/exit-check");
-  await expect(page).toHaveTitle("Exit Check Estimate | ChainScout");
-  await expect(page.getByText("ChainScout only reads public pool state from the dRPC Robinhood Chain gateway. dRPC is a paid gateway that may route each read to an independent node operator in its network.")).toBeVisible();
+  await expect(page).toHaveTitle("Trade Check Estimate | Opsis");
+  await expect(page.getByText("Opsis only reads public pool state from the dRPC Robinhood Chain gateway. dRPC is a paid gateway that may route each read to an independent node operator in its network.")).toBeVisible();
   await fillForm(page);
   await page.getByRole("button", { name: "CHECK EXIT ESTIMATE" }).click();
   const quote = page.getByTestId("exit-check-quote");

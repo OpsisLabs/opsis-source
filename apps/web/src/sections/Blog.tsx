@@ -33,7 +33,7 @@ function ArtHex() {
 const POSTS = [
   { t: "How to Read a Robinhood Chain Transaction", c: "Guide topic", art: <ArtCube /> },
   { t: "What Token Approvals Mean and Why They Matter", c: "Guide topic", art: <ArtTorus /> },
-  { t: "How ChainScout Separates Facts from Inference", c: "Technical topic", art: <ArtHex /> },
+  { t: "How Opsis Separates Facts from Inference", c: "Technical topic", art: <ArtHex /> },
 ];
 
 export default function Blog() {

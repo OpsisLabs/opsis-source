@@ -1,9 +1,9 @@
 export const rwa: Record<string, string> = {
-  "rwa.header.home": "ChainScout 主页",
-  "rwa.header.badge": "RWA 验证",
-  "rwa.header.vault": "保险库",
+  "rwa.header.home": "Opsis 主页",
+  "rwa.header.badge": "股票代币核查",
+  "rwa.header.vault": "已保存",
   "rwa.header.privateMode": "私密模式",
-  "rwa.eyebrow": "RWA 验证 · 公开证据",
+  "rwa.eyebrow": "股票代币核查 · 公开证据",
   "rwa.title.line1": "看清这个代币",
   "rwa.title.line2": "究竟代表什么。",
   "rwa.description":
@@ -17,7 +17,7 @@ export const rwa: Record<string, string> = {
   "rwa.disclosure.history.value": "无",
   "rwa.disclosure.ai.label": "AI 上传",
   "rwa.disclosure.ai.value": "无",
-  "rwa.form.title": "RWA 证据检查器",
+  "rwa.form.title": "股票代币核查",
   "rwa.form.network": "ROBINHOOD CHAIN · 4663",
   "rwa.form.addressLabel": "代币或保险库合约",
   "rwa.form.addressPlaceholder": "0x…",
@@ -33,7 +33,7 @@ export const rwa: Record<string, string> = {
   "rwa.consent.title": "确切的网络凭据",
   "rwa.consent.cancelAria": "取消",
   "rwa.consent.body":
-    "若继续，此公开合约可能会发送给 ChainScout、Robinhood 的股票代币 API 和 dRPC Robinhood Chain 网关，或 Morpho 的公共 API。dRPC 是付费网关，可能会将每次读取路由到其网络中的独立节点运营方。若匹配到股票代币，还可能读取其派生的公共 Chainlink 喂价地址。",
+    "若继续，此公开合约可能会发送给 Opsis、Robinhood 的股票代币 API 和 dRPC Robinhood Chain 网关，或 Morpho 的公共 API。dRPC 是付费网关，可能会将每次读取路由到其网络中的独立节点运营方。若匹配到股票代币，还可能读取其派生的公共 Chainlink 喂价地址。",
   "rwa.consent.publicContract": "公开合约",
   "rwa.consent.noAccount":
     "无账户 cookie、无钱包连接、无 AI 模型，也不保存查询/结果历史。",

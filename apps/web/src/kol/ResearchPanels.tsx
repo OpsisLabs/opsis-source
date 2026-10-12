@@ -373,7 +373,7 @@ export function ComparePanel({
   );
 }
 
-export function ScoutBrief({
+export function ResearchBrief({
   items,
   name,
   onInspect,
@@ -396,10 +396,10 @@ export function ScoutBrief({
   return (
     <section
       className="kol-profile-insight kol-brief"
-      aria-label={L("Scout research brief", "Scout 研究简报")}
+      aria-label={L("Opsis research brief", "Opsis 研究简报")}
     >
       <div className="kol-mini-heading">
-        <strong>{L("Scout research brief", "Scout 研究简报")}</strong>
+        <strong>{L("Opsis research brief", "Opsis 研究简报")}</strong>
         <small>{L("Computed from selected sources", "根据选定来源计算")}</small>
       </div>
       <div className="kol-brief-tabs">

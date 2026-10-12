@@ -54,7 +54,7 @@ test.describe("Opsis visual workspaces", () => {
       await expect(page.locator(".opsis-terminal")).toBeVisible();
       await expect(page.locator("#opsis-content h1").first()).toBeVisible();
       await expect(page.locator("#opsis-content")).not.toContainText(
-        "Scout Watch",
+        "Watch",
       );
       await expect(page.locator("#opsis-content")).toHaveCSS(
         "background-color",

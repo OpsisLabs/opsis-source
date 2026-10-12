@@ -17,7 +17,7 @@ test("official contract panels show no fake CA before launch on desktop and mobi
     await page.setViewportSize({ width, height: 950 });
     for (const path of ["/", "/app"]) {
       await page.goto(`${path}?ca=${officialTokenFixture.address}&network=Fake`);
-      const panel = page.getByRole("region", { name: "Official ChainScout contract" });
+      const panel = page.getByRole("region", { name: "Official Opsis contract" });
       await expect(panel).toBeVisible();
       await expect(panel).toContainText("Not launched yet — no official CA.");
       await expect(panel.getByRole("button")).toHaveCount(0);
@@ -33,7 +33,7 @@ test("official contract panels show no fake CA before launch on desktop and mobi
 test("official contract panels use the single committed identity on both entry pages", async ({ page }) => {
   for (const path of ["/", "/app"]) {
     await page.goto(path);
-    const panel = page.getByRole("region", { name: "Official ChainScout contract" });
+    const panel = page.getByRole("region", { name: "Official Opsis contract" });
     await expect(panel).toBeVisible();
     if (officialTokenConfiguration.status === "published") {
       await expect(panel.locator("code")).toHaveText(String(officialTokenConfiguration.address));
@@ -53,10 +53,10 @@ test("official contract copy uses the exact configured address with keyboard fee
   });
   for (const path of ["/", "/app"]) {
     await page.goto(path);
-    const panel = page.getByRole("region", { name: "Official ChainScout contract" });
+    const panel = page.getByRole("region", { name: "Official Opsis contract" });
     await expect(panel).toContainText("Test network · Chain ID 31337");
     await expect(panel.locator("code")).toHaveText(officialTokenFixture.address);
-    const copy = panel.getByRole("button", { name: "Copy official ChainScout contract address" });
+    const copy = panel.getByRole("button", { name: "Copy official Opsis contract address" });
     await copy.focus();
     await page.keyboard.press("Enter");
     await expect(panel.getByRole("status")).toHaveText("Official contract address copied to clipboard.");
@@ -74,8 +74,8 @@ test.describe("official contract touch access", () => {
     });
     for (const path of ["/", "/app"]) {
       await page.goto(path);
-      const panel = page.getByRole("region", { name: "Official ChainScout contract" });
-      await panel.getByRole("button", { name: "Copy official ChainScout contract address" }).tap();
+      const panel = page.getByRole("region", { name: "Official Opsis contract" });
+      await panel.getByRole("button", { name: "Copy official Opsis contract address" }).tap();
       await expect(page.locator("html")).toHaveAttribute("data-copied-contract", officialTokenFixture.address);
       await expect(panel.getByRole("status")).toContainText("copied to clipboard");
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -91,8 +91,8 @@ for (const failure of ["denied", "missing"] as const) {
       Object.defineProperty(navigator, "clipboard", { configurable: true, value: mode === "missing" ? undefined : { writeText: async () => { throw new DOMException("Blocked", "NotAllowedError"); } } });
     }, failure);
     await page.goto("/app");
-    const panel = page.getByRole("region", { name: "Official ChainScout contract" });
-    await panel.getByRole("button", { name: "Copy official ChainScout contract address" }).click();
+    const panel = page.getByRole("region", { name: "Official Opsis contract" });
+    await panel.getByRole("button", { name: "Copy official Opsis contract address" }).click();
     const manual = panel.getByRole("textbox", { name: "Clipboard blocked. Select and copy this full address:" });
     await expect(manual).toBeFocused();
     await expect(manual).toHaveValue(officialTokenFixture.address);
@@ -106,7 +106,7 @@ for (const failure of ["denied", "missing"] as const) {
 test("official contract fails closed if a published identity is malformed", async ({ page }) => {
   await mockOfficialToken(page, { ...officialTokenFixture, address: "0x123" });
   await page.goto("/");
-  const panel = page.getByRole("region", { name: "Official ChainScout contract" });
+  const panel = page.getByRole("region", { name: "Official Opsis contract" });
   await expect(panel).toContainText("Official contract address unavailable.");
   await expect(panel).not.toContainText("Not launched yet");
   await expect(panel.getByRole("button")).toHaveCount(0);
@@ -118,7 +118,7 @@ test("official contract writes the browser clipboard on a real user gesture", as
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await mockOfficialToken(page, officialTokenFixture);
   await page.goto("/");
-  await page.getByRole("button", { name: "Copy official ChainScout contract address" }).click();
+  await page.getByRole("button", { name: "Copy official Opsis contract address" }).click();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(officialTokenFixture.address);
   // Do not leave a synthetic token identity on the test clipboard.
   await page.evaluate(async (fixture) => {
@@ -143,22 +143,22 @@ test("desktop product rail explains and switches between every live workspace", 
   await page.goto("/app");
 
   const rail = page.getByRole("complementary", {
-    name: "ChainScout features",
+    name: "Opsis features",
   });
   await expect(rail).toBeVisible();
   await expect(
-    rail.getByRole("link", { name: /Private Explorer/i }),
+    rail.getByRole("link", { name: /Research/i }),
   ).toHaveAttribute("aria-current", "page");
   await expect(rail.locator('[data-feature="private-explorer"]')).toHaveCSS(
     "background-color",
     "rgb(250, 108, 52)",
   );
-  await expect(rail.locator('[data-feature="scout-swap"]')).toHaveCSS(
+  await expect(rail.locator('[data-feature="swap-preview"]')).toHaveCSS(
     "border-top-color",
     "rgb(55, 51, 48)",
   );
   await expect(
-    rail.locator('[data-feature="scout-swap"] a > span').first(),
+    rail.locator('[data-feature="swap-preview"] a > span').first(),
   ).toHaveCSS("color", "rgb(250, 108, 52)");
   await expect(
     rail.getByRole("button", { name: "About live swap previews" }),
@@ -167,21 +167,21 @@ test("desktop product rail explains and switches between every live workspace", 
 
   await rail.getByRole("button", { name: "About live swap previews" }).click();
   await expect(
-    rail.getByRole("region", { name: "Scout Swap summary" }),
+    rail.getByRole("region", { name: "Swap preview summary" }),
   ).toContainText("Preview a current WETH/USDG route");
-  await rail.getByRole("link", { name: /Scout Swap/i }).click();
+  await rail.getByRole("link", { name: /Swap preview/i }).click();
   await expect(page).toHaveURL(/\/swap$/);
   await expect(
     page.getByRole("heading", { name: /See the trade before the trade/i }),
   ).toBeVisible();
 
-  await rail.getByRole("link", { name: /RWA Verify/i }).click();
+  await rail.getByRole("link", { name: /Stock-token check/i }).click();
   await expect(page).toHaveURL(/\/rwa$/);
   await expect(
     page.getByRole("heading", { name: /Know what the token/i }),
   ).toBeVisible();
 
-  await rail.getByRole("link", { name: /Portfolio Intelligence/i }).click();
+  await rail.getByRole("link", { name: /Saved/i }).click();
   await expect(page).toHaveURL(/\/vault\?view=portfolio$/);
   await createDisposableVault(page);
   await expect(
@@ -214,11 +214,11 @@ test("desktop product rail explains and switches between every live workspace", 
   await expect(tourButton).toHaveCSS("background-color", "rgb(250, 108, 52)");
   await expect(tourButton.getByText(/A clear 60-second overview/i)).toHaveCSS("color", "rgb(72, 33, 22)");
   await tourButton.click();
-  const tour = page.getByRole("dialog", { name: "ChainScout product tour" });
+  const tour = page.getByRole("dialog", { name: "Opsis product tour" });
   await expect(tour).toBeVisible();
   await expect(tour.getByText(/One clear workspace/i)).toBeVisible();
   await tour.getByRole("button", { name: "SHOW ME AROUND" }).click();
-  await expect(tour.getByRole("heading", { name: /Use ChainScout in two ways/i })).toBeVisible();
+  await expect(tour.getByRole("heading", { name: /Use Opsis in two ways/i })).toBeVisible();
   await tour.getByRole("button", { name: "CHOOSE A START" }).click();
   await tour.getByRole("link", { name: /OPEN START PAGE/i }).click();
   await expect(page).toHaveURL(/\/guide$/);
@@ -230,7 +230,7 @@ test("desktop product rail explains and switches between every live workspace", 
   await expect(page.getByText("Saved research is separate.", { exact: true })).toHaveCount(0);
   await expect(page.getByRole("link", { name: /OPEN PORTFOLIO/i })).toBeVisible();
   await expect(page.getByRole("link", { name: /ADD AN ASSET/i })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Private Explorer" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Research" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Market & Inventory" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Keep your research on this device." })).toBeVisible();
   const scrollbarTheme = await page.locator("html").evaluate((element) => {
@@ -247,30 +247,30 @@ test("first production-style visit introduces the product and remembers dismissa
   await page.context().clearCookies();
   await page.goto("/app?tour=1");
 
-  const tour = page.getByRole("dialog", { name: "ChainScout product tour" });
+  const tour = page.getByRole("dialog", { name: "Opsis product tour" });
   await expect(tour).toBeVisible();
   await expect(tour.getByText("NO WALLET REQUIRED")).toBeVisible();
   await expect(tour.getByText("READ-ONLY BY DESIGN")).toBeVisible();
   await expect(tour.getByText("LOCAL ENCRYPTED VAULT")).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(tour).toBeHidden();
-  await expect.poll(async () => (await page.context().cookies()).find((cookie) => cookie.name === "chainscout_product_tour_seen_v1")?.value).toBe("1");
+  await expect.poll(async () => (await page.context().cookies()).find((cookie) => cookie.name === "opsis_product_tour_seen_v1")?.value).toBe("1");
 
   await page.goto("/app");
   await expect(tour).toBeHidden();
-  await page.getByRole("button", { name: /Open the ChainScout 60-second tour/i }).click();
+  await page.getByRole("button", { name: /Open the Opsis 60-second tour/i }).click();
   await expect(tour).toBeVisible();
-  await expect(page.getByRole("button", { name: /Skip and close ChainScout tour/i })).toBeFocused();
+  await expect(page.getByRole("button", { name: /Skip and close Opsis tour/i })).toBeFocused();
   await page.keyboard.press("Escape");
-  await expect(page.getByRole("button", { name: /Open the ChainScout 60-second tour/i })).toBeFocused();
+  await expect(page.getByRole("button", { name: /Open the Opsis 60-second tour/i })).toBeFocused();
 });
 
 test("context help opens the matching optional guide detail", async ({ page }) => {
   await page.goto("/app");
   await page.getByRole("button", { name: "About live swap previews" }).click();
   await page.getByRole("link", { name: "OPEN GUIDE →" }).click();
-  await expect(page).toHaveURL(/\/guide#scout-swap$/);
-  const detail = page.locator("details#scout-swap");
+  await expect(page).toHaveURL(/\/guide#swap-preview$/);
+  const detail = page.locator("details#swap-preview");
   await expect(detail).toHaveAttribute("open", "");
   await expect(detail.getByText(/minimum received, price impact/i)).toBeVisible();
 });
@@ -280,7 +280,7 @@ test("technical docs and FAQ expose the implementation without presenting token 
   await page.goto("/docs");
 
   await expect(
-    page.getByRole("heading", { name: /How ChainScout actually works/i }),
+    page.getByRole("heading", { name: /How Opsis actually works/i }),
   ).toBeVisible();
   await expect(
     page.getByRole("link", { name: "TECH DOCS" }).last(),
@@ -296,10 +296,10 @@ test("technical docs and FAQ expose the implementation without presenting token 
   await expect(page.getByText("DO NOT BUILD")).toBeVisible();
   await expect(
     page.getByRole("link", { name: /VIEW SOURCE/i }),
-  ).toHaveAttribute("href", "https://github.com/ChainScoutAi/chainscout-source");
+  ).toHaveCount(0);
 
   const rail = page.getByRole("complementary", {
-    name: "ChainScout features",
+    name: "Opsis features",
   });
   await rail.getByRole("link", { name: "FAQ" }).click();
   await expect(page).toHaveURL(/\/faq$/);
@@ -330,7 +330,7 @@ test("reduced motion keeps route changes immediate and readable", async ({ page 
 
   const content = page.locator("[data-route-content]");
   await expect(content).toBeVisible();
-  await page.getByRole("link", { name: /Scout Swap/i }).first().click();
+  await page.getByRole("link", { name: /Swap preview/i }).first().click();
   await expect(page).toHaveURL(/\/swap$/);
   await expect(content).toBeVisible();
   await expect(content).not.toHaveAttribute("style", /opacity|transform|visibility/);
@@ -347,17 +347,17 @@ test("mobile feature drawer traps focus, explains tools, and preserves navigatio
   await trigger.click();
 
   const drawer = page.getByRole("dialog", {
-    name: "ChainScout feature menu",
+    name: "Opsis feature menu",
   });
   await expect(drawer).toBeVisible();
   await expect(
-    drawer.getByRole("link", { name: /Scout Swap/i }),
+    drawer.getByRole("link", { name: /Swap preview/i }),
   ).toHaveAttribute("aria-current", "page");
   await drawer
     .getByRole("button", { name: "About local portfolio snapshots" })
     .click();
   await expect(
-    drawer.getByRole("region", { name: "Portfolio Intelligence summary" }),
+    drawer.getByRole("region", { name: "Saved summary" }),
   ).toContainText("Capture one address");
 
   await page.keyboard.press("Escape");
@@ -365,7 +365,7 @@ test("mobile feature drawer traps focus, explains tools, and preserves navigatio
   await expect(trigger).toBeFocused();
 
   await trigger.click();
-  await drawer.getByRole("link", { name: /Private Explorer/i }).click();
+  await drawer.getByRole("link", { name: /Research/i }).click();
   await expect(page).toHaveURL(/\/app$/);
   await expect(drawer).toBeHidden();
   await expect(
@@ -375,8 +375,8 @@ test("mobile feature drawer traps focus, explains tools, and preserves navigatio
   await trigger.click();
   await expect(drawer.getByRole("link", { name: "Docs" })).toBeVisible();
   await expect(drawer.getByRole("link", { name: "FAQ" })).toBeVisible();
-  await drawer.getByRole("button", { name: /Open the ChainScout 60-second tour/i }).click();
-  const tour = page.getByRole("dialog", { name: "ChainScout product tour" });
+  await drawer.getByRole("button", { name: /Open the Opsis 60-second tour/i }).click();
+  const tour = page.getByRole("dialog", { name: "Opsis product tour" });
   await expect(tour).toBeVisible();
   await expect(drawer).toBeHidden();
   await page.keyboard.press("Escape");
@@ -384,10 +384,10 @@ test("mobile feature drawer traps focus, explains tools, and preserves navigatio
   await expect(trigger).toBeFocused();
 });
 
-test("saved research uses current ChainScout branding", async ({ page }) => {
+test("saved research uses current Opsis branding", async ({ page }) => {
   await page.goto("/login");
   await expect(
-    page.getByRole("link", { name: /ChainScout.*saved research/i }),
+    page.getByRole("link", { name: /Opsis.*saved research/i }),
   ).toBeVisible();
   await expect(page.getByText(/RH CHAIN AI EXPLORER/i)).toHaveCount(0);
 });

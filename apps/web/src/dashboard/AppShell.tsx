@@ -11,7 +11,7 @@ import LanguageSwitcher from "../i18n/LanguageSwitcher";
 import { useI18n } from "../i18n";
 
 function LogoMark({ className = "w-6 h-6" }: { className?: string }) {
-  return <img src="/logo.svg" alt="ChainScout" className={className} />;
+  return <img src="/logo.svg" alt="Opsis" className={className} />;
 }
 
 function WalletButton() {
@@ -131,7 +131,7 @@ function RailBody({
           className="mt-2 flex w-full items-center justify-center gap-2 border border-[#fa6c34]/40 bg-[#fa6c34]/10 py-3 font-mono-d text-[10.5px] tracking-wide text-[#fa6c34] transition-colors hover:bg-[#fa6c34]/15"
         >
           <Repeat2 size={13} />
-          {t("cloud.rail.scoutSwap")}
+          {t("cloud.rail.swapPreview")}
         </Link>
         <div className="mt-2 grid grid-cols-2 gap-1">
           <Link to="/app" onClick={onNavigate} className="flex items-center gap-2 border border-[#2e2e2e] px-2.5 py-2.5 font-mono-d text-[9px] text-[#7f7972] hover:text-[#e9e0d1]">

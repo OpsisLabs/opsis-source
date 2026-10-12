@@ -2,14 +2,14 @@ export const cloud = {
   "cloud.availability.message":
     "Cloud research is coming in a future update. Use encrypted local chat history and the local Vault without an account or wallet connection.",
 
-  "cloud.rail.brand": "CHAINSCOUT",
+  "cloud.rail.brand": "OPSIS",
   "cloud.rail.newSession": "NEW SESSION",
   "cloud.rail.creating": "CREATING…",
-  "cloud.rail.scoutSwap": "SCOUT SWAP",
+  "cloud.rail.swapPreview": "Swap preview",
   "cloud.rail.private": "PRIVATE",
-  "cloud.rail.vault": "VAULT",
-  "cloud.rail.rwa": "RWA",
-  "cloud.rail.guide": "GUIDE",
+  "cloud.rail.vault": "Saved",
+  "cloud.rail.rwa": "Stock-token check",
+  "cloud.rail.guide": "Find your tool",
   "cloud.rail.sessions": "SESSIONS",
   "cloud.rail.aiMessages": "AI MESSAGES",
   "cloud.rail.chainLookups": "CHAIN LOOKUPS",
@@ -227,9 +227,9 @@ export const cloud = {
   "cloud.http.portfolioBudgetUnavailable":
     "The free-tier portfolio safety guard is unavailable, so refresh failed closed. Try again shortly.",
   "cloud.http.rwaVerifyDisabled":
-    "RWA Verify is paused. No contract data was sent or saved.",
+    "Stock-token check is paused. No contract data was sent or saved.",
   "cloud.http.rwaDailyBudget":
-    "Today's free RWA verification budget has been reached. Try again tomorrow.",
+    "Today's free Stock-token check budget has been reached. Try again tomorrow.",
   "cloud.http.rwaBudgetUnavailable":
     "The free-tier RWA safety guard is unavailable, so verification failed closed.",
   "cloud.http.rwaAnchorChanged":
@@ -243,13 +243,13 @@ export const cloud = {
   "cloud.http.collectibleBudgetUnavailable":
     "The free catalog safety guard is unavailable, so the lookup failed closed. You can still add the collectible manually.",
   "cloud.http.collectibleRequestLimit":
-    "This lookup exceeded ChainScout's catalog request limit. Refine it or add the collectible manually.",
+    "This lookup exceeded Opsis's catalog request limit. Refine it or add the collectible manually.",
   "cloud.http.collectibleProviderRateLimited":
     "The free catalog provider is rate-limited. Try again later or add the collectible manually.",
   "cloud.http.collectibleProviderUnavailable":
     "The collectible catalog is temporarily unavailable. Your encrypted Vault is unchanged, and manual entry still works.",
   "cloud.http.collectibleProviderMalformed":
-    "The catalog returned data ChainScout could not verify safely. Nothing was saved; use manual entry instead.",
+    "The catalog returned data Opsis could not verify safely. Nothing was saved; use manual entry instead.",
   "cloud.http.collectibleNotFound":
     "That exact catalog card was not found. Adjust the match or add the collectible manually.",
   "cloud.http.marketInventoryDisabled":
@@ -263,7 +263,7 @@ export const cloud = {
   "cloud.http.marketProviderUnavailable":
     "The market provider is unavailable. The approved public identifier may already have been sent; your prior encrypted observation is unchanged.",
   "cloud.http.marketProviderMalformed":
-    "The provider returned data ChainScout could not verify safely. Nothing new was saved.",
+    "The provider returned data Opsis could not verify safely. Nothing new was saved.",
   "cloud.http.marketMerchantNotApproved":
     "No reviewed live merchant mapping exists for that asset. Use the click-only search handoff instead.",
   "cloud.http.marketMappingChanged":
@@ -279,12 +279,12 @@ export const cloud = {
   "cloud.http.requestFailed": "Request failed.",
   "cloud.http.sessionExpired": "Your session expired. Sign in again.",
 
-  "cloud.auth.brand": "CHAINSCOUT",
+  "cloud.auth.brand": "OPSIS",
   "cloud.auth.savedResearch": "SAVED RESEARCH",
   "cloud.auth.readOnly": "READ-ONLY · NO TRANSACTIONS · NO APPROVALS",
   "cloud.auth.disclaimer": "Informational only. Not financial advice.",
-  "cloud.auth.openPrivateExplorer": "Open Private Explorer",
-  "cloud.auth.openLocalVault": "Open local Vault",
+  "cloud.auth.openPrivateExplorer": "Open Research",
+  "cloud.auth.openLocalVault": "Open Saved",
   "cloud.auth.metamaskNotDetected":
     "MetaMask was not detected in this browser.",
   "cloud.auth.installMetamask": "INSTALL METAMASK",
@@ -298,7 +298,7 @@ export const cloud = {
   "cloud.auth.signatureNote":
     "MetaMask will ask you to sign a short message. It proves you control the address. It is not a transaction, moves no funds, and grants no approvals.",
   "cloud.auth.login.title": "Welcome back",
-  "cloud.auth.login.titlePrivate": "Use ChainScout privately",
+  "cloud.auth.login.titlePrivate": "Use Opsis privately",
   "cloud.auth.login.sub":
     "Sign in with your wallet to continue your Robinhood Chain research.",
   "cloud.auth.login.subPrivate":
@@ -306,13 +306,13 @@ export const cloud = {
   "cloud.auth.login.footerFirst": "First time here? ",
   "cloud.auth.login.footerPrivate": "Learn how the private tools work: ",
   "cloud.auth.login.createAccount": "Create an account",
-  "cloud.auth.login.featureGuide": "Feature guide",
+  "cloud.auth.login.featureGuide": "Find your tool",
   "cloud.auth.register.title": "Create your account",
-  "cloud.auth.register.titlePrivate": "Use ChainScout privately",
+  "cloud.auth.register.titlePrivate": "Use Opsis privately",
   "cloud.auth.register.sub":
     "Connect a wallet and pick a username. No email, no password. The free tier includes 500 AI messages and 5,000 chain lookups per month.",
   "cloud.auth.register.subPrivate":
-    "You do not need an account for Private Explorer or the local Vault.",
+    "You do not need an account for Research or the local Vault.",
   "cloud.auth.register.footer": "Already have an account? ",
   "cloud.auth.register.signIn": "Sign in",
 
@@ -422,7 +422,7 @@ export const cloud = {
   "cloud.deals.benchmarks.exampleTcgdex": "Charizard · Base Set 4",
   "cloud.deals.benchmarks.exampleYgo": "Dark Magician",
   "cloud.deals.benchmarks.disclosure":
-    "Clicking below sends only this public card ID and provider choice to ChainScout, then the ID to {provider}. No wallet, ownership, grade, notes or purchase prices are sent. Public reference responses may be cached; this view is not saved to your Vault.",
+    "Clicking below sends only this public card ID and provider choice to Opsis, then the ID to {provider}. No wallet, ownership, grade, notes or purchase prices are sent. Public reference responses may be cached; this view is not saved to your Vault.",
   "cloud.deals.benchmarks.loading": "Loading reference prices…",
   "cloud.deals.benchmarks.fetch": "Fetch public price references",
   "cloud.deals.benchmarks.verifyError":

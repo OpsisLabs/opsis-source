@@ -140,7 +140,7 @@ test("catalog match saves only encrypted owner data and survives encrypted backu
     page.getByRole("button", { name: "REVIEW LOOKUP" }),
   ).toBeFocused();
   await page.getByRole("button", { name: "REVIEW LOOKUP" }).click();
-  await expect(searchPermission).toContainText("SENT TO CHAINSCOUT");
+  await expect(searchPermission).toContainText("SENT TO OPSIS");
   await expect(searchPermission).toContainText(
     "EN · Charizard · #4 · set base1",
   );
@@ -428,7 +428,7 @@ test("locking while the encrypted permission receipt is being saved prevents a n
           const store = transaction.objectStore("records");
           let released = false;
           const keepAlive = () => {
-            const pending = store.get("__chainscout_test_write_lock__");
+            const pending = store.get("__opsis_test_write_lock__");
             pending.onsuccess = () => (released ? undefined : keepAlive());
             pending.onerror = () => reject(pending.error);
           };

@@ -1,9 +1,9 @@
 export const explorer = {
-  "explorer.header.home": "ChainScout home",
+  "explorer.header.home": "Opsis home",
   "explorer.header.privateMode": "PRIVATE MODE",
-  "explorer.header.localVault": "LOCAL VAULT",
+  "explorer.header.localVault": "Saved",
   "explorer.header.localChats": "LOCAL CHATS ↓",
-  "explorer.eyebrow": "Private Explorer · Robinhood Chain",
+  "explorer.eyebrow": "Research · Robinhood Chain",
   "explorer.title.line1": "Understand the chain.",
   "explorer.title.line2": "Leave no profile behind.",
   "explorer.description":
@@ -46,9 +46,9 @@ export const explorer = {
   "explorer.goal.token": "What is this token?",
   "explorer.goal.verify": "What can be verified?",
   "explorer.next.title": "Ask next",
-  "explorer.follow.title": "Follow on Scout Watch",
+  "explorer.follow.title": "Follow on Watch",
   "explorer.follow.body":
-    "Open Scout Watch with this public address pre-filled. Nothing is looked up or saved until you consent, and any label you add stays encrypted in your local Vault.",
+    "Open Watch with this public address pre-filled. Nothing is looked up or saved until you consent, and any label you add stays encrypted in your local Vault.",
   "explorer.follow.participants": "Public addresses in this transaction",
   "explorer.follow.from": "from",
   "explorer.follow.to": "to",

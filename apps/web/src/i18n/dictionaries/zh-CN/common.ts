@@ -39,52 +39,52 @@ export const common: Record<string, string> = {
   "common.value.unknownNotZero": "未知，而非零",
   "common.units.eth": "ETH",
   "common.brand.tagline": "你的私人工作区",
-  "common.brand.name": "ChainScout",
-  "metadata.home.title": "ChainScout — 私密多资产工作台",
+  "common.brand.name": "Opsis",
+  "metadata.home.title": "Opsis — 私密多资产工作台",
   "metadata.home.description":
     "在一个加密的本地保险库中追踪加密货币、NFT、代币化资产、宝可梦卡牌、收藏品及其他一切，然后查看可溯源的 Robinhood Chain 链上活动。",
-  "metadata.explorer.title": "私密链上查询 | ChainScout",
+  "metadata.explorer.title": "研究 | Opsis",
   "metadata.explorer.description":
     "用可溯源的证据解读公开的 Robinhood Chain 钱包、交易、代币或合约——无需连接钱包或创建账户。",
-  "metadata.vault.title": "加密资产保险库 | ChainScout",
+  "metadata.vault.title": "已保存 | Opsis",
   "metadata.vault.description":
     "在加密的浏览器本地保险库中追踪加密货币、NFT、代币化资产、卡牌、收藏品、买入批次、照片和带日期的价值。",
-  "metadata.rwa.title": "RWA 验证 | ChainScout",
+  "metadata.rwa.title": "股票代币核查 | Opsis",
   "metadata.rwa.description":
     "查看可溯源的 Robinhood Chain 代币化资产身份、托管、预言机、收益和赎回证据，并明确列出各项局限。",
-  "metadata.swap.title": "Scout Swap 预览 | ChainScout",
+  "metadata.swap.title": "兑换预览 | Opsis",
   "metadata.swap.description":
     "在将执行交给官方 Uniswap 应用之前，预览当前 Robinhood Chain 的兑换路径、模拟、价格影响和网络费用。",
-  "metadata.simulator.title": "交易模拟器 | ChainScout",
+  "metadata.simulator.title": "交易情景 | Opsis",
   "metadata.simulator.description":
     "基于最新报价比较私密的假设交易场景及其对投资组合的影响，不执行任何交易。",
-  "metadata.guide.title": "功能指南 | ChainScout",
+  "metadata.guide.title": "选择工具 | Opsis",
   "metadata.guide.description":
-    "按照清晰的流程使用 ChainScout 的私密链上查询、加密保险库、投资组合工具、RWA 验证和只读兑换预览。",
-  "metadata.docs.title": "技术文档 | ChainScout",
+    "按照清晰的流程使用 Opsis 的研究、加密保险库、投资组合工具、股票代币核查和只读兑换预览。",
+  "metadata.docs.title": "技术文档 | Opsis",
   "metadata.docs.description":
-    "了解 ChainScout 如何处理公开链上数据、引用来源、加密的浏览器本地记录、提供商边界和只读交易预览。",
-  "metadata.faq.title": "常见问题 | ChainScout",
+    "了解 Opsis 如何处理公开链上数据、引用来源、加密的浏览器本地记录、提供商边界和只读交易预览。",
+  "metadata.faq.title": "常见问题 | Opsis",
   "metadata.faq.description":
-    "关于 ChainScout 隐私、钱包连接、加密保险库存储、公开数据来源、资产覆盖范围和安全边界的解答。",
-  "metadata.roadmap.title": "产品路线图 | ChainScout",
+    "关于 Opsis 隐私、钱包连接、加密保险库存储、公开数据来源、资产覆盖范围和安全边界的解答。",
+  "metadata.roadmap.title": "产品路线图 | Opsis",
   "metadata.roadmap.description":
-    "查看 ChainScout 经审核的产品路线图，以及其私密、只读多资产工作区背后的发布关卡。",
-  "metadata.privacy.title": "隐私政策 | ChainScout",
+    "查看 Opsis 经审核的产品路线图，以及其私密、只读多资产工作区背后的发布关卡。",
+  "metadata.privacy.title": "隐私政策 | Opsis",
   "metadata.privacy.description":
-    "了解 ChainScout 处理哪些数据、哪些数据加密保存在你的浏览器中、哪些数据会发送给公开提供商，以及如何删除可选的账户数据。",
-  "metadata.terms.title": "使用条款 | ChainScout",
+    "了解 Opsis 处理哪些数据、哪些数据加密保存在你的浏览器中、哪些数据会发送给公开提供商，以及如何删除可选的账户数据。",
+  "metadata.terms.title": "使用条款 | Opsis",
   "metadata.terms.description":
-    "查看 ChainScout 信息类、只读、非托管工具的条款与限制。",
-  "metadata.developers.title": "开放数据 API | ChainScout",
+    "查看 Opsis 信息类、只读、非托管工具的条款与限制。",
+  "metadata.developers.title": "开放数据 API | Opsis",
   "metadata.developers.description":
-    "在开发者接口启用时，查看 ChainScout 有边界的公开支持注册表和语法规范化 API。",
-  "metadata.login.title": "登录 | ChainScout",
+    "在开发者接口启用时，查看 Opsis 有边界的公开支持注册表和语法规范化 API。",
+  "metadata.login.title": "登录 | Opsis",
   "metadata.login.description":
-    "可选择使用钱包消息签名或账户凭据登录 ChainScout 云端工作区。",
-  "metadata.register.title": "创建账户 | ChainScout",
+    "可选择使用钱包消息签名或账户凭据登录 Opsis 云端工作区。",
+  "metadata.register.title": "创建账户 | Opsis",
   "metadata.register.description":
-    "可选择创建 ChainScout 云端工作区；加密的浏览器本地保险库保持独立。",
-  "metadata.cloud.title": "云端工作区 | ChainScout",
-  "metadata.cloud.description": "你可选的已登录 ChainScout 工作区。",
+    "可选择创建 Opsis 云端工作区；加密的浏览器本地保险库保持独立。",
+  "metadata.cloud.title": "云端工作区 | Opsis",
+  "metadata.cloud.description": "你可选的已登录 Opsis 工作区。",
 };

@@ -64,7 +64,7 @@ export default function Numbers() {
             <Card title="APPROVED ADDRESS" sub="Per explicit portfolio refresh" className="flex-1">
               <p className="font-num mt-4 text-[44px] leading-none">1</p>
               <p className="mt-5 max-w-[240px] text-[13.5px] leading-relaxed text-[#1d1d1d]/65">
-                The browser sends ChainScout only the approved address. Other saved addresses and private context stay encrypted locally; direct verification may derive additional public chain identifiers server-side.
+                The browser sends Opsis only the approved address. Other saved addresses and private context stay encrypted locally; direct verification may derive additional public chain identifiers server-side.
               </p>
             </Card>
           </div>

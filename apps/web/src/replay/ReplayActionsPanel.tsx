@@ -23,11 +23,11 @@ import { createPortal } from "react-dom";
 import { ApiError } from "../dashboard/http";
 import { useI18n } from "../i18n";
 import { fetchApprovedMerchants, fetchMerchantInventory } from "../market/api";
-import { QuotePanel } from "../pages/ScoutSwap";
+import { QuotePanel } from "../pages/SwapPreview";
 import {
   SWAP_TOKENS,
-  getScoutSwapQuote,
-  type ScoutSwapQuote,
+  getSwapQuote,
+  type SwapQuote,
   type SwapDirection,
 } from "../swap/api";
 import type {
@@ -103,7 +103,7 @@ function TradeReplay({ candidates, sessionId }: { candidates: TradeReplayCandida
   const [selectedId, setSelectedId] = useState("");
   const [direction, setDirection] = useState<SwapDirection | null>(null);
   const [amount, setAmount] = useState("");
-  const [quote, setQuote] = useState<ScoutSwapQuote | null>(null);
+  const [quote, setQuote] = useState<SwapQuote | null>(null);
   const [receivedAt, setReceivedAt] = useState<number | null>(null);
   const [elapsedMs, setElapsedMs] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -147,7 +147,7 @@ function TradeReplay({ candidates, sessionId }: { candidates: TradeReplayCandida
     setError("");
     setQuote(null);
     try {
-      const response = await getScoutSwapQuote({ direction, amount }, controller.signal);
+      const response = await getSwapQuote({ direction, amount }, controller.signal);
       if (controller.signal.aborted) return;
       setReceivedAt(performance.now());
       setElapsedMs(0);
@@ -408,7 +408,7 @@ function PurchaseReplay({
           {selections.length > 0 && <label className="mt-3 block"><span className="font-mono-d text-[8px] text-[#635d5a]">{t("actions.replay.matchEyebrow")}</span><select aria-label={t("actions.replay.matchAria")} value={selectionKey} onChange={(event) => { resetOffer(); setSelectionKey(event.target.value); }} className="mt-2 min-h-[44px] w-full border border-[#383838] bg-[#1d1d1d] px-3 font-mono-d text-[9px] text-[#d6ccba]"><option value="">{t("actions.replay.matchPlaceholder")}</option>{selections.map((candidate) => <option key={selectionId(candidate)} value={selectionId(candidate)}>{t("actions.replay.matchOption", { asset: candidate.asset.name, merchant: candidate.merchant.name, sku: candidate.mapping.sku })}</option>)}</select></label>}
         </div>
       </div>
-      {selection && !offer && <div className="mt-4 border border-[#fa6c34]/40 bg-[#211f1c] p-4"><p className="font-mono-d text-[8.5px] tracking-[0.14em] text-[#fa6c34]">{t("actions.replay.receiptEyebrow")}</p><ul className="mt-3 space-y-2 text-[10.5px] text-[#9a938a]"><li>{t("actions.replay.receiptScout", { merchantId: selection.merchant.id, assetId: selection.asset.identifier, sku: selection.mapping.sku, productId: selection.mapping.productId, reviewedAt: selection.mapping.reviewedAt })}</li><li>{t("actions.replay.receiptMerchant")}</li><li>{t("actions.replay.receiptExcluded")}</li><li>{t("actions.replay.receiptEncrypted")}</li></ul><button type="button" onClick={(event) => { setPermissionTrigger(event.currentTarget); setPending(selection); }} disabled={busy} className="mt-4 min-h-[44px] border border-[#fa6c34] bg-[#fa6c34] px-5 font-mono-d text-[9px] font-semibold tracking-wider text-[#1d1d1d]">{t("actions.replay.confirmLookup")}</button></div>}
+      {selection && !offer && <div className="mt-4 border border-[#fa6c34]/40 bg-[#211f1c] p-4"><p className="font-mono-d text-[8.5px] tracking-[0.14em] text-[#fa6c34]">{t("actions.replay.receiptEyebrow")}</p><ul className="mt-3 space-y-2 text-[10.5px] text-[#9a938a]"><li>{t("actions.replay.receiptOpsis", { merchantId: selection.merchant.id, assetId: selection.asset.identifier, sku: selection.mapping.sku, productId: selection.mapping.productId, reviewedAt: selection.mapping.reviewedAt })}</li><li>{t("actions.replay.receiptMerchant")}</li><li>{t("actions.replay.receiptExcluded")}</li><li>{t("actions.replay.receiptEncrypted")}</li></ul><button type="button" onClick={(event) => { setPermissionTrigger(event.currentTarget); setPending(selection); }} disabled={busy} className="mt-4 min-h-[44px] border border-[#fa6c34] bg-[#fa6c34] px-5 font-mono-d text-[9px] font-semibold tracking-wider text-[#1d1d1d]">{t("actions.replay.confirmLookup")}</button></div>}
       {pending && (
         <PurchasePermissionDialog
           busy={busy}

@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import type { ScoutSwapQuote } from "../swap/api";
+import type { SwapQuote } from "../swap/api";
 import { useI18n } from "../i18n";
 import { renderTradeCard, tradeCard } from "./trade-card";
 
-export function TradeCard({ quote, weth, usdg, reference, deadline }: { quote: ScoutSwapQuote; weth: string; usdg: string; reference: string; deadline: number }) {
+export function TradeCard({ quote, weth, usdg, reference, deadline }: { quote: SwapQuote; weth: string; usdg: string; reference: string; deadline: number }) {
   const { t } = useI18n();
   const [includeBalances, setIncludeBalances] = useState(false);
   const [image, setImage] = useState<{ url: string; preview: string; file: File } | null>(null);
@@ -33,7 +33,7 @@ export function TradeCard({ quote, weth, usdg, reference, deadline }: { quote: S
       if (performance.now() >= deadline || Date.now() >= Date.parse(quote.expiresAt)) throw new Error(t("trade.error.quoteExpired"));
       const url = URL.createObjectURL(blob);
       imageUrl.current = url;
-      setImage({ url, preview, file: new File([blob], "chainscout-trade-card.png", { type: "image/png" }) });
+      setImage({ url, preview, file: new File([blob], "opsis-trade-card.png", { type: "image/png" }) });
     } catch (failure) { if (generation.current === current) setError(failure instanceof Error ? failure.message : t("trade.card.errorGeneric")); }
     finally { if (generation.current === current) setBusy(false); }
   };
@@ -59,7 +59,7 @@ export function TradeCard({ quote, weth, usdg, reference, deadline }: { quote: S
       {image && <div className="mt-5 space-y-4">
         <p role="status" className="text-sm">{t("trade.card.ready")}</p>
         <img src={image.preview} alt={t("trade.card.previewAlt")} width={1200} height={1200} className="w-full max-w-xl border border-[#555]" />
-        <div className="flex flex-wrap gap-3"><a href={image.url} download="chainscout-trade-card.png" className="inline-flex min-h-12 items-center border border-[#fa6c34] px-5 py-3 text-[#fa6c34]">{t("trade.card.download")}</a>
+        <div className="flex flex-wrap gap-3"><a href={image.url} download="opsis-trade-card.png" className="inline-flex min-h-12 items-center border border-[#fa6c34] px-5 py-3 text-[#fa6c34]">{t("trade.card.download")}</a>
           {typeof navigator.canShare === "function" && navigator.canShare({ files: [image.file] }) && <button onClick={() => void share()} className="min-h-12 border border-[#fa6c34] px-5 py-3 text-[#fa6c34]">{t("trade.card.share")}</button>}
         </div>
       </div>}

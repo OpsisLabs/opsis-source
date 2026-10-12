@@ -1,9 +1,9 @@
 export const explorer: Record<string, string> = {
-  "explorer.header.home": "ChainScout 主页",
+  "explorer.header.home": "Opsis 主页",
   "explorer.header.privateMode": "私密模式",
-  "explorer.header.localVault": "本地保险库",
+  "explorer.header.localVault": "已保存",
   "explorer.header.localChats": "本地对话 ↓",
-  "explorer.eyebrow": "私密链上查询 · Robinhood Chain",
+  "explorer.eyebrow": "研究 · Robinhood Chain",
   "explorer.title.line1": "读懂这条链。",
   "explorer.title.line2": "不留下一丝画像。",
   "explorer.description":
@@ -46,9 +46,9 @@ export const explorer: Record<string, string> = {
   "explorer.goal.token": "这是什么代币？",
   "explorer.goal.verify": "可以验证什么？",
   "explorer.next.title": "继续提问",
-  "explorer.follow.title": "在 Scout Watch 中关注",
+  "explorer.follow.title": "在观察中关注",
   "explorer.follow.body":
-    "打开 Scout Watch 并预填此公开地址。在您同意之前不会查询或保存任何内容，您添加的标签会加密保存在本地保险库中。",
+    "打开 观察 并预填此公开地址。在您同意之前不会查询或保存任何内容，您添加的标签会加密保存在本地保险库中。",
   "explorer.follow.participants": "此交易中的公开地址",
   "explorer.follow.from": "来自",
   "explorer.follow.to": "发送至",

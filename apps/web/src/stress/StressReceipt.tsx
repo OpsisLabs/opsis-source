@@ -61,7 +61,7 @@ export function StressReceipt({
       setImage({
         preview,
         url: url.current,
-        file: new File([blob], "chainscout-stress-test.png", {
+        file: new File([blob], "opsis-stress-test.png", {
           type: "image/png",
         }),
       });
@@ -122,7 +122,7 @@ export function StressReceipt({
             <a
               className="stress-button"
               href={image.url}
-              download="chainscout-stress-test.png"
+              download="opsis-stress-test.png"
             >
               {t("stress.receipt.download")}
             </a>

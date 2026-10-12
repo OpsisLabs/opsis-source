@@ -365,7 +365,7 @@ body > [id*="kimi"] {
   to { transform: translateX(-50%); }
 }
 
-/* Scout Swap uses an intentionally tiny rolling reel while a live route is unknown. */
+/* Swap preview uses an intentionally tiny rolling reel while a live route is unknown. */
 @keyframes swap-digit-cycle {
   0% { transform: translateY(-3px); opacity: 0.25; }
   50% { transform: translateY(3px); opacity: 0.85; }

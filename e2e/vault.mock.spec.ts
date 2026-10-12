@@ -6,7 +6,7 @@ const passphrase = "correct horse battery staple";
 const nextPassphrase = "new recovery passphrase 2026";
 const assetName = "Vault Canary Card";
 const privateNote = "PRIVATE-NOTE-CANARY";
-const identifier = "PSA-CHAINSCOUT-42";
+const identifier = "PSA-OPSIS-42";
 const collectiblePrinting = "1st Edition Holo";
 const firstReferenceLabel = "Collector show listing";
 const secondReferenceLabel = "Auction result";
@@ -45,7 +45,7 @@ test("deal finder builds exact click-only searches without a background marketpl
   await prices.getByRole("button", { name: "Fetch public price references" }).click();
   await expect(prices.getByText("USD 42", { exact: true })).toBeVisible();
   await expect(prices.getByText("Provider price timestamp unknown—not certified current")).toBeVisible();
-  if (process.env.CHAINSCOUT_PREVIEW_SHOT) await page.screenshot({ path: process.env.CHAINSCOUT_PREVIEW_SHOT, fullPage: true });
+  if (process.env.OPSIS_PREVIEW_SHOT) await page.screenshot({ path: process.env.OPSIS_PREVIEW_SHOT, fullPage: true });
   for (const width of [320, 390]) {
     await page.setViewportSize({ width, height: 900 });
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
@@ -71,7 +71,7 @@ async function downloadBuffer(download: Download): Promise<Buffer> {
 }
 
 function backupFile(buffer: Buffer) {
-  return { name: "chainscout-vault.encrypted.json", mimeType: "application/json", buffer };
+  return { name: "opsis-vault.encrypted.json", mimeType: "application/json", buffer };
 }
 
 function portfolioSnapshot(address = portfolioAddress) {
@@ -121,7 +121,7 @@ test("approval manager reviews anchored permissions without executing or leaking
   await page.getByLabel("Filter permissions").selectOption("all");
   await page.getByRole("button", { name: "Review external revocation" }).click();
   await expect(page.getByRole("link", { name: "Open Revoke.cash for Robinhood Chain" })).toHaveAttribute("href", "https://revoke.cash/token-approval-checker/robinhood-chain");
-  if (process.env.CHAINSCOUT_PREVIEW_SHOT) await page.screenshot({ path: process.env.CHAINSCOUT_PREVIEW_SHOT, fullPage: true });
+  if (process.env.OPSIS_PREVIEW_SHOT) await page.screenshot({ path: process.env.OPSIS_PREVIEW_SHOT, fullPage: true });
   for (const width of [320, 390]) {
     await page.setViewportSize({ width, height: 900 });
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
@@ -233,7 +233,7 @@ test("encrypted Vault creates, stores ciphertext, locks, exports, deletes, and r
   await page.getByRole("textbox", { name: "Encrypted backup JSON" }).focus();
   await expect(page.getByRole("textbox", { name: "Encrypted backup JSON" })).toHaveJSProperty("selectionStart", 0);
   await expect(page.getByRole("textbox", { name: "Encrypted backup JSON" })).toHaveJSProperty("selectionEnd", backupText.length);
-  expect(JSON.parse(backupText)).toMatchObject({ format: "chainscout.encrypted-vault", schemaVersion: 1 });
+  expect(JSON.parse(backupText)).toMatchObject({ format: "opsis.encrypted-vault", schemaVersion: 1 });
   for (const canary of [assetName, privateNote, identifier, recoveryCode ?? "CSV1-"]) expect(backupText).not.toContain(canary);
 
   await page.getByLabel("TYPE DELETE MY LOCAL VAULT").fill("DELETE MY LOCAL VAULT");
@@ -273,7 +273,7 @@ test("encrypted Vault creates, stores ciphertext, locks, exports, deletes, and r
   for (const canary of canaries) expect(runtimeText).not.toContain(canary);
 });
 
-test("Portfolio Intelligence sends only one approved public address and encrypts the useful context locally", async ({ page }) => {
+test("Saved sends only one approved public address and encrypts the useful context locally", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   const sessionCookieCanary = "SESSION-COOKIE-CANARY";
   await page.context().addCookies([{
@@ -319,7 +319,7 @@ test("Portfolio Intelligence sends only one approved public address and encrypts
 
   expect(calls).toHaveLength(1);
   expect(JSON.parse(calls[0].body)).toEqual({ address: portfolioAddress });
-  expect(calls[0].headers["x-chainscout-csrf"]).toBe("1");
+  expect(calls[0].headers["x-opsis-csrf"]).toBe("1");
   expect(calls[0].headers.cookie).toBeUndefined();
   expect(calls[0].body).not.toContain("PORTFOLIO-PRIVATE-LABEL");
   expect(calls[0].body).not.toContain("PORTFOLIO-PRIVATE-NOTE");
@@ -629,7 +629,7 @@ test("Vault changes lock other tabs and reload the newest encrypted revision", a
   await expect(secondTab.getByRole("heading", { name: "Cross-tab encrypted card" })).toBeVisible();
 
   await secondTab.getByRole("button", { name: "LOCK" }).click();
-  await expect(page.getByRole("status")).toContainText("locked across open ChainScout tabs");
+  await expect(page.getByRole("status")).toContainText("locked across open Opsis tabs");
   await expect(page.getByText("Cross-tab encrypted card")).toHaveCount(0);
   await secondTab.close();
 });
