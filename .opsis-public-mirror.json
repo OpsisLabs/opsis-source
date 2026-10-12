@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "82e76a7628fefcc32ed8588e8f74a9ea4c87b52393955bcd4ef293f5b850fa61",
+  "sourceTreeDigest": "e628873901a811f6e5e655ccbc0519c3f57bcf9100d96dbcff100782bb0d55f4",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "528a6101cbe6263a09c6f2e2573815f0752057ad6a4310f064c7c435f41f9cdf",
@@ -692,7 +692,7 @@
     "docs/opsis/30-marketing.md": "10d6cf120fd6f5704ad7e4f7b6410705e2980fc3feb6908fa01a35777a24a0b9",
     "docs/public-source.md": "235b3e31e402b4d236c84a0abc282634103a1a1a5dfa2836f8a53a86d8cffbe6",
     "docs/release-train.md": "666054dad0152af6c34582562857075d28c0f853a6a7504d0160e3ba5134f500",
-    "e2e/biggest-trades.mock.spec.ts": "54dd9e870ed0c44ca322f5b2c933897aa11d90a1151ae6605b9f6a749275876b",
+    "e2e/biggest-trades.mock.spec.ts": "4d5752ec21a020fb5919786e84cc07de4c7b988dc45e08df55021ab8dfaa2103",
     "e2e/card-prices.mock.spec.ts": "d6dbf01d27b4f8d9deef2910728d6ce4a700890c7717feadf167cff46d93e3f2",
     "e2e/collectibles.mock.spec.ts": "e1d8803d805867b4635b383044807ceba24b6152c64ce20a4575a6190332b50c",
     "e2e/community.mock.spec.ts": "a009fa6a0f422436c639a3bcc7eba726d5481caa493dd7eea335a5ba49f3e301",

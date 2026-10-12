@@ -260,7 +260,7 @@ test("biggest observed trades clears stale results on input change and unmount",
     page.getByRole("heading", { name: "Big trades", exact: true, level: 1 }),
   ).toHaveCount(0);
   await page
-    .getByRole("link", { name: /Biggest Observed Trades/i })
+    .getByRole("link", { name: /Big trades/i })
     .first()
     .click();
   await expect(page).toHaveURL(/\/biggest-trades$/);
