@@ -106,7 +106,7 @@ test("card price check search and optional photo are click-only and clear on cha
     details++; expect(route.request().postDataJSON()).toEqual({ language: "en", cardId: "base1-4" });
     await route.fulfill({ json: { card: { provider: "tcgdex", catalogId: "base1-4", language: "en", name: "Charizard", number: "4", category: "Pokemon", set: { id: "base1", name: "Base Set", officialCount: 102, totalCount: 102 }, rarity: "Rare", illustrator: "Mitsuhiro Arita", catalogUpdatedAt: null, fetchedAt: new Date().toISOString(), imageUrl, sourceUrl: "https://api.tcgdex.net/v2/graphql", licenseUrl: "https://github.com/tcgdex/cards-database/blob/master/LICENSE" }, privacy } });
   });
-  await page.route(imageUrl, async route => { photos++; expect(route.request().headers().referer).toBeUndefined(); await route.fulfill({ contentType: "image/png", body: await readFile("apps/web/public/og.png") }); });
+  await page.route(imageUrl, async route => { photos++; expect(route.request().headers().referer).toBeUndefined(); await route.fulfill({ contentType: "image/png", body: await readFile("apps/web/public/og-opsis-v1.png") }); });
   await page.goto("/card-prices"); await page.getByLabel("Card name", { exact: true }).fill("Charizard"); expect(searches).toBe(0);
   await page.getByRole("button", { name: "Search Pokémon cards", exact: true }).click();
   await page.getByRole("button", { name: /Charizard base1-4/ }).click();

@@ -615,7 +615,7 @@ test("kol tracker premium encrypted device save survives reload and rejects wron
   const encrypted = await page.evaluate(
     () =>
       new Promise<string>((resolve, reject) => {
-        const request = indexedDB.open("opsis-kol-research", 1);
+        const request = indexedDB.open("chainscout-kol-research", 1);
         request.onsuccess = () => {
           const db = request.result;
           const tx = db.transaction("workspace", "readonly");

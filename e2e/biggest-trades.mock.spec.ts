@@ -150,7 +150,7 @@ test("biggest observed trades fetches only after the explicit consent click", as
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/biggest-trades");
   await expect(
-    page.getByRole("heading", { name: /largest swaps Opsis actually observed/i }),
+    page.getByRole("heading", { name: "Big trades", exact: true, level: 1 }),
   ).toBeVisible();
   expect(calls).toHaveLength(0);
 
@@ -195,7 +195,7 @@ test("biggest observed trades stays usable on mobile in English and Chinese", as
     .filter({ visible: true })
     .click();
   await expect(
-    page.getByRole("heading", { name: /Opsis 实际观察到的最大交易/ }),
+    page.getByRole("heading", { name: "大额交易", exact: true, level: 1 }),
   ).toBeVisible();
   expect(
     await page.evaluate(
@@ -254,10 +254,10 @@ test("biggest observed trades clears stale results on input change and unmount",
   await expect(page.getByText("5100").first()).toBeVisible();
   expect(calls).toHaveLength(2);
 
-  await page.getByRole("link", { name: "Guide" }).first().click();
+  await page.getByRole("link", { name: "Find your tool", exact: true }).first().click();
   await expect(page).toHaveURL(/\/guide$/);
   await expect(
-    page.getByRole("heading", { name: /largest swaps Opsis actually observed/i }),
+    page.getByRole("heading", { name: "Big trades", exact: true, level: 1 }),
   ).toHaveCount(0);
   await page
     .getByRole("link", { name: /Biggest Observed Trades/i })
