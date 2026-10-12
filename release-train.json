@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "28-opsis-identity",
+  "activeRelease": "29-perp-handoff",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement. Exception: dRPC under Opsis decision D20, admitted only while it does not request identity or business verification.",
@@ -340,7 +340,7 @@
       "id": "28-opsis-identity",
       "branch": "codex/28-opsis-identity",
       "tagPrefix": "rc/28-opsis-identity/",
-      "status": "active",
+      "status": "released",
       "dependencies": [
         "27-flow-polish"
       ],
@@ -352,7 +352,7 @@
       "id": "29-perp-handoff",
       "branch": "codex/29-perp-handoff",
       "tagPrefix": "rc/29-perp-handoff/",
-      "status": "queued",
+      "status": "active",
       "dependencies": [
         "28-opsis-identity"
       ],
