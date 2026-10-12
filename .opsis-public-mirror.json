@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "fefe98239ca7da91d67bce4e2178256e038f6f50ac794c41226c3be0279f495c",
+  "sourceTreeDigest": "78ab4bcc206872ce52bce946bd08c643dbf87d0f1b5593c37f16555e9f001566",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "54fbd8d184f67c14afa40d70fcefef7c5211195c2eb43e649f15e901f92c9ee5",
@@ -216,8 +216,10 @@
     "apps/web/nginx.conf": "4bd90a4bc8671c5c594866cb56becb1fb96588d4de20f097b354533b5971d8d1",
     "apps/web/package.json": "da5466e7e344b4142e05de00cdf9a5c4e11cf3cdb53ad22745102263d1cc0fc7",
     "apps/web/postcss.config.js": "190c877db466995bf1482f4a16abd06e04a89ede3119341e2a86ff96e1737b27",
+    "apps/web/public/apple-touch-icon.png": "bef11cf0c86dd21cc9a6d591b4f4d03b2e320c785e0b2441c52e99aa1743c265",
     "apps/web/public/asset-collection-v3.avif": "b187b003164b81c57bf0840e7777075504dcb90e852280288dbacb3fa5d5d2ee",
     "apps/web/public/asset-collection-v3.jpg": "3dbe4b8d407f6d87d30c3f29b9c41093f79de91a801158b47562a26939d6553f",
+    "apps/web/public/favicon.ico": "581d80c18f8f152ba4921c2f2015b80757f832310334f800eb29cc4d44b20927",
     "apps/web/public/logo.svg": "ece54b56b1962a39ac6493ea3bbf0a9197ac70cb653da96befbc41223dca29d7",
     "apps/web/public/og-opsis-v1.png": "bbe5c677a7e78121f000f5ef57abfa6f94a85a01a6d2923766d444eec290ddfa",
     "apps/web/public/open-data-v1.openapi.json": "9c9c61535c4d23fd2f3de7a6cb848024a31ff9fb556f3e0d24e85a91ff012a0e",
