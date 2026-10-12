@@ -351,7 +351,7 @@ export default function App() {
       ? events.filter((v) => saved.includes(v.id))
       : events;
     const text =
-      "# " + displayBrand + " Situation Room — 10 September 2026\n\nNews capture: " +
+      "# " + displayBrand + " " + (OPSIS_PRESENTATION ? "World & markets" : "Situation Room") + " — 10 September 2026\n\nNews capture: " +
       data.news.capturedAt +
       "\nMarket capture: " +
       data.market.capturedAt +
@@ -377,7 +377,7 @@ export default function App() {
         <nav
           className="sr-edition-switch"
           role="tablist"
-          aria-label="Situation Room edition"
+          aria-label={OPSIS_PRESENTATION ? "World & markets edition" : "Situation Room edition"}
         >
           <button
             role="tab"

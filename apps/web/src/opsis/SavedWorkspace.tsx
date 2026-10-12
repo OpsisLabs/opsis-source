@@ -21,7 +21,7 @@ export default function SavedWorkspace({
           to="/saved?view=portfolio"
           aria-current={!reports ? "page" : undefined}
         >
-          {c("Holdings & Vault", "持仓与保险库")}
+          {c("Holdings & notes", "持仓与笔记")}
         </Link>
         <Link
           to="/saved?view=reports"

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import {
   Link,
   NavLink,
@@ -252,11 +252,13 @@ export default function OpsisApp() {
       });
     return () => controller.abort();
   }, [access, error]);
+  // A stable list: the front door reconnects to the film whenever it changes.
+  const enabledTools = useMemo(() => (access ? landingTools(access) : []), [access]);
   return (
     <>
       {access && (
         <OriginalLanding
-          {...{ enabledTools: landingTools(access) }}
+          enabledTools={enabledTools}
           onLock={
             publicAccess
               ? undefined
