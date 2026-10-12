@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import * as echarts from "echarts";
+import { init, use as registerECharts } from "echarts/core";
+import { ScatterChart } from "echarts/charts";
+import { GridComponent, TooltipComponent } from "echarts/components";
+import { CanvasRenderer } from "echarts/renderers";
+
+registerECharts([ScatterChart, GridComponent, TooltipComponent, CanvasRenderer]);
 import type { StockGapSeries } from "./stock-gap-series";
 import { useCopy } from "./copy";
 
@@ -30,7 +35,7 @@ export default function StockGapSeriesPanel() {
 
   useEffect(() => {
     if (!series || !gapChartRef.current) return;
-    const chart = echarts.init(gapChartRef.current);
+    const chart = init(gapChartRef.current);
     const points = series.observations;
     chart.setOption({
       animation: false,
@@ -62,7 +67,7 @@ export default function StockGapSeriesPanel() {
 
   useEffect(() => {
     if (!series || series.referenceType !== "oracle" || !ageChartRef.current) return;
-    const chart = echarts.init(ageChartRef.current);
+    const chart = init(ageChartRef.current);
     chart.setOption({
       animation: false,
       grid: { left: 65, right: 18, top: 12, bottom: 52 },

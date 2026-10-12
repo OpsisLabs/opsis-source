@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router";
+import { parseLabView } from "./lab-view";
 import { useCopy } from "./copy";
 import TokenComparison from "./TokenComparison";
 import SpatialPlot from "./SpatialPlot";
@@ -13,18 +15,25 @@ import {
   type LabData,
 } from "./lab-data";
 import { safeHttpUrl } from "../dashboard/adapters";
-import QuantWorkbench from "./quant/QuantWorkbench";
 import StockGap from "./StockGap";
-import StockGapSeriesPanel from "./StockGapSeriesPanel";
-import FundingWorkbench from "./quant/FundingWorkbench";
-import BasisWorkbench from "./quant/BasisWorkbench";
+
+const QuantWorkbench = lazy(() => import("./quant/QuantWorkbench"));
+const StockGapSeriesPanel = lazy(() => import("./StockGapSeriesPanel"));
+const FundingWorkbench = lazy(() => import("./quant/FundingWorkbench"));
+const BasisWorkbench = lazy(() => import("./quant/BasisWorkbench"));
 
 export default function Lab() {
   const c = useCopy();
   const [data, setData] = useState<LabData | null>(null);
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
-  const [mode, setMode] = useState<"atlas" | "scenario" | "quant">("atlas");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const mode = parseLabView(searchParams.get("view"));
+  const setMode = (view: typeof mode) => setSearchParams((previous) => {
+    const next = new URLSearchParams(previous);
+    next.set("view", view);
+    return next;
+  });
   const [token, setToken] = useState("all");
   const [minimum, setMinimum] = useState(10000);
   const [selection, setSelection] = useState("");
@@ -79,7 +88,7 @@ export default function Lab() {
       <header className="opsis-studio-heading">
         <div>
           <p className="opsis-kicker">04 / {c("QUANT LAB", "量化实验室")}</p>
-          <h1>{c("A different view of the market.", "换个角度看市场。")}</h1>
+          <h1>{c("Quant Lab", "量化实验室")}</h1>
         </div>
         <p>
           {c(
@@ -98,24 +107,24 @@ export default function Lab() {
           onClick={() => setMode("atlas")}
         >
           <span>01</span>
-          {c("Pool atlas", "资金池图谱")} ↗
+          {c("Pool atlas", "资金池图谱")}
         </button>
         <button
-          aria-pressed={mode === "scenario"}
-          onClick={() => setMode("scenario")}
+          aria-pressed={mode === "surface"}
+          onClick={() => setMode("surface")}
         >
           <span>02</span>
-          {c("Portfolio surface", "投资组合曲面")} ↗
+          {c("Portfolio surface", "投资组合曲面")}
         </button>
         <button
-          aria-pressed={mode === "quant"}
-          onClick={() => setMode("quant")}
+          aria-pressed={mode === "research"}
+          onClick={() => setMode("research")}
         >
           <span>03</span>
-          {c("Quant research", "量化研究")} ↗
+          {c("Quant research", "量化研究")}
         </button>
       </div>
-      {mode !== "quant" && (
+      {mode !== "research" && (
         <div className="opsis-dataset-strip">
           <span className="opsis-status-dot" />
           {c("CAPTURED / 10 SEP 2026", "已采集 / 2026 年 9 月 10 日")}
@@ -123,8 +132,8 @@ export default function Lab() {
           <span>{c("Not live market data", "非实时市场数据")}</span>
         </div>
       )}
-      {mode === "quant" ? (
-        <>
+      {mode === "research" ? (
+        <Suspense fallback={<p role="status">{c("Loading Quant research…", "正在加载量化研究…")}</p>}>
           <QuantWorkbench />
           <details className="opsis-lab-methods">
             <summary>
@@ -141,7 +150,7 @@ export default function Lab() {
             <summary>{c("Mark / index basis dataset", "标记价 / 指数价基差数据集")}</summary>
             <BasisWorkbench />
           </details>
-        </>
+        </Suspense>
       ) : failed ? (
         <div className="opsis-panel" role="alert">
           <h2>{c("The capture could not load.", "无法加载历史数据。")}</h2>
@@ -180,7 +189,7 @@ export default function Lab() {
               <SpatialPlot
                 points={points}
                 selected={selectedPoint}
-                surface={mode === "scenario"}
+                surface={mode === "surface"}
                 onSelect={(id) => {
                   if (mode === "atlas") setSelection(id);
                   else if (id !== "selection") {
@@ -430,7 +439,7 @@ export default function Lab() {
                 </table>
               </div>
             </section>
-          ) : mode === "scenario" ? (
+          ) : mode === "surface" ? (
             <section className="opsis-lab-data">
               <div className="opsis-section-label">
                 03 / {c("THE SELECTED SCENARIO", "所选情景")}
