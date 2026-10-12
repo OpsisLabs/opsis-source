@@ -5,14 +5,14 @@ export const cloud: Record<string, string> = {
   "cloud.rail.brand": "CHAINSCOUT",
   "cloud.rail.newSession": "新建会话",
   "cloud.rail.creating": "正在创建…",
-  "cloud.rail.scoutSwap": "SCOUT SWAP",
+  "cloud.rail.scoutSwap": "兑换预览",
   "cloud.rail.private": "私密",
-  "cloud.rail.vault": "保险库",
-  "cloud.rail.rwa": "RWA",
-  "cloud.rail.guide": "指南",
+  "cloud.rail.vault": "已保存",
+  "cloud.rail.rwa": "股票代币核查",
+  "cloud.rail.guide": "选择工具",
   "cloud.rail.sessions": "会话",
   "cloud.rail.aiMessages": "AI 消息",
-  "cloud.rail.chainLookups": "链上查询",
+  "cloud.rail.chainLookups": "研究",
   "cloud.rail.accountPrivacy": "账户隐私",
   "cloud.rail.logOut": "退出登录",
 
@@ -219,9 +219,9 @@ export const cloud: Record<string, string> = {
   "cloud.http.portfolioBudgetUnavailable":
     "免费套餐的投资组合安全防护不可用，刷新已故障关闭。请稍后重试。",
   "cloud.http.rwaVerifyDisabled":
-    "RWA 验证已暂停。未发送或保存任何合约数据。",
+    "股票代币核查已暂停。未发送或保存任何合约数据。",
   "cloud.http.rwaDailyBudget":
-    "今日的免费 RWA 验证额度已用完。请明天再试。",
+    "今日的免费股票代币核查额度已用完。请明天再试。",
   "cloud.http.rwaBudgetUnavailable":
     "免费套餐的 RWA 安全防护不可用，验证已故障关闭。",
   "cloud.http.rwaAnchorChanged":
@@ -273,8 +273,8 @@ export const cloud: Record<string, string> = {
   "cloud.auth.savedResearch": "已保存的研究",
   "cloud.auth.readOnly": "只读 · 无交易 · 无授权",
   "cloud.auth.disclaimer": "仅供参考，不构成财务建议。",
-  "cloud.auth.openPrivateExplorer": "打开私密链上查询",
-  "cloud.auth.openLocalVault": "打开本地保险库",
+  "cloud.auth.openPrivateExplorer": "打开研究",
+  "cloud.auth.openLocalVault": "打开已保存",
   "cloud.auth.metamaskNotDetected": "此浏览器中未检测到 MetaMask。",
   "cloud.auth.installMetamask": "安装 METAMASK",
   "cloud.auth.walletVerified": "钱包已验证",
@@ -295,13 +295,13 @@ export const cloud: Record<string, string> = {
   "cloud.auth.login.footerFirst": "第一次来？",
   "cloud.auth.login.footerPrivate": "了解私密工具如何运作：",
   "cloud.auth.login.createAccount": "创建账户",
-  "cloud.auth.login.featureGuide": "功能指南",
+  "cloud.auth.login.featureGuide": "选择工具",
   "cloud.auth.register.title": "创建你的账户",
   "cloud.auth.register.titlePrivate": "以私密方式使用 ChainScout",
   "cloud.auth.register.sub":
-    "连接钱包并选择一个用户名。无需邮箱，无需密码。免费套餐每月包含 500 条 AI 消息和 5,000 次链上查询。",
+    "连接钱包并选择一个用户名。无需邮箱，无需密码。免费套餐每月包含 500 条 AI 消息和 5,000 次研究。",
   "cloud.auth.register.subPrivate":
-    "使用私密链上查询或本地保险库无需账户。",
+    "使用研究或本地保险库无需账户。",
   "cloud.auth.register.footer": "已经有账户了？",
   "cloud.auth.register.signIn": "登录",
 
@@ -365,7 +365,7 @@ export const cloud: Record<string, string> = {
   "cloud.history.cancel": "取消",
   "cloud.history.footnote":
     "仅限同一浏览器配置文件和站点地址。重启或离开此页面后需重新解锁。清除站点数据、隐私浏览、浏览器驱逐或丢失口令都可能导致无法访问。请定期导出备份；存储权限并非保证。",
-  "cloud.history.setupLink": "保险库设置、备份还原与恢复",
+  "cloud.history.setupLink": "已保存：设置、备份还原与恢复",
   "cloud.history.savedLabel": "保存于 {date}",
   "cloud.history.defaultQuestion": "解释这个公开标识符",
   "cloud.history.savedSources": "{count} 个已保存来源",

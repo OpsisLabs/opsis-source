@@ -51,11 +51,11 @@ export default function Guide({
         <p className="opsis-kicker">
           {c("FIND YOUR TOOL / OPSIS", "选择工具 / OPSIS")}
         </p>
-        <h1>{c("What brings you here?", "您想做什么？")}</h1>
+        <h1>{c("Find your tool", "选择工具")}</h1>
         <p>
           {c(
-            "Choose your task. We'll show you where to start, what to enter and what you'll get back.",
-            "选择任务，了解从哪里开始、输入什么以及会得到什么。",
+            "Choose a task to see a starting tool, its input and its output.",
+            "选择任务，查看起始工具、所需输入和输出。",
           )}
         </p>
       </header>
@@ -72,7 +72,6 @@ export default function Guide({
             onClick={() => setSelected(a.id)}
           >
             {c(...a.name)}
-            <span aria-hidden="true">↗</span>
           </button>
         ))}
       </div>

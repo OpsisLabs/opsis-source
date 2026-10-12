@@ -4,10 +4,10 @@ export const landing = {
   "landing.nav.availability": "Availability",
   "landing.nav.safety": "Safety",
   "landing.nav.faq": "FAQ",
-  "landing.nav.guide": "Guide",
+  "landing.nav.guide": "Find your tool",
   "landing.nav.homeLabel": "ChainScout home",
   "landing.nav.sectionsLabel": "Homepage sections",
-  "landing.nav.openExplorer": "OPEN EXPLORER",
+  "landing.nav.openExplorer": "Open Research",
   "landing.nav.openMenu": "Open navigation menu",
   "landing.nav.mobileSectionsLabel": "Mobile homepage sections",
 
@@ -23,7 +23,7 @@ export const landing = {
   "landing.sidebar.founderBeta": "FOUNDER BETA",
   "landing.sidebar.founderCopy":
     "Available tools are separated from coming-soon adapters.",
-  "landing.sidebar.startGuide": "Start guide",
+  "landing.sidebar.startGuide": "Find your tool",
 
   "landing.hero.badge": "PRIVATE MULTI-ASSET COMMAND CENTER",
   "landing.hero.headline1": "Know what you own.",
@@ -37,8 +37,8 @@ export const landing = {
   "landing.hero.category.pokemon": "POKÉMON / TCG",
   "landing.hero.category.collectibles": "COLLECTIBLES",
   "landing.hero.category.manual": "ANY MANUAL ASSET",
-  "landing.hero.openVault": "OPEN PRIVATE VAULT",
-  "landing.hero.tryExplorer": "TRY THE EXPLORER",
+  "landing.hero.openVault": "Open Saved",
+  "landing.hero.tryExplorer": "Open Research",
   "landing.hero.noWallet":
     "No wallet needed to explore. No server copy of your Vault.",
   "landing.hero.illustrative": "ILLUSTRATIVE ASSET STACK",
@@ -128,12 +128,12 @@ export const landing = {
   "landing.workflow.understand.signal": "NO ACCOUNT · EPHEMERAL",
   "landing.workflow.understand.copy":
     "Explain a wallet, transaction, token, or contract. Inspect activity, approvals, risk notes, and citations without creating a profile.",
-  "landing.workflow.understand.action": "START PRIVATE EXPLORER",
+  "landing.workflow.understand.action": "Open Research",
   "landing.workflow.track.title": "Track",
   "landing.workflow.track.signal": "ENCRYPTED · BROWSER-LOCAL",
   "landing.workflow.track.copy":
     "Save manual assets, exact purchase lots, private notes, locally processed photos, portfolio snapshots, and dated reference values.",
-  "landing.workflow.track.action": "OPEN LOCAL VAULT",
+  "landing.workflow.track.action": "Open Saved",
   "landing.workflow.act.title": "Act carefully",
   "landing.workflow.act.signal": "READ-ONLY · OFFICIAL HANDOFF",
   "landing.workflow.act.copy":
@@ -148,14 +148,14 @@ export const landing = {
   "landing.availability.group.available": "AVAILABLE IN FOUNDER BUILD",
   "landing.availability.group.comingSoon": "COMING SOON",
   "landing.availability.group.next": "NEXT, AFTER THIS RELEASE",
-  "landing.availability.item.explorer": "Private Explorer",
-  "landing.availability.item.vault": "Encrypted Vault",
+  "landing.availability.item.explorer": "Research",
+  "landing.availability.item.vault": "Saved",
   "landing.availability.item.manualRecords":
     "Manual crypto / NFT / RWA / collectible records",
   "landing.availability.item.charts": "Dated collectible value-history charts",
-  "landing.availability.item.portfolio": "Portfolio Intelligence",
-  "landing.availability.item.rwa": "RWA Verify",
-  "landing.availability.item.swap": "Scout Swap",
+  "landing.availability.item.portfolio": "Saved",
+  "landing.availability.item.rwa": "Stock-token check",
+  "landing.availability.item.swap": "Swap preview",
   "landing.availability.item.tcgdex": "TCGdex-assisted collectible identity",
   "landing.availability.item.market": "Market & Inventory",
   "landing.availability.item.replay": "Replay Actions",
@@ -200,11 +200,11 @@ export const landing = {
   "landing.faq.titleA": "The questions",
   "landing.faq.titleB": "people ask first.",
   "landing.faq.copy":
-    "The short version is here. The full Guide explains workflows; Technical Docs covers architecture, privacy boundaries, providers, and exact API behavior.",
+    "The short version is here. Find your tool explains workflows; Technical Docs covers architecture, privacy boundaries, providers, and exact API behavior.",
   "landing.faq.goDeeper": "GO DEEPER",
   "landing.faq.goDeeperCopy":
     "See the current-build matrix, step-by-step workflows, technical internals, privacy constraints, and API contracts.",
-  "landing.faq.openGuide": "OPEN FEATURE GUIDE",
+  "landing.faq.openGuide": "Open Find your tool",
   "landing.faq.readDocs": "READ TECHNICAL DOCS",
   "landing.faq.viewFullFaq": "VIEW FULL FAQ",
   "landing.faq.q1": "Can I track Pokémon cards and physical collectibles?",
@@ -220,7 +220,7 @@ export const landing = {
     "No. Vault records are encrypted in this browser with WebCrypto and stored in IndexedDB. Export an encrypted backup because browser storage can be cleared or evicted, and another origin or device cannot see this Vault automatically.",
   "landing.faq.q4": "Do I need to connect a wallet?",
   "landing.faq.a4":
-    "No. Private Explorer, Scout Swap, RWA Verify, and the local Vault need no wallet connection. Unlock your local Vault to save new Explorer conversations encrypted in this browser. Cloud research is a future update.",
+    "No. Research, Swap preview, Stock-token check, and the local Vault need no wallet connection. Unlock your local Vault to save new Research conversations encrypted in this browser. Cloud research is a future update.",
   "landing.faq.q5": "Does ChainScout trade, buy cards, or move funds?",
   "landing.faq.a5":
     "No. ChainScout is read-only. It can explain public evidence and create an official external handoff where supported, but it never signs, broadcasts, checks out, or stores payment state.",
@@ -233,7 +233,7 @@ export const landing = {
   "landing.footer.titleB": "Keep the context.",
   "landing.footer.copy":
     "Start with an encrypted local record for crypto, an NFT, a tokenized asset, a Pokémon card, or anything else you own. Add public evidence only when you explicitly ask for it.",
-  "landing.footer.openVault": "OPEN PRIVATE VAULT",
+  "landing.footer.openVault": "Open Saved",
   "landing.footer.pages": "PAGES",
   "landing.footer.page.homepage": "Homepage",
   "landing.footer.page.whatToTrack": "What to track",
@@ -255,7 +255,7 @@ export const landing = {
   "landing.footer.band.evidence": "Evidence stays inspectable",
   "landing.footer.band.copy":
     "ChainScout combines an encrypted browser-local asset Vault with read-only, source-linked Robinhood Chain tools. Informational only, not financial advice or an appraisal.",
-  "landing.footer.bigWord": "Vault",
+  "landing.footer.bigWord": "Saved",
   "landing.footer.disclaimer": "Informational only. Not financial advice.",
   "landing.footer.terms": "Terms of use",
   "landing.footer.privacy": "Privacy Policy",

@@ -2,7 +2,7 @@ export const guide = {
   "guide.header.homeAria": "ChainScout home",
   "guide.header.brand": "CHAINSCOUT",
   "guide.header.pagesAria": "Knowledge pages",
-  "guide.header.nav.guide": "START GUIDE",
+  "guide.header.nav.guide": "Find your tool",
   "guide.header.nav.docs": "TECH DOCS",
   "guide.header.nav.faq": "FAQ",
   "guide.header.nav.developers": "DEVELOPERS",
@@ -47,7 +47,7 @@ export const guide = {
   "guide.feature.chatsEyebrow": "ENCRYPTED LOCAL CHATS",
   "guide.feature.chatsTitle": "Keep your research on this device.",
   "guide.feature.chatsCopy":
-    "Unlock your Vault in Explorer before asking to save new chats. Reopen them in the same browser and site address, and export encrypted backups regularly. No wallet, account, or signature needed. Cloud research is a future update.",
+    "Unlock your Vault in Research before asking to save new chats. Reopen them in the same browser and site address, and export encrypted backups regularly. No wallet, account, or signature needed. Cloud research is a future update.",
   "guide.feature.chatsLink": "OPEN LOCAL CHATS →",
   "guide.feature.roadmapEyebrow": "WHAT IS COMING LATER?",
   "guide.feature.roadmapTitle": "Updates live on the roadmap.",
@@ -84,7 +84,7 @@ export const guide = {
   "guide.faq.groups.basics.q3":
     "Do I need to connect a wallet or create an account?",
   "guide.faq.groups.basics.a3":
-    "No for the main product. Private Explorer needs neither. The local Vault uses a passphrase, not a wallet. Wallet sign-in belongs only to the separate optional saved-research workspace.",
+    "No for the main product. Research needs neither. The local Vault uses a passphrase, not a wallet. Wallet sign-in belongs only to the separate optional saved-research workspace.",
   "guide.faq.groups.basics.q4": "Does ChainScout tell me what to buy?",
   "guide.faq.groups.basics.a4":
     "No. It presents sourced facts, uncertainty, comparisons, and limitations. It does not give personalized investment instructions, guarantee a price, or certify that an asset is safe.",
@@ -106,7 +106,7 @@ export const guide = {
   "guide.faq.groups.privacy.q3":
     "What information is stored on ChainScout's servers?",
   "guide.faq.groups.privacy.a3":
-    "Private Explorer and the no-account Vault do not save chats or portfolios on our servers. Public lookup fields pass through server memory to disclosed providers. If you unlock local history before asking, your questions, answers and sources are encrypted in this browser's Vault. Cloud research is a future update.",
+    "Research and the no-account Vault do not save chats or portfolios on our servers. Public lookup fields pass through server memory to disclosed providers. If you unlock local history before asking, your questions, answers and sources are encrypted in this browser's Vault. Cloud research is a future update.",
   "guide.faq.groups.privacy.q4": "What stays inside the local Vault?",
   "guide.faq.groups.privacy.a4":
     "Asset names, ownership groupings, wallet labels, purchase lots, prices, notes, locally processed photos, reference values, and permission receipts are encrypted before IndexedDB stores them in your browser. Coming-soon tools cannot add records unless they are explicitly released later.",
@@ -162,14 +162,14 @@ export const guide = {
   "guide.faq.groups.evidence.q8":
     "Does ChainScout use AI to invent the answer?",
   "guide.faq.groups.evidence.a8":
-    "No. The no-account Private Explorer uses deterministic, source-linked explanations and does not send the optional question to an AI model. Any future or optional model-assisted rewriting must use an explicit disclosed payload; the facts and citations come from validated adapters first.",
+    "No. The no-account Research uses deterministic, source-linked explanations and does not send the optional question to an AI model. Any future or optional model-assisted rewriting must use an explicit disclosed payload; the facts and citations come from validated adapters first.",
 
   "guide.faq.groups.actions.title": "Trading, merchants, and external actions",
   "guide.faq.groups.actions.intro":
     "Where ChainScout stops and another product takes over.",
   "guide.faq.groups.actions.q1": "Can I execute a swap inside ChainScout?",
   "guide.faq.groups.actions.a1":
-    "No. Scout Swap explains a short-lived read-only Uniswap preview. If you continue, the official Uniswap interface owns the wallet connection, fresh quote, approval, signature, fees, and execution.",
+    "No. Swap preview explains a short-lived read-only Uniswap preview. If you continue, the official Uniswap interface owns the wallet connection, fresh quote, approval, signature, fees, and execution.",
   "guide.faq.groups.actions.q2":
     "What does Replay Actions actually replay?",
   "guide.faq.groups.actions.a2":
@@ -225,7 +225,7 @@ export const guide = {
   "guide.faq.groups.project.q3":
     "Where can I see what is live versus planned?",
   "guide.faq.groups.project.a3Before": "Use the ",
-  "guide.faq.groups.project.a3Guide": "Start Guide",
+  "guide.faq.groups.project.a3Guide": "Find your tool",
   "guide.faq.groups.project.a3BetweenDocs":
     " for available flows and clearly labeled coming-soon tools, the ",
   "guide.faq.groups.project.a3Docs": "Technical Docs",

@@ -28,7 +28,7 @@ export const toolGuides: ToolGuide[] = [
   },
   {
     path: "/check",
-    name: ["Exit check", "退出核查"],
+    name: ["Trade Check", "交易核查"],
     audience: ["Token traders checking an exit", "核查退出成本的代币交易者"],
     input: ["Choose a token and the amount to sell", "选择代币和卖出数量"],
     outcome: [
@@ -40,11 +40,11 @@ export const toolGuides: ToolGuide[] = [
   },
   {
     path: "/watch",
-    name: ["Wallet watch", "钱包观察"],
+    name: ["Watch", "观察"],
     audience: ["Holders & active traders", "持有者和活跃交易者"],
     input: [
-      "Create or unlock a local Vault; add a public wallet",
-      "创建或解锁本地保险库，添加公开钱包",
+      "Enter a public wallet; unlock encrypted storage to save checks",
+      "输入公开钱包；解锁加密存储以保存核查",
     ],
     outcome: [
       "Changes between checks you request; no background alerts",
@@ -89,10 +89,10 @@ export const toolGuides: ToolGuide[] = [
   },
   {
     path: "/saved",
-    name: ["Saved & portfolio", "保存与投资组合"],
+    name: ["Saved", "已保存"],
     audience: ["Holders keeping private records", "保留私人记录的持有者"],
     input: [
-      "Create or unlock your encrypted local Vault",
+      "Create or unlock your encrypted local vault",
       "创建或解锁本地加密保险库",
     ],
     outcome: [
@@ -154,7 +154,7 @@ export const toolGuides: ToolGuide[] = [
   },
   {
     path: "/rwa",
-    name: ["Token claims", "代币声明"],
+    name: ["Stock-token check", "股票代币核查"],
     audience: [
       "Researchers checking asset-backing claims",
       "核查资产支持声明的研究者",
@@ -171,7 +171,7 @@ export const toolGuides: ToolGuide[] = [
   },
   {
     path: "/biggest-trades",
-    name: ["Observed swaps", "已观察兑换"],
+    name: ["Big trades", "大额交易"],
     audience: ["Investigators & market researchers", "调查者和市场研究者"],
     input: [
       "Choose a token or public wallet and a bounded window",

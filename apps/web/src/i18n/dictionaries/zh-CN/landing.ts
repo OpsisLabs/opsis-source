@@ -4,10 +4,10 @@ export const landing: Record<string, string> = {
   "landing.nav.availability": "可用范围",
   "landing.nav.safety": "安全",
   "landing.nav.faq": "常见问题",
-  "landing.nav.guide": "指南",
+  "landing.nav.guide": "选择工具",
   "landing.nav.homeLabel": "ChainScout 主页",
   "landing.nav.sectionsLabel": "首页栏目",
-  "landing.nav.openExplorer": "打开链上查询",
+  "landing.nav.openExplorer": "打开研究",
   "landing.nav.openMenu": "打开导航菜单",
   "landing.nav.mobileSectionsLabel": "移动端首页栏目",
 
@@ -22,7 +22,7 @@ export const landing: Record<string, string> = {
   "landing.sidebar.index.faq": "常见问题",
   "landing.sidebar.founderBeta": "创始人测试版",
   "landing.sidebar.founderCopy": "可用工具与即将上线的适配器相互区分。",
-  "landing.sidebar.startGuide": "开始使用指南",
+  "landing.sidebar.startGuide": "选择工具",
 
   "landing.hero.badge": "私密多资产工作台",
   "landing.hero.headline1": "看清你的资产。",
@@ -36,8 +36,8 @@ export const landing: Record<string, string> = {
   "landing.hero.category.pokemon": "宝可梦 / TCG",
   "landing.hero.category.collectibles": "收藏品",
   "landing.hero.category.manual": "任意手动资产",
-  "landing.hero.openVault": "打开私密保险库",
-  "landing.hero.tryExplorer": "试用链上查询",
+  "landing.hero.openVault": "打开已保存",
+  "landing.hero.tryExplorer": "打开研究",
   "landing.hero.noWallet": "无需钱包即可探索。你的保险库不会有服务器副本。",
   "landing.hero.illustrative": "示意资产堆叠",
   "landing.hero.privateContext": "私密上下文 · 公开证据",
@@ -123,12 +123,12 @@ export const landing: Record<string, string> = {
   "landing.workflow.understand.signal": "无需账户 · 即用即走",
   "landing.workflow.understand.copy":
     "解读钱包、交易、代币或合约。无需创建画像，即可查看活动、授权、风险提示和引用。",
-  "landing.workflow.understand.action": "启动私密链上查询",
+  "landing.workflow.understand.action": "打开研究",
   "landing.workflow.track.title": "追踪",
   "landing.workflow.track.signal": "加密 · 浏览器本地",
   "landing.workflow.track.copy":
     "保存手动资产、确切的买入批次、私密备注、本地处理过的照片、投资组合快照和带日期的参考价值。",
-  "landing.workflow.track.action": "打开本地保险库",
+  "landing.workflow.track.action": "打开已保存",
   "landing.workflow.act.title": "谨慎行动",
   "landing.workflow.act.signal": "只读 · 官方交接",
   "landing.workflow.act.copy":
@@ -143,14 +143,14 @@ export const landing: Record<string, string> = {
   "landing.availability.group.available": "创始人版本可用",
   "landing.availability.group.comingSoon": "即将上线",
   "landing.availability.group.next": "本次发布之后",
-  "landing.availability.item.explorer": "私密链上查询",
-  "landing.availability.item.vault": "加密保险库",
+  "landing.availability.item.explorer": "研究",
+  "landing.availability.item.vault": "已保存",
   "landing.availability.item.manualRecords":
     "手动加密货币 / NFT / RWA / 收藏品记录",
   "landing.availability.item.charts": "带日期的收藏品价值历史图表",
-  "landing.availability.item.portfolio": "投资组合智能",
-  "landing.availability.item.rwa": "RWA 验证",
-  "landing.availability.item.swap": "Scout Swap",
+  "landing.availability.item.portfolio": "已保存",
+  "landing.availability.item.rwa": "股票代币核查",
+  "landing.availability.item.swap": "兑换预览",
   "landing.availability.item.tcgdex": "TCGdex 辅助的收藏品身份",
   "landing.availability.item.market": "市场与库存",
   "landing.availability.item.replay": "重放操作",
@@ -195,7 +195,7 @@ export const landing: Record<string, string> = {
   "landing.faq.goDeeper": "深入了解",
   "landing.faq.goDeeperCopy":
     "查看当前版本矩阵、分步工作流程、技术内部细节、隐私约束和 API 契约。",
-  "landing.faq.openGuide": "打开功能指南",
+  "landing.faq.openGuide": "打开选择工具",
   "landing.faq.readDocs": "阅读技术文档",
   "landing.faq.viewFullFaq": "查看完整常见问题",
   "landing.faq.q1": "我能追踪宝可梦卡牌和实体收藏品吗？",
@@ -211,7 +211,7 @@ export const landing: Record<string, string> = {
     "不会。保险库记录在本浏览器中使用 WebCrypto 加密，并存储在 IndexedDB 中。请导出加密备份，因为浏览器存储可能被清除或驱逐，而且另一个源或设备无法自动看到此保险库。",
   "landing.faq.q4": "我需要连接钱包吗？",
   "landing.faq.a4":
-    "不需要。私密链上查询、Scout Swap、RWA 验证和本地保险库都无需连接钱包。解锁本地保险库，即可将新的浏览器对话加密保存在此浏览器中。云端研究是未来的更新。",
+    "不需要。研究、兑换预览、股票代币核查和本地保险库都无需连接钱包。解锁本地保险库，即可将新的浏览器对话加密保存在此浏览器中。云端研究是未来的更新。",
   "landing.faq.q5": "ChainScout 会交易、购买卡牌或转移资金吗？",
   "landing.faq.a5":
     "不会。ChainScout 是只读的。它可以解读公开证据，并在支持时创建官方外部交接，但它绝不签署、广播、结账或存储支付状态。",
@@ -224,7 +224,7 @@ export const landing: Record<string, string> = {
   "landing.footer.titleB": "留住上下文。",
   "landing.footer.copy":
     "从一份加密的本地记录开始，无论是加密货币、NFT、代币化资产、宝可梦卡牌，还是任何其他你拥有的东西。只有在你明确要求时，才添加公开证据。",
-  "landing.footer.openVault": "打开私密保险库",
+  "landing.footer.openVault": "打开已保存",
   "landing.footer.pages": "页面",
   "landing.footer.page.homepage": "首页",
   "landing.footer.page.whatToTrack": "追踪什么",
@@ -246,7 +246,7 @@ export const landing: Record<string, string> = {
   "landing.footer.band.evidence": "证据保持可审查",
   "landing.footer.band.copy":
     "ChainScout 将加密的浏览器本地资产保险库与只读、可溯源的 Robinhood Chain 工具相结合。仅供参考，不构成财务建议或评估。",
-  "landing.footer.bigWord": "保险库",
+  "landing.footer.bigWord": "已保存",
   "landing.footer.disclaimer": "仅供参考。不构成财务建议。",
   "landing.footer.terms": "使用条款",
   "landing.footer.privacy": "隐私政策",

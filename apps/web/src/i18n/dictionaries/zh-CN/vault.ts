@@ -1,10 +1,10 @@
 export const vault: Record<string, string> = {
   "vault.header.homeLabel": "ChainScout 首页",
-  "vault.header.encryptedVault": "加密保险库",
+  "vault.header.encryptedVault": "已保存",
   "vault.header.lock": "锁定",
-  "vault.header.explorer": "私密链上查询 →",
+  "vault.header.explorer": "研究 →",
 
-  "vault.hero.eyebrow": "你的私密保险库",
+  "vault.hero.eyebrow": "已保存",
   "vault.hero.title.line1": "你的资产。",
   "vault.hero.title.line2": "加密保存在此设备上。",
   "vault.hero.description":
@@ -26,7 +26,7 @@ export const vault: Record<string, string> = {
   "vault.disclosure.restoreBackup": "已有备份？还原你的保险库",
   "vault.disclosure.restoreWithRecovery": "使用恢复码还原备份",
   "vault.disclosure.forgotPassphrase": "忘记口令了？使用恢复码",
-  "vault.disclosure.settingsDelete": "保险库设置 · 删除本地数据",
+  "vault.disclosure.settingsDelete": "存储设置 · 删除本地数据",
 
   "vault.tab.portfolio": "投资组合情报",
   "vault.tab.collectibles": "收藏品目录",
@@ -65,7 +65,7 @@ export const vault: Record<string, string> = {
   "vault.dashboard.assetType.one": "{count} 种资产类型",
   "vault.dashboard.assetType.other": "{count} 种资产类型",
   "vault.dashboard.addAsset": "添加资产",
-  "vault.dashboard.demoAria": "保险库演示内容",
+  "vault.dashboard.demoAria": "已保存示例记录",
   "vault.dashboard.demoTitle": "需要安全的测试内容？",
   "vault.dashboard.demoDescription":
     "加载四条清晰标注的示例——加密货币、一张宝可梦卡牌、一项 RWA 和一枚 NFT——用于测试卡片、批次、收藏品字段和图表。它们会被加密存入此保险库，不发起任何网络请求，也绝不声称所有权或实时价格。",
@@ -405,7 +405,7 @@ export const vault: Record<string, string> = {
   "vault.demo.note.charizard":
     "用于测试收藏品字段和带日期参考图表的虚构持有者记录。它不能证明身份、品相、所有权或价值。",
   "vault.demo.note.apple":
-    "与 RWA 验证示例所用公开 Robinhood Chain 合约关联的虚构本地批次。不证明所有权或赎回权。",
+    "与股票代币核查示例所用公开 Robinhood Chain 合约关联的虚构本地批次。不证明所有权或赎回权。",
   "vault.demo.note.nft":
     "仅用于布局和工作流测试的合成 NFT 记录。它不是链上代币，也不构成所有权声明。",
   "vault.demo.ref.manual": "示例手动参考",

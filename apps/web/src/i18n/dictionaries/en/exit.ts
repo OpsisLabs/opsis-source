@@ -1,5 +1,5 @@
 export const exit = {
-  "exit.eyebrow": "Exit Check · read-only single-pool estimate",
+  "exit.eyebrow": "Trade Check · read-only single-pool estimate",
   "exit.titleLead": "How much could you",
   "exit.titleAccent": "actually receive?",
   "exit.description": "Estimate what a token might return through the official Uniswap V3 factory pools on Robinhood Chain at one captured block. This is not a guaranteed fill or proof that the token can be sold.",
@@ -15,7 +15,7 @@ export const exit = {
   "exit.form.check": "CHECK EXIT ESTIMATE",
   "exit.form.note": "No wallet is requested. ChainScout only reads public pool state from the dRPC Robinhood Chain gateway. dRPC is a paid gateway that may route each read to an independent node operator in its network.",
   "exit.error.title": "EXIT ESTIMATE UNAVAILABLE",
-  "exit.error.disabled": "Exit Check is not enabled in this build.",
+  "exit.error.disabled": "Trade Check is not enabled in this build.",
   "exit.error.rateLimited": "The Robinhood Chain RPC provider is cooling down. Try again in a minute.",
   "exit.error.reorged": "The block changed while the estimate was being verified. Run the check again.",
   "exit.error.invalidAmount": "Enter a valid amount for the token's decimals.",
@@ -60,8 +60,8 @@ export const exit = {
   "exit.empty.point.impact": "Exact BigInt fee and price impact against the same-block spot price.",
   "exit.empty.point.boundary": "A quote is not proof of transferability, sellability, or guaranteed execution.",
 
-  "product.feature.exit-check.label": "Exit Check",
-  "product.feature.exit-check.shortLabel": "Exit check",
+  "product.feature.exit-check.label": "Trade Check",
+  "product.feature.exit-check.shortLabel": "Trade Check",
   "product.feature.exit-check.helpLabel": "About the exit estimate",
   "product.feature.exit-check.eyebrow": "READ-ONLY POOL ESTIMATE",
   "product.feature.exit-check.navHint": "Estimate what a token could return",
@@ -73,6 +73,6 @@ export const exit = {
   "product.feature.exit-check.step.2": "Review the selected factory pool, exact fee, and same-block price impact.",
   "product.feature.exit-check.step.3": "Open the official Uniswap app only if you choose to continue.",
 
-  "metadata.exitCheck.title": "Exit Check Estimate | ChainScout",
+  "metadata.exitCheck.title": "Trade Check | ChainScout",
   "metadata.exitCheck.description": "Read-only Uniswap V3 pool estimate for one token and amount on Robinhood Chain, with exact fee and price-impact math and explicit coverage.",
 } as const;

@@ -12,8 +12,8 @@ export const roadmap: Record<string, string> = {
   "roadmap.nav.privacy": "隐私",
   "roadmap.nav.protocol": "协议",
   "roadmap.nav.releaseProtocol": "发布协议",
-  "roadmap.nav.tryExplorer": "试用链上查询",
-  "roadmap.nav.tryExplorerShort": "试用链上查询",
+  "roadmap.nav.tryExplorer": "打开研究",
+  "roadmap.nav.tryExplorerShort": "打开研究",
   "roadmap.nav.toggle": "切换导航",
 
   "roadmap.trajectory.zeroSpend": "$0 新增支出",
@@ -33,7 +33,7 @@ export const roadmap: Record<string, string> = {
   "roadmap.release.check.safety": "安全",
 
   "roadmap.release.scout-swap.eyebrow": "实时路径。清晰结果。",
-  "roadmap.release.scout-swap.title": "Scout Swap",
+  "roadmap.release.scout-swap.title": "兑换预览",
   "roadmap.release.scout-swap.summary":
     "预览当前的 Uniswap 兑换路径，理解每一项取舍，然后前往官方应用继续操作。",
   "roadmap.release.scout-swap.outcome": "预览一笔实时兑换",
@@ -73,7 +73,7 @@ export const roadmap: Record<string, string> = {
     "私密字段绝不进入日志、分析、已保存的服务器记录或未经批准的网络请求。",
 
   "roadmap.release.encrypted-vault.eyebrow": "你的资产。你的设备。",
-  "roadmap.release.encrypted-vault.title": "加密资产保险库",
+  "roadmap.release.encrypted-vault.title": "已保存",
   "roadmap.release.encrypted-vault.summary":
     "在一个加密的浏览器保险库中追踪买入批次、备注、照片、评级和手动资产。",
   "roadmap.release.encrypted-vault.outcome": "私密地追踪每一项资产",
@@ -93,7 +93,7 @@ export const roadmap: Record<string, string> = {
     "明文绝不跨网络传输；加密、恢复、损坏、驱逐和删除状态均通过验证。",
 
   "roadmap.release.portfolio-intelligence.eyebrow": "一个视图。更少噪音。",
-  "roadmap.release.portfolio-intelligence.title": "投资组合智能",
+  "roadmap.release.portfolio-intelligence.title": "已保存",
   "roadmap.release.portfolio-intelligence.summary":
     "整合持仓、成本基础、活动、授权、表现，以及通俗易懂的交易解读。",
   "roadmap.release.portfolio-intelligence.outcome": "看懂整个投资组合",
