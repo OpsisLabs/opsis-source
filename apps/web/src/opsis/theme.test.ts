@@ -4,45 +4,44 @@ import { afterEach, expect, it, vi } from "vitest";
 import { initialTheme, persistTheme, savedTheme } from "./theme";
 afterEach(() => vi.unstubAllGlobals());
 
-function preference(dark: boolean) {
-  vi.stubGlobal("window", { matchMedia: vi.fn().mockReturnValue({ matches: dark }) });
+function cookieJar(initial = "") {
+  let jar = initial;
+  const written: string[] = [];
+  vi.stubGlobal("location", { protocol: "https:" });
+  vi.stubGlobal("document", {
+    get cookie() { return jar; },
+    set cookie(value: string) {
+      written.push(value);
+      const [pair] = value.split(";");
+      const [name] = pair.split("=");
+      jar = [...jar.split(";").map((part) => part.trim()).filter((part) => part && !part.startsWith(`${name}=`)), pair].join("; ");
+    },
+  });
+  return written;
 }
-it("uses the brand default without a valid saved choice, whatever the system preference", () => {
-  const storage = { getItem: vi.fn().mockReturnValue(null) };
-  vi.stubGlobal("localStorage", storage);
-  preference(true);
+it("uses the light paper default without a valid saved choice", () => {
+  cookieJar("");
   expect(initialTheme()).toBe("light");
-  preference(false);
-  expect(initialTheme()).toBe("light");
-  storage.getItem.mockReturnValue("dark");
+  cookieJar("other=1; opsis_theme=dark");
   expect(initialTheme()).toBe("dark");
-  storage.getItem.mockReturnValue("invalid");
+  cookieJar("opsis_theme=invalid");
   expect(initialTheme()).toBe("light");
 });
-it("persists either theme using only the theme key", () => {
-  const values = new Map<string, string>();
-  vi.stubGlobal("localStorage", {
-    getItem: (key: string) => values.get(key),
-    setItem: (key: string, value: string) => values.set(key, value),
-  });
+it("remembers either theme in one first-party preference cookie", () => {
+  const written = cookieJar("");
   for (const theme of ["dark", "light"] as const) {
     persistTheme(theme);
-    expect(initialTheme()).toBe(theme);
+    expect(savedTheme()).toBe(theme);
   }
-  expect([...values.keys()]).toEqual(["opsis-theme"]);
+  expect(written.every((value) => /^opsis_theme=(dark|light); Max-Age=31536000; Path=\/; SameSite=Strict; Secure$/.test(value))).toBe(true);
 });
-it("tolerates both storage methods and the localStorage getter throwing", () => {
-  preference(true);
-  const unavailable = () => { throw new Error("Storage unavailable"); };
-  vi.stubGlobal("localStorage", { getItem: unavailable, setItem: unavailable });
+it("tolerates cookies being unavailable", () => {
+  const unavailable = () => { throw new Error("Cookies unavailable"); };
+  vi.stubGlobal("document", { get cookie() { return unavailable(); }, set cookie(_value: string) { unavailable(); } });
   expect(savedTheme()).toBeNull();
   expect(initialTheme()).toBe("light");
-  expect(() => persistTheme("light")).not.toThrow();
-  Object.defineProperty(globalThis, "localStorage", { configurable: true, get: unavailable });
-  expect(initialTheme()).toBe("light");
-  expect(() => persistTheme("light")).not.toThrow();
+  expect(() => persistTheme("dark")).not.toThrow();
 });
-
 function luminance(hex: string) {
   if (hex.length === 4) hex = `#${hex.slice(1).split("").map((digit) => digit + digit).join("")}`;
   const rgb = hex.slice(1).match(/.{2}/g)!.map((value) => {
