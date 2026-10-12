@@ -151,7 +151,7 @@ test.describe("opsis preview", () => {
       .getByRole("link", { name: "Open Uniswap" })
       .getAttribute("href");
     expect(venue).not.toMatch(/amount|value=|1\.5/);
-    expect(new URL(page.url()).search).toBe(`?entity=${TOKEN}`);
+    expect(new URL(page.url()).search).toBe(`?token=${TOKEN}`);
     await page
       .getByRole("button", { name: "Lock preview", exact: true })
       .click();
@@ -343,9 +343,9 @@ test.describe("opsis preview", () => {
     expect(scroll).toBeGreaterThan(0);
     await overview
       .locator("#index-list button")
-      .filter({ hasText: "Swap Lab" })
+      .filter({ hasText: "Trade Check" })
       .click();
-    await expect(page).toHaveURL(/\/swap$/);
+    await expect(page).toHaveURL(/\/check$/);
     await page.getByRole("link", { name: "Back to overview" }).click();
     await expect(overview.locator("#terminal")).not.toBeVisible();
     expect(
@@ -405,7 +405,7 @@ test.describe("opsis preview swap capability", () => {
     await expect(page.getByRole("heading", { name: "Not enabled on this deployment" })).toBeVisible();
     await page.getByRole("navigation", { name: "Workspaces", exact: true }).getByRole("link", { name: /Trade Check/ }).click();
     const tools = page.getByRole("navigation", { name: "Workspace tools", exact: true });
-    await expect(tools.getByRole("link", { name: "Exit check", exact: true })).toBeVisible();
+    await expect(tools.getByRole("link", { name: "Trade Check", exact: true })).toBeVisible();
     await expect(tools.getByRole("link", { name: "Swap preview", exact: true })).toHaveCount(0);
     expect(quotes).toBe(0);
   });
