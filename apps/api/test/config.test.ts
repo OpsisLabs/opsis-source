@@ -2,6 +2,72 @@ import { describe, expect, it } from "vitest";
 import { loadEnv } from "../src/config/env.js";
 
 describe("environment validation", () => {
+  describe("APP_ORIGIN_ALIASES", () => {
+    const production = {
+      NODE_ENV: "production", APP_ORIGIN: "https://opsis.example",
+      ROBINHOOD_RPC_PROVIDER: "drpc", DRPC_API_KEY: "test-drpc-key-0123456789abcdef",
+      JWT_ACCESS_SECRET: "configured-access-secret-at-least-32",
+      JWT_REFRESH_SECRET: "configured-refresh-secret-at-least-32",
+      REDIS_URL: "rediss://cache.example.com", METRICS_TOKEN: "metrics-secret-at-least-32-characters"
+    };
+
+    it.each([undefined, "", " \t\n "])("defaults to no aliases for %j", (value) => {
+      expect(loadEnv({ ...production, APP_ORIGIN_ALIASES: value }).APP_ORIGIN_ALIAS_LIST).toEqual([]);
+    });
+
+    it("parses one or four aliases and trims surrounding whitespace", () => {
+      expect(loadEnv({ ...production, APP_ORIGIN_ALIASES: " https://earlier.opsis.example " }).APP_ORIGIN_ALIAS_LIST)
+        .toEqual(["https://earlier.opsis.example"]);
+      expect(loadEnv({ ...production,
+        APP_ORIGIN_ALIASES: " https://one.opsis.example ,\t https://two.opsis.example,\nhttps://three.opsis.example , https://four.opsis.example "
+      }).APP_ORIGIN_ALIAS_LIST).toEqual([
+        "https://one.opsis.example", "https://two.opsis.example", "https://three.opsis.example", "https://four.opsis.example"
+      ]);
+    });
+
+    it.each([
+      "https://one.opsis.example,https://two.opsis.example,https://three.opsis.example,https://four.opsis.example,https://five.opsis.example",
+      "https://earlier.opsis.example, https://earlier.opsis.example",
+      "https://opsis.example",
+      "https://one.opsis.example,,https://two.opsis.example",
+      ",https://earlier.opsis.example",
+      "https://earlier.opsis.example,",
+      "https://one.opsis.example, ,https://two.opsis.example",
+      "http://earlier.opsis.example",
+      "https://localhost", "https://127.0.0.1", "https://127.0.0.2", "https://[::1]",
+      "http://localhost:5174"
+    ])("rejects an inadmissible production list %j", (value) => {
+      expect(() => loadEnv({ ...production, APP_ORIGIN_ALIASES: value })).toThrow(/APP_ORIGIN_ALIASES/);
+    });
+
+    it.each([
+      "not-an-origin", "null", "ftp://earlier.opsis.example",
+      "https://earlier.opsis.example/path", "https://earlier.opsis.example/",
+      "https://earlier.opsis.example?redirect=1", "https://earlier.opsis.example#fragment",
+      "https://demo-account:sample-password@earlier.opsis.example",
+      "https://<earlier.opsis.example>", 'https://earlier.opsis.example"', "https://earlier.opsis.example'",
+      "https://earlier .opsis.example", "https://earlier.\nopsis.example", "https://earlier.\ropsis.example",
+      "https://earlier.\topsis.example", "https://EARLIER.opsis.example", "https://earlier.opsis.example:443",
+      "support@opsis.example,security@opsis.example"
+    ])("rejects malformed or hostile aliases in every environment %j", (value) => {
+      for (const NODE_ENV of ["production", "development", "test"]) {
+        expect(() => loadEnv({ ...production, NODE_ENV, APP_ORIGIN_ALIASES: value })).toThrow(/APP_ORIGIN_ALIASES/);
+      }
+    });
+
+    it.each(["development", "test"])("allows HTTP localhost aliases in %s", (NODE_ENV) => {
+      expect(loadEnv({ NODE_ENV, APP_ORIGIN_ALIASES: "http://localhost:5174,http://127.0.0.1:5174,http://[::1]:5174" }).APP_ORIGIN_ALIAS_LIST)
+        .toEqual(["http://localhost:5174", "http://127.0.0.1:5174", "http://[::1]:5174"]);
+      expect(() => loadEnv({ NODE_ENV, APP_ORIGIN_ALIASES: "http://localhost:5173" })).toThrow(/must be distinct/);
+      expect(() => loadEnv({ NODE_ENV, APP_ORIGIN: "http://localhost:5173/", APP_ORIGIN_ALIASES: "http://localhost:5173" }))
+        .toThrow(/must be distinct/);
+    });
+
+    it.each(["https://127.0.0.2", "https://[::1]"])("also refuses loopback canonical production origins %j", (APP_ORIGIN) => {
+      expect(() => loadEnv({ ...production, APP_ORIGIN })).toThrow(/canonical HTTPS origin/);
+    });
+  });
+
   it("keeps Watch off unless its flag is a valid true value", () => {
     expect(loadEnv({ NODE_ENV: "test" }).WATCH_ENABLED).toBe(false);
     expect(loadEnv({ NODE_ENV: "test", WATCH_ENABLED: "false" }).WATCH_ENABLED).toBe(false);

@@ -2,6 +2,25 @@ import { z } from "zod";
 
 const DRPC_KEY_PATTERN = /^[A-Za-z0-9._~+/=-]{16,256}$/;
 
+function isCanonicalAppOrigin(value: string, production: boolean): boolean {
+  if (/[<>"'\s]/.test(value)) return false;
+  try {
+    const origin = new URL(value);
+    return (origin.protocol === "https:" || (!production && origin.protocol === "http:"))
+      && origin.origin === value
+      && origin.username === ""
+      && origin.password === ""
+      && (origin.pathname === "" || origin.pathname === "/")
+      && origin.search === ""
+      && origin.hash === ""
+      && (!production || (origin.hostname !== "localhost"
+        && !/^127(?:\.\d{1,3}){3}$/.test(origin.hostname)
+        && !["::1", "[::1]"].includes(origin.hostname)));
+  } catch {
+    return false;
+  }
+}
+
 const envBoolean = z.preprocess((value) => {
   if (typeof value !== "string") return value;
   if (value.toLowerCase() === "true") return true;
@@ -24,6 +43,10 @@ const envSchema = z.object({
   RAILWAY_GIT_COMMIT_SHA: optionalSha,
   PORT: z.coerce.number().int().positive().default(4000),
   APP_ORIGIN: z.string().default("http://localhost:5173"),
+  APP_ORIGIN_ALIASES: z.preprocess(
+    (value) => (typeof value === "string" ? value.trim() || undefined : value),
+    z.string().optional()
+  ).transform((value) => value?.split(",").map((origin) => origin.trim()) ?? []),
   DATABASE_URL: z.string().optional(),
   CLOUD_WORKSPACE_ENABLED: envBoolean.default(false),
   REDIS_URL: z.string().optional(),
@@ -162,6 +185,28 @@ const envSchema = z.object({
   // When set, /metrics requires this bearer token and 404s otherwise.
   METRICS_TOKEN: optionalString
 }).superRefine((env, context) => {
+  const aliases = env.APP_ORIGIN_ALIASES;
+  if (aliases.length > 4) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["APP_ORIGIN_ALIASES"], message: "APP_ORIGIN_ALIASES accepts at most four origins" });
+  }
+  if (aliases.some((origin) => !isCanonicalAppOrigin(origin, env.NODE_ENV === "production"))) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["APP_ORIGIN_ALIASES"],
+      message: env.NODE_ENV === "production"
+        ? "APP_ORIGIN_ALIASES must contain canonical HTTPS origins separated by commas"
+        : "APP_ORIGIN_ALIASES must contain canonical HTTP or HTTPS origins separated by commas"
+    });
+  }
+  let appOrigin = env.APP_ORIGIN;
+  try {
+    appOrigin = new URL(appOrigin).origin;
+  } catch {
+    // Production APP_ORIGIN validation below reports invalid configuration.
+  }
+  if (new Set(aliases).size !== aliases.length || aliases.includes(appOrigin)) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["APP_ORIGIN_ALIASES"], message: "APP_ORIGIN_ALIASES must be distinct from APP_ORIGIN and each other" });
+  }
   if (env.AI_PROVIDER === "openai" && !env.OPENAI_API_KEY) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: "OPENAI_API_KEY is required when AI_PROVIDER is openai" });
   }
@@ -317,18 +362,7 @@ const envSchema = z.object({
   if (new Set([env.JWT_ACCESS_SECRET, env.JWT_REFRESH_SECRET, env.METRICS_TOKEN]).size !== 3) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: "JWT access, JWT refresh, and metrics secrets must be distinct" });
   }
-  try {
-    const appOrigin = new URL(env.APP_ORIGIN);
-    const canonical = appOrigin.protocol === "https:"
-      && appOrigin.origin === env.APP_ORIGIN
-      && appOrigin.username === ""
-      && appOrigin.password === ""
-      && (appOrigin.pathname === "" || appOrigin.pathname === "/")
-      && appOrigin.search === ""
-      && appOrigin.hash === ""
-      && !["localhost", "127.0.0.1", "::1"].includes(appOrigin.hostname);
-    if (!canonical) throw new Error("NON_CANONICAL_APP_ORIGIN");
-  } catch {
+  if (!isCanonicalAppOrigin(env.APP_ORIGIN, true)) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: "Production APP_ORIGIN must be an explicit canonical HTTPS origin" });
   }
   if (!env.REDIS_URL || (env.CLOUD_WORKSPACE_ENABLED && !env.DATABASE_URL)) {
@@ -361,7 +395,7 @@ const envSchema = z.object({
   if (env.CSRF_PROTECTION_ENABLED === false) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: "CSRF protection cannot be disabled in production" });
   }
-});
+}).transform(({ APP_ORIGIN_ALIASES, ...env }) => ({ ...env, APP_ORIGIN_ALIAS_LIST: APP_ORIGIN_ALIASES }));
 
 export type Env = z.infer<typeof envSchema>;
 

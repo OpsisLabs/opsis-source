@@ -13,7 +13,7 @@ const MUTATING = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 export function installCsrfProtection(app: FastifyInstance, env: Env): void {
   const enabled = env.NODE_ENV === "production" || env.CSRF_PROTECTION_ENABLED === true;
   if (!enabled) return;
-  const allowedOrigin = new URL(env.APP_ORIGIN).origin;
+  const allowedOrigins = new Set([new URL(env.APP_ORIGIN).origin, ...env.APP_ORIGIN_ALIAS_LIST]);
 
   app.addHook("onRequest", async (request) => {
     if (!MUTATING.has(request.method)) return;
@@ -25,7 +25,7 @@ export function installCsrfProtection(app: FastifyInstance, env: Env): void {
       return;
     }
     const origin = request.headers.origin;
-    if (origin !== allowedOrigin) {
+    if (!origin || !allowedOrigins.has(origin)) {
       throw new AppError("CSRF_ORIGIN_REJECTED", 403, "Request origin was not accepted");
     }
     if (request.headers["sec-fetch-site"] === "cross-site") {

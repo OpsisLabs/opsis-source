@@ -6,6 +6,9 @@ import { loadEnv } from "../src/config/env.js";
 import { memoryStore } from "../src/db/memory.js";
 import { setSessionCookies } from "../src/auth/cookies.js";
 import { authRoutes } from "../src/routes/auth.js";
+import { installCsrfProtection } from "../src/http/csrf.js";
+import { installErrorHandler } from "../src/http/errors.js";
+import { corsOptionsForRequest } from "../src/http/cors.js";
 
 const apps: Array<Awaited<ReturnType<typeof buildApp>>> = [];
 
@@ -178,6 +181,104 @@ describe("HttpOnly browser sessions", () => {
     expect(missing.statusCode).toBe(403);
     expect(crossSite.statusCode).toBe(403);
     expect(accepted.statusCode).toBe(200);
+  });
+});
+
+describe("CSRF alias origins", () => {
+  const canonical = "https://opsis.example";
+  const alias = "https://earlier.opsis.example";
+  const headers = { origin: alias, "sec-fetch-site": "same-origin", "x-opsis-csrf": "1" };
+
+  function csrfApp(aliases?: string) {
+    const env = loadEnv({ NODE_ENV: "test", APP_ORIGIN: canonical, APP_ORIGIN_ALIASES: aliases, CSRF_PROTECTION_ENABLED: "true" });
+    const app = Fastify();
+    apps.push(app);
+    installErrorHandler(app);
+    installCsrfProtection(app, env);
+    app.post("/state", async () => ({ ok: true }));
+    return { app, env };
+  }
+
+  it.each([canonical, alias, "https://second.opsis.example"])("accepts the configured origin %s", async (origin) => {
+    const { app } = csrfApp(`${alias},https://second.opsis.example`);
+    const response = await app.inject({ method: "POST", url: "/state", headers: { ...headers, origin }, payload: {} });
+    expect(response.statusCode).toBe(200);
+  });
+
+  it.each(["https://unknown.opsis.example", "null", undefined, `${alias}/`, `${alias}.other.example`])
+    ("rejects the unaccepted origin %j without exposing aliases", async (origin) => {
+      const { app } = csrfApp(alias);
+      const response = await app.inject({ method: "POST", url: "/state",
+        headers: { "sec-fetch-site": "same-origin", "x-opsis-csrf": "1", ...(origin === undefined ? {} : { origin }) }, payload: {} });
+      expect(response.statusCode).toBe(403);
+      expect(response.json().error).toEqual({ code: "CSRF_ORIGIN_REJECTED", message: "Request origin was not accepted" });
+      expect(response.body).not.toContain(alias);
+    });
+
+  it("still rejects a cross-site request from an alias before checking its header or JSON", async () => {
+    const { app } = csrfApp(alias);
+    const response = await app.inject({ method: "POST", url: "/state",
+      headers: { origin: alias, "sec-fetch-site": "cross-site", "content-type": "text/plain" }, payload: "{}" });
+    expect(response.statusCode).toBe(403);
+    expect(response.json().error.code).toBe("CSRF_SITE_REJECTED");
+  });
+
+  it("still requires the confirmation header for an alias before checking JSON", async () => {
+    const { app } = csrfApp(alias);
+    const response = await app.inject({ method: "POST", url: "/state",
+      headers: { origin: alias, "sec-fetch-site": "same-origin", "content-type": "text/plain" }, payload: "{}" });
+    expect(response.statusCode).toBe(403);
+    expect(response.json().error.code).toBe("CSRF_HEADER_REQUIRED");
+  });
+
+  it("still requires JSON for an alias with the confirmation header", async () => {
+    const { app } = csrfApp(alias);
+    const response = await app.inject({ method: "POST", url: "/state",
+      headers: { ...headers, "content-type": "text/plain" }, payload: "{}" });
+    expect(response.statusCode).toBe(415);
+    expect(response.json().error.code).toBe("JSON_REQUIRED");
+  });
+
+  it.each([undefined, "", " \t "])("preserves canonical-only acceptance without aliases %j", async (value) => {
+    const { app } = csrfApp(value);
+    const accepted = await app.inject({ method: "POST", url: "/state", headers: { ...headers, origin: canonical }, payload: {} });
+    const rejected = await app.inject({ method: "POST", url: "/state", headers, payload: {} });
+    expect(accepted.statusCode).toBe(200);
+    expect(rejected.statusCode).toBe(403);
+    expect(rejected.json().error.code).toBe("CSRF_ORIGIN_REJECTED");
+  });
+
+  it("builds the allowed origins once when protection is installed", async () => {
+    const { app, env } = csrfApp(alias);
+    env.APP_ORIGIN_ALIAS_LIST.push("https://late.opsis.example");
+    const response = await app.inject({ method: "POST", url: "/state",
+      headers: { ...headers, origin: "https://late.opsis.example" }, payload: {} });
+    expect(response.statusCode).toBe(403);
+    expect(response.json().error.code).toBe("CSRF_ORIGIN_REJECTED");
+  });
+
+  it("keeps production CORS on the canonical origin", () => {
+    const { env } = csrfApp(alias);
+    expect(corsOptionsForRequest("/v1/auth/me", { ...env, NODE_ENV: "production" }))
+      .toMatchObject({ origin: canonical, credentials: true });
+    expect(corsOptionsForRequest("/v1/public/open-data/v1/registry", { ...env, NODE_ENV: "production" }))
+      .toMatchObject({ origin: false, credentials: false, preflight: false });
+  });
+
+  it("keeps aliases out of readiness and the access manifest", async () => {
+    const app = await buildApp(loadEnv({
+      NODE_ENV: "test", LOG_LEVEL: "silent", APP_ORIGIN: canonical, APP_ORIGIN_ALIASES: alias,
+      CSRF_PROTECTION_ENABLED: "true", OPSIS_WORKSPACES_ENABLED: "true", OPSIS_PUBLIC_ACCESS_ENABLED: "true"
+    }));
+    apps.push(app);
+    const readiness = await app.inject({ method: "GET", url: "/readyz" });
+    const access = await app.inject({ method: "POST", url: "/v1/private/opsis/access", headers, payload: {} });
+    expect(readiness.statusCode).toBe(200);
+    expect(access.statusCode).toBe(200);
+    for (const response of [readiness, access]) {
+      expect(response.body).not.toContain(alias);
+      expect(response.body).not.toContain("APP_ORIGIN_ALIAS");
+    }
   });
 });
 

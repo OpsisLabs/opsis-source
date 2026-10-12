@@ -11,6 +11,8 @@ export function corsOptionsForRequest(url: string, env: Env): FastifyCorsOptions
     return { origin: false, credentials: false, preflight: false };
   }
   return {
+    // Aliases use same-origin browser requests through the web /v1/ proxy;
+    // they do not need cross-origin access to the API.
     origin: env.NODE_ENV === "production" ? env.APP_ORIGIN : true,
     credentials: true,
   };
