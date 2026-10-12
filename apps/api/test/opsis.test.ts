@@ -82,6 +82,7 @@ it("gates reused private engines before parsing and provider work, including exp
       research: true,
       exitCheck: false,
       watch: false,
+      perpHandoff: false,
       perpExecution: false,
       manifest: {
         version: 1,
@@ -95,7 +96,7 @@ it("gates reused private engines before parsing and provider work, including exp
     });
     const manifest = access.json().manifest;
     expect(manifest.capabilities.map((item: { id: string }) => item.id)).toEqual([
-      "research", "tokenControls", "exitCheck", "watch", "rwa", "observedTrades", "swapPreview",
+      "research", "tokenControls", "exitCheck", "watch", "rwa", "observedTrades", "swapPreview", "perpHandoff",
     ]);
     expect(manifest.capabilities.every((item: { scope: string; origin: string; freshness: string; coverage: string; limits: string }) =>
       [item.scope, item.origin, item.freshness, item.coverage, item.limits].every(Boolean),
@@ -147,10 +148,10 @@ it("publishes manifest capability parity from the configured server flags", asyn
     const body = response.json();
     expect(body.manifest.build).toBe(config.BUILD_SHA);
     expect(Object.fromEntries(body.manifest.capabilities.map((row: { id: string; enabled: boolean }) => [row.id, row.enabled]))).toEqual({
-      research: true, tokenControls: true, exitCheck: true, watch: true, rwa: false, observedTrades: true, swapPreview: false,
+      research: true, tokenControls: true, exitCheck: true, watch: true, rwa: false, observedTrades: true, swapPreview: false, perpHandoff: false,
     });
     expect(body.swapPreview).toBe(false);
-    expect(body.manifest.capabilities.some((row: { id: string }) => /perp|quant|history/i.test(row.id))).toBe(false);
+    expect(body.manifest.capabilities.some((row: { id: string }) => /perpExecution|quant|history/i.test(row.id))).toBe(false);
   } finally {
     await app.close();
   }
@@ -245,6 +246,7 @@ it("public access permits anonymous research while retaining capabilities and CS
     expect(result.json()).toMatchObject({
       research: true,
       exitCheck: false,
+      perpHandoff: false,
       perpExecution: false,
     });
     expect(result.json().manifest.capabilities.find((item: { id: string }) => item.id === "exitCheck").enabled).toBe(false);
@@ -303,5 +305,35 @@ it("enables Swap preview only when live quotes and the server-side Uniswap key a
     } finally {
       await app.close();
     }
+  }
+});
+
+it("keeps the venue directory off by default and enables only its manifest row, never execution", async () => {
+  expect(env().PERP_HANDOFF_ENABLED).toBe(false);
+  for (const flag of [undefined, "false", "true", "TRUE"] as const) {
+    const config = loadEnv({ NODE_ENV: "test", OPSIS_WORKSPACES_ENABLED: "true", OPSIS_PUBLIC_ACCESS_ENABLED: "true", PERP_HANDOFF_ENABLED: flag });
+    const app = Fastify();
+    await opsisRoutes(app, config);
+    try {
+      const response = await app.inject({ method: "POST", url: "/v1/private/opsis/access", payload: {} });
+      expect(response.statusCode).toBe(200);
+      const body = response.json();
+      const enabled = flag?.toLowerCase() === "true";
+      expect(body.perpHandoff).toBe(enabled);
+      expect(body.perpExecution).toBe(false);
+      expect(body.manifest.capabilities.find((row: { id: string }) => row.id === "perpHandoff")).toEqual({
+        id: "perpHandoff", enabled,
+        scope: "Reviewed directory of perpetual-futures venues by stated region; no orders and no eligibility verification",
+        origin: "static review, checked 2026-10-12",
+        freshness: "re-review due within 120 days",
+        coverage: "United States and Canada only",
+        limits: "Each venue's own pages govern; Opsis verifies no identity or eligibility",
+      });
+    } finally {
+      await app.close();
+    }
+  }
+  for (const flag of ["", "yes", "1", "-1", "101"]) {
+    expect(() => loadEnv({ NODE_ENV: "test", PERP_HANDOFF_ENABLED: flag })).toThrow();
   }
 });

@@ -60,6 +60,7 @@ export async function opsisRoutes(app: FastifyInstance, env: Env) {
           { id: "rwa", enabled: env.RWA_VERIFY_ENABLED, scope: "Existing source-backed RWA verification checks", origin: "live on request", freshness: "checked per request", coverage: "bounded to supported sources and configured RPC quota", limits: "Not an appraisal, eligibility decision or proof of tradability." },
           { id: "observedTrades", enabled: env.OBSERVED_TRADES_ENABLED, scope: "Robinhood Chain decoded Uniswap V3 Swap logs", origin: "live scan on request", freshness: "anchored to captured block window", coverage: "configured block and log caps", limits: "Observed swaps only; gaps and partial windows remain explicit; transfers are not trades." },
           { id: "swapPreview", enabled: swapPreview, scope: "Robinhood Chain WETH/USDG quote preview through the Uniswap Trade API", origin: "live quote on request", freshness: "short-lived quote; Uniswap requotes before any trade", coverage: "WETH and USDG only", limits: "A preview, not an execution; Opsis never signs or broadcasts." },
+          { id: "perpHandoff", enabled: env.PERP_HANDOFF_ENABLED, scope: "Reviewed directory of perpetual-futures venues by stated region; no orders and no eligibility verification", origin: "static review, checked 2026-10-12", freshness: "re-review due within 120 days", coverage: "United States and Canada only", limits: "Each venue's own pages govern; Opsis verifies no identity or eligibility" },
         ],
       };
       return {
@@ -72,6 +73,7 @@ export async function opsisRoutes(app: FastifyInstance, env: Env) {
         rwa: env.RWA_VERIFY_ENABLED,
         observedTrades: env.OBSERVED_TRADES_ENABLED,
         swapPreview,
+        perpHandoff: env.PERP_HANDOFF_ENABLED,
         perpExecution: false,
         manifest,
       };

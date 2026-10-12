@@ -1,0 +1,61 @@
+.opsis-perp-handoff {
+  margin-top: 1.5rem;
+  overflow-wrap: anywhere;
+}
+.opsis-perp-regions {
+  min-width: 0;
+  margin: 1.25rem 0;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+}
+.opsis-perp-regions label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  cursor: pointer;
+}
+.opsis-perp-regions input {
+  flex-shrink: 0;
+}
+.opsis-perp-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: 1rem;
+}
+.opsis-perp-venue {
+  padding: 1rem;
+}
+.opsis-perp-sources,
+.opsis-perp-exclusions {
+  padding-left: 1.25rem;
+}
+.opsis-perp-sources li + li {
+  margin-top: 0.5rem;
+}
+.opsis-perp-review {
+  padding: 1rem;
+  border: 1px solid var(--line);
+}
+.opsis-perp-summary {
+  min-width: 0;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+.opsis-perp-summary pre {
+  max-width: 100%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  user-select: text;
+  font-family: inherit;
+  padding: 1rem;
+  border: 1px solid var(--line);
+}
+.opsis-perp-handoff .opsis-action {
+  max-width: 100%;
+  white-space: normal;
+}

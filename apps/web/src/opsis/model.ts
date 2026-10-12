@@ -27,7 +27,7 @@ export function workspaceIdentity(path: "/research" | "/check", search: string):
   const id = publicIdentity(path === "/check" ? params.get("token") ?? params.get("entity") : params.get("entity"));
   return path === "/check" && id.length !== 42 ? "" : id;
 }
-export type CapabilityId = "research" | "tokenControls" | "exitCheck" | "watch" | "rwa" | "observedTrades" | "swapPreview";
+export type CapabilityId = "research" | "tokenControls" | "exitCheck" | "watch" | "rwa" | "observedTrades" | "swapPreview" | "perpHandoff";
 export type CapabilityStatus = { id: CapabilityId; enabled: boolean; scope: string; origin: string; freshness: string; coverage: string; limits: string };
 export type CapabilityManifest = { version: 1; chain: { id: 4663; name: string }; build: string | null; capabilities: CapabilityStatus[] };
 export type Capabilities = {
@@ -40,13 +40,14 @@ export type Capabilities = {
   rwa: boolean;
   observedTrades: boolean;
   swapPreview?: boolean;
+  perpHandoff?: boolean;
   perpExecution: false;
   manifest?: CapabilityManifest;
 };
 
 const requiredCapabilityIds: CapabilityId[] = ["research", "tokenControls", "exitCheck", "watch", "rwa", "observedTrades"];
 // Optional rows let a newer browser build work with an older server manifest.
-const optionalCapabilityIds: CapabilityId[] = ["swapPreview"];
+const optionalCapabilityIds: CapabilityId[] = ["swapPreview", "perpHandoff"];
 const capabilityIds: CapabilityId[] = [...requiredCapabilityIds, ...optionalCapabilityIds];
 function parseManifest(value: unknown): CapabilityManifest | undefined {
   if (value === undefined) return undefined; // Older preview fixtures expose the same server-derived booleans.
@@ -105,6 +106,8 @@ export async function unlockPreview(
       typeof data.tokenControls !== "boolean") ||
     (data.swapPreview !== undefined &&
       typeof data.swapPreview !== "boolean") ||
+    (data.perpHandoff !== undefined &&
+      typeof data.perpHandoff !== "boolean") ||
     data.perpExecution !== false ||
     [
       data.research,
@@ -125,8 +128,9 @@ export async function unlockPreview(
       rwa: data.rwa,
       observedTrades: data.observedTrades,
       swapPreview: data.swapPreview ?? false,
+      perpHandoff: data.perpHandoff ?? false,
     };
-    if (manifest.capabilities.some((entry) => entry.enabled !== legacyFlags[entry.id])) throw new Error("Invalid preview response");
+    if ((data.perpHandoff === true && !manifest.capabilities.some((entry) => entry.id === "perpHandoff")) || manifest.capabilities.some((entry) => entry.enabled !== legacyFlags[entry.id])) throw new Error("Invalid preview response");
   }
   return {
     ...data,

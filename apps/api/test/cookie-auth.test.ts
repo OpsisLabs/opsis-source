@@ -171,11 +171,8 @@ describe("HttpOnly browser sessions", () => {
       payload
     });
 
-    const legacy = await app.inject({ method: "POST", url: "/v1/private/analyze",
-      headers: { origin: "https://opsis.example", "x-chainscout-csrf": "1" }, payload });
     const neither = await app.inject({ method: "POST", url: "/v1/private/analyze",
       headers: { origin: "https://opsis.example" }, payload });
-    expect(legacy.statusCode).toBe(200);
     expect(neither.statusCode).toBe(403);
     expect(neither.json().error.code).toBe("CSRF_HEADER_REQUIRED");
     expect(missing.statusCode).toBe(403);

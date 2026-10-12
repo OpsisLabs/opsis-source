@@ -75,6 +75,7 @@ const envSchema = z.object({
   TOKEN_CONTROLS_ENABLED: envBoolean.default(false),
   OPSIS_WORKSPACES_ENABLED: envBoolean.default(false),
   OPSIS_PUBLIC_ACCESS_ENABLED: envBoolean.default(false),
+  PERP_HANDOFF_ENABLED: envBoolean.default(false),
   OPSIS_PREVIEW_HASH: optionalString,
   OPSIS_PREVIEW_EXPIRES_AT: optionalString,
   PRIVATE_MODE_ENABLED: envBoolean.default(true),

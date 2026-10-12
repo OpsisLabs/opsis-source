@@ -188,3 +188,42 @@ it("reads only validated public URL context and accepts legacy token links", () 
   expect(workspaceIdentity("/check", `?token=invalid&entity=${address}`)).toBe("");
   expect(workspaceLink("/research", address)).toBe(`/research?entity=${address}`);
 });
+
+it("keeps the optional perp hand-off off when absent and validates its flag and manifest parity", async () => {
+  type Body = { perpHandoff?: unknown; manifest?: { capabilities: Array<Record<string, unknown>> }; [key: string]: unknown };
+  const body = async () => await response(Date.now() + 60_000).json() as Body;
+  const row = (enabled: boolean) => ({ id: "perpHandoff", enabled, scope: "reviewed directory", origin: "static review", freshness: "120 days", coverage: "United States and Canada only", limits: "no orders or eligibility verification" });
+  const parse = async (fixture: Body) => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify(fixture))));
+    return unlockPreview("", new AbortController().signal);
+  };
+  expect((await parse(await body())).perpHandoff).toBeUndefined();
+  const enabled = await body();
+  enabled.perpHandoff = true;
+  enabled.manifest!.capabilities.push(row(true));
+  expect((await parse(enabled)).perpHandoff).toBe(true);
+  const off = await body();
+  off.manifest!.capabilities.push(row(false));
+  expect((await parse(off)).perpHandoff ?? false).toBe(false);
+  const missingRow = await body();
+  missingRow.perpHandoff = false;
+  expect((await parse(missingRow)).perpHandoff).toBe(false);
+
+  for (const [flag, manifestFlag] of [[true, false], [false, true], [undefined, true]] as const) {
+    const mismatch = await body();
+    mismatch.perpHandoff = flag;
+    mismatch.manifest!.capabilities.push(row(manifestFlag));
+    await expect(parse(mismatch)).rejects.toThrow("Invalid preview response");
+  }
+  const missingEnabledRow = await body();
+  missingEnabledRow.perpHandoff = true;
+  await expect(parse(missingEnabledRow)).rejects.toThrow("Invalid preview response");
+  for (const invalid of [null, "", "true", 0, 1, {}, []]) {
+    for (const hasManifest of [true, false]) {
+      const malformed = await body();
+      malformed.perpHandoff = invalid;
+      if (!hasManifest) delete malformed.manifest;
+      await expect(parse(malformed)).rejects.toThrow("Invalid preview response");
+    }
+  }
+});
