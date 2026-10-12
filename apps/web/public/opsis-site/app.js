@@ -1,50 +1,51 @@
-import {createParticleTransition} from './particle-transition.js?v=3';
+import {c, t, localize} from './locale.js';
 export const modules=[
- {id:'explorer',name:'Wallet Explorer',short:'Explorer',code:'EX',component:'IDENTITY',hint:'Explore wallet activity.',description:'Inspect a wallet, transaction, or contract through source-linked records.',path:'/app'},
- {id:'swap',name:'Swap Lab',short:'Swap Lab',code:'SW',component:'LIQUIDITY',hint:'See how fees affect a swap.',description:'See how a WETH/USDG route, example pool fee, and slippage tolerance affect the output.',path:'/swap'},
- {id:'portfolio',name:'Portfolio',short:'Portfolio',code:'PF',component:'HOLDINGS',hint:'See your holdings at a glance.',description:'View holdings, movements, and reference values together in your local encrypted portfolio.',path:'/vault?view=portfolio'},
- {id:'rwa',name:'Asset Proof',short:'Asset Proof',code:'AP',component:'PROVENANCE',hint:'Check what’s behind an asset.',description:'Inspect token identity, custody, and redemption evidence as separate layers.',path:'/rwa'},
- {id:'quant',name:'Quant Lab',short:'Quant Lab',code:'QL',component:'QUANTITATIVE',hint:'Compare tokens and try what-ifs.',description:'Inspect the Robinhood Chain market snapshot, compare exact tokens, and stress a hypothetical portfolio.',path:'/quant/'},
- {id:'world',name:'World Map',short:'World Map',code:'WM',component:'WORLD EVENTS',hint:'Explore news and price moves.',description:'Select a report on the globe and compare dated price observations around publication.',path:'/world/'}
+ {id:'research',name:c('Research','研究'),label:c('Open Research','打开研究'),code:'RE',hint:c('Understand a token, wallet, or transaction.','了解代币、钱包或交易。'),summary:c('Public evidence','公开证据')},
+ {id:'check',name:c('Trade Check','交易核查'),label:c('Open Trade Check','打开交易核查'),code:'TC',hint:c('Check exit costs at your entered size.','按输入的数量核查退出成本。'),summary:c('Size & exit costs','数量与退出成本')},
+ {id:'watch',name:c('Watch','观察'),label:c('Open Watch','打开观察'),code:'WA',hint:c('Check a public wallet and review saved changes.','核查公开钱包并查看已保存的变化。'),summary:c('Wallet changes','钱包变化')},
+ {id:'rwa',name:c('Stock-token check','股票代币核查'),label:c('Open Stock-token check','打开股票代币核查'),code:'ST',hint:c('Inspect stock-token identity and redemption evidence.','查看股票代币身份与赎回证据。'),summary:c('Identity & backing','身份与支持证据')},
+ {id:'quant',name:c('Quant Lab','量化实验室'),label:c('Open Quant Lab','打开量化实验室'),code:'QL',hint:c('Explore captured pools and local experiments.','探索已采集的资金池与本地实验。'),summary:c('Data & experiments','数据与实验')},
+ {id:'world',name:c('World & markets','世界与市场'),label:c('Open World & markets','打开世界与市场'),code:'WM',hint:c('Compare dated reports and price observations.','比较有日期的报道与价格观测。'),summary:c('News & price moves','新闻与价格变化')}
 ];
-const transition=createParticleTransition();let navigation=0,closing=false,ambientOn=false;
-const $=s=>document.querySelector(s);const dialog=$('#terminal');let workspaceOpen=false,scene,lastFocus,selected=0,motionOn=!matchMedia('(prefers-reduced-motion:reduce)').matches;
+const $=s=>document.querySelector(s);
+let enabled=new Set(),workspaceOpen=false,scene,lastFocus,ambientOn=false,motionOn=!matchMedia('(prefers-reduced-motion:reduce)').matches;
+const shortcutSelector='[data-tool], [data-workspace], [data-open-quant], #public-search button';
+function destination(button){return button.dataset.tool||button.dataset.workspace||(button.hasAttribute('data-open-quant')?'quant':'research')}
+function syncCapabilities(){
+ document.querySelectorAll(shortcutSelector).forEach(button=>{const available=enabled.has(destination(button));button.hidden=!available;button.disabled=!available});
+ $('#public-search').hidden=!enabled.has('research');scene?.refreshLayout();
+}
+export function navigateTool(tool,entity,opener=document.activeElement){
+ if(!enabled.has(tool))return;
+ lastFocus=opener?.matches?.('button,input,a')?opener:document.querySelector(`.module-label[data-tool="${tool}"]`);
+ // Dispatch before any scene work: navigation never waits for animation or asset loading.
+ document.dispatchEvent(new CustomEvent('opsis:navigate',{detail:{type:'opsis:open-tool',tool,entity}}));
+}
+export function openTool(i){if(Number.isInteger(i)&&modules[i])navigateTool(modules[i].id,undefined,document.querySelector(`.module-label[data-tool="${modules[i].id}"]`))}
 for(const [i,m] of modules.entries()){
- const b=document.createElement('button');b.className='module-label';b.dataset.module=i;b.setAttribute('aria-label',`Open ${m.name}`);b.setAttribute('aria-hidden','true');b.innerHTML=`<span>${m.id==='quant'?'START HERE':m.id==='world'?'EXPLORE THE WORLD':'OPEN TOOL'}<span>↗</span></span><strong>${m.short}</strong><small>${['Wallet activity','Swap costs','Your holdings','Asset backing','Tokens & what-ifs','News & price moves'][i]}</small>`;if(m.id==='quant')b.classList.add('recommended');b.tabIndex=-1;b.addEventListener('click',()=>openTool(i));b.addEventListener('pointerenter',()=>scene?.highlight(i));b.addEventListener('pointerleave',()=>scene?.highlight(-1));$('#module-labels').append(b);
- const row=document.createElement('button');row.className='index-row';row.innerHTML=`<span>${m.id==='quant'?'START':m.id==='world'?'WORLD':'TOOL'}</span><span><strong>${m.name}</strong><small>${m.hint}</small></span><span>↗</span>`;row.addEventListener('click',()=>openTool(i));if(m.id==='quant'){$('#index-list').prepend(row);row.classList.add('recommended')}else if(m.id==='world')$('#index-list .recommended').after(row);else $('#index-list').append(row);
- for(const target of ['#terminal-nav','#rail-tools']){const nav=document.createElement('button');nav.className=target==='#terminal-nav'?'terminal-nav-button':'rail-tool';nav.dataset.module=i;nav.innerHTML=target==='#terminal-nav'?`<span>0${i+1}</span>${m.short}`:`${m.short.toUpperCase()}<small>0${i+1}</small>`;nav.addEventListener('click',()=>openTool(i));$(target).append(nav)}
+ const b=document.createElement('button');b.className='module-label';b.dataset.module=i;b.dataset.tool=m.id;b.disabled=true;b.setAttribute('aria-label',m.label);b.setAttribute('aria-hidden','true');b.innerHTML=`<span>0${i+1}<span>↗</span></span><strong>${m.name}</strong><small>${m.summary}</small>`;b.tabIndex=-1;if(m.id==='quant')b.classList.add('recommended');b.addEventListener('pointerenter',()=>scene?.highlight(i));b.addEventListener('pointerleave',()=>scene?.highlight(-1));$('#module-labels').append(b);
+ const row=document.createElement('button');row.className='index-row';row.dataset.tool=m.id;row.disabled=true;if(m.id==='quant')row.classList.add('recommended');row.innerHTML=`<span>0${i+1}</span><span><strong>${m.name}</strong><small>${m.hint}</small></span><span>↗</span>`;$('#index-list').append(row);
+ const nav=document.createElement('button');nav.className='rail-tool';nav.dataset.tool=m.id;nav.disabled=true;nav.innerHTML=`${m.name}<small>0${i+1}</small>`;$('#rail-tools').append(nav);
 }
-function paintTool(i){selected=i;$('#workspace-select').value=String(i);const m=modules[i];dialog.classList.toggle('quant-open',['quant','world'].includes(m.id));$('.demo-label').textContent=m.id==='world'?'DATED EVENT CAPTURE':m.id==='quant'?'MAP: 10 SEP SNAPSHOT':'CONNECTED TOOLS';$('#terminal-kicker').textContent=`// MODULE 0${i+1} / ${m.code}`;$('#terminal-title').textContent=m.name;$('#terminal-description').textContent=m.description;document.querySelectorAll('.terminal-nav-button').forEach((b,n)=>{b.classList.toggle('active',n===i);b.setAttribute('aria-current',n===i?'page':'false')});$('#tool-content').replaceChildren();$('.terminal-main').scrollTop=0;$('#tool-content').textContent='Opening connected workspace…'}
-export async function openTool(i){
- if(!Number.isInteger(i)||!modules[i]||closing)return;
- const id=++navigation,isNew=!dialog.open;transition.cancel();scene?.restoreRing();
- if(isNew)lastFocus=document.activeElement;
- const shape=isNew?scene?.transitionRing(i):null;
- scene?.setPaused(true);
- if(!isNew&&motionOn){await transition.play({element:$('.terminal-main'),enter:false,enabled:motionOn,duration:220});if(id!==navigation)return}
- paintTool(i);
- if(isNew){dialog.showModal();document.body.style.overflow='hidden';dialog.classList.add('particle-opening')}
- await transition.play({element:isNew?dialog:$('.terminal-main'),enter:true,ring:shape?.points,origin:shape?.origin,enabled:motionOn,duration:isNew?680:420});
- if(id!==navigation)return;dialog.classList.remove('particle-opening');scene?.restoreRing();
- document.dispatchEvent(new CustomEvent('opsis:navigate',{detail:{type:'opsis:open-tool',tool:modules[i].id}}));
-}
-async function closeTerminal(){
- if(!dialog.open||closing)return;closing=true;const id=++navigation;transition.cancel();scene?.restoreRing();const shape=scene?.transitionRing(selected);dialog.classList.remove('particle-opening');dialog.classList.add('particle-closing');
- await transition.play({element:dialog,enter:false,ring:shape?.points,origin:shape?.origin,enabled:motionOn,duration:560});
- if(id!==navigation)return;dialog.classList.remove('particle-closing');if(['quant','world'].includes(modules[selected].id))$('#tool-content').replaceChildren();dialog.close();scene?.restoreRing();closing=false;
-}
-$('#close-terminal').addEventListener('click',closeTerminal);dialog.addEventListener('cancel',e=>{e.preventDefault();closeTerminal()});dialog.addEventListener('close',()=>{if(dialog.open)return;closing=false;transition.cancel();dialog.classList.remove('particle-opening','particle-closing');if(['quant','world'].includes(modules[selected].id))$('#tool-content').replaceChildren();document.body.style.overflow='';scene?.setPaused(false);scene?.highlight(-1);lastFocus?.focus({preventScroll:true})});dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)closeTerminal()}});
-for(const id of ['#open-terminal','#terminal-shortcut'])$(id).addEventListener('click',()=>openTool(4));
+syncCapabilities();
+document.addEventListener('opsis:capabilities',event=>{enabled=new Set(Array.isArray(event.detail?.enabled)?event.detail.enabled:[]);syncCapabilities()});
+// Delegation includes generated rings, rail, index, stories, top bar and call to action.
+document.addEventListener('click',event=>{const button=event.target.closest('[data-tool], [data-workspace], [data-open-quant]');if(button&&!button.disabled)navigateTool(destination(button),undefined,button)});
 export function jump(p){if(document.body.classList.contains('no-webgl')){$('#modules').scrollIntoView();return}window.scrollTo({top:$('#experience').offsetTop+($('#experience').offsetHeight-innerHeight)*p,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'})}
 document.querySelectorAll('[data-jump]').forEach(b=>b.addEventListener('click',()=>jump(Number(b.dataset.jump))));
-$('#motion-toggle').textContent=`MOTION / ${motionOn?'ON':'OFF'}`;$('#motion-toggle').addEventListener('click',()=>{motionOn=!motionOn;scene?.setMotion(motionOn);$('#motion-toggle').textContent=`MOTION / ${motionOn?'ON':'OFF'}`});
-import('./scene.js?v=data-18').then(async({createScanner})=>{scene=await createScanner({open:i=>openTool(i),jump});scene.setMotion(motionOn);scene.setAmbient(ambientOn);if(dialog.open||workspaceOpen)scene.setPaused(true)}).catch(e=>{console.warn('Point cloud unavailable',e);document.body.classList.add('no-webgl');$('#load-state').textContent='STATIC VIEW / TOOLS BELOW';document.dispatchEvent(new Event('chain-ready'))});
+function syncMotion(){
+ $('#motion-toggle').textContent=c(`MOTION / ${motionOn?'ON':'OFF'}`,`动态 / ${motionOn?'开启':'关闭'}`);
+ $('#motion-toggle').setAttribute('aria-pressed',String(motionOn));
+ $('#footer-motion').textContent=c(`Motion: ${motionOn?'On':'Off'}`,`动态：${motionOn?'开启':'关闭'}`);
+ $('#footer-motion').setAttribute('aria-pressed',String(motionOn));
+}
+$('#motion-toggle').addEventListener('click',()=>{motionOn=!motionOn;scene?.setMotion(motionOn);syncMotion()});
+$('#footer-motion').addEventListener('click',()=>$('#motion-toggle').click());syncMotion();
+import('./scene.js?v=data-18').then(async({createScanner})=>{scene=await createScanner({open:i=>openTool(i),jump});scene.setMotion(motionOn);scene.setAmbient(ambientOn);scene.setPaused(workspaceOpen)}).catch(()=>{document.body.classList.add('no-webgl');$('#load-state').textContent=c('STATIC VIEW / TOOLS BELOW','静态视图 / 工具在下方');document.dispatchEvent(new Event('chain-ready'))});
 
-addEventListener('message',e=>{const frame=document.querySelector('#quant-frame');if(e.origin===location.origin&&e.source===frame?.contentWindow&&e.data?.type==='opsis:close-quant')closeTerminal()});
-
-// Hover reveals the desktop navigation; focus and touch provide equivalent access.
+// Hover reveals desktop navigation; focus and touch provide equivalent access.
 const rail=$('#sidebar'),railPanel=$('#sidebar-panel'),railToggle=$('#sidebar-toggle');
-function showRail(open){rail.classList.toggle('is-open',open);railPanel.inert=!open;railToggle.setAttribute('aria-expanded',String(open));railToggle.setAttribute('aria-label',open?'Close navigation':'Open navigation')}
+function showRail(open){rail.classList.toggle('is-open',open);railPanel.inert=!open;railToggle.setAttribute('aria-expanded',String(open));railToggle.setAttribute('aria-label',open?c('Close navigation','关闭导航'):c('Open navigation','打开导航'))}
 rail.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'&&matchMedia('(min-width:851px)').matches)showRail(true)});
 rail.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'&&!rail.querySelector(':focus-visible'))showRail(false)});
 rail.addEventListener('focusin',e=>{if(e.target.matches(':focus-visible'))showRail(true)});
@@ -53,25 +54,12 @@ railToggle.addEventListener('click',()=>showRail(!rail.classList.contains('is-op
 rail.addEventListener('keydown',e=>{if(e.key==='Escape'){railToggle.focus();showRail(false);e.preventDefault()}});
 document.addEventListener('pointerdown',e=>{if(!rail.contains(e.target))showRail(false)});
 railPanel.addEventListener('click',e=>{if(e.target.closest('button')&&!matchMedia('(hover:hover)').matches)showRail(false)});
-
-document.querySelectorAll('[data-open-quant]').forEach(b=>b.addEventListener('click',()=>openTool(4)));
-const featurePreviews={map:['quant-map.png','Quant Lab pool map showing liquidity, volume, and 24-hour price changes alongside source-based analysis.'],compare:['quant-compare.png','Quant Lab comparison of WETH, PONS, and CASHCAT with exact-token market metrics.'],scenario:['quant-scenario.png','Quant Lab portfolio surface with editable price shocks and calculated portfolio exposure.']};
-document.querySelectorAll('[data-preview]').forEach(b=>b.addEventListener('click',()=>{const [file,alt]=featurePreviews[b.dataset.preview];$('#product-preview').src='assets/'+file+'?v=data-18';$('#product-preview').alt=alt;document.querySelectorAll('[data-preview]').forEach(t=>{t.classList.toggle('active',t===b);t.setAttribute('aria-pressed',String(t===b))});if(matchMedia('(max-width:850px)').matches)$('#product-preview').scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'})}));
-
-// One consistent workspace switcher, including when Quant Lab is open.
-for(const i of [4,5,0,2,1,3]){const o=document.createElement('option');o.value=i;o.textContent=modules[i].name;$('#workspace-select').append(o)}
-$('#workspace-select').addEventListener('change',e=>openTool(Number(e.target.value)));
-$('#ambient-toggle').addEventListener('click',()=>{ambientOn=!ambientOn;scene?.setAmbient(ambientOn);$('#ambient-toggle').textContent='Ambient news: '+(ambientOn?'On':'Off');$('#ambient-toggle').setAttribute('aria-pressed',String(ambientOn))});
-
-// Product stories and footer shortcuts use the same particle navigation as the rings.
-document.querySelectorAll('[data-tool]').forEach(button=>button.addEventListener('click',()=>{const i=modules.findIndex(m=>m.id===button.dataset.tool);if(i>=0)openTool(i)}));
-const footerMotion=$('#footer-motion');
-function syncFooterMotion(){footerMotion.textContent='Motion: '+(motionOn?'On':'Off');footerMotion.setAttribute('aria-pressed',String(motionOn))}
-footerMotion.addEventListener('click',()=>{$('#motion-toggle').click()});$('#motion-toggle').addEventListener('click',syncFooterMotion);syncFooterMotion();
-
-
-// Pause the landing sculpture while its live research dialog is open.
-document.addEventListener('asset-search-state',e=>{scene?.setPaused(e.detail.open||dialog.open)});
-
-document.addEventListener('opsis:overview',()=>{workspaceOpen=false;scene?.setPaused(false);closeTerminal()});
+const featurePreviews={map:['quant-map.png',c('Quant Lab pool map showing liquidity, volume, and 24-hour price changes alongside source-based analysis.','量化实验室资金池图谱，展示流动性、交易量和 24 小时价格变化及来源分析。')],compare:['quant-compare.png',c('Quant Lab comparison of WETH, PONS, and CASHCAT with exact-token market metrics.','量化实验室比较 WETH、PONS 和 CASHCAT 的精确代币市场指标。')],scenario:['quant-scenario.png',c('Quant Lab portfolio surface with editable price shocks and calculated portfolio exposure.','量化实验室投资组合曲面，包含可编辑的价格冲击和计算的组合敞口。')]};
+document.querySelectorAll('[data-preview]').forEach(b=>b.addEventListener('click',()=>{const [file,alt]=featurePreviews[b.dataset.preview];$('#product-preview').src='assets/'+file+'?v=data-18';$('#product-preview').alt=t(alt);document.querySelectorAll('[data-preview]').forEach(t=>{t.classList.toggle('active',t===b);t.setAttribute('aria-pressed',String(t===b))});if(matchMedia('(max-width:850px)').matches)$('#product-preview').scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'})}));
+$('#ambient-toggle').addEventListener('click',()=>{ambientOn=!ambientOn;scene?.setAmbient(ambientOn);$('#ambient-toggle').textContent=c('Ambient news: '+(ambientOn?'On':'Off'),'背景新闻：'+(ambientOn?'开启':'关闭'));$('#ambient-toggle').setAttribute('aria-pressed',String(ambientOn))});
+document.addEventListener('opsis:locale',()=>{localize();syncMotion();scene?.refreshLayout()});
+document.addEventListener('opsis:overview',()=>{workspaceOpen=false;scene?.setPaused(false);if(lastFocus?.isConnected&&!lastFocus.hidden&&!lastFocus.disabled){if(railPanel.contains(lastFocus))showRail(true);lastFocus.focus({preventScroll:true})}});
 document.addEventListener('opsis:workspace-open',()=>{workspaceOpen=true;scene?.setPaused(true)});
+
+// Every visible control is bound before it becomes clickable.
+document.querySelectorAll('[data-jump], [data-preview], #sidebar-toggle, #motion-toggle, #footer-motion, #ambient-toggle').forEach(button=>{button.disabled=false});

@@ -1,88 +1,54 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
-import { publicIdentity, workspaceLink } from "./model";
+import { useI18n } from "../i18n";
+import { connectFilm, defaultTools } from "./OriginalLanding.bridge";
 
-const destinations: Record<string, string> = {
-  explorer: "/research",
-  research: "/research",
-  swap: "/swap",
-  check: "/check",
-  portfolio: "/saved?view=portfolio",
-  saved: "/saved",
-  rwa: "/rwa",
-  quant: "/lab",
-  world: "/research/events",
-  watch: "/watch",
-  guide: "/guide",
-};
-
-/** Preserve the original film and scroll state without exposing preview credentials.
- * Events are bound to this exact same-origin document, never the host window. */
-export default function OriginalLanding({ onLock }: { onLock?: () => void }) {
+/** Only named destinations and validated public identities cross the film boundary. */
+export default function OriginalLanding({
+  onLock,
+  enabledTools = defaultTools,
+}: {
+  onLock?: () => void;
+  enabledTools?: readonly string[];
+}) {
   const frame = useRef<HTMLIFrameElement>(null);
-  const cleanup = useRef<(() => void) | null>(null);
+  const [filmDocument, setFilmDocument] = useState<Document | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const { locale } = useI18n();
+  const c = (en: string, zh: string) => (locale === "zh-CN" ? zh : en);
   const [visited, setVisited] = useState(location.pathname === "/");
   if (!visited && location.pathname === "/") setVisited(true);
-  useEffect(() => () => cleanup.current?.(), []);
+
   useEffect(() => {
-    frame.current?.contentDocument?.dispatchEvent(
-      new Event(
-        location.pathname === "/" ? "opsis:overview" : "opsis:workspace-open",
-      ),
+    if (!filmDocument) return;
+    return connectFilm(
+      filmDocument,
+      () => frame.current?.contentDocument,
+      navigate,
+      enabledTools,
+      onLock,
     );
-  }, [location.pathname]);
-  function connect() {
-    cleanup.current?.();
-    const document = frame.current?.contentDocument;
-    if (!document) return;
-    const receive = (event: Event) => {
-      if (
-        event.target !== document ||
-        document !== frame.current?.contentDocument
-      )
-        return;
-      const data = (event as CustomEvent).detail;
-      if (data?.type === "opsis:lock") {
-        onLock?.();
-        return;
-      }
-      if (
-        data?.type !== "opsis:open-tool" ||
-        typeof data.tool !== "string" ||
-        !Object.hasOwn(destinations, data.tool)
-      )
-        return;
-      const path = destinations[data.tool];
-      const entity =
-        typeof data.entity === "string" ? publicIdentity(data.entity) : null;
-      navigate(
-        path === "/research" && entity
-          ? workspaceLink("/research", entity)
-          : path,
-      );
-    };
-    const lock = document.getElementById("lock-preview");
-    if (lock) lock.hidden = !onLock;
-    document.addEventListener("opsis:navigate", receive);
-    cleanup.current = () =>
-      document.removeEventListener("opsis:navigate", receive);
-    document.dispatchEvent(new Event("opsis:host-ready"));
-    document.dispatchEvent(
-      new Event(
-        location.pathname === "/" ? "opsis:overview" : "opsis:workspace-open",
-      ),
-    );
-  }
+  }, [filmDocument, enabledTools, onLock, navigate]);
+
+  useEffect(() => {
+    filmDocument?.dispatchEvent(new CustomEvent("opsis:locale", { detail: { locale } }));
+  }, [filmDocument, locale]);
+  useEffect(() => {
+    filmDocument?.dispatchEvent(new Event(
+      location.pathname === "/" ? "opsis:overview" : "opsis:workspace-open",
+    ));
+  }, [filmDocument, location.pathname]);
+
   if (!visited) return null;
   return (
     <iframe
       ref={frame}
-      onLoad={connect}
+      onLoad={() => setFilmDocument(frame.current?.contentDocument ?? null)}
       className="opsis-original-film"
       src="/opsis-site/index.html"
-      title="Opsis overview — interactive chain"
+      title={c("Opsis overview — interactive chain", "Opsis 概览 — 互动链条")}
+      tabIndex={location.pathname === "/" ? 0 : -1}
       inert={location.pathname !== "/"}
       aria-hidden={location.pathname !== "/"}
     />
