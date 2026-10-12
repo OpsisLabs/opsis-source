@@ -40,7 +40,7 @@ test.describe("Opsis tool finder", () => {
       name: "Suggested starting points",
     });
     await expect(
-      suggestions.getByRole("link", { name: "Open Research ↗", exact: true }),
+      suggestions.getByRole("link", { name: "Open Research →", exact: true }),
     ).toHaveAttribute("href", "/research");
     await page.getByRole("button", { name: "I'm holding assets" }).click();
     await expect(
@@ -53,7 +53,7 @@ test.describe("Opsis tool finder", () => {
       .getByRole("button", { name: "I explore data & scenarios" })
       .click();
     await expect(
-      suggestions.getByRole("link", { name: "Open Quant Lab ↗", exact: true }),
+      suggestions.getByRole("link", { name: "Open Quant Lab →", exact: true }),
     ).toHaveAttribute("href", "/lab");
     await page.getByRole("button", { name: "I trade perpetuals" }).click();
     await expect(suggestions).toContainText(
@@ -70,7 +70,7 @@ test.describe("Opsis tool finder", () => {
       .getByRole("button", { name: "I explore data & scenarios" })
       .click();
     await suggestions
-      .getByRole("link", { name: "Open Quant Lab ↗", exact: true })
+      .getByRole("link", { name: "Open Quant Lab →", exact: true })
       .click();
     await expect(
       page.getByRole("complementary", { name: "Who this tool is for" }),
@@ -107,7 +107,7 @@ test.describe("Opsis tool finder", () => {
     await expect(
       page
         .getByRole("region", { name: "建议起点" })
-        .getByRole("link", { name: "打开 量化实验室 ↗", exact: true }),
+        .getByRole("link", { name: "打开 量化实验室 →", exact: true }),
     ).toBeVisible();
     expect(
       await page.evaluate(
