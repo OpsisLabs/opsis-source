@@ -1274,3 +1274,9 @@
 .opsis[data-theme="light"] .stress-positive {
   color: #176b46 !important;
 }
+
+/* Headings receive focus after navigation so screen readers announce the page;
+   they are not controls, so no focus ring is drawn on them. */
+.opsis #opsis-content h1[tabindex="-1"]:focus {
+  outline: none;
+}
