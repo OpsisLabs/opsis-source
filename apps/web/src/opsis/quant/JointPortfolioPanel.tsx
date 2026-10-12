@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import * as echarts from "echarts";
+import type { LineSeriesOption } from "echarts/charts";
+import { echarts } from "./echarts";
 import { validateDataset, type ExperimentSpec, type JointPortfolioPosition, type JointPortfolioRun, type PriceDataset } from "@rh-chain/quant";
 import { useCopy } from "../copy";
 import CorrelationPanel from "./CorrelationPanel";
@@ -33,7 +34,7 @@ export default function JointPortfolioPanel({ first, spec, singleInstrumentOnly 
   useEffect(() => {
     if (!chartRef.current || !run) return;
     const chart = echarts.init(chartRef.current);
-    const bands: echarts.SeriesOption[] = ([0.95, 0.8, 0.5] as const).flatMap((confidence) => {
+    const bands: LineSeriesOption[] = ([0.95, 0.8, 0.5] as const).flatMap((confidence) => {
       const name = c(`${confidence * 100}% band`, `${confidence * 100}% 区间`);
       const color = confidence === 0.95 ? "#8cc8ff" : confidence === 0.8 ? "#4f9ee8" : "#1261a0";
       const stack = `joint-${confidence}`;

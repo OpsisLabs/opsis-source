@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import * as echarts from "echarts";
+import { echarts } from "./echarts";
 import type { ObservedCorrelationMatrix, PriceDataset } from "@rh-chain/quant";
 import { useCopy } from "../copy";
 

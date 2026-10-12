@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import * as echarts from "echarts";
+import type { LineSeriesOption } from "echarts/charts";
+import { echarts } from "./echarts";
 import {
   exportRun,
   realizedStats,
@@ -69,7 +70,7 @@ export default function QuantWorkbench() {
   useEffect(() => {
     if (!chartRef.current || !run) return;
     const chart = echarts.init(chartRef.current);
-    const bandSeries: echarts.SeriesOption[] = ([0.95, 0.8, 0.5] as const).flatMap((confidence) => {
+    const bandSeries: LineSeriesOption[] = ([0.95, 0.8, 0.5] as const).flatMap((confidence) => {
       const name = c(`${confidence * 100}% band`, `${confidence * 100}% 区间`);
       const color = confidence === 0.95 ? "#8cc8ff" : confidence === 0.8 ? "#4f9ee8" : "#1261a0";
       const stack = `pointwise-${confidence}`;
