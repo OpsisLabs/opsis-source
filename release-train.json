@@ -334,6 +334,18 @@
       ],
       "outcome": "Move through Opsis without dead ends, lost results, mismatched names or laggy clicks",
       "shipGate": "One name per destination across the front door, navigation, guide, titles and copy in English and Chinese. No link or shortcut reaches a switched-off tool. The front door keeps its D12 composition while every shortcut opens its tool with one consistent transition and controls respond once visible. Public context lives in the URL and survives back, refresh and returning within a tab; private Vault data never enters a URL. Clicks show progress at once with no blank full-screen loader after first load. The tool input sits on the first screen at 375 px. Privacy and Terms render in the shared shell with no broken links. Localized titles, a whole-page persisted theme and a constant header height. No provider, chain, execution, paid path, workspace or frozen /quant change. Relevant unit, failure-state, privacy, English/Chinese, Chromium/WebKit and full release gates pass on the integrated candidate."
+    },
+    {
+      "order": 29,
+      "id": "28-opsis-identity",
+      "branch": "codex/28-opsis-identity",
+      "tagPrefix": "rc/28-opsis-identity/",
+      "status": "queued",
+      "dependencies": [
+        "27-flow-polish"
+      ],
+      "outcome": "Opsis is the only product name in the product, code, configuration and documentation",
+      "shipGate": "No mention of the predecessor product, its tool brands or earlier working names in user-visible copy (English and Chinese), metadata, emails, API responses, code identifiers, configuration, scripts or documentation, except the documented compatibility identifiers that existing users' saved data, backups and cookies still need. Existing encrypted Vault data, backups, exports, cookies and saved reports keep working: new data uses the Opsis identifiers and old identifiers are still read. Web and API stay compatible in either deployment order. On-chain token symbols and third-party names are unchanged. No provider, chain, execution, paid path, workspace or frozen /quant change. Relevant unit, failure-state, privacy, English/Chinese, Chromium/WebKit and full release gates pass on the integrated candidate."
     }
   ]
 }
