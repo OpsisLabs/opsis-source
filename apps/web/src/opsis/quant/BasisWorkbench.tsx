@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import * as echarts from "echarts";
+import { echarts } from "./echarts";
 import { useCopy } from "../copy";
 import { analyzeBasisRecords, readBasisFile, type BasisAnalysis } from "./basis-records";
 import "./basis-records.css";

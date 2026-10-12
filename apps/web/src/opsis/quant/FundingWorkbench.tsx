@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import * as echarts from "echarts";
+import { echarts } from "./echarts";
 import { useCopy } from "../copy";
 import { analyzeFundingRecords, readFundingFile, type FundingAnalysis } from "./funding-records";
 import "./funding-records.css";
