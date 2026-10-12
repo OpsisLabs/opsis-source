@@ -17,11 +17,11 @@ function requireEnabled(env: Env): void {
   }
 }
 
-type OpenDataClass = "chainscout-reviewed-reference" | "chainscout-derived-normalization";
+type OpenDataClass = "opsis-reviewed-reference" | "opsis-derived-normalization";
 
 function sendPublic(reply: FastifyReply, body: unknown, dataClass: OpenDataClass) {
   reply.header("cache-control", "private, no-store");
-  reply.header("x-chainscout-data-class", dataClass);
+  reply.header("x-opsis-data-class", dataClass);
   return reply.send(body);
 }
 
@@ -75,7 +75,7 @@ export async function openDataRoutes(
     return sendPublic(reply, {
       ...body,
       cap: openDataManifest(env.RATE_LIMIT_OPEN_DATA_PER_HOUR).cap,
-    }, "chainscout-reviewed-reference");
+    }, "opsis-reviewed-reference");
   });
 
   app.post("/v1/public/open-data/v1/normalize", {
@@ -86,6 +86,6 @@ export async function openDataRoutes(
     const body = normalizeBody.parse(request.body);
     const identity = normalizeOpenDataIdentity(body);
     if (!identity) throw new AppError("OPEN_DATA_INVALID_IDENTITY", 400, "The public identifier does not match the selected syntax");
-    return sendPublic(reply, identity, "chainscout-derived-normalization");
+    return sendPublic(reply, identity, "opsis-derived-normalization");
   });
 }

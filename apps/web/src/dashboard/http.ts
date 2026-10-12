@@ -7,7 +7,7 @@ import { opsisPreviewAuthorization } from "../opsis/preview-token";
 import { dealPreviewAuthorization } from "../deals/preview-token";
 import { translateCurrent } from "../i18n/translate";
 const BASE = import.meta.env.VITE_API_BASE_URL ?? "";
-const AUTH_REFRESH_LOCK = "chainscout-cookie-refresh";
+const AUTH_REFRESH_LOCK = "opsis-cookie-refresh";
 let refreshPromise: Promise<boolean> | null = null;
 
 /** Remove the pre-cookie implementation's credential bundle without reading
@@ -59,7 +59,7 @@ export function humanize(
       return translateCurrent("cloud.http.privateModeDisabled");
     case "PORTFOLIO_MODE_DISABLED":
       return translateCurrent("cloud.http.portfolioModeDisabled");
-    case "SCOUT_WATCH_DISABLED":
+    case "WATCH_DISABLED":
       return translateCurrent("watch.error.disabled");
     case "PORTFOLIO_DAILY_BUDGET_EXCEEDED":
       return translateCurrent("cloud.http.portfolioDailyBudget");
@@ -143,8 +143,10 @@ async function raw(path: string, init: RequestInit = {}): Promise<Response> {
   const headers = new Headers(init.headers);
   const method = (init.method ?? "GET").toUpperCase();
   if (init.body) headers.set("content-type", "application/json");
-  if (["POST", "PUT", "PATCH", "DELETE"].includes(method))
+  if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+    headers.set("x-opsis-csrf", "1");
     headers.set("x-chainscout-csrf", "1");
+  }
   return fetch(`${BASE}${path}`, {
     ...init,
     headers,
@@ -216,6 +218,7 @@ export async function privateApi<T>(
 ): Promise<T> {
   const headers = new Headers({
     "content-type": "application/json",
+    "x-opsis-csrf": "1",
     "x-chainscout-csrf": "1",
   });
   const previewAuthorization = opsisPreviewAuthorization(path) ?? dealPreviewAuthorization(path);

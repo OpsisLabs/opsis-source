@@ -2,16 +2,16 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { buildApp } from "../src/app.js";
 import { loadEnv } from "../src/config/env.js";
 import type { OpenDataLimiter } from "../src/open-data/limiter.js";
-import { CHAINSCOUT_REVIEWED_ASSETS } from "@rh-chain/shared";
+import { REVIEWED_ASSETS } from "@rh-chain/shared";
 import { AppError } from "../src/http/errors.js";
 import { corsOptionsForRequest } from "../src/http/cors.js";
 import Ajv from "ajv";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { SCOUT_SWAP_TOKENS } from "../src/swap/constants.js";
+import { SWAP_TOKENS } from "../src/swap/constants.js";
 
 const apps: Array<Awaited<ReturnType<typeof buildApp>>> = [];
-const WETH = CHAINSCOUT_REVIEWED_ASSETS.WETH.address;
+const WETH = REVIEWED_ASSETS.WETH.address;
 const UNKNOWN = "0x1111111111111111111111111111111111111111";
 
 afterEach(async () => {
@@ -52,27 +52,27 @@ describe("Open Data v1", () => {
     const response = await app.inject({ method: "GET", url: "/v1/public/open-data/v1/registry" });
     expect(response.statusCode).toBe(200);
     expect(response.headers["cache-control"]).toBe("private, no-store");
-    expect(response.headers["x-chainscout-data-class"]).toBe("chainscout-reviewed-reference");
+    expect(response.headers["x-opsis-data-class"]).toBe("opsis-reviewed-reference");
     expect(response.headers["ratelimit-limit"]).toBe("60");
     expect(response.json()).toMatchObject({
       schemaVersion: 1,
       registryVersion: "2026-08-12.1",
-      chainscoutSourceRevision: "1".repeat(40),
+      opsisSourceRevision: "1".repeat(40),
       chain: { id: 4663, namespace: "eip155", name: "Robinhood Chain" },
       assetsShown: 2,
-      completeFor: "chainscout_reviewed_launch_registry",
-      provenance: { upstreamPayloadIncluded: false, redistributionClass: "chainscout_reviewed_reference" },
+      completeFor: "opsis_reviewed_launch_registry",
+      provenance: { upstreamPayloadIncluded: false, redistributionClass: "opsis_reviewed_reference" },
       cap: { anonymousRequestsPerHour: 60, scope: "pseudonymous_network_client" },
     });
     expect(response.json().assets.map((entry: { symbol: string; address: string; decimals: number }) => ({ symbol: entry.symbol, address: entry.address, decimals: entry.decimals }))).toEqual([
-      CHAINSCOUT_REVIEWED_ASSETS.WETH,
-      CHAINSCOUT_REVIEWED_ASSETS.USDG,
+      REVIEWED_ASSETS.WETH,
+      REVIEWED_ASSETS.USDG,
     ].map(({ symbol, address, decimals }) => ({ symbol, address, decimals })));
-    expect(SCOUT_SWAP_TOKENS).toBe(CHAINSCOUT_REVIEWED_ASSETS);
-    expect(SCOUT_SWAP_TOKENS.WETH.name).toBe("Wrapped Ether");
+    expect(SWAP_TOKENS).toBe(REVIEWED_ASSETS);
+    expect(SWAP_TOKENS.WETH.name).toBe("Wrapped Ether");
     expect(response.json().assets.every((entry: { registryStatus: string; identityConfidence: string; sources: Array<{ purpose: string }> }) =>
-      entry.registryStatus === "chainscout_supported" &&
-      entry.identityConfidence === "chainscout_reviewed_static_match" &&
+      entry.registryStatus === "opsis_supported" &&
+      entry.identityConfidence === "opsis_reviewed_static_match" &&
       entry.sources.every((source) => source.purpose === "human_verification_link_only")
     )).toBe(true);
     const parsed = response.json();
@@ -85,12 +85,12 @@ describe("Open Data v1", () => {
     const app = await openDataApp();
     const known = await app.inject({ method: "POST", url: "/v1/public/open-data/v1/normalize", payload: { chainId: 4663, kind: "evm_address", value: WETH.toLowerCase() } });
     expect(known.statusCode).toBe(200);
-    expect(known.headers["x-chainscout-data-class"]).toBe("chainscout-derived-normalization");
+    expect(known.headers["x-opsis-data-class"]).toBe("opsis-derived-normalization");
     expect(known.json()).toMatchObject({
       normalizedValue: WETH,
       syntaxValid: true,
       existenceVerified: false,
-      registryMatch: { symbol: "WETH", registryStatus: "chainscout_supported" },
+      registryMatch: { symbol: "WETH", registryStatus: "opsis_supported" },
       provenance: { derivation: "deterministic_syntax_normalization", upstreamPayloadIncluded: false },
     });
     const unknown = await app.inject({ method: "POST", url: "/v1/public/open-data/v1/normalize", payload: { chainId: 4663, kind: "evm_address", value: UNKNOWN } });
@@ -153,7 +153,7 @@ describe("Open Data v1", () => {
       NODE_ENV: "production",
       ROBINHOOD_RPC_PROVIDER: "drpc",
       DRPC_API_KEY: "test-drpc-key-0123456789abcdef",
-      APP_ORIGIN: "https://chainscout.example",
+      APP_ORIGIN: "https://opsis.example",
       JWT_ACCESS_SECRET: "configured-access-secret-at-least-32",
       JWT_REFRESH_SECRET: "configured-refresh-secret-at-least-32",
       DATABASE_URL: "postgresql://user:password@db.example.com/app",

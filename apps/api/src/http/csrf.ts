@@ -31,7 +31,7 @@ export function installCsrfProtection(app: FastifyInstance, env: Env): void {
     if (request.headers["sec-fetch-site"] === "cross-site") {
       throw new AppError("CSRF_SITE_REJECTED", 403, "Cross-site request was not accepted");
     }
-    if (request.headers["x-chainscout-csrf"] !== "1") {
+    if (request.headers["x-opsis-csrf"] !== "1" && request.headers["x-chainscout-csrf"] !== "1") {
       throw new AppError("CSRF_HEADER_REQUIRED", 403, "Request confirmation header is required");
     }
     const contentType = request.headers["content-type"] ?? "";

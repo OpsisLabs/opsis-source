@@ -64,7 +64,7 @@ function productionEnv() {
     ROBINHOOD_RPC_PROVIDER: "drpc",
     DRPC_API_KEY: "test-drpc-key-0123456789abcdef",
     LOG_LEVEL: "silent",
-    APP_ORIGIN: "https://chainscout.example",
+    APP_ORIGIN: "https://opsis.example",
     JWT_ACCESS_SECRET: "configured-access-secret-at-least-32",
     JWT_REFRESH_SECRET: "configured-refresh-secret-at-least-32",
     REDIS_URL: "rediss://cache.example.com",
@@ -88,7 +88,7 @@ describe("exit check production budget wiring", () => {
       const response = await app.inject({
         method: "POST",
         url: "/v1/private/exit-check/quote",
-        headers: { origin: env.APP_ORIGIN, "x-chainscout-csrf": "1" },
+        headers: { origin: env.APP_ORIGIN, "x-opsis-csrf": "1" },
         payload: requestBody,
       });
       const redis = redisInstances[0];

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { CHAINSCOUT_REVIEWED_ASSETS } from "@rh-chain/shared";
+import { REVIEWED_ASSETS } from "@rh-chain/shared";
 import { fetchOpenDataRegistry, normalizeOpenDataAddress } from "./api";
 import { SWAP_TOKENS } from "../swap/api";
 
@@ -8,7 +8,7 @@ const UNKNOWN = "0x1111111111111111111111111111111111111111";
 
 afterEach(() => vi.unstubAllGlobals());
 
-function asset(token: typeof CHAINSCOUT_REVIEWED_ASSETS.WETH | typeof CHAINSCOUT_REVIEWED_ASSETS.USDG) {
+function asset(token: typeof REVIEWED_ASSETS.WETH | typeof REVIEWED_ASSETS.USDG) {
   return {
     schemaVersion: 1,
     canonicalId: `eip155:4663/erc20:${token.address}`,
@@ -18,9 +18,9 @@ function asset(token: typeof CHAINSCOUT_REVIEWED_ASSETS.WETH | typeof CHAINSCOUT
     name: token.name,
     symbol: token.symbol,
     decimals: token.decimals,
-    registryStatus: "chainscout_supported",
-    identityConfidence: "chainscout_reviewed_static_match",
-    provenance: { derivation: "chainscout_static_review", upstreamPayloadIncluded: false, redistributionClass: "chainscout_reviewed_reference", reviewedAt: REVIEWED_AT },
+    registryStatus: "opsis_supported",
+    identityConfidence: "opsis_reviewed_static_match",
+    provenance: { derivation: "opsis_static_review", upstreamPayloadIncluded: false, redistributionClass: "opsis_reviewed_reference", reviewedAt: REVIEWED_AT },
     sources: [
       { id: "robinhood-chain-contracts", title: "Robinhood Chain contract reference", url: "https://docs.robinhood.com/chain/contracts/", kind: "primary_reference", purpose: "human_verification_link_only" },
       { id: `blockscout-token-${token.address.toLowerCase()}`, title: `${token.symbol} contract on the Robinhood Chain explorer`, url: `https://robinhoodchain.blockscout.com/token/${token.address}`, kind: "human_verification", purpose: "human_verification_link_only" },
@@ -33,14 +33,14 @@ function registry() {
   return {
     schemaVersion: 1,
     registryVersion: "2026-08-12.1",
-    chainscoutSourceRevision: null,
+    opsisSourceRevision: null,
     chain: { id: 4663, namespace: "eip155", name: "Robinhood Chain" },
-    assets: [asset(CHAINSCOUT_REVIEWED_ASSETS.WETH), asset(CHAINSCOUT_REVIEWED_ASSETS.USDG)],
+    assets: [asset(REVIEWED_ASSETS.WETH), asset(REVIEWED_ASSETS.USDG)],
     assetsShown: 2,
-    completeFor: "chainscout_reviewed_launch_registry",
+    completeFor: "opsis_reviewed_launch_registry",
     generatedAt: REVIEWED_AT,
-    provenance: { upstreamPayloadIncluded: false, redistributionClass: "chainscout_reviewed_reference" },
-    rights: { chainscoutAuthored: ["response schema"], excludedFromLicenseClaim: ["third-party marks"] },
+    provenance: { upstreamPayloadIncluded: false, redistributionClass: "opsis_reviewed_reference" },
+    rights: { opsisAuthored: ["response schema"], excludedFromLicenseClaim: ["third-party marks"] },
     limitations: ["Complete only for the reviewed launch registry."],
     cap: { anonymousRequestsPerHour: 60, scope: "pseudonymous_network_client" },
   };
@@ -57,7 +57,7 @@ function identity(address = UNKNOWN, match: null | Record<string, unknown> = nul
     existenceVerified: false,
     registryMatch: match,
     explorerUrl: `https://robinhoodchain.blockscout.com/address/${address}`,
-    provenance: { derivation: "deterministic_syntax_normalization", upstreamPayloadIncluded: false, redistributionClass: "chainscout_derived_normalization", reviewedAt: REVIEWED_AT },
+    provenance: { derivation: "deterministic_syntax_normalization", upstreamPayloadIncluded: false, redistributionClass: "opsis_derived_normalization", reviewedAt: REVIEWED_AT },
     limitations: ["Syntax only; existence is not verified.", "Explorer link is a handoff only.", "No type is inferred."],
   };
 }
@@ -73,7 +73,7 @@ describe("Open Data browser client", () => {
     const fetchMock = stub(registry());
     await expect(fetchOpenDataRegistry()).resolves.toMatchObject({ assetsShown: 2 });
     expect(fetchMock).toHaveBeenCalledWith("/v1/public/open-data/v1/registry", expect.objectContaining({ method: "GET", credentials: "omit" }));
-    expect(SWAP_TOKENS).toBe(CHAINSCOUT_REVIEWED_ASSETS);
+    expect(SWAP_TOKENS).toBe(REVIEWED_ASSETS);
     expect(SWAP_TOKENS.WETH.name).toBe("Wrapped Ether");
   });
 
@@ -111,16 +111,25 @@ describe("Open Data browser client", () => {
 
   it("fails closed on inconsistent normalized identity and false registry matches", async () => {
     const cases = [
-      { ...identity(), canonicalKey: `eip155:4663/address:${CHAINSCOUT_REVIEWED_ASSETS.WETH.address}` },
-      { ...identity(), explorerUrl: `https://robinhoodchain.blockscout.com/address/${CHAINSCOUT_REVIEWED_ASSETS.WETH.address}` },
-      { ...identity(), registryMatch: { canonicalId: "eip155:4663/erc20:0x1111111111111111111111111111111111111111", symbol: "WETH", registryStatus: "chainscout_supported", identityConfidence: "chainscout_reviewed_static_match" } },
+      { ...identity(), canonicalKey: `eip155:4663/address:${REVIEWED_ASSETS.WETH.address}` },
+      { ...identity(), explorerUrl: `https://robinhoodchain.blockscout.com/address/${REVIEWED_ASSETS.WETH.address}` },
+      { ...identity(), registryMatch: { canonicalId: "eip155:4663/erc20:0x1111111111111111111111111111111111111111", symbol: "WETH", registryStatus: "opsis_supported", identityConfidence: "opsis_reviewed_static_match" } },
     ];
     for (const value of cases) {
       stub(value);
       await expect(normalizeOpenDataAddress(UNKNOWN)).rejects.toThrow("invalid normalized identity");
     }
-    const weth = CHAINSCOUT_REVIEWED_ASSETS.WETH;
+    const weth = REVIEWED_ASSETS.WETH;
     stub(identity(weth.address, null));
     await expect(normalizeOpenDataAddress(weth.address)).rejects.toThrow("invalid normalized identity");
   });
+});
+
+it("accepts legacy registry fields and provenance and returns canonical identifiers", async () => {
+  const legacy = JSON.parse(JSON.stringify(registry()).replaceAll("opsis_", "chainscout_").replaceAll("opsisSourceRevision", "chainscoutSourceRevision").replaceAll("opsisAuthored", "chainscoutAuthored"));
+  stub(legacy);
+  expect(await fetchOpenDataRegistry()).toEqual(registry());
+  const canonical = identity(REVIEWED_ASSETS.WETH.address, { canonicalId: `eip155:4663/erc20:${REVIEWED_ASSETS.WETH.address}`, symbol: "WETH", registryStatus: "opsis_supported", identityConfidence: "opsis_reviewed_static_match" });
+  stub(JSON.parse(JSON.stringify(canonical).replaceAll("opsis_", "chainscout_")));
+  expect(await normalizeOpenDataAddress(REVIEWED_ASSETS.WETH.address)).toEqual(canonical);
 });

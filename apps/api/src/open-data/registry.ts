@@ -6,7 +6,7 @@ import type {
   OpenDataNormalizeRequest,
 } from "@rh-chain/shared";
 import {
-  CHAINSCOUT_REVIEWED_ASSETS,
+  REVIEWED_ASSETS,
   OPEN_DATA_REGISTRY_VERSION,
   OPEN_DATA_REVIEWED_AT,
   ROBINHOOD_CHAIN_4663,
@@ -23,7 +23,7 @@ const CONTRACTS_SOURCE = {
   purpose: "human_verification_link_only" as const,
 };
 const ASSET_LIMITATIONS = [
-  "This is a reviewed ChainScout launch-registry fact, not a live balance, price, risk score, or complete token directory.",
+  "This is a reviewed Opsis launch-registry fact, not a live balance, price, risk score, or complete token directory.",
   "Contract identity and ERC-20 metadata do not prove safety, value, liquidity, redemption rights, or issuer endorsement.",
 ];
 
@@ -38,12 +38,12 @@ function asset(input: Pick<OpenDataAsset, "address" | "name" | "symbol" | "decim
     name: input.name,
     symbol: input.symbol,
     decimals: input.decimals,
-    registryStatus: "chainscout_supported",
-    identityConfidence: "chainscout_reviewed_static_match",
+    registryStatus: "opsis_supported",
+    identityConfidence: "opsis_reviewed_static_match",
     provenance: {
-      derivation: "chainscout_static_review",
+      derivation: "opsis_static_review",
       upstreamPayloadIncluded: false,
-      redistributionClass: "chainscout_reviewed_reference",
+      redistributionClass: "opsis_reviewed_reference",
       reviewedAt: OPEN_DATA_REVIEWED_AT,
     },
     sources: [
@@ -61,8 +61,8 @@ function asset(input: Pick<OpenDataAsset, "address" | "name" | "symbol" | "decim
 }
 
 export const OPEN_DATA_ASSETS: readonly OpenDataAsset[] = Object.freeze([
-  asset(CHAINSCOUT_REVIEWED_ASSETS.WETH),
-  asset(CHAINSCOUT_REVIEWED_ASSETS.USDG),
+  asset(REVIEWED_ASSETS.WETH),
+  asset(REVIEWED_ASSETS.USDG),
 ]);
 
 export function openDataManifest(requestsPerHour: number): OpenDataManifestResponse {
@@ -95,19 +95,19 @@ export function listOpenDataAssets(sourceRevision: string | null = null): OpenDa
   return {
     schemaVersion: 1,
     registryVersion: OPEN_DATA_REGISTRY_VERSION,
-    chainscoutSourceRevision: sourceRevision,
+    opsisSourceRevision: sourceRevision,
     chain: CHAIN,
     assets: OPEN_DATA_ASSETS.map((entry) => structuredClone(entry)),
     assetsShown: OPEN_DATA_ASSETS.length,
-    completeFor: "chainscout_reviewed_launch_registry",
+    completeFor: "opsis_reviewed_launch_registry",
     generatedAt: OPEN_DATA_REVIEWED_AT,
-    provenance: { upstreamPayloadIncluded: false, redistributionClass: "chainscout_reviewed_reference" },
+    provenance: { upstreamPayloadIncluded: false, redistributionClass: "opsis_reviewed_reference" },
     rights: {
-      chainscoutAuthored: ["response schema", "normalization", "limitations", "support-registry annotations"],
+      opsisAuthored: ["response schema", "normalization", "limitations", "support-registry annotations"],
       excludedFromLicenseClaim: ["third-party names", "symbols", "contract addresses", "trademarks", "linked source materials"],
     },
     limitations: [
-      "This list is complete only for ChainScout's reviewed launch registry, not for Robinhood Chain.",
+      "This list is complete only for Opsis's reviewed launch registry, not for Robinhood Chain.",
       "No provider is contacted when this response is created.",
     ],
   };
@@ -149,15 +149,15 @@ export function normalizeOpenDataIdentity(input: OpenDataNormalizeRequest): Open
     provenance: {
       derivation: "deterministic_syntax_normalization",
       upstreamPayloadIncluded: false,
-      redistributionClass: "chainscout_derived_normalization",
+      redistributionClass: "opsis_derived_normalization",
       reviewedAt: OPEN_DATA_REVIEWED_AT,
     },
     limitations: [
       "Syntax normalization does not query a provider and does not prove the address, transaction, or block exists.",
       "The explorer URL is a user-verification handoff, not a copied explorer response.",
       registryMatch
-        ? `This address exactly matches ChainScout's reviewed ${registryMatch.symbol} launch-support entry.`
-        : "This address is not in ChainScout's reviewed launch registry; no asset type or contract behavior is inferred.",
+        ? `This address exactly matches Opsis's reviewed ${registryMatch.symbol} launch-support entry.`
+        : "This address is not in Opsis's reviewed launch registry; no asset type or contract behavior is inferred.",
     ],
   };
 }

@@ -1,5 +1,7 @@
+import { normalizeSavedIdentifiers } from "./compatibility";
 import {
   VAULT_FORMAT,
+  LEGACY_VAULT_FORMAT,
   VAULT_KDF_ITERATIONS,
   VAULT_MAX_BACKUP_BYTES,
   VAULT_MAX_PHOTO_BYTES,
@@ -40,6 +42,12 @@ const ISO_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 const UUID =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const ALLOWED_PHOTOS = new Set(["image/jpeg", "image/png", "image/webp"]);
+const BACKUP_MANIFEST_FORMAT = "chainscout.encrypted-vault-manifest" as const;
+const VAULT_KEY_CONTEXT = "chainscout:vault-key:v1:";
+const VAULT_RECORD_CONTEXT = "chainscout:vault-record:v";
+const VAULT_RECOVERY_CONTEXT = "chainscout:vault-recovery:v1:";
+const VAULT_BACKUP_CONTEXT = "chainscout:vault-backup-manifest:v1:";
+
 const RECOVERY_PREFIX = "CSV1";
 
 export class VaultError extends Error {
@@ -273,7 +281,7 @@ export async function decryptAsset(
       key,
       base64ToBytes(record.ciphertext),
     );
-    const parsed = JSON.parse(decoder.decode(plaintext)) as unknown;
+    const parsed = normalizeSavedIdentifiers(JSON.parse(decoder.decode(plaintext))) as unknown;
     validateAsset(parsed);
     if (
       record.version === VAULT_RECORD_VERSION &&
@@ -341,7 +349,7 @@ export async function decryptCollectibleRecord(
       key,
       base64ToBytes(record.ciphertext),
     );
-    const parsed = JSON.parse(decoder.decode(plaintext)) as unknown;
+    const parsed = normalizeSavedIdentifiers(JSON.parse(decoder.decode(plaintext))) as unknown;
     if (!isRecord(parsed))
       throw new Error("collectible record is not an object");
     if (parsed.kind === "collectible-context")
@@ -406,7 +414,7 @@ export async function decryptMarketContext(
       key,
       base64ToBytes(record.ciphertext),
     );
-    const parsed = JSON.parse(decoder.decode(plaintext)) as unknown;
+    const parsed = normalizeSavedIdentifiers(JSON.parse(decoder.decode(plaintext))) as unknown;
     validateMarketContext(parsed);
     if (parsed.id !== record.id) throw new Error("record identity mismatch");
     return parsed;
@@ -464,7 +472,7 @@ export async function decryptPortfolioContext(
       key,
       base64ToBytes(record.ciphertext),
     );
-    const parsed = JSON.parse(decoder.decode(plaintext)) as unknown;
+    const parsed = normalizeSavedIdentifiers(JSON.parse(decoder.decode(plaintext))) as unknown;
     validatePortfolioContext(parsed);
     if (parsed.id !== record.id) throw new Error("record identity mismatch");
     return parsed;
@@ -519,7 +527,7 @@ export async function decryptConversation(meta: VaultMeta, key: CryptoKey, recor
   if (record.version !== VAULT_CONVERSATION_RECORD_VERSION) throw new VaultError("CORRUPT_RECORD", translateCurrent("vault.crypto.notConversationRecord"));
   try {
     const plaintext = await crypto.subtle.decrypt(aesParams(base64ToBytes(record.iv), recordAad(meta.vaultId, record.id, record.version)), key, base64ToBytes(record.ciphertext));
-    const value: unknown = JSON.parse(decoder.decode(plaintext));
+    const value: unknown = normalizeSavedIdentifiers(JSON.parse(decoder.decode(plaintext)));
     validateConversation(value);
     if (value.id !== record.id) throw new Error("record identity mismatch");
     return value;
@@ -599,7 +607,7 @@ export async function decryptWatch(meta: VaultMeta, key: CryptoKey, record: Encr
   if (record.version !== VAULT_WATCH_RECORD_VERSION) throw new VaultError("CORRUPT_RECORD", translateCurrent("watch.error.invalidRecord"));
   try {
     const bytes = await crypto.subtle.decrypt(aesParams(base64ToBytes(record.iv), recordAad(meta.vaultId, record.id, record.version)), key, base64ToBytes(record.ciphertext));
-    const value: unknown = JSON.parse(decoder.decode(bytes));
+    const value: unknown = normalizeSavedIdentifiers(JSON.parse(decoder.decode(bytes)));
     validateWatch(value);
     if (value.id !== record.id) throw new Error("record identity mismatch");
     return value;
@@ -770,7 +778,7 @@ export async function createBackup(
 export function parseBackup(value: unknown): VaultBackup {
   if (
     !isRecord(value) ||
-    value.format !== VAULT_FORMAT ||
+    (value.format !== VAULT_FORMAT && value.format !== LEGACY_VAULT_FORMAT) ||
     value.schemaVersion !== VAULT_SCHEMA_VERSION
   ) {
     throw new VaultError(
@@ -829,7 +837,7 @@ export function estimateVaultBackupBytes(
 ): number {
   const exportedAt = "2026-08-10T00:00:00.000Z";
   const manifest = {
-    format: "chainscout.encrypted-vault-manifest",
+    format: BACKUP_MANIFEST_FORMAT,
     version: 1,
     exportedAt,
     vaultMetaDigest: "A".repeat(44),
@@ -906,7 +914,7 @@ function validateVaultMeta(value: unknown): asserts value is VaultMeta {
   if (
     !isRecord(value) ||
     value.key !== "vault" ||
-    value.format !== VAULT_FORMAT ||
+    (value.format !== VAULT_FORMAT && value.format !== LEGACY_VAULT_FORMAT) ||
     value.schemaVersion !== VAULT_SCHEMA_VERSION ||
     typeof value.vaultId !== "string" ||
     !UUID.test(value.vaultId) ||
@@ -2458,7 +2466,7 @@ function aesParams(
 }
 
 function keyAad(vaultId: string): Uint8Array<ArrayBuffer> {
-  return encoder.encode(`chainscout:vault-key:v1:${vaultId}`);
+  return encoder.encode(`${VAULT_KEY_CONTEXT}${vaultId}`);
 }
 
 function recordAad(
@@ -2467,16 +2475,16 @@ function recordAad(
   version: 1 | 2 | 3 | 4 | 5 | 6,
 ): Uint8Array<ArrayBuffer> {
   return encoder.encode(
-    `chainscout:vault-record:v${version}:${vaultId}:${recordId}`,
+    `${VAULT_RECORD_CONTEXT}${version}:${vaultId}:${recordId}`,
   );
 }
 
 function recoveryAad(vaultId: string): Uint8Array<ArrayBuffer> {
-  return encoder.encode(`chainscout:vault-recovery:v1:${vaultId}`);
+  return encoder.encode(`${VAULT_RECOVERY_CONTEXT}${vaultId}`);
 }
 
 function backupAad(vaultId: string): Uint8Array<ArrayBuffer> {
-  return encoder.encode(`chainscout:vault-backup-manifest:v1:${vaultId}`);
+  return encoder.encode(`${VAULT_BACKUP_CONTEXT}${vaultId}`);
 }
 
 async function encryptBackupManifest(
@@ -2544,7 +2552,7 @@ async function backupManifest(
   records: EncryptedVaultRecord[],
   exportedAt: string,
 ): Promise<{
-  format: "chainscout.encrypted-vault-manifest";
+  format: typeof BACKUP_MANIFEST_FORMAT;
   version: 1;
   exportedAt: string;
   vaultMetaDigest: string;
@@ -2565,7 +2573,7 @@ async function backupManifest(
   );
   digests.sort((left, right) => left.id.localeCompare(right.id));
   return {
-    format: "chainscout.encrypted-vault-manifest",
+    format: BACKUP_MANIFEST_FORMAT,
     version: 1,
     exportedAt,
     vaultMetaDigest: await sha256Base64(

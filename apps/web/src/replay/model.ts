@@ -1,3 +1,4 @@
+import { normalizeSavedIdentifiers } from "../vault/compatibility";
 import type {
   ApprovedMerchantDirectoryEntry,
   ApprovedMerchantDirectoryResponse,
@@ -122,9 +123,10 @@ export function purchaseSelections(
   assets: VaultAsset[],
   directory: ApprovedMerchantDirectoryResponse,
 ): PurchaseReplaySelection[] {
+  directory = normalizeSavedIdentifiers(directory) as ApprovedMerchantDirectoryResponse;
   if (
     directory?.schemaVersion !== 1 ||
-    directory.source !== "chainscout_reviewed_registry" ||
+    directory.source !== "opsis_reviewed_registry" ||
     !validTimestamp(directory.loadedAt) ||
     !Array.isArray(directory.limitations) ||
     directory.limitations.some((item) => typeof item !== "string" || item.length > 500) ||

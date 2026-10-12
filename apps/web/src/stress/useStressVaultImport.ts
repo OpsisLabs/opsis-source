@@ -78,7 +78,7 @@ export function useStressVaultImport(onLock: () => void) {
     const bus =
       typeof BroadcastChannel === "undefined"
         ? null
-        : new BroadcastChannel("chainscout-vault-control-v1");
+        : new BroadcastChannel("opsis-vault-control-v1");
     channel.current = bus;
     if (bus)
       bus.onmessage = (event: MessageEvent<unknown>) => {

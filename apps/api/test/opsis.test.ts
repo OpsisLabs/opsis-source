@@ -132,7 +132,7 @@ it("publishes manifest capability parity from the configured server flags", asyn
     ...env(),
     TOKEN_CONTROLS_ENABLED: true,
     EXIT_CHECK_ENABLED: true,
-    SCOUT_WATCH_ENABLED: true,
+    WATCH_ENABLED: true,
     PORTFOLIO_MODE_ENABLED: true,
     RWA_VERIFY_ENABLED: false,
     OBSERVED_TRADES_ENABLED: true,
@@ -174,7 +174,7 @@ it("keeps production CSRF and no-store boundaries on access", async () => {
       headers: {
         ...headers,
         origin: "http://localhost:5173",
-        "x-chainscout-csrf": "1",
+        "x-opsis-csrf": "1",
       },
       payload: {},
     });
@@ -238,7 +238,7 @@ it("public access permits anonymous research while retaining capabilities and CS
     const result = await app.inject({
       method: "POST",
       url,
-      headers: { origin: "http://localhost:5173", "x-chainscout-csrf": "1" },
+      headers: { origin: "http://localhost:5173", "x-opsis-csrf": "1" },
       payload: {},
     });
     expect(result.statusCode).toBe(200);
@@ -253,7 +253,7 @@ it("public access permits anonymous research while retaining capabilities and CS
     const quote = await app.inject({
       method: "POST",
       url: "/v1/private/exit-check/quote",
-      headers: { origin: "http://localhost:5173", "x-chainscout-csrf": "1" },
+      headers: { origin: "http://localhost:5173", "x-opsis-csrf": "1" },
       payload: {},
     });
     expect(quote.statusCode).toBe(404);

@@ -7,7 +7,7 @@ import { useI18n } from "../i18n";
 
 type Registry = OpenDataAssetListResponse & {
   registryVersion: string;
-  chainscoutSourceRevision: string | null;
+  opsisSourceRevision: string | null;
   cap: { anonymousRequestsPerHour: number; scope: "pseudonymous_network_client" };
 };
 

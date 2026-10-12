@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { createVault, encryptAsset, recoverVault } from "./crypto";
 import { recoverLocalVault } from "./service";
 import {
-  VAULT_DATABASE_NAME,
+  LEGACY_VAULT_DATABASE_NAME,
   deleteLocalVault,
   initializeVault,
   listEncryptedRecords,
@@ -190,7 +190,7 @@ async function rawDatabase(): Promise<unknown> {
 
 function openRawDatabase(): Promise<IDBDatabase> {
   return new Promise<IDBDatabase>((resolve, reject) => {
-    const request = indexedDB.open(VAULT_DATABASE_NAME);
+    const request = indexedDB.open(LEGACY_VAULT_DATABASE_NAME);
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });

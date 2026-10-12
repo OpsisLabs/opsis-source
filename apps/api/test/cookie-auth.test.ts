@@ -69,7 +69,7 @@ describe("HttpOnly browser sessions", () => {
       NODE_ENV: "production",
       ROBINHOOD_RPC_PROVIDER: "drpc",
       DRPC_API_KEY: "test-drpc-key-0123456789abcdef",
-      APP_ORIGIN: "https://chainscout.example",
+      APP_ORIGIN: "https://opsis.example",
       JWT_ACCESS_SECRET: "configured-access-secret-at-least-32",
       JWT_REFRESH_SECRET: "configured-refresh-secret-at-least-32",
       DATABASE_URL: "postgresql://user:password@db.example.com/app",
@@ -91,7 +91,7 @@ describe("HttpOnly browser sessions", () => {
       refreshToken: "refresh"
     });
 
-    expect(calls.map((call) => call.name)).toEqual(["__Host-chainscout_access", "__Host-chainscout_refresh"]);
+    expect(calls.map((call) => call.name)).toEqual(["__Host-opsis_access", "__Host-opsis_refresh"]);
     expect(calls.every((call) => call.options.httpOnly === true)).toBe(true);
     expect(calls.every((call) => call.options.secure === true)).toBe(true);
     expect(calls.every((call) => call.options.sameSite === "strict")).toBe(true);
@@ -115,7 +115,7 @@ describe("HttpOnly browser sessions", () => {
       refreshToken: "refresh"
     });
 
-    expect(calls.map((call) => call.name)).toEqual(["__Host-chainscout_access", "__Host-chainscout_refresh"]);
+    expect(calls.map((call) => call.name)).toEqual(["__Host-opsis_access", "__Host-opsis_refresh"]);
     expect(calls.every((call) => call.options.secure === true)).toBe(true);
     expect(calls.every((call) => call.options.httpOnly === true)).toBe(true);
     expect(calls.every((call) => call.options.sameSite === "strict")).toBe(true);
@@ -143,7 +143,7 @@ describe("HttpOnly browser sessions", () => {
     const app = await buildApp(loadEnv({
       NODE_ENV: "test",
       LOG_LEVEL: "silent",
-      APP_ORIGIN: "https://app.chainscout.example",
+      APP_ORIGIN: "https://opsis.example",
       CSRF_PROTECTION_ENABLED: "true"
     }), undefined, { privateAnalysis: { resolve, answer } });
     apps.push(app);
@@ -154,9 +154,9 @@ describe("HttpOnly browser sessions", () => {
       method: "POST",
       url: "/v1/private/analyze",
       headers: {
-        origin: "https://app.chainscout.example",
+        origin: "https://opsis.example",
         "sec-fetch-site": "cross-site",
-        "x-chainscout-csrf": "1"
+        "x-opsis-csrf": "1"
       },
       payload
     });
@@ -164,13 +164,20 @@ describe("HttpOnly browser sessions", () => {
       method: "POST",
       url: "/v1/private/analyze",
       headers: {
-        origin: "https://app.chainscout.example",
+        origin: "https://opsis.example",
         "sec-fetch-site": "same-origin",
-        "x-chainscout-csrf": "1"
+        "x-opsis-csrf": "1"
       },
       payload
     });
 
+    const legacy = await app.inject({ method: "POST", url: "/v1/private/analyze",
+      headers: { origin: "https://opsis.example", "x-chainscout-csrf": "1" }, payload });
+    const neither = await app.inject({ method: "POST", url: "/v1/private/analyze",
+      headers: { origin: "https://opsis.example" }, payload });
+    expect(legacy.statusCode).toBe(200);
+    expect(neither.statusCode).toBe(403);
+    expect(neither.json().error.code).toBe("CSRF_HEADER_REQUIRED");
     expect(missing.statusCode).toBe(403);
     expect(crossSite.statusCode).toBe(403);
     expect(accepted.statusCode).toBe(200);

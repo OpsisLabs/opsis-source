@@ -6,7 +6,8 @@ import type {
   PortfolioSnapshot,
 } from "@rh-chain/shared";
 
-export const VAULT_FORMAT = "chainscout.encrypted-vault" as const;
+export const VAULT_FORMAT = "opsis.encrypted-vault" as const;
+export const LEGACY_VAULT_FORMAT = "chainscout.encrypted-vault" as const;
 export const VAULT_SCHEMA_VERSION = 1 as const;
 export const VAULT_RECORD_VERSION = 1 as const;
 export const VAULT_PORTFOLIO_RECORD_VERSION = 2 as const;
@@ -295,7 +296,7 @@ export interface VaultRecoveryWrapper extends VaultWrappedKey {
 
 export interface VaultMeta {
   key: "vault";
-  format: typeof VAULT_FORMAT;
+  format: typeof VAULT_FORMAT | typeof LEGACY_VAULT_FORMAT;
   schemaVersion: typeof VAULT_SCHEMA_VERSION;
   vaultId: string;
   revision: number;
@@ -318,7 +319,7 @@ export interface EncryptedVaultRecord {
 }
 
 export interface VaultBackup {
-  format: typeof VAULT_FORMAT;
+  format: typeof VAULT_FORMAT | typeof LEGACY_VAULT_FORMAT;
   schemaVersion: typeof VAULT_SCHEMA_VERSION;
   exportedAt: string;
   vault: VaultMeta;

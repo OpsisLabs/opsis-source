@@ -300,7 +300,7 @@ export default function VaultPage({ previewDeals = false }: { previewDeals?: boo
       return;
     if (!tabIdRef.current) tabIdRef.current = crypto.randomUUID();
     let active = true;
-    const channel = new BroadcastChannel("chainscout-vault-control-v1");
+    const channel = new BroadcastChannel("opsis-vault-control-v1");
     channelRef.current = channel;
     channel.onmessage = async (message: MessageEvent<unknown>) => {
       const value = message.data;
@@ -1167,7 +1167,7 @@ function VaultHeader({ phase, onLock }: { phase: Phase; onLock: () => void }) {
           <img src="/logo.svg" alt="" className="h-5 w-5" />
         </span>
         <span className="hidden font-mono-d text-[11px] tracking-[0.14em] text-[#d6ccba] sm:block">
-          CHAINSCOUT
+          OPSIS
         </span>
       </Link>
       <div className="mx-auto flex items-center gap-2 font-mono-d text-[9.5px] tracking-[0.14em] text-[#7fb069] sm:text-[10.5px]">
@@ -2591,7 +2591,7 @@ function RecoverySecretPanel({
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `chainscout-vault-recovery-${new Date().toISOString().slice(0, 10)}.txt`;
+    anchor.download = `opsis-vault-recovery-${new Date().toISOString().slice(0, 10)}.txt`;
     anchor.click();
     window.setTimeout(() => URL.revokeObjectURL(url), 1_000);
   };

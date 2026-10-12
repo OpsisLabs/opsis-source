@@ -39,16 +39,9 @@ import { isProductFeatureEnabled } from "./availability";
 import { cloudWorkspaceEnabled } from "../dashboard/cloudAvailability";
 import { useI18n } from "../i18n";
 import LanguageSwitcher from "../i18n/LanguageSwitcher";
+import { tourWasSeen, TOUR_COOKIE } from "./tour-cookie";
 
 gsap.registerPlugin(useGSAP);
-
-const TOUR_COOKIE = "chainscout_product_tour_seen_v1";
-
-function tourWasSeen() {
-  return document.cookie
-    .split(";")
-    .some((entry) => entry.trim() === `${TOUR_COOKIE}=1`);
-}
 
 function rememberTourSeen() {
   const secure = window.location.protocol === "https:" ? "; Secure" : "";
@@ -59,13 +52,13 @@ const ICONS: Record<string, ComponentType<{ size?: number; className?: string }>
   "kol-tracker": MessageCircleQuestion,
   "portfolio-stress-test": ChartNoAxesCombined,
   "situation-room": Globe2,
-  "scout-watch": Eye,
+  "watch": Eye,
   "card-price-check": WalletCards,
   "biggest-trades": TrendingUp,
   "exit-check": ChartNoAxesCombined,
   "private-explorer": Search,
-  "scout-swap": ArrowLeftRight,
-  "rwa-verify": BadgeCheck,
+  "swap": ArrowLeftRight,
+  "stock-token-check": BadgeCheck,
   "portfolio-intelligence": ChartNoAxesCombined,
   "collectible-catalog": PackageSearch,
   "market-inventory": Boxes,
@@ -75,7 +68,7 @@ const ICONS: Record<string, ComponentType<{ size?: number; className?: string }>
 };
 
 function activeFeature(location: ReturnType<typeof useLocation>, feature: ProductFeature) {
-  const target = new URL(feature.path, "https://chainscout.local");
+  const target = new URL(feature.path, "https://opsis.example");
   if (location.pathname !== target.pathname) return false;
   if (target.pathname !== "/vault") return true;
   const currentView = new URLSearchParams(location.search).get("view") ?? "assets";
@@ -195,7 +188,7 @@ function ProductRail({
       >
         <span className="clip-btn-sm flex h-11 w-11 items-center justify-center bg-[#fa6c34]"><img src="/logo.svg" alt="" className="h-6 w-6" /></span>
         <span>
-          <span className="block text-[15px] font-semibold tracking-[-0.02em]">ChainScout</span>
+          <span className="block text-[15px] font-semibold tracking-[-0.02em]">Opsis</span>
           <span className="mt-0.5 block text-[12px] text-[#aaa39b]">{t("common.brand.tagline")}</span>
         </span>
       </Link>

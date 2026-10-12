@@ -60,7 +60,7 @@ import {
 import {
   ComparePanel,
   CoveragePanel,
-  ScoutBrief,
+  OpsisBrief,
   ScoringSummary,
 } from "./ResearchPanels";
 import { sourceLabel } from "./research";
@@ -220,7 +220,7 @@ function CallDetail({
     );
     const a = document.createElement("a");
     a.href = url;
-    a.download = `chainscout-call-${call.id}.json`;
+    a.download = `opsis-call-${call.id}.json`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
@@ -244,8 +244,8 @@ function CallDetail({
         {call.quote && <blockquote>{call.quote}</blockquote>}
         <p>
           {L(
-            "Summary and classification are ChainScout's interpretation. Check the original wording, attached charts and any stated conditions before drawing a conclusion.",
-            "摘要及分类属于 ChainScout 的解读。请核验原文、附图及声明的条件，再作判断。",
+            "Summary and classification are Opsis's interpretation. Check the original wording, attached charts and any stated conditions before drawing a conclusion.",
+            "摘要及分类属于 Opsis 的解读。请核验原文、附图及声明的条件，再作判断。",
           )}
         </p>
         <SourceLink href={call.url}>
@@ -434,7 +434,7 @@ function CallDetail({
         >
           <span>
             <Sparkles size={14} />
-            {L("Scout insight", "Scout 洞察")}
+            {L("Opsis insight", "Opsis 洞察")}
           </span>
           <p>{call.interpretation}</p>
           <small>
@@ -823,7 +823,7 @@ export default function Tracker() {
     );
     const a = document.createElement("a");
     a.href = url;
-    a.download = "chainscout-selected-sources.json";
+    a.download = "opsis-selected-sources.json";
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
@@ -840,7 +840,7 @@ export default function Tracker() {
       );
       const a = document.createElement("a");
       a.href = url;
-      a.download = "chainscout-kol-workspace.encrypted.json";
+      a.download = "opsis-kol-workspace.encrypted.json";
       a.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
       setBackupStatus(
@@ -1542,7 +1542,7 @@ export default function Tracker() {
                   aria-expanded={insight}
                 >
                   <Sparkles size={16} />
-                  {L("Scout brief", "Scout 简报")}
+                  {L("Opsis brief", "Opsis 简报")}
                 </button>
               </div>
             </div>
@@ -1680,7 +1680,7 @@ export default function Tracker() {
               L={L}
             />
             {insight && (
-              <ScoutBrief
+              <OpsisBrief
                 items={stats.history}
                 name={person.name}
                 onInspect={inspectFromBrief}

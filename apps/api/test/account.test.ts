@@ -39,9 +39,9 @@ describe("legacy cloud account portability", () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.headers["cache-control"]).toContain("no-store");
-    expect(response.headers["content-disposition"]).toContain("chainscout-account-export-");
+    expect(response.headers["content-disposition"]).toContain("opsis-account-export-");
     expect(response.json()).toMatchObject({
-      schemaVersion: "chainscout.account-export.v1",
+      schemaVersion: "opsis.account-export.v1",
       profile: { id: first.user.id, email: "export-owner@example.com" },
       sessions: [{
         title: "My saved research",
@@ -75,7 +75,7 @@ describe("legacy cloud account portability", () => {
       method: "DELETE",
       url: "/v1/account",
       headers: { authorization: `Bearer ${owner.accessToken}` },
-      payload: { confirmation: "DELETE MY CHAINSCOUT ACCOUNT" }
+      payload: { confirmation: "DELETE MY OPSIS ACCOUNT" }
     });
 
     expect(response.statusCode).toBe(204);

@@ -60,7 +60,7 @@ if (!databaseUrl) {
         });
         expect(exported.statusCode).toBe(200);
         expect(exported.json()).toMatchObject({
-          schemaVersion: "chainscout.account-export.v1",
+          schemaVersion: "opsis.account-export.v1",
           profile: { id: userId, email },
           usageEvents: [{ eventType: "CHAIN_LOOKUP", quantity: 1 }],
           usageAggregates: [{ eventType: "CHAIN_LOOKUP", quantity: 3 }]
@@ -70,7 +70,7 @@ if (!databaseUrl) {
           method: "DELETE",
           url: "/v1/account",
           headers: { authorization: `Bearer ${accessToken}` },
-          payload: { confirmation: "DELETE MY CHAINSCOUT ACCOUNT" }
+          payload: { confirmation: "DELETE MY OPSIS ACCOUNT" }
         });
         expect(deleted.statusCode).toBe(204);
         expect(await prisma.user.findUnique({ where: { id: userId } })).toBeNull();

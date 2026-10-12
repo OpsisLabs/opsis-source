@@ -65,7 +65,7 @@ export function useLocalHistory(onLock: () => void) {
       });
     const bus =
       typeof BroadcastChannel !== "undefined"
-        ? new BroadcastChannel("chainscout-vault-control-v1")
+        ? new BroadcastChannel("opsis-vault-control-v1")
         : null;
     channel.current = bus;
     if (bus)

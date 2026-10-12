@@ -3,12 +3,13 @@ export type KolWorkspace = { watched: string[]; saved: string[] };
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 const iterations = 250_000;
-export const workspaceChannel = "chainscout-kol-workspace-v1";
+export const workspaceChannel = "opsis-kol-workspace-v1";
 export const workspaceSource = crypto.randomUUID();
-const databaseName = "chainscout-kol-research";
+const LEGACY_WORKSPACE_DATABASE_NAME = "chainscout-kol-research";
+const WORKSPACE_ENCRYPTION_CONTEXT = "chainscout-kol-v1";
 function database(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(databaseName, 1);
+    const request = indexedDB.open(LEGACY_WORKSPACE_DATABASE_NAME, 1);
     let done = false;
     const fail = () => {
       if (!done) {
@@ -58,7 +59,7 @@ export async function writeDeviceWorkspace(
   expected: string | null,
 ) {
   const envelope = JSON.parse(content);
-  if (content.length > 100_000 || envelope.format !== "chainscout-kol-v1")
+  if (content.length > 100_000 || envelope.format !== WORKSPACE_ENCRYPTION_CONTEXT)
     throw new Error("Invalid workspace");
   const db = await database();
   // The revision check and ciphertext replacement share one atomic transaction.
@@ -141,13 +142,13 @@ export async function encryptWorkspace(
     {
       name: "AES-GCM",
       iv,
-      additionalData: encoder.encode("chainscout-kol-v1"),
+      additionalData: encoder.encode(WORKSPACE_ENCRYPTION_CONTEXT),
     },
     await key(passphrase, salt),
     encoder.encode(JSON.stringify(payload)),
   );
   return JSON.stringify({
-    format: "chainscout-kol-v1",
+    format: WORKSPACE_ENCRYPTION_CONTEXT,
     salt: bytes64(salt),
     iv: bytes64(iv),
     data: bytes64(new Uint8Array(encrypted)),
@@ -157,7 +158,7 @@ export async function decryptWorkspace(text: string, passphrase: string) {
   if (text.length > 100_000) throw new Error("Workspace too large");
   const obj = JSON.parse(text);
   if (
-    obj?.format !== "chainscout-kol-v1" ||
+    obj?.format !== WORKSPACE_ENCRYPTION_CONTEXT ||
     typeof obj.salt !== "string" ||
     typeof obj.iv !== "string" ||
     typeof obj.data !== "string"
@@ -172,7 +173,7 @@ export async function decryptWorkspace(text: string, passphrase: string) {
     {
       name: "AES-GCM",
       iv,
-      additionalData: encoder.encode("chainscout-kol-v1"),
+      additionalData: encoder.encode(WORKSPACE_ENCRYPTION_CONTEXT),
     },
     await key(passphrase, salt),
     data,

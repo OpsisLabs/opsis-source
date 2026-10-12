@@ -1,18 +1,20 @@
 import type { VaultAsset, VaultAssetDraft } from "./types";
 import { translateCurrent } from "../i18n/translate";
 
-export const VAULT_DEMO_MARKER = "CHAINSCOUT DEMO DATA V1";
+export const VAULT_DEMO_MARKER = "OPSIS DEMO DATA V1";
+const LEGACY_DEMO_MARKER = "CHAINSCOUT DEMO DATA V1";
 
 export function isVaultDemoAsset(asset: Pick<VaultAsset, "notes">): boolean {
-  return asset.notes.startsWith(VAULT_DEMO_MARKER);
+  return [VAULT_DEMO_MARKER, LEGACY_DEMO_MARKER].some(marker => asset.notes.startsWith(marker));
 }
 
 export function promoteVaultDemoDraft(draft: VaultAssetDraft): VaultAssetDraft {
-  if (!draft.notes.startsWith(VAULT_DEMO_MARKER)) return draft;
+  const marker = [VAULT_DEMO_MARKER, LEGACY_DEMO_MARKER].find(value => draft.notes.startsWith(value));
+  if (!marker) return draft;
   return {
     ...draft,
     name: draft.name.replace(/^\[DEMO\]\s*/u, ""),
-    notes: draft.notes.replace(VAULT_DEMO_MARKER, translateCurrent("vault.demo.converted")),
+    notes: draft.notes.replace(marker, translateCurrent("vault.demo.converted")),
   };
 }
 

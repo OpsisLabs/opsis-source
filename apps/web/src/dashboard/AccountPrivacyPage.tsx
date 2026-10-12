@@ -12,7 +12,7 @@ export default function AccountPrivacyPage() {
   const [confirmation, setConfirmation] = useState("");
   const [busy, setBusy] = useState<"export" | "delete" | null>(null);
   const [error, setError] = useState("");
-  const exact = "DELETE MY CHAINSCOUT ACCOUNT";
+  const exact = "DELETE MY OPSIS ACCOUNT";
 
   const download = async () => {
     setBusy("export");
@@ -22,7 +22,7 @@ export default function AccountPrivacyPage() {
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = url;
-      anchor.download = `chainscout-account-export-${new Date().toISOString().slice(0, 10)}.json`;
+      anchor.download = `opsis-account-export-${new Date().toISOString().slice(0, 10)}.json`;
       anchor.click();
       URL.revokeObjectURL(url);
     } catch (requestError) {

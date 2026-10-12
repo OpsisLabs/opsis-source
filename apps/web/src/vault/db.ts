@@ -7,7 +7,7 @@ import type {
 import { assertVaultCapacity, VaultError } from "./crypto";
 import { translateCurrent } from "../i18n/translate";
 
-export const VAULT_DATABASE_NAME = "chainscout-private-vault";
+export const LEGACY_VAULT_DATABASE_NAME = "chainscout-private-vault";
 const DATABASE_VERSION = 1;
 const META_STORE = "meta";
 const RECORD_STORE = "records";
@@ -210,7 +210,7 @@ export async function replaceVault(
 export async function deleteLocalVault(onBlocked?: () => void): Promise<void> {
   requireIndexedDb();
   await new Promise<void>((resolve, reject) => {
-    const request = indexedDB.deleteDatabase(VAULT_DATABASE_NAME);
+    const request = indexedDB.deleteDatabase(LEGACY_VAULT_DATABASE_NAME);
     request.onsuccess = () => resolve();
     request.onerror = () => reject(request.error ?? new Error(translateCurrent("vault.db.deletionFailed")));
     // An IndexedDB delete request cannot be cancelled after it becomes blocked.
@@ -252,7 +252,7 @@ export async function requestPersistentStorage(): Promise<VaultStorageStatus> {
 function openVaultDatabase(): Promise<IDBDatabase> {
   requireIndexedDb();
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(VAULT_DATABASE_NAME, DATABASE_VERSION);
+    const request = indexedDB.open(LEGACY_VAULT_DATABASE_NAME, DATABASE_VERSION);
     request.onupgradeneeded = () => {
       const db = request.result;
       if (!db.objectStoreNames.contains(META_STORE)) db.createObjectStore(META_STORE, { keyPath: "key" });

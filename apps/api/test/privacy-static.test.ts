@@ -19,7 +19,7 @@ describe("browser privacy static boundary", () => {
       webSource.match(/localStorage\.removeItem\("rh_auth"\)/g) ?? [],
     ).toHaveLength(1);
     expect(webSource).toContain(
-      'const TOUR_COOKIE = "chainscout_product_tour_seen_v1"',
+      'const TOUR_COOKIE = "opsis_product_tour_seen_v1"',
     );
     expect(webSource).toContain(
       "Max-Age=31536000; Path=/; SameSite=Strict",
@@ -56,13 +56,13 @@ describe("browser privacy static boundary", () => {
       resolve(repositoryRoot, "apps/web/public/og-command-center-v2.png"),
     );
     expect(index).toContain(
-      "ChainScout — Private Multi-Asset Command Center",
+      "Opsis — Private Multi-Asset Command Center",
     );
     expect(index).toContain(
       "Track crypto, NFTs, tokenized assets, Pokémon cards, collectibles",
     );
     expect(index).toContain(
-      "__CHAINSCOUT_PUBLIC_SITE_URL__/og-command-center-v2.png",
+      "__OPSIS_PUBLIC_SITE_URL__/og-command-center-v2.png",
     );
     expect(index).not.toContain("Crypto, without the headache");
     expect(socialImage.subarray(1, 4).toString("ascii")).toBe("PNG");
@@ -243,7 +243,7 @@ describe("browser privacy static boundary", () => {
     const source = sourceText(directory);
     const api = readFileSync(resolve(directory, "api.ts"), "utf8");
     const page = readFileSync(
-      resolve(repositoryRoot, "apps/web/src/pages/RwaVerify.tsx"),
+      resolve(repositoryRoot, "apps/web/src/pages/StockTokenCheck.tsx"),
       "utf8",
     );
     expect(api).toContain(
@@ -492,7 +492,7 @@ describe("browser privacy static boundary", () => {
       /raw_input|decodedInput|checkout-link|add-to-cart|orderId|personal_sign|sendTransaction|eth_requestAccounts/,
     );
     expect(replay).not.toMatch(/Prisma|OpenAI|ChatRepository|JsonCache/);
-    expect(swapApi).toContain('privateApi<ScoutSwapQuote>("/v1/swaps/quote", canonicalRequest, signal)');
+    expect(swapApi).toContain('privateApi<SwapQuote>("/v1/swaps/quote", canonicalRequest, signal)');
     expect(availability).toContain("import.meta.env.VITE_REPLAY_ACTIONS_ENABLED");
     expect(availability).toContain('flags.replayActions === "true"');
     expect(vaultPage).toContain("isReplayActionsEnabled");
@@ -569,7 +569,7 @@ describe("browser privacy static boundary", () => {
     expect(spec.components.schemas.IdentityResponse.required).toContain("registryMatch");
     expect(spec.paths["/v1/public/open-data/v1/normalize"].post.responses).toHaveProperty("413");
     expect(spec.paths["/v1/public/open-data/v1/normalize"].post.responses).toHaveProperty("415");
-    expect(spec["x-chainscout-boundary"].crossOriginBrowserCors).toBe(false);
+    expect(spec["x-opsis-boundary"].crossOriginBrowserCors).toBe(false);
     expect(JSON.stringify(spec)).not.toMatch(/wallets|transactions|search|bulk|apiKey/i);
   });
 });

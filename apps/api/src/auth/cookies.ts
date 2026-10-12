@@ -5,11 +5,11 @@ import type { AuthResult, RegistrationResult } from "./service.js";
 type SessionResult = AuthResult | RegistrationResult;
 
 export function accessCookieName(env: Env): string {
-  return usesSecureCookies(env) ? "__Host-chainscout_access" : "chainscout_access";
+  return usesSecureCookies(env) ? "__Host-opsis_access" : "opsis_access";
 }
 
 export function refreshCookieName(env: Env): string {
-  return usesSecureCookies(env) ? "__Host-chainscout_refresh" : "chainscout_refresh";
+  return usesSecureCookies(env) ? "__Host-opsis_refresh" : "opsis_refresh";
 }
 
 export function readAccessToken(request: FastifyRequest, env: Env): string | undefined {

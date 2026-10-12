@@ -32,7 +32,7 @@ const merchant: ApprovedMerchant = {
   baseUrl: "https://merchant.example",
   permissionRecordId: "merchant-consent-2026-08-11",
   permissionReviewedAt: "2026-08-11",
-  permissionEvidenceUrl: "https://merchant.example/chainscout-permission/",
+  permissionEvidenceUrl: "https://merchant.example/opsis-permission/",
   products: [
     {
       canonicalAssetId: "tcgdex:en:base1-4",
@@ -60,14 +60,14 @@ describe("market and inventory", () => {
     const requestJson = vi.fn();
     const result = service({ requestJson }, [merchant]).directory();
     expect(result).toMatchObject({
-      source: "chainscout_reviewed_registry",
+      source: "opsis_reviewed_registry",
       merchants: [
         {
           id: "sample-store",
           name: "Sample Opt-In Store",
           permissionReviewedAt: "2026-08-11",
           permissionEvidenceUrl:
-            "https://merchant.example/chainscout-permission/",
+            "https://merchant.example/opsis-permission/",
           mappings: [
             {
               canonicalAssetId: "tcgdex:en:base1-4",

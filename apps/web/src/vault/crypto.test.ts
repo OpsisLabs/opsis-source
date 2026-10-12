@@ -1,3 +1,4 @@
+import legacyBackupFixture from "./legacy-backup.fixture.json";
 import { describe, expect, it } from "vitest";
 import {
   changeVaultPassphrase,
@@ -27,6 +28,7 @@ import {
 import {
   VAULT_COLLECTIBLE_RECORD_VERSION,
   VAULT_FORMAT,
+  LEGACY_VAULT_FORMAT,
   VAULT_KDF_ITERATIONS,
   VAULT_MARKET_RECORD_VERSION,
   type EncryptedVaultRecord,
@@ -734,7 +736,7 @@ function fixtureAsset(): VaultAsset {
     id: "2a2d9930-d937-4f3e-bda7-b0d2ddb4b644",
     name: "Vault Canary Card",
     assetType: "collectible",
-    identifier: "PSA-CHAINSCOUT-42",
+    identifier: "PSA-OPSIS-42",
     lots: [
       {
         id: "f9c68a33-20aa-4fc7-9318-f4306a82b11c",
@@ -971,3 +973,37 @@ function fixtureMarketContext(): VaultMarketContext {
     ],
   });
 }
+
+it("imports a pre-rename backup and decrypts its record and recovery key without rewriting authenticated metadata", async () => {
+  // Generated once from the pre-rename implementation, not the current writer.
+  const imported = parseBackup(structuredClone(legacyBackupFixture.backup));
+  expect(imported.format).toBe(LEGACY_VAULT_FORMAT);
+  expect(imported.vault.format).toBe(LEGACY_VAULT_FORMAT);
+  const key = await verifyBackup(imported, legacyBackupFixture.passphrase);
+  expect(await decryptAsset(imported.vault, key, imported.records[0])).toEqual(legacyBackupFixture.asset);
+  const recovered = await recoverVault(imported.vault, legacyBackupFixture.recoverySecret, "another private long passphrase");
+  expect(await decryptAsset(recovered.meta, recovered.key, imported.records[0])).toEqual(legacyBackupFixture.asset);
+  const exported = await createBackup(imported.vault, key, imported.records);
+  expect(exported.format).toBe(VAULT_FORMAT);
+  expect(exported.vault.format).toBe(LEGACY_VAULT_FORMAT);
+  await expect(verifyBackup(parseBackup(exported), legacyBackupFixture.passphrase)).resolves.toBeDefined();
+  const rewritten = structuredClone(imported);
+  rewritten.vault.format = VAULT_FORMAT;
+  await expect(verifyBackup(rewritten, legacyBackupFixture.passphrase)).rejects.toMatchObject({ code: "INVALID_BACKUP" });
+});
+
+it("normalizes legacy fields only after a legacy record authenticates and decrypts", async () => {
+  const created = await createVault(passphrase);
+  const asset = fixtureAsset();
+  const payload = { ...asset, chainScoutSummary: "private summary", provenance: { redistributionClass: "chainscout_reviewed_reference" } };
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv,
+    additionalData: new TextEncoder().encode(`chainscout:vault-record:v1:${created.meta.vaultId}:${asset.id}`),
+  }, created.key, new TextEncoder().encode(JSON.stringify(payload)));
+  const record: EncryptedVaultRecord = { id: asset.id, version: 1,
+    iv: btoa(String.fromCharCode(...iv)), ciphertext: btoa(String.fromCharCode(...new Uint8Array(ciphertext))),
+  };
+  const result = await decryptAsset(created.meta, created.key, record);
+  expect(result).toEqual({ ...asset, opsisSummary: "private summary", provenance: { redistributionClass: "opsis_reviewed_reference" } });
+  expect(record.ciphertext).not.toContain("private summary");
+});

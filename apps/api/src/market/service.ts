@@ -96,7 +96,7 @@ export class MarketInventoryService implements MarketInventorySource {
       schemaVersion: 1,
       merchants,
       loadedAt: now.toISOString(),
-      source: "chainscout_reviewed_registry",
+      source: "opsis_reviewed_registry",
       limitations: [
         "Only merchants with affirmative permission and reviewed exact simple-product mappings appear here.",
         "Directory presence is not an endorsement, reputation score, or complete inventory claim.",
@@ -160,7 +160,7 @@ export class MarketInventoryService implements MarketInventorySource {
         modelProvider: "none",
         providerDestinations: ["DEX Screener"],
         disclosure:
-          "The requested public Robinhood Chain token contract was sent transiently to ChainScout and DEX Screener. Vault ownership, lots, costs, notes, photos, other assets, cookies, and AI were excluded.",
+          "The requested public Robinhood Chain token contract was sent transiently to Opsis and DEX Screener. Vault ownership, lots, costs, notes, photos, other assets, cookies, and AI were excluded.",
       },
     };
   }
@@ -273,7 +273,7 @@ export class MarketInventoryService implements MarketInventorySource {
       limitations: [
         "This is one opted-in merchant's published storefront state, not complete internet inventory.",
         "Exact quantity is not supplied. Availability can change before checkout.",
-        "Product rating and count, when present, are merchant-reported product fields—not seller reputation or ChainScout verification.",
+        "Product rating and count, when present, are merchant-reported product fields—not seller reputation or Opsis verification.",
       ],
       privacy: {
         accountRequired: false,
@@ -281,7 +281,7 @@ export class MarketInventoryService implements MarketInventorySource {
         serverStorage: "none",
         modelProvider: "none",
         providerDestinations: [merchant.name],
-        disclosure: `The public canonical asset ID, approved merchant ID, reviewed SKU, expected product ID, and mapping review date were sent transiently to ChainScout. Only the reviewed SKU and expected product ID were sent to ${merchant.name}. Vault ownership, lots, costs, labels, notes, photos, other assets, cookies, and AI were excluded.`,
+        disclosure: `The public canonical asset ID, approved merchant ID, reviewed SKU, expected product ID, and mapping review date were sent transiently to Opsis. Only the reviewed SKU and expected product ID were sent to ${merchant.name}. Vault ownership, lots, costs, labels, notes, photos, other assets, cookies, and AI were excluded.`,
       },
     };
   }
@@ -292,7 +292,7 @@ export class MarketInventoryService implements MarketInventorySource {
         method: "GET",
         headers: {
           accept: "application/json",
-          "user-agent": "ChainScout/market-inventory",
+          "user-agent": "Opsis/market-inventory",
         },
         redirect: "error",
       });

@@ -7,7 +7,7 @@ import { AppError } from "../http/errors.js";
 import { clearSessionCookies } from "../auth/cookies.js";
 import { z } from "zod";
 
-const deleteBody = z.object({ confirmation: z.literal("DELETE MY CHAINSCOUT ACCOUNT") }).strict();
+const deleteBody = z.object({ confirmation: z.literal("DELETE MY OPSIS ACCOUNT") }).strict();
 
 export async function accountRoutes(app: FastifyInstance, env: Env, prisma?: PrismaClient): Promise<void> {
   const accounts = new AccountRepository(prisma);
@@ -20,7 +20,7 @@ export async function accountRoutes(app: FastifyInstance, env: Env, prisma?: Pri
     const date = new Date().toISOString().slice(0, 10);
     reply.header("Cache-Control", "no-store, private");
     reply.header("Pragma", "no-cache");
-    reply.header("Content-Disposition", `attachment; filename="chainscout-account-export-${date}.json"`);
+    reply.header("Content-Disposition", `attachment; filename="opsis-account-export-${date}.json"`);
     reply.type("application/json; charset=utf-8");
     return exported;
   });

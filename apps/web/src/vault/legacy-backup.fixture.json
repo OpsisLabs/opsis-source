@@ -1,0 +1,64 @@
+{
+  "passphrase": "compatibility fixture passphrase",
+  "recoverySecret": "CSV1-TRaxBrmqMO3kkdUOZ5uxD1qJ_5DK5t5B45vIPHh2dkc.87b81e07ef1d6036",
+  "asset": {
+    "id": "8e18d7b8-0414-466c-ba7c-2adccec8d876",
+    "name": "Compatibility sample",
+    "assetType": "other",
+    "identifier": "sample-asset",
+    "lots": [
+      {
+        "id": "5e050e3a-3df9-4881-a49f-145321b2e299",
+        "quantity": "2",
+        "unitPrice": "5",
+        "currency": "USD",
+        "acquiredAt": "2026-10-01"
+      }
+    ],
+    "notes": "Sample private note",
+    "createdAt": "2026-10-12T16:09:22.252Z",
+    "updatedAt": "2026-10-12T16:09:22.252Z"
+  },
+  "backup": {
+    "format": "chainscout.encrypted-vault",
+    "schemaVersion": 1,
+    "exportedAt": "2026-10-12T16:09:22.253Z",
+    "vault": {
+      "key": "vault",
+      "format": "chainscout.encrypted-vault",
+      "schemaVersion": 1,
+      "vaultId": "d59113bd-ed73-4fb5-9403-3ab8f2741104",
+      "revision": 0,
+      "kdf": {
+        "name": "PBKDF2",
+        "hash": "SHA-256",
+        "iterations": 600000,
+        "salt": "M/s5NhPyItXO/Ku3fErJ+g=="
+      },
+      "wrappedKey": {
+        "algorithm": "AES-GCM",
+        "iv": "Y330/COx8rfPPZv9",
+        "ciphertext": "ZCUfNFmdCn/JQ8NG88V5lbv2at0DIRjtvjIYDZ8SZXSfkwljmNnQRwfIqiGUzHxs"
+      },
+      "recovery": {
+        "algorithm": "AES-GCM",
+        "iv": "a7UrKgtnjBX+SUYU",
+        "ciphertext": "WBNeWFr9smASV72J8cZrUC1yQbTxJfsT39xAc38+qCvER1R5zuGHIRLyF/RNRAuF",
+        "checksum": "87b81e07ef1d6036"
+      }
+    },
+    "records": [
+      {
+        "id": "8e18d7b8-0414-466c-ba7c-2adccec8d876",
+        "version": 1,
+        "iv": "LijFmFCPs/wcgybt",
+        "ciphertext": "qCL7nZJHN2pAu3rmBa9dy815pDlcmy3ctekIyZLfIxTnk/w5ZsX5i/ibJ3bcmIdW/YCGEP3iw+/ZxXKJCyZf5k85xiPcNhym6MHz1VgyeexaB7OZTBalzxhf2dwQCXCFgIsPfuYl+/1yRuf4hVWsfxKbZ+/0MlouxhAsGenVwARWo2bmam315mCYQFCm+iA1IrpVlvcbLtBoGePCu6DT2xPTa3rpVPcvL4nCMMQUMAQ3uyxkQth+6xKosKlInRChzOmdkULLU30MdCymc1S0NBap6N3dUnkVR57onFPi2RQEJnXPJdGpzuDoTE/HNA03HcUmTKYHfSUBEHB4zwaBa0cVlwdkG6jXoofzNJSWxwKitqDPAzIyBokCkzttnf0QD1c/U65ciyAup05IkU6s0c7qnfGL2jzjgBurq5dLq56h9zOyVdZHD4KCZW4iyx3royQgbM1yX8yJs5iYH9KNfGdcPvlVKEWP8oeM4G3dwmxA/RWN/LkKpg=="
+      }
+    ],
+    "integrity": {
+      "algorithm": "AES-GCM",
+      "iv": "h4FT59njN1hJQog+",
+      "ciphertext": "6Qj1HtKwR//W/Qe4hMjteCvFgQlf4MQf6Cnzhi6tOs42J/xmIuDvLyYYnRN9g8bSNcTYmXjl3Nxn/QN/gzmp5KRUZPFzcdlSoXXLUjb1qVJIy1y4PdRmurTF76hY/l5gDRrKDebbhPr7yfuwTMIiIqVK2VzilNqJ/rnVR87uQp1nUDLMSxg+qfdUygVHdSwFDHtOxjQDN9A5rzORlHDGxhk1dnmn/YeSBIjo1gC4+K1VcJXDcjPK3wYktUVVRlRWRpqCful1c3DUDu/kj7BkdNtFQT+3idMQobmbjjyptl9udWL78G7Npvo+yx/vBAKeXO9umL29YtIXKm8paLb2UznK+mewkAT6SeRC76yDAtkqqQB4SWBJyxAskn8JymChlddd+Mj8CA=="
+    }
+  }
+}

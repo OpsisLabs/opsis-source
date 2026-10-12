@@ -39,7 +39,7 @@ export function useBackupDownload() {
     const { blob, text } = backupBlob(backup);
     const url = URL.createObjectURL(blob);
     dispose();
-    const filename = `chainscout-encrypted-vault-${new Date().toISOString().slice(0, 10)}.json`;
+    const filename = `opsis-encrypted-vault-${new Date().toISOString().slice(0, 10)}.json`;
     resource.current = { url, timer: setTimeout(clear, 5 * 60_000) };
     setDownload({ url, filename, text });
     const anchor = document.createElement("a");

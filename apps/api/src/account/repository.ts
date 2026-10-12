@@ -3,7 +3,7 @@ import { memoryStore, type MemoryUser } from "../db/memory.js";
 import { sha256 } from "../security/hash.js";
 
 export type AccountExportV1 = {
-  schemaVersion: "chainscout.account-export.v1";
+  schemaVersion: "opsis.account-export.v1";
   exportedAt: string;
   profile: {
     id: string;
@@ -108,7 +108,7 @@ export class AccountRepository {
     });
     if (!user) return null;
     return {
-      schemaVersion: "chainscout.account-export.v1",
+      schemaVersion: "opsis.account-export.v1",
       exportedAt: new Date().toISOString(),
       profile: {
         id: user.id,
@@ -224,7 +224,7 @@ function exportMemoryUser(userId: string): AccountExportV1 | null {
       }))
     }));
   return {
-    schemaVersion: "chainscout.account-export.v1",
+    schemaVersion: "opsis.account-export.v1",
     exportedAt: new Date().toISOString(),
     profile: publicMemoryProfile(user),
     authenticationSessions: [...memoryStore.refreshTokens.values()]

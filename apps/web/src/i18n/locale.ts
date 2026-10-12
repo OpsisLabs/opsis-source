@@ -4,7 +4,8 @@ export type Locale = (typeof LOCALES)[number];
 
 export const DEFAULT_LOCALE: Locale = "en";
 
-export const LOCALE_COOKIE = "chainscout_locale_v1";
+export const LOCALE_COOKIE = "opsis_locale_v1";
+const LEGACY_LOCALE_COOKIE = "chainscout_locale_v1";
 
 export const LOCALE_MAX_AGE = 31536000;
 
@@ -20,9 +21,16 @@ export function isLocale(value: unknown): value is Locale {
 export function readLocaleCookie(): Locale {
   try {
     if (typeof document === "undefined") return DEFAULT_LOCALE;
-    const entry = document.cookie.split(";").map(part => part.trim()).find(part => part.startsWith(`${LOCALE_COOKIE}=`));
-    const value = entry ? decodeURIComponent(entry.slice(LOCALE_COOKIE.length + 1)) : undefined;
-    return isLocale(value) ? value : DEFAULT_LOCALE;
+    const entries = document.cookie.split(";").map(part => part.trim());
+    for (const name of [LOCALE_COOKIE, LEGACY_LOCALE_COOKIE]) {
+      const entry = entries.find(part => part.startsWith(`${name}=`));
+      if (!entry) continue;
+      try {
+        const value = decodeURIComponent(entry.slice(name.length + 1));
+        if (isLocale(value)) return value;
+      } catch { /* Try the older preference when the current value is malformed. */ }
+    }
+    return DEFAULT_LOCALE;
   } catch {
     return DEFAULT_LOCALE;
   }

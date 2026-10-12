@@ -123,7 +123,7 @@ export async function exportAccount(): Promise<Blob> {
 export async function deleteAccount(): Promise<void> {
   await api<void>("/v1/account", {
     method: "DELETE",
-    body: JSON.stringify({ confirmation: "DELETE MY CHAINSCOUT ACCOUNT" })
+    body: JSON.stringify({ confirmation: "DELETE MY OPSIS ACCOUNT" })
   });
 }
 

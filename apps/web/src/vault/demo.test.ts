@@ -52,7 +52,15 @@ describe("Vault demo records", () => {
     const promoted = promoteVaultDemoDraft(createVaultDemoDrafts()[0]);
     const asset = createAsset(promoted);
     expect(asset.name).toBe("Wrapped Ether");
-    expect(asset.notes).toMatch(/^Converted from a ChainScout demo record/u);
+    expect(asset.notes).toMatch(/^Converted from a Opsis demo record/u);
     expect(isVaultDemoAsset(asset)).toBe(false);
   });
+});
+
+it("recognizes and promotes persisted legacy demo notes", () => {
+  const draft = { ...createVaultDemoDrafts()[0], notes: "CHAINSCOUT DEMO DATA V1 · sample" };
+  expect(isVaultDemoAsset(createAsset(draft))).toBe(true);
+  const promoted = promoteVaultDemoDraft(draft);
+  expect(isVaultDemoAsset(createAsset(promoted))).toBe(false);
+  expect(promoted.notes).not.toContain("CHAINSCOUT DEMO DATA V1");
 });

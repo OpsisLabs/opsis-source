@@ -1,3 +1,4 @@
+import { normalizeSavedIdentifiers } from "../vault/compatibility";
 import type {
   ApprovedMerchantDirectoryResponse,
   CryptoMarketResponse,
@@ -58,7 +59,7 @@ type PendingRequest =
       contract: string;
       publicIdentifier: string;
       providers: string[];
-      chainScoutSummary: string;
+      opsisSummary: string;
       providerSummary: string;
       disclosure: string;
     }
@@ -71,7 +72,7 @@ type PendingRequest =
       reviewedAt: string;
       publicIdentifier: string;
       providers: string[];
-      chainScoutSummary: string;
+      opsisSummary: string;
       providerSummary: string;
       disclosure: string;
     };
@@ -255,7 +256,7 @@ export function MarketInventoryPanel({
       contract: normalized,
       publicIdentifier: `eip155:4663/erc20:${normalized}`,
       providers: ["DEX Screener"],
-      chainScoutSummary: t("market.crypto.summaryChainScout", {
+      opsisSummary: t("market.crypto.summaryOpsis", {
         contract: normalized,
       }),
       providerSummary: t("market.crypto.summaryProvider", {
@@ -291,7 +292,7 @@ export function MarketInventoryPanel({
         merchantName ||
           t("market.merchant.approvedMerchant", { merchant }),
       ],
-      chainScoutSummary: t("market.merchant.summaryChainScout", {
+      opsisSummary: t("market.merchant.summaryOpsis", {
         merchant,
         asset,
         sku: merchantSku,
@@ -316,7 +317,7 @@ export function MarketInventoryPanel({
     abortRef.current = controller;
     try {
       const response = await fetchApprovedMerchants(controller.signal, dealsOnly);
-      setDirectory(response);
+      setDirectory(normalizeSavedIdentifiers(response) as ApprovedMerchantDirectoryResponse);
       if (response.merchants.length === 0) {
         setNotice(t("market.notice.noMerchant"));
       }
@@ -1700,8 +1701,8 @@ function PermissionDialog({
           </button>
         </div>
         <ReceiptBlock
-          label={t("market.dialog.sentToChainScout")}
-          value={pending.chainScoutSummary}
+          label={t("market.dialog.sentToOpsis")}
+          value={pending.opsisSummary}
         />
         <ReceiptBlock
           label={t("market.dialog.sentToProviders", {

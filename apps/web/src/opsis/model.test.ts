@@ -108,6 +108,7 @@ it("public capability requests omit credentials and keep CSRF protection", async
   const options = fetcher.mock.calls[0][1];
   expect(options.credentials).toBe("omit");
   expect(options.headers.authorization).toBeUndefined();
+  expect(options.headers["x-opsis-csrf"]).toBe("1");
   expect(options.headers["x-chainscout-csrf"]).toBe("1");
 });
 

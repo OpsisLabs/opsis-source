@@ -3,6 +3,8 @@ import type Redis from "ioredis";
 import type { Env } from "../config/env.js";
 import { AppError } from "../http/errors.js";
 
+const ANONYMOUS_CAP_CONTEXT = "chainscout:open-data:";
+
 const CONSUME = `
 local identity = tonumber(redis.call("GET", KEYS[1]) or "0")
 local global = tonumber(redis.call("GET", KEYS[2]) or "0")
@@ -38,7 +40,7 @@ export function createOpenDataLimiter(
     consume: async (clientAddress) => {
       const current = now();
       const identity = createHmac("sha256", env.JWT_ACCESS_SECRET)
-        .update(`chainscout:open-data:${clientAddress.trim().toLowerCase()}`)
+        .update(`${ANONYMOUS_CAP_CONTEXT}${clientAddress.trim().toLowerCase()}`)
         .digest("hex");
       const hour = current.toISOString().slice(0, 13);
       const day = current.toISOString().slice(0, 10);

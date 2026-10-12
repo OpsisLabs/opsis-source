@@ -368,7 +368,7 @@ export type ApprovedMerchantDirectoryResponse = {
   schemaVersion: 1;
   merchants: ApprovedMerchantDirectoryEntry[];
   loadedAt: string;
-  source: "chainscout_reviewed_registry";
+  source: "opsis_reviewed_registry";
   limitations: string[];
 };
 
@@ -381,16 +381,16 @@ export type OpenDataSource = {
 };
 
 export type OpenDataRegistryProvenance = {
-  derivation: "chainscout_static_review";
+  derivation: "opsis_static_review";
   upstreamPayloadIncluded: false;
-  redistributionClass: "chainscout_reviewed_reference";
+  redistributionClass: "opsis_reviewed_reference";
   reviewedAt: string;
 };
 
 export type OpenDataNormalizationProvenance = {
   derivation: "deterministic_syntax_normalization";
   upstreamPayloadIncluded: false;
-  redistributionClass: "chainscout_derived_normalization";
+  redistributionClass: "opsis_derived_normalization";
   reviewedAt: string;
 };
 
@@ -403,8 +403,8 @@ export type OpenDataAsset = {
   name: string;
   symbol: string;
   decimals: number;
-  registryStatus: "chainscout_supported";
-  identityConfidence: "chainscout_reviewed_static_match";
+  registryStatus: "opsis_supported";
+  identityConfidence: "opsis_reviewed_static_match";
   provenance: OpenDataRegistryProvenance;
   sources: OpenDataSource[];
   limitations: string[];
@@ -413,18 +413,18 @@ export type OpenDataAsset = {
 export type OpenDataAssetListResponse = {
   schemaVersion: 1;
   registryVersion: string;
-  chainscoutSourceRevision: string | null;
+  opsisSourceRevision: string | null;
   chain: OpenDataAsset["chain"];
   assets: OpenDataAsset[];
   assetsShown: number;
-  completeFor: "chainscout_reviewed_launch_registry";
+  completeFor: "opsis_reviewed_launch_registry";
   generatedAt: string;
   provenance: {
     upstreamPayloadIncluded: false;
-    redistributionClass: "chainscout_reviewed_reference";
+    redistributionClass: "opsis_reviewed_reference";
   };
   rights: {
-    chainscoutAuthored: string[];
+    opsisAuthored: string[];
     excludedFromLicenseClaim: string[];
   };
   limitations: string[];
@@ -441,8 +441,8 @@ export type OpenDataIdentityResponse = {
   registryMatch: null | {
     canonicalId: string;
     symbol: string;
-    registryStatus: "chainscout_supported";
-    identityConfidence: "chainscout_reviewed_static_match";
+    registryStatus: "opsis_supported";
+    identityConfidence: "opsis_reviewed_static_match";
   };
   explorerUrl: string;
   provenance: OpenDataNormalizationProvenance;
@@ -486,9 +486,9 @@ export const ROBINHOOD_CHAIN_4663 = {
 export const OPEN_DATA_REGISTRY_VERSION = "2026-08-12.1" as const;
 export const OPEN_DATA_REVIEWED_AT = "2026-08-12T21:31:50.000Z" as const;
 
-/** ChainScout's reviewed launch support tuple. The registry and Scout Swap
+/** Opsis's reviewed launch support tuple. The registry and Swap preview
  * consume the same object so address/decimal support cannot drift. */
-export const CHAINSCOUT_REVIEWED_ASSETS = {
+export const REVIEWED_ASSETS = {
   WETH: {
     symbol: "WETH",
     name: "Wrapped Ether",

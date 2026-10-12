@@ -120,9 +120,15 @@ function asset(): VaultAsset {
 }
 
 function directory(): ApprovedMerchantDirectoryResponse {
-  return { schemaVersion: 1, source: "chainscout_reviewed_registry", loadedAt: "2026-08-12T12:00:00.000Z", limitations: [], merchants: [{ id: "sample-store", name: "Sample Store", permissionReviewedAt: "2026-08-01", permissionEvidenceUrl: "https://merchant.example/permission/", mappings: [{ canonicalAssetId: "tcgdex:en:base1-4", sku: "CARD-4", productId: "42", variantLabel: "Holo", condition: "Near mint", reviewedAt: "2026-08-01", evidenceUrl: "https://merchant.example/product/card/" }] }] };
+  return { schemaVersion: 1, source: "opsis_reviewed_registry", loadedAt: "2026-08-12T12:00:00.000Z", limitations: [], merchants: [{ id: "sample-store", name: "Sample Store", permissionReviewedAt: "2026-08-01", permissionEvidenceUrl: "https://merchant.example/permission/", mappings: [{ canonicalAssetId: "tcgdex:en:base1-4", sku: "CARD-4", productId: "42", variantLabel: "Holo", condition: "Near mint", reviewedAt: "2026-08-01", evidenceUrl: "https://merchant.example/product/card/" }] }] };
 }
 
 function response(): MerchantInventoryResponse {
   return { schemaVersion: 1, merchant: { id: "sample-store", name: "Sample Store", provider: "woocommerce" }, canonicalAssetId: "tcgdex:en:base1-4", mapping: { sku: "CARD-4", productId: "42", reviewedAt: "2026-08-01", evidenceUrl: "https://merchant.example/product/card/" }, state: "exact_match", fetchedAt: "2026-08-12T12:00:00.000Z", freshForMs: 300_000, source: { provider: "woocommerce", url: "https://merchant.example/product/card/" }, limitations: [], privacy: { accountRequired: false, walletConnectionRequired: false, serverStorage: "none", modelProvider: "none", providerDestinations: ["Sample Store"], disclosure: "fixture" }, offer: { provider: "woocommerce", merchantId: "sample-store", merchantName: "Sample Store", canonicalAssetId: "tcgdex:en:base1-4", identityConfidence: "reviewed_simple_product_mapping", productId: "42", sku: "CARD-4", title: "Card", variantLabel: "Holo", condition: "Near mint", mappingReviewedAt: "2026-08-01", mappingEvidenceUrl: "https://merchant.example/product/card/", url: "https://merchant.example/product/card/", currency: "USD", unitPrice: "125", inventoryState: "provider_available", exactQuantity: null, productRating: null, fetchedAt: "2026-08-12T12:00:00.000Z", freshForMs: 300_000 } };
 }
+
+it("accepts the legacy merchant registry provenance for local replay", () => {
+  const legacy = { ...directory(), source: "chainscout_reviewed_registry" } as unknown as ApprovedMerchantDirectoryResponse;
+  expect(purchaseSelections([asset()], legacy)).toEqual(purchaseSelections([asset()], directory()));
+  expect(legacy.source).toBe("chainscout_reviewed_registry");
+});

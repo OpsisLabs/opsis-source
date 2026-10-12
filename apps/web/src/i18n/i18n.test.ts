@@ -79,7 +79,7 @@ describe("translation primitives", () => {
 
 describe("non-React module localization", () => {
   it("localizes server-independent copy and validation through the cookie", () => {
-    const store = { cookie: "chainscout_locale_v1=zh-CN" };
+    const store = { cookie: "opsis_locale_v1=zh-CN" };
     vi.stubGlobal("document", store);
     expect(translateCurrent("common.state.unknown")).toBe("未知");
     expect(translateCurrent("trade.error.insufficientBalance")).toBe(
@@ -92,11 +92,24 @@ describe("non-React module localization", () => {
 });
 
 describe("locale persistence", () => {
+  it("reads the legacy preference after the new cookie and never writes the old name", () => {
+    const store = { cookie: "chainscout_locale_v1=zh-CN" };
+    vi.stubGlobal("document", store);
+    expect(readLocaleCookie()).toBe("zh-CN");
+    store.cookie = "chainscout_locale_v1=zh-CN; opsis_locale_v1=en";
+    expect(readLocaleCookie()).toBe("en");
+    store.cookie = "opsis_locale_v1=%ZZ; chainscout_locale_v1=zh-CN";
+    expect(readLocaleCookie()).toBe("zh-CN");
+    writeLocaleCookie("en");
+    expect(store.cookie).toContain("opsis_locale_v1=en");
+    expect(store.cookie).not.toContain("chainscout_locale_v1");
+  });
+
   it("ignores malformed unrelated cookies and falls back for malformed or unsupported preferences", () => {
-    vi.stubGlobal("document", { cookie: "unrelated=%ZZ; chainscout_locale_v1=zh-CN" });
+    vi.stubGlobal("document", { cookie: "unrelated=%ZZ; opsis_locale_v1=zh-CN" });
     expect(readLocaleCookie()).toBe("zh-CN");
     for (const value of ["%ZZ", "zh-TW", "en-US", "", "__proto__"]) {
-      vi.stubGlobal("document", { cookie: `chainscout_locale_v1=${value}` });
+      vi.stubGlobal("document", { cookie: `opsis_locale_v1=${value}` });
       expect(readLocaleCookie()).toBe("en");
     }
   });
@@ -123,7 +136,7 @@ describe("locale persistence", () => {
     const store = { cookie: "" } as { cookie: string };
     vi.stubGlobal("document", store);
     writeLocaleCookie("zh-CN");
-    expect(store.cookie).toContain("chainscout_locale_v1=zh-CN");
+    expect(store.cookie).toContain("opsis_locale_v1=zh-CN");
     expect(store.cookie).toContain("Max-Age=31536000");
     expect(store.cookie).toContain("Path=/");
     expect(store.cookie).toContain("SameSite=Strict");

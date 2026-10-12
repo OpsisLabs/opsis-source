@@ -58,3 +58,25 @@ describe("private KOL workspace backups", () => {
     ).rejects.toThrow();
   });
 });
+
+it("keeps the legacy authenticated envelope and reads ciphertext already stored in the legacy database", async () => {
+  vi.stubGlobal("indexedDB", new IDBFactory());
+  const state = { watched: [], saved: [] };
+  const text = await encryptWorkspace(state, "a private long passphrase");
+  expect(JSON.parse(text).format).toBe("chainscout-kol-v1");
+  const db = await new Promise<IDBDatabase>((resolve, reject) => {
+    const request = indexedDB.open("chainscout-kol-research", 1);
+    request.onupgradeneeded = () => request.result.createObjectStore("workspace");
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+  await new Promise<void>((resolve, reject) => {
+    const transaction = db.transaction("workspace", "readwrite");
+    transaction.objectStore("workspace").put(text, "current");
+    transaction.oncomplete = () => resolve();
+    transaction.onabort = () => reject(transaction.error);
+  });
+  db.close();
+  expect(await readDeviceWorkspace()).toBe(text);
+  expect(await decryptWorkspace(text, "a private long passphrase")).toEqual(state);
+});

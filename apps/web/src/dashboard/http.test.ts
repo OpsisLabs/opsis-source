@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { humanize, privateApi } from "./http";
+import { api, humanize, privateApi } from "./http";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -34,4 +34,15 @@ describe("catalog failure copy", () => {
   ])("keeps %s explicit", (code, expected) => {
     expect(humanize(code, "provider detail", 503).toLowerCase()).toContain(expected);
   });
+});
+
+it("sends both CSRF headers for private and cookie-authenticated mutations", async () => {
+  const fetch = vi.fn().mockImplementation(async () => new Response("{}", { status: 200 }));
+  vi.stubGlobal("fetch", fetch);
+  await privateApi("/v1/private/portfolio/snapshot", { address: "0x0" });
+  await api("/v1/account", { method: "DELETE", body: "{}" });
+  for (const [, options] of fetch.mock.calls) {
+    expect(options.headers.get("x-opsis-csrf")).toBe("1");
+    expect(options.headers.get("x-chainscout-csrf")).toBe("1");
+  }
 });

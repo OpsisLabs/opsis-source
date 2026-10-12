@@ -1,5 +1,6 @@
+import { normalizeSavedIdentifiers } from "../vault/compatibility";
 import {
-  CHAINSCOUT_REVIEWED_ASSETS,
+  REVIEWED_ASSETS,
   OPEN_DATA_REGISTRY_VERSION,
   OPEN_DATA_REVIEWED_AT,
   ROBINHOOD_CHAIN_4663,
@@ -20,7 +21,7 @@ type RegistryResponse = OpenDataAssetListResponse & {
 };
 
 const CHAIN = ROBINHOOD_CHAIN_4663;
-const TOKENS = [CHAINSCOUT_REVIEWED_ASSETS.WETH, CHAINSCOUT_REVIEWED_ASSETS.USDG] as const;
+const TOKENS = [REVIEWED_ASSETS.WETH, REVIEWED_ASSETS.USDG] as const;
 
 export async function fetchOpenDataRegistry(signal?: AbortSignal): Promise<RegistryResponse> {
   const response = await fetch(OPEN_DATA_PATHS.registry, {
@@ -30,7 +31,7 @@ export async function fetchOpenDataRegistry(signal?: AbortSignal): Promise<Regis
     signal,
   });
   if (!response.ok) throw new Error(await publicError(response));
-  const value = await response.json() as unknown;
+  const value = normalizeSavedIdentifiers(await response.json());
   assertRegistry(value);
   return value;
 }
@@ -44,7 +45,7 @@ export async function normalizeOpenDataAddress(value: string, signal?: AbortSign
     signal,
   });
   if (!response.ok) throw new Error(await publicError(response));
-  const result = await response.json() as unknown;
+  const result = normalizeSavedIdentifiers(await response.json());
   assertIdentity(result, value);
   return result;
 }
@@ -63,18 +64,18 @@ async function publicError(response: Response): Promise<string> {
 
 function assertRegistry(value: unknown): asserts value is RegistryResponse {
   const candidate = record(value);
-  if (!exactKeys(candidate, ["schemaVersion", "registryVersion", "chainscoutSourceRevision", "chain", "assets", "assetsShown", "completeFor", "generatedAt", "provenance", "rights", "limitations", "cap"])) invalidRegistry();
+  if (!exactKeys(candidate, ["schemaVersion", "registryVersion", "opsisSourceRevision", "chain", "assets", "assetsShown", "completeFor", "generatedAt", "provenance", "rights", "limitations", "cap"])) invalidRegistry();
   if (
     candidate.schemaVersion !== 1 || candidate.registryVersion !== OPEN_DATA_REGISTRY_VERSION ||
-    !(candidate.chainscoutSourceRevision === null || fullSha(candidate.chainscoutSourceRevision)) ||
+    !(candidate.opsisSourceRevision === null || fullSha(candidate.opsisSourceRevision)) ||
     !exactChain(candidate.chain) || candidate.assetsShown !== 2 ||
-    candidate.completeFor !== "chainscout_reviewed_launch_registry" || candidate.generatedAt !== OPEN_DATA_REVIEWED_AT ||
-    !exactObject(candidate.provenance, { upstreamPayloadIncluded: false, redistributionClass: "chainscout_reviewed_reference" }) ||
+    candidate.completeFor !== "opsis_reviewed_launch_registry" || candidate.generatedAt !== OPEN_DATA_REVIEWED_AT ||
+    !exactObject(candidate.provenance, { upstreamPayloadIncluded: false, redistributionClass: "opsis_reviewed_reference" }) ||
     !stringList(candidate.limitations, 1, 4, 240)
   ) invalidRegistry();
   const rights = record(candidate.rights);
-  if (!exactKeys(rights, ["chainscoutAuthored", "excludedFromLicenseClaim"])) invalidRegistry();
-  if (!stringList(rights.chainscoutAuthored, 1, 8, 80) || !stringList(rights.excludedFromLicenseClaim, 1, 8, 80)) invalidRegistry();
+  if (!exactKeys(rights, ["opsisAuthored", "excludedFromLicenseClaim"])) invalidRegistry();
+  if (!stringList(rights.opsisAuthored, 1, 8, 80) || !stringList(rights.excludedFromLicenseClaim, 1, 8, 80)) invalidRegistry();
   const cap = record(candidate.cap);
   if (!exactKeys(cap, ["anonymousRequestsPerHour", "scope"]) || cap.scope !== "pseudonymous_network_client" || !integerIn(cap.anonymousRequestsPerHour, 1, 1_000)) invalidRegistry();
   if (!Array.isArray(candidate.assets) || candidate.assets.length !== TOKENS.length) invalidRegistry();
@@ -89,11 +90,11 @@ function assertAsset(value: unknown, expected: typeof TOKENS[number]): asserts v
     asset.schemaVersion !== 1 || asset.canonicalId !== canonicalId || !exactChain(asset.chain) ||
     asset.assetType !== "erc20" || asset.address !== expected.address || asset.name !== expected.name ||
     asset.symbol !== expected.symbol || asset.decimals !== expected.decimals ||
-    asset.registryStatus !== "chainscout_supported" || asset.identityConfidence !== "chainscout_reviewed_static_match" ||
+    asset.registryStatus !== "opsis_supported" || asset.identityConfidence !== "opsis_reviewed_static_match" ||
     !exactObject(asset.provenance, {
-      derivation: "chainscout_static_review",
+      derivation: "opsis_static_review",
       upstreamPayloadIncluded: false,
-      redistributionClass: "chainscout_reviewed_reference",
+      redistributionClass: "opsis_reviewed_reference",
       reviewedAt: OPEN_DATA_REVIEWED_AT,
     }) || !stringList(asset.limitations, 1, 4, 240)
   ) invalidRegistry();
@@ -119,7 +120,7 @@ function assertIdentity(value: unknown, requested: string): asserts value is Ope
     !exactObject(candidate.provenance, {
       derivation: "deterministic_syntax_normalization",
       upstreamPayloadIncluded: false,
-      redistributionClass: "chainscout_derived_normalization",
+      redistributionClass: "opsis_derived_normalization",
       reviewedAt: OPEN_DATA_REVIEWED_AT,
     }) || !stringList(candidate.limitations, 2, 4, 240)
   ) invalidIdentity();
@@ -131,8 +132,8 @@ function assertIdentity(value: unknown, requested: string): asserts value is Ope
   if (!exactObject(candidate.registryMatch, {
     canonicalId: `eip155:4663/erc20:${expectedToken.address}`,
     symbol: expectedToken.symbol,
-    registryStatus: "chainscout_supported",
-    identityConfidence: "chainscout_reviewed_static_match",
+    registryStatus: "opsis_supported",
+    identityConfidence: "opsis_reviewed_static_match",
   })) invalidIdentity();
 }
 
