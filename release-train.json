@@ -346,6 +346,18 @@
       ],
       "outcome": "Opsis is the only product name in the product, code, configuration and documentation",
       "shipGate": "No mention of the predecessor product, its tool brands or earlier working names in user-visible copy (English and Chinese), metadata, emails, API responses, code identifiers, configuration, scripts or documentation, except the documented compatibility identifiers that existing users' saved data, backups and cookies still need. Existing encrypted Vault data, backups, exports, cookies and saved reports keep working: new data uses the Opsis identifiers and old identifiers are still read. Web and API stay compatible in either deployment order. On-chain token symbols and third-party names are unchanged. No provider, chain, execution, paid path or workspace change; the frozen /quant page changes only its product name. Relevant unit, failure-state, privacy, English/Chinese, Chromium/WebKit and full release gates pass on the integrated candidate."
+    },
+    {
+      "order": 30,
+      "id": "29-perp-handoff",
+      "branch": "codex/29-perp-handoff",
+      "tagPrefix": "rc/29-perp-handoff/",
+      "status": "queued",
+      "dependencies": [
+        "28-opsis-identity"
+      ],
+      "outcome": "Model what a perp position costs to hold and where it would be liquidated, then take the scenario to a venue that accepts you",
+      "shipGate": "The local Perp cost scenario adds funding over a holding period, an estimated liquidation price for an isolated linear position and a side-by-side comparison, all from user-entered inputs with exact decimal arithmetic, stated assumptions and refusal on insufficient or invalid input; nothing is fetched from a venue. A reviewed, dated venue directory lists only venues whose own published pages say they offer perpetual futures in the user's stated region (United States, Canada or elsewhere), with conditions, sources and review date; it marks itself as needing re-review after 120 days and is controlled by a server flag that defaults off on API and web. Opsis places, routes, transmits and receives no order, verifies no identity or eligibility, ranks no venue, carries no referral parameter and suggests no workaround; the stated region never leaves the browser and perpExecution stays false. The API stops accepting the earlier request header. English and Chinese, 320 px to desktop, Chromium and WebKit, unit, failure-state, privacy and full release gates pass on the integrated candidate. No provider, chain, execution, paid path or new workspace."
     }
   ]
 }
