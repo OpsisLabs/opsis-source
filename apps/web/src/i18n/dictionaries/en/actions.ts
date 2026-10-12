@@ -44,7 +44,7 @@ export const actions = {
 
   "actions.replay.tradeEyebrow": "TRADE REBUILD",
   "actions.replay.tradeTitle": "Start from a supported movement—not old calldata",
-  "actions.replay.tradeEmpty": "No eligible trade pattern is present in the saved portfolio snapshot. Refresh the public snapshot in Saved first. ChainScout intentionally rejects failed, partial, truncated, multi-action, native, NFT, and unsupported-token histories.",
+  "actions.replay.tradeEmpty": "No eligible trade pattern is present in the saved portfolio snapshot. Refresh Portfolio Intelligence first. ChainScout intentionally rejects failed, partial, truncated, multi-action, native, NFT, and unsupported-token histories.",
   "actions.replay.historyEyebrow": "LOCAL HISTORICAL EVIDENCE",
   "actions.replay.historyAria": "Local historical movement",
   "actions.replay.historyPlaceholder": "Choose one complete supported movement pattern",

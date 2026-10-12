@@ -2,7 +2,7 @@ export const guide: Record<string, string> = {
   "guide.header.homeAria": "ChainScout 主页",
   "guide.header.brand": "CHAINSCOUT",
   "guide.header.pagesAria": "知识页面",
-  "guide.header.nav.guide": "选择工具",
+  "guide.header.nav.guide": "开始指南",
   "guide.header.nav.docs": "技术文档",
   "guide.header.nav.faq": "常见问题",
   "guide.header.nav.developers": "开发者",
@@ -81,7 +81,7 @@ export const guide: Record<string, string> = {
     "都不是。ChainScout 是一个只读的研究与整理层。它不持有资金或私钥，不收集助记词，不授权代币，不签署交易，不提交订单，也不向任何网络广播任何内容。",
   "guide.faq.groups.basics.q3": "我需要连接钱包或创建账户吗？",
   "guide.faq.groups.basics.a3":
-    "主要产品不需要。研究两者都不需要。本地保险库使用口令，而不是钱包。钱包登录只属于单独的可选已保存研究工作区。",
+    "主要产品不需要。私密链上查询两者都不需要。本地保险库使用口令，而不是钱包。钱包登录只属于单独的可选已保存研究工作区。",
   "guide.faq.groups.basics.q4": "ChainScout 会告诉我该买什么吗？",
   "guide.faq.groups.basics.a4":
     "不会。它呈现有来源的事实、不确定性、对比和局限。它不提供个性化的投资指令，不保证价格，也不证明某项资产是安全的。",
@@ -102,14 +102,14 @@ export const guide: Record<string, string> = {
   "guide.faq.groups.privacy.q3":
     "有哪些信息存储在 ChainScout 的服务器上？",
   "guide.faq.groups.privacy.a3":
-    "研究和免账户保险库不会在我们的服务器上保存对话或投资组合。公开查询字段会经过服务器内存传递给已披露的提供商。如果你在提问前解锁本地历史，你的问题、回答和来源会加密保存在此浏览器的保险库中。云端研究是未来的更新。",
+    "私密链上查询和免账户保险库不会在我们的服务器上保存对话或投资组合。公开查询字段会经过服务器内存传递给已披露的提供商。如果你在提问前解锁本地历史，你的问题、回答和来源会加密保存在此浏览器的保险库中。云端研究是未来的更新。",
   "guide.faq.groups.privacy.q4": "什么会留在本地保险库中？",
   "guide.faq.groups.privacy.a4":
     "资产名称、所有权分组、钱包标签、买入批次、价格、备注、本地处理过的照片、参考价值和权限凭据都会先加密，再由 IndexedDB 存储在你的浏览器中。即将推出的工具无法添加记录，除非它们日后被明确发布。",
   "guide.faq.groups.privacy.q5":
     "ChainScout 能看到我查询的公开钱包地址吗？",
   "guide.faq.groups.privacy.a5":
-    "在经批准的研究期间，可以看到：ChainScout、Railway 以及凭据中列出的提供商能够短暂看到公开标识符和常规网络元数据。“私密”意味着这种关联被最小化且不作为服务器投资组合存储——并不意味着网络请求不可见。",
+    "在经批准的链上查询期间，可以看到：ChainScout、Railway 以及凭据中列出的提供商能够短暂看到公开标识符和常规网络元数据。“私密”意味着这种关联被最小化且不作为服务器投资组合存储——并不意味着网络请求不可见。",
   "guide.faq.groups.privacy.q6": "保险库是如何加密的？",
   "guide.faq.groups.privacy.a6":
     "浏览器生成一个随机的 AES-256-GCM 数据密钥。使用 PBKDF2-HMAC-SHA-256 从你的口令派生出密钥，加上随机盐和 600,000 次迭代来包裹该数据密钥。单条记录使用全新的 IV 和经过认证的记录标识。解锁后的会话密钥不可导出。",
@@ -158,14 +158,14 @@ export const guide: Record<string, string> = {
   "guide.faq.groups.evidence.q8":
     "ChainScout 会用 AI 编造答案吗？",
   "guide.faq.groups.evidence.a8":
-    "不会。免账户的研究使用确定性的、可溯源的解读，不会把可选问题发送给 AI 模型。任何未来或可选的模型辅助改写都必须使用明确披露的载荷；事实和引用首先来自经过验证的适配器。",
+    "不会。免账户的私密链上查询使用确定性的、可溯源的解读，不会把可选问题发送给 AI 模型。任何未来或可选的模型辅助改写都必须使用明确披露的载荷；事实和引用首先来自经过验证的适配器。",
 
   "guide.faq.groups.actions.title": "交易、商家与外部操作",
   "guide.faq.groups.actions.intro":
     "ChainScout 在哪里止步，另一个产品从哪里接手。",
   "guide.faq.groups.actions.q1": "我可以在 ChainScout 内执行兑换吗？",
   "guide.faq.groups.actions.a1":
-    "不能。兑换预览解读一个短暂的只读 Uniswap 预览。如果你继续，官方 Uniswap 界面将负责钱包连接、最新报价、授权、签名、费用和执行。",
+    "不能。Scout Swap 解读一个短暂的只读 Uniswap 预览。如果你继续，官方 Uniswap 界面将负责钱包连接、最新报价、授权、签名、费用和执行。",
   "guide.faq.groups.actions.q2":
     "Replay Actions 到底重放什么？",
   "guide.faq.groups.actions.a2":
@@ -220,7 +220,7 @@ export const guide: Record<string, string> = {
   "guide.faq.groups.project.q3":
     "在哪里可以查看哪些已上线、哪些在计划中？",
   "guide.faq.groups.project.a3Before": "使用 ",
-  "guide.faq.groups.project.a3Guide": "选择工具",
+  "guide.faq.groups.project.a3Guide": "开始指南",
   "guide.faq.groups.project.a3BetweenDocs":
     " 了解可用流程和清楚标注的即将上线工具，使用 ",
   "guide.faq.groups.project.a3Docs": "技术文档",

@@ -1,6 +1,8 @@
 import { en, type TranslationKey } from "./dictionaries/en";
 import { zhCN } from "./dictionaries/zh-CN";
 import { readLocaleCookie, type Locale } from "./locale";
+import { opsisOverrides } from "./dictionaries/opsis-overrides";
+import { OPSIS_PRESENTATION } from "../opsis/presentation";
 
 export type TranslateParams = Record<string, string | number>;
 export type { TranslationKey };
@@ -15,6 +17,11 @@ export function interpolate(template: string, params?: TranslateParams): string 
 }
 
 export function lookup(locale: Locale, key: string): string | undefined {
+  // Opsis names replace legacy ChainScout wording only in the Opsis build.
+  if (OPSIS_PRESENTATION) {
+    const overrides = opsisOverrides[locale === "zh-CN" ? "zh-CN" : "en"];
+    if (Object.prototype.hasOwnProperty.call(overrides, key)) return overrides[key];
+  }
   if (locale === "zh-CN" && Object.prototype.hasOwnProperty.call(zhCN, key)) return zhCN[key];
   return Object.prototype.hasOwnProperty.call(en, key) ? en[key as TranslationKey] : undefined;
 }

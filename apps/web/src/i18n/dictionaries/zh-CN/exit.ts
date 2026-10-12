@@ -1,5 +1,5 @@
 export const exit = {
-  "exit.eyebrow": "交易核查 · 只读单池估算",
+  "exit.eyebrow": "退出检查 · 只读单池估算",
   "exit.titleLead": "你实际能",
   "exit.titleAccent": "收到多少？",
   "exit.description": "在捕获的某一区块，估算一个代币通过 Robinhood Chain 官方 Uniswap V3 工厂池可能换回多少。这不是保证成交，也不证明该代币可以卖出。",
@@ -15,7 +15,7 @@ export const exit = {
   "exit.form.check": "检查退出估算",
   "exit.form.note": "不会请求钱包。ChainScout 只从 dRPC Robinhood Chain 网关读取公开池状态。dRPC 是付费网关，可能会将每次读取路由到其网络中的独立节点运营方。",
   "exit.error.title": "退出估算不可用",
-  "exit.error.disabled": "此构建未启用交易核查。",
+  "exit.error.disabled": "此构建未启用退出检查。",
   "exit.error.rateLimited": "Robinhood Chain RPC 提供方正在冷却，请一分钟后重试。",
   "exit.error.reorged": "验证期间区块发生了变化，请重新运行检查。",
   "exit.error.invalidAmount": "请输入与该代币小数位匹配的有效数量。",
@@ -60,8 +60,8 @@ export const exit = {
   "exit.empty.point.impact": "针对同区块现货价的精确 BigInt 手续费与价格影响。",
   "exit.empty.point.boundary": "报价不等于可转移性、可卖出性或保证执行的证明。",
 
-  "product.feature.exit-check.label": "交易核查",
-  "product.feature.exit-check.shortLabel": "交易核查",
+  "product.feature.exit-check.label": "退出检查",
+  "product.feature.exit-check.shortLabel": "退出检查",
   "product.feature.exit-check.helpLabel": "关于退出估算",
   "product.feature.exit-check.eyebrow": "只读池估算",
   "product.feature.exit-check.navHint": "估算代币可能换回多少",
@@ -73,6 +73,6 @@ export const exit = {
   "product.feature.exit-check.step.2": "查看所选工厂池、精确手续费与同区块价格影响。",
   "product.feature.exit-check.step.3": "只有在你选择继续时才打开官方 Uniswap 应用。",
 
-  "metadata.exitCheck.title": "交易核查 | ChainScout",
+  "metadata.exitCheck.title": "退出估算检查 | ChainScout",
   "metadata.exitCheck.description": "针对 Robinhood Chain 上单个代币与数量的只读 Uniswap V3 池估算，包含精确手续费与价格影响数学以及明确的覆盖范围。",
 } as const;

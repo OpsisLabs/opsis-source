@@ -1,5 +1,5 @@
 export const watch = {
-  "watch.title": "观察",
+  "watch.title": "Scout Watch",
   "watch.headline": "关注钱包。看清变化。",
   "watch.intro":
     "私密保存 Robinhood Chain 钱包关注列表。下次查询时，直接查看变化，不必重新梳理一堆数字。",
@@ -18,7 +18,7 @@ export const watch = {
   "watch.lock": "锁定关注列表",
   "watch.backup": "导出加密备份",
   "watch.backupReady": "加密备份已准备好，请妥善保管。",
-  "watch.manageVault": "打开已保存以恢复或管理加密存储",
+  "watch.manageVault": "恢复备份或管理保险库",
   "watch.storageNote":
     "仅保存在本地：请使用同一浏览器和网站。清除网站数据或浏览器回收存储可能导致数据丢失，请导出备份。离开标签页或闲置 10 分钟后自动锁定。",
   "watch.recoveryTitle": "保存恢复密钥",
@@ -89,7 +89,7 @@ export const watch = {
   "watch.addressLink": "查看地址证据",
   "watch.follow.wallet": "关注此钱包",
   "watch.follow.publicAddress": "关注此公开地址",
-  "watch.follow.aria": "在观察中关注 {address}",
+  "watch.follow.aria": "在 Scout Watch 中关注 {address}",
   "watch.prefill.waiting":
     "有一个公开地址（{address}）等待关注。解锁或创建您的保险库以继续——目前不会查询或保存任何内容。",
   "watch.explore": "解读此钱包",
@@ -124,13 +124,13 @@ export const watch = {
   "watch.error.storage": "本地加密存储不可用。请检查浏览器存储权限后重试。",
   "watch.error.locked": "操作完成前关注列表已锁定。",
   "watch.error.refresh": "本次查询未完成，已有快照已保留，请稍后重试。",
-  "watch.error.disabled": "观察暂时不可用。加密关注列表未变。",
-  "watch.metadata.title": "观察 | 私密钱包关注列表 | ChainScout",
+  "watch.error.disabled": "Scout Watch 暂时不可用。加密关注列表未变。",
+  "watch.metadata.title": "Scout Watch | 私密钱包关注列表 | ChainScout",
   "watch.metadata.description":
     "私密保存 Robinhood Chain 钱包，对比手动查询之间的精确余额变化和新发现的活动。",
-  "product.feature.scout-watch.label": "观察",
-  "product.feature.scout-watch.shortLabel": "观察",
-  "product.feature.scout-watch.helpLabel": "关于观察",
+  "product.feature.scout-watch.label": "Scout Watch",
+  "product.feature.scout-watch.shortLabel": "关注列表",
+  "product.feature.scout-watch.helpLabel": "关于 Scout Watch",
   "product.feature.scout-watch.eyebrow": "私密关注列表 · 手动查询",
   "product.feature.scout-watch.navHint": "查看钱包发生了什么变化",
   "product.feature.scout-watch.summary":

@@ -1,4 +1,5 @@
 import { renderToStaticMarkup } from "react-dom/server";
+import { opsisOverrides } from "../i18n/dictionaries/opsis-overrides";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as localeCookie from "../i18n/locale";
@@ -51,7 +52,11 @@ describe("canonical UI copy", () => {
     // and observed swaps describe evidence, not an Opsis destination.
     const retired =
       /\b(?:Private Explorer|Wallet Explorer|Detailed Explorer|Entity research|Scout Watch|Wallet watch|Scout Swap|Swap Lab|Exit check|Exit quotes|Trade Simulator|Stress Test|RWA Verify|Asset Proof|Situation Room|World Map|Holdings & Vault)\b|私密链上查询|退出核查|RWA 验证|态势室|世界地图|兑换实验室/iu;
-    for (const dictionary of [en, zhCN]) {
+    // The Opsis build reads shared dictionaries through the Opsis overrides.
+    for (const dictionary of [
+      { ...en, ...opsisOverrides.en },
+      { ...zhCN, ...opsisOverrides["zh-CN"] },
+    ]) {
       for (const [key, value] of Object.entries(dictionary)) {
         if (key.startsWith("legal.")) continue;
         expect(value, key).not.toMatch(retired);

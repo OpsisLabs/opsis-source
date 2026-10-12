@@ -4,6 +4,12 @@ import * as localeCookie from "../i18n/locale";
 import I18nProvider from "../i18n/I18nProvider";
 import { PrivacyPage, TermsPage } from "./Legal";
 
+// These tests cover the Opsis build; the legacy build keeps its own chrome.
+vi.mock("../opsis/presentation", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../opsis/presentation")>()),
+  OPSIS_PRESENTATION: true,
+}));
+
 describe.each(["en", "zh-CN"] as const)(
   "legal content in the shared shell (%s)",
   (locale) => {

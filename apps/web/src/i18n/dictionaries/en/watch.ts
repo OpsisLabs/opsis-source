@@ -1,5 +1,5 @@
 export const watch = {
-  "watch.title": "Watch",
+  "watch.title": "Scout Watch",
   "watch.headline": "Follow wallets. Catch the changes.",
   "watch.intro":
     "Keep a private watchlist of Robinhood Chain wallets. Check again to see what changed—not another wall of numbers.",
@@ -18,7 +18,7 @@ export const watch = {
   "watch.lock": "Lock watchlist",
   "watch.backup": "Export encrypted backup",
   "watch.backupReady": "Encrypted backup ready. Keep it somewhere safe.",
-  "watch.manageVault": "Open Saved to restore or manage encrypted storage",
+  "watch.manageVault": "Restore a backup or manage your Vault",
   "watch.storageNote":
     "Local-only: use this same browser and site. Clearing site data or browser eviction can remove it. Export backups. Locks when you leave the tab or after 10 minutes idle.",
   "watch.recoveryTitle": "Save your recovery key",
@@ -93,7 +93,7 @@ export const watch = {
   "watch.addressLink": "Open address evidence",
   "watch.follow.wallet": "FOLLOW THIS WALLET",
   "watch.follow.publicAddress": "FOLLOW THIS PUBLIC ADDRESS",
-  "watch.follow.aria": "Follow {address} in Watch",
+  "watch.follow.aria": "Follow {address} in Scout Watch",
   "watch.prefill.waiting":
     "A public address ({address}) is waiting to follow. Unlock or create your Vault to continue—nothing is looked up or saved yet.",
   "watch.explore": "Explain this wallet",
@@ -136,13 +136,13 @@ export const watch = {
   "watch.error.refresh":
     "This check could not finish. Existing saved snapshots were kept; try again later.",
   "watch.error.disabled":
-    "Watch is temporarily unavailable. Your encrypted watchlist is unchanged.",
-  "watch.metadata.title": "Watch | Private wallet watchlist | ChainScout",
+    "Scout Watch is temporarily unavailable. Your encrypted watchlist is unchanged.",
+  "watch.metadata.title": "Scout Watch | Private wallet watchlist | ChainScout",
   "watch.metadata.description":
     "Save Robinhood Chain wallets privately and compare exact balance changes and newly observed activity between on-demand checks.",
-  "product.feature.scout-watch.label": "Watch",
-  "product.feature.scout-watch.shortLabel": "Watch",
-  "product.feature.scout-watch.helpLabel": "About Watch",
+  "product.feature.scout-watch.label": "Scout Watch",
+  "product.feature.scout-watch.shortLabel": "Watchlist",
+  "product.feature.scout-watch.helpLabel": "About Scout Watch",
   "product.feature.scout-watch.eyebrow": "PRIVATE WATCHLIST · ON DEMAND",
   "product.feature.scout-watch.navHint": "See what changed in a wallet",
   "product.feature.scout-watch.summary":

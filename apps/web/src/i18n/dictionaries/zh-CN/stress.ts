@@ -1,8 +1,8 @@
 export const stress = {
-  "stress.metadata.title": "投资组合冲击 | ChainScout",
+  "stress.metadata.title": "组合压力测试 | ChainScout",
   "stress.metadata.description":
     "试试假设的市场波动，无需钱包或账户，查看组合集中度与情景影响。",
-  "stress.eyebrow": "投资组合冲击",
+  "stress.eyebrow": "组合压力测试",
   "stress.title": "如果你最大的持仓下跌，会怎样？",
   "stress.intro": "选择价格变动，看看组合总值如何变化。",
   "stress.example": "示例组合 · 非实时持仓",
@@ -59,7 +59,7 @@ export const stress = {
   "stress.receipt.create": "预览分享卡片",
   "stress.receipt.busy": "正在生成图片…",
   "stress.receipt.ready": "下载或分享前请先查看预览。",
-  "stress.receipt.alt": "投资组合冲击分享卡片预览",
+  "stress.receipt.alt": "组合压力测试分享卡片预览",
   "stress.receipt.download": "下载图片",
   "stress.receipt.share": "分享图片",
   "stress.receipt.error": "无法生成图片。你的情景未发生变化，请重试。",
@@ -72,9 +72,9 @@ export const stress = {
   "stress.receipt.notForecast":
     "假设价格。未计入费用、税费、流动性或相关性模型。",
   "stress.receipt.cta": "试试你自己的假设情景。",
-  "product.feature.portfolio-stress-test.label": "投资组合冲击",
-  "product.feature.portfolio-stress-test.shortLabel": "投资组合冲击",
-  "product.feature.portfolio-stress-test.helpLabel": "关于投资组合冲击",
+  "product.feature.portfolio-stress-test.label": "组合压力测试",
+  "product.feature.portfolio-stress-test.shortLabel": "压力测试",
+  "product.feature.portfolio-stress-test.helpLabel": "关于组合压力测试",
   "product.feature.portfolio-stress-test.eyebrow": "试试假设情景 · 无需钱包",
   "product.feature.portfolio-stress-test.navHint": "查看你的组合敞口",
   "product.feature.portfolio-stress-test.summary":
@@ -82,7 +82,7 @@ export const stress = {
   "product.feature.portfolio-stress-test.bestFor":
     "了解持仓集中度以及所选情景的影响。",
   "product.feature.portfolio-stress-test.privacy":
-    "所有数值仅保留在页面内存中。无钱包、保险库、服务商查询或自动保存。分享图片由你明确选择。",
+    "所有数值仅保留在页面内存中。无钱包、Vault、服务商查询或自动保存。分享图片由你明确选择。",
   "product.feature.portfolio-stress-test.boundary":
     "假设的美元数值，并非实时价格、预测或分散化评分。未建模相关性、杠杆和交易成本。",
   "product.feature.portfolio-stress-test.step.1":
@@ -167,14 +167,14 @@ export const stress = {
   "stress.error.moves": "情景变动必须与当前持仓对应。",
   "stress.error.moveValue":
     "请为每个持仓输入 −100% 到 +100% 之间的整数变动。",
-  "stress.import.open": "从本地保险库导入所选数值",
+  "stress.import.open": "从本地 Vault 导入所选数值",
   "stress.import.intro":
-    "以只读方式解锁本地加密保险库，并导入特定持仓总值。仅为你选择的数值——并非完整的实时组合。",
-  "stress.import.badge": "已选保险库数值 · 非完整实时组合",
-  "stress.import.loading": "正在检查此设备上的本地保险库……",
-  "stress.import.empty": "此设备上未找到本地保险库。",
-  "stress.import.emptyLink": "打开已保存",
-  "stress.import.passphrase": "保险库口令",
+    "以只读方式解锁本地加密 Vault，并导入特定持仓总值。仅为你选择的数值——并非完整的实时组合。",
+  "stress.import.badge": "已选 Vault 数值 · 非完整实时组合",
+  "stress.import.loading": "正在检查此设备上的本地 Vault……",
+  "stress.import.empty": "此设备上未找到本地 Vault。",
+  "stress.import.emptyLink": "创建 Vault",
+  "stress.import.passphrase": "Vault 口令",
   "stress.import.unlock": "解锁并选择",
   "stress.import.unlocking": "正在解锁……",
   "stress.import.select": "包含 {asset}",
@@ -214,9 +214,9 @@ export const stress = {
     "仅保存了购买成本。购买成本并非当前价值。请输入已确认的总值。",
   "stress.import.reason.overLimit":
     "已保存数值超过单个持仓 1,000,000,000 美元的上限。请输入更小的已确认总值。",
-  "stress.import.error.missing": "此设备上未找到本地保险库。",
-  "stress.import.error.unlock": "无法使用该口令解锁保险库。",
-  "stress.import.error.storage": "此浏览器不支持本地保险库存储。",
+  "stress.import.error.missing": "此设备上未找到本地 Vault。",
+  "stress.import.error.unlock": "无法使用该口令解锁 Vault。",
+  "stress.import.error.storage": "此浏览器不支持本地 Vault 存储。",
   "stress.receipt.disabledAdvanced":
     "当逐项变动或配置比较处于打开状态时无法导出图片，因为简单的分享卡片与该情景不符。关闭后即可导出简单情景。",
 };

@@ -43,24 +43,24 @@ export const common: Record<string, string> = {
   "metadata.home.title": "ChainScout — 私密多资产工作台",
   "metadata.home.description":
     "在一个加密的本地保险库中追踪加密货币、NFT、代币化资产、宝可梦卡牌、收藏品及其他一切，然后查看可溯源的 Robinhood Chain 链上活动。",
-  "metadata.explorer.title": "研究 | ChainScout",
+  "metadata.explorer.title": "私密链上查询 | ChainScout",
   "metadata.explorer.description":
     "用可溯源的证据解读公开的 Robinhood Chain 钱包、交易、代币或合约——无需连接钱包或创建账户。",
-  "metadata.vault.title": "已保存 | ChainScout",
+  "metadata.vault.title": "加密资产保险库 | ChainScout",
   "metadata.vault.description":
     "在加密的浏览器本地保险库中追踪加密货币、NFT、代币化资产、卡牌、收藏品、买入批次、照片和带日期的价值。",
-  "metadata.rwa.title": "股票代币核查 | ChainScout",
+  "metadata.rwa.title": "RWA 验证 | ChainScout",
   "metadata.rwa.description":
     "查看可溯源的 Robinhood Chain 代币化资产身份、托管、预言机、收益和赎回证据，并明确列出各项局限。",
-  "metadata.swap.title": "兑换预览 | ChainScout",
+  "metadata.swap.title": "Scout Swap 预览 | ChainScout",
   "metadata.swap.description":
     "在将执行交给官方 Uniswap 应用之前，预览当前 Robinhood Chain 的兑换路径、模拟、价格影响和网络费用。",
-  "metadata.simulator.title": "交易情景 | ChainScout",
+  "metadata.simulator.title": "交易模拟器 | ChainScout",
   "metadata.simulator.description":
     "基于最新报价比较私密的假设交易场景及其对投资组合的影响，不执行任何交易。",
-  "metadata.guide.title": "选择工具 | ChainScout",
+  "metadata.guide.title": "功能指南 | ChainScout",
   "metadata.guide.description":
-    "按照清晰的流程使用 ChainScout 的研究、加密保险库、投资组合工具、股票代币核查和只读兑换预览。",
+    "按照清晰的流程使用 ChainScout 的私密链上查询、加密保险库、投资组合工具、RWA 验证和只读兑换预览。",
   "metadata.docs.title": "技术文档 | ChainScout",
   "metadata.docs.description":
     "了解 ChainScout 如何处理公开链上数据、引用来源、加密的浏览器本地记录、提供商边界和只读交易预览。",

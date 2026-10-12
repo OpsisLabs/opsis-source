@@ -5,11 +5,11 @@ export const cloud = {
   "cloud.rail.brand": "CHAINSCOUT",
   "cloud.rail.newSession": "NEW SESSION",
   "cloud.rail.creating": "CREATING…",
-  "cloud.rail.scoutSwap": "Swap preview",
+  "cloud.rail.scoutSwap": "SCOUT SWAP",
   "cloud.rail.private": "PRIVATE",
-  "cloud.rail.vault": "Saved",
-  "cloud.rail.rwa": "Stock-token check",
-  "cloud.rail.guide": "Find your tool",
+  "cloud.rail.vault": "VAULT",
+  "cloud.rail.rwa": "RWA",
+  "cloud.rail.guide": "GUIDE",
   "cloud.rail.sessions": "SESSIONS",
   "cloud.rail.aiMessages": "AI MESSAGES",
   "cloud.rail.chainLookups": "CHAIN LOOKUPS",
@@ -71,7 +71,7 @@ export const cloud = {
   "cloud.chat.verifyLink": "Verify {id} on Blockscout",
   "cloud.chat.copyHash": "COPY HASH",
   "cloud.chat.copyAddressAction": "COPY ADDRESS",
-  "cloud.chat.explorer": "Block explorer",
+  "cloud.chat.explorer": "EXPLORER",
   "cloud.chat.holders": "HOLDERS",
   "cloud.chat.transfers": "TRANSFERS",
   "cloud.chat.share": "SHARE",
@@ -227,9 +227,9 @@ export const cloud = {
   "cloud.http.portfolioBudgetUnavailable":
     "The free-tier portfolio safety guard is unavailable, so refresh failed closed. Try again shortly.",
   "cloud.http.rwaVerifyDisabled":
-    "Stock-token check is paused. No contract data was sent or saved.",
+    "RWA Verify is paused. No contract data was sent or saved.",
   "cloud.http.rwaDailyBudget":
-    "Today's free Stock-token check budget has been reached. Try again tomorrow.",
+    "Today's free RWA verification budget has been reached. Try again tomorrow.",
   "cloud.http.rwaBudgetUnavailable":
     "The free-tier RWA safety guard is unavailable, so verification failed closed.",
   "cloud.http.rwaAnchorChanged":
@@ -283,8 +283,8 @@ export const cloud = {
   "cloud.auth.savedResearch": "SAVED RESEARCH",
   "cloud.auth.readOnly": "READ-ONLY · NO TRANSACTIONS · NO APPROVALS",
   "cloud.auth.disclaimer": "Informational only. Not financial advice.",
-  "cloud.auth.openPrivateExplorer": "Open Research",
-  "cloud.auth.openLocalVault": "Open Saved",
+  "cloud.auth.openPrivateExplorer": "Open Private Explorer",
+  "cloud.auth.openLocalVault": "Open local Vault",
   "cloud.auth.metamaskNotDetected":
     "MetaMask was not detected in this browser.",
   "cloud.auth.installMetamask": "INSTALL METAMASK",
@@ -306,13 +306,13 @@ export const cloud = {
   "cloud.auth.login.footerFirst": "First time here? ",
   "cloud.auth.login.footerPrivate": "Learn how the private tools work: ",
   "cloud.auth.login.createAccount": "Create an account",
-  "cloud.auth.login.featureGuide": "Find your tool",
+  "cloud.auth.login.featureGuide": "Feature guide",
   "cloud.auth.register.title": "Create your account",
   "cloud.auth.register.titlePrivate": "Use ChainScout privately",
   "cloud.auth.register.sub":
     "Connect a wallet and pick a username. No email, no password. The free tier includes 500 AI messages and 5,000 chain lookups per month.",
   "cloud.auth.register.subPrivate":
-    "You do not need an account for Research or the local Vault.",
+    "You do not need an account for Private Explorer or the local Vault.",
   "cloud.auth.register.footer": "Already have an account? ",
   "cloud.auth.register.signIn": "Sign in",
 
@@ -379,7 +379,7 @@ export const cloud = {
   "cloud.history.cancel": "Cancel",
   "cloud.history.footnote":
     "Same browser profile and site address only. Unlock again after restarting or leaving this page. Clearing site data, private browsing, browser eviction, or a lost passphrase can lose access. Export backups regularly; storage permission is not a guarantee.",
-  "cloud.history.setupLink": "Saved: setup, backup restore & recovery",
+  "cloud.history.setupLink": "Vault setup, backup restore & recovery",
   "cloud.history.savedLabel": "Saved {date}",
   "cloud.history.defaultQuestion": "Explain this public identifier",
   "cloud.history.savedSources": "{count} saved sources",

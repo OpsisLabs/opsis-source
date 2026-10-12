@@ -1,9 +1,9 @@
 export const rwa = {
   "rwa.header.home": "ChainScout home",
-  "rwa.header.badge": "Stock-token check",
-  "rwa.header.vault": "Saved",
+  "rwa.header.badge": "RWA VERIFY",
+  "rwa.header.vault": "VAULT",
   "rwa.header.privateMode": "PRIVATE MODE",
-  "rwa.eyebrow": "Stock-token check · public evidence",
+  "rwa.eyebrow": "RWA Verify · public evidence",
   "rwa.title.line1": "Know what the token",
   "rwa.title.line2": "actually represents.",
   "rwa.description":
@@ -17,7 +17,7 @@ export const rwa = {
   "rwa.disclosure.history.value": "NONE",
   "rwa.disclosure.ai.label": "AI UPLOAD",
   "rwa.disclosure.ai.value": "NONE",
-  "rwa.form.title": "Stock-token check",
+  "rwa.form.title": "RWA EVIDENCE INSPECTOR",
   "rwa.form.network": "ROBINHOOD CHAIN · 4663",
   "rwa.form.addressLabel": "TOKEN OR VAULT CONTRACT",
   "rwa.form.addressPlaceholder": "0x…",

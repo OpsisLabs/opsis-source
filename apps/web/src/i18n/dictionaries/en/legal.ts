@@ -87,9 +87,16 @@ export const legal = {
     "The local Vault can export a versioned encrypted backup and request browser storage persistence. Persistence lowers automatic-eviction risk but is not a backup. Clearing site data, using private browsing, losing the device, or moving to a different site origin can remove access to the Vault. An exported backup can be restored with the passphrase that existed when it was exported, or recovered with that backup's matching one-time recovery code and a new passphrase. Changing a live Vault passphrase or using recovery does not update older downloaded files. The code rotates after use and is never stored by ChainScout. Losing the passphrase, recovery code, and usable backup is irreversible. Local deletion removes only the Vault IndexedDB database after the browser confirms it; it does not delete unrelated ChainScout browser state.",
 
   "legal.privacy.s08.title": "Contact",
-  "legal.privacy.s08.prefix": "ChainScout is currently operated as an independent source-available beta.",
   "legal.privacy.s08.contact": "A support and security contact is to be published on this page.",
-  "legal.privacy.s08.suffix": "Do not post a Vault passphrase, recovery code, wallet secret, account credential, or other private data. This policy may be updated as the product evolves; material changes will be noted on this page.",
+  "legal.privacy.s08.prefix":
+    "ChainScout is currently operated as an independent source-available beta. General product questions can be submitted through the public project support tracker at ",
+  "legal.privacy.s08.issuesLink":
+    "github.com/ChainScoutAi/chainscout-source/issues",
+  "legal.privacy.s08.between":
+    ". Report suspected vulnerabilities through ",
+  "legal.privacy.s08.vulnerabilityLink": "private vulnerability reporting",
+  "legal.privacy.s08.suffix":
+    ", not public issues. Do not post a Vault passphrase, recovery code, wallet secret, account credential, or other private data. This policy may be updated as the product evolves; material changes will be noted on this page.",
 
   "legal.privacy.s09.title": "Credentialless Open Data API",
   "legal.privacy.s09.p1":

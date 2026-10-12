@@ -1,9 +1,9 @@
 export const rwa: Record<string, string> = {
   "rwa.header.home": "ChainScout 主页",
-  "rwa.header.badge": "股票代币核查",
-  "rwa.header.vault": "已保存",
+  "rwa.header.badge": "RWA 验证",
+  "rwa.header.vault": "保险库",
   "rwa.header.privateMode": "私密模式",
-  "rwa.eyebrow": "股票代币核查 · 公开证据",
+  "rwa.eyebrow": "RWA 验证 · 公开证据",
   "rwa.title.line1": "看清这个代币",
   "rwa.title.line2": "究竟代表什么。",
   "rwa.description":
@@ -17,7 +17,7 @@ export const rwa: Record<string, string> = {
   "rwa.disclosure.history.value": "无",
   "rwa.disclosure.ai.label": "AI 上传",
   "rwa.disclosure.ai.value": "无",
-  "rwa.form.title": "股票代币核查",
+  "rwa.form.title": "RWA 证据检查器",
   "rwa.form.network": "ROBINHOOD CHAIN · 4663",
   "rwa.form.addressLabel": "代币或保险库合约",
   "rwa.form.addressPlaceholder": "0x…",

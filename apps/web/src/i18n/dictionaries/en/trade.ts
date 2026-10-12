@@ -3,10 +3,10 @@ export const trade = {
   "trade.common.notSupplied": "Not supplied",
 
   "trade.swap.homeLabel": "ChainScout home",
-  "trade.swap.publicPreview": "Swap preview · PUBLIC PREVIEW",
+  "trade.swap.publicPreview": "SCOUT SWAP · PUBLIC PREVIEW",
   "trade.swap.roadmap": "ROADMAP",
   "trade.swap.noWalletData": "NO WALLET DATA",
-  "trade.swap.eyebrow": "Swap preview · read-only preview",
+  "trade.swap.eyebrow": "Scout Swap · read-only preview",
   "trade.swap.titleLead": "See the trade",
   "trade.swap.titleAccent": "before the trade.",
   "trade.swap.description": "Preview a current WETH/USDG route, estimated output and costs. The official Uniswap app requotes and handles every approval, signature and transaction.",
@@ -78,7 +78,7 @@ export const trade = {
   "trade.quote.openNewQuote": "OPEN UNISWAP FOR A NEW QUOTE",
   "trade.quote.prefilled": "Pair and amount are prefilled; Uniswap independently requotes.",
 
-  "trade.simulator.title": "Trade scenarios",
+  "trade.simulator.title": "Trade Simulator",
   "trade.simulator.description": "Compare a WETH/USDG what-if with a fresh quote. Your balances and reference price stay in this browser; only the pair and trade amount go to ChainScout and Uniswap. No signing or execution.",
   "trade.simulator.tryAria": "Try a trade",
   "trade.simulator.tryEyebrow": "Try it. No wallet needed.",
