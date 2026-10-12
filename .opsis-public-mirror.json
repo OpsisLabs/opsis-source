@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "b4cff4755aabe5247e89c0fd9bc5e159af0c2af2099a6abab0d71430f8931a00",
+  "sourceTreeDigest": "963349aeb94e37f705bee96053e5e3d9c36ba7ccb35bdc2f22ea0691d2dbb97c",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "44317ccd1802e860d42d47f65f15d179725e7a90ce0ecb9af99779c0f70e5276",
@@ -754,7 +754,7 @@
     "pnpm-workspace.yaml": "08d75840c97ab0e72d1d9b5b84a17e47a2e06cb159a5fbec5ee0a6a56682dad7",
     "public-source-policy.json": "c105308e1a537faade1bbb7fe42cdab556dc9d780850983e810cbaac75079c6a",
     "README.md": "f10ccc4c400c96f13d6b8d62970f5878907aae222edea0ef0a5ae61f86c9cffa",
-    "release-train.json": "456405ed8c6348d9360be1f68833c834d6bbd683feefaf39b06a4b2146e7d8e2",
+    "release-train.json": "49d275c82d6913743829e34c8d885e21bdca3e90dc8eb43c0225f7019fe54cff",
     "scripts/audit-production-dependencies.mjs": "24bcfb5b02ef4e5a007a330215de123e9a8013207f779ddd5fdf9c2a3150940f",
     "scripts/check-production-licenses.mjs": "e6fb60d044dc505ea37c0bdb280e657385c4172cef41e06c7c93a7824cb8849b",
     "scripts/export-public-history.mjs": "1e9ce0d89dcace0e0e16750bceb442b95cc493a91b97bdcbdf49e118332db5ee",

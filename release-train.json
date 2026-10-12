@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "26-opsis-workspaces",
+  "activeRelease": "27-flow-polish",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement. Exception: dRPC under Opsis decision D20, admitted only while it does not request identity or business verification.",
@@ -312,7 +312,7 @@
       "id": "26-opsis-workspaces",
       "branch": "codex/26-opsis-workspaces",
       "tagPrefix": "rc/26-opsis-workspaces/",
-      "status": "active",
+      "status": "released",
       "dependencies": [
         "25-biggest-trades",
         "03-encrypted-vault",
@@ -328,7 +328,7 @@
       "id": "27-flow-polish",
       "branch": "codex/27-flow-polish",
       "tagPrefix": "rc/27-flow-polish/",
-      "status": "queued",
+      "status": "active",
       "dependencies": [
         "26-opsis-workspaces"
       ],
