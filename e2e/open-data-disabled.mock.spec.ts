@@ -10,7 +10,7 @@ test("cloud-off build offers private tools without requesting a wallet signature
     await page.goto(path);
     await expect(page.getByRole("status")).toContainText("Cloud research is coming in a future update");
     await expect(page.getByRole("button", { name: "CONNECT WALLET" })).toHaveCount(0);
-    await expect(page.getByRole("link", { name: "Open local Vault" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Open Saved" })).toBeVisible();
   }
   await page.getByRole("link", { name: "Open Research" }).click();
   await expect(page).toHaveURL(/\/app$/);

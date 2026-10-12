@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "c35c0fd76d4627ef675959b1650177f70cba43145dbf99f779e417bc3fcc060b",
+  "sourceTreeDigest": "82e76a7628fefcc32ed8588e8f74a9ea4c87b52393955bcd4ef293f5b850fa61",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "528a6101cbe6263a09c6f2e2573815f0752057ad6a4310f064c7c435f41f9cdf",
@@ -374,7 +374,7 @@
     "apps/web/src/i18n/dictionaries/zh-CN/guide.ts": "df230ba2b84b4cefb301b4dc945596b864a2b948b749d7df02749b6f44e97453",
     "apps/web/src/i18n/dictionaries/zh-CN/index.ts": "3d7059c4a878249d3bfdb74983e331ad2d8d7f860d8dad12a10a3bf30412a4f5",
     "apps/web/src/i18n/dictionaries/zh-CN/landing.ts": "e8c0895bbefaebf2e509e334083bd6ea4be436ecebf48f88436294f180b68566",
-    "apps/web/src/i18n/dictionaries/zh-CN/legal.ts": "e970ee7e4fb9ea21e72c8496ef0cfe6175af55baf159e0a9465b21fde9d6f405",
+    "apps/web/src/i18n/dictionaries/zh-CN/legal.ts": "029aaed20c345faaf63556a313aad6da82c8dc51addc95929e9331827669e9a3",
     "apps/web/src/i18n/dictionaries/zh-CN/market.ts": "7e98835de3d2336ac634ff76c8fe5cea6b4bfb974ad11cce59ec3b4cbe1a8714",
     "apps/web/src/i18n/dictionaries/zh-CN/overlap.ts": "e16390c031173ea3b253fa47823ca56830e8b7c140f7e6bb8400eb6c6cd87d20",
     "apps/web/src/i18n/dictionaries/zh-CN/portfolio.ts": "883f1e49a89659c59ec62c37b11a4d8a3781b071aa9fc932fa3f4277868e1feb",
@@ -702,7 +702,7 @@
     "e2e/launch-hardening.mock.spec.ts": "e9fb771250a1d1a67b6c676199648061d4a4879cd029ca0bb8033d75ca7c0f27",
     "e2e/localization.mock.spec.ts": "9c871d19f176329957fd42f0c1e9367cdb8610247c2d887865c647fdc0a83fae",
     "e2e/market.mock.spec.ts": "930682945ab9ecc5d132cfac9b1b78cbf526e984f1c56a328f6fc8f1192397f2",
-    "e2e/open-data-disabled.mock.spec.ts": "2916f90295cd29ede83b2a9ffb6cfe4b874512d52f630583763681bfb56c6dd5",
+    "e2e/open-data-disabled.mock.spec.ts": "2a4643310f2eef08e613b2a0ff26510bd2addb11621d425fc66eec08c3432232",
     "e2e/open-data.mock.spec.ts": "2cc2f930366c6b4d5911e327bc949e3345125a9239be405567e6a466425074df",
     "e2e/opsis-basis.mock.spec.ts": "9c651d897f946c29eb88d377f0c1d3af2792f9ae769439922ed1dc5803af1326",
     "e2e/opsis-controls.mock.spec.ts": "332f35c8c16d8d43306da181f0150c90ffb619c2b8ba7bed6c6b5d3e89dd9126",
