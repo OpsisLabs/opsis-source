@@ -11,6 +11,17 @@ const enabled =
 const TOKEN = fixture().input.contract;
 const passphrase = "test-only-opsis-reports-passphrase";
 const note = "PRIVATE-OPSIS-CONDITION-CANARY";
+// A click issued within milliseconds of a save completing has occasionally not
+// navigated (2 of 8 full-list runs, never in isolation; tracked in the release
+// 28 record). Retry it and require the navigation, so the journey is verified
+// and a link that never navigates still fails.
+async function openSavedReports(page: Page) {
+  await expect(async () => {
+    if (!/\/saved\?view=reports$/.test(page.url()))
+      await page.getByRole("link", { name: "Open saved reports" }).click({ timeout: 2000 });
+    await expect(page).toHaveURL(/\/saved\?view=reports$/, { timeout: 2000 });
+  }).toPass({ timeout: 15000 });
+}
 async function unlockReports(page: Page) {
   await page.getByLabel("History Vault passphrase").fill(passphrase);
   await page.getByRole("button", { name: "Unlock report history" }).click();
@@ -149,7 +160,7 @@ test.describe("Opsis connected workflows", () => {
     await expect(
       page.getByRole("button", { name: "Saved on this device" }),
     ).toBeDisabled();
-    await page.getByRole("link", { name: "Open saved reports" }).click();
+    await openSavedReports(page);
     await expect(page.getByText(note, { exact: false })).toHaveCount(0);
     await unlockReports(page);
     await page.getByRole("button", { name: /^Fixture Token/ }).click();
@@ -177,7 +188,7 @@ test.describe("Opsis connected workflows", () => {
     await expect(
       page.getByRole("button", { name: "Saved on this device" }),
     ).toBeDisabled();
-    await page.getByRole("link", { name: "Open saved reports" }).click();
+    await openSavedReports(page);
     await page.reload();
     await unlockReports(page);
     await page
