@@ -1,18 +1,173 @@
 {
   "allow": [
     {
+      "path": "apps/api/src/http/csrf.ts",
+      "text": "chainscout",
+      "why": "Accepts the old request header while the API is deployed before the web; remove in the next release."
+    },
+    {
+      "path": "apps/api/test/cookie-auth.test.ts",
+      "text": "chainscout",
+      "why": "Test of a retained compatibility identifier."
+    },
+    {
+      "path": "apps/web/src/i18n/i18n.test.ts",
+      "text": "chainscout",
+      "why": "Test of a retained compatibility identifier."
+    },
+    {
+      "path": "apps/web/src/i18n/locale.ts",
+      "text": "chainscout",
+      "why": "Reads the earlier language-preference cookie when the new one is absent."
+    },
+    {
+      "path": "apps/web/src/kol/workspace.test.ts",
+      "text": "chainscout",
+      "why": "Test of a retained compatibility identifier."
+    },
+    {
+      "path": "apps/web/src/kol/workspace.ts",
+      "text": "chainscout",
+      "why": "Database name and authenticated envelope format of existing device workspaces."
+    },
+    {
+      "path": "apps/web/src/open-data/api.test.ts",
+      "text": "chainscout",
+      "why": "Test of a retained compatibility identifier."
+    },
+    {
+      "path": "apps/web/src/replay/model.test.ts",
+      "text": "chainscout",
+      "why": "Test of a retained compatibility identifier."
+    },
+    {
+      "path": "apps/web/src/vault/compatibility.test.ts",
+      "text": "chainscout",
+      "why": "Test of a retained compatibility identifier."
+    },
+    {
+      "path": "apps/web/src/vault/compatibility.test.ts",
+      "text": "chainScout",
+      "why": "Test of a retained compatibility identifier."
+    },
+    {
+      "path": "apps/web/src/vault/compatibility.ts",
+      "text": "chainscout",
+      "why": "Normalizes old provenance values and field names in saved records."
+    },
+    {
+      "path": "apps/web/src/vault/compatibility.ts",
+      "text": "chainScout",
+      "why": "Normalizes old provenance values and field names in saved records."
+    },
+    {
+      "path": "apps/web/src/vault/crypto.test.ts",
+      "text": "chainscout",
+      "why": "Test of a retained compatibility identifier."
+    },
+    {
+      "path": "apps/web/src/vault/crypto.test.ts",
+      "text": "chainScout",
+      "why": "Test of a retained compatibility identifier."
+    },
+    {
+      "path": "apps/web/src/vault/crypto.ts",
+      "text": "chainscout",
+      "why": "Encryption contexts and manifest format bound into existing encrypted data."
+    },
+    {
+      "path": "apps/web/src/vault/db.ts",
+      "text": "chainscout",
+      "why": "IndexedDB name of existing encrypted Vaults."
+    },
+    {
+      "path": "apps/web/src/vault/demo.test.ts",
+      "text": "CHAINSCOUT",
+      "why": "Test of a retained compatibility identifier."
+    },
+    {
+      "path": "apps/web/src/vault/demo.ts",
+      "text": "CHAINSCOUT",
+      "why": "Recognizes demo records saved before the rename."
+    },
+    {
+      "path": "apps/web/src/vault/legacy-backup.fixture.json",
+      "text": "chainscout",
+      "why": "Backup produced by the pre-rename implementation; proves old backups still import."
+    },
+    {
+      "path": "apps/web/src/vault/types.ts",
+      "text": "chainscout",
+      "why": "Format marker of existing Vault metadata and backups, accepted on import."
+    },
+    {
+      "path": "docs/opsis/compatibility-identifiers.md",
+      "text": "chainscout",
+      "why": "Documents the retained compatibility identifiers."
+    },
+    {
+      "path": "docs/opsis/compatibility-identifiers.md",
+      "text": "chainScout",
+      "why": "Documents the retained compatibility identifiers."
+    },
+    {
+      "path": "docs/opsis/compatibility-identifiers.md",
+      "text": "CHAINSCOUT",
+      "why": "Documents the retained compatibility identifiers."
+    },
+    {
+      "path": "e2e/collectibles.mock.spec.ts",
+      "text": "chainscout",
+      "why": "Test of a retained compatibility identifier."
+    },
+    {
+      "path": "e2e/kol-tracker.mock.spec.ts",
+      "text": "chainscout",
+      "why": "Test of a retained compatibility identifier."
+    },
+    {
+      "path": "e2e/launch-hardening.mock.spec.ts",
+      "text": "chainscout",
+      "why": "Test of a retained compatibility identifier."
+    },
+    {
+      "path": "e2e/market.mock.spec.ts",
+      "text": "chainscout",
+      "why": "Test of a retained compatibility identifier."
+    },
+    {
+      "path": "e2e/opsis-wiring.mock.spec.ts",
+      "text": "chainscout",
+      "why": "Test of a retained compatibility identifier."
+    },
+    {
+      "path": "e2e/private-mode.mock.spec.ts",
+      "text": "chainscout",
+      "why": "Test of a retained compatibility identifier."
+    },
+    {
+      "path": "e2e/replay.mock.spec.ts",
+      "text": "chainscout",
+      "why": "Test of a retained compatibility identifier."
+    },
+    {
+      "path": "e2e/vault.mock.spec.ts",
+      "text": "chainscout",
+      "why": "Test of a retained compatibility identifier."
+    },
+    {
       "path": "scripts/check-product-name.mjs",
-      "text": "\u0073\u0063\u006f\u0075\u0074\u0077\u0061\u0074\u0063\u0068",
+      "text": "eureka²",
       "why": "The checker defines the forbidden-name pattern."
     },
     {
       "path": "scripts/check-product-name.mjs",
-      "text": "\u0073\u0063\u006f\u0075\u0074\u0073\u0077\u0061\u0070",
+      "text": "scoutswap",
       "why": "The checker defines the forbidden-name pattern."
     },
     {
       "path": "scripts/check-product-name.mjs",
-      "text": "\u0065\u0075\u0072\u0065\u006b\u0061\u00b2",
+      "text": "scoutwatch",
       "why": "The checker defines the forbidden-name pattern."
     }
   ]

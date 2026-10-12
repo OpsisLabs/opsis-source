@@ -1280,3 +1280,8 @@
 .opsis #opsis-content h1[tabindex="-1"]:focus {
   outline: none;
 }
+
+/* The build identifier is one 40-character word; let it wrap on narrow screens. */
+.opsis .opsis-status-summary {
+  overflow-wrap: anywhere;
+}

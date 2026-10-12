@@ -48,6 +48,39 @@ test.describe("Opsis compact layout", () => {
       ).toBeLessThanOrEqual(375);
     });
   }
+  test("opsis preview layout data status wraps a full build identifier", async ({
+    page,
+  }) => {
+    const flags = { research: true, tokenControls: false, exitCheck: true, watch: true, rwa: true, observedTrades: true };
+    const build = "0123456789abcdef0123456789abcdef01234567";
+    await page.route("**/v1/private/opsis/access", (route) =>
+      route.fulfill({
+        json: {
+          expiresAt: new Date(Date.now() + 3600000).toISOString(),
+          chainId: 4663,
+          ...flags,
+          swapPreview: false,
+          perpExecution: false,
+          manifest: {
+            version: 1,
+            chain: { id: 4663, name: "Robinhood Chain" },
+            build,
+            capabilities: Object.entries(flags).map(([id, enabled]) => ({
+              id, enabled,
+              scope: "bounded test scope", origin: "live on request",
+              freshness: "per request", coverage: "partial", limits: "provider health unknown",
+            })),
+          },
+        },
+      }),
+    );
+    await page.goto("/status");
+    await expect(page.getByText(`Build ${build}.`, { exact: false })).toBeVisible();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
+    ).toBeLessThanOrEqual(0);
+  });
+
   test("opsis preview layout privacy uses one main and one language switcher", async ({
     page,
   }) => {

@@ -53,16 +53,16 @@ describe("browser privacy static boundary", () => {
       "utf8",
     );
     const socialImage = readFileSync(
-      resolve(repositoryRoot, "apps/web/public/og-command-center-v2.png"),
+      resolve(repositoryRoot, "apps/web/public/og-opsis-v1.png"),
     );
     expect(index).toContain(
-      "Opsis — Private Multi-Asset Command Center",
+      "Opsis — See the bigger picture.",
     );
     expect(index).toContain(
-      "Track crypto, NFTs, tokenized assets, Pokémon cards, collectibles",
+      "Research public evidence, check exits, watch changes and explore captured market data with Opsis.",
     );
     expect(index).toContain(
-      "__OPSIS_PUBLIC_SITE_URL__/og-command-center-v2.png",
+      "__OPSIS_PUBLIC_SITE_URL__/og-opsis-v1.png",
     );
     expect(index).not.toContain("Crypto, without the headache");
     expect(socialImage.subarray(1, 4).toString("ascii")).toBe("PNG");

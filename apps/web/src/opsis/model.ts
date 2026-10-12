@@ -79,7 +79,6 @@ export async function unlockPreview(
         ...(key ? { authorization: `Preview ${key}` } : {}),
         "content-type": "application/json",
         "x-opsis-csrf": "1",
-    "x-chainscout-csrf": "1",
       },
       body: "{}",
     },

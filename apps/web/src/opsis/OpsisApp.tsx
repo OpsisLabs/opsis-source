@@ -124,7 +124,7 @@ function Status({ capabilities }: { capabilities: Capabilities }) {
   return (
     <section className="opsis-panel">
       <h1>{c("Data status", "数据状态")}</h1>
-      <p>
+      <p className="opsis-status-summary">
         {c(
           `Robinhood Chain · 4663. Server configuration only; provider health is unknown. ${capabilities.manifest?.build ? `Build ${capabilities.manifest.build}.` : "Build identifier unavailable."}`,
           `Robinhood Chain · 4663。此处仅显示服务器配置；提供商运行状况未知。${capabilities.manifest?.build ? `构建版本 ${capabilities.manifest.build}。` : "构建标识不可用。"}`,

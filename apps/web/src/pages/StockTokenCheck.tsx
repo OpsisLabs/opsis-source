@@ -34,7 +34,7 @@ const ORACLE_STATE_KEYS: Record<RwaOracleState, TranslationKey> = {
 
 const EvidenceMap = lazy(() => import("../opsis/EvidenceMap"));
 
-export default function RwaVerify() {
+export default function StockTokenCheck() {
   const { t } = useI18n();
   const [address, setAddress] = useState("");
   const [confirming, setConfirming] = useState(false);

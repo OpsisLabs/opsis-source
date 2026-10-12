@@ -96,16 +96,12 @@ export function vaultWorkspaceFromSearch(
   return "assets";
 }
 
-export function watchBuildEnabled(flags: {
-  VITE_WATCH_ENABLED?: string;
-  VITE_SCOUT_WATCH_ENABLED?: string;
-}) {
-  return (flags.VITE_WATCH_ENABLED ?? flags.VITE_SCOUT_WATCH_ENABLED) === "true";
+export function watchBuildEnabled(flags: { VITE_WATCH_ENABLED?: string }) {
+  return flags.VITE_WATCH_ENABLED === "true";
 }
 
 export function isWatchEnabled() {
   return watchBuildEnabled({
     VITE_WATCH_ENABLED: import.meta.env.VITE_WATCH_ENABLED,
-    VITE_SCOUT_WATCH_ENABLED: import.meta.env.VITE_SCOUT_WATCH_ENABLED,
   });
 }

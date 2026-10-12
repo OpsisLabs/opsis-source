@@ -11,7 +11,7 @@ const features = [
   { source: "apps/web/src/kol/KolTracker.tsx", flag: "VITE_KOL_TRACKER_ENABLED", file: "e2e/kol-tracker.mock.spec.ts", grep: "kol tracker" },
   { source: "apps/web/src/stress/StressTest.tsx", flag: "VITE_PORTFOLIO_STRESS_TEST_ENABLED", file: "e2e/stress-test.mock.spec.ts", grep: "portfolio stress test" },
   { source: "apps/web/src/situation/SituationRoom.tsx", flag: "VITE_SITUATION_ROOM_ENABLED", file: "e2e/situation-room.mock.spec.ts", grep: "situation room" },
-  { source: "apps/web/src/watch/Watch.tsx", flag: "VITE_WATCH_ENABLED", file: "e2e/watch.mock.spec.ts", grep: "watch" },
+  { source: "apps/web/src/watch/WatchPage.tsx", flag: "VITE_WATCH_ENABLED", file: "e2e/watch.mock.spec.ts", grep: "watch" },
   { source: "apps/web/src/deals/CardPriceCheck.tsx", flag: "VITE_CARD_PRICE_CHECK_ENABLED", file: "e2e/card-prices.mock.spec.ts", grep: "card price check" },
   { source: "apps/web/src/approvals/ApprovalManager.tsx", flag: "VITE_APPROVAL_MANAGER_ENABLED", file: "e2e/vault.mock.spec.ts", grep: "approval manager" },
   { source: "apps/web/src/simulator/TradeSimulator.tsx", flag: "VITE_TRADE_SIMULATOR_ENABLED", file: "e2e/swap-preview.mock.spec.ts", grep: "trade simulator" },

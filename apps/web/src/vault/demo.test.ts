@@ -52,7 +52,7 @@ describe("Vault demo records", () => {
     const promoted = promoteVaultDemoDraft(createVaultDemoDrafts()[0]);
     const asset = createAsset(promoted);
     expect(asset.name).toBe("Wrapped Ether");
-    expect(asset.notes).toMatch(/^Converted from a Opsis demo record/u);
+    expect(asset.notes).toMatch(/^Converted from an Opsis demo record/u);
     expect(isVaultDemoAsset(asset)).toBe(false);
   });
 });

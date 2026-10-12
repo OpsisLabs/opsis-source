@@ -60,7 +60,7 @@ import {
 import {
   ComparePanel,
   CoveragePanel,
-  OpsisBrief,
+  ResearchBrief,
   ScoringSummary,
 } from "./ResearchPanels";
 import { sourceLabel } from "./research";
@@ -1680,7 +1680,7 @@ export default function Tracker() {
               L={L}
             />
             {insight && (
-              <OpsisBrief
+              <ResearchBrief
                 items={stats.history}
                 name={person.name}
                 onInspect={inspectFromBrief}

@@ -145,7 +145,6 @@ async function raw(path: string, init: RequestInit = {}): Promise<Response> {
   if (init.body) headers.set("content-type", "application/json");
   if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
     headers.set("x-opsis-csrf", "1");
-    headers.set("x-chainscout-csrf", "1");
   }
   return fetch(`${BASE}${path}`, {
     ...init,
@@ -219,7 +218,6 @@ export async function privateApi<T>(
   const headers = new Headers({
     "content-type": "application/json",
     "x-opsis-csrf": "1",
-    "x-chainscout-csrf": "1",
   });
   const previewAuthorization = opsisPreviewAuthorization(path) ?? dealPreviewAuthorization(path);
   if (previewAuthorization) headers.set("authorization", previewAuthorization);

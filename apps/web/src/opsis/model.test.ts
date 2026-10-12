@@ -109,7 +109,7 @@ it("public capability requests omit credentials and keep CSRF protection", async
   expect(options.credentials).toBe("omit");
   expect(options.headers.authorization).toBeUndefined();
   expect(options.headers["x-opsis-csrf"]).toBe("1");
-  expect(options.headers["x-chainscout-csrf"]).toBe("1");
+  expect(Object.keys(options.headers).filter(name => name.includes("csrf"))).toEqual(["x-opsis-csrf"]);
 });
 
 it("validates manifest version, shape and parity while accepting older boolean-only fixtures", async () => {

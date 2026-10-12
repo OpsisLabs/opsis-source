@@ -52,3 +52,12 @@ test("skips binary and untracked files and permits token symbols and third-party
   track("binary.bin", "invalid.bin", "valid.txt");
   assert.deepEqual(checkProductName(root, { allow: [] }), []);
 }));
+
+test("permits immutable shipped release ids but not the tool brands inside other text", () => fixture((root, track) => {
+  const id = (number, name) => `${number}-${tool("-", name).toLowerCase()}`;
+  writeFileSync(join(root, "train.txt"), [`"id": "${id("14", "Watch")}"`, `rc/${id("01", "Swap")}/3`, `${id("14", "Watch")} and ${tool(" ", "Watch")}`, tool("-", "Swap").toLowerCase() + "-web"].join("\n"));
+  track("train.txt");
+  const found = checkProductName(root, { allow: [] });
+  assert.deepEqual(found.map(item => item.line), [3, 4]);
+  assert.deepEqual(found[0].matches, [tool(" ", "Watch")]);
+}));

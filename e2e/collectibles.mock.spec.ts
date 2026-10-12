@@ -115,7 +115,7 @@ test("catalog match saves only encrypted owner data and survives encrypted backu
     await route.fulfill({
       status: 200,
       contentType: "image/png",
-      body: readFileSync("apps/web/public/og.png"),
+      body: readFileSync("apps/web/public/og-opsis-v1.png"),
     });
   });
 

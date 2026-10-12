@@ -179,7 +179,7 @@ test("encrypted Vault creates, stores ciphertext, locks, exports, deletes, and r
   await page.getByLabel("REFERENCE 2 HTTPS SOURCE URL").fill("https://example.com/auction-result");
   await page.getByLabel("REFERENCE 2 SOURCE LABEL").fill(secondReferenceLabel);
   const sourceMetadataCanary = "SOURCE-METADATA-CANARY";
-  const sourcePhoto = Buffer.concat([await readFile("apps/web/public/og.png"), Buffer.from(sourceMetadataCanary)]);
+  const sourcePhoto = Buffer.concat([await readFile("apps/web/public/og-opsis-v1.png"), Buffer.from(sourceMetadataCanary)]);
   await page.getByLabel("Private asset photo").setInputFiles({ name: "secret-photo-canary.png", mimeType: "image/png", buffer: sourcePhoto });
   await page.getByRole("button", { name: "ENCRYPT & SAVE" }).click();
   await expect(page.getByRole("heading", { name: assetName })).toBeVisible();

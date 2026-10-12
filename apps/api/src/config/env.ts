@@ -367,5 +367,5 @@ export type Env = z.infer<typeof envSchema>;
 export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
   // Existing isolated auth/research tests exercise the deferred cloud path.
   // An explicit false always wins, including in test mode.
-  return envSchema.parse({ ...source, WATCH_ENABLED: source.WATCH_ENABLED ?? source.SCOUT_WATCH_ENABLED, CLOUD_WORKSPACE_ENABLED: source.CLOUD_WORKSPACE_ENABLED ?? (source.NODE_ENV === "test" ? "true" : "false") });
+  return envSchema.parse({ ...source, CLOUD_WORKSPACE_ENABLED: source.CLOUD_WORKSPACE_ENABLED ?? (source.NODE_ENV === "test" ? "true" : "false") });
 }

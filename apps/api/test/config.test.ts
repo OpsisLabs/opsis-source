@@ -2,14 +2,11 @@ import { describe, expect, it } from "vitest";
 import { loadEnv } from "../src/config/env.js";
 
 describe("environment validation", () => {
-  it("reads the legacy Watch flag only when the new flag is absent", () => {
+  it("keeps Watch off unless its flag is a valid true value", () => {
     expect(loadEnv({ NODE_ENV: "test" }).WATCH_ENABLED).toBe(false);
-    expect(loadEnv({ NODE_ENV: "test", SCOUT_WATCH_ENABLED: "true" }).WATCH_ENABLED).toBe(true);
+    expect(loadEnv({ NODE_ENV: "test", WATCH_ENABLED: "false" }).WATCH_ENABLED).toBe(false);
     expect(loadEnv({ NODE_ENV: "test", WATCH_ENABLED: "true" }).WATCH_ENABLED).toBe(true);
-    expect(loadEnv({ NODE_ENV: "test", WATCH_ENABLED: "false", SCOUT_WATCH_ENABLED: "true" }).WATCH_ENABLED).toBe(false);
-    expect(loadEnv({ NODE_ENV: "test", WATCH_ENABLED: "true", SCOUT_WATCH_ENABLED: "false" }).WATCH_ENABLED).toBe(true);
-    expect(() => loadEnv({ NODE_ENV: "test", WATCH_ENABLED: "invalid", SCOUT_WATCH_ENABLED: "true" })).toThrow();
-    expect(() => loadEnv({ NODE_ENV: "test", SCOUT_WATCH_ENABLED: "invalid" })).toThrow();
+    expect(() => loadEnv({ NODE_ENV: "test", WATCH_ENABLED: "invalid" })).toThrow();
   });
   it("allows private-only production without cloud storage but keeps security gates", () => {
     const privateProduction = {

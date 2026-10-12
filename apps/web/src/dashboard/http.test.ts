@@ -43,6 +43,6 @@ it("sends both CSRF headers for private and cookie-authenticated mutations", asy
   await api("/v1/account", { method: "DELETE", body: "{}" });
   for (const [, options] of fetch.mock.calls) {
     expect(options.headers.get("x-opsis-csrf")).toBe("1");
-    expect(options.headers.get("x-chainscout-csrf")).toBe("1");
+    expect([...options.headers.keys()].filter((name: string) => name.includes("csrf"))).toEqual(["x-opsis-csrf"]);
   }
 });

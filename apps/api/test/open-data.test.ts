@@ -8,7 +8,7 @@ import { corsOptionsForRequest } from "../src/http/cors.js";
 import Ajv from "ajv";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { SWAP_TOKENS } from "../src/swap/constants.js";
+import { SWAP_PREVIEW_TOKENS } from "../src/swap/constants.js";
 
 const apps: Array<Awaited<ReturnType<typeof buildApp>>> = [];
 const WETH = REVIEWED_ASSETS.WETH.address;
@@ -68,8 +68,8 @@ describe("Open Data v1", () => {
       REVIEWED_ASSETS.WETH,
       REVIEWED_ASSETS.USDG,
     ].map(({ symbol, address, decimals }) => ({ symbol, address, decimals })));
-    expect(SWAP_TOKENS).toBe(REVIEWED_ASSETS);
-    expect(SWAP_TOKENS.WETH.name).toBe("Wrapped Ether");
+    expect(SWAP_PREVIEW_TOKENS).toBe(REVIEWED_ASSETS);
+    expect(SWAP_PREVIEW_TOKENS.WETH.name).toBe("Wrapped Ether");
     expect(response.json().assets.every((entry: { registryStatus: string; identityConfidence: string; sources: Array<{ purpose: string }> }) =>
       entry.registryStatus === "opsis_supported" &&
       entry.identityConfidence === "opsis_reviewed_static_match" &&

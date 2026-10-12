@@ -74,7 +74,7 @@ function isTrustedProxyAddress(address: string): boolean {
 
 function privateRateLimitKey(kind: "ip" | "user", value: string, env: Env): string {
   const digest = createHmac("sha256", env.JWT_ACCESS_SECRET)
-    .update(`chain-scout:rate-limit:${kind}:${value.trim().toLowerCase()}`)
+    .update(`opsis:rate-limit:${kind}:${value.trim().toLowerCase()}`)
     .digest("hex");
   return `${kind}:${digest}`;
 }

@@ -34,12 +34,6 @@ export default defineConfig({
     {
       name: "opsis-deployment-metadata",
       transformIndexHtml(html) {
-        if (process.env.VITE_OPSIS_WORKSPACES_ENABLED === "true") {
-          html = html.replaceAll("Opsis — Private Multi-Asset Command Center", "Opsis — See the bigger picture.")
-            .replaceAll("Opsis: track crypto, NFTs, tokenized assets, Pokémon cards, collectibles, and anything else in one encrypted local Vault—then inspect source-linked Robinhood Chain activity.", "Research public evidence, check exits, watch changes and explore captured market data with Opsis.")
-            .replace(/ {4}<meta[^>]+(?:og:image|twitter:image)[\s\S]*?\/>/g, "")
-            .replace('href="/logo.svg"', 'href="/opsis-icon.svg"');
-        }
         return html
           .replaceAll("__OPSIS_PUBLIC_SITE_URL__", publicSiteUrl)
           .replaceAll("__OPSIS_BUILD_SHA__", buildSha);

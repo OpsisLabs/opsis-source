@@ -3,7 +3,7 @@ import type Redis from "ioredis";
 import type { Env } from "../config/env.js";
 import { AppError } from "../http/errors.js";
 
-const ANONYMOUS_CAP_CONTEXT = "chainscout:open-data:";
+const ANONYMOUS_CAP_CONTEXT = "opsis:open-data:";
 
 const CONSUME = `
 local identity = tonumber(redis.call("GET", KEYS[1]) or "0")

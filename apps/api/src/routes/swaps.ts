@@ -28,7 +28,7 @@ export async function swapRoutes(
       throw new AppError("TRADE_SIMULATOR_DISABLED", 503, "Trade Simulator is not enabled in this build");
     }
     if (!env.UNISWAP_QUOTE_ENABLED) {
-      throw new AppError("SWAP_PREVIEW_DISABLED", 503, "Live Swap preview previews are temporarily turned off");
+      throw new AppError("SWAP_PREVIEW_DISABLED", 503, "Live swap previews are temporarily turned off");
     }
     const body = quoteBody.parse(request.body);
     try {

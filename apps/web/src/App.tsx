@@ -20,7 +20,7 @@ const ExitCheck = lazy(() => import("./exit-check/ExitCheck"));
 const PrivateExplorer = lazy(() => import("./pages/PrivateExplorer"));
 const VaultPage = lazy(() => import("./pages/Vault"));
 const PrivateDealPreview = lazy(() => import("./deals/PrivatePreview"));
-const RwaVerify = lazy(() => import("./pages/RwaVerify"));
+const StockTokenCheck = lazy(() => import("./pages/StockTokenCheck"));
 const FeatureGuide = lazy(() => import("./pages/FeatureGuide"));
 const TechnicalDocs = lazy(() => import("./pages/TechnicalDocs"));
 const Faq = lazy(() => import("./pages/Faq"));
@@ -146,7 +146,7 @@ export default function App() {
             path="/rwa"
             element={
               <DeferredPage>
-                <RwaVerify />
+                <StockTokenCheck />
               </DeferredPage>
             }
           />

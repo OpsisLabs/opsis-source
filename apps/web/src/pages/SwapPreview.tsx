@@ -264,7 +264,7 @@ export default function SwapPreview() {
     } catch (requestError) {
       if (controller.signal.aborted) return;
       const code = requestError instanceof ApiError ? requestError.code : "SWAP_PROVIDER_UNAVAILABLE";
-      const message = code === "SWAP_DISABLED"
+      const message = code === "SWAP_PREVIEW_DISABLED"
         ? t("trade.swap.disabled")
         : code === "SWAP_NO_ROUTE"
           ? t("trade.swap.noRoute")
