@@ -35,7 +35,7 @@ export default function Guide({
         </dl>
         {tool.enabled(capabilities) ? (
           <Link className="opsis-action" to={tool.path}>
-            {c("Open", "打开")} {c(...tool.name)} ↗
+            {c("Open", "打开")} {c(...tool.name)} →
           </Link>
         ) : (
           <p className="opsis-small">
@@ -98,10 +98,10 @@ export default function Guide({
               )}
             </p>
             <Link className="opsis-action" to="/check/perp-scenario">
-              {c("Open Perp cost scenario ↗", "打开 永续成本情景 ↗")}
+              {c("Open Perp cost scenario →", "打开 永续成本情景 →")}
             </Link>
             <Link className="opsis-action" to="/lab">
-              {c("Open Quant Lab for funding records ↗", "打开量化实验室分析资金费记录 ↗")}
+              {c("Open Quant Lab for funding records →", "打开量化实验室分析资金费记录 →")}
             </Link>
           </div>
         ) : (

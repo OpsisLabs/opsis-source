@@ -292,7 +292,7 @@ export default function OpsisApp() {
           <div className="opsis-controls">
             {access && (
               <Link className="opsis-guide-link" to="/guide">
-                {c("Find your tool ↗", "选择工具 ↗")}
+                {c("Find your tool", "选择工具")}
               </Link>
             )}
             <button

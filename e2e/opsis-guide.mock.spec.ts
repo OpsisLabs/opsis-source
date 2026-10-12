@@ -45,7 +45,7 @@ test.describe("Opsis tool finder", () => {
     await page.getByRole("button", { name: "I'm holding assets" }).click();
     await expect(
       suggestions.getByRole("link", {
-        name: "Open Watch ↗",
+        name: "Open Watch →",
         exact: true,
       }),
     ).toHaveAttribute("href", "/watch");
@@ -60,10 +60,10 @@ test.describe("Opsis tool finder", () => {
       "Perpetual trading is not available yet",
     );
     await expect(
-      suggestions.getByRole("link", { name: "Open Perp cost scenario ↗" }),
+      suggestions.getByRole("link", { name: "Open Perp cost scenario →" }),
     ).toHaveAttribute("href", "/check/perp-scenario");
     await expect(
-      suggestions.getByRole("link", { name: "Open Quant Lab for funding records ↗" }),
+      suggestions.getByRole("link", { name: "Open Quant Lab for funding records →" }),
     ).toHaveAttribute("href", "/lab");
     expect(lookups).toEqual([]);
     await page
