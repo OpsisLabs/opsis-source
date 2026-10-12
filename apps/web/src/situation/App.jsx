@@ -184,8 +184,14 @@ export default function App() {
   useEffect(() => {
     if (!data || edition !== "archive" || !globeEl.current) return;
     try {
-      globe.current = createGlobe(globeEl.current, data.news.events, (i) =>
-        selectRef.current(i),
+      globe.current = createGlobe(
+        globeEl.current,
+        data.news.events,
+        (i) => selectRef.current(i),
+        () =>
+          setError(
+            "The globe is unavailable. News and chart controls remain accessible.",
+          ),
       );
       globe.current?.reset();
       setError("");
@@ -537,8 +543,11 @@ export default function App() {
                 ))
               : null}
           </section>
-          <Link to="/stress-test" className="sr-eth-action">
-            {c("Open Portfolio shocks", "打开投资组合冲击")} <ArrowUpRight size={12} />
+          <Link to="/stress-test" className="sr-eth-action" aria-label="Test your ETH exposure">
+            {OPSIS_PRESENTATION
+              ? c("Test your ETH exposure in Portfolio shocks", "在投资组合冲击中测试你的 ETH 敞口")
+              : "Test your ETH exposure in the Portfolio Stress Test"}{" "}
+            <ArrowUpRight size={12} />
           </Link>
         </section>
           </>

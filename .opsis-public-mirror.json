@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "a741d92a89be8d93868092d0ba7d393e1a4b283f2b1874a0671921da8325626e",
+  "sourceTreeDigest": "8cf2c657b8970e80ccb0240bcb3b6270dc16691d1e701981163574df3ab0aaf7",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "44317ccd1802e860d42d47f65f15d179725e7a90ce0ecb9af99779c0f70e5276",
@@ -592,7 +592,7 @@
     "apps/web/src/situation/analysis.js": "66053211783953275585545050ddfcb7dca62b7134db9f2d2aea4c9e36126130",
     "apps/web/src/situation/analysis.test.js": "eb3b548a5961995ee46fd974ee2eebc71651ae512244348b4f0eb8e1d6dc4613",
     "apps/web/src/situation/App.d.ts": "addc2b6d9ced3dba29b7a40ccdf16bea47287fee4d1bcb514d273c0498b22a60",
-    "apps/web/src/situation/App.jsx": "27f59ee1a79c5a1bf2f0dfa2b31a8997e29213f04cbc1007caab844e48a73f52",
+    "apps/web/src/situation/App.jsx": "78c89909342c7d0cde28d55cf542d53e31f1a23e6fc6e4780bf1a13bdcbe36d9",
     "apps/web/src/situation/assets/earth-day.jpg": "228deba2e4b600146bdcb6cfa359b8ead6aacc2b1c13550a29cd82824cfa1c01",
     "apps/web/src/situation/assets/earth.jpg": "355ab23dd1323315b393d7b91dd2d7ee223a1cbaaba2b48dc72ba90d371ced24",
     "apps/web/src/situation/chart.js": "6ed7ffdd6588ad01849934e960a94900ee18f3a659711a8de4e7e22ff5c68459",
@@ -602,7 +602,7 @@
     "apps/web/src/situation/eth-market-brief.test.js": "07792985335884850f34bb999c96d389b4448396997677f61b5998654ebdeeca",
     "apps/web/src/situation/event-market.json": "e3426c05450737e61362784f071812fa4787760b2b636ffd41db713a6ffaad9a",
     "apps/web/src/situation/globe-renderer.js": "41f4761c35658ffd88e5a09c51dfbfa4ff75053e2c69b5278745a4b8e2ac18eb",
-    "apps/web/src/situation/globe.js": "f178c63a2ab1d6ec36e494bd211bb095475d7a72976f6027185cbaeacaddbc63",
+    "apps/web/src/situation/globe.js": "73688f357433458fe6cdc5f2f10c991ff74eab52b3d20d3ee8d0f064bc0d9bef",
     "apps/web/src/situation/globe.test.js": "33f76c112d7ee74972ddf1d06c0c748296b35e7de0864ac8ed1e6cfd1c26d5af",
     "apps/web/src/situation/news.json": "5602dc41c5c48e944c308c4c032ba036d53d135d660033ae9962927f02f2e40b",
     "apps/web/src/situation/photos/clarity.jpg": "5c30ab07bfe46d35683b2cc42851f19fe2296c736e11a48a7abb9bb097ddb06c",

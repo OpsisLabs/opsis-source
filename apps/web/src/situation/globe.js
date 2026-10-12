@@ -1,6 +1,6 @@
 // Keep three.js and texture requests behind an actual mounted globe.
 // Importing or prefetching the route does not start loading either texture.
-export function createGlobe(el, events, onSelect) {
+export function createGlobe(el, events, onSelect, onError) {
   let renderer;
   let disposed = false;
   let rotating = !matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -19,6 +19,11 @@ export function createGlobe(el, events, onSelect) {
     })
     .catch(() => {
       if (disposed) return;
+      // The page owns the visible error; the inline notice is only a fallback.
+      if (onError) {
+        onError();
+        return;
+      }
       const notice = document.createElement("p");
       notice.setAttribute("role", "status");
       notice.textContent = document.documentElement.lang.startsWith("zh")
