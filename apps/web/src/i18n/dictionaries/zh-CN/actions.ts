@@ -44,7 +44,7 @@ export const actions: Record<string, string> = {
 
   "actions.replay.tradeEyebrow": "交易重建",
   "actions.replay.tradeTitle": "从受支持的变动出发——而非旧调用数据",
-  "actions.replay.tradeEmpty": "保存的投资组合快照中没有符合条件的交易模式。请先刷新投资组合情报。ChainScout 会有意拒绝失败、部分、被截断、多操作、原生、NFT 以及不支持代币的历史记录。",
+  "actions.replay.tradeEmpty": "保存的投资组合快照中没有符合条件的交易模式。请先在已保存中刷新公开快照。ChainScout 会有意拒绝失败、部分、被截断、多操作、原生、NFT 以及不支持代币的历史记录。",
   "actions.replay.historyEyebrow": "本地历史证据",
   "actions.replay.historyAria": "本地历史变动",
   "actions.replay.historyPlaceholder": "选择一个完整的受支持变动模式",

@@ -86,14 +86,9 @@ export const legal: Record<string, string> = {
     "本地保险库可以导出版本化的加密备份，并请求浏览器存储持久化。持久化可降低自动驱逐风险，但并不是备份。清除站点数据、使用私密浏览、丢失设备或迁移到不同的站点来源，都可能导致无法访问保险库。导出的备份可使用导出时存在的口令进行还原，或使用该备份匹配的一次性恢复代码和新口令进行恢复。更改实时保险库口令或使用恢复，不会更新较早下载的文件。该代码使用后会轮换，且绝不由 ChainScout 存储。丢失口令、恢复代码和可用备份将不可逆。本地删除仅在浏览器确认后移除保险库 IndexedDB 数据库；它不会删除无关的 ChainScout 浏览器状态。",
 
   "legal.privacy.s08.title": "联系方式",
-  "legal.privacy.s08.prefix":
-    "ChainScout 目前作为独立的源码可用测试版运营。一般产品问题可通过公开的项目支持跟踪器提交：",
-  "legal.privacy.s08.issuesLink":
-    "github.com/ChainScoutAi/chainscout-source/issues",
-  "legal.privacy.s08.between": "。如需报告疑似漏洞，请通过",
-  "legal.privacy.s08.vulnerabilityLink": "私密漏洞报告",
-  "legal.privacy.s08.suffix":
-    "，而不要发布到公开 issue。请勿发布保险库口令、恢复代码、钱包密钥、账户凭据或其他私密数据。本政策可能随产品发展而更新；重大变更将在本页面注明。",
+  "legal.privacy.s08.prefix": "ChainScout 目前作为独立的源码可用测试版运营。",
+  "legal.privacy.s08.contact": "支持与安全联系方式待公布于本页面。",
+  "legal.privacy.s08.suffix": "请勿发布保险库口令、恢复代码、钱包密钥、账户凭据或其他私密数据。本政策可能随产品发展而更新；重大变更将在本页面注明。",
 
   "legal.privacy.s09.title": "无需凭据的开放数据 API",
   "legal.privacy.s09.p1":

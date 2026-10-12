@@ -1,10 +1,10 @@
 export const vault = {
   "vault.header.homeLabel": "ChainScout home",
-  "vault.header.encryptedVault": "ENCRYPTED VAULT",
+  "vault.header.encryptedVault": "Saved",
   "vault.header.lock": "LOCK",
-  "vault.header.explorer": "EXPLORER →",
+  "vault.header.explorer": "Research →",
 
-  "vault.hero.eyebrow": "Your private Vault",
+  "vault.hero.eyebrow": "Saved",
   "vault.hero.title.line1": "Your assets.",
   "vault.hero.title.line2": "Encrypted on this device.",
   "vault.hero.description":
@@ -27,7 +27,7 @@ export const vault = {
   "vault.disclosure.restoreWithRecovery": "Restore a backup with a recovery code",
   "vault.disclosure.forgotPassphrase":
     "Forgot your passphrase? Use your recovery code",
-  "vault.disclosure.settingsDelete": "Vault settings · delete local data",
+  "vault.disclosure.settingsDelete": "Storage settings · delete local data",
 
   "vault.tab.portfolio": "PORTFOLIO INTELLIGENCE",
   "vault.tab.collectibles": "COLLECTIBLE CATALOG",
@@ -66,7 +66,7 @@ export const vault = {
   "vault.dashboard.assetType.one": "{count} asset type",
   "vault.dashboard.assetType.other": "{count} asset types",
   "vault.dashboard.addAsset": "ADD ASSET",
-  "vault.dashboard.demoAria": "Vault demo content",
+  "vault.dashboard.demoAria": "Saved example records",
   "vault.dashboard.demoTitle": "NEED SAFE TEST CONTENT?",
   "vault.dashboard.demoDescription":
     "Load four clearly labeled examples—crypto, a Pokémon card, an RWA, and an NFT—to test cards, lots, collectible fields, and charts. They are encrypted into this Vault, make zero network requests, and never claim ownership or a live price.",
@@ -442,7 +442,7 @@ export const vault = {
   "vault.demo.note.charizard":
     "Fictional owner record for testing collectible fields and the dated reference chart. This does not prove identity, condition, ownership, or value.",
   "vault.demo.note.apple":
-    "Fictional local lot linked to the public Robinhood Chain contract used by the RWA Verify sample. Not proof of ownership or redemption rights.",
+    "Fictional local lot linked to the public Robinhood Chain contract used by the Stock-token check sample. Not proof of ownership or redemption rights.",
   "vault.demo.note.nft":
     "Synthetic NFT record for layout and workflow testing only. It is not an onchain token or ownership claim.",
   "vault.demo.ref.manual": "Example manual reference",

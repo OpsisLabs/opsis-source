@@ -2,7 +2,7 @@ export const docs = {
   "docs.nav.aria": "Technical documentation sections",
   "docs.nav.onThisPage": "ON THIS PAGE",
   "docs.nav.architecture": "Architecture",
-  "docs.nav.vault": "Encrypted Vault",
+  "docs.nav.vault": "Saved",
   "docs.nav.evidence": "Evidence pipeline",
   "docs.nav.adapters": "Feature adapters",
   "docs.nav.security": "Security boundary",
@@ -107,11 +107,11 @@ export const docs = {
   "docs.adapters.eyebrow": "04 · FEATURE CONTRACTS",
   "docs.adapters.title": "Different assets need different proof.",
   "docs.adapters.introEnabled":
-    "Current founder-beta build: Private Explorer, Scout Swap, Portfolio, RWA Verify, and Collectible Catalog are enabled. Market & Inventory, Open Data, and Replay Actions are coming soon.",
+    "Current founder-beta build: Research, Swap preview, Saved, Stock-token check, and Collectible Catalog are enabled. Market & Inventory, Open Data, and Replay Actions are coming soon.",
   "docs.adapters.introGated":
-    "Current founder-beta build: Private Explorer, Scout Swap, Portfolio, RWA Verify are enabled. Collectible Catalog, Market & Inventory, Open Data, and Replay Actions are coming soon.",
+    "Current founder-beta build: Research, Swap preview, Saved, Stock-token check are enabled. Collectible Catalog, Market & Inventory, Open Data, and Replay Actions are coming soon.",
   "docs.adapters.comingSoon": "COMING SOON",
-  "docs.adapters.privateExplorer.name": "PRIVATE EXPLORER",
+  "docs.adapters.privateExplorer.name": "Research",
   "docs.adapters.privateExplorer.input":
     "One public wallet, transaction, token, or contract",
   "docs.adapters.privateExplorer.process":
@@ -120,14 +120,14 @@ export const docs = {
     "Source-linked facts, coverage, risks, and plain English",
   "docs.adapters.privateExplorer.limit":
     "Unsaved by default; optional encrypted local chat history",
-  "docs.adapters.scoutSwap.name": "SCOUT SWAP",
+  "docs.adapters.scoutSwap.name": "Swap preview",
   "docs.adapters.scoutSwap.input": "WETH/USDG direction and exact amount",
   "docs.adapters.scoutSwap.process":
     "Read-only Uniswap route using a fixed non-user preview address",
   "docs.adapters.scoutSwap.output":
     "Minimum, impact, simulation, route cost, official handoff",
   "docs.adapters.scoutSwap.limit": "ChainScout never signs or broadcasts",
-  "docs.adapters.portfolio.name": "PORTFOLIO",
+  "docs.adapters.portfolio.name": "Saved",
   "docs.adapters.portfolio.input": "One approved Robinhood Chain address",
   "docs.adapters.portfolio.process":
     "Capture current block, reconcile direct reads, recheck block hash",
@@ -135,7 +135,7 @@ export const docs = {
     "Bounded holdings, activity, movements, approvals, coverage",
   "docs.adapters.portfolio.limit":
     "Current anchor is not final; partial data stays marked",
-  "docs.adapters.rwaVerify.name": "RWA VERIFY",
+  "docs.adapters.rwaVerify.name": "Stock-token check",
   "docs.adapters.rwaVerify.input": "One public token or vault contract",
   "docs.adapters.rwaVerify.process":
     "Contract-first identity, oracle, role, vault, and source checks",

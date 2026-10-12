@@ -2,7 +2,7 @@ export const docs: Record<string, string> = {
   "docs.nav.aria": "技术文档章节",
   "docs.nav.onThisPage": "本页目录",
   "docs.nav.architecture": "架构",
-  "docs.nav.vault": "加密保险库",
+  "docs.nav.vault": "已保存",
   "docs.nav.evidence": "证据流水线",
   "docs.nav.adapters": "功能适配器",
   "docs.nav.security": "安全边界",
@@ -107,11 +107,11 @@ export const docs: Record<string, string> = {
   "docs.adapters.eyebrow": "04 · 功能契约",
   "docs.adapters.title": "不同的资产需要不同的证明。",
   "docs.adapters.introEnabled":
-    "当前创始人测试版构建中，私密链上查询、Scout Swap、投资组合、RWA 验证和收藏品目录已启用。市场与库存、开放数据和重放操作即将推出。",
+    "当前创始人测试版构建中，研究、兑换预览、已保存、股票代币核查和收藏品目录已启用。市场与库存、开放数据和重放操作即将推出。",
   "docs.adapters.introGated":
-    "当前创始人测试版构建中，私密链上查询、Scout Swap、投资组合、RWA 验证已启用。收藏品目录、市场与库存、开放数据和重放操作即将推出。",
+    "当前创始人测试版构建中，研究、兑换预览、已保存、股票代币核查已启用。收藏品目录、市场与库存、开放数据和重放操作即将推出。",
   "docs.adapters.comingSoon": "即将推出",
-  "docs.adapters.privateExplorer.name": "私密链上查询",
+  "docs.adapters.privateExplorer.name": "研究",
   "docs.adapters.privateExplorer.input":
     "一个公开的钱包、交易、代币或合约",
   "docs.adapters.privateExplorer.process":
@@ -120,14 +120,14 @@ export const docs: Record<string, string> = {
     "附来源链接的事实、覆盖范围、风险和通俗说明",
   "docs.adapters.privateExplorer.limit":
     "默认不保存；可选加密的本地对话历史",
-  "docs.adapters.scoutSwap.name": "Scout Swap",
+  "docs.adapters.scoutSwap.name": "兑换预览",
   "docs.adapters.scoutSwap.input": "WETH/USDG 方向与确切金额",
   "docs.adapters.scoutSwap.process":
     "使用固定非用户预览地址的只读 Uniswap 路径",
   "docs.adapters.scoutSwap.output":
     "最低接收量、价格影响、模拟、路径成本、官方交接",
   "docs.adapters.scoutSwap.limit": "ChainScout 绝不签名或广播",
-  "docs.adapters.portfolio.name": "投资组合",
+  "docs.adapters.portfolio.name": "已保存",
   "docs.adapters.portfolio.input": "一个已批准的 Robinhood Chain 地址",
   "docs.adapters.portfolio.process":
     "捕获当前区块，核对直接读取结果，重新校验区块哈希",
@@ -135,7 +135,7 @@ export const docs: Record<string, string> = {
     "有边界的持仓、活动、变动、授权、覆盖范围",
   "docs.adapters.portfolio.limit":
     "当前锚点并非最终值；部分数据会保持标注",
-  "docs.adapters.rwaVerify.name": "RWA 验证",
+  "docs.adapters.rwaVerify.name": "股票代币核查",
   "docs.adapters.rwaVerify.input": "一个公开的代币或保险库合约",
   "docs.adapters.rwaVerify.process":
     "合约优先的身份、预言机、角色、保险库和来源检查",

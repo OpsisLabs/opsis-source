@@ -12,8 +12,8 @@ export const roadmap = {
   "roadmap.nav.privacy": "PRIVACY",
   "roadmap.nav.protocol": "PROTOCOL",
   "roadmap.nav.releaseProtocol": "RELEASE PROTOCOL",
-  "roadmap.nav.tryExplorer": "TRY THE EXPLORER",
-  "roadmap.nav.tryExplorerShort": "TRY EXPLORER",
+  "roadmap.nav.tryExplorer": "Open Research",
+  "roadmap.nav.tryExplorerShort": "Open Research",
   "roadmap.nav.toggle": "Toggle navigation",
 
   "roadmap.trajectory.zeroSpend": "$0 NEW SPEND",
@@ -33,7 +33,7 @@ export const roadmap = {
   "roadmap.release.check.safety": "SAFETY",
 
   "roadmap.release.scout-swap.eyebrow": "LIVE ROUTE. CLEAR OUTCOME.",
-  "roadmap.release.scout-swap.title": "Scout Swap",
+  "roadmap.release.scout-swap.title": "Swap preview",
   "roadmap.release.scout-swap.summary":
     "Preview a current Uniswap route, understand every tradeoff, then continue in the official app.",
   "roadmap.release.scout-swap.outcome": "Preview a live swap",
@@ -74,7 +74,7 @@ export const roadmap = {
     "Private fields never enter logs, analytics, saved server records, or unapproved network requests.",
 
   "roadmap.release.encrypted-vault.eyebrow": "YOUR ASSETS. YOUR DEVICE.",
-  "roadmap.release.encrypted-vault.title": "Encrypted Asset Vault",
+  "roadmap.release.encrypted-vault.title": "Saved",
   "roadmap.release.encrypted-vault.summary":
     "Track purchase lots, notes, photos, grades, and manual assets in one encrypted browser Vault.",
   "roadmap.release.encrypted-vault.outcome": "Track every asset privately",
@@ -94,7 +94,7 @@ export const roadmap = {
     "Plaintext never crosses the network; encryption, recovery, corruption, eviction, and deletion states pass.",
 
   "roadmap.release.portfolio-intelligence.eyebrow": "ONE VIEW. LESS NOISE.",
-  "roadmap.release.portfolio-intelligence.title": "Portfolio Intelligence",
+  "roadmap.release.portfolio-intelligence.title": "Saved",
   "roadmap.release.portfolio-intelligence.summary":
     "Combine holdings, cost basis, activity, approvals, performance, and plain-English transaction explanations.",
   "roadmap.release.portfolio-intelligence.outcome":

@@ -43,24 +43,24 @@ export const common = {
   "metadata.home.title": "ChainScout — Private Multi-Asset Command Center",
   "metadata.home.description":
     "Track crypto, NFTs, tokenized assets, Pokémon cards, collectibles, and anything else in one encrypted local Vault—then inspect source-linked Robinhood Chain activity.",
-  "metadata.explorer.title": "Private Explorer | ChainScout",
+  "metadata.explorer.title": "Research | ChainScout",
   "metadata.explorer.description":
     "Explain a public Robinhood Chain wallet, transaction, token, or contract with source-linked evidence—without connecting a wallet or creating an account.",
-  "metadata.vault.title": "Encrypted Asset Vault | ChainScout",
+  "metadata.vault.title": "Saved | ChainScout",
   "metadata.vault.description":
     "Track crypto, NFTs, tokenized assets, cards, collectibles, purchase lots, photos, and dated values in an encrypted browser-local Vault.",
-  "metadata.rwa.title": "RWA Verify | ChainScout",
+  "metadata.rwa.title": "Stock-token check | ChainScout",
   "metadata.rwa.description":
     "Review source-linked Robinhood Chain tokenized-asset identity, custody, oracle, yield, and redemption evidence with explicit limitations.",
-  "metadata.swap.title": "Scout Swap Preview | ChainScout",
+  "metadata.swap.title": "Swap preview | ChainScout",
   "metadata.swap.description":
     "Preview a current Robinhood Chain swap route, simulation, price impact, and network cost before handing execution to the official Uniswap app.",
-  "metadata.simulator.title": "Trade Simulator | ChainScout",
+  "metadata.simulator.title": "Trade scenarios | ChainScout",
   "metadata.simulator.description":
     "Compare private what-if trade scenarios and their portfolio effects from a fresh quote without executing anything.",
-  "metadata.guide.title": "Feature Guide | ChainScout",
+  "metadata.guide.title": "Find your tool | ChainScout",
   "metadata.guide.description":
-    "Follow clear workflows for ChainScout's private Explorer, encrypted Vault, portfolio tools, RWA verification, and read-only swap previews.",
+    "Follow clear workflows for ChainScout's Research, encrypted Vault, portfolio tools, Stock-token check, and read-only swap previews.",
   "metadata.docs.title": "Technical Docs | ChainScout",
   "metadata.docs.description":
     "Read how ChainScout handles public chain data, citations, encrypted browser-local records, provider boundaries, and read-only transaction previews.",

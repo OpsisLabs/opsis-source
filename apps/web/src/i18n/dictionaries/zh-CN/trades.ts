@@ -1,10 +1,10 @@
 export const trades: Record<string, string> = {
-  "trades.metadata.title": "最大已观察交易 — ChainScout",
+  "trades.metadata.title": "大额交易 | ChainScout",
   "trades.metadata.description":
     "在有限的区块窗口内，观察一个工厂验证矿池中最大的近期已签名 Uniswap V3 Swap 金额。",
 
-  "trades.page.eyebrow": "有限窗口 · 单一验证矿池",
-  "trades.page.title": "ChainScout 实际观察到的最大交易。",
+  "trades.page.eyebrow": "大额交易",
+  "trades.page.title": "大额交易",
   "trades.page.intro":
     "选择默认 WETH/USDG 交易对或一个代币合约。点击后，ChainScout 从 dRPC Robinhood Chain 网关读取一个有限的近期区块窗口，并对该单一矿池的已签名 Uniswap V3 Swap 金额排序。不会自动抓取，也不会连接钱包。",
 
@@ -23,7 +23,7 @@ export const trades: Record<string, string> = {
   "trades.consent.button": "观察近期交易",
   "trades.consent.loading": "正在观察…",
 
-  "trades.disabled.title": "最大已观察交易不可用",
+  "trades.disabled.title": "大额交易不可用",
   "trades.disabled.body": "此构建已关闭已观察交易功能。未发起任何请求，也未调用任何提供方。",
 
   "trades.error.title": "观察未能完成",
@@ -69,9 +69,9 @@ export const trades: Record<string, string> = {
   "trades.limitations.title": "此处不作何主张",
   "trades.privacy.label": "隐私回执",
 
-  "product.feature.biggest-trades.label": "最大已观察交易",
-  "product.feature.biggest-trades.shortLabel": "最大交易",
-  "product.feature.biggest-trades.helpLabel": "关于已观察交易",
+  "product.feature.biggest-trades.label": "大额交易",
+  "product.feature.biggest-trades.shortLabel": "大额交易",
+  "product.feature.biggest-trades.helpLabel": "关于大额交易",
   "product.feature.biggest-trades.eyebrow": "有限窗口 · 单一验证矿池",
   "product.feature.biggest-trades.navHint": "比较最大的已观察 Swap",
   "product.feature.biggest-trades.summary":
@@ -89,5 +89,5 @@ export const trades: Record<string, string> = {
   "product.feature.biggest-trades.step.3":
     "查看精确窗口时间戳、扫描数量以及最大的已签名买入/卖出。",
   "product.feature.biggest-trades.step.4":
-    "仅对已验证的公共 EOA 发送方使用 Scout Watch 交接。",
+    "仅对已验证的公共 EOA 发送方使用观察交接。",
 };

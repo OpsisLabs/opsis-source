@@ -3,10 +3,10 @@ export const trade: Record<string, string> = {
   "trade.common.notSupplied": "未提供",
 
   "trade.swap.homeLabel": "ChainScout 首页",
-  "trade.swap.publicPreview": "SCOUT SWAP · 公开预览",
+  "trade.swap.publicPreview": "兑换预览 · 公开预览",
   "trade.swap.roadmap": "路线图",
   "trade.swap.noWalletData": "不读取钱包数据",
-  "trade.swap.eyebrow": "Scout Swap · 只读预览",
+  "trade.swap.eyebrow": "兑换预览 · 只读预览",
   "trade.swap.titleLead": "先看清这笔交易，",
   "trade.swap.titleAccent": "再决定是否执行。",
   "trade.swap.description": "预览当前 WETH/USDG 路由、预期输出与成本。官方 Uniswap 应用会重新报价，并处理所有授权、签名和交易。",
@@ -78,7 +78,7 @@ export const trade: Record<string, string> = {
   "trade.quote.openNewQuote": "打开 UNISWAP 重新报价",
   "trade.quote.prefilled": "交易对和金额已预填；Uniswap 会独立重新报价。",
 
-  "trade.simulator.title": "交易模拟器",
+  "trade.simulator.title": "交易情景",
   "trade.simulator.description": "将 WETH/USDG 假设情景与最新报价进行比较。你的余额和参考价格保留在此浏览器中；只有交易对和交易金额会发送给 ChainScout 和 Uniswap。无签名或执行。",
   "trade.simulator.tryAria": "试用一笔交易",
   "trade.simulator.tryEyebrow": "试一试。无需钱包。",

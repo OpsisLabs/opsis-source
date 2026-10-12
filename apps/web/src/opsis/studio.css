@@ -925,3 +925,89 @@
 .opsis-saved-tabs { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.5rem; }
 .opsis-saved-tabs a { padding: .8rem 1rem; border: 1px solid currentColor; }
 .opsis-saved-tabs a[aria-current="page"] { background: #1538d6; color: #fff; }
+
+/* Keep the task in reach; the full audience guidance is available on demand. */
+.opsis .opsis-tool-orientation {
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+}
+.opsis .opsis-tool-orientation summary {
+  min-height: 32px;
+  padding-block: 6px;
+  color: var(--soft);
+  font-size: 12px;
+  cursor: pointer;
+}
+.opsis .opsis-tool-orientation details[open] dl {
+  padding-block: 12px;
+}
+.opsis .opsis-content > .opsis-heading {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+}
+.opsis .opsis-content > .opsis-heading h1,
+.opsis .opsis-studio-heading h1 {
+  font-size: clamp(28px, 3vw, 42px);
+  margin: 0;
+}
+.opsis .opsis-content > .opsis-heading > p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.opsis .opsis-content > .opsis-heading > .opsis-kicker {
+  font-size: 10px;
+}
+.opsis .opsis-studio-heading {
+  gap: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+}
+.opsis .opsis-audience-options button:hover {
+  border-color: var(--line);
+}
+.opsis .opsis-audience-options button:focus-visible {
+  outline: 2px dashed var(--ink);
+  outline-offset: 3px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .opsis .opsis-audience-options button[aria-pressed="false"]:hover {
+    background: var(--panel-hover);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+.opsis .opsis-legal {
+  color: var(--ink);
+}
+.opsis .opsis-legal h2,
+.opsis .opsis-legal p > span {
+  color: var(--ink);
+}
+.opsis .opsis-legal section > div,
+.opsis .opsis-legal h2 > span,
+.opsis .opsis-legal > div > span {
+  color: var(--soft);
+  border-color: var(--line);
+}
+@media (max-width: 767px) {
+  .opsis .opsis-studio-heading,
+  .opsis .opsis-content > .opsis-heading,
+  .opsis .opsis-native-lab > .opsis-studio-heading {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+  .opsis .opsis-studio-heading > p,
+  .opsis .opsis-content > .opsis-heading > p:last-child {
+    max-width: none;
+    width: 100%;
+  }
+  .opsis .opsis-content {
+    padding-top: 16px;
+  }
+  .opsis .opsis-panel {
+    padding: 16px;
+  }
+}
