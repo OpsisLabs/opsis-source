@@ -2,7 +2,7 @@ import { useId, useState } from "react";
 import { useCopy } from "./copy";
 import { useI18n } from "../i18n";
 import type { Capabilities } from "./model";
-import { DIRECTORY_CHECKED_AT, directoryNeedsReview, venuesForRegion, type PerpVenue, type Region } from "./perp-venues";
+import { DIRECTORY_CHECKED_AT, directoryNeedsReview, sourcesForRegion, venuesForRegion, type PerpVenue, type Region } from "./perp-venues";
 import "./perp-handoff.css";
 
 export default function PerpHandoff({ capabilities, summary }: { capabilities: Capabilities; summary: string[] | null }) {
@@ -20,8 +20,8 @@ export default function PerpHandoff({ capabilities, summary }: { capabilities: C
   const groups = venuesForRegion(region);
   const text = summary?.join("\n") ?? null;
   const status = copyStatus?.summary === text ? copyStatus.result : null;
-  const sources = (venue: PerpVenue) => <ul className="opsis-perp-sources opsis-small">
-    {venue.sources.map((source) => <li key={source.url}>
+  const sources = (venue: PerpVenue, shownFor: "us" | "ca") => <ul className="opsis-perp-sources opsis-small">
+    {sourcesForRegion(venue, shownFor).map((source) => <li key={source.url}>
       <a className="opsis-text-link" href={source.url} target="_blank" rel="noopener noreferrer">{c(...source.label)} ↗</a>
     </li>)}
   </ul>;
@@ -36,7 +36,7 @@ export default function PerpHandoff({ capabilities, summary }: { capabilities: C
       <p>{c(...venue.product)}</p>
       <h4>{c("What the venue says", "场所的说明")}</h4>
       <p>{c(...availability.conditions)}</p>
-      {sources(venue)}
+      {sources(venue, region)}
       <p className="opsis-small">{c(`Checked ${checked}`, `核查日期：${checked}`)}</p>
       <a className="opsis-action" href={venue.url} target="_blank" rel="noopener noreferrer">{c(`Open ${venue.name} ↗`, `打开 ${venue.name} ↗`)}</a>
     </article>;
@@ -80,7 +80,7 @@ export default function PerpHandoff({ capabilities, summary }: { capabilities: C
         <ul className="opsis-perp-exclusions">{groups.notOffered.map((venue) => <li key={venue.name}>
           <h4>{c(venue.name, venue.name)}</h4>
           <p>{c(...venue.regions[region].conditions)}</p>
-          {sources(venue)}
+          {sources(venue, region)}
         </li>)}</ul>
       </div>}
     </div>}

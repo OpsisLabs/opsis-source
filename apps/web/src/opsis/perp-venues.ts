@@ -2,7 +2,8 @@ export const DIRECTORY_CHECKED_AT = "2026-10-12";
 export const REVIEW_AFTER_DAYS = 120;
 export type Region = "us" | "ca" | "other";
 export type DirectoryCopy = readonly [english: string, chinese: string];
-export type VenueSource = { label: DirectoryCopy; url: string };
+/** `regions` limits a source to the regions it is evidence for; absent means every region. */
+export type VenueSource = { label: DirectoryCopy; url: string; regions?: readonly ("us" | "ca")[] };
 export type VenueAvailability = {
   status: "offered" | "restricted" | "notOffered";
   conditions: DirectoryCopy;
@@ -35,7 +36,7 @@ export const PERP_VENUES: readonly PerpVenue[] = [
       ] },
     },
     sources: [
-      { label: ["Coinbase Help: Trading US Derivatives in Canada", "Coinbase 帮助：在加拿大交易美国衍生品"], url: "https://help.coinbase.com/en/coinbase/derivatives/us-derivatives-canada" },
+      { label: ["Coinbase Help: Trading US Derivatives in Canada", "Coinbase 帮助：在加拿大交易美国衍生品"], url: "https://help.coinbase.com/en/coinbase/derivatives/us-derivatives-canada", regions: ["ca"] },
       { label: ["Coinbase Help: US Perpetual-Style Futures market access", "Coinbase 帮助：美国永续型期货市场准入"], url: "https://help.coinbase.com/en/derivatives/perpetual-style-futures/market-access" },
     ],
   },
@@ -67,7 +68,7 @@ export const PERP_VENUES: readonly PerpVenue[] = [
       ca: { status: "notOffered", conditions: ["Kraken's eligibility page lists Canada as not eligible for its derivatives.", "Kraken 的资格页面将加拿大列为不符合其衍生品资格的地区。"] },
     },
     sources: [
-      { label: ["Kraken blog: CFTC-regulated US perps (15 June 2026)", "Kraken 博客：受 CFTC 监管的美国永续期货（2026 年 6 月 15 日）"], url: "https://blog.kraken.com/product/kraken-derivatives/announcing-cftc-regulated-us-perps" },
+      { label: ["Kraken blog: CFTC-regulated US perps (15 June 2026)", "Kraken 博客：受 CFTC 监管的美国永续期货（2026 年 6 月 15 日）"], url: "https://blog.kraken.com/product/kraken-derivatives/announcing-cftc-regulated-us-perps", regions: ["us"] },
       { label: ["Kraken Support: Derivatives eligibility (updated 28 July 2026)", "Kraken 支持：衍生品资格（2026 年 7 月 28 日更新）"], url: "https://support.kraken.com/articles/360023786632-kraken-derivatives-eligibility" },
     ],
   },
@@ -82,6 +83,11 @@ export function venuesForRegion(region: unknown): {
   for (const venue of [...PERP_VENUES].sort((a, b) => a.name.localeCompare(b.name, "en")))
     result[venue.regions[region].status].push(venue);
   return result;
+}
+
+/** The sources that back a venue's entry for one region, in directory order. */
+export function sourcesForRegion(venue: PerpVenue, region: "us" | "ca"): VenueSource[] {
+  return venue.sources.filter((source) => !source.regions || source.regions.includes(region));
 }
 
 export function directoryNeedsReview(today: Date): boolean {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DIRECTORY_CHECKED_AT, REVIEW_AFTER_DAYS, PERP_VENUES, directoryNeedsReview, venuesForRegion } from "./perp-venues";
+import { DIRECTORY_CHECKED_AT, REVIEW_AFTER_DAYS, PERP_VENUES, directoryNeedsReview, venuesForRegion, sourcesForRegion } from "./perp-venues";
 
 describe("reviewed perp directory", () => {
   it("groups only the reviewed facts in alphabetical order", () => {
@@ -27,6 +27,18 @@ describe("reviewed perp directory", () => {
     expect(directoryNeedsReview(new Date(checked + 120 * 86_400_000))).toBe(false);
     expect(directoryNeedsReview(new Date(checked + 120 * 86_400_000 + 1))).toBe(true);
     expect(directoryNeedsReview(new Date(""))).toBe(true);
+  });
+  it("shows each region only the sources that back its entry, and never leaves an entry unsourced", () => {
+    const urls = (name: string, region: "us" | "ca") =>
+      sourcesForRegion(PERP_VENUES.find((venue) => venue.name === name)!, region).map((source) => source.url);
+    for (const venue of PERP_VENUES) {
+      expect(sourcesForRegion(venue, "us").length).toBeGreaterThan(0);
+      expect(sourcesForRegion(venue, "ca").length).toBeGreaterThan(0);
+    }
+    expect(urls("Coinbase", "us").some((url) => url.includes("canada"))).toBe(false);
+    expect(urls("Coinbase", "ca").some((url) => url.includes("canada"))).toBe(true);
+    expect(urls("Kraken", "ca")).toEqual(["https://support.kraken.com/articles/360023786632-kraken-derivatives-eligibility"]);
+    expect(urls("Kalshi", "ca")).toEqual(urls("Kalshi", "us"));
   });
   it("uses only clean HTTPS official and evidence links", () => {
     for (const venue of PERP_VENUES) {

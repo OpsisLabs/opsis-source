@@ -84,7 +84,9 @@ describe("PerpHandoff", () => {
     expect(html).toContain("eligible US clients");
     expect(html).not.toContain("Not offered to residents");
     const links = html.match(/<a\b[^>]*>[\s\S]*?<\/a>/g) ?? [];
-    expect(links).toHaveLength(9);
+    // Three venue links and five sources: the Canada-only Coinbase page is not shown for the United States.
+    expect(links).toHaveLength(8);
+    expect(html).not.toContain("us-derivatives-canada");
     for (const link of links) {
       expect(link).toContain('target="_blank"');
       expect(link).toContain('rel="noopener noreferrer"');
