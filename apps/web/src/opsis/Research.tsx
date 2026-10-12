@@ -1,5 +1,5 @@
 import { isWatchEnabled } from "../product/availability";
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { analyzePrivate, type PrivateAnalysis } from "../private/api";
 import { safeHttpUrl } from "../dashboard/adapters";
@@ -17,9 +17,10 @@ import { publicSession } from "./public-session";
 import ReportShelf from "./ReportShelf";
 import { researchReport } from "./reports";
 import { receiptTransferObservations, transactionReceiptOutcome, transactionTimelineRows } from "./transactionTimeline";
-
-const ContractControls = lazy(() => import("./ContractControls"));
-const EvidenceMap = lazy(() => import("./EvidenceMap"));
+// Imported, not lazy: a panel revealed after its result moves the controls below
+// it, and a press already under way on them is released over another element.
+import ContractControls from "./ContractControls";
+import EvidenceMap from "./EvidenceMap";
 
 export default function Research({
   capabilities,
@@ -397,21 +398,19 @@ export default function Research({
                     </p>
                   </section>
                 )}
-              <Suspense fallback={null}>
-                <EvidenceMap
-                  key={result.entity.value}
-                  findings={[
-                    ...result.answer.riskNotes
-                      .filter((note) => note.severity === "high")
-                      .map((note) => ({
-                        fact: `${note.severity}: ${note.note}`,
-                        sourceIds: note.sourceIds,
-                      })),
-                    ...result.answer.confirmedFacts,
-                  ].slice(0, 3)}
-                  sources={result.answer.citations}
-                />
-              </Suspense>
+              <EvidenceMap
+                key={result.entity.value}
+                findings={[
+                  ...result.answer.riskNotes
+                    .filter((note) => note.severity === "high")
+                    .map((note) => ({
+                      fact: `${note.severity}: ${note.note}`,
+                      sourceIds: note.sourceIds,
+                    })),
+                  ...result.answer.confirmedFacts,
+                ].slice(0, 3)}
+                sources={result.answer.citations}
+              />
               <p className="opsis-receipt">
                 {c(
                   "Provider scope may be incomplete. Freshness and finality are unknown unless the evidence explicitly supplies them.",
@@ -481,12 +480,10 @@ export default function Research({
       </div>
       {capabilities.tokenControls &&
         /^0x[a-fA-F0-9]{40}$/.test(entity.trim()) && (
-          <Suspense fallback={null}>
-            <ContractControls
-              key={entity.trim().toLowerCase()}
-              contract={entity.trim()}
-            />
-          </Suspense>
+          <ContractControls
+            key={entity.trim().toLowerCase()}
+            contract={entity.trim()}
+          />
         )}
       <details className="opsis-panel">
         <summary>

@@ -1,5 +1,5 @@
 import { OPSIS_PRESENTATION } from "../opsis/presentation";
-import { lazy, Suspense, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { Link } from "react-router";
 import {
   AlertTriangle, BadgeCheck, BarChart3, Box, Building2, Check,
@@ -11,6 +11,8 @@ import { ApiError } from "../dashboard/http";
 import { verifyRwa, type RwaCheck, type RwaVerification } from "../rwa/api";
 import { WorkspaceDisclosure } from "../product/WorkspaceDisclosure";
 import { useI18n, type TranslateParams, type TranslationKey } from "../i18n";
+// Imported, not lazy: revealed after the result it would move the evidence below it.
+import EvidenceMap from "../opsis/EvidenceMap";
 
 const SAMPLE_STOCK = "0xaF3D76f1834A1d425780943C99Ea8A608f8a93f9";
 const SAMPLE_VAULT = "0xBeEff033F34C046626B8D0A041844C5d1A5409dd";
@@ -31,8 +33,6 @@ const ORACLE_STATE_KEYS: Record<RwaOracleState, TranslationKey> = {
   stale_or_market_closed: "rwa.oracle.state.stale_or_market_closed",
   invalid: "rwa.oracle.state.invalid"
 };
-
-const EvidenceMap = lazy(() => import("../opsis/EvidenceMap"));
 
 export default function StockTokenCheck() {
   const { t } = useI18n();
@@ -178,7 +178,7 @@ function EvidenceResult({ result }: { result: RwaVerification }) {
     {result.stock && <StockDetails stock={result.stock} />}
     {result.morpho && <MorphoDetails morpho={result.morpho} />}
 
-    {import.meta.env.VITE_OPSIS_WORKSPACES_ENABLED === "true" && <Suspense fallback={null}><EvidenceMap findings={result.checks.map(check => ({fact: `${check.status}: ${check.label} — ${check.detail}`, sourceIds: check.sourceIds}))} sources={result.sources} /></Suspense>}
+    {import.meta.env.VITE_OPSIS_WORKSPACES_ENABLED === "true" && <EvidenceMap findings={result.checks.map(check => ({fact: `${check.status}: ${check.label} — ${check.detail}`, sourceIds: check.sourceIds}))} sources={result.sources} />}
     <div className="grid gap-4 lg:grid-cols-2">{result.checks.map((item) => <EvidenceCard key={item.id} check={item} sources={result.sources} />)}</div>
 
     <div className="grid gap-5 lg:grid-cols-[1fr_0.75fr]">

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import {
   getExitCheckQuote,
@@ -15,8 +15,9 @@ import { tradeToolPaths, routeNames } from "./shell-model";
 import ReportShelf from "./ReportShelf";
 import { tradeReport } from "./reports";
 import ExitSizeCurve from "./ExitSizeCurve";
-
-const PoolComparison = lazy(() => import("./PoolComparison"));
+// Imported, not lazy, so the quote and its comparison appear together and the
+// save controls below do not move after the result is shown.
+import PoolComparison from "./PoolComparison";
 
 export default function TradeCheck({
   capabilities,
@@ -272,9 +273,7 @@ export default function TradeCheck({
                       <dd>{result.coverage.poolsQuoted.length}</dd>
                     </div>
                   </dl>
-                  <Suspense fallback={null}>
-                    <PoolComparison key={result.quotedAt} result={result} />
-                  </Suspense>
+                  <PoolComparison key={result.quotedAt} result={result} />
                   <p className="opsis-receipt">
                     {c(
                       "Partial scope: single-hop V3 pools only. Excluded: gas, approvals, transfer taxes, execution failure and other routes. A quote is not sellability proof.",

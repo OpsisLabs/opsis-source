@@ -11,17 +11,6 @@ const enabled =
 const TOKEN = fixture().input.contract;
 const passphrase = "test-only-opsis-reports-passphrase";
 const note = "PRIVATE-OPSIS-CONDITION-CANARY";
-// A click issued within milliseconds of a save completing has occasionally not
-// navigated (2 of 8 full-list runs, never in isolation; tracked in the release
-// 28 record). Retry it and require the navigation, so the journey is verified
-// and a link that never navigates still fails.
-async function openSavedReports(page: Page) {
-  await expect(async () => {
-    if (!/\/saved\?view=reports$/.test(page.url()))
-      await page.getByRole("link", { name: "Open saved reports" }).click({ timeout: 2000 });
-    await expect(page).toHaveURL(/\/saved\?view=reports$/, { timeout: 2000 });
-  }).toPass({ timeout: 15000 });
-}
 async function unlockReports(page: Page) {
   await page.getByLabel("History Vault passphrase").fill(passphrase);
   await page.getByRole("button", { name: "Unlock report history" }).click();
@@ -160,7 +149,8 @@ test.describe("Opsis connected workflows", () => {
     await expect(
       page.getByRole("button", { name: "Saved on this device" }),
     ).toBeDisabled();
-    await openSavedReports(page);
+    await page.getByRole("link", { name: "Open saved reports" }).click();
+    await expect(page).toHaveURL(/\/saved\?view=reports$/);
     await expect(page.getByText(note, { exact: false })).toHaveCount(0);
     await unlockReports(page);
     await page.getByRole("button", { name: /^Fixture Token/ }).click();
@@ -188,7 +178,8 @@ test.describe("Opsis connected workflows", () => {
     await expect(
       page.getByRole("button", { name: "Saved on this device" }),
     ).toBeDisabled();
-    await openSavedReports(page);
+    await page.getByRole("link", { name: "Open saved reports" }).click();
+    await expect(page).toHaveURL(/\/saved\?view=reports$/);
     await page.reload();
     await unlockReports(page);
     await page
@@ -234,6 +225,42 @@ test.describe("Opsis connected workflows", () => {
     await page.getByRole("button", { name: "Unlock report history" }).click();
     await expect(page.getByRole("alert")).toBeVisible();
     await expect(page.getByText(/1.5 tokens →/)).toHaveCount(0);
+  });
+  // A result panel that suspends on its own is revealed about 300 ms after the
+  // result and moves everything below it. A press that began before the reveal
+  // is then released over another element and the control never gets a click.
+  test("a press held while a result settles still activates the control below it", async ({
+    page,
+  }) => {
+    await page.route("**/v1/private/analyze", (r) =>
+      r.fulfill({ json: research() }),
+    );
+    await page.route("**/v1/private/exit-check/quote", (r) =>
+      r.fulfill({ json: fixture() }),
+    );
+    const pressAndHold = async (text: string) => {
+      const summary = page.locator("summary").filter({ hasText: text });
+      await summary.hover();
+      await page.mouse.down();
+      await page.waitForTimeout(600);
+      await page.mouse.up();
+      await expect(
+        page.locator("details").filter({ has: summary }),
+      ).toHaveAttribute("open", "");
+    };
+    await page.goto(`/research?entity=${TOKEN}`);
+    await page
+      .getByRole("button", { name: "Run research", exact: true })
+      .click();
+    await expect(page.getByTestId("opsis-research-result")).toBeVisible();
+    await pressAndHold("Save research / open saved reports");
+    await page.goto(`/check?token=${TOKEN}`);
+    await page.getByLabel("Amount to check").fill("1.5");
+    await page
+      .getByRole("button", { name: "Run a check", exact: true })
+      .click();
+    await expect(page.getByTestId("opsis-quote")).toBeVisible();
+    await pressAndHold("Save this check / revisit conditions");
   });
   test("Watch changes reopen a token check without sending balances or labels", async ({
     page,
