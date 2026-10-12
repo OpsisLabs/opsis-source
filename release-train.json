@@ -358,6 +358,18 @@
       ],
       "outcome": "Model what a perp position costs to hold and where it would be liquidated, then take the scenario to a venue that accepts you",
       "shipGate": "The local Perp cost scenario adds funding over a holding period, an estimated liquidation price for an isolated linear position and a side-by-side comparison, all from user-entered inputs with exact decimal arithmetic, stated assumptions and refusal on insufficient or invalid input; nothing is fetched from a venue. A reviewed, dated venue directory lists only venues whose own published pages say they offer perpetual futures in the user's stated region (United States, Canada or elsewhere), with conditions, sources and review date; it marks itself as needing re-review after 120 days and is controlled by a server flag that defaults off on API and web. Opsis places, routes, transmits and receives no order, verifies no identity or eligibility, ranks no venue, carries no referral parameter and suggests no workaround; the stated region never leaves the browser and perpExecution stays false. The API stops accepting the earlier request header. English and Chinese, 320 px to desktop, Chromium and WebKit, unit, failure-state, privacy and full release gates pass on the integrated candidate. No provider, chain, execution, paid path or new workspace."
+    },
+    {
+      "order": 31,
+      "id": "30-launch-readiness",
+      "branch": "codex/30-launch-readiness",
+      "tagPrefix": "rc/30-launch-readiness/",
+      "status": "queued",
+      "dependencies": [
+        "29-perp-handoff"
+      ],
+      "outcome": "Publishing the final domain and the support address is a settings change, and the site carries the files a public launch expects",
+      "shipGate": "A support and security contact address supplied at build time appears on the Privacy page in English and Chinese and in /.well-known/security.txt; with no address configured the current sentence stays and no security file is written; a malformed address fails the build. The build writes sitemap.xml and robots.txt from the canonical site URL: a beta or production build lists only always-available public pages and allows indexing, any other build disallows it. The site ships a favicon and a touch icon. The API accepts state-changing requests from its canonical origin and from explicitly configured alias origins only, each a canonical HTTPS origin, so the earlier host keeps working during a domain move; the default is no alias and nothing else about the request checks changes. The in-app changelog gains the release 29 entry in the wording approved by D23. A runbook covers the domain move, the contact address, verification and rollback. No provider, chain, execution, paid path, workspace, public claim or invariant change. Relevant unit, failure-state, privacy, English/Chinese, Chromium/WebKit and full release gates pass on the integrated candidate."
     }
   ]
 }
