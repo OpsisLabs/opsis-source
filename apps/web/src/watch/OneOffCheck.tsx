@@ -67,6 +67,7 @@ export default function OneOffCheck({
         <label className="block">
           {t("watch.address")}
           <input
+            id="watch-address-input"
             className="mt-2 block min-h-11 w-full min-w-0 border p-3 font-mono"
             value={address}
             maxLength={128}
