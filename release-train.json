@@ -322,6 +322,18 @@
       ],
       "outcome": "Build the Opsis four-workspace specification in reviewed batches, integrating existing research, exact-size trade checks, private Watch and reproducible local Quant experiments",
       "shipGate": "Default-off Opsis preparation within the existing four workspaces; D13 permits the isolated public preview after verification. Relevant unit, numerical, failure-state, privacy, English/Chinese, Chromium/WebKit and full release gates must pass on the integrated candidate. Same-block bounded exit ladders preserve exact math and quotas. Watch conditions and inbox state remain encrypted locally and never imply continuous monitoring. Quant imports and seeded experiments run locally with eligibility checks, cancellation, provenance and reproducible manifests. New capture sources, chains, paid AI or execution stay disabled pending their separate admission and decision gates. No provider, execution, chain, paid path or frozen /quant change is admitted by this release. The active release and production order remain unchanged."
+    },
+    {
+      "order": 28,
+      "id": "27-flow-polish",
+      "branch": "codex/27-flow-polish",
+      "tagPrefix": "rc/27-flow-polish/",
+      "status": "queued",
+      "dependencies": [
+        "26-opsis-workspaces"
+      ],
+      "outcome": "Move through Opsis without dead ends, lost results, mismatched names or laggy clicks",
+      "shipGate": "One name per destination across the front door, navigation, guide, titles and copy in English and Chinese. No link or shortcut reaches a switched-off tool. The front door keeps its D12 composition while every shortcut opens its tool with one consistent transition and controls respond once visible. Public context lives in the URL and survives back, refresh and returning within a tab; private Vault data never enters a URL. Clicks show progress at once with no blank full-screen loader after first load. The tool input sits on the first screen at 375 px. Privacy and Terms render in the shared shell with no broken links. Localized titles, a whole-page persisted theme and a constant header height. No provider, chain, execution, paid path, workspace or frozen /quant change. Relevant unit, failure-state, privacy, English/Chinese, Chromium/WebKit and full release gates pass on the integrated candidate."
     }
   ]
 }
