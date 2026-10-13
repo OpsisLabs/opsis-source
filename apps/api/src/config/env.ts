@@ -147,6 +147,7 @@ const envSchema = z.object({
   PROVIDER_CIRCUIT_RESET_MS: z.coerce.number().int().positive().default(30_000),
   PROVIDER_REQUEST_BUDGET_PER_MINUTE: z.coerce.number().int().positive().default(120),
   PROVIDER_MAX_CONCURRENCY: z.coerce.number().int().positive().max(50).default(5),
+  RATE_LIMIT_ACCESS_PER_MINUTE: z.coerce.number().int().min(20).max(2000).default(240),
   RATE_LIMIT_AUTH_PER_HOUR: z.coerce.number().int().positive().default(20),
   RATE_LIMIT_CHAT_PER_HOUR: z.coerce.number().int().positive().default(30),
   RATE_LIMIT_LOOKUP_PER_HOUR: z.coerce.number().int().positive().default(120),

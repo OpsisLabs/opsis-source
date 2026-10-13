@@ -50,6 +50,17 @@ if (scope === "private-only") {
     if (response.status !== 503 || body.error?.code !== "CLOUD_WORKSPACE_UNAVAILABLE") throw new Error(`private-only boundary failed: ${path}`);
     console.log(`PASS cloud writes disabled ${path}`);
   }
+  const response = await fetch(new URL("/v1/private/analyze", webBase), {
+    method: "POST", redirect: "error", signal: AbortSignal.timeout(timeoutMs),
+    headers: { "Content-Type": "application/json", "x-opsis-csrf": "1", Origin: webBase.origin, "sec-fetch-site": "same-origin" },
+    body: JSON.stringify({ entity: "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73", entityType: "unknown", task: "overview" })
+  });
+  if (response.status !== 200) throw new Error(`main token research: expected 200, received ${response.status}`);
+  const body = await response.json();
+  if (body.entity?.type !== "token" || body.entity?.facts?.symbol !== "WETH" || body.entity?.facts?.decimals !== 18) {
+    throw new Error("main token research: expected token WETH with 18 decimals");
+  }
+  console.log("PASS main token research WETH 18");
 }
 
 async function fetchBounded(url) {

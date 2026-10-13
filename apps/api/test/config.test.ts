@@ -2,6 +2,15 @@ import { describe, expect, it } from "vitest";
 import { loadEnv } from "../src/config/env.js";
 
 describe("environment validation", () => {
+  it("bounds the per-minute access limit at startup", () => {
+    expect(loadEnv({ NODE_ENV: "test" }).RATE_LIMIT_ACCESS_PER_MINUTE).toBe(240);
+    for (const value of ["20", "2000"]) {
+      expect(loadEnv({ NODE_ENV: "test", RATE_LIMIT_ACCESS_PER_MINUTE: value }).RATE_LIMIT_ACCESS_PER_MINUTE).toBe(Number(value));
+    }
+    for (const value of ["19", "2001", "20.5", "invalid"]) {
+      expect(() => loadEnv({ NODE_ENV: "test", RATE_LIMIT_ACCESS_PER_MINUTE: value })).toThrow(/RATE_LIMIT_ACCESS_PER_MINUTE/);
+    }
+  });
   describe("APP_ORIGIN_ALIASES", () => {
     const production = {
       NODE_ENV: "production", APP_ORIGIN: "https://opsis.example",

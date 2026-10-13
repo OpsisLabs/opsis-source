@@ -38,7 +38,7 @@ export async function opsisRoutes(app: FastifyInstance, env: Env) {
     "/v1/private/opsis/access",
     {
       schema: { hide: true },
-      config: { rateLimit: { max: 20, timeWindow: "1 minute" } },
+      config: { rateLimit: { max: env.RATE_LIMIT_ACCESS_PER_MINUTE, timeWindow: "1 minute" } },
     },
     async (request, reply) => {
       reply.header("Cache-Control", "private, no-store");

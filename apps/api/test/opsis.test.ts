@@ -11,6 +11,22 @@ import {
 import { buildApp } from "../src/app.js";
 const key = "a".repeat(64);
 const headers = { authorization: `Preview ${key}` };
+it("uses the configured access limit without changing the one-minute window", async () => {
+  const app = await buildApp({ ...env(), RATE_LIMIT_ACCESS_PER_MINUTE: 21 });
+  try {
+    for (let index = 0; index < 21; index += 1) {
+      const response = await app.inject({ method: "POST", url: "/v1/private/opsis/access", headers, payload: {} });
+      expect(response.statusCode).toBe(200);
+      expect(response.headers["cache-control"]).toBe("private, no-store");
+    }
+    const refused = await app.inject({ method: "POST", url: "/v1/private/opsis/access", headers, payload: {} });
+    expect(refused.statusCode).toBe(429);
+    expect(Number(refused.headers["retry-after"])).toBeGreaterThan(0);
+    expect(Number(refused.headers["retry-after"])).toBeLessThanOrEqual(60);
+  } finally {
+    await app.close();
+  }
+});
 function env() {
   return loadEnv({
     NODE_ENV: "test",
