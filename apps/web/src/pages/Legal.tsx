@@ -144,7 +144,7 @@ function Section({
 }
 
 export function PrivacyPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const collectibleCatalogEnabled = isCollectibleCatalogEnabled();
   let contact = null;
   try {
@@ -279,7 +279,7 @@ export function PrivacyPage() {
         </> : <>
           {t("legal.privacy.s08.supportPrefix")}
           <a className="underline" href={`mailto:${contact.support}`}>{contact.support}</a>
-          {t("legal.privacy.s08.supportSuffix")}{" "}
+          {t("legal.privacy.s08.supportSuffix")}{locale === "en" ? " " : ""}
           {t("legal.privacy.s08.securityPrefix")}
           <a className="underline" href={`mailto:${contact.security}`}>{contact.security}</a>
           {t("legal.privacy.s08.securitySuffix")}

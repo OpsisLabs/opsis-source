@@ -8,6 +8,7 @@ import {
   toFollowableWallet,
   classificationFromAddressObject,
 } from "../watch/followWallet";
+import { researchRefusal, researchRefusalCopy, type ResearchRefusal } from "./research-refusal";
 import ResearchIntro from "./ResearchIntro";
 import { KNOWN_ASSETS, resolveKnownAsset, type KnownAsset } from "./known-assets";
 import { DecodedActions, TokenFacts, WalletBalances } from "./ResearchFacts";
@@ -41,7 +42,7 @@ export default function Research({
   const [entityType, setEntityType] = useState<"unknown" | "token">(remembered ? publicSession.research.entityType : "unknown");
   const [result, setResult] = useState<PrivateAnalysis | null>(remembered ? publicSession.research.result : null);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<ResearchRefusal | null>(null);
   const pending = useRef<AbortController | null>(null);
   const [resolved, setResolved] = useState<KnownAsset | null>(null);
   const trimmedEntity = entity.trim();
@@ -67,7 +68,7 @@ export default function Research({
       setResolved(null);
       setResult(null);
       setBusy(false);
-      setError(false);
+      setError(null);
     }
   }, [incoming]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -78,7 +79,7 @@ export default function Research({
     pending.current?.abort();
     setBusy(false);
     setResult(null);
-    setError(false);
+    setError(null);
   }
   async function run(input = inputIdentity) {
     if (!publicIdentity(input) || !researchInputMatchesChoice(input, entityType)) return;
@@ -95,8 +96,8 @@ export default function Research({
         controller.signal,
       );
       if (!controller.signal.aborted) setResult(next);
-    } catch {
-      if (!controller.signal.aborted) setError(true);
+    } catch (failure) {
+      if (!controller.signal.aborted) setError(researchRefusal(failure));
     } finally {
       if (!controller.signal.aborted) setBusy(false);
     }
@@ -232,10 +233,8 @@ export default function Research({
             <section className="opsis-panel" role="alert">
               <h2>{c("Research unavailable", "研究不可用")}</h2>
               <p>
-                {c(
-                  "The lookup failed or reached a provider limit. Check the identifier and retry. No findings are implied by this failure.",
-                  "查询失败或达到提供商限制。请检查标识符后重试。此次失败不代表任何分析结论。",
-                )}
+                {c(...researchRefusalCopy(error))}{" "}
+                {c("No findings are implied by this failure.", "此次失败不代表任何分析结论。")}
               </p>
             </section>
           )}

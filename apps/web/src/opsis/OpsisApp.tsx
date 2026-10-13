@@ -29,6 +29,7 @@ import ToolNavigation from "./ToolNavigation";
 import ToolWorkspace from "./ToolWorkspace";
 import OpsisCopy from "./OpsisCopy";
 import NavigationFeedback, { FrontDoorProgress, RouteReady } from "./NavigationFeedback";
+import { LoadBoundary } from "../product/LoadRecovery";
 import { chunks } from "./route-chunks";
 import { landingTools, routeTitle } from "./shell-model";
 import { initialTheme, persistTheme, savedTheme } from "./theme";
@@ -577,6 +578,7 @@ export default function OpsisApp() {
             <NavigationFeedback capabilities={access} />
             <main id="opsis-content" className="opsis-content" tabIndex={-1}>
               <ToolOrientation capabilities={access} />
+              <LoadBoundary shell resetKey={location.pathname}>
               <Suspense
                 fallback={
                   <div className="opsis-workspace-placeholder" aria-hidden="true">
@@ -814,6 +816,7 @@ export default function OpsisApp() {
                   <RouteReady />
                 </OpsisCopy>
               </Suspense>
+              </LoadBoundary>
             </main>
             <footer className="opsis-footer">
               <Link to="/saved">{c("Saved", "已保存")}</Link>

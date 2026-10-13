@@ -1,3 +1,5 @@
+import { importPage } from "../product/page-imports";
+
 let pendingPath = "";
 const listeners = new Set<() => void>();
 export function beginNavigation(path: string) {
@@ -35,23 +37,23 @@ function chunk<T>(path: string, importer: () => Promise<T>) {
   } };
 }
 export const chunks = {
-  Lab: chunk("/lab", () => import("./Lab")),
-  SituationRoom: chunk("/research/events", () => import("../situation/SituationRoom")),
-  Research: chunk("/research", () => import("./Research")),
-  TradeCheck: chunk("/check", () => import("./TradeCheck")),
-  Watch: chunk("/watch", () => import("../watch/WatchPage")),
-  Saved: chunk("/saved", () => import("./SavedWorkspace")),
-  Rwa: chunk("/rwa", () => import("../pages/StockTokenCheck")),
-  Trades: chunk("/biggest-trades", () => import("../trades/BiggestTrades")),
-  Explorer: chunk("/research/details", () => import("../pages/PrivateExplorer")),
-  Swap: chunk("/swap", () => import("../pages/SwapPreview")),
-  Privacy: chunk("/privacy", () => import("../pages/Legal").then((m) => ({ default: m.PrivacyPage }))),
-  Simulator: chunk("/simulate", () => import("../simulator/TradeSimulator")),
-  Stress: chunk("/stress-test", () => import("../stress/StressTest")),
-  Terms: chunk("/terms", () => import("../pages/Legal").then((m) => ({ default: m.TermsPage }))),
-  Guide: chunk("/guide", () => import("./Guide")),
-  Community: chunk("/community", () => import("./Community")),
-  PerpScenario: chunk("/check/perp-scenario", () => import("./PerpScenario")),
+  Lab: chunk("/lab", () => importPage("/src/opsis/Lab.tsx", () => import("./Lab"))),
+  SituationRoom: chunk("/research/events", () => importPage("/src/situation/SituationRoom.tsx", () => import("../situation/SituationRoom"))),
+  Research: chunk("/research", () => importPage("/src/opsis/Research.tsx", () => import("./Research"))),
+  TradeCheck: chunk("/check", () => importPage("/src/opsis/TradeCheck.tsx", () => import("./TradeCheck"))),
+  Watch: chunk("/watch", () => importPage("/src/watch/WatchPage.tsx", () => import("../watch/WatchPage"))),
+  Saved: chunk("/saved", () => importPage("/src/opsis/SavedWorkspace.tsx", () => import("./SavedWorkspace"))),
+  Rwa: chunk("/rwa", () => importPage("/src/pages/StockTokenCheck.tsx", () => import("../pages/StockTokenCheck"))),
+  Trades: chunk("/biggest-trades", () => importPage("/src/trades/BiggestTrades.tsx", () => import("../trades/BiggestTrades"))),
+  Explorer: chunk("/research/details", () => importPage("/src/pages/PrivateExplorer.tsx", () => import("../pages/PrivateExplorer"))),
+  Swap: chunk("/swap", () => importPage("/src/pages/SwapPreview.tsx", () => import("../pages/SwapPreview"))),
+  Privacy: chunk("/privacy", () => importPage("/src/pages/Legal.tsx", () => import("../pages/Legal")).then((m) => ({ default: m.PrivacyPage }))),
+  Simulator: chunk("/simulate", () => importPage("/src/simulator/TradeSimulator.tsx", () => import("../simulator/TradeSimulator"))),
+  Stress: chunk("/stress-test", () => importPage("/src/stress/StressTest.tsx", () => import("../stress/StressTest"))),
+  Terms: chunk("/terms", () => importPage("/src/pages/Legal.tsx", () => import("../pages/Legal")).then((m) => ({ default: m.TermsPage }))),
+  Guide: chunk("/guide", () => importPage("/src/opsis/Guide.tsx", () => import("./Guide"))),
+  Community: chunk("/community", () => importPage("/src/opsis/Community.tsx", () => import("./Community"))),
+  PerpScenario: chunk("/check/perp-scenario", () => importPage("/src/opsis/PerpScenario.tsx", () => import("./PerpScenario"))),
 };
 export function prefetchRoute(path: string) {
   const route = Object.values(chunks).find((entry) => entry.path === path);

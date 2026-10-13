@@ -1,0 +1,10 @@
+.opsis-load-recovery {
+  max-width: 46rem;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  font-family: sans-serif;
+}
+.opsis-load-recovery h1 { font-size: clamp(1.5rem, 4vw, 2.25rem); line-height: 1.2; }
+.opsis-load-recovery p { margin: 1.5rem 0; line-height: 1.6; }
+.opsis-load-recovery button { border: 2px solid currentColor; padding: .75rem 1rem; cursor: pointer; }
+.opsis-load-recovery button:focus-visible { outline: 3px solid currentColor; outline-offset: 4px; }

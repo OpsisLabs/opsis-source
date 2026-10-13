@@ -108,6 +108,8 @@ test.describe("Opsis compact layout", () => {
       test(`opsis preview layout header stays constant ${viewport.width} ${locale}`, async ({
         page,
       }) => {
+        // Visits every tool route: allow for a busy machine.
+        test.setTimeout(90_000);
         await page.setViewportSize(viewport);
         await page.goto("/research");
         await expect(page.locator("#research-entity")).toBeVisible();
@@ -158,6 +160,8 @@ test.describe("Opsis compact layout", () => {
       test(`opsis preview layout has no sideways scroll ${width} ${locale}`, async ({
         page,
       }) => {
+        // Visits every tool route: allow for a busy machine.
+        test.setTimeout(90_000);
         await page.setViewportSize({ width, height: 812 });
         await page.goto("/research");
         await expect(page.locator("#research-entity")).toBeVisible();

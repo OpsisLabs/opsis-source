@@ -85,7 +85,7 @@ describe.each(["en", "zh-CN"] as const)(
       const text = html.replace(/<[^>]+>/g, "");
       expect(text).toContain(locale === "en"
         ? "For support questions, contact support@opsis.example. Report security issues privately to security@opsis.example before any public post."
-        : "支持问题请联系 support@opsis.example。 安全问题请先私下报告至 security@opsis.example，再公开发布。");
+        : "支持问题请联系 support@opsis.example。安全问题请先私下报告至 security@opsis.example，再公开发布。");
     });
     it.each([
       ["", undefined], ["   ", ""], [undefined, "security@opsis.example"],

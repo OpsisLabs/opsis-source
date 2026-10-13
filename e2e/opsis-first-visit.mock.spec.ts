@@ -22,6 +22,29 @@ test.describe("opsis preview first visit", () => {
   test.skip(!enabled);
   test.beforeEach(async ({ page }) => { await mockPublicOpsisAccess(page); });
 
+  for (const [code, status, retryAfter, sentence] of [
+    ["RATE_LIMITED", 429, "60", "This connection has reached its hourly limit for lookups. Try again in about 60 seconds."],
+    ["PROVIDER_UNAVAILABLE", 503, undefined, "Opsis has reached its chain-data rate for the moment. Nothing is wrong with the identifier. Try again in a minute."],
+    ["VALIDATION_ERROR", 400, undefined, "The identifier was not accepted. Check that it is a full 0x address or transaction hash."],
+    ["UNEXPECTED", 500, undefined, "The lookup failed or reached a provider limit. Check the identifier and retry."],
+  ] as const) {
+    test(`opsis preview Research refusal ${code} explains the condition`, async ({ page }) => {
+      await page.route("**/v1/private/analyze", (route) => route.fulfill({
+        status, headers: retryAfter ? { "Retry-After": retryAfter } : {},
+        json: { error: { code, message: "server-only detail" } },
+      }));
+      await page.goto(`/research?entity=${EXIT_CHECK_TOKENS.WETH.address}`);
+      await page.getByRole("button", { name: "Run research", exact: true }).click();
+      const alert = page.getByRole("alert");
+      await expect(alert.getByRole("heading", { name: "Research unavailable", exact: true })).toBeVisible();
+      await expect(alert).toContainText(sentence);
+      await expect(alert).toContainText("No findings are implied by this failure.");
+      await expect(alert).not.toContainText("server-only detail");
+      await expect(alert).not.toContainText(code);
+      await expect(alert).not.toContainText(String(status));
+    });
+  }
+
   test("opsis preview token identity, exact supply and compact unknown coverage", async ({ page }) => {
     const payload = researchToken();
     const result = await analyze(page, payload);

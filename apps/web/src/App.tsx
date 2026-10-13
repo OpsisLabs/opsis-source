@@ -1,66 +1,68 @@
 import { isWatchEnabled } from "./product/availability";
 import { lazy, Suspense, type ReactNode } from "react";
+import { importPage } from "./product/page-imports";
+import { LoadBoundary } from "./product/LoadRecovery";
 import { Navigate, Route, Routes } from "react-router";
 import Home from "./pages/Home";
 import RouteMetadata from "./RouteMetadata";
 import { isOpenDataApiEnabled } from "./product/availability";
 import { useI18n } from "./i18n";
 
-const OpsisApp = lazy(() => import("./opsis/OpsisApp"));
-const Roadmap = lazy(() => import("./pages/Roadmap"));
-const SwapPreview = lazy(() => import("./pages/SwapPreview"));
-const TradeSimulator = lazy(() => import("./simulator/TradeSimulator"));
-const CardPriceCheck = lazy(() => import("./deals/CardPriceCheck"));
-const BiggestTrades = lazy(() => import("./trades/BiggestTrades"));
-const KolTracker = lazy(() => import("./kol/KolTracker"));
-const SituationRoom = lazy(() => import("./situation/SituationRoom"));
-const WatchPage = lazy(() => import("./watch/WatchPage"));
-const StressTest = lazy(() => import("./stress/StressTest"));
-const ExitCheck = lazy(() => import("./exit-check/ExitCheck"));
-const PrivateExplorer = lazy(() => import("./pages/PrivateExplorer"));
-const VaultPage = lazy(() => import("./pages/Vault"));
-const PrivateDealPreview = lazy(() => import("./deals/PrivatePreview"));
-const StockTokenCheck = lazy(() => import("./pages/StockTokenCheck"));
-const FeatureGuide = lazy(() => import("./pages/FeatureGuide"));
-const TechnicalDocs = lazy(() => import("./pages/TechnicalDocs"));
-const Faq = lazy(() => import("./pages/Faq"));
-const Developers = lazy(() => import("./pages/Developers"));
-const ProductShell = lazy(() => import("./product/ProductShell"));
-const AppShell = lazy(() => import("./dashboard/AppShell"));
-const AccountPrivacyPage = lazy(() => import("./dashboard/AccountPrivacyPage"));
+const OpsisApp = lazy(() => importPage("/src/opsis/OpsisApp.tsx", () => import("./opsis/OpsisApp")));
+const Roadmap = lazy(() => importPage("/src/pages/Roadmap.tsx", () => import("./pages/Roadmap")));
+const SwapPreview = lazy(() => importPage("/src/pages/SwapPreview.tsx", () => import("./pages/SwapPreview")));
+const TradeSimulator = lazy(() => importPage("/src/simulator/TradeSimulator.tsx", () => import("./simulator/TradeSimulator")));
+const CardPriceCheck = lazy(() => importPage("/src/deals/CardPriceCheck.tsx", () => import("./deals/CardPriceCheck")));
+const BiggestTrades = lazy(() => importPage("/src/trades/BiggestTrades.tsx", () => import("./trades/BiggestTrades")));
+const KolTracker = lazy(() => importPage("/src/kol/KolTracker.tsx", () => import("./kol/KolTracker")));
+const SituationRoom = lazy(() => importPage("/src/situation/SituationRoom.tsx", () => import("./situation/SituationRoom")));
+const WatchPage = lazy(() => importPage("/src/watch/WatchPage.tsx", () => import("./watch/WatchPage")));
+const StressTest = lazy(() => importPage("/src/stress/StressTest.tsx", () => import("./stress/StressTest")));
+const ExitCheck = lazy(() => importPage("/src/exit-check/ExitCheck.tsx", () => import("./exit-check/ExitCheck")));
+const PrivateExplorer = lazy(() => importPage("/src/pages/PrivateExplorer.tsx", () => import("./pages/PrivateExplorer")));
+const VaultPage = lazy(() => importPage("/src/pages/Vault.tsx", () => import("./pages/Vault")));
+const PrivateDealPreview = lazy(() => importPage("/src/deals/PrivatePreview.tsx", () => import("./deals/PrivatePreview")));
+const StockTokenCheck = lazy(() => importPage("/src/pages/StockTokenCheck.tsx", () => import("./pages/StockTokenCheck")));
+const FeatureGuide = lazy(() => importPage("/src/pages/FeatureGuide.tsx", () => import("./pages/FeatureGuide")));
+const TechnicalDocs = lazy(() => importPage("/src/pages/TechnicalDocs.tsx", () => import("./pages/TechnicalDocs")));
+const Faq = lazy(() => importPage("/src/pages/Faq.tsx", () => import("./pages/Faq")));
+const Developers = lazy(() => importPage("/src/pages/Developers.tsx", () => import("./pages/Developers")));
+const ProductShell = lazy(() => importPage("/src/product/ProductShell.tsx", () => import("./product/ProductShell")));
+const AppShell = lazy(() => importPage("/src/dashboard/AppShell.tsx", () => import("./dashboard/AppShell")));
+const AccountPrivacyPage = lazy(() => importPage("/src/dashboard/AccountPrivacyPage.tsx", () => import("./dashboard/AccountPrivacyPage")));
 const PrivacyPage = lazy(() =>
-  import("./pages/Legal").then((module) => ({ default: module.PrivacyPage })),
+  importPage("/src/pages/Legal.tsx", () => import("./pages/Legal")).then((module) => ({ default: module.PrivacyPage })),
 );
 const TermsPage = lazy(() =>
-  import("./pages/Legal").then((module) => ({ default: module.TermsPage })),
+  importPage("/src/pages/Legal.tsx", () => import("./pages/Legal")).then((module) => ({ default: module.TermsPage })),
 );
 const LoginPage = lazy(() =>
-  import("./dashboard/AuthPages").then((module) => ({
+  importPage("/src/dashboard/AuthPages.tsx", () => import("./dashboard/AuthPages")).then((module) => ({
     default: module.LoginPage,
   })),
 );
 const RegisterPage = lazy(() =>
-  import("./dashboard/AuthPages").then((module) => ({
+  importPage("/src/dashboard/AuthPages.tsx", () => import("./dashboard/AuthPages")).then((module) => ({
     default: module.RegisterPage,
   })),
 );
 const CloudProviders = lazy(() =>
-  import("./dashboard/CloudRoutes").then((module) => ({
+  importPage("/src/dashboard/CloudRoutes.tsx", () => import("./dashboard/CloudRoutes")).then((module) => ({
     default: module.CloudProviders,
   })),
 );
 const RequireAuth = lazy(() =>
-  import("./dashboard/CloudRoutes").then((module) => ({
+  importPage("/src/dashboard/CloudRoutes.tsx", () => import("./dashboard/CloudRoutes")).then((module) => ({
     default: module.RequireAuth,
   })),
 );
 const DashboardIndex = lazy(() =>
-  import("./dashboard/CloudRoutes").then((module) => ({
+  importPage("/src/dashboard/CloudRoutes.tsx", () => import("./dashboard/CloudRoutes")).then((module) => ({
     default: module.DashboardIndex,
   })),
 );
 const ChatRoute = lazy(() =>
-  import("./dashboard/CloudRoutes").then((module) => ({
+  importPage("/src/dashboard/CloudRoutes.tsx", () => import("./dashboard/CloudRoutes")).then((module) => ({
     default: module.ChatRoute,
   })),
 );
@@ -84,7 +86,7 @@ function PageFallback() {
 }
 
 function DeferredPage({ children }: { children: ReactNode }) {
-  return <Suspense fallback={<PageFallback />}>{children}</Suspense>;
+  return <LoadBoundary><Suspense fallback={<PageFallback />}>{children}</Suspense></LoadBoundary>;
 }
 
 export default function App() {
