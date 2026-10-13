@@ -1,3 +1,4 @@
+import { decodeReceiptActions, RESEARCH_MAX_RPC_SUBCALLS } from "./transaction-actions.js";
 import { randomUUID } from "node:crypto";
 import { decodeFunctionResult, encodeFunctionData, type Abi, type Hex } from "viem";
 import type { Env } from "../config/env.js";
@@ -113,9 +114,18 @@ export class AlchemyProvider implements Pick<ChainProvider, "name" | "getTransac
     ]);
     validateTransactionEvidence(hash, tx, receipt);
     if (tx === null && receipt === null) return [];
+    let subcalls = 2;
+    const decodeReads: Array<{ to: string; data: string; block: string; result: unknown }> = [];
+    const decoded = await decodeReceiptActions(receipt, async (to, data, block) => {
+      if (subcalls >= RESEARCH_MAX_RPC_SUBCALLS) throw new Error("RESEARCH_RPC_LIMIT_EXCEEDED");
+      subcalls++;
+      const result = await this.rpc("eth_call", [{ to, data }, block]);
+      decodeReads.push({ to, data, block, result });
+      return result;
+    });
     return [
       this.doc("transaction", hash, "eth_getTransactionByHash", tx),
-      this.doc("transaction", hash, "eth_getTransactionReceipt", receipt)
+      this.doc("transaction", hash, "eth_getTransactionReceipt", receipt, { ...decoded, decodeReads })
     ];
   }
 
@@ -132,9 +142,9 @@ export class AlchemyProvider implements Pick<ChainProvider, "name" | "getTransac
   }
 
   /** One explicit-token sample: code plus four standard ERC-20 getters at latest. */
-  async getTokenMetadataSample(address: string): Promise<SourceDocumentInput[]> {
+  async getTokenMetadataSample(address: string, knownCode?: string): Promise<SourceDocumentInput[]> {
     if (!this.rpcUrl || !ADDRESS_PATTERN.test(address)) return [];
-    const code = await this.rpc("eth_getCode", [address, "latest"]);
+    const code = knownCode ?? await this.rpc("eth_getCode", [address, "latest"]);
     const validCode = typeof code === "string" && /^0x(?:[0-9a-f]{2})+$/i.test(code) && !/^0x0*$/i.test(code);
     if (!validCode || delegationTarget(code)) return [];
     const fields = [
@@ -145,7 +155,7 @@ export class AlchemyProvider implements Pick<ChainProvider, "name" | "getTransac
         const result = await this.rpc("eth_call", [{ to: address, data }, "latest"]);
         return this.doc("token", address, "eth_call", result, { query: "erc20MetadataSample", field });
       } catch {
-        return this.doc("token", address, "eth_call", null, { query: "erc20MetadataSample", field });
+        return this.doc("token", address, "eth_call", null, { query: "erc20MetadataSample", field, readError: true });
       }
     }));
     return [this.doc("token", address, "eth_getCode", code, { query: "erc20MetadataSample" }), ...responses];

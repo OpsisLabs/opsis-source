@@ -1,3 +1,4 @@
+import { decodeErc20Metadata } from "./erc20-metadata.js";
 import type { Citation, ChainEntityType, NormalizedEntity, RiskNote } from "@rh-chain/shared";
 import { decodeFunctionData, toFunctionSelector, type Abi, type AbiFunction, type Hex } from "viem";
 import type { SourceDocumentInput } from "./types.js";
@@ -158,6 +159,8 @@ function summarizeFacts(type: ChainEntityType, docs: SourceDocumentInput[], enti
         transactionEvidenceCoverage: rpcTransactionCoverage,
         observationFinality: rpcBlockEvidence ? "current_not_final" : "unknown"
       } : {}),
+      decodedActions: (rpcReceipt as { decodedActions?: unknown } | undefined)?.decodedActions ?? [],
+      decodeCoverage: (rpcReceipt as { decodeCoverage?: unknown } | undefined)?.decodeCoverage ?? "none",
       receiptTransferEvents: receiptTransferObservation.events,
       receiptTransferCoverage: receiptTransferObservation.coverage,
       rawSourceCount: docs.length
@@ -412,33 +415,6 @@ function isQuantity(value: unknown): value is string {
 
 function quantitiesEqual(left: unknown, right: unknown): boolean {
   return isQuantity(left) && isQuantity(right) && BigInt(left) === BigInt(right);
-}
-
-function decodeErc20Metadata(field: string, value: unknown): string | number | null {
-  if (typeof value !== "string" || !/^0x(?:[0-9a-f]{2})+$/i.test(value)) return null;
-  const hex = value.slice(2);
-  if (field === "decimals" || field === "totalSupply") {
-    if (hex.length !== 64) return null;
-    const integer = BigInt(`0x${hex}`);
-    if (field === "decimals") return integer <= 255n ? Number(integer) : null;
-    return integer.toString();
-  }
-  if (field !== "name" && field !== "symbol") return null;
-  if (hex.length < 128 || hex.length % 64 !== 0) return null;
-  const offset = BigInt(`0x${hex.slice(0, 64)}`);
-  if (offset !== 32n) return null;
-  const length = BigInt(`0x${hex.slice(64, 128)}`);
-  const maxLength = field === "name" ? 64n : 32n;
-  if (length < 1n || length > maxLength) return null;
-  const byteLength = Number(length) * 2;
-  const payload = hex.slice(128, 128 + byteLength);
-  const padding = hex.slice(128 + byteLength);
-  if (payload.length !== byteLength || padding.length !== Math.ceil(byteLength / 64) * 64 - byteLength || !/^0*$/.test(padding)) return null;
-  const bytes = Uint8Array.from(payload.match(/.{2}/g) ?? [], (byte) => Number.parseInt(byte, 16));
-  try {
-    const decoded = new TextDecoder("utf-8", { fatal: true }).decode(bytes).trim();
-    return decoded && !/[\u0000-\u001f\u007f]/.test(decoded) ? decoded : null;
-  } catch { return null; }
 }
 
 function decodeWithContractAbi(

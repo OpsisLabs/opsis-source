@@ -1,3 +1,4 @@
+import type { DecodedAction, TokenRef } from "../chain/transaction-actions.js";
 import type { AiExplorerAnswer, ChainEntityType, ExplorerAnswerTask, NormalizedEntity } from "@rh-chain/shared";
 import type { Env } from "../config/env.js";
 import { z } from "zod";
@@ -417,8 +418,38 @@ function transactionOutcome(status: unknown): "succeeded" | "failed" | "pending"
   return "unknown";
 }
 
+function actionAmount(amount: string | null, rawAmount: string, token: TokenRef, locale: AiLocale): string {
+  const label = token.symbol ?? `${token.address.slice(0, 6)}…${token.address.slice(-4)}`;
+  if (amount === null) return t(locale, `${rawAmount} raw units of ${label} (decimals unknown)`, `${label} 的 ${rawAmount} 个原始单位（小数位未知）`);
+  const [whole, fraction = ""] = amount.split(".");
+  const leadingZeros = fraction.match(/^0*/)?.[0].length ?? 0;
+  const shown = fraction.slice(0, leadingZeros + 6).replace(/0+$/, "");
+  const abbreviated = /[1-9]/.test(fraction.slice(leadingZeros + 6));
+  return `${abbreviated ? "≈" : ""}${whole!.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}${shown ? `.${shown}` : ""} ${label}`;
+}
+
+function describeTransactionAction(action: DecodedAction, locale: AiLocale, completed: boolean): string {
+  const short = (address: string) => `${address.slice(0, 6)}…${address.slice(-4)}`;
+  if (action.kind === "uniswap_v3_swap") {
+    const sold = actionAmount(action.sold.amount, action.sold.rawAmount, action.sold.token, locale);
+    const bought = actionAmount(action.bought.amount, action.bought.rawAmount, action.bought.token, locale);
+    const fee = action.feeBps === null ? "" : t(locale, ` (${action.feeBps / 100}% fee tier)`, `（${action.feeBps / 100}% 费率档位）`);
+    return t(locale, `${completed ? "It swapped" : "The logs describe a swap of"} ${sold} for ${bought} in a Uniswap V3 pool${fee}.`,
+      `${completed ? "它在" : "日志描述了在"} Uniswap V3 池中以 ${sold} 兑换 ${bought}${fee}。`);
+  }
+  const amount = actionAmount(action.amount, action.rawAmount, action.token, locale);
+  if (action.kind === "erc20_transfer") return t(locale,
+    `${completed ? "It moved" : "The logs describe a transfer of"} ${amount} from ${short(action.from)} to ${short(action.to)}.`,
+    `${completed ? "它将" : "日志描述了将"} ${amount} 从 ${short(action.from)} 转至 ${short(action.to)}。`);
+  const allowance = action.unlimited ? t(locale, `an unlimited ${action.token.symbol ?? short(action.token.address)} allowance`,
+    `${action.token.symbol ?? short(action.token.address)} 的无限额度授权`) : t(locale, `an allowance of ${amount}`, `${amount} 的额度授权`);
+  return t(locale, `${completed ? "It set" : "The logs describe setting"} ${allowance} for ${short(action.spender)}.`,
+    `${completed ? "它为" : "日志描述了为"} ${short(action.spender)} 设置${allowance}。`);
+}
+
 function transactionView(entity: NormalizedEntity, locale: AiLocale): { answer: string; summaryBullets: string[] } {
   const facts = entity.facts;
+  const actions = Array.isArray(facts.decodedActions) ? facts.decodedActions as DecodedAction[] : [];
   const outcome = transactionOutcome(facts.status);
   const headline = outcome === "unknown"
     ? t(locale, "The available receipt does not establish whether this Robinhood Chain transaction succeeded.", "现有回执无法确定这笔 Robinhood Chain 交易是否成功。")
@@ -439,7 +470,9 @@ function transactionView(entity: NormalizedEntity, locale: AiLocale): { answer: 
   const value = conciseFact(facts.valueEth);
   if (value && /^\d+(?:\.\d+)?$/.test(value)) {
     bullets.push(/^0(?:\.0+)?$/.test(value)
-      ? t(locale, "No native ETH was attached. Tokens may still be involved; this does not mean the transaction was free.", "没有附带原生 ETH。仍可能涉及代币；这并不意味着这笔交易是免费的。")
+      ? actions.length > 0
+        ? t(locale, "No native ETH was attached; network costs are separate.", "没有附带原生 ETH；网络费用另计。")
+        : t(locale, "No native ETH was attached. Tokens may still be involved; this does not mean the transaction was free.", "没有附带原生 ETH。仍可能涉及代币；这并不意味着这笔交易是免费的。")
       : t(locale, `${compactBeginnerDecimal(value)} ETH attached to the transaction—not the fee${outcome === "failed" ? "; the reverted transfer did not complete" : "; receipt and transfer evidence determine what completed"}.`, `${compactBeginnerDecimal(value)} ETH 已附加到交易——这不是手续费${outcome === "failed" ? "；被回滚的转账没有完成" : "；回执和转账证据决定实际完成了什么"}。`));
   } else {
     bullets.push(t(locale, "Native ETH amount is unavailable; raw values are not shown as coin amounts.", "原生 ETH 数量不可用；原始数值不会作为代币数量显示。"));
@@ -449,11 +482,29 @@ function transactionView(entity: NormalizedEntity, locale: AiLocale): { answer: 
   const from = shortAddress(facts.from);
   const to = shortAddress(facts.to);
   if (from && to) bullets.push(t(locale, `From ${from} to ${to}; these addresses do not identify their owners.`, `从 ${from} 到 ${to}；这些地址无法识别其所有者。`));
-  if (method) bullets.push(t(locale, `Decoded method: ${method}. Review its inputs and resulting transfers in the sources.`, `解码方法：${method}。请在来源中查看其输入和产生的转账。`));
+  if (method && actions.length === 0) bullets.push(t(locale, `Decoded method: ${method}. Review its inputs and resulting transfers in the sources.`, `解码方法：${method}。请在来源中查看其输入和产生的转账。`));
   const rawGas = conciseFact(facts.gasUsed);
   if (rawGas && /^(?:\d+|0x[\da-f]+)$/i.test(rawGas)) {
     const gas = BigInt(rawGas).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     bullets.push(t(locale, `${gas} gas units used—computational work, not an ETH or dollar fee.`, `使用了 ${gas} 个 gas 单位——这是计算工作量，不是 ETH 或美元费用。`));
+  }
+  if (actions.length > 0) {
+    const swaps = actions.filter((action) => action.kind === "uniswap_v3_swap");
+    const selected = (swaps.length > 0 ? swaps : actions).slice(0, 3);
+    const descriptions = selected.map((action) => describeTransactionAction(action, locale, outcome === "succeeded"));
+    const rest = actions.length - selected.length;
+    if (rest > 0) descriptions.push(t(locale, `${rest} other decoded action${rest === 1 ? " appears" : "s appear"} in the receipt.`, `回执中还有 ${rest} 个已解码操作。`));
+    if (facts.decodeCoverage === "partial") descriptions.push(t(locale,
+      "Decoding is partial: some logs or token metadata could not be decoded within the request limits.",
+      "解码不完整：部分日志或代币元数据无法在本次请求的限制内解码。"));
+    const qualification = outcome === "failed"
+      ? t(locale, "Its logged actions did not take effect; a network fee can still be charged.", "其日志中的操作没有生效；仍可能被收取网络费用。")
+      : facts.internalTransactionFailure === true ? context : "";
+    // Keep fee and address-identity limits alongside the action summary.
+    const supporting = bullets;
+    if (!from || !to) supporting.push(t(locale, "Addresses do not identify their owners.", "地址无法识别其所有者。"));
+    return { answer: [headline, qualification, ...descriptions].filter(Boolean).join(locale === "zh-CN" ? "" : " "),
+      summaryBullets: [...descriptions, ...(qualification ? [qualification] : []), ...supporting] };
   }
   bullets.push(Array.isArray(facts.tokenTransfers) && facts.tokenTransfers.length > 0
     ? t(locale, `${facts.tokenTransfers.length} token-transfer record${facts.tokenTransfers.length === 1 ? "" : "s"} returned; inspect amounts and recipients in the sources. Coverage may be incomplete.`, `返回了 ${facts.tokenTransfers.length} 条代币转账记录；请在来源中检查金额和接收方。覆盖范围可能不完整。`)
@@ -589,6 +640,7 @@ function verificationView(entity: NormalizedEntity, locale: AiLocale): { answer:
 
 function transactionMovedView(entity: NormalizedEntity, locale: AiLocale): { answer: string; summaryBullets: string[] } {
   const facts = entity.facts;
+  if (Array.isArray(facts.decodedActions) && facts.decodedActions.length > 0) return transactionView(entity, locale);
   const outcome = transactionOutcome(facts.status);
   const native = nativeValueState(facts);
   const transfers = Array.isArray(facts.tokenTransfers) ? facts.tokenTransfers.filter(isRecordLike) : [];
@@ -656,6 +708,7 @@ function nativeValueState(facts: Record<string, unknown>): { state: "positive" |
 
 function transactionSuccessView(entity: NormalizedEntity, locale: AiLocale): { answer: string; summaryBullets: string[] } {
   const facts = entity.facts;
+  if (Array.isArray(facts.decodedActions) && facts.decodedActions.length > 0) return transactionView(entity, locale);
   const outcome = transactionOutcome(facts.status);
   const method = decodedMethod(facts.method);
   const gasText = formatGasUnits(facts.gasUsed);

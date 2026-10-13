@@ -21,7 +21,7 @@ export class ChainEntityResolver {
     getTransaction(hash: string): Promise<SourceDocumentInput[]>;
     getAddressSummary(address: string): Promise<SourceDocumentInput[]>;
     getReviewedAssetBalances?(address: string): Promise<SourceDocumentInput[]>;
-    getTokenMetadataSample?(address: string): Promise<SourceDocumentInput[]>;
+    getTokenMetadataSample?(address: string, knownCode?: string): Promise<SourceDocumentInput[]>;
     getAllowances(owner: string, targets: AllowanceTarget[]): Promise<SourceDocumentInput[]>;
   };
   private readonly goldrush: Pick<ChainProvider, "name" | "isConfigured" | "getAddressSummary">;
@@ -37,7 +37,7 @@ export class ChainEntityResolver {
         isConfigured?(): boolean;
         getTransaction(hash: string): Promise<SourceDocumentInput[]>;
         getAddressSummary(address: string): Promise<SourceDocumentInput[]>;
-        getTokenMetadataSample?(address: string): Promise<SourceDocumentInput[]>;
+        getTokenMetadataSample?(address: string, knownCode?: string): Promise<SourceDocumentInput[]>;
         getAllowances(owner: string, targets: AllowanceTarget[]): Promise<SourceDocumentInput[]>;
       };
       goldrush: Pick<ChainProvider, "name" | "isConfigured" | "getAddressSummary">;
@@ -102,7 +102,23 @@ export class ChainEntityResolver {
       }
       if (inputType === "unknown") {
         resolvedType = classifyAddressSources(docs);
-        if (resolvedType === "token") {
+        if (resolvedType === "contract" && hasContractCode(docs) && this.alchemy.getTokenMetadataSample) {
+          try {
+            providerDestinations.add(this.alchemy.name);
+            const codeDoc = docs.find((doc) => rpcMethod(doc) === "eth_getCode");
+            const sample = await this.alchemy.getTokenMetadataSample(identified.value, asRecord(codeDoc?.responseJson)?.result as string);
+            const facts = normalizeEntity(this.env.ROBINHOOD_CHAIN_ID, "token", identified.value, sample).facts;
+            if (!sample.some((doc) => asRecord(doc.responseJson)?.readError === true)
+              && typeof facts.decimals === "number" && facts.decimals <= 36
+              && (typeof facts.name === "string" || typeof facts.symbol === "string")) {
+              resolvedType = "token";
+              docs.push(...sample);
+            }
+          } catch {
+            // Optional token recognition never replaces the existing contract evidence on failure.
+          }
+        }
+        if (resolvedType === "token" && !docs.some((doc) => asRecord(doc.responseJson)?.query === "erc20MetadataSample")) {
           providerDestinations.add(this.blockscout.name);
           docs.push(...(await this.blockscout.getToken(identified.value, { limit })));
         }
