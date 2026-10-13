@@ -370,6 +370,18 @@
       ],
       "outcome": "Publishing the final domain and the support address is a settings change, and the site carries the files a public launch expects",
       "shipGate": "A support and security contact address supplied at build time appears on the Privacy page in English and Chinese and in /.well-known/security.txt; with no address configured the current sentence stays and no security file is written; a malformed address fails the build. Search indexing stays off by default, with every Opsis page marked noindex as today; an explicit build switch on an HTTPS site origin writes sitemap.xml and the Sitemap line in robots.txt from the canonical site URL and lets only the always-available public pages be indexed. The site ships a favicon and a touch icon. The API accepts state-changing requests from its canonical origin and from explicitly configured alias origins only, each a canonical HTTPS origin, so the earlier host keeps working during a domain move; the default is no alias and nothing else about the request checks changes. The in-app changelog gains the release 29 entry in the wording approved by D23. A runbook covers the domain move, the contact address, verification and rollback. No provider, chain, execution, paid path, workspace, public claim or invariant change. Relevant unit, failure-state, privacy, English/Chinese, Chromium/WebKit and full release gates pass on the integrated candidate."
+    },
+    {
+      "order": 32,
+      "id": "31-first-visit",
+      "branch": "codex/31-first-visit",
+      "tagPrefix": "rc/31-first-visit/",
+      "status": "queued",
+      "dependencies": [
+        "30-launch-readiness"
+      ],
+      "outcome": "A first-time visitor gets a useful answer from the first thing they try",
+      "shipGate": "Research recognises a token contract without being told and shows its name, symbol, decimals and supply with the exact contract; a transaction shows decoded token transfers, approvals and Uniswap V3 swaps in plain words with formatted amounts next to the raw values, and says so when it could not decode; a wallet shows its sampled token balances in the result. Decoding uses only the existing chain-data provider within the existing per-request and daily limits, and anything not established stays labelled as unknown. Trade Check never preselects the input token as its output and explains a refused request specifically. Research and Trade Check offer one-click examples that use public reviewed contracts only, never an individual's wallet, and accept the symbols of reviewed assets while always showing the exact contract they resolve to. On Research and Trade Check the main input and its action are on the first screen at 1280 by 800 and 375 by 812, with one header height across tool pages. English and Chinese, Chromium and WebKit, unit, failure-state, privacy and full release gates pass on the integrated candidate. No provider, chain, execution, paid path, workspace or new public claim; the front door keeps its D12 composition."
     }
   ]
 }
