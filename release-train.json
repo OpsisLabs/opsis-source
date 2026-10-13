@@ -394,6 +394,18 @@
       ],
       "outcome": "A crowd arriving at once, many of them behind one network address, still gets the product; and we know the limits because we measured them",
       "shipGate": "The access check's per-address limit is a setting with a default several times today's 20 a minute, and nothing else about that route changes. When the access check is refused for volume the app says so in plain words under a heading, retries by itself after the wait the server states, a bounded number of times, and keeps a manual retry; any other failure keeps today's screen with a heading. A repository load script drives realistic visitor journeys against a named host within hard bounds on concurrency and duration, refuses to run without an explicit acknowledgement that it spends chain-data units, and reports latency percentiles and refusals by step; it has run against the preview and its measured limits are in the release record. The scheduled production check also verifies that the chain's main token is recognised, without adding a chain-data cost above a few calls a run. English and Chinese, Chromium and WebKit, unit, failure-state, privacy and full release gates pass on the integrated candidate. No provider, chain, execution, paid path, workspace or new public claim; spending limits stay hard stops."
+    },
+    {
+      "order": 34,
+      "id": "33-recover-and-watch",
+      "branch": "codex/33-recover-and-watch",
+      "tagPrefix": "rc/33-recover-and-watch/",
+      "status": "queued",
+      "dependencies": [
+        "32-launch-load"
+      ],
+      "outcome": "A dropped connection does not strand a visitor, a refused lookup says why, and the scheduled production check can run against the deployment as it is",
+      "shipGate": "A page whose code fails to download is retried, then reloaded once without a loop, and otherwise shows a screen with one heading, a plain explanation and a reload control; no storage API is used. Research names a per-visitor limit with its wait, a chain-data rate or budget refusal and an invalid identifier separately, and keeps the generic sentence for anything else. The private-only launch smoke runs through the web host alone when no API address is given, and says which checks it skipped. English and Chinese, Chromium and WebKit, unit, failure-state, privacy and full release gates pass on the integrated candidate. No provider, chain, execution, paid path, workspace or new public claim."
     }
   ]
 }
