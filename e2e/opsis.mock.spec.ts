@@ -125,11 +125,11 @@ test.describe("opsis preview", () => {
       .getByRole("button", { name: "Run research", exact: true })
       .click();
     await expect(page.getByTestId("opsis-research-result")).toContainText(
-      "Fixture observation",
+      "Fixture Token · FIX",
     );
     await page.getByRole("link", { name: "Check an amount" }).click();
     await expect(
-      page.getByLabel("Token contract · chain 4663", { exact: true }),
+      page.getByLabel("Reviewed symbol or token contract · chain 4663", { exact: true }),
     ).toHaveValue(TOKEN);
     await expect(
       page.getByLabel("Amount to check", { exact: true }),

@@ -22,12 +22,15 @@ export function clearLegacyBrowserCredentials(): void {
 export class ApiError extends Error {
   code: string;
   status: number;
+  /** Whole seconds from a Retry-After header, when the server sent a usable one. */
+  retryAfter?: number;
 
-  constructor(code: string, message: string, status: number) {
+  constructor(code: string, message: string, status: number, retryAfter?: number) {
     super(message);
     this.name = "ApiError";
     this.code = code;
     this.status = status;
+    if (retryAfter !== undefined) this.retryAfter = retryAfter;
   }
 }
 
@@ -136,7 +139,15 @@ async function toApiError(response: Response): Promise<ApiError> {
     code,
     humanize(code, message, response.status),
     response.status,
+    retryAfterSeconds(response.headers.get("retry-after")),
   );
+}
+
+/** Only a plain delay of at most one day is passed on; dates and anything odd are ignored. */
+export function retryAfterSeconds(header: string | null): number | undefined {
+  if (header === null || !/^\d{1,5}$/.test(header.trim())) return undefined;
+  const seconds = Number(header.trim());
+  return seconds > 0 && seconds <= 86_400 ? seconds : undefined;
 }
 
 async function raw(path: string, init: RequestInit = {}): Promise<Response> {

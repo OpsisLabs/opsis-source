@@ -9,6 +9,8 @@ import {
   classificationFromAddressObject,
 } from "../watch/followWallet";
 import ResearchIntro from "./ResearchIntro";
+import { KNOWN_ASSETS, resolveKnownAsset, type KnownAsset } from "./known-assets";
+import { DecodedActions, TokenFacts, WalletBalances } from "./ResearchFacts";
 import { useCopy } from "./copy";
 import { publicIdentity, workspaceIdentity, researchInputMatchesChoice, workspaceLink, type Capabilities } from "./model";
 
@@ -16,7 +18,7 @@ import { publicSession } from "./public-session";
 
 import ReportShelf from "./ReportShelf";
 import { researchReport } from "./reports";
-import { receiptTransferObservations, transactionReceiptOutcome, transactionTimelineRows } from "./transactionTimeline";
+import { tokenHeading, receiptTransferObservations, transactionReceiptOutcome, transactionTimelineRows } from "./transactionTimeline";
 // Imported, not lazy: a panel revealed after its result moves the controls below
 // it, and a press already under way on them is released over another element.
 import ContractControls from "./ContractControls";
@@ -41,8 +43,17 @@ export default function Research({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
   const pending = useRef<AbortController | null>(null);
+  const [resolved, setResolved] = useState<KnownAsset | null>(null);
   const trimmedEntity = entity.trim();
-  const inputMatchesChoice = researchInputMatchesChoice(trimmedEntity, entityType);
+  const known = resolveKnownAsset(trimmedEntity);
+  const resolvedAsset = resolved ?? known;
+  const inputIdentity = known?.address ?? trimmedEntity;
+  const inputMatchesChoice = researchInputMatchesChoice(inputIdentity, entityType);
+  const actions = result?.entity.type === "transaction" && result.entity.facts.decodeCoverage !== "none"
+    ? result.entity.facts.decodedActions ?? [] : [];
+  function resolveInput() {
+    if (known) { setEntity(known.address); setResolved(known); }
+  }
   useEffect(() => () => pending.current?.abort(), []);
   useEffect(() => {
     publicSession.research = { entity: publicIdentity(entity), task, entityType, result };
@@ -53,6 +64,7 @@ export default function Research({
       // Synchronize explicit router context without initiating a lookup.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setEntity(incoming);
+      setResolved(null);
       setResult(null);
       setBusy(false);
       setError(false);
@@ -68,15 +80,18 @@ export default function Research({
     setResult(null);
     setError(false);
   }
-  async function run() {
+  async function run(input = inputIdentity) {
+    if (!publicIdentity(input) || !researchInputMatchesChoice(input, entityType)) return;
+    const asset = KNOWN_ASSETS.find((asset) => asset.address.toLowerCase() === input.toLowerCase());
+    if (asset) { setEntity(asset.address); setResolved(asset); }
     clear();
     const controller = new AbortController();
     pending.current = controller;
     setBusy(true);
-    navigate(workspaceLink("/research", trimmedEntity), { replace: true });
+    navigate(workspaceLink("/research", input), { replace: true });
     try {
       const next = await analyzePrivate(
-        { entity: trimmedEntity, entityType, task },
+        { entity: input, entityType, task },
         controller.signal,
       );
       if (!controller.signal.aborted) setResult(next);
@@ -119,81 +134,98 @@ export default function Research({
           className="opsis-panel"
           onSubmit={(e) => {
             e.preventDefault();
-            if (publicIdentity(entity) && inputMatchesChoice) void run();
+            if (publicIdentity(inputIdentity) && inputMatchesChoice) void run();
           }}
         >
           <label htmlFor="research-entity">
-            {c("Public address or transaction hash", "公开地址或交易哈希")}
+            {c("Reviewed symbol, address or transaction hash", "已审核符号、地址或交易哈希")}
           </label>
-          <label htmlFor="research-entity-type">{c("Look up as", "查询类型")}</label>
-          <select
-            id="research-entity-type"
-            value={entityType}
-            onChange={(e) => {
-              clear();
-              setEntityType(e.target.value as "unknown" | "token");
-            }}
-          >
-            <option value="unknown">{c("Auto", "自动")}</option>
-            <option value="token">{c("Token", "代币")}</option>
-          </select>
           <input
             id="research-entity"
             value={entity}
             onChange={(e) => {
               clear();
               setEntity(e.target.value);
+              setResolved(null);
             }}
+            onBlur={resolveInput}
             autoComplete="off"
             spellCheck={false}
             placeholder="0x…"
           />
+          {resolvedAsset && <p className="opsis-small opsis-resolved-asset" role="status">{c("Resolved", "已识别")}: {resolvedAsset.name} · {resolvedAsset.symbol} · {c("Token · chain 4663", "代币 · 链 4663")}<br /><code>{resolvedAsset.address}</code></p>}
+          <div className="opsis-asset-examples" aria-label={c("Research examples", "研究示例")}>
+            <span>{c("Examples", "示例")}:</span>
+            {KNOWN_ASSETS.filter((asset) => ["WETH", "USDG", "AAPL", "NVDA"].includes(asset.symbol)).map((asset) => <button key={asset.symbol} type="button" disabled={busy} onClick={() => {
+              setEntity(asset.address); setResolved(asset); void run(asset.address);
+            }}>{asset.symbol}</button>)}
+          </div>
           {!inputMatchesChoice && trimmedEntity.length > 0 && (
             <p role="alert" className="opsis-small">
-              {entityType === "token"
+              {!trimmedEntity.startsWith("0x")
+                ? c("Only reviewed symbols are recognised. Enter a contract address or transaction hash.", "仅识别已审核的符号。请输入合约地址或交易哈希。")
+                : entityType === "token"
                 ? c("Token lookup requires a 0x contract address.", "代币查询需要 0x 合约地址。")
                 : c("Enter a 0x address or transaction hash.", "请输入 0x 地址或交易哈希。")}
             </p>
           )}
-          <label htmlFor="research-task">
-            {c("Your question", "您的问题")}
-          </label>
-          <select
-            id="research-task"
-            value={task}
-            onChange={(e) => {
-              clear();
-              setTask(e.target.value as ExplorerAnswerTask);
-            }}
+          <div className="opsis-form-row">
+            <div>
+              <label htmlFor="research-entity-type">{c("Look up as", "查询类型")}</label>
+              <select
+                id="research-entity-type"
+                value={entityType}
+                onChange={(e) => {
+                  clear();
+                  setEntityType(e.target.value as "unknown" | "token");
+                }}
+              >
+                <option value="unknown">{c("Auto", "自动")}</option>
+                <option value="token">{c("Token", "代币")}</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="research-task">
+                {c("Your question", "您的问题")}
+              </label>
+              <select
+                id="research-task"
+                value={task}
+                onChange={(e) => {
+                  clear();
+                  setTask(e.target.value as ExplorerAnswerTask);
+                }}
+              >
+                <option value="overview">{c("What is this?", "这是什么？")}</option>
+                <option value="risk">
+                  {c(
+                    "Which controls and limits were found?",
+                    "发现了哪些控制机制和限制？",
+                  )}
+                </option>
+                <option value="activity">
+                  {c("What activity was observed?", "观察到了哪些活动？")}
+                </option>
+                <option value="evidence">
+                  {c("What are the sources?", "有哪些来源？")}
+                </option>
+              </select>
+            </div>
+          </div>
+          <button
+            className="opsis-action"
+            disabled={busy || !publicIdentity(inputIdentity) || !inputMatchesChoice}
           >
-            <option value="overview">{c("What is this?", "这是什么？")}</option>
-            <option value="risk">
-              {c(
-                "Which controls and limits were found?",
-                "发现了哪些控制机制和限制？",
-              )}
-            </option>
-            <option value="activity">
-              {c("What activity was observed?", "观察到了哪些活动？")}
-            </option>
-            <option value="evidence">
-              {c("What are the sources?", "有哪些来源？")}
-            </option>
-          </select>
+            {busy
+              ? c("Looking up…", "正在查询…")
+              : c("Run research", "运行研究")}
+          </button>
           <p className="opsis-receipt">
             {c(
               "Sends this public identifier, question selection and language to Opsis and its configured chain-data providers. No account, wallet connection, saved holdings or AI model request. Results stay in memory unless you explicitly save an encrypted observation.",
               "向 Opsis 及其配置的链上数据提供商发送此公开标识符、所选问题和语言。不涉及账户、钱包连接、已保存持仓或 AI 模型请求。除非您主动保存加密观察，否则结果仅存于内存。",
             )}
           </p>
-          <button
-            className="opsis-action"
-            disabled={busy || !publicIdentity(entity) || !inputMatchesChoice}
-          >
-            {busy
-              ? c("Looking up…", "正在查询…")
-              : c("Run research", "运行研究")}
-          </button>
         </form>
         <div aria-live="polite">
           {error && (
@@ -229,10 +261,10 @@ export default function Research({
               <p className="opsis-kicker">
                 {c("OBSERVED / PARTIAL COVERAGE", "已观察 / 部分覆盖")}
               </p>
-              <h2>{result.answer.card?.title ?? result.entity.type}</h2>
+              <h2>{result.entity.type === "token" ? tokenHeading(result.entity.facts, c("Token", "代币")) : result.answer.card?.title ?? result.entity.type}</h2>
               <p className="opsis-identity">
                 {c("Chain", "链")} {result.entity.chainId} ·{" "}
-                {result.entity.type}
+                {result.entity.type === "token" ? c("Token", "代币") : result.entity.type}
                 <br />
                 {result.entity.value}
               </p>
@@ -240,7 +272,10 @@ export default function Research({
                 {c("Checked at", "核查时间")}:{" "}
                 {result.answer.citations[0]?.fetchedAt ?? c("Unknown", "未知")}
               </p>
-              <p className="opsis-result-copy">{result.answer.answer}</p>
+              {result.entity.type === "token" ? <TokenFacts facts={result.entity.facts} />
+                : result.entity.type === "wallet" && Array.isArray(result.entity.facts.tokenBalances) ? <WalletBalances facts={result.entity.facts} />
+                  : <p className="opsis-result-copy">{result.answer.answer}</p>}
+              {actions.length > 0 && <DecodedActions actions={actions} coverage={result.entity.facts.decodeCoverage} />}
               {result.entity.type === "transaction" && (() => {
                 const rows = transactionTimelineRows(result.entity.facts);
                 const receiptTransfers = receiptTransferObservations(result.entity.facts);
@@ -249,15 +284,19 @@ export default function Research({
                 const finality = result.entity.facts.observationFinality;
                 const source = result.answer.citations[0];
                 const receiptSource = result.answer.citations.find((citation) => citation.fieldsUsed.includes("result.logs"));
+                const Timeline = actions.length ? "details" : "section";
+                const Title = actions.length ? "summary" : "h3";
+                const Receipt = actions.length ? "details" : "section";
+                const ReceiptTitle = actions.length ? "summary" : "h4";
                 return (
-                  <section className="opsis-panel" aria-labelledby="transaction-timeline-title" data-testid="transaction-timeline">
-                    <h3 id="transaction-timeline-title">{c("Transaction observations", "交易观察")}</h3>
+                  <Timeline className="opsis-panel" aria-labelledby="transaction-timeline-title" data-testid="transaction-timeline">
+                    <Title id="transaction-timeline-title">{c("Transaction observations", "交易观察")}</Title>
                     {(receiptTransfers.events.length > 0 ||
                       receiptTransfers.coverage === "complete" ||
                       receiptTransfers.coverage === "capped" ||
                       receiptTransfers.coverage === "partial") && (
-                      <section className="opsis-panel" aria-labelledby="receipt-log-observations-title" data-testid="receipt-transfer-observations">
-                        <h4 id="receipt-log-observations-title">{c("Receipt log observations", "收据日志观察")}</h4>
+                      <Receipt className="opsis-panel" aria-labelledby="receipt-log-observations-title" data-testid="receipt-transfer-observations">
+                        <ReceiptTitle id="receipt-log-observations-title">{c("Receipt log observations", "收据日志观察")}</ReceiptTitle>
                         <p className="opsis-small">
                           {receiptTransfers.coverage === "complete"
                             ? receiptTransfers.events.length === 0
@@ -290,7 +329,7 @@ export default function Research({
                         <p className="opsis-small">
                           {receiptSource ? <>
                             {c("Source", "来源")}: {safeHttpUrl(receiptSource.url) ? (
-                              <a href={safeHttpUrl(receiptSource.url)!} target="_blank" rel="noreferrer">{receiptSource.label}</a>
+                              <a href={safeHttpUrl(receiptSource.url)!} target="_blank" rel="noopener noreferrer">{receiptSource.label} ↗</a>
                             ) : receiptSource.label}
                             {" · "}{c("Observed", "观察时间")}: {receiptSource.fetchedAt}
                           </> : <>{c("Source", "来源")}: {c("Unknown", "未知")} · {c("Observed", "观察时间")}: {c("Unknown", "未知")}</>}
@@ -301,7 +340,7 @@ export default function Research({
                             "这些仅是来源报告的 Transfer 形状日志观察，不能验证 ERC-20 代币转移、代币身份、价值、余额变化、NFT 含义或内部转账。",
                           )}
                         </p>
-                      </section>
+                      </Receipt>
                     )}
                     <p className="opsis-small">
                       {c("Selected fields grouped by observation stage; this is not a complete transaction sequence.", "按观察阶段归类的部分字段；这不是完整的交易序列。")}
@@ -359,13 +398,13 @@ export default function Research({
                     <p className="opsis-small">
                       {source ? <>
                         {c("Sources", "来源记录")}: {result.answer.citations.length} · {safeHttpUrl(source.url) ? (
-                          <a href={safeHttpUrl(source.url)!} target="_blank" rel="noreferrer">{source.label}</a>
+                          <a href={safeHttpUrl(source.url)!} target="_blank" rel="noopener noreferrer">{source.label} ↗</a>
                         ) : source.label}
                         {" · "}{c("Observed", "观察时间")}: {source.fetchedAt}
                       </> : <>{c("Source", "来源")}: {c("Unknown", "未知")} · {c("Observed", "观察时间")}: {c("Unknown", "未知")}</>}
                     </p>
                     <p className="opsis-small">{c("These are transaction-level observations only; they do not trace internal transfers or token movements.", "这些仅是交易级观察；不会追踪内部转账或代币变动。")}</p>
-                  </section>
+                  </Timeline>
                 );
               })()}
               {result.entity.type === "contract" &&
@@ -386,18 +425,6 @@ export default function Research({
                     </p>
                   </section>
                 )}
-              {result.entity.type === "token" &&
-                result.entity.facts.metadataCoverage === "rpc_partial" && (
-                  <section className="opsis-panel" data-testid="research-token-rpc-coverage">
-                    <p className="opsis-kicker">{c("LIMITED RPC TOKEN SAMPLE", "有限 RPC 代币采样")}</p>
-                    <p>
-                      {c(
-                        "Available name, symbol, decimals and supply fields are independent latest-state RPC samples, not verified identity and not anchored to one block. Holder count, transfers, verification, proxy status, sellability and indexed activity are unknown.",
-                        "可用的名称、符号、小数位和供应量字段是独立的最新状态 RPC 采样，并非已验证身份，也未锚定至同一区块。持有人数量、转账、验证状态、代理状态、可售性及索引活动均未知。",
-                      )}
-                    </p>
-                  </section>
-                )}
               <EvidenceMap
                 key={result.entity.value}
                 findings={[
@@ -407,7 +434,7 @@ export default function Research({
                       fact: `${note.severity}: ${note.note}`,
                       sourceIds: note.sourceIds,
                     })),
-                  ...result.answer.confirmedFacts,
+                  ...result.answer.confirmedFacts.filter((finding) => result.entity.type !== "token" || !/holder|activity|verif|持有人|活动|验证/i.test(finding.fact)),
                 ].slice(0, 3)}
                 sources={result.answer.citations}
               />
@@ -441,6 +468,7 @@ export default function Research({
                   {c("Sources, findings and limitations", "来源、分析与限制")} (
                   {result.answer.citations.length})
                 </summary>
+                {(result.entity.type === "token" || result.entity.type === "wallet") && <p>{result.answer.answer}</p>}
                 <ul>
                   {result.answer.riskNotes.map((note, i) => (
                     <li key={i}>
@@ -449,7 +477,7 @@ export default function Research({
                   ))}
                 </ul>
                 <ul>
-                  {result.answer.confirmedFacts.slice(3).map((fact, i) => (
+                  {(result.entity.type === "token" ? result.answer.confirmedFacts : result.answer.confirmedFacts.slice(3)).map((fact, i) => (
                     <li key={i}>
                       {fact.fact} [{fact.sourceIds.join(", ")}]
                     </li>
@@ -462,9 +490,9 @@ export default function Research({
                       <a
                         href={safeHttpUrl(source.url)!}
                         target="_blank"
-                        rel="noreferrer"
+                        rel="noopener noreferrer"
                       >
-                        {source.label}
+                        {source.label} ↗
                       </a>
                     ) : (
                       source.label
@@ -504,17 +532,17 @@ export default function Research({
               result?.entity.value ?? entity,
             )}
           >
-            {c("Detailed research", "详细研究")}
+            {c("Detailed research →", "详细研究 →")}
           </Link>
           {capabilities.rwa && (
             <Link to="/rwa">
-              {c("Stock-token check", "股票代币核查")}
+              {c("Stock-token check →", "股票代币核查 →")}
             </Link>
           )}
           {capabilities.observedTrades &&
             import.meta.env.VITE_OBSERVED_TRADES_ENABLED === "true" && (
               <Link to="/biggest-trades">
-                {c("Big trades", "大额交易")}
+                {c("Big trades →", "大额交易 →")}
               </Link>
             )}
         </div>

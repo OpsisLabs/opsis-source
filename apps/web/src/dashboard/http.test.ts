@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { api, humanize, privateApi } from "./http";
+import { api, humanize, privateApi, retryAfterSeconds } from "./http";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -45,4 +45,14 @@ it("sends both CSRF headers for private and cookie-authenticated mutations", asy
     expect(options.headers.get("x-opsis-csrf")).toBe("1");
     expect([...options.headers.keys()].filter((name: string) => name.includes("csrf"))).toEqual(["x-opsis-csrf"]);
   }
+});
+
+describe("Retry-After", () => {
+  it("passes on only a plain delay of at most one day", () => {
+    expect(retryAfterSeconds("60")).toBe(60);
+    expect(retryAfterSeconds(" 3257 ")).toBe(3257);
+    for (const header of [null, "", "0", "-5", "1.5", "86401", "999999", "Wed, 14 Oct 2026 00:00:00 GMT", "60, 60", "soon"]) {
+      expect(retryAfterSeconds(header)).toBeUndefined();
+    }
+  });
 });

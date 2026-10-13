@@ -1552,3 +1552,65 @@
 .opsis .opsis-status-summary {
   overflow-wrap: anywhere;
 }
+
+/* First-visit result blocks and reviewed-asset examples. */
+.opsis-asset-examples {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .4rem;
+  margin: .6rem 0 1rem;
+  font-size: .8rem;
+}
+.opsis-asset-examples button,
+.opsis-address-control button {
+  padding: .25rem .5rem;
+  font-size: .8rem;
+  min-height: 32px;
+}
+.opsis-resolved-asset,
+.opsis-decoded-actions code,
+.opsis-balance-list code {
+  overflow-wrap: anywhere;
+}
+.opsis-decoded-actions ol,
+.opsis-balance-list {
+  padding-left: 1.25rem;
+}
+.opsis-decoded-actions li,
+.opsis-balance-list li {
+  margin-bottom: 1rem;
+}
+.opsis-address-control {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .25rem;
+  overflow-wrap: anywhere;
+}
+
+/* Options sit side by side so the action stays on the first screen. */
+.opsis-form-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+}
+.opsis-form-row select,
+.opsis-form-row input {
+  width: 100%;
+}
+.opsis-panel > .opsis-action + .opsis-receipt {
+  margin-top: 16px;
+}
+
+/* Short labels (two Chinese characters) still get a full-width touch target on phones. */
+@media (max-width: 800px) {
+  .opsis.opsis-terminal .opsis-header :is(button, summary, .opsis-logo, .opsis-guide-link, nav a) {
+    min-width: 44px;
+    text-align: center;
+  }
+  /* An explicit minimum lets a flex item shrink below its label; keep links at their own width so the row scrolls instead of overlapping. */
+  .opsis.opsis-terminal .opsis-header nav a {
+    flex: 0 0 auto;
+  }
+}

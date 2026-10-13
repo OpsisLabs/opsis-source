@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import {
-  getExitCheckQuote,
+  EXIT_CHECK_TOKENS,
   isValidExitAmount,
   type ExitCheckQuote,
   type ExitCheckOutputSymbol,
 } from "../exit-check/api";
+import { KNOWN_ASSETS, resolveKnownAsset, type KnownAsset } from "./known-assets";
+import { differentOutput, observeTradeQuote } from "./trade-check";
+import { tradeRefusal, tradeRefusalCopy, type TradeRefusal } from "./trade-refusal";
 import { useCopy } from "./copy";
 import { publicIdentity, workspaceIdentity, workspaceLink, type Capabilities } from "./model";
 
@@ -31,11 +34,16 @@ export default function TradeCheck({
   const remembered = !incoming || incoming === publicSession.check.token;
   const [token, setToken] = useState(incoming || publicSession.check.token);
   const [amount, setAmount] = useState(remembered ? publicSession.check.amount : "");
-  const [output, setOutput] = useState<ExitCheckOutputSymbol>(remembered ? publicSession.check.output : "WETH");
+  const [output, setOutput] = useState<ExitCheckOutputSymbol>(() => differentOutput(incoming || publicSession.check.token, remembered ? publicSession.check.output : "WETH"));
   const [curveEnabled, setCurveEnabled] = useState(remembered && publicSession.check.curveEnabled);
   const [result, setResult] = useState<ExitCheckQuote | null>(remembered ? publicSession.check.result : null);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<TradeRefusal | null>(null);
+  const [resolved, setResolved] = useState<KnownAsset | null>(null);
+  const known = resolveKnownAsset(token);
+  const resolvedAsset = resolved ?? known;
+  const tokenIdentity = known?.address ?? token.trim();
+  const selectedOutput = differentOutput(tokenIdentity, output);
   const [now, setNow] = useState(Date.now);
   const pending = useRef<AbortController | null>(null);
   useEffect(() => () => pending.current?.abort(), []);
@@ -53,10 +61,12 @@ export default function TradeCheck({
       // Synchronize explicit router context; amounts never come from a URL.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setToken(incoming);
+      setResolved(null);
+      setOutput(differentOutput(incoming, "WETH"));
       setAmount("");
       setResult(null);
       setBusy(false);
-      setError(false);
+      setError(null);
     }
   }, [incoming]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -64,35 +74,42 @@ export default function TradeCheck({
     if (`/check${location.search}` !== path) navigate(path, { replace: true });
   }, [incoming, location.search, navigate]);
   const valid =
-    /^0x[a-fA-F0-9]{40}$/.test(token.trim()) && isValidExitAmount(amount, 36);
+    /^0x[a-fA-F0-9]{40}$/.test(tokenIdentity) && isValidExitAmount(amount, 36);
   function clear() {
     pending.current?.abort();
     setBusy(false);
     setResult(null);
-    setError(false);
+    setError(null);
+  }
+  function resolveInput() {
+    if (known) { setToken(known.address); setResolved(known); }
+    setOutput(selectedOutput);
   }
   async function run() {
+    if (!valid) return;
+    if (known) { setToken(known.address); setResolved(known); }
+    setOutput(selectedOutput);
     clear();
     const controller = new AbortController();
     pending.current = controller;
     setBusy(true);
-    navigate(workspaceLink("/check", token), { replace: true });
+    navigate(workspaceLink("/check", tokenIdentity), { replace: true });
     try {
-      const quote = await getExitCheckQuote(
+      const { quote, receivedAt } = await observeTradeQuote(
         {
-          token: token.trim(),
+          token: tokenIdentity,
           amount,
-          outputToken: output,
+          outputToken: selectedOutput,
           curve: curveEnabled,
         },
         controller.signal,
       );
       if (!controller.signal.aborted) {
-        setNow(Date.now());
+        setNow(receivedAt);
         setResult(quote);
       }
-    } catch {
-      if (!controller.signal.aborted) setError(true);
+    } catch (error) {
+      if (!controller.signal.aborted) setError(tradeRefusal(error));
     } finally {
       if (!controller.signal.aborted) setBusy(false);
     }
@@ -117,13 +134,13 @@ export default function TradeCheck({
       <div className="opsis-two-column">
         <form
           className="opsis-panel"
-          onSubmit={(e) => {
-            e.preventDefault();
+          onSubmit={(event) => {
+            event.preventDefault();
             if (valid) void run();
           }}
         >
           <label htmlFor="check-token">
-            {c("Token contract · chain 4663", "代币合约 · 链 4663")}
+            {c("Reviewed symbol or token contract · chain 4663", "已审核符号或代币合约 · 链 4663")}
           </label>
           <input
             id="check-token"
@@ -131,43 +148,53 @@ export default function TradeCheck({
             onChange={(e) => {
               clear();
               setToken(e.target.value);
+              setResolved(null);
+              setOutput(differentOutput(e.target.value, output));
             }}
+            onBlur={resolveInput}
             placeholder="0x…"
             autoComplete="off"
             spellCheck={false}
           />
-          <label htmlFor="check-amount">
-            {c("Amount to check", "核查数量")}
-          </label>
-          <input
-            id="check-amount"
-            value={amount}
-            onChange={(e) => {
-              clear();
-              setAmount(e.target.value);
-            }}
-            inputMode="decimal"
-            autoComplete="off"
-            placeholder="0.0"
-          />
-          <label htmlFor="check-output">{c("Output asset", "输出资产")}</label>
-          <select
-            id="check-output"
-            value={output}
-            onChange={(e) => {
-              clear();
-              setOutput(e.target.value as ExitCheckOutputSymbol);
-            }}
-          >
-            <option>WETH</option>
-            <option>USDG</option>
-          </select>
-          <p className="opsis-receipt">
-            {c(
-              "Sends this contract, entered amount and output asset to Opsis and the configured Robinhood RPC. Saved holdings are never filled automatically. No wallet connection or transaction is requested.",
-              "向 Opsis 和配置的 Robinhood RPC 发送此合约、输入数量和输出资产。不会自动填入已保存持仓。不请求钱包连接或交易。",
-            )}
-          </p>
+          {resolvedAsset && <p className="opsis-small opsis-resolved-asset" role="status">{c("Resolved", "已识别")}: {resolvedAsset.name} · {resolvedAsset.symbol} · {c("Token · chain 4663", "代币 · 链 4663")}<br /><code>{resolvedAsset.address}</code></p>}
+          {token.trim() && !known && !token.trim().startsWith("0x") && <p role="alert" className="opsis-small">{c("Only reviewed symbols are recognised. Enter a token contract address.", "仅识别已审核的符号。请输入代币合约地址。")}</p>}
+          <div className="opsis-asset-examples" aria-label={c("Trade Check examples", "交易核查示例")}>
+            <span>{c("Examples", "示例")}:</span>
+            {KNOWN_ASSETS.filter((asset) => ["WETH", "AAPL"].includes(asset.symbol)).map((asset) => <button key={asset.symbol} type="button" disabled={busy} onClick={() => {
+              clear(); setToken(asset.address); setResolved(asset); setAmount(asset.symbol === "WETH" ? "0.1" : "1"); setOutput(differentOutput(asset.address, "WETH"));
+            }}>{asset.symbol}</button>)}
+          </div>
+          <div className="opsis-form-row">
+            <div>
+              <label htmlFor="check-amount">
+                {c("Amount to check", "核查数量")}
+              </label>
+              <input
+                id="check-amount"
+                value={amount}
+                onChange={(e) => {
+                  clear();
+                  setAmount(e.target.value);
+                }}
+                inputMode="decimal"
+                autoComplete="off"
+                placeholder="0.0"
+              />
+            </div>
+            <div>
+              <label htmlFor="check-output">{c("Output asset", "输出资产")}</label>
+              <select
+                id="check-output"
+                value={selectedOutput}
+                onChange={(e) => {
+                  clear();
+                  setOutput(e.target.value as ExitCheckOutputSymbol);
+                }}
+              >
+                {(["WETH", "USDG"] as const).filter((symbol) => EXIT_CHECK_TOKENS[symbol].address.toLowerCase() !== tokenIdentity.toLowerCase()).map((symbol) => <option key={symbol}>{symbol}</option>)}
+              </select>
+            </div>
+          </div>
           <label className="opsis-curve-optin">
             <input
               type="checkbox"
@@ -193,6 +220,12 @@ export default function TradeCheck({
           <button className="opsis-action" disabled={busy || !valid}>
             {busy ? c("Checking…", "正在核查…") : c("Run a check", "运行核查")}
           </button>
+          <p className="opsis-receipt">
+            {c(
+              "Sends this contract, entered amount and output asset to Opsis and the configured Robinhood RPC. Saved holdings are never filled automatically. No wallet connection or transaction is requested.",
+              "向 Opsis 和配置的 Robinhood RPC 发送此合约、输入数量和输出资产。不会自动填入已保存持仓。不请求钱包连接或交易。",
+            )}
+          </p>
         </form>
         <div aria-live="polite">
           {busy && (
@@ -204,10 +237,7 @@ export default function TradeCheck({
             <section className="opsis-panel" role="alert">
               <h2>{c("Quote unavailable", "报价不可用")}</h2>
               <p>
-                {c(
-                  "The request failed, was limited, or returned inconsistent evidence. Check the contract and amount, then retry.",
-                  "请求失败、受限或返回了不一致的证据。请检查合约和数量后重试。",
-                )}
+                {c(...tradeRefusalCopy(error))}
               </p>
             </section>
           )}
@@ -292,7 +322,7 @@ export default function TradeCheck({
                     className="opsis-action"
                     href={`https://app.uniswap.org/swap?chain=robinhood&inputCurrency=${result.input.contract}&outputCurrency=${result.output.address}`}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                   >
                     {c("Open Uniswap ↗", "打开 Uniswap ↗")}
                   </a>
@@ -382,11 +412,11 @@ export default function TradeCheck({
         <div className="opsis-tool-links">
           {capabilities.research && (
             <Link to={workspaceLink("/research", token)}>
-              {c("Research this token", "研究此代币")}
+              {c("Research this token →", "研究此代币 →")}
             </Link>
           )}
           {tradeToolPaths(capabilities).filter((path) => path !== "/check").map((path) => (
-            <Link key={path} to={path}>{c(...routeNames[path])}</Link>
+            <Link key={path} to={path}>{c(...routeNames[path])} →</Link>
           ))}
         </div>
       </details>

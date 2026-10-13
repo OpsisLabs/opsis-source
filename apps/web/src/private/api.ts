@@ -14,8 +14,19 @@ export type PrivatePrivacyReceipt = {
   disclosure: string;
 };
 
+export type TokenRef = { address: string; symbol: string | null; decimals: number | null };
+export type Leg = { token: TokenRef; rawAmount: string; amount: string | null };
+export type DecodedAction =
+  | { kind: "erc20_transfer"; logIndex: number; token: TokenRef; from: string; to: string; rawAmount: string; amount: string | null }
+  | { kind: "erc20_approval"; logIndex: number; token: TokenRef; owner: string; spender: string; rawAmount: string; amount: string | null; unlimited: boolean }
+  | { kind: "uniswap_v3_swap"; logIndex: number; pool: string; feeBps: number | null; sold: Leg; bought: Leg; sender: string; recipient: string };
+export type ResearchFacts = Record<string, unknown> & {
+  decodedActions?: DecodedAction[];
+  decodeCoverage?: "decoded" | "partial" | "none";
+};
+
 export type PrivateAnalysis = {
-  entity: BackendEntity;
+  entity: BackendEntity & { facts: ResearchFacts };
   answer: AiExplorerAnswer;
   privacy: PrivatePrivacyReceipt;
 };

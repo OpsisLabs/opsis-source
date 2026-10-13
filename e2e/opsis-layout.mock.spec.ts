@@ -67,7 +67,8 @@ test.describe("Opsis compact layout", () => {
         }) => {
           test.skip(process.env.VITE_EXIT_CHECK_ENABLED !== "true");
           await page.setViewportSize(viewport);
-          await page.emulateMedia({ colorScheme: theme });
+          // The theme is an explicit, saved choice (D15); it does not follow the system setting.
+          await page.context().addCookies([{ name: "opsis_theme", value: theme, url: `http://localhost:${process.env.PW_APP_PORT ?? "5173"}` }]);
           await page.goto("/research");
           await expect(page.locator("#research-entity")).toBeVisible();
           if (locale === "zh-CN")

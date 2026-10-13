@@ -1,3 +1,5 @@
+import { REVIEWED_ASSETS as EXIT_CHECK_TOKENS } from "@rh-chain/shared";
+import type { DecodedAction } from "../private/api";
 const TOKEN = "0x1111111111111111111111111111111111111111";
 const WETH = "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73";
 const POOL = `0x${"a".repeat(40)}`;
@@ -111,4 +113,48 @@ export function research() {
       disclosure: "Public identifier only.",
     },
   };
+}
+
+export function researchToken() {
+  const base = research();
+  const asset = EXIT_CHECK_TOKENS.WETH;
+  const facts = {
+    address: asset.address.toLowerCase(), name: "WETH", symbol: "WETH", decimals: 18,
+    totalSupply: "1234567890123456789012345", metadataCoverage: "rpc_partial",
+    holderCoverage: "unavailable", activityCoverage: "unavailable", verified: null,
+    sourceCoverage: "rpc_sample_only", observation: "latest_rpc_sample",
+  };
+  return { ...base, entity: { ...base.entity, value: facts.address, facts }, answer: { ...base.answer, facts } };
+}
+
+export function researchTransaction(decoded = true) {
+  const base = research();
+  const weth = { address: EXIT_CHECK_TOKENS.WETH.address.toLowerCase(), symbol: "WETH", decimals: 18 };
+  const usdg = { address: EXIT_CHECK_TOKENS.USDG.address.toLowerCase(), symbol: "USDG", decimals: 6 };
+  const actions: DecodedAction[] = [
+    { kind: "uniswap_v3_swap", logIndex: 2, pool: POOL, feeBps: 30,
+      sold: { token: weth, rawAmount: "1500000000000000000", amount: "1.5" },
+      bought: { token: usdg, rawAmount: "3456789123", amount: "3456.789123" },
+      sender: TOKEN, recipient: `0x${"2".repeat(40)}` },
+  ];
+  const facts = {
+    from: TOKEN, to: POOL, valueEth: "0", status: "0x1", blockNumber: "0x7b", gasUsed: "0x5208",
+    transactionEvidenceCoverage: "rpc_pair_block_matched", observationFinality: "current_not_final",
+    receiptTransferCoverage: "complete",
+    receiptTransferEvents: [{ emitter: weth.address, from: TOKEN, to: POOL, rawAmount: "1500000000000000000", logIndex: "0" }],
+    ...(decoded ? { decodedActions: actions, decodeCoverage: "partial" as const } : {}),
+  };
+  const citations = [{ ...base.entity.citations[0], provider: "drpc", fieldsUsed: ["result.logs"], description: "Receipt observations" }];
+  return { ...base, entity: { ...base.entity, type: "transaction", value: `0x${"b".repeat(64)}`, facts, citations },
+    answer: { ...base.answer, answer: "A transaction was observed.", facts, citations, confirmedFacts: [] } };
+}
+
+export function researchWallet() {
+  const base = research();
+  const facts = {
+    address: TOKEN, isContract: false, nativeBalanceEth: "0.123456789012345678",
+    tokenBalanceCoverage: "reviewed_asset_sample", tokenBalanceContractsChecked: 12,
+    tokenBalances: [{ tokenAddress: EXIT_CHECK_TOKENS.USDG.address.toLowerCase(), tokenName: "Global Dollar", tokenSymbol: "USDG", rawValue: "1234567890", formattedValue: "1234.56789" }],
+  };
+  return { ...base, entity: { ...base.entity, type: "wallet", facts }, answer: { ...base.answer, facts } };
 }

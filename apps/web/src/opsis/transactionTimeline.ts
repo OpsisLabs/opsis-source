@@ -1,3 +1,5 @@
+import type { DecodedAction, ResearchFacts } from "../private/api";
+
 export type TransactionTimelineStage = "submitted" | "inclusion" | "receipt";
 export type TransactionTimelineRow = {
   stage: TransactionTimelineStage;
@@ -126,4 +128,40 @@ export function transactionTimelineRows(
   rows.push({ stage: "receipt", key: "status", value: outcome });
   if (gas) rows.push({ stage: "receipt", key: "gas", value: gas });
   return rows;
+}
+
+/** Group an exact decimal string without converting it to a floating-point value. */
+export function formatExactAmount(value: unknown): string | null {
+  if (typeof value !== "string" || !/^\d+(?:\.\d+)?$/.test(value)) return null;
+  const [whole, fraction] = value.split(".");
+  return `${whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}${fraction ? `.${fraction}` : ""}`;
+}
+
+export function scaleRawAmount(raw: unknown, decimals: unknown): string | null {
+  if (!integerString(raw) || typeof decimals !== "number" || !Number.isInteger(decimals) || decimals < 0 || decimals > 255) return null;
+  const text = BigInt(raw).toString().padStart(decimals + 1, "0");
+  if (decimals === 0) return text;
+  const fraction = text.slice(-decimals).replace(/0+$/, "");
+  return `${text.slice(0, -decimals)}${fraction ? `.${fraction}` : ""}`;
+}
+
+export function actionAmount(leg: { rawAmount: string; amount: string | null; token: { decimals: number | null } }): string | null {
+  const exact = scaleRawAmount(leg.rawAmount, leg.token.decimals);
+  return exact !== null && exact === leg.amount ? formatExactAmount(exact) : null;
+}
+
+export function feePercent(feeBps: number | null): string | null {
+  if (feeBps === null || !Number.isSafeInteger(feeBps) || feeBps < 0) return null;
+  return scaleRawAmount(String(feeBps), 2);
+}
+
+export function tokenHeading(facts: ResearchFacts, fallback: string): string {
+  const parts = [facts.name, facts.symbol].filter((value): value is string => typeof value === "string" && value.length > 0);
+  return [...new Set(parts)].join(" · ") || fallback;
+}
+
+/** Swaps lead, since they are what the transaction did; the rest keep their receipt order. */
+export function orderActions(actions: DecodedAction[]): DecodedAction[] {
+  return [...actions].sort((a, b) =>
+    Number(b.kind === "uniswap_v3_swap") - Number(a.kind === "uniswap_v3_swap") || a.logIndex - b.logIndex);
 }

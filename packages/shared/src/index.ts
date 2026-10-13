@@ -1,4 +1,5 @@
 export type { BenchmarkInput, CardBenchmark } from "./benchmarks.js";
+export { REVIEWED_ASSET_SAMPLE_REVIEWED_ON, REVIEWED_ROBINHOOD_ASSET_SAMPLE } from "./reviewed-asset-sample.js";
 export const CHAIN_IDS = {
   robinhoodMainnet: 4663,
   robinhoodTestnet: 46630,

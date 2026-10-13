@@ -81,8 +81,8 @@ export default function ResearchIntro({
       <p aria-live="polite">{tasks.find(([id]) => id === task)?.[2]}</p>
       <p className="opsis-small">
         {c(
-          "Choose a question, paste a public identifier, then run research. No observations loaded yet.",
-          "选择问题，粘贴公开标识符，然后运行研究。尚未加载观察记录。",
+          "Choose an example or enter a reviewed symbol or public identifier, then run research. No observations loaded yet.",
+          "选择示例或输入已审核符号或公开标识符，然后运行研究。尚未加载观察记录。",
         )}
       </p>
     </section>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { receiptTransferObservations, transactionReceiptOutcome, transactionTimelineRows } from "./transactionTimeline";
+import { tokenHeading, actionAmount, feePercent, formatExactAmount, scaleRawAmount, receiptTransferObservations, transactionReceiptOutcome, transactionTimelineRows } from "./transactionTimeline";
 
 describe("transaction observations", () => {
   it("validates receipt Transfer-shaped observations and caps rendered rows at 64", () => {
@@ -73,5 +73,30 @@ describe("transaction observations", () => {
       { stage: "submitted", key: "value", value: "1000000000000000000 wei" },
       { stage: "receipt", key: "status", value: "unknown" },
     ]);
+  });
+});
+
+describe("exact action amounts", () => {
+  it("leads with the token name and symbol without duplicating identical text", () => {
+    expect(tokenHeading({ name: "WETH", symbol: "WETH" }, "Token")).toBe("WETH");
+    expect(tokenHeading({ name: "Wrapped Ether", symbol: "WETH" }, "Token")).toBe("Wrapped Ether · WETH");
+    expect(tokenHeading({ name: null, symbol: null }, "Token")).toBe("Token");
+  });
+  it("groups huge amounts and preserves small fractions exactly", () => {
+    expect(formatExactAmount("900719925474099312345.000000000000000001")).toBe("900,719,925,474,099,312,345.000000000000000001");
+    expect(scaleRawAmount("123450000", 6)).toBe("123.45");
+    expect(scaleRawAmount("1", 18)).toBe("0.000000000000000001");
+    expect(scaleRawAmount("0", 18)).toBe("0");
+    expect(feePercent(30)).toBe("0.3");
+    expect(feePercent(1)).toBe("0.01");
+  });
+  it("keeps missing precision and malformed or inconsistent values unknown", () => {
+    for (const decimals of [null, -1, 256, 1.5]) expect(scaleRawAmount("100", decimals)).toBeNull();
+    for (const raw of ["1e9", "-1", "1.2", null]) expect(scaleRawAmount(raw, 6)).toBeNull();
+    expect(formatExactAmount("1e9")).toBeNull();
+    expect(feePercent(0.3)).toBeNull();
+    expect(actionAmount({ rawAmount: "1000000", amount: "1", token: { decimals: 6 } })).toBe("1");
+    expect(actionAmount({ rawAmount: "1000000", amount: "2", token: { decimals: 6 } })).toBeNull();
+    expect(actionAmount({ rawAmount: "1", amount: null, token: { decimals: null } })).toBeNull();
   });
 });

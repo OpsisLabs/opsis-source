@@ -1,3 +1,4 @@
+import { mockPublicOpsisAccess } from "./opsis-test-helpers";
 import { test, expect, type Page } from "@playwright/test";
 import { fixture, research } from "../apps/web/src/opsis/test-fixtures";
 import {
@@ -21,20 +22,7 @@ async function unlockReports(page: Page) {
 test.describe("Opsis connected workflows", () => {
   test.skip(!enabled);
   test.beforeEach(async ({ page }) => {
-    await page.route("**/v1/private/opsis/access", (r) =>
-      r.fulfill({
-        json: {
-          expiresAt: new Date(Date.now() + 3600000).toISOString(),
-          chainId: 4663,
-          research: true,
-          exitCheck: true,
-          watch: true,
-          rwa: false,
-          observedTrades: false,
-          perpExecution: false,
-        },
-      }),
-    );
+    await mockPublicOpsisAccess(page);
   });
   test("transaction evidence shows a bounded sourced view without inventing movements", async ({ page }) => {
     const hash = `0x${"b".repeat(64)}`;
@@ -307,7 +295,7 @@ test.describe("Opsis connected workflows", () => {
       `/check?token=${WATCH_TEST_TOKEN}`,
     );
     await link.click();
-    await expect(page.getByLabel("Token contract · chain 4663")).toHaveValue(
+    await expect(page.getByLabel("Reviewed symbol or token contract · chain 4663")).toHaveValue(
       WATCH_TEST_TOKEN,
     );
     await expect(page.getByLabel("Amount to check")).toHaveValue("");
@@ -347,7 +335,7 @@ test.describe("Opsis connected workflows", () => {
       .filter({ hasText: "More research tools" })
       .click();
     await page
-      .getByRole("link", { name: "Detailed research", exact: true })
+      .getByRole("link", { name: "Detailed research →", exact: true })
       .click();
     await expect(page).toHaveURL(
       new RegExp(`/research/details\\?entity=${TOKEN}$`),
