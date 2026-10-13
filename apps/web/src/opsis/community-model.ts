@@ -108,12 +108,28 @@ export function deriveChangelog(records: readonly ChangelogEvidence[]): Changelo
 
 /** Only reviewed, dated evidence is eligible for public changelog copy. */
 // Each entry is a release candidate merged into main and verified live on the
-// production beta (docs/releases/26-opsis-workspaces.md). Preview-only work is
+// production beta (release-specific evidence in docs/releases). Preview-only work is
 // never listed here.
 const RC25_TAGGED = "2026-09-26T04:29:21Z";
 const RC26_TAGGED = "2026-09-26T04:54:37Z";
 const PRODUCTION_VERIFIED = "2026-09-26T04:59:00Z";
+const RC29_TAGGED = "2026-10-12T23:21:19Z";
+const RC29_PRODUCTION_VERIFIED = "2026-10-12T23:40:00Z";
 export const reviewedChangelogEvidence: readonly ChangelogEvidence[] = [
+  {
+    id: "rc-29-perp-tools",
+    releaseId: "29-perp-handoff",
+    title: "Perp cost scenario: funding, liquidation estimate and venue directory",
+    summary: "Model hypothetical perp holding cost, funding over a holding period and an estimated liquidation price from your own numbers, and compare assumption sets. A dated directory lists venues by the region you state, with conditions, sources and a review date. Opsis has no perp trading; the venue's own figure governs.",
+    titleZh: "永续成本情景：资金费、清算估算与场所目录",
+    summaryZh: "使用您自己的数字建立假设永续持仓成本、持有期间资金费及清算价格估算，并比较假设组。附日期的目录按您声明的地区列出场所，并注明条件、来源及核查日期。Opsis 不提供永续合约交易；以场所自身的数值为准。",
+    workspace: "check",
+    status: "shipped",
+    observedAt: RC29_TAGGED,
+    verifiedAt: RC29_PRODUCTION_VERIFIED,
+    sourceLabel: "Release 29 · rc/29-perp-handoff/1",
+    sourceUrl: null,
+  },
   {
     id: "rc-25-biggest-trades-1",
     releaseId: "25-biggest-trades",

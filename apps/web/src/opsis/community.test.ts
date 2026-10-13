@@ -11,7 +11,7 @@ import {
 const fields = {
   whatWereYouTrying: "Compare two saved wallet checks",
   whatStoppedYou: "The missing activity state was hard to understand",
-  contact: "reader@example.com",
+  contact: "support@opsis.example",
   creditName: "Reader",
   creditOptIn: true,
 };
@@ -43,12 +43,26 @@ describe("evidence-derived changelog", () => {
   });
   it("publishes only verified, bilingual release entries without forbidden claims", () => {
     const entries = deriveChangelog(reviewedChangelogEvidence);
+    expect(entries).toHaveLength(6);
     expect(entries).toHaveLength(reviewedChangelogEvidence.length);
+    expect(entries.map((entry) => entry.id)).toEqual([
+      "rc-29-perp-tools", "rc-25-biggest-trades-1", "rc-26-research",
+      "rc-26-trade-check", "rc-26-watch", "rc-26-quant-lab",
+    ]);
+    expect(entries[0]).toMatchObject({
+      releaseId: "29-perp-handoff", workspace: "check", date: "2026-10-12",
+      observedAt: "2026-10-12T23:21:19Z", verifiedAt: "2026-10-12T23:40:00Z",
+      sourceLabel: "Release 29 · rc/29-perp-handoff/1", sourceUrl: null,
+      title: "Perp cost scenario: funding, liquidation estimate and venue directory",
+      summary: "Model hypothetical perp holding cost, funding over a holding period and an estimated liquidation price from your own numbers, and compare assumption sets. A dated directory lists venues by the region you state, with conditions, sources and a review date. Opsis has no perp trading; the venue's own figure governs.",
+    });
+    expect(entries.every((entry, index) => index === 0 ||
+      Date.parse(entries[index - 1].verifiedAt!) >= Date.parse(entry.verifiedAt!))).toBe(true);
     for (const entry of reviewedChangelogEvidence) {
       expect(entry.status).toBe("shipped");
       expect(Date.parse(entry.verifiedAt ?? "")).toBeGreaterThanOrEqual(Date.parse(entry.observedAt));
       expect(entry.titleZh && entry.summaryZh).toBeTruthy();
-      expect(`${entry.title} ${entry.summary}`).not.toMatch(/\b(safe|unsafe|guaranteed|will|free|real-time|best|risk-free)\b/i);
+      expect(`${entry.title} ${entry.summary}`).not.toMatch(/\b(safe|unsafe|guaranteed|will|free|real-time|best|recommended|risk-free)\b/i);
     }
   });
 });
