@@ -8,16 +8,24 @@ let exposeCloudWrites = false;
 let researchStatus = 200;
 let researchBody = { entity: { type: "token", facts: { symbol: "WETH", decimals: 18 } } };
 const researchRequests = [];
+let accessRequests = 0;
+let accessStatus = 200;
+let manifestSha = sha;
+const apiOnlyProbes = [];
 const server = createServer(async (request, response) => {
   const path = request.url;
   response.setHeader("Content-Type", "application/json");
   if (path === "/") {
     response.setHeader("Content-Type", "text/html");
     response.end(`<html><head><meta name="build-sha" content="${sha}" /></head></html>`);
-  } else if (path === "/healthz") response.end(JSON.stringify({ ok: true, buildSha: sha }));
+  } else if (path === "/healthz") { apiOnlyProbes.push(path); response.end(JSON.stringify({ ok: true, buildSha: sha })); }
   else if (path === "/readyz") response.end(JSON.stringify({ ok: true, deploymentMode: "private-only", cloudWorkspace: "disabled", database: "memory", redis: "up", retention: { status: "disabled" } }));
-  else if (["/metrics", "/docs"].includes(path)) { response.statusCode = 404; response.end("{}"); }
-  else if (path === "/v1/private/analyze") {
+  else if (["/metrics", "/docs"].includes(path)) { apiOnlyProbes.push(path); response.statusCode = 404; response.end("{}"); }
+  else if (path === "/v1/private/opsis/access") {
+    accessRequests += 1;
+    response.statusCode = accessStatus;
+    response.end(JSON.stringify(accessStatus === 200 ? { manifest: { build: manifestSha } } : { error: { code: "RATE_LIMIT_EXCEEDED" } }));
+  } else if (path === "/v1/private/analyze") {
     let body = "";
     for await (const chunk of request) body += chunk;
     researchRequests.push({ method: request.method, headers: request.headers, body: JSON.parse(body) });
@@ -31,8 +39,8 @@ const server = createServer(async (request, response) => {
 await new Promise((resolveListen, reject) => { server.once("error", reject); server.listen(0, "127.0.0.1", resolveListen); });
 try {
   const url = `http://127.0.0.1:${server.address().port}`;
-  const run = (scope) => new Promise((resolveExit, reject) => {
-    const child = spawn(process.execPath, [resolve("scripts/launch-smoke.mjs")], { env: { ...process.env, OPSIS_WEB_URL: url, OPSIS_API_URL: url, OPSIS_EXPECTED_SHA: sha, OPSIS_LAUNCH_SCOPE: scope }, stdio: ["ignore", "pipe", "pipe"] });
+  const run = (scope, api = url) => new Promise((resolveExit, reject) => {
+    const child = spawn(process.execPath, [resolve("scripts/launch-smoke.mjs")], { env: { ...process.env, OPSIS_WEB_URL: url, OPSIS_API_URL: api, OPSIS_EXPECTED_SHA: sha, OPSIS_LAUNCH_SCOPE: scope }, stdio: ["ignore", "pipe", "pipe"] });
     let stdout = "";
     let stderr = "";
     child.stdout.on("data", (chunk) => { stdout += String(chunk); });
@@ -77,5 +85,32 @@ try {
   assert.match(unavailable.stderr, /main token research: expected 200, received 503/);
   assert.ok(!unavailable.stderr.includes("provider-response-marker"));
   assert.equal(researchRequests.length, before + 1);
-  console.log("PASS: private launch smoke verifies scope, identity, disabled cloud writes and Auto token recognition; false-green fixtures rejected.");
+  // Through the web host only: the API has no address of its own.
+  researchStatus = 200;
+  researchBody = { entity: { type: "token", facts: { symbol: "WETH", decimals: 18 } } };
+  apiOnlyProbes.length = 0;
+  accessRequests = 0;
+  const webOnly = await run("private-only", "");
+  assert.equal(webOnly.code, 0, webOnly.stderr);
+  assert.match(webOnly.stdout, /SKIP health, metrics concealed, API docs concealed: no OPSIS_API_URL/);
+  assert.match(webOnly.stdout, /PASS readiness 200/);
+  assert.match(webOnly.stdout, new RegExp(`PASS matching web/API build ${sha}`));
+  assert.match(webOnly.stdout, /PASS main token research WETH 18/);
+  assert.deepEqual(apiOnlyProbes, []);
+  assert.equal(accessRequests, 1);
+  manifestSha = "f".repeat(40);
+  const mismatch = await run("private-only", "");
+  assert.notEqual(mismatch.code, 0);
+  assert.match(mismatch.stderr, /deployment mismatch/);
+  manifestSha = sha;
+  accessStatus = 429;
+  const refused = await run("private-only", "");
+  assert.notEqual(refused.code, 0);
+  assert.match(refused.stderr, /access manifest: expected 200, received 429/);
+  accessStatus = 200;
+  // The cloud scope still needs the API's own address.
+  const cloudWithoutApi = await run("cloud", "");
+  assert.notEqual(cloudWithoutApi.code, 0);
+  assert.match(cloudWithoutApi.stderr, /OPSIS_API_URL is required/);
+  console.log("PASS: private launch smoke verifies scope, identity, disabled cloud writes and Auto token recognition, with or without an API address; false-green fixtures rejected.");
 } finally { await new Promise(resolveClose => server.close(resolveClose)); }

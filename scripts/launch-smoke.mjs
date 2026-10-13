@@ -1,7 +1,10 @@
 import { readinessPasses } from "./readiness-policy.mjs";
 const scope = process.env.OPSIS_LAUNCH_SCOPE ?? "cloud";
 const webBase = requiredUrl("OPSIS_WEB_URL");
-const apiBase = requiredUrl("OPSIS_API_URL");
+// A private-only deployment may keep its API off the public internet and serve
+// it only through the web host. Without an API address the checks that need
+// the API's own origin are skipped by name, never passed silently.
+const apiBase = scope === "private-only" && !process.env.OPSIS_API_URL ? null : requiredUrl("OPSIS_API_URL");
 const expectedSha = process.env.OPSIS_EXPECTED_SHA?.trim();
 const timeoutMs = boundedInteger(process.env.OPSIS_SMOKE_TIMEOUT_MS, 15_000, 1_000, 60_000);
 
@@ -9,11 +12,16 @@ const checks = [
   ["web home", new URL("/", webBase), 200],
   ["privacy", new URL("/privacy", webBase), 200],
   ["terms", new URL("/terms", webBase), 200],
-  ["health", new URL("/healthz", apiBase), 200],
-  ["readiness", new URL("/readyz", apiBase), 200],
-  ["metrics concealed", new URL("/metrics", apiBase), 404],
-  ["API docs concealed", new URL("/docs", apiBase), 404],
+  ...(apiBase ? [
+    ["health", new URL("/healthz", apiBase), 200],
+    ["readiness", new URL("/readyz", apiBase), 200],
+    ["metrics concealed", new URL("/metrics", apiBase), 404],
+    ["API docs concealed", new URL("/docs", apiBase), 404],
+  ] : [
+    ["readiness", new URL("/readyz", webBase), 200],
+  ]),
 ];
+if (!apiBase) console.log("SKIP health, metrics concealed, API docs concealed: no OPSIS_API_URL (API reached through the web host only)");
 
 let health;
 let webSha;
@@ -32,12 +40,14 @@ for (const [label, url, status] of checks) {
   }
   console.log(`PASS ${label} ${status}`);
 }
-if (!health?.buildSha || health.buildSha !== webSha) {
-  throw new Error(`deployment mismatch: web=${webSha ?? "none"}, api=${health?.buildSha ?? "none"}`);
+// Through the web host the API reports its build in the access manifest.
+const apiSha = apiBase ? health?.buildSha : await manifestBuild();
+if (!apiSha || apiSha !== webSha) {
+  throw new Error(`deployment mismatch: web=${webSha ?? "none"}, api=${apiSha ?? "none"}`);
 }
 console.log(`PASS matching web/API build ${webSha}`);
-if (expectedSha && health?.buildSha !== expectedSha) {
-  throw new Error(`health: expected build ${expectedSha}, received ${health?.buildSha ?? "none"}`);
+if (expectedSha && apiSha !== expectedSha) {
+  throw new Error(`health: expected build ${expectedSha}, received ${apiSha ?? "none"}`);
 }
 if (expectedSha) console.log(`PASS exact build ${expectedSha}`);
 if (scope === "private-only") {
@@ -61,6 +71,16 @@ if (scope === "private-only") {
     throw new Error("main token research: expected token WETH with 18 decimals");
   }
   console.log("PASS main token research WETH 18");
+}
+
+async function manifestBuild() {
+  const response = await fetch(new URL("/v1/private/opsis/access", webBase), {
+    method: "POST", redirect: "error", signal: AbortSignal.timeout(timeoutMs),
+    headers: { "Content-Type": "application/json", "x-opsis-csrf": "1", Origin: webBase.origin, "sec-fetch-site": "same-origin" }, body: "{}"
+  });
+  if (response.status !== 200) throw new Error(`access manifest: expected 200, received ${response.status}`);
+  const build = (await response.json())?.manifest?.build;
+  return typeof build === "string" && /^[0-9a-f]{40}$/i.test(build) ? build : undefined;
 }
 
 async function fetchBounded(url) {

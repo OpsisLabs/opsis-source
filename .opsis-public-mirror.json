@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "351435c7596e0ecab8421fd59ca2aceb41f07608ac96f699469feb80f7db088e",
+  "sourceTreeDigest": "6bcf62aeb5b1d7d5baa101789accacfce244c27f79ecf59859a271f7654c3895",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "ec87fd927bdbf1326633e0834a0e85f32fe8564fbf0d0acec3ecdb1b5bdf78ed",
@@ -802,7 +802,7 @@
     "scripts/export-public-history.mjs": "be1ed4a05e9b0a33f2f6e10a9f8cecf6adf72a783cbcfd893ccca275390294af",
     "scripts/export-public.mjs": "3ec9467bb1c7047272c8810c563231be9cd18116f297c2c8e02a8391558400e1",
     "scripts/identity-guard.mjs": "b1ceda7d5be961d8df4eaeecc8c7b1d6f29350fb4b9214a843dcd7c3f21ea25d",
-    "scripts/launch-smoke.mjs": "3d05cb18dbcb036c27459e96abf5c8f7b504175fa6ab1ad21222f7fda26d4c4a",
+    "scripts/launch-smoke.mjs": "8722851a857f8a1a054cf81cf1b88f85c28a175b093412835827dbb77c036f93",
     "scripts/load-smoke.mjs": "0ac486462b9f782f2da5e9bf824c969f91de6ce6e8e8523a0b1584979b6f5693",
     "scripts/load-visitors.mjs": "8997dd21cbf6d958b55b9c27d8547c81ba322541e7a943e3ed8ca54366c9a01e",
     "scripts/product-name-allowlist.json": "2766890c608146a9abf5209733376a95683e17c8cac3a0b1fdb3b1caf5a1af29",
@@ -818,7 +818,7 @@
     "scripts/test-notification-workflow.mjs": "63672f76f74e18454a349cac0da39b67e076d0897002d662df26f6314a582350",
     "scripts/test-opsis-ingress.mjs": "a11d6cfde26df704c34637177b30ccecdbeef83424ed31e8774058073735d067",
     "scripts/test-opsis-public-ingress.mjs": "bb791306d63d706e373424281e8cbe110ce9f2c74f023de4cd227b775d97337b",
-    "scripts/test-private-launch-smoke.mjs": "f764d63c5fcffa08418143bedc1687ffabe18206605fe6ab47ffdb6ac79a592d",
+    "scripts/test-private-launch-smoke.mjs": "f4a232c73a3026200e8dad28681aa9b03ea1b3f77fa63129744b4f301fd49100",
     "scripts/test-public-export.mjs": "45605e4f4fc405be69be3bf4c264e2954a427834088220d3a3c099d21e26ac44",
     "scripts/test-public-history.mjs": "1d29902791d7043225f41948a7b870a038515d32a0cf82cf9cd5ae5890708c3d",
     "scripts/test-rpc-cost-benchmark.mjs": "39350e8e20324faa47cfc2749c730050f4bbe0cb9405a556277398595c0b1339",
