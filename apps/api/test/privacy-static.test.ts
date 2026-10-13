@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 
 const repositoryRoot = resolve(import.meta.dirname, "../../..");
@@ -68,6 +68,25 @@ describe("browser privacy static boundary", () => {
     expect(socialImage.subarray(1, 4).toString("ascii")).toBe("PNG");
     expect(socialImage.readUInt32BE(16)).toBe(1200);
     expect(socialImage.readUInt32BE(20)).toBe(630);
+  });
+
+  it("generates deployment-specific discovery files and uses same-origin icons", () => {
+    const index = readFileSync(resolve(repositoryRoot, "apps/web/index.html"), "utf8");
+    const vite = readFileSync(resolve(repositoryRoot, "apps/web/vite.config.ts"), "utf8");
+    const files = readFileSync(resolve(repositoryRoot, "apps/web/build/site-files.ts"), "utf8");
+    const nginx = readFileSync(resolve(repositoryRoot, "apps/web/nginx.conf"), "utf8");
+    expect(index).toContain('<link rel="icon" href="/opsis-icon.svg" type="image/svg+xml" />');
+    expect(index).toContain('<link rel="icon" href="/favicon.ico" sizes="32x32" />');
+    expect(index).toContain('<link rel="apple-touch-icon" href="/apple-touch-icon.png" />');
+    expect(existsSync(resolve(repositoryRoot, "apps/web/public/robots.txt"))).toBe(false);
+    expect(vite).toContain('name: "opsis-site-files"');
+    expect(vite).toContain("generateBundle()");
+    expect(vite).toContain('this.emitFile({ type: "asset", fileName, source })');
+    expect(files).toContain('"User-agent: *\\nAllow: /\\n"');
+    expect(files).toContain('indexableSetting === "true"');
+    expect(files).toContain("Sitemap: ${canonical}/sitemap.xml");
+    expect(files).toContain('files[".well-known/security.txt"]');
+    expect(nginx).toContain("try_files $uri $uri/ /index.html");
   });
 
   it("keeps the same-origin API proxy host and port runtime-configurable", () => {

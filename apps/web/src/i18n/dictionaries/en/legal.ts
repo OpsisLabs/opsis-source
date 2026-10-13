@@ -90,6 +90,12 @@ export const legal = {
   "legal.privacy.s08.contact": "A support and security contact is to be published on this page.",
   "legal.privacy.s08.prefix":
     "Opsis is currently operated as an independent source-available beta.",
+  "legal.privacy.s08.supportPrefix": "For support questions, contact ",
+  "legal.privacy.s08.supportSuffix": ".",
+  "legal.privacy.s08.securityPrefix": "Report security issues privately to ",
+  "legal.privacy.s08.securitySuffix": " before any public post.",
+  "legal.privacy.s08.sharedPrefix": "For support questions or private security reports, contact ",
+  "legal.privacy.s08.sharedSuffix": ". Report security issues privately before any public post.",
   "legal.privacy.s08.suffix":
     "Do not post a Vault passphrase, recovery code, wallet secret, account credential, or other private data. This policy may be updated as the product evolves; material changes will be noted on this page.",
 

@@ -28,6 +28,20 @@ describe("Opsis identity in the base dictionaries", () => {
     expect(en["legal.privacy.s08.prefix"]).toBe("Opsis is currently operated as an independent source-available beta.");
     expect(zhCN["legal.privacy.s08.prefix"]).toBe("Opsis 目前作为独立的源码可用测试版运营。");
     expect(en["legal.privacy.s08.contact"]).toBe("A support and security contact is to be published on this page.");
+    expect(zhCN["legal.privacy.s08.contact"]).toBe("支持与安全联系方式待公布于本页面。");
+  });
+  it("keeps configured contact instructions bilingual and addresses outside the dictionaries", () => {
+    const keys = ["supportPrefix", "supportSuffix", "securityPrefix", "securitySuffix", "sharedPrefix", "sharedSuffix"] as const;
+    for (const suffix of keys) {
+      const key = `legal.privacy.s08.${suffix}` as keyof typeof en;
+      for (const dictionary of [en, zhCN]) {
+        expect(dictionary[key]).toBeTruthy();
+        expect(dictionary[key]).not.toContain("@");
+        expect(dictionary[key]).not.toMatch(/\b(safe|unsafe|guaranteed|will|best|recommended|free)\b/i);
+      }
+    }
+    expect(en["legal.privacy.s08.securitySuffix"]).toBe(" before any public post.");
+    expect(zhCN["legal.privacy.s08.securitySuffix"]).toBe("，再公开发布。");
   });
   it("omits product-token copy from both locales and presentation overrides", () => {
     const removedPrefixes = ["docs.token.", "docs.nav.token", "guide.faq.groups.token.", "guide.faq.tokenReminder.", "landing.official."];

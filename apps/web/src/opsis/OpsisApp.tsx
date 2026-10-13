@@ -1,4 +1,5 @@
 import { isWatchEnabled } from "../product/availability";
+import { robotsDirective } from "../product/public-pages";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import {
   Link,
@@ -176,12 +177,14 @@ export default function OpsisApp() {
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
   const pending = useRef<AbortController | null>(null);
+  const robots = useRef<HTMLMetaElement | null>(null);
   useEffect(() => {
     document.documentElement.classList.add("opsis-document");
     const meta = document.createElement("meta");
     meta.name = "robots";
     meta.content = "noindex, nofollow";
     document.head.append(meta);
+    robots.current = meta;
     return () => {
       pending.current?.abort();
       setOpsisPreviewToken("");
@@ -193,6 +196,9 @@ export default function OpsisApp() {
   useEffect(() => {
     document.title = routeTitle(location.pathname, locale);
   }, [location.pathname, locale]);
+  useEffect(() => {
+    if (robots.current) robots.current.content = robotsDirective(location.pathname, import.meta.env.VITE_OPSIS_INDEXABLE);
+  }, [location.pathname]);
   useEffect(() => {
     const preference = window.matchMedia("(prefers-color-scheme: dark)");
     const follow = () => {

@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { isCollectibleCatalogEnabled } from "../product/availability";
+import { contactAddresses } from "../product/contact";
 import { useI18n } from "../i18n";
 import LanguageSwitcher from "../i18n/LanguageSwitcher";
 import { OPSIS_PRESENTATION } from "../opsis/presentation";
@@ -145,6 +146,12 @@ function Section({
 export function PrivacyPage() {
   const { t } = useI18n();
   const collectibleCatalogEnabled = isCollectibleCatalogEnabled();
+  let contact = null;
+  try {
+    contact = contactAddresses(import.meta.env.VITE_SUPPORT_EMAIL, import.meta.env.VITE_SECURITY_EMAIL);
+  } catch {
+    // A malformed setting must never become a rendered contact link.
+  }
   return (
     <Shell
       tag={t("legal.chrome.tag")}
@@ -265,7 +272,18 @@ export function PrivacyPage() {
 
       <Section n="08" title={t("legal.privacy.s08.title")}>
         <p>{t("legal.privacy.s08.prefix")}</p>
-        <p>{t("legal.privacy.s08.contact")}</p>
+        <p>{!contact ? t("legal.privacy.s08.contact") : contact.support === contact.security ? <>
+          {t("legal.privacy.s08.sharedPrefix")}
+          <a className="underline" href={`mailto:${contact.support}`}>{contact.support}</a>
+          {t("legal.privacy.s08.sharedSuffix")}
+        </> : <>
+          {t("legal.privacy.s08.supportPrefix")}
+          <a className="underline" href={`mailto:${contact.support}`}>{contact.support}</a>
+          {t("legal.privacy.s08.supportSuffix")}{" "}
+          {t("legal.privacy.s08.securityPrefix")}
+          <a className="underline" href={`mailto:${contact.security}`}>{contact.security}</a>
+          {t("legal.privacy.s08.securitySuffix")}
+        </>}</p>
         <p>{t("legal.privacy.s08.suffix")}</p>
       </Section>
       <Section n="09" title={t("legal.privacy.s09.title")}>

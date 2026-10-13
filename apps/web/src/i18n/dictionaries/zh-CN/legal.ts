@@ -89,6 +89,12 @@ export const legal: Record<string, string> = {
   "legal.privacy.s08.contact": "支持与安全联系方式待公布于本页面。",
   "legal.privacy.s08.prefix":
     "Opsis 目前作为独立的源码可用测试版运营。",
+  "legal.privacy.s08.supportPrefix": "支持问题请联系 ",
+  "legal.privacy.s08.supportSuffix": "。",
+  "legal.privacy.s08.securityPrefix": "安全问题请先私下报告至 ",
+  "legal.privacy.s08.securitySuffix": "，再公开发布。",
+  "legal.privacy.s08.sharedPrefix": "支持问题或私下报告安全问题，请联系 ",
+  "legal.privacy.s08.sharedSuffix": "。安全问题请先私下报告，再公开发布。",
   "legal.privacy.s08.suffix":
     "请勿发布保险库口令、恢复代码、钱包密钥、账户凭据或其他私密数据。本政策可能随产品发展而更新；重大变更将在本页面注明。",
 
