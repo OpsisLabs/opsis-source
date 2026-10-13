@@ -475,3 +475,26 @@ describe("AI answer locale", () => {
     expect(answer.answer).toBe("这笔交易在 Robinhood Chain 上成功。");
   });
 });
+
+describe("risk signal summary", () => {
+  const service = new AiService(loadEnv({ NODE_ENV: "test", AI_PROVIDER: "fallback" }));
+  const token = (facts: Record<string, unknown>, riskNotes: NormalizedEntity["riskNotes"] = []): NormalizedEntity => ({
+    ...entity, type: "token", value: `0x${"1".repeat(40)}`, facts: { name: "Example", symbol: "EX", decimals: 18, ...facts }, riskNotes
+  });
+
+  it("does not report zero signals as a result when the data behind them was unavailable", async () => {
+    for (const field of ["holderCoverage", "activityCoverage", "sourceCoverage"]) {
+      const english = (await service.answer("", token({ [field]: "unavailable" }), "en", "overview")).summaryBullets.join(" ");
+      expect(english).toContain("Risk signals could not be assessed");
+      expect(english).toContain("This is not a clean result.");
+      expect(english).not.toContain("0 evidence-based risk signals identified");
+    }
+    const chinese = (await service.answer("", token({ holderCoverage: "unavailable" }), "zh-CN", "overview")).summaryBullets.join(" ");
+    expect(chinese).toContain("无法评估风险信号");
+  });
+
+  it("keeps the count when coverage was read", async () => {
+    const bullets = (await service.answer("", token({ holderCoverage: "complete", activityCoverage: "complete", sourceCoverage: "complete" }), "en", "overview")).summaryBullets.join(" ");
+    expect(bullets).toContain("0 evidence-based risk signals identified.");
+  });
+});

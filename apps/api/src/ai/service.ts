@@ -1182,8 +1182,21 @@ function buildSummaryBullets(entity: NormalizedEntity, locale: AiLocale): string
   return [
     ...buildActivityBullets(entity, locale).slice(0, 2),
     t(locale, `${entity.citations.length} linked citation${entity.citations.length === 1 ? "" : "s"} support the view.`, `有 ${entity.citations.length} 条关联引用支持该视图。`),
-    t(locale, `${entity.riskNotes.length} evidence-based risk signal${entity.riskNotes.length === 1 ? "" : "s"} identified.`, `识别出 ${entity.riskNotes.length} 个基于证据的风险信号。`)
+    riskSignalBullet(entity, locale)
   ].slice(0, 5);
+}
+
+// "0 signals" must not read as a clean result when the data that would carry
+// a signal (holders, activity, source verification) could not be read at all.
+function riskSignalBullet(entity: NormalizedEntity, locale: AiLocale): string {
+  const facts = entity.facts as Record<string, unknown>;
+  const unread = ["holderCoverage", "activityCoverage", "sourceCoverage"].some((field) => facts[field] === "unavailable");
+  if (entity.riskNotes.length === 0 && unread) {
+    return t(locale,
+      "Risk signals could not be assessed: holder, activity or source-verification data was unavailable. This is not a clean result.",
+      "无法评估风险信号：持有人、活动或源码验证数据不可用。这并不代表结果良好。");
+  }
+  return t(locale, `${entity.riskNotes.length} evidence-based risk signal${entity.riskNotes.length === 1 ? "" : "s"} identified.`, `识别出 ${entity.riskNotes.length} 个基于证据的风险信号。`);
 }
 
 function buildActivityBullets(

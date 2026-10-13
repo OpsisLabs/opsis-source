@@ -73,7 +73,8 @@ describe("first visit receipt actions", () => {
       sender: from, recipient: to }]);
     expect(entity.facts.decodeCoverage).toBe("decoded");
     expect(calls).toHaveLength(6);
-    expect(calls.slice(2).every((call) => call.params[1] === "0x2a")).toBe(true);
+    // Pool and token facts are read at the latest block: nodes without historical state refuse older ones.
+    expect(calls.slice(2).every((call) => call.params[1] === "latest")).toBe(true);
   });
 
   it("keeps transfers when the pool fails factory verification", async () => {

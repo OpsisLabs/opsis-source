@@ -42,7 +42,9 @@ function signedWord(word: string): bigint {
 }
 
 // As in observed trades and Exit Check, the factory must return this exact
-// pool for its ordered token pair and standard fee tier, at the receipt block.
+// pool for its ordered token pair and standard fee tier. A pool's tokens, its
+// fee and the factory mapping never change, so they are read at the latest
+// block: nodes without historical state refuse reads pinned to an older one.
 async function verifyPool(pool: string, block: string, read: ReadCall): Promise<Pool | null> {
   const token0 = callAddress(await read(pool, toFunctionSelector("token0()"), block));
   const token1 = callAddress(await read(pool, toFunctionSelector("token1()"), block));
@@ -67,6 +69,8 @@ export async function decodeReceiptActions(rawReceipt: unknown, read: ReadCall):
     || typeof receipt.transactionHash !== "string" || !wordPattern.test(receipt.transactionHash)
     || !["0x0", "0x1"].includes(String(receipt.status))) return { decodedActions, decodeCoverage: "none" };
   const block = receipt.blockNumber;
+  // Token symbol and decimals are likewise read as the contract reports them now.
+  const readBlock = "latest";
   let partial = false;
   const tokens = new Map<string, TokenRef>();
   const pools = new Map<string, Pool | null>();
@@ -80,9 +84,9 @@ export async function decodeReceiptActions(rawReceipt: unknown, read: ReadCall):
     const reviewed = REVIEWED_ROBINHOOD_ASSET_SAMPLE.find((asset) => asset.address.toLowerCase() === address);
     if (reviewed) return Object.assign(token, { symbol: reviewed.symbol, decimals: reviewed.decimals });
     try {
-      const symbol = decodeErc20Metadata("symbol", await read(address, toFunctionSelector("symbol()"), block));
+      const symbol = decodeErc20Metadata("symbol", await read(address, toFunctionSelector("symbol()"), readBlock));
       if (typeof symbol === "string") token.symbol = symbol;
-      const decimals = decodeErc20Metadata("decimals", await read(address, toFunctionSelector("decimals()"), block));
+      const decimals = decodeErc20Metadata("decimals", await read(address, toFunctionSelector("decimals()"), readBlock));
       if (typeof decimals === "number" && decimals <= 36) token.decimals = decimals;
     } catch { partial = true; }
     if (token.symbol === null || token.decimals === null) partial = true;
@@ -133,7 +137,7 @@ export async function decodeReceiptActions(rawReceipt: unknown, read: ReadCall):
         || BigInt(`0x${words[2]}`) >= 2n ** 160n || BigInt(`0x${words[3]}`) >= 2n ** 128n
         || tick < -(2n ** 23n) || tick >= 2n ** 23n) { partial = true; continue; }
       if (!pools.has(address)) {
-        try { pools.set(address, await verifyPool(address, block, read)); }
+        try { pools.set(address, await verifyPool(address, readBlock, read)); }
         catch { pools.set(address, null); }
       }
       const pool = pools.get(address);
