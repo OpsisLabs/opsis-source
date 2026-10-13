@@ -1614,3 +1614,18 @@
     flex: 0 0 auto;
   }
 }
+
+/* Access refusals keep the explanation and retry within a readable column. */
+.opsis-access-unavailable {
+  max-width: 40rem;
+}
+.opsis-access-unavailable h1 {
+  white-space: normal;
+}
+.opsis-access-unavailable p {
+  line-height: 1.6;
+}
+.opsis-access-unavailable button {
+  min-width: 88px;
+  min-height: 44px;
+}

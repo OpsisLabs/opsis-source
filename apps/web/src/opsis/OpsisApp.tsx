@@ -16,10 +16,12 @@ import {
   publicIdentity,
   workspaceIdentity,
   unlockPreview,
+  PreviewAccessError,
   workspaceLink,
   savedLink,
   type Capabilities,
 } from "./model";
+import { accessRetry, accessRetrySeconds, type AccessRetryEvent, type AccessRetryState } from "./access-retry";
 import { setOpsisPreviewToken } from "./preview-token";
 import OriginalLanding from "./OriginalLanding";
 import ToolOrientation from "./ToolOrientation";
@@ -175,9 +177,30 @@ export default function OpsisApp() {
   const [key, setKey] = useState("");
   const [access, setAccess] = useState<Capabilities | null>(null);
   const [error, setError] = useState(false);
+  const [accessFailure, setAccessFailure] = useState<PreviewAccessError | null>(null);
+  const retryState = useRef<AccessRetryState>({ automaticRetries: 0, deadline: null });
+  const [retry, setRetry] = useState<AccessRetryState>({ automaticRetries: 0, deadline: null });
+  const [countdown, setCountdown] = useState(0);
+  const [retryWait, setRetryWait] = useState(0);
+  const [accessAttempt, setAccessAttempt] = useState(0);
+  const retryTimers = useRef<{ automatic?: number; countdown?: number }>({});
   const [busy, setBusy] = useState(false);
   const pending = useRef<AbortController | null>(null);
   const robots = useRef<HTMLMetaElement | null>(null);
+  function clearRetryTimers() {
+    window.clearTimeout(retryTimers.current.automatic);
+    window.clearTimeout(retryTimers.current.countdown);
+    retryTimers.current = {};
+  }
+  function updateRetry(event: AccessRetryEvent) {
+    const now = Date.now();
+    const next = accessRetry(retryState.current, event, now);
+    retryState.current = next;
+    setRetry(next);
+    const seconds = accessRetrySeconds(next.deadline, now);
+    setCountdown(seconds);
+    setRetryWait(seconds);
+  }
   useEffect(() => {
     document.documentElement.classList.add("opsis-document");
     const meta = document.createElement("meta");
@@ -187,6 +210,7 @@ export default function OpsisApp() {
     robots.current = meta;
     return () => {
       pending.current?.abort();
+      clearRetryTimers();
       setOpsisPreviewToken("");
       clearPublicSession();
       meta.remove();
@@ -239,6 +263,8 @@ export default function OpsisApp() {
     try {
       const result = await unlockPreview(credential, controller.signal);
       if (!controller.signal.aborted) {
+        clearRetryTimers();
+        updateRetry({ type: "success" });
         setOpsisPreviewToken(credential, Date.parse(result.expiresAt));
         setAccess(result);
       }
@@ -249,18 +275,59 @@ export default function OpsisApp() {
     }
   }
   useEffect(() => {
-    if (!publicAccess || access || error) return;
+    if (!publicAccess || access) return;
     const controller = new AbortController();
+    pending.current?.abort();
     pending.current = controller;
     void unlockPreview("", controller.signal)
       .then((result) => {
-        if (!controller.signal.aborted) setAccess(result);
+        if (!controller.signal.aborted) {
+          clearRetryTimers();
+          updateRetry({ type: "success" });
+          setError(false);
+          setAccessFailure(null);
+          setAccess(result);
+          setBusy(false);
+        }
       })
-      .catch(() => {
-        if (!controller.signal.aborted) setError(true);
+      .catch((failure: unknown) => {
+        if (controller.signal.aborted || (failure instanceof Error && failure.name === "AbortError")) return;
+        const refused = failure instanceof PreviewAccessError ? failure : null;
+        setAccessFailure(refused);
+        setError(true);
+        setBusy(false);
+        updateRetry({ type: "failure", status: refused?.status, retryAfter: refused?.retryAfter });
       });
     return () => controller.abort();
-  }, [access, error]);
+  }, [access, accessAttempt]);
+  useEffect(() => {
+    const deadline = retry.deadline;
+    if (deadline === null) return;
+    const tick = () => {
+      const seconds = accessRetrySeconds(deadline, Date.now());
+      setCountdown(seconds);
+      if (seconds > 0) retryTimers.current.countdown = window.setTimeout(tick, Math.min(1000, deadline - Date.now()));
+    };
+    const wake = () => {
+      clearRetryTimers();
+      // A hidden tab needs no countdown ticks or request until it is visible.
+      if (document.hidden || retryState.current.deadline !== deadline) return;
+      tick();
+      retryTimers.current.automatic = window.setTimeout(() => {
+        if (retryState.current.deadline !== deadline) return;
+        clearRetryTimers();
+        updateRetry({ type: "automatic" });
+        setBusy(true);
+        setAccessAttempt((attempt) => attempt + 1);
+      }, Math.max(0, deadline - Date.now()));
+    };
+    wake();
+    document.addEventListener("visibilitychange", wake);
+    return () => {
+      clearRetryTimers();
+      document.removeEventListener("visibilitychange", wake);
+    };
+  }, [retry.deadline]);
   // A stable list: the front door reconnects to the film whenever it changes.
   const enabledTools = useMemo(() => (access ? landingTools(access) : []), [access]);
   return (
@@ -416,16 +483,41 @@ export default function OpsisApp() {
         {!access && publicAccess ? (
           <main id="opsis-content" className="opsis-unlock">
             {error ? (
-              <>
-                <p role="alert">
-                  {c("Opsis is temporarily unavailable.", "Opsis 暂时不可用。")}
-                </p>
-                <button onClick={() => setError(false)}>
+              <section className="opsis-access-unavailable" aria-labelledby="opsis-access-heading">
+                <h1 id="opsis-access-heading">{c("A moment before opening Opsis", "打开 Opsis 前请稍候")}</h1>
+                {accessFailure?.status === 429 ? (
+                  <>
+                    <p>{c(
+                      "Too many requests came from this network connection in a short time. A shared connection counts as one. Nothing is wrong with your device.",
+                      "此网络连接在短时间内发送了过多请求。共享连接按一个连接计算。您的设备没有问题。",
+                    )}</p>
+                    <p role="status" aria-live="polite" aria-atomic="true" className={retry.deadline === null ? undefined : "sr-only"}>
+                      <span key={retry.deadline ?? (busy ? "checking" : "stopped")}>
+                        {retry.deadline !== null
+                          ? c(`Opsis is retrying. Next attempt in ${retryWait} seconds.`, `Opsis 正在重试。${retryWait} 秒后再次尝试。`)
+                          : busy
+                            ? c("Opsis is retrying…", "Opsis 正在重试…")
+                            : c("Opsis stopped retrying. You can try again with Retry.", "Opsis 已停止重试。您可以点击“重试”再次尝试。")}
+                      </span>
+                    </p>
+                    {retry.deadline !== null && <p aria-hidden="true">{c(`Opsis is retrying in ${countdown} ${countdown === 1 ? "second" : "seconds"}…`, `Opsis 正在等待重试，还剩 ${countdown} 秒…`)}</p>}
+                  </>
+                ) : (
+                  <p role="alert">{c("Opsis is temporarily unavailable.", "Opsis 暂时不可用。")}</p>
+                )}
+                <button onClick={() => {
+                  clearRetryTimers();
+                  pending.current?.abort();
+                  updateRetry({ type: "manual" });
+                  setBusy(true);
+                  setAccessAttempt((attempt) => attempt + 1);
+                }}>
                   {c("Retry", "重试")}
                 </button>
-              </>
+              </section>
             ) : (
               <>
+                <h1>{c("Opening Opsis", "正在打开 Opsis")}</h1>
                 <p role="status">{c("Loading your tools…", "正在加载工具…")}</p>
                 <div className="opsis-workspace-placeholder" aria-hidden="true">
                   <div /><div /><div />

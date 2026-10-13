@@ -1,3 +1,17 @@
+import { retryAfterSeconds } from "../dashboard/http";
+
+export class PreviewAccessError extends Error {
+  readonly status: number;
+  readonly retryAfter?: number;
+
+  constructor(status: number, retryAfter?: number) {
+    super("Preview unavailable");
+    this.name = "PreviewAccessError";
+    this.status = status;
+    this.retryAfter = retryAfter;
+  }
+}
+
 /** Only public identifiers cross workspace URLs. Never spread search params. */
 export function publicIdentity(value: string | null): string {
   const candidate = value?.trim() ?? "";
@@ -84,7 +98,10 @@ export async function unlockPreview(
       body: "{}",
     },
   );
-  if (!response.ok) throw new Error("Preview unavailable");
+  if (!response.ok) throw new PreviewAccessError(
+    response.status,
+    retryAfterSeconds(response.headers.get("retry-after")),
+  );
   const raw: unknown = await response.json();
   if (!raw || typeof raw !== "object") throw new Error("Invalid preview response");
   const data = raw as Capabilities;
