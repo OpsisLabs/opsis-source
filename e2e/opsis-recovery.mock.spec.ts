@@ -52,27 +52,23 @@ test.describe("opsis preview code download recovery", () => {
     expect(documents).toBe(3);
   });
 
-  test("opsis preview preload errors prevent Vite throwing and use the guarded shell recovery", async ({ page }) => {
+  // Cancelling Vite's preload event would make a failed import resolve to nothing
+  // and skip the retries, so the app must leave that event alone.
+  test("opsis preview leaves Vite's preload error event uncancelled", async ({ page }) => {
     let documents = 0;
     page.on("request", (request) => {
       if (request.isNavigationRequest() && request.frame() === page.mainFrame()) documents++;
     });
     await page.goto("/research");
     await expect(page.getByRole("button", { name: "Run research", exact: true })).toBeVisible();
-    await page.evaluate(() => {
-      window.dispatchEvent(new Event("vite:preloadError", { cancelable: true }));
-    });
-    await expect.poll(() => documents).toBe(2);
-    await expect(page.getByRole("button", { name: "Run research", exact: true })).toBeVisible();
     const prevented = await page.evaluate(() => {
       const event = new Event("vite:preloadError", { cancelable: true });
       window.dispatchEvent(event);
       return event.defaultPrevented;
     });
-    expect(prevented).toBe(true);
-    await expect(page.getByRole("heading", { name: "This page did not finish loading", exact: true })).toBeVisible();
-    await expect(page.locator(".opsis-header")).toBeVisible();
-    await expect(page.locator("h1")).toHaveCount(1);
-    expect(documents).toBe(2);
+    expect(prevented).toBe(false);
+    await page.waitForTimeout(1500);
+    await expect(page.getByRole("button", { name: "Run research", exact: true })).toBeVisible();
+    expect(documents).toBe(1);
   });
 });

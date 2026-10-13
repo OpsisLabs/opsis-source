@@ -1,14 +1,14 @@
 import { Component, type ReactNode } from "react";
 import { useI18n } from "../i18n";
 import { useCopy } from "../opsis/copy";
-import { isLoadFailure, listenForPreloadError, reloadAfterCodeFailure } from "./load-recovery";
+import { isLoadFailure, reloadAfterCodeFailure, reloadWithFreshCode } from "./load-recovery";
 import "./load-recovery.css";
 
 function RecoveryContent({ heading, explanation, button }: { heading: string; explanation: string; button: string }) {
   return <section className="opsis-load-recovery" role="alert">
     <h1>{heading}</h1>
     <p>{explanation}</p>
-    <button type="button" onClick={() => window.location.reload()}>{button}</button>
+    <button type="button" onClick={reloadWithFreshCode}>{button}</button>
   </section>;
 }
 
@@ -33,9 +33,12 @@ export function LoadRecovery({ shell = false }: { shell?: boolean }) {
 // `resetKey` clears a shown recovery screen when the route changes. It is not a
 // React key: remounting on every navigation would drop the page being left
 // before the next one is ready.
+// Vite's "vite:preloadError" event is deliberately not intercepted: cancelling
+// it makes a failed import resolve to nothing instead of rejecting, which would
+// skip the retries. Left alone, the failure rejects the import, the retries run,
+// and only a final failure reaches this boundary.
 export class LoadBoundary extends Component<{ children: ReactNode; shell?: boolean; resetKey?: string }, { failed: boolean }> {
   state = { failed: false };
-  private stopListening?: () => void;
   private handled = false;
 
   static getDerivedStateFromError(error: unknown) {
@@ -50,19 +53,11 @@ export class LoadBoundary extends Component<{ children: ReactNode; shell?: boole
     reloadAfterCodeFailure();
   };
 
-  componentDidMount() {
-    this.stopListening = listenForPreloadError({ shell: this.props.shell ?? false, recover: this.recover });
-  }
-
   componentDidUpdate(previous: { resetKey?: string }) {
     if (previous.resetKey !== this.props.resetKey && this.state.failed) {
       this.handled = false;
       this.setState({ failed: false });
     }
-  }
-
-  componentWillUnmount() {
-    this.stopListening?.();
   }
 
   componentDidCatch() {

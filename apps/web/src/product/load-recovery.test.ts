@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { codeReloadState, isLoadFailure, listenForPreloadError, reloadAfterCodeFailure } from "./load-recovery";
+import { codeReloadState, isLoadFailure, refetchPageCode, reloadAfterCodeFailure } from "./load-recovery";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -33,12 +33,14 @@ describe("history entry reload guard", () => {
   it.each([null, undefined, "bad state", 3, [], { opsisCodeReloadAt: "100000" }, { opsisCodeReloadAt: NaN }, { opsisCodeReloadAt: Infinity }, { opsisCodeReloadAt: -1 }, { opsisCodeReloadAt: now + 1 }])("handles malformed state (%s)", (state) => {
     expect(codeReloadState(state, now)).toHaveProperty("opsisCodeReloadAt", now);
   });
-  it("records before reloading and reloads only once", () => {
+  it("records before reloading and reloads only once", async () => {
     const reload = vi.fn();
     const history = { state: { idx: 2 }, replaceState: vi.fn((state) => { history.state = state; }) };
-    vi.stubGlobal("window", { history, location: { reload } });
+    vi.stubGlobal("window", { history, location: { reload, origin: "https://opsis.example" } });
+    vi.stubGlobal("document", { querySelectorAll: () => [] });
     reloadAfterCodeFailure();
     reloadAfterCodeFailure();
+    await new Promise((resolve) => setTimeout(resolve, 0));
     expect(history.replaceState).toHaveBeenCalledTimes(1);
     expect(history.state).toMatchObject({ idx: 2, opsisCodeReloadAt: expect.any(Number) });
     expect(reload).toHaveBeenCalledTimes(1);
@@ -46,23 +48,35 @@ describe("history entry reload guard", () => {
   });
 });
 
-describe("Vite preload error handling", () => {
-  it("prevents Vite throwing and delegates to the shell even when the root mounts later", () => {
-    const events = new EventTarget();
-    vi.stubGlobal("window", events);
-    const shell = vi.fn(), root = vi.fn();
-    const stopShell = listenForPreloadError({ shell: true, recover: shell });
-    const stopRoot = listenForPreloadError({ shell: false, recover: root });
-    const event = new Event("vite:preloadError", { cancelable: true });
-    events.dispatchEvent(event);
-    expect(event.defaultPrevented).toBe(true);
-    expect(shell).toHaveBeenCalledTimes(1);
-    expect(root).not.toHaveBeenCalled();
-    stopShell();
-    events.dispatchEvent(new Event("vite:preloadError"));
-    expect(root).toHaveBeenCalledTimes(1);
-    stopRoot();
-    events.dispatchEvent(new Event("vite:preloadError"));
-    expect(root).toHaveBeenCalledTimes(1);
+describe("fresh code before a reload", () => {
+  const origin = "https://opsis.example";
+  const link = (href: string) => ({ href });
+
+  it("fetches each of the page's own code and style links once, past the cache", async () => {
+    const fetcher = vi.fn(async () => undefined);
+    await refetchPageCode([link(`${origin}/assets/Research-a.js`), link(`${origin}/assets/Research-a.js`), link(`${origin}/assets/index-b.css`), link("https://other.example/x.js")], origin, fetcher);
+    expect(fetcher.mock.calls).toEqual([
+      [`${origin}/assets/Research-a.js`, { cache: "reload", credentials: "same-origin" }],
+      [`${origin}/assets/index-b.css`, { cache: "reload", credentials: "same-origin" }],
+    ]);
+  });
+
+  it("does nothing without links and tolerates failed fetches", async () => {
+    const fetcher = vi.fn(async () => { throw new Error("offline"); });
+    await refetchPageCode([], origin, fetcher);
+    expect(fetcher).not.toHaveBeenCalled();
+    await expect(refetchPageCode([link(`${origin}/assets/a.js`)], origin, fetcher)).resolves.toBeUndefined();
+  });
+
+  it("stops waiting after the limit when the connection is still down", async () => {
+    const started = Date.now();
+    await refetchPageCode([link(`${origin}/assets/a.js`)], origin, () => new Promise(() => undefined), 30);
+    expect(Date.now() - started).toBeLessThan(1_000);
+  });
+
+  it("asks for at most eighty files", async () => {
+    const fetcher = vi.fn(async () => undefined);
+    await refetchPageCode(Array.from({ length: 200 }, (_, index) => link(`${origin}/assets/${index}.js`)), origin, fetcher);
+    expect(fetcher).toHaveBeenCalledTimes(80);
   });
 });
