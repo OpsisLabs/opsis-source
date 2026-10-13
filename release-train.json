@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "31-first-visit",
+  "activeRelease": "32-launch-load",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement. Exception: dRPC under Opsis decision D20, admitted only while it does not request identity or business verification.",
@@ -376,7 +376,7 @@
       "id": "31-first-visit",
       "branch": "codex/31-first-visit",
       "tagPrefix": "rc/31-first-visit/",
-      "status": "active",
+      "status": "released",
       "dependencies": [
         "30-launch-readiness"
       ],
@@ -388,7 +388,7 @@
       "id": "32-launch-load",
       "branch": "codex/32-launch-load",
       "tagPrefix": "rc/32-launch-load/",
-      "status": "queued",
+      "status": "active",
       "dependencies": [
         "31-first-visit"
       ],
