@@ -382,6 +382,18 @@
       ],
       "outcome": "A first-time visitor gets a useful answer from the first thing they try",
       "shipGate": "Research recognises a token contract without being told and shows its name, symbol, decimals and supply with the exact contract; a transaction shows decoded token transfers, approvals and Uniswap V3 swaps in plain words with formatted amounts next to the raw values, and says so when it could not decode; a wallet shows its sampled token balances in the result. Decoding uses only the existing chain-data provider within the existing per-request and daily limits, and anything not established stays labelled as unknown. Trade Check never preselects the input token as its output and explains a refused request specifically. Research and Trade Check offer one-click examples that use public reviewed contracts only, never an individual's wallet, and accept the symbols of reviewed assets while always showing the exact contract they resolve to. On Research and Trade Check the main input and its action are on the first screen at 1280 by 800 and 375 by 812, with one header height across tool pages. English and Chinese, Chromium and WebKit, unit, failure-state, privacy and full release gates pass on the integrated candidate. No provider, chain, execution, paid path, workspace or new public claim; the front door keeps its D12 composition."
+    },
+    {
+      "order": 33,
+      "id": "32-launch-load",
+      "branch": "codex/32-launch-load",
+      "tagPrefix": "rc/32-launch-load/",
+      "status": "queued",
+      "dependencies": [
+        "31-first-visit"
+      ],
+      "outcome": "A crowd arriving at once, many of them behind one network address, still gets the product; and we know the limits because we measured them",
+      "shipGate": "The access check's per-address limit is a setting with a default several times today's 20 a minute, and nothing else about that route changes. When the access check is refused for volume the app says so in plain words under a heading, retries by itself after the wait the server states, a bounded number of times, and keeps a manual retry; any other failure keeps today's screen with a heading. A repository load script drives realistic visitor journeys against a named host within hard bounds on concurrency and duration, refuses to run without an explicit acknowledgement that it spends chain-data units, and reports latency percentiles and refusals by step; it has run against the preview and its measured limits are in the release record. The scheduled production check also verifies that the chain's main token is recognised, without adding a chain-data cost above a few calls a run. English and Chinese, Chromium and WebKit, unit, failure-state, privacy and full release gates pass on the integrated candidate. No provider, chain, execution, paid path, workspace or new public claim; spending limits stay hard stops."
     }
   ]
 }
