@@ -517,7 +517,6 @@ export default function OpsisApp() {
               </section>
             ) : (
               <>
-                <h1>{c("Opening Opsis", "正在打开 Opsis")}</h1>
                 <p role="status">{c("Loading your tools…", "正在加载工具…")}</p>
                 <div className="opsis-workspace-placeholder" aria-hidden="true">
                   <div /><div /><div />

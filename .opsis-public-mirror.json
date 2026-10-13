@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "423ef53884eee27f5b289d277adba5a90b6343d404f052de8e2887093ab17ff9",
+  "sourceTreeDigest": "75cb6d441a3d27e64e053fbe15dd748872f5e53bf52717ab23343eee7a598049",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "ec87fd927bdbf1326633e0834a0e85f32fe8564fbf0d0acec3ecdb1b5bdf78ed",
@@ -475,7 +475,7 @@
     "apps/web/src/opsis/model.ts": "863912af78084ac03e128ce032e6428383fbe3702c9f4c08081b3a80fd1a6811",
     "apps/web/src/opsis/NavigationFeedback.tsx": "a39e928f145a5b00f427913fe6d7092b18b666fa64df68ed2a291526f6b9392e",
     "apps/web/src/opsis/opsis.css": "7b7f41b4188ad3aeb36c1eb0a4ff2461f193f2399c7755fa9043c3ebef5c0d77",
-    "apps/web/src/opsis/OpsisApp.tsx": "4298428702825872a854f895136f92da47ed0735644f8971d1646554e5eb5c90",
+    "apps/web/src/opsis/OpsisApp.tsx": "b1ac5a9d0fc84adae0423583246db8c4e85d9b5df67c7bde0ce190350ab41799",
     "apps/web/src/opsis/OpsisCopy.tsx": "8f15d5a79e88368cd4bb15a39ac561898e66141a770987d15b12639cfbb806a7",
     "apps/web/src/opsis/OriginalLanding.bridge.ts": "15d526c2157fd54a9a4b877d0998b0df58a4e1213d0c778c163c783116fb1587",
     "apps/web/src/opsis/OriginalLanding.test.tsx": "59f5904120495d1d3a84d05d3df63635ce1b19f16f9fd9d31617e70d080afcaa",
