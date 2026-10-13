@@ -60,6 +60,8 @@ test("opsis preview shell navigation", async ({ page }) => {
   await expect(page).toHaveURL(new RegExp(`/research\\?entity=${token}$`));
   await expect(page).toHaveTitle("Opsis · Research");
   const researchTop = await contentTop(page);
+  const researchHeaderHeight = (await page.locator(".opsis-header").boundingBox())!.height;
+  await expect(page.locator(".opsis-header .opsis-navigation nav a")).toHaveCount(4);
 
   await workspace(page, "Trade Check").click();
   await expect(page.getByTestId("opsis-navigation-progress")).toHaveAttribute("data-pending", "true");
@@ -88,6 +90,8 @@ test("opsis preview shell navigation", async ({ page }) => {
   await expect(page).toHaveURL(/\/watch$/);
   await expect(page.locator(".opsis-tool-workspace")).toBeVisible();
   expect(await contentTop(page)).toBe(researchTop);
+  expect((await page.locator(".opsis-header").boundingBox())!.height).toBe(researchHeaderHeight);
+  await expect(page.locator(".opsis-tool-nav")).toContainText("Compare saved wallet checks");
   await workspace(page, "Trade Check").click();
   await expect(page.getByTestId("opsis-quote")).toBeVisible();
   await expect(page.getByLabel("Amount to check", { exact: true })).toHaveValue("1.5");

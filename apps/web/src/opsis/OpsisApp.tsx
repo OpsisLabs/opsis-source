@@ -295,43 +295,123 @@ export default function OpsisApp() {
           {c("Skip to content", "跳至内容")}
         </a>
         <header className="opsis-header">
-          <Link to="/" className="opsis-logo">
-            OPSIS
-          </Link>
-          <div className="opsis-controls">
+          <div className="opsis-header-main">
+            <Link to="/" className="opsis-logo">
+              OPSIS
+            </Link>
             {access && (
-              <Link className="opsis-guide-link" to="/guide">
-                {c("Find your tool", "选择工具")}
-              </Link>
+              <div className="opsis-navigation">
+                <nav aria-label={c("Workspaces", "工作区")}>
+                  {[
+                    [
+                      "/research",
+                      c("Research", "研究"),
+                      c("Understand an asset", "理解资产"),
+                    ],
+                    [
+                      "/check",
+                      c("Trade Check", "交易核查"),
+                      c("Check trading costs", "核查交易成本"),
+                    ],
+                    [
+                      "/watch",
+                      c("Watch", "观察"),
+                      c("Compare wallet checks", "比较钱包核查"),
+                    ],
+                    [
+                      "/lab",
+                      c("Quant Lab", "量化实验室"),
+                      c("Explore data & scenarios", "探索数据与情景"),
+                    ],
+                  ].map(([path, label, purpose]) => (
+                    <NavLink
+                      key={path}
+                      to={path}
+                      aria-label={label}
+                      aria-describedby={`workspace-purpose-${path.slice(1)}`}
+                      className={({ isActive }) =>
+                        isActive ||
+                        (path === "/research" &&
+                          ["/rwa", "/biggest-trades"].includes(location.pathname)) ||
+                        (path === "/check" &&
+                          ["/swap", "/simulate", "/stress-test"].includes(
+                            location.pathname,
+                          ))
+                          ? "active"
+                          : undefined
+                      }
+                    >
+                      {label}
+                      <small id={`workspace-purpose-${path.slice(1)}`}>
+                        {purpose}
+                      </small>
+                    </NavLink>
+                  ))}
+                </nav>
+              </div>
             )}
-            <button
-              aria-pressed={theme === "dark"}
-              onClick={() => {
-                const next = theme === "dark" ? "light" : "dark";
-                persistTheme(next);
-                setTheme(next);
-              }}
-            >
-              {theme === "dark"
-                ? c("Theme: Dark", "主题：深色")
-                : c("Theme: Light", "主题：浅色")}
-            </button>
-            <button onClick={() => setLocale(locale === "en" ? "zh-CN" : "en")}>
-              {locale === "en" ? "中文" : "English"}
-            </button>
-            {access && !publicAccess && (
+            <div className="opsis-controls">
+              {access && (
+                <Link className="opsis-guide-link" to="/guide">
+                  {c("Find your tool →", "选择工具 →")}
+                </Link>
+              )}
               <button
+                aria-pressed={theme === "dark"}
+                aria-label={
+                  theme === "dark"
+                    ? c("Theme: Dark", "主题：深色")
+                    : c("Theme: Light", "主题：浅色")
+                }
                 onClick={() => {
-                  setOpsisPreviewToken("");
-                  clearPublicSession();
-                  setAccess(null);
-                  setError(false);
+                  const next = theme === "dark" ? "light" : "dark";
+                  persistTheme(next);
+                  setTheme(next);
                 }}
               >
-                {c("Lock preview", "锁定预览")}
+                {theme === "dark" ? c("Dark", "深色") : c("Light", "浅色")}
               </button>
-            )}
+              <button onClick={() => setLocale(locale === "en" ? "zh-CN" : "en")}>
+                {locale === "en" ? "中文" : "English"}
+              </button>
+              {access && !publicAccess && (
+                <button
+                  aria-label={c("Lock preview", "锁定预览")}
+                  onClick={() => {
+                    setOpsisPreviewToken("");
+                    clearPublicSession();
+                    setAccess(null);
+                    setError(false);
+                  }}
+                >
+                  {c("Lock", "锁定")}
+                </button>
+              )}
+            </div>
           </div>
+          {access && (
+            <div className="opsis-header-tools">
+              <ToolNavigation capabilities={access} />
+              <div className="opsis-preview-note">
+                {c(
+                  betaRelease
+                    ? "BETA · Robinhood Chain 4663"
+                    : publicAccess
+                      ? "PREVIEW · Robinhood Chain 4663"
+                      : "PRIVATE PREVIEW · Test data only · Robinhood Chain 4663",
+                  betaRelease
+                    ? "测试版 · Robinhood Chain 4663"
+                    : publicAccess
+                      ? "预览 · Robinhood Chain 4663"
+                      : "私密预览 · 仅限测试数据 · Robinhood Chain 4663",
+                )}
+              </div>
+              <details className="opsis-header-search">
+                <summary>{c("Search", "搜索")}</summary>
+                <PublicSearch />
+              </details>
+            </div>
+          )}
         </header>
         {!access && publicAccess ? (
           <main id="opsis-content" className="opsis-unlock">
@@ -403,73 +483,6 @@ export default function OpsisApp() {
           </main>
         ) : (
           <>
-            <div className="opsis-navigation">
-              <nav aria-label={c("Workspaces", "工作区")}>
-                {[
-                  [
-                    "/research",
-                    c("Research", "研究"),
-                    c("Understand an asset", "理解资产"),
-                  ],
-                  [
-                    "/check",
-                    c("Trade Check", "交易核查"),
-                    c("Check trading costs", "核查交易成本"),
-                  ],
-                  [
-                    "/watch",
-                    c("Watch", "观察"),
-                    c("Compare wallet checks", "比较钱包核查"),
-                  ],
-                  [
-                    "/lab",
-                    c("Quant Lab", "量化实验室"),
-                    c("Explore data & scenarios", "探索数据与情景"),
-                  ],
-                ].map(([path, label, purpose]) => (
-                  <NavLink
-                    key={path}
-                    to={path}
-                    aria-label={label}
-                    aria-describedby={`workspace-purpose-${path.slice(1)}`}
-                    className={({ isActive }) =>
-                      isActive ||
-                      (path === "/research" &&
-                        ["/rwa", "/biggest-trades"].includes(
-                          location.pathname,
-                        )) ||
-                      (path === "/check" &&
-                        ["/swap", "/simulate", "/stress-test"].includes(
-                          location.pathname,
-                        ))
-                        ? "active"
-                        : undefined
-                    }
-                  >
-                    {label}
-                    <small id={`workspace-purpose-${path.slice(1)}`}>
-                      {purpose}
-                    </small>
-                  </NavLink>
-                ))}
-              </nav>
-              <PublicSearch />
-            </div>
-            <ToolNavigation capabilities={access} />
-            <div className="opsis-preview-note">
-              {c(
-                betaRelease
-                  ? "BETA · Robinhood Chain 4663"
-                  : publicAccess
-                    ? "PREVIEW · Robinhood Chain 4663"
-                    : "PRIVATE PREVIEW · Test data only · Robinhood Chain 4663",
-                betaRelease
-                  ? "测试版 · Robinhood Chain 4663"
-                  : publicAccess
-                    ? "预览 · Robinhood Chain 4663"
-                    : "私密预览 · 仅限测试数据 · Robinhood Chain 4663",
-              )}
-            </div>
             <NavigationFeedback capabilities={access} />
             <main id="opsis-content" className="opsis-content" tabIndex={-1}>
               <ToolOrientation capabilities={access} />
