@@ -80,6 +80,19 @@ test.describe("opsis preview explorer data", () => {
     await compact(page);
   });
 
+  test("opsis preview a slow explorer read says it can take a few seconds", async ({ page }) => {
+    await page.route("**/v1/private/analyze", async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 3500));
+      await route.fulfill({ json: weth });
+    });
+    await page.goto(`/research?entity=${weth.entity.value}`);
+    await page.getByRole("button", { name: "Run research", exact: true }).click();
+    const status = page.getByRole("status").filter({ hasText: "Checking public evidence" });
+    await expect(status).toBeVisible();
+    await expect(status).toContainText("Holder and transfer data from Blockscout can take a few seconds.");
+    await expect(page.getByTestId("opsis-research-result")).toBeVisible();
+  });
+
   test("opsis preview wallet separates reviewed assets, reveals other tokens and shows failed history", async ({ page }) => {
     const payload = { ...wallet, entity: { ...wallet.entity, facts: { ...wallet.entity.facts,
       activityCoverage: "indexed_window", tokenBalanceCoverage: "indexed_window",

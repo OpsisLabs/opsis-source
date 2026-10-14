@@ -25,6 +25,20 @@ import { tokenHeading, receiptTransferObservations, transactionReceiptOutcome, t
 import ContractControls from "./ContractControls";
 import EvidenceMap from "./EvidenceMap";
 
+/** Uncached explorer reads take several seconds; say so once the wait is noticeable. */
+function BusyStatus() {
+  const c = useCopy();
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setSlow(true), 2500);
+    return () => window.clearTimeout(timer);
+  }, []);
+  return <p role="status">
+    {c("Checking public evidence…", "正在核查公开证据…")}
+    {slow && <> {c("Holder and transfer data from Blockscout can take a few seconds.", "来自 Blockscout 的持有人和转移数据可能需要几秒钟。")}</>}
+  </p>;
+}
+
 export default function Research({
   capabilities,
 }: {
@@ -247,11 +261,7 @@ export default function Research({
               }}
             />
           )}
-          {busy && (
-            <p role="status">
-              {c("Checking public evidence…", "正在核查公开证据…")}
-            </p>
-          )}
+          {busy && <BusyStatus />}
           {result && (
             <section
               className="opsis-panel"

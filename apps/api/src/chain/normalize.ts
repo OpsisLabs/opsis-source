@@ -664,6 +664,11 @@ function summarizeDistribution(
     liquidityPoolShare: pools.length > 0 ? share(pools, pools.length) : 0,
     liquidityPools: pools.slice(0, 3).map((p) => ({ address: p.address, label: p.label, share: Math.round(p.share * 10) / 10 })),
     top1WalletShare: share(wallets, 1),
+    // Contracts among the largest holders are often lending markets, vaults or
+    // multisig wallets: one address, but not necessarily one owner.
+    top1HolderIsContract: wallets[0] ? wallets[0].isContract : undefined,
+    top1HolderLabel: wallets[0]?.label,
+    top10ContractCount: wallets.slice(0, 10).filter((h) => h.isContract).length,
     top5WalletShare: share(wallets, 5),
     top10WalletShare: share(wallets, 10),
     topHolders: holders.slice(0, 10).map((h) => ({
@@ -849,24 +854,34 @@ function buildRiskNotes(type: ChainEntityType, facts: Record<string, unknown>, c
     // Benchmarks: a broadly held token typically keeps its top ten private
     // wallets under ~25% of supply. Past 50% a small group can move the price
     // at will, which is the single most useful number a newcomer can be given.
+    const contracts = Number(facts.top10ContractCount);
+    const contractNote = Number.isFinite(contracts) && contracts > 0
+      ? ` ${contracts === 1 ? "One of them is a contract" : `${contracts} of them are contracts`}, such as a lending market, vault or multisig wallet, which can hold tokens for many users rather than one owner.`
+      : "";
     if (Number.isFinite(top10) && top10 >= 50) {
       notes.push({
         severity: "high",
-        title: "Supply is concentrated in a few wallets",
-        detail: `The ten largest private wallets hold ${top10}% of supply, excluding any trading pool. Widely held tokens are usually under 25%. A group this size can move the price on its own.`,
+        title: "Supply is concentrated in a few holders",
+        detail: `The ten largest holders hold ${top10}% of supply, excluding trading pools and burn addresses. Widely held tokens are usually under 25%. A group this size can move the price on its own.${contractNote}`,
         evidenceCitationIds: ids
       });
     } else if (Number.isFinite(top10) && top10 >= 25) {
       notes.push({
         severity: "medium",
         title: "Supply is somewhat concentrated",
-        detail: `The ten largest private wallets hold ${top10}% of supply, excluding any trading pool. That is above the ~25% typical of widely held tokens.`,
+        detail: `The ten largest holders hold ${top10}% of supply, excluding trading pools and burn addresses. That is above the ~25% typical of widely held tokens.${contractNote}`,
         evidenceCitationIds: ids
       });
     }
 
     if (Number.isFinite(top1) && top1 >= 15) {
-      notes.push({
+      const label = typeof facts.top1HolderLabel === "string" && facts.top1HolderLabel ? ` (${facts.top1HolderLabel.slice(0, 60)})` : "";
+      notes.push(facts.top1HolderIsContract === true ? {
+        severity: "medium",
+        title: "One contract holds a large share",
+        detail: `The largest holder is a contract${label} holding ${top1}% of supply. A contract can hold tokens for many users, such as a lending market, or for one party, such as a team multisig; the explorer data does not say which.`,
+        evidenceCitationIds: ids
+      } : {
         severity: "medium",
         title: "One wallet holds a large share",
         detail: `The largest single wallet holds ${top1}% of supply. A sale from one address that size would be felt by everyone else.`,
@@ -876,9 +891,9 @@ function buildRiskNotes(type: ChainEntityType, facts: Record<string, unknown>, c
 
     if (Number.isFinite(pool) && pool > 0 && pool < 3) {
       notes.push({
-        severity: "medium",
-        title: "Very little of the supply is tradeable",
-        detail: `Only ${pool}% of supply sits in a trading pool. Thin liquidity means even modest trades move the price sharply, and large positions can be hard to exit.`,
+        severity: "info",
+        title: "Little of the supply is in recognised trading pools",
+        detail: `Pools the explorer names as trading pools hold ${pool}% of supply. Pools it does not name are not counted, so trading liquidity may be larger; thin liquidity would mean modest trades move the price sharply.`,
         evidenceCitationIds: ids
       });
     }

@@ -115,6 +115,32 @@ describe("explorer token and wallet facts", () => {
       top10WalletShare: 5, deployerStillHolds: 0 });
   });
 
+  it("names a contract as the largest holder instead of calling it a wallet, and counts contracts among the ten", () => {
+    const docs = tokenDocs();
+    docs[0]!.responseJson = { decimals: "18", total_supply: "1000" };
+    docs[3]!.responseJson = { items: [
+      { value: "300", address: { hash: `0x${"a".repeat(40)}`, name: "PoolManager", is_contract: true } },
+      { value: "200", address: { hash: `0x${"b".repeat(40)}`, name: "Morpho", is_contract: true } },
+      { value: "100", address: { hash: `0x${"c".repeat(40)}`, is_contract: true } },
+      { value: "50", address: { hash: wallet, is_contract: false } }
+    ] };
+    const result = normalizeEntity(4663, "token", weth, docs);
+    expect(result.facts).toMatchObject({ top1WalletShare: 20, top1HolderIsContract: true, top1HolderLabel: "Morpho", top10ContractCount: 2, top10WalletShare: 35 });
+    const titles = result.riskNotes.map((note) => note.title);
+    expect(titles).toContain("One contract holds a large share");
+    expect(titles).not.toContain("One wallet holds a large share");
+    const concentration = result.riskNotes.find((note) => note.title === "Supply is somewhat concentrated");
+    expect(concentration?.detail).toContain("2 of them are contracts");
+    expect(concentration?.detail).not.toContain("private wallets");
+  });
+
+  it("describes a thin recognised pool share as information, with the naming limit", () => {
+    const docs = tokenDocs("pons", pons);
+    const note = normalizeEntity(4663, "token", pons, docs).riskNotes.find((item) => item.title === "Little of the supply is in recognised trading pools");
+    expect(note).toMatchObject({ severity: "info" });
+    expect(note?.detail).toContain("Pools it does not name are not counted");
+  });
+
   it("keeps missing documents and invalid numeric fields unknown", () => {
     const docs = tokenDocs().filter((_, i) => i === 0 || i === 5);
     docs[0]!.responseJson = { decimals: "256", holders_count: "9007199254740992", total_supply: 123 };
