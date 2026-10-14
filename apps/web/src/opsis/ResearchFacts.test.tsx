@@ -197,6 +197,17 @@ for (const chinese of [false, true]) {
       expect((html.match(/<li>/g) ?? []).length).toBe(10);
     });
 
+    it("does not attach a reason to holder and transfer data that was read", () => {
+      language.chinese = chinese;
+      for (const reason of ["daily_limit", "rate_limited", "unavailable"] as const) {
+        const html = text(renderToken({ holderCoverage: "top_holders", activityCoverage: "indexed_window", sourceCoverage: "explorer_metadata",
+          holders: 10, topHolders: [], recentTransfers: [], explorerUnavailableReason: reason }));
+        expect(html).not.toContain("00:00 UTC");
+        expect(html).not.toContain(chinese ? "请在一分钟后重试" : "try again in a minute");
+        expect(html).not.toContain(chinese ? "无法从 Blockscout 读取" : "could not be read");
+      }
+    });
+
     for (const reason of [undefined, "daily_limit", "rate_limited", "unavailable"] as const) {
       it(`reports missing coverage with ${reason ?? "no reason"}`, () => {
         const facts: ResearchFacts = { holderCoverage: "unavailable", activityCoverage: "unavailable", tokenBalanceCoverage: "unavailable", explorerUnavailableReason: reason };
@@ -209,7 +220,7 @@ for (const chinese of [false, true]) {
         expect(text(balances)).toContain(chinese ? "无法从 Blockscout 读取代币余额" : "Token balances could not be read from Blockscout");
         const rpc = renderToken({ ...facts, sourceCoverage: "rpc_sample_only", metadataCoverage: "rpc_partial" });
         expect(rpc).toContain('data-testid="research-token-rpc-coverage"');
-        const sentence = reason === "daily_limit" ? "00:00 UTC" : reason === "rate_limited" ? (chinese ? "请在一分钟后重试" : "Try again in a minute") : reason === "unavailable" ? (chinese ? "无法从 Blockscout 读取持有人和历史数据" : "Holder and history data could not be read from Blockscout") : null;
+        const sentence = reason === "daily_limit" ? "00:00 UTC" : reason === "rate_limited" ? (chinese ? "请在一分钟后重试" : "try again in a minute") : null;
         if (sentence) for (const markup of [html, transactions, balances, rpc]) expect(text(markup)).toContain(sentence);
         for (const markup of [html, transactions, balances]) {
           expect(markup).not.toContain("<li>");

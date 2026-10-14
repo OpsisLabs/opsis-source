@@ -284,16 +284,21 @@ function deterministicAnswer(
 
 function explorerLimitations(entity: NormalizedEntity, locale: AiLocale): string[] {
   if (entity.type !== "token" && entity.type !== "wallet") return [];
+  const token = entity.type === "token";
   switch (entity.facts.explorerUnavailableReason) {
     case "daily_limit": return [t(locale,
-      "Holder and history data from Blockscout return after 00:00 UTC.",
-      "Blockscout 的持有人和历史数据在 UTC 00:00 后恢复。")];
+      token ? "Holder and transfer data from Blockscout was not read: Opsis has used today's allowance, which resets at 00:00 UTC."
+        : "Balances or recent transactions from Blockscout were not read: Opsis has used today's allowance, which resets at 00:00 UTC.",
+      token ? "未读取 Blockscout 的持有人和转移数据：Opsis 已用完今日配额，配额在 UTC 00:00 重置。"
+        : "未读取 Blockscout 的余额或近期交易：Opsis 已用完今日配额，配额在 UTC 00:00 重置。")];
     case "rate_limited": return [t(locale,
-      "Blockscout was busy and holder and history data were skipped for this lookup.",
-      "Blockscout 繁忙，本次查询跳过了持有人和历史数据。")];
+      token ? "Holder and transfer data from Blockscout was skipped because it was busy during this lookup."
+        : "Balances or recent transactions from Blockscout were skipped because it was busy during this lookup.",
+      token ? "本次查询时 Blockscout 繁忙，跳过了持有人和转移数据。"
+        : "本次查询时 Blockscout 繁忙，跳过了余额或近期交易。")];
     case "unavailable": return [t(locale,
-      "Holder and history data from Blockscout could not be read.",
-      "无法读取 Blockscout 的持有人和历史数据。")];
+      token ? "Some holder and transfer data from Blockscout could not be read." : "Some balances or recent transactions from Blockscout could not be read.",
+      token ? "部分 Blockscout 持有人和转移数据无法读取。" : "部分 Blockscout 余额或近期交易无法读取。")];
     default: return [];
   }
 }

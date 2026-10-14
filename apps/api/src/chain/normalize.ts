@@ -36,7 +36,7 @@ export function normalizeEntity(
   const citations = docs.map((doc) => citation(doc, fieldsUsedForDoc(doc), sourceDescription(doc), explorerBase));
   const facts = summarizeFacts(type, docs, value);
   const explorerReason = (docs as ExplorerDocuments).explorerUnavailableReason;
-  if ((type === "token" || type === "wallet") && explorerReason) facts.explorerUnavailableReason = explorerReason;
+  if (explorerReason && explorerReasonApplies(type, facts)) facts.explorerUnavailableReason = explorerReason;
   facts.chainId = chainId;
   facts.explorerUrl = explorerUrl(type, value, explorerBase);
   facts.sourceIds = citations.map((source) => source.id);
@@ -48,6 +48,21 @@ export function normalizeEntity(
     citations,
     riskNotes: buildRiskNotes(type, facts, citations)
   };
+}
+
+/**
+ * An explorer failure is worth naming only when it cost the visitor holder,
+ * transfer, balance or activity data. A missing contract record, address
+ * profile or counter already shows its own fields as unknown; naming a reason
+ * then would claim that data shown on the page was not read.
+ */
+export function explorerReasonApplies(type: ChainEntityType, facts: Record<string, unknown>): boolean {
+  if (type === "token") return facts.holderCoverage !== "top_holders" || facts.activityCoverage !== "indexed_window";
+  if (type === "wallet") {
+    return facts.activityCoverage === "unavailable"
+      || facts.tokenBalanceCoverage === "unavailable" || facts.tokenBalanceCoverage === "reviewed_asset_sample";
+  }
+  return false;
 }
 
 function sourceDescription(doc: SourceDocumentInput): string {

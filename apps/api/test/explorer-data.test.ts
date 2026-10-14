@@ -6,7 +6,7 @@ import { AiService } from "../src/ai/service.js";
 import { AlchemyProvider } from "../src/chain/alchemy.js";
 import { BlockscoutProvider } from "../src/chain/blockscout.js";
 import { ExplorerGate } from "../src/chain/explorer-gate.js";
-import { normalizeEntity } from "../src/chain/normalize.js";
+import { explorerReasonApplies, normalizeEntity } from "../src/chain/normalize.js";
 import { ProviderHttpClient, ProviderRequestError, type ProviderHttp } from "../src/chain/provider-http.js";
 import { ChainEntityResolver } from "../src/chain/resolver.js";
 import type { SourceDocumentInput } from "../src/chain/types.js";
@@ -353,10 +353,34 @@ describe("Private Mode explorer reads", () => {
   });
 });
 
+describe("explorer limitation scope", () => {
+  it("names no reason when only the address profile, contract record or counts were missing", async () => {
+    const { http, calls } = fixtureHttp();
+    const partial: ProviderHttp = { async requestJson(url, init) {
+      const path = new URL(url).pathname;
+      if (path.endsWith(`/addresses/${weth}`) || path.includes("/smart-contracts/") || path.includes("/counters")) throw new ProviderRequestError("PROVIDER_TIMEOUT", true);
+      return http.requestJson(url, init);
+    } };
+    const result = await resolver(partial).resolveWithSources("token", weth, { privateMode: true });
+    expect(calls).toHaveLength(3);
+    expect(result.entity.facts).toMatchObject({ holderCoverage: "top_holders", activityCoverage: "indexed_window", verified: null, proxy: null, lifetimeTransfers: null });
+    expect(result.entity.facts.explorerUnavailableReason).toBeUndefined();
+    const answer = await new AiService({ ...env, AI_PROVIDER: "fallback" }).answer("Explain", result.entity);
+    expect(answer.uncertainty.some((sentence) => sentence.includes("Blockscout"))).toBe(false);
+  });
+
+  it("keeps the reason for a wallet whose balances fell back to the reviewed sample", () => {
+    expect(explorerReasonApplies("wallet", { activityCoverage: "indexed_window", tokenBalanceCoverage: "reviewed_asset_sample" })).toBe(true);
+    expect(explorerReasonApplies("wallet", { activityCoverage: "indexed_window", tokenBalanceCoverage: "indexed_window" })).toBe(false);
+    expect(explorerReasonApplies("token", { holderCoverage: "top_holders", activityCoverage: "unavailable" })).toBe(true);
+    expect(explorerReasonApplies("transaction", { holderCoverage: "unavailable" })).toBe(false);
+  });
+});
+
 describe("explorer answer limitations", () => {
   it.each([
-    ["daily_limit", "return after 00:00 UTC", "UTC 00:00 后恢复"],
-    ["rate_limited", "were skipped for this lookup", "本次查询跳过"],
+    ["daily_limit", "resets at 00:00 UTC", "UTC 00:00 重置"],
+    ["rate_limited", "busy during this lookup", "Blockscout 繁忙"],
     ["unavailable", "could not be read", "无法读取"]
   ])("adds one limitation in both locales for %s", async (reason, english, chinese) => {
     const service = new AiService({ ...env, AI_PROVIDER: "fallback" });

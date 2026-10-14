@@ -92,11 +92,11 @@ function ObservedTime({ value }: { value: unknown }) {
   </span> : <span>{c("Time unknown", "时间未知")}</span>;
 }
 
+/** Why explorer data is missing, placed next to the part that is missing. A plain failure needs no extra words. */
 function ExplorerReason({ reason }: { reason: ResearchFacts["explorerUnavailableReason"] }) {
   const c = useCopy();
-  if (reason === "daily_limit") return <>{c("Opsis has used today's Blockscout allowance. Holder and history data return after 00:00 UTC.", "Opsis 已用完今日的 Blockscout 配额。持有人和历史数据在 00:00 UTC 后恢复。")}</>;
-  if (reason === "rate_limited") return <>{c("Blockscout was busy, so holder and history data were skipped for this lookup. Try again in a minute.", "Blockscout 繁忙，本次查询跳过了持有人和历史数据。请在一分钟后重试。")}</>;
-  if (reason === "unavailable") return <>{c("Holder and history data could not be read from Blockscout.", "无法从 Blockscout 读取持有人和历史数据。")}</>;
+  if (reason === "daily_limit") return <>{c("Opsis has used today's Blockscout allowance; this data returns after 00:00 UTC.", "Opsis 已用完今日的 Blockscout 配额；此数据在 00:00 UTC 后恢复。")}</>;
+  if (reason === "rate_limited") return <>{c("Blockscout was busy during this lookup; try again in a minute.", "本次查询时 Blockscout 繁忙；请在一分钟后重试。")}</>;
   return null;
 }
 
@@ -141,7 +141,7 @@ export function TokenFacts({ facts }: { facts: ResearchFacts }) {
     {facts.explorerReputation === "scam" && <p className="opsis-small">{c("Blockscout marks this token as a scam.", "Blockscout 将此代币标记为骗局。")}</p>}
     {(distribution || facts.holderCoverage === "unavailable") && <section data-testid="token-holders">
       <h3>{c("Who holds it", "谁持有它")}</h3>
-      {facts.holderCoverage === "unavailable" ? <p>{c("Holder data could not be read from Blockscout.", "无法从 Blockscout 读取持有人数据。")}</p> : <>
+      {facts.holderCoverage === "unavailable" ? <p>{c("Holder data could not be read from Blockscout.", "无法从 Blockscout 读取持有人数据。")} <ExplorerReason reason={facts.explorerUnavailableReason} /></p> : <>
         <p className="opsis-small">{c("These are the largest", "这些是从 Blockscout 读取的最大的")} {explorerCount(facts.holdersAnalyzed) ?? facts.topHolders?.length ?? c("Unknown", "未知")} {c("holders read from Blockscout. Shares are percentages of total supply.", "个持有人。占比均以总供应量为基准。")}</p>
         <dl className="opsis-metrics">
           <div><dt>{c("Largest holder, excluding trading pools and burn addresses", "最大持有人，不含交易池和销毁地址")}</dt><dd><Share value={shares.largest} /></dd></div>
@@ -163,7 +163,7 @@ export function TokenFacts({ facts }: { facts: ResearchFacts }) {
     </section>}
     {(history || facts.activityCoverage === "unavailable") && <section data-testid="token-transfers">
       <h3>{c("Recent transfers", "近期转移")}</h3>
-      {facts.activityCoverage === "unavailable" ? <p>{c("Recent transfers could not be read from Blockscout.", "无法从 Blockscout 读取近期转移。")}</p> : <>
+      {facts.activityCoverage === "unavailable" ? <p>{c("Recent transfers could not be read from Blockscout.", "无法从 Blockscout 读取近期转移。")} <ExplorerReason reason={facts.explorerUnavailableReason} /></p> : <>
         <p className="opsis-small">{rows.length} {c("transfers in this Blockscout window.", "笔转移记录在此 Blockscout 窗口中。")}{rows.length > 0 && <> {c("Latest", "最近一笔")}: <ObservedTime value={latestTimestamp(rows)} /></>}</p>
         {rows.length > 0 && <ul className="opsis-balance-list">{rows.slice(0, 5).map((row, index) => <li key={`${row.transactionHash}:${index}`}>
           <ObservedTime value={row.timestamp} />
@@ -176,7 +176,7 @@ export function TokenFacts({ facts }: { facts: ResearchFacts }) {
     {rpc ? <p className="opsis-small" data-testid="research-token-rpc-coverage">
       {c("Opsis could not see holders, indexed activity or contract verification. Available metadata is sampled from independent latest-state RPC reads, with no shared block anchor; proxy status and sellability remain unknown.", "Opsis 无法查看持有人、索引活动或合约验证状态。可用元数据来自独立的最新状态 RPC 读取，未锚定至同一区块；代理状态和可售性仍未知。")}
       {facts.explorerUnavailableReason && <> <ExplorerReason reason={facts.explorerUnavailableReason} /></>}
-    </p> : facts.explorerUnavailableReason && <p className="opsis-small"><ExplorerReason reason={facts.explorerUnavailableReason} /></p>}
+    </p> : null}
   </div>;
 }
 

@@ -9,7 +9,7 @@ import type { AllowanceTarget } from "./alchemy.js";
 import { explorerUnavailableReason, type ExplorerUnavailableReason } from "./explorer-gate.js";
 import { BlockscoutProvider, type ExplorerDocuments } from "./blockscout.js";
 import { GoldRushProvider } from "./goldrush.js";
-import { normalizeEntity } from "./normalize.js";
+import { explorerReasonApplies, normalizeEntity } from "./normalize.js";
 import type { ChainProvider, ResolvedEntity, ResolveOptions, SourceDocumentInput } from "./types.js";
 import { AppError } from "../http/errors.js";
 import { delegationTarget } from "./delegation.js";
@@ -303,8 +303,10 @@ export class ChainEntityResolver {
       sources: docs,
       providerDestinations: [...providerDestinations]
     };
-    if (explorerReason && (resolvedType === "token" || resolvedType === "wallet")) {
+    if (explorerReason && explorerReasonApplies(resolvedType, resolution.entity.facts)) {
       resolution.entity.facts.explorerUnavailableReason = explorerReason;
+    } else {
+      delete resolution.entity.facts.explorerUnavailableReason;
     }
     if (resolvedType === "token" && docs.some((doc) => doc.provider === this.blockscout.name)) {
       resolution.entity.facts.explorerCached = explorerCached;
