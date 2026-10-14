@@ -21,10 +21,10 @@ export function TokenTable({ tokens }: { tokens: PortfolioTokenHolding[] }) {
         <tbody>{orderTokens(tokens).map((token) => {
           const { reviewed, lookalike, wellKnown, hidden, scam } = tokenFlags(token);
           return <tr key={token.contract}>
-            <td className="break-all align-top">
+            <td className="break-words align-top">
               <p>{visibleTokenText(token.name)} · {visibleTokenText(token.symbol)}
                 {reviewed && <> · <span className="opsis-explorer-tag">{c("Reviewed asset", "已审核资产")}</span></>}</p>
-              <p className="font-mono text-xs">{token.contract}</p>
+              <p className="break-all font-mono text-xs">{token.contract}</p>
               {lookalike && <p className="text-sm">{c(`Uses the symbol ${lookalike.symbol}, but this is not the reviewed ${lookalike.symbol} contract.`, `使用符号 ${lookalike.symbol}，但这不是已审核的 ${lookalike.symbol} 合约。`)}</p>}
               {!lookalike && wellKnown && <p className="text-sm">{c(`Uses the symbol ${wellKnown}; this contract is not on the Opsis reviewed asset list.`, `使用符号 ${wellKnown}；此合约不在 Opsis 的已审核资产列表中。`)}</p>}
               {hidden && <p className="text-sm">{c("The name or symbol contains hidden characters, shown in brackets above.", "名称或符号含有隐藏字符，已在上方用方括号显示。")}</p>}
