@@ -98,6 +98,7 @@ export type PortfolioTokenHolding = {
   name: string;
   symbol: string;
   decimals: number;
+  reputation?: string;
   quantity: string;
   rawBalance: string;
   sourceIds: string[];

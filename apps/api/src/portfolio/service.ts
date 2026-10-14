@@ -126,7 +126,11 @@ export class PortfolioService implements PortfolioSnapshotSource {
         .map(parseTokenCandidate)
         .filter((value): value is ReturnType<typeof parseTokenCandidate> & {} => value !== undefined), (token) => token.contract);
     const tokenCandidateLimit = tokenDiscoveryUnavailable ? REVIEWED_ROBINHOOD_ASSET_SAMPLE.length : MAX_TOKENS;
-    const tokenCandidates = discoveredTokenCandidates.slice(0, tokenCandidateLimit);
+    const reviewedContracts = new Set(REVIEWED_ROBINHOOD_ASSET_SAMPLE.map((asset) => asset.address.toLowerCase()));
+    const tokenCandidates = [
+      ...discoveredTokenCandidates.filter((token) => reviewedContracts.has(token.contract)),
+      ...discoveredTokenCandidates.filter((token) => !reviewedContracts.has(token.contract))
+    ].slice(0, tokenCandidateLimit);
     const discoveredNftCandidates = uniqueBy(items(byPath.get("nft")?.body)
       .map(parseNftCandidate)
       .filter((value): value is ReturnType<typeof parseNftCandidate> & {} => value !== undefined), (nft) => `${nft.contract}:${nft.tokenId}`);
@@ -204,6 +208,7 @@ export class PortfolioService implements PortfolioSnapshotSource {
         contract: token.contract,
         name: token.name,
         symbol: token.symbol,
+        ...("reputation" in token && token.reputation !== undefined ? { reputation: token.reputation } : {}),
         decimals,
         quantity,
         rawBalance,
@@ -576,10 +581,12 @@ export class PortfolioService implements PortfolioSnapshotSource {
       const suffix = path === "address" ? `/addresses/${address}`
         : path === "token-balances" ? `/addresses/${address}/tokens?type=ERC-20`
         : `/addresses/${address}/${path}`;
-      const { authenticated, publicUrl } = this.blockscoutUrl(suffix);
+      const authenticated = this.blockscoutUrl(suffix);
+      const tab = path === "token-balances" || path === "nft" ? "?tab=tokens"
+        : path === "transactions" || path === "token-transfers" ? "?tab=txs" : "";
       return {
         path,
-        url: publicUrl,
+        url: `https://robinhoodchain.blockscout.com/address/${address}${tab}`,
         body: await this.dependencies.blockscout.requestJson(authenticated, { headers: { accept: "application/json" } }),
         citationId: `blockscout-${path}`,
         fetchedAt: this.dependencies.now().toISOString()
@@ -607,15 +614,14 @@ export class PortfolioService implements PortfolioSnapshotSource {
     return new Map(responses.flatMap((response) => typeof response.id === "string" ? [[response.id, response] as const] : []));
   }
 
-  private blockscoutUrl(path: string): { authenticated: string; publicUrl: string } {
+  private blockscoutUrl(path: string): string {
     const configuredBase = this.env.BLOCKSCOUT_PRO_API_KEY
       ? `${this.env.BLOCKSCOUT_PRO_API_BASE_URL.replace(/\/$/, "")}/${this.env.BLOCKSCOUT_CHAIN_ID}/api/v2`
       : this.env.BLOCKSCOUT_API_BASE_URL;
-    const publicUrl = new URL(path.replace(/^\//, ""), `${configuredBase.replace(/\/$/, "")}/`).toString();
-    const authenticated = new URL(publicUrl);
+    const authenticated = new URL(path.replace(/^\//, ""), `${configuredBase.replace(/\/$/, "")}/`);
     const key = this.env.BLOCKSCOUT_PRO_API_KEY ?? this.env.BLOCKSCOUT_API_KEY;
     if (key) authenticated.searchParams.set("apikey", key);
-    return { authenticated: authenticated.toString(), publicUrl };
+    return authenticated.toString();
   }
 }
 
@@ -658,6 +664,7 @@ function parseTokenCandidate(value: unknown) {
     contract,
     name: boundedText(token.name, "Unknown token"),
     symbol: boundedText(token.symbol, "TOKEN"),
+    ...(typeof token.reputation === "string" && token.reputation.trim() ? { reputation: boundedText(token.reputation, "") } : {}),
     sourceId: "blockscout-token-balances"
   };
 }

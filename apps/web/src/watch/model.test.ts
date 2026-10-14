@@ -8,6 +8,13 @@ import {
 import { watchFixture, WATCH_TEST_ADDRESS, WATCH_TEST_TOKEN } from "./fixture";
 
 describe("Watch exact and bounded comparisons", () => {
+  it("loads saved snapshots with and without explorer reputation", () => {
+    const snapshot = watchFixture();
+    expect(() => assertWatchSnapshot(snapshot, WATCH_TEST_ADDRESS)).not.toThrow();
+    snapshot.tokens[0].reputation = "scam";
+    expect(() => assertWatchSnapshot(snapshot, WATCH_TEST_ADDRESS)).not.toThrow();
+    expect(captureWatch(snapshot, "Sample wallet").snapshots[0].tokens[0].reputation).toBe("scam");
+  });
   it("retains wei and large integer precision, signs, and decimal scale", () => {
     expect(
       difference(

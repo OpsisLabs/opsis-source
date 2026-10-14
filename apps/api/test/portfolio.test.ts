@@ -288,7 +288,7 @@ describe("anchored portfolio snapshot", () => {
     expect(snapshot.approvals).toHaveLength(2);
     expect(snapshot.citations).toContainEqual(expect.objectContaining({
       id: "blockscout-token-balances",
-      url: `https://explorer.example/api/v2/addresses/${OWNER}/tokens?type=ERC-20`
+      url: `https://robinhoodchain.blockscout.com/address/${OWNER}?tab=tokens`
     }));
   });
 

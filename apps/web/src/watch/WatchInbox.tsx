@@ -4,6 +4,8 @@ import { workspaceLink } from "../opsis/model";
 import type { VaultWatch, VaultWatchCondition } from "../vault/types";
 import { useCopy } from "../opsis/copy";
 import { deriveWatchInbox, type WatchInboxItem } from "./inbox";
+import { visibleTokenText } from "../opsis/explorer-facts";
+import { tokenLabel } from "./holdings";
 
 function conditionReason(reason: string | undefined, chinese: boolean): string {
   const labels = {
@@ -41,16 +43,21 @@ export default function WatchInbox({
   const visible = items.filter((item) => !item.acknowledged && !item.snoozed);
   const [showReviewed, setShowReviewed] = useState(false);
   const reviewed = items.filter((item) => item.acknowledged || item.snoozed);
+  const assetLabel = (item: WatchInboxItem) => {
+    const token = watches.find((watch) => watch.id === item.watchId)?.snapshots
+      .flatMap((snapshot) => snapshot.tokens).find((token) => token.contract === item.assetContract);
+    return token ? tokenLabel(token, c) : visibleTokenText(item.titleValues?.label ?? c("Asset", "资产"));
+  };
   const title = (item: WatchInboxItem) =>
     ({
       baseline: c("Baseline saved", "已保存基线"),
       balanceChanged: c(
-        `${item.titleValues?.label ?? "Balance"} changed`,
-        `${item.titleValues?.label ?? "余额"} 已变化`,
+        `${assetLabel(item)} changed`,
+        `${assetLabel(item)} 已变化`,
       ),
       coverageUnknown: c(
-        `${item.titleValues?.label ?? "Asset"} coverage unknown`,
-        `${item.titleValues?.label ?? "资产"} 覆盖未知`,
+        `${assetLabel(item)} coverage unknown`,
+        `${assetLabel(item)} 覆盖未知`,
       ),
       coverageAttention: c("Coverage needs attention", "覆盖需要注意"),
       conditionMet: c("Saved condition met", "已达到保存条件"),
@@ -76,8 +83,8 @@ export default function WatchInbox({
       ),
       coverage: item.detailValues?.gaps ?? "unknown",
       conditionMet: c(
-        `Observed change reached ${item.detailValues?.threshold ?? ""} ${item.detailValues?.unit ?? ""}.`,
-        `观察到的变化达到 ${item.detailValues?.threshold ?? ""} ${item.detailValues?.unit ?? ""}。`,
+        `Observed change reached ${item.detailValues?.threshold ?? ""} ${item.assetContract ? assetLabel(item) : visibleTokenText(item.detailValues?.unit ?? "")}.`,
+        `观察到的变化达到 ${item.detailValues?.threshold ?? ""} ${item.assetContract ? assetLabel(item) : visibleTokenText(item.detailValues?.unit ?? "")}。`,
       ),
       conditionUnknown: c(
         `Comparable same-unit evidence is unavailable (${conditionReason(item.detailValues?.reason, false)}).`,
@@ -155,7 +162,7 @@ export default function WatchInbox({
       watches.map((watch) => ({
         watch,
         assets: [
-          { key: "native", label: "ETH", decimals: 18 },
+          { key: "native", label: "ETH", unit: "ETH", decimals: 18 },
           ...watch.snapshots
             .at(-1)!
             .tokens.filter(
@@ -164,12 +171,13 @@ export default function WatchInbox({
             )
             .map((token) => ({
               key: token.contract,
-              label: (token.symbol || token.contract).slice(0, 32),
+              label: tokenLabel(token, c),
+              unit: (token.symbol || token.contract).slice(0, 32),
               decimals: token.decimals,
             })),
         ],
       })),
-    [watches],
+    [watches, c],
   );
   return (
     <section
@@ -429,7 +437,7 @@ export default function WatchInbox({
                       assetKey: selected.key,
                       direction: draft.direction,
                       threshold: draft.threshold,
-                      unit: selected.label,
+                      unit: selected.unit,
                       decimals: selected.decimals,
                       createdAt: new Date().toISOString(),
                     });
@@ -445,7 +453,7 @@ export default function WatchInbox({
                 >
                   <span>
                     {condition.assetKey} {condition.direction} ≥{" "}
-                    {condition.threshold} {condition.unit}
+                    {condition.threshold} {assets.find((asset) => asset.key === condition.assetKey)?.label ?? visibleTokenText(condition.unit)}
                   </span>
                   <button
                     type="button"

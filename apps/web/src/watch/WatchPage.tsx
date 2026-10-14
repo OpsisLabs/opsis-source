@@ -1,5 +1,6 @@
 import type { PortfolioSnapshot } from "@rh-chain/shared";
 import OneOffCheck from "./OneOffCheck";
+import { tokenLabel } from "./holdings";
 import { workspaceLink } from "../opsis/model";
 import { useCopy } from "../opsis/copy";
 import { OPSIS_PRESENTATION } from "../opsis/presentation";
@@ -695,7 +696,7 @@ function WatchDetail({
             <li className="break-all">{latest.nativeBalanceEth} ETH</li>
             {latest.tokens.map((token) => (
               <li className="break-all" key={token.contract}>
-                {token.quantity} {token.symbol || token.name}
+                {token.quantity} {tokenLabel(token, c)}
                 <span className="ml-3 font-mono text-xs text-[#bbb2a8]">
                   {token.contract}
                 </span>

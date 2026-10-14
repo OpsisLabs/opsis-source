@@ -1,10 +1,43 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
 import { isAddress } from "viem";
-import type { PortfolioSnapshot } from "@rh-chain/shared";
+import type { PortfolioSnapshot, PortfolioTokenHolding } from "@rh-chain/shared";
 import { useCopy } from "../opsis/copy";
+import { visibleTokenText } from "../opsis/explorer-facts";
 import { useI18n } from "../i18n";
 import { checkPublicWallet } from "./one-off";
+import { orderTokens, tokenFlags } from "./holdings";
+
+export function TokenTable({ tokens }: { tokens: PortfolioTokenHolding[] }) {
+  const c = useCopy();
+  return <>
+    <div className="min-w-0 max-w-full overflow-x-auto">
+      <table className="w-full table-fixed" data-testid="watch-token-table">
+        <caption>{c("Observed token balances — bounded coverage", "观察到的代币余额 — 覆盖范围有限")}</caption>
+        <thead><tr>
+          <th className="w-3/4">{c("Token contract", "代币合约")}</th>
+          <th>{c("Quantity", "数量")}</th>
+        </tr></thead>
+        <tbody>{orderTokens(tokens).map((token) => {
+          const { reviewed, lookalike, wellKnown, hidden, scam } = tokenFlags(token);
+          return <tr key={token.contract}>
+            <td className="break-all align-top">
+              <p>{visibleTokenText(token.name)} · {visibleTokenText(token.symbol)}
+                {reviewed && <> · <span className="opsis-explorer-tag">{c("Reviewed asset", "已审核资产")}</span></>}</p>
+              <p className="font-mono text-xs">{token.contract}</p>
+              {lookalike && <p className="text-sm">{c(`Uses the symbol ${lookalike.symbol}, but this is not the reviewed ${lookalike.symbol} contract.`, `使用符号 ${lookalike.symbol}，但这不是已审核的 ${lookalike.symbol} 合约。`)}</p>}
+              {!lookalike && wellKnown && <p className="text-sm">{c(`Uses the symbol ${wellKnown}; this contract is not on the Opsis reviewed asset list.`, `使用符号 ${wellKnown}；此合约不在 Opsis 的已审核资产列表中。`)}</p>}
+              {hidden && <p className="text-sm">{c("The name or symbol contains hidden characters, shown in brackets above.", "名称或符号含有隐藏字符，已在上方用方括号显示。")}</p>}
+              {scam && <p className="text-sm">{c("Blockscout marks this token as a scam.", "Blockscout 将此代币标记为骗局。")}</p>}
+            </td>
+            <td className="break-all align-top">{token.quantity}</td>
+          </tr>;
+        })}</tbody>
+      </table>
+    </div>
+    <p className="text-sm">{c("Names and symbols are what each contract reports about itself.", "名称和符号由各合约自行报告。")}</p>
+  </>;
+}
 
 export default function OneOffCheck({
   onSave,
@@ -104,7 +137,7 @@ export default function OneOffCheck({
       {error && <p role="alert">{error}</p>}
       {snapshot && (
         <div
-          className="space-y-3"
+          className="min-w-0 max-w-full space-y-3"
           role="region"
           aria-label={c("Public wallet snapshot", "公开钱包快照")}
         >
@@ -125,32 +158,7 @@ export default function OneOffCheck({
             snapshot.reconciliation.truncatedSections.length > 0) && (
             <p role="note">{t("watch.partialBody")}</p>
           )}
-          <div className="overflow-x-auto">
-            <table>
-              <caption>
-                {c(
-                  "Observed token balances — bounded coverage",
-                  "观察到的代币余额 — 覆盖范围有限",
-                )}
-              </caption>
-              <thead>
-                <tr>
-                  <th>{c("Token contract", "代币合约")}</th>
-                  <th>{c("Quantity", "数量")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {snapshot.tokens.map((token) => (
-                  <tr key={token.contract}>
-                    <td className="break-all">
-                      {token.symbol} · {token.contract}
-                    </td>
-                    <td>{token.quantity}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <TokenTable tokens={snapshot.tokens} />
           <details>
             <summary>
               {c("Sources and privacy receipt", "来源与隐私回执")}
