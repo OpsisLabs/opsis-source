@@ -183,7 +183,7 @@ export async function privateRoutes(
           clearsOnReload: true,
           modelProvider: "none" as const,
           providerDestinations: resolution.providerDestinations,
-          disclosure: `Only the public chain identifier is user-supplied to the listed data providers. When indexer balances are unavailable, the ${rpcEndpoint.label} may also receive Opsis's fixed 12-contract reviewed sample in one read-only balance call.${rpcRoutingDisclosure(rpcEndpoint)} Your question is not sent to providers or to a model provider.`
+          disclosure: `Only the public chain identifier is user-supplied to the listed data providers. When indexer balances are unavailable, the ${rpcEndpoint.label} may also receive Opsis's fixed 12-contract reviewed sample in one read-only balance call.${rpcRoutingDisclosure(rpcEndpoint)} Your question is not sent to providers or to a model provider.${resolution.entity.type === "token" && env.BLOCKSCOUT_TOKEN_CACHE_SECONDS > 0 ? ` Public token data read from Blockscout may be reused for up to ${Math.ceil(env.BLOCKSCOUT_TOKEN_CACHE_SECONDS / 60)} minutes and is kept without any visitor identifier.` : ""}`
         }
       };
     }

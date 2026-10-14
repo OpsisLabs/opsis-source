@@ -2,6 +2,22 @@ import { describe, expect, it } from "vitest";
 import { loadEnv } from "../src/config/env.js";
 
 describe("environment validation", () => {
+  it.each([
+    ["BLOCKSCOUT_REQUESTS_PER_SECOND", 4, 1, 50],
+    ["BLOCKSCOUT_MAX_WAIT_MS", 2500, 0, 10000],
+    ["BLOCKSCOUT_CREDIT_RESERVE", 5000, 0, 100000],
+    ["BLOCKSCOUT_TOKEN_CACHE_SECONDS", 900, 0, 3600]
+  ] as const)("bounds %s and supplies its default", (setting, fallback, minimum, maximum) => {
+    expect(loadEnv({ NODE_ENV: "test" })[setting]).toBe(fallback);
+    for (const value of [minimum, maximum]) {
+      expect(loadEnv({ NODE_ENV: "test", [setting]: String(value) })[setting]).toBe(value);
+    }
+    const invalid = [String(minimum - 1), "0.5", "invalid", "Infinity"];
+    if (setting !== "BLOCKSCOUT_CREDIT_RESERVE") invalid.push(String(maximum + 1));
+    for (const value of invalid) {
+      expect(() => loadEnv({ NODE_ENV: "test", [setting]: value })).toThrow(setting);
+    }
+  });
   it("bounds the per-minute access limit at startup", () => {
     expect(loadEnv({ NODE_ENV: "test" }).RATE_LIMIT_ACCESS_PER_MINUTE).toBe(240);
     for (const value of ["20", "2000"]) {

@@ -1,3 +1,4 @@
+import { getExplorerGate, type ExplorerGate } from "./explorer-gate.js";
 import type { Env } from "../config/env.js";
 import { observeProviderCall, observeProviderResponseBytes, observeRpcSubcall, type RpcWorkload } from "../observability/metrics.js";
 import type { RpcUnitBudget } from "./rpc-unit-budget.js";
@@ -7,6 +8,7 @@ export type ProviderHttp = {
 };
 
 export type ProviderHttpOptions = {
+  explorerGate?: ExplorerGate;
   maxRetries: number;
   backoffMs: number;
   timeoutMs: number;
@@ -53,17 +55,19 @@ export class ProviderHttpClient implements ProviderHttp {
 
   async requestJson(url: string, init: RequestInit = {}): Promise<unknown> {
     const startedAt = this.dependencies.now();
-    await this.acquire();
+    if (!this.options.explorerGate) await this.acquire();
     try {
-      const result = await this.performRequest(url, init);
+      const result = await this.performRequest(url, init, startedAt);
       observeProviderCall(this.options.providerName ?? "unknown", (this.dependencies.now() - startedAt) / 1000);
       return result;
     } catch (error) {
       const normalized = normalizeError(error);
-      observeProviderCall(this.options.providerName ?? "unknown", (this.dependencies.now() - startedAt) / 1000, normalized.code);
+      if (!["PROVIDER_RATE_LIMITED", "PROVIDER_CREDITS_EXHAUSTED"].includes(normalized.code)) {
+        observeProviderCall(this.options.providerName ?? "unknown", (this.dependencies.now() - startedAt) / 1000, normalized.code);
+      }
       throw normalized;
     } finally {
-      this.release();
+      if (!this.options.explorerGate) this.release();
     }
   }
 
@@ -81,13 +85,14 @@ export class ProviderHttpClient implements ProviderHttp {
     this.waiters.shift()?.();
   }
 
-  private async performRequest(url: string, init: RequestInit): Promise<unknown> {
-    this.assertCircuitClosed();
+  private async performRequest(url: string, init: RequestInit, startedAt: number): Promise<unknown> {
+    if (!this.options.explorerGate) this.assertCircuitClosed();
     let lastError: ProviderRequestError | undefined;
     const rpcMethods = rpcMethodsFromBody(init.body);
+    const explorerRetryState = { retried429: false };
 
     for (let attempt = 0; attempt <= this.options.maxRetries; attempt += 1) {
-      this.consumeBudget();
+      if (!this.options.explorerGate) this.consumeBudget();
       if (this.options.rpcUnitBudget) {
         let reservation;
         try {
@@ -105,10 +110,19 @@ export class ProviderHttpClient implements ProviderHttp {
       }
       for (const method of rpcMethods) observeRpcSubcall(this.options.providerName ?? "unknown", METRIC_RPC_METHODS.has(method) ? method : "other", this.options.rpcWorkload);
       try {
-        const response = await this.dependencies.fetch(url, {
-          ...init,
-          signal: AbortSignal.timeout(this.options.timeoutMs)
-        });
+        const fetchResponse = () => {
+          if (this.options.explorerGate) {
+            this.assertCircuitClosed();
+            this.consumeBudget();
+          }
+          return this.dependencies.fetch(url, {
+            ...init,
+            signal: AbortSignal.timeout(this.options.timeoutMs)
+          });
+        };
+        const response = this.options.explorerGate
+          ? await this.options.explorerGate.request(fetchResponse, startedAt, explorerRetryState)
+          : await fetchResponse();
         if (!response.ok) {
           throw new ProviderRequestError(`PROVIDER_HTTP_${response.status}`, response.status === 429 || response.status >= 500);
         }
@@ -158,6 +172,7 @@ export class ProviderHttpClient implements ProviderHttp {
 
 export function createProviderHttp(env: Env, providerName?: string, maxResponseBytes?: number, rpcWorkload?: RpcWorkload): ProviderHttpClient {
   return new ProviderHttpClient({
+    explorerGate: providerName === "blockscout" ? getExplorerGate(env) : undefined,
     maxRetries: env.PROVIDER_MAX_RETRIES,
     backoffMs: env.PROVIDER_BACKOFF_MS,
     timeoutMs: env.PROVIDER_TIMEOUT_MS,

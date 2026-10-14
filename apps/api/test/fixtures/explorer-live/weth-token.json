@@ -1,0 +1,18 @@
+{
+ "address_hash": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+ "circulating_market_cap": "92594877.55091783",
+ "circulating_supply": null,
+ "decimals": "18",
+ "exchange_rate": "2417.49",
+ "holders_count": "584656",
+ "icon_url": "https://assets.coingecko.com/coins/images/2518/small/weth.png?1696503332",
+ "name": "WETH",
+ "new_ui_multiplier": null,
+ "reputation": "ok",
+ "symbol": "WETH",
+ "total_supply": "39778010762440868281051",
+ "type": "ERC-20",
+ "ui_multiplier": null,
+ "ui_multiplier_effective_at": null,
+ "volume_24h": "484438727.89453834"
+}

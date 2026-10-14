@@ -47,4 +47,9 @@ export type ResolveOptions = {
    * persistence, including stale-cache fallback.
    */
   privateMode?: boolean;
+  /**
+   * Internal: resolve an unknown address explorer-first, as before chain-first
+   * Auto mode. Used when the chain read that classifies the address fails.
+   */
+  explorerFirst?: boolean;
 };

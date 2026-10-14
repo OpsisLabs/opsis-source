@@ -1,0 +1,34 @@
+{
+ "file_path": "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol",
+ "creation_status": "success",
+ "optimization_enabled": true,
+ "verified_twin_address_hash": null,
+ "is_verified": true,
+ "github_repository_metadata": null,
+ "optimization_runs": 100,
+ "sourcify_repo_url": null,
+ "compiler_version": "v0.8.16+commit.07a7930e",
+ "is_verified_via_verifier_alliance": false,
+ "verified_at": "2026-05-15T15:59:00.081483Z",
+ "implementations": [
+  {
+   "address_hash": "0xC6B81b429797E0f555440b70cD99e032D7AE947e",
+   "name": "aeWETH"
+  }
+ ],
+ "proxy_type": "eip1967",
+ "name": "TransparentUpgradeableProxy",
+ "is_blueprint": false,
+ "license_type": "none",
+ "is_fully_verified": true,
+ "is_verified_via_eth_bytecode_db": true,
+ "language": "solidity",
+ "evm_version": "london",
+ "can_be_visualized_via_sol2uml": true,
+ "is_verified_via_sourcify": false,
+ "certified": false,
+ "conflicting_implementations": null,
+ "is_changed_bytecode": false,
+ "is_partially_verified": false,
+ "package_name": null
+}

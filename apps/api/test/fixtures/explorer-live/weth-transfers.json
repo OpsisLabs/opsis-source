@@ -1,0 +1,1033 @@
+{
+ "items": [
+  {
+   "block_hash": "0x607a31670f0f4d6303026a549d5425a58e224b7c193bd79dfaa2acffcc6f3cd9",
+   "block_number": 88474077,
+   "from": {
+    "ens_domain_name": null,
+    "hash": "0x51C72848c68a965f66FA7a88855F9f7784502a7F",
+    "implementations": [],
+    "is_contract": true,
+    "is_scam": false,
+    "is_verified": false,
+    "metadata": {
+     "tags": [
+      {
+       "meta": {},
+       "name": "MEV Bot: 0x51C\u2026a7F",
+       "ordinal": 10,
+       "slug": "mev-bot-0x51ca7f",
+       "tagType": "name"
+      },
+      {
+       "meta": {
+        "tagIcon ": "https://blockscout-icons.s3.us-east-1.amazonaws.com/OLI_tag_logo.svg",
+        "textColor": "#C163D4",
+        "tooltipAttribution": "https://www.openlabelsinitiative.org?utm_source=blockscout",
+        "tooltipAttributionIcon": "https://blockscout-icons.s3.us-east-1.amazonaws.com/OLI_tag_logo.svg",
+        "tooltipDescription": "Provided by OLI",
+        "tooltipUrl": "https://www.wintermute.com/"
+       },
+       "name": "Wintermute 1",
+       "ordinal": 0,
+       "slug": "wintermute-1",
+       "tagType": "name"
+      }
+     ]
+    },
+    "name": null,
+    "private_tags": [],
+    "proxy_type": null,
+    "public_tags": [],
+    "reputation": "ok",
+    "watchlist_names": []
+   },
+   "log_index": 35,
+   "method": "0xb2460c48",
+   "timestamp": "2026-10-14T15:28:25.000000Z",
+   "to": {
+    "ens_domain_name": null,
+    "hash": "0x52e65B17fB6E5BA00Ed806f37Afcd2DaA50271Ca",
+    "implementations": [],
+    "is_contract": true,
+    "is_scam": false,
+    "is_verified": true,
+    "metadata": null,
+    "name": "UniswapV3Pool",
+    "private_tags": [],
+    "proxy_type": null,
+    "public_tags": [],
+    "reputation": "ok",
+    "watchlist_names": []
+   },
+   "token": {
+    "address_hash": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+    "circulating_market_cap": "92594877.55091783",
+    "circulating_supply": null,
+    "decimals": "18",
+    "exchange_rate": "2417.49",
+    "holders_count": "584656",
+    "icon_url": "https://assets.coingecko.com/coins/images/2518/small/weth.png?1696503332",
+    "name": "WETH",
+    "new_ui_multiplier": null,
+    "reputation": "ok",
+    "symbol": "WETH",
+    "total_supply": "39776817350176900790175",
+    "type": "ERC-20",
+    "ui_multiplier": null,
+    "ui_multiplier_effective_at": null,
+    "volume_24h": "484438727.89453834"
+   },
+   "token_type": "ERC-20",
+   "total": {
+    "decimals": "18",
+    "ui_multiplier": null,
+    "value": "745470048521919746"
+   },
+   "transaction_hash": "0xbc3ef1e1e28d1973cd86f9fb678800ca50bf966a94d6390a5984cb261e4b216f",
+   "type": "token_transfer"
+  },
+  {
+   "block_hash": "0x607a31670f0f4d6303026a549d5425a58e224b7c193bd79dfaa2acffcc6f3cd9",
+   "block_number": 88474077,
+   "from": {
+    "ens_domain_name": null,
+    "hash": "0x51C72848c68a965f66FA7a88855F9f7784502a7F",
+    "implementations": [],
+    "is_contract": true,
+    "is_scam": false,
+    "is_verified": false,
+    "metadata": {
+     "tags": [
+      {
+       "meta": {},
+       "name": "MEV Bot: 0x51C\u2026a7F",
+       "ordinal": 10,
+       "slug": "mev-bot-0x51ca7f",
+       "tagType": "name"
+      },
+      {
+       "meta": {
+        "tagIcon ": "https://blockscout-icons.s3.us-east-1.amazonaws.com/OLI_tag_logo.svg",
+        "textColor": "#C163D4",
+        "tooltipAttribution": "https://www.openlabelsinitiative.org?utm_source=blockscout",
+        "tooltipAttributionIcon": "https://blockscout-icons.s3.us-east-1.amazonaws.com/OLI_tag_logo.svg",
+        "tooltipDescription": "Provided by OLI",
+        "tooltipUrl": "https://www.wintermute.com/"
+       },
+       "name": "Wintermute 1",
+       "ordinal": 0,
+       "slug": "wintermute-1",
+       "tagType": "name"
+      }
+     ]
+    },
+    "name": null,
+    "private_tags": [],
+    "proxy_type": null,
+    "public_tags": [],
+    "reputation": "ok",
+    "watchlist_names": []
+   },
+   "log_index": 32,
+   "method": "0xb2460c48",
+   "timestamp": "2026-10-14T15:28:25.000000Z",
+   "to": {
+    "ens_domain_name": null,
+    "hash": "0x52e65B17fB6E5BA00Ed806f37Afcd2DaA50271Ca",
+    "implementations": [],
+    "is_contract": true,
+    "is_scam": false,
+    "is_verified": true,
+    "metadata": null,
+    "name": "UniswapV3Pool",
+    "private_tags": [],
+    "proxy_type": null,
+    "public_tags": [],
+    "reputation": "ok",
+    "watchlist_names": []
+   },
+   "token": {
+    "address_hash": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+    "circulating_market_cap": "92594877.55091783",
+    "circulating_supply": null,
+    "decimals": "18",
+    "exchange_rate": "2417.49",
+    "holders_count": "584656",
+    "icon_url": "https://assets.coingecko.com/coins/images/2518/small/weth.png?1696503332",
+    "name": "WETH",
+    "new_ui_multiplier": null,
+    "reputation": "ok",
+    "symbol": "WETH",
+    "total_supply": "39776817350176900790175",
+    "type": "ERC-20",
+    "ui_multiplier": null,
+    "ui_multiplier_effective_at": null,
+    "volume_24h": "484438727.89453834"
+   },
+   "token_type": "ERC-20",
+   "total": {
+    "decimals": "18",
+    "ui_multiplier": null,
+    "value": "204459882916151633"
+   },
+   "transaction_hash": "0xcf28158841e2a7cc03f9b6e2505b8e9aa375b22917d6d765e35a001bf1fd9769",
+   "type": "token_transfer"
+  },
+  {
+   "block_hash": "0x607a31670f0f4d6303026a549d5425a58e224b7c193bd79dfaa2acffcc6f3cd9",
+   "block_number": 88474077,
+   "from": {
+    "ens_domain_name": null,
+    "hash": "0x8876789976dEcBfCbBbe364623C63652db8C0904",
+    "implementations": [],
+    "is_contract": true,
+    "is_scam": false,
+    "is_verified": true,
+    "metadata": {
+     "tags": [
+      {
+       "meta": {
+        "tagIcon ": "https://blockscout-icons.s3.us-east-1.amazonaws.com/OLI_tag_logo.svg",
+        "textColor": "#C163D4",
+        "tooltipAttribution": "https://www.openlabelsinitiative.org?utm_source=blockscout",
+        "tooltipAttributionIcon": "https://blockscout-icons.s3.us-east-1.amazonaws.com/OLI_tag_logo.svg",
+        "tooltipDescription": "Provided by OLI"
+       },
+       "name": "UniversalRouter",
+       "ordinal": 0,
+       "slug": "universalrouter",
+       "tagType": "name"
+      }
+     ]
+    },
+    "name": "UniversalRouter",
+    "private_tags": [],
+    "proxy_type": null,
+    "public_tags": [],
+    "reputation": "ok",
+    "watchlist_names": []
+   },
+   "log_index": 27,
+   "method": "0xa0193551",
+   "timestamp": "2026-10-14T15:28:25.000000Z",
+   "to": {
+    "ens_domain_name": null,
+    "hash": "0x2aE99f7Bc011325e03Aae5406127B8398c7C697A",
+    "implementations": [],
+    "is_contract": true,
+    "is_scam": false,
+    "is_verified": false,
+    "metadata": null,
+    "name": null,
+    "private_tags": [],
+    "proxy_type": null,
+    "public_tags": [],
+    "reputation": "ok",
+    "watchlist_names": []
+   },
+   "token": {
+    "address_hash": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+    "circulating_market_cap": "92594877.55091783",
+    "circulating_supply": null,
+    "decimals": "18",
+    "exchange_rate": "2417.49",
+    "holders_count": "584656",
+    "icon_url": "https://assets.coingecko.com/coins/images/2518/small/weth.png?1696503332",
+    "name": "WETH",
+    "new_ui_multiplier": null,
+    "reputation": "ok",
+    "symbol": "WETH",
+    "total_supply": "39776817350176900790175",
+    "type": "ERC-20",
+    "ui_multiplier": null,
+    "ui_multiplier_effective_at": null,
+    "volume_24h": "484438727.89453834"
+   },
+   "token_type": "ERC-20",
+   "total": {
+    "decimals": "18",
+    "ui_multiplier": null,
+    "value": "148500000000000000"
+   },
+   "transaction_hash": "0x0b3dcdac63bb76b4382e60331b9010df254cfeb67de849ef6bcffab341b224ef",
+   "type": "token_transfer"
+  },
+  {
+   "block_hash": "0x607a31670f0f4d6303026a549d5425a58e224b7c193bd79dfaa2acffcc6f3cd9",
+   "block_number": 88474077,
+   "from": {
+    "ens_domain_name": null,
+    "hash": "0x0000000000000000000000000000000000000000",
+    "implementations": [],
+    "is_contract": false,
+    "is_scam": false,
+    "is_verified": false,
+    "metadata": {
+     "tags": [
+      {
+       "meta": {},
+       "name": "Null: 0x000...000",
+       "ordinal": 10,
+       "slug": "null-0x000000",
+       "tagType": "name"
+      },
+      {
+       "meta": {},
+       "name": "Metamask User",
+       "ordinal": 0,
+       "slug": "metamask-user",
+       "tagType": "generic"
+      },
+      {
+       "meta": {},
+       "name": "Imtoken User",
+       "ordinal": 0,
+       "slug": "imtoken-user",
+       "tagType": "generic"
+      },
+      {
+       "meta": {},
+       "name": "Miner",
+       "ordinal": 0,
+       "slug": "miner",
+       "tagType": "generic"
+      }
+     ]
+    },
+    "name": null,
+    "private_tags": [],
+    "proxy_type": null,
+    "public_tags": [],
+    "reputation": "ok",
+    "watchlist_names": []
+   },
+   "log_index": 25,
+   "method": "0xa0193551",
+   "timestamp": "2026-10-14T15:28:25.000000Z",
+   "to": {
+    "ens_domain_name": null,
+    "hash": "0x8876789976dEcBfCbBbe364623C63652db8C0904",
+    "implementations": [],
+    "is_contract": true,
+    "is_scam": false,
+    "is_verified": true,
+    "metadata": {
+     "tags": [
+      {
+       "meta": {
+        "tagIcon ": "https://blockscout-icons.s3.us-east-1.amazonaws.com/OLI_tag_logo.svg",
+        "textColor": "#C163D4",
+        "tooltipAttribution": "https://www.openlabelsinitiative.org?utm_source=blockscout",
+        "tooltipAttributionIcon": "https://blockscout-icons.s3.us-east-1.amazonaws.com/OLI_tag_logo.svg",
+        "tooltipDescription": "Provided by OLI"
+       },
+       "name": "UniversalRouter",
+       "ordinal": 0,
+       "slug": "universalrouter",
+       "tagType": "name"
+      }
+     ]
+    },
+    "name": "UniversalRouter",
+    "private_tags": [],
+    "proxy_type": null,
+    "public_tags": [],
+    "reputation": "ok",
+    "watchlist_names": []
+   },
+   "token": {
+    "address_hash": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+    "circulating_market_cap": "92594877.55091783",
+    "circulating_supply": null,
+    "decimals": "18",
+    "exchange_rate": "2417.49",
+    "holders_count": "584656",
+    "icon_url": "https://assets.coingecko.com/coins/images/2518/small/weth.png?1696503332",
+    "name": "WETH",
+    "new_ui_multiplier": null,
+    "reputation": "ok",
+    "symbol": "WETH",
+    "total_supply": "39776817350176900790175",
+    "type": "ERC-20",
+    "ui_multiplier": null,
+    "ui_multiplier_effective_at": null,
+    "volume_24h": "484438727.89453834"
+   },
+   "token_type": "ERC-20",
+   "total": {
+    "decimals": "18",
+    "ui_multiplier": null,
+    "value": "148500000000000000"
+   },
+   "transaction_hash": "0x0b3dcdac63bb76b4382e60331b9010df254cfeb67de849ef6bcffab341b224ef",
+   "type": "token_minting"
+  },
+  {
+   "block_hash": "0x607a31670f0f4d6303026a549d5425a58e224b7c193bd79dfaa2acffcc6f3cd9",
+   "block_number": 88474077,
+   "from": {
+    "ens_domain_name": null,
+    "hash": "0x8876789976dEcBfCbBbe364623C63652db8C0904",
+    "implementations": [],
+    "is_contract": true,
+    "is_scam": false,
+    "is_verified": true,
+    "metadata": {
+     "tags": [
+      {
+       "meta": {
+        "tagIcon ": "https://blockscout-icons.s3.us-east-1.amazonaws.com/OLI_tag_logo.svg",
+        "textColor": "#C163D4",
+        "tooltipAttribution": "https://www.openlabelsinitiative.org?utm_source=blockscout",
+        "tooltipAttributionIcon": "https://blockscout-icons.s3.us-east-1.amazonaws.com/OLI_tag_logo.svg",
+        "tooltipDescription": "Provided by OLI"
+       },
+       "name": "UniversalRouter",
+       "ordinal": 0,
+       "slug": "universalrouter",
+       "tagType": "name"
+      }
+     ]
+    },
+    "name": "UniversalRouter",
+    "private_tags": [],
+    "proxy_type": null,
+    "public_tags": [],
+    "reputation": "ok",
+    "watchlist_names": []
+   },
+   "log_index": 23,
+   "method": "0xa0193551",
+   "timestamp": "2026-10-14T15:28:25.000000Z",
+   "to": {
+    "ens_domain_name": null,
+    "hash": "0x2aE99f7Bc011325e03Aae5406127B8398c7C697A",
+    "implementations": [],
+    "is_contract": true,
+    "is_scam": false,
+    "is_verified": false,
+    "metadata": null,
+    "name": null,
+    "private_tags": [],
+    "proxy_type": null,
+    "public_tags": [],
+    "reputation": "ok",
+    "watchlist_names": []
+   },
+   "token": {
+    "address_hash": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+    "circulating_market_cap": "92594877.55091783",
+    "circulating_supply": null,
+    "decimals": "18",
+    "exchange_rate": "2417.49",
+    "holders_count": "584656",
+    "icon_url": "https://assets.coingecko.com/coins/images/2518/small/weth.png?1696503332",
+    "name": "WETH",
+    "new_ui_multiplier": null,
+    "reputation": "ok",
+    "symbol": "WETH",
+    "total_supply": "39776817350176900790175",
+    "type": "ERC-20",
+    "ui_multiplier": null,
+    "ui_multiplier_effective_at": null,
+    "volume_24h": "484438727.89453834"
+   },
+   "token_type": "ERC-20",
+   "total": {
+    "decimals": "18",
+    "ui_multiplier": null,
+    "value": "257400000000000000"
+   },
+   "transaction_hash": "0x5e109fdfb2af00d5fd44a0fd304ffee82227d2de689f529b5e339bc2bdb55cd2",
+   "type": "token_transfer"
+  },
+  {
+   "block_hash": "0x607a31670f0f4d6303026a549d5425a58e224b7c193bd79dfaa2acffcc6f3cd9",
+   "block_number": 88474077,
+   "from": {
+    "ens_domain_name": null,
+    "hash": "0x0000000000000000000000000000000000000000",
+    "implementations": [],
+    "is_contract": false,
+    "is_scam": false,
+    "is_verified": false,
+    "metadata": {
+     "tags": [
+      {
+       "meta": {},
+       "name": "Null: 0x000...000",
+       "ordinal": 10,
+       "slug": "null-0x000000",
+       "tagType": "name"
+      },
+      {
+       "meta": {},
+       "name": "Metamask User",
+       "ordinal": 0,
+       "slug": "metamask-user",
+       "tagType": "generic"
+      },
+      {
+       "meta": {},
+       "name": "Imtoken User",
+       "ordinal": 0,
+       "slug": "imtoken-user",
+       "tagType": "generic"
+      },
+      {
+       "meta": {},
+       "name": "Miner",
+       "ordinal": 0,
+       "slug": "miner",
+       "tagType": "generic"
+      }
+     ]
+    },
+    "name": null,
+    "private_tags": [],
+    "proxy_type": null,
+    "public_tags": [],
+    "reputation": "ok",
+    "watchlist_names": []
+   },
+   "log_index": 21,
+   "method": "0xa0193551",
+   "timestamp": "2026-10-14T15:28:25.000000Z",
+   "to": {
+    "ens_domain_name": null,
+    "hash": "0x8876789976dEcBfCbBbe364623C63652db8C0904",
+    "implementations": [],
+    "is_contract": true,
+    "is_scam": false,
+    "is_verified": true,
+    "metadata": {
+     "tags": [
+      {
+       "meta": {
+        "tagIcon ": "https://blockscout-icons.s3.us-east-1.amazonaws.com/OLI_tag_logo.svg",
+        "textColor": "#C163D4",
+        "tooltipAttribution": "https://www.openlabelsinitiative.org?utm_source=blockscout",
+        "tooltipAttributionIcon": "https://blockscout-icons.s3.us-east-1.amazonaws.com/OLI_tag_logo.svg",
+        "tooltipDescription": "Provided by OLI"
+       },
+       "name": "UniversalRouter",
+       "ordinal": 0,
+       "slug": "universalrouter",
+       "tagType": "name"
+      }
+     ]
+    },
+    "name": "UniversalRouter",
+    "private_tags": [],
+    "proxy_type": null,
+    "public_tags": [],
+    "reputation": "ok",
+    "watchlist_names": []
+   },
+   "token": {
+    "address_hash": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+    "circulating_market_cap": "92594877.55091783",
+    "circulating_supply": null,
+    "decimals": "18",
+    "exchange_rate": "2417.49",
+    "holders_count": "584656",
+    "icon_url": "https://assets.coingecko.com/coins/images/2518/small/weth.png?1696503332",
+    "name": "WETH",
+    "new_ui_multiplier": null,
+    "reputation": "ok",
+    "symbol": "WETH",
+    "total_supply": "39776817350176900790175",
+    "type": "ERC-20",
+    "ui_multiplier": null,
+    "ui_multiplier_effective_at": null,
+    "volume_24h": "484438727.89453834"
+   },
+   "token_type": "ERC-20",
+   "total": {
+    "decimals": "18",
+    "ui_multiplier": null,
+    "value": "257400000000000000"
+   },
+   "transaction_hash": "0x5e109fdfb2af00d5fd44a0fd304ffee82227d2de689f529b5e339bc2bdb55cd2",
+   "type": "token_minting"
+  },
+  {
+   "block_hash": "0x607a31670f0f4d6303026a549d5425a58e224b7c193bd79dfaa2acffcc6f3cd9",
+   "block_number": 88474077,
+   "from": {
+    "ens_domain_name": null,
+    "hash": "0x51C72848c68a965f66FA7a88855F9f7784502a7F",
+    "implementations": [],
+    "is_contract": true,
+    "is_scam": false,
+    "is_verified": false,
+    "metadata": {
+     "tags": [
+      {
+       "meta": {},
+       "name": "MEV Bot: 0x51C\u2026a7F",
+       "ordinal": 10,
+       "slug": "mev-bot-0x51ca7f",
+       "tagType": "name"
+      },
+      {
+       "meta": {
+        "tagIcon ": "https://blockscout-icons.s3.us-east-1.amazonaws.com/OLI_tag_logo.svg",
+        "textColor": "#C163D4",
+        "tooltipAttribution": "https://www.openlabelsinitiative.org?utm_source=blockscout",
+        "tooltipAttributionIcon": "https://blockscout-icons.s3.us-east-1.amazonaws.com/OLI_tag_logo.svg",
+        "tooltipDescription": "Provided by OLI",
+        "tooltipUrl": "https://www.wintermute.com/"
+       },
+       "name": "Wintermute 1",
+       "ordinal": 0,
+       "slug": "wintermute-1",
+       "tagType": "name"
+      }
+     ]
+    },
+    "name": null,
+    "private_tags": [],
+    "proxy_type": null,
+    "public_tags": [],
+    "reputation": "ok",
+    "watchlist_names": []
+   },
+   "log_index": 1,
+   "method": "0xb2460c48",
+   "timestamp": "2026-10-14T15:28:25.000000Z",
+   "to": {
+    "ens_domain_name": null,
+    "hash": "0x52e65B17fB6E5BA00Ed806f37Afcd2DaA50271Ca",
+    "implementations": [],
+    "is_contract": true,
+    "is_scam": false,
+    "is_verified": true,
+    "metadata": null,
+    "name": "UniswapV3Pool",
+    "private_tags": [],
+    "proxy_type": null,
+    "public_tags": [],
+    "reputation": "ok",
+    "watchlist_names": []
+   },
+   "token": {
+    "address_hash": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+    "circulating_market_cap": "92594877.55091783",
+    "circulating_supply": null,
+    "decimals": "18",
+    "exchange_rate": "2417.49",
+    "holders_count": "584656",
+    "icon_url": "https://assets.coingecko.com/coins/images/2518/small/weth.png?1696503332",
+    "name": "WETH",
+    "new_ui_multiplier": null,
+    "reputation": "ok",
+    "symbol": "WETH",
+    "total_supply": "39776817350176900790175",
+    "type": "ERC-20",
+    "ui_multiplier": null,
+    "ui_multiplier_effective_at": null,
+    "volume_24h": "484438727.89453834"
+   },
+   "token_type": "ERC-20",
+   "total": {
+    "decimals": "18",
+    "ui_multiplier": null,
+    "value": "737370574475364480"
+   },
+   "transaction_hash": "0x8772eb8df3c0a00cce7a00721ab4de32f1a0a5a58a3a1dc3db7b802017cfa9b6",
+   "type": "token_transfer"
+  },
+  {
+   "block_hash": "0xab340df349d043c6929cb5b5d710f99f45411325054d22cf320398c3a4866813",
+   "block_number": 88474076,
+   "from": {
+    "ens_domain_name": null,
+    "hash": "0x278d858f05b94576C1E6f73285886876ff6eF8D2",
+    "implementations": [],
+    "is_contract": true,
+    "is_scam": false,
+    "is_verified": false,
+    "metadata": null,
+    "name": null,
+    "private_tags": [],
+    "proxy_type": null,
+    "public_tags": [],
+    "reputation": "ok",
+    "watchlist_names": []
+   },
+   "log_index": 34,
+   "method": "0xa00597a0",
+   "timestamp": "2026-10-14T15:28:25.000000Z",
+   "to": {
+    "ens_domain_name": null,
+    "hash": "0x10CC6BD38112cAc182db90B6a71d8Bb5939526bA",
+    "implementations": [],
+    "is_contract": true,
+    "is_scam": false,
+    "is_verified": true,
+    "metadata": null,
+    "name": "UniswapV3Pool",
+    "private_tags": [],
+    "proxy_type": null,
+    "public_tags": [],
+    "reputation": "ok",
+    "watchlist_names": []
+   },
+   "token": {
+    "address_hash": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+    "circulating_market_cap": "92594877.55091783",
+    "circulating_supply": null,
+    "decimals": "18",
+    "exchange_rate": "2417.49",
+    "holders_count": "584656",
+    "icon_url": "https://assets.coingecko.com/coins/images/2518/small/weth.png?1696503332",
+    "name": "WETH",
+    "new_ui_multiplier": null,
+    "reputation": "ok",
+    "symbol": "WETH",
+    "total_supply": "39776817350176900790175",
+    "type": "ERC-20",
+    "ui_multiplier": null,
+    "ui_multiplier_effective_at": null,
+    "volume_24h": "484438727.89453834"
+   },
+   "token_type": "ERC-20",
+   "total": {
+    "decimals": "18",
+    "ui_multiplier": null,
+    "value": "179727647255710196"
+   },
+   "transaction_hash": "0xacda32814da1256594f4b5c0bbf2bd4e9893d28f3697331fc7d73e6abaa4f7cf",
+   "type": "token_transfer"
+  },
+  {
+   "block_hash": "0xab340df349d043c6929cb5b5d710f99f45411325054d22cf320398c3a4866813",
+   "block_number": 88474076,
+   "from": {
+    "ens_domain_name": null,
+    "hash": "0x09AD820aaC5779683B481c4674208A4e1B024Afa",
+    "implementations": [],
+    "is_contract": true,
+    "is_scam": false,
+    "is_verified": true,
+    "metadata": null,
+    "name": "DexAggregatorCore",
+    "private_tags": [],
+    "proxy_type": null,
+    "public_tags": [],
+    "reputation": "ok",
+    "watchlist_names": []
+   },
+   "log_index": 14,
+   "method": "0xad43f73d",
+   "timestamp": "2026-10-14T15:28:25.000000Z",
+   "to": {
+    "ens_domain_name": null,
+    "hash": "0x65A3F01092A0D042E1f0C74AC70Fd27ea0DcF91b",
+    "implementations": [],
+    "is_contract": true,
+    "is_scam": false,
+    "is_verified": true,
+    "metadata": null,
+    "name": "AlgebraPool",
+    "private_tags": [],
+    "proxy_type": null,
+    "public_tags": [],
+    "reputation": "ok",
+    "watchlist_names": []
+   },
+   "token": {
+    "address_hash": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+    "circulating_market_cap": "92594877.55091783",
+    "circulating_supply": null,
+    "decimals": "18",
+    "exchange_rate": "2417.49",
+    "holders_count": "584656",
+    "icon_url": "https://assets.coingecko.com/coins/images/2518/small/weth.png?1696503332",
+    "name": "WETH",
+    "new_ui_multiplier": null,
+    "reputation": "ok",
+    "symbol": "WETH",
+    "total_supply": "39776817350176900790175",
+    "type": "ERC-20",
+    "ui_multiplier": null,
+    "ui_multiplier_effective_at": null,
+    "volume_24h": "484438727.89453834"
+   },
+   "token_type": "ERC-20",
+   "total": {
+    "decimals": "18",
+    "ui_multiplier": null,
+    "value": "2201945330671775"
+   },
+   "transaction_hash": "0xbe4d8de828cf0a14590d7f0e88a0482a6e7e7fb7ff7114ff3206bcc0dba43bef",
+   "type": "token_transfer"
+  },
+  {
+   "block_hash": "0xab340df349d043c6929cb5b5d710f99f45411325054d22cf320398c3a4866813",
+   "block_number": 88474076,
+   "from": {
+    "ens_domain_name": null,
+    "hash": "0x0000000000000000000000000000000000000000",
+    "implementations": [],
+    "is_contract": false,
+    "is_scam": false,
+    "is_verified": false,
+    "metadata": {
+     "tags": [
+      {
+       "meta": {},
+       "name": "Null: 0x000...000",
+       "ordinal": 10,
+       "slug": "null-0x000000",
+       "tagType": "name"
+      },
+      {
+       "meta": {},
+       "name": "Metamask User",
+       "ordinal": 0,
+       "slug": "metamask-user",
+       "tagType": "generic"
+      },
+      {
+       "meta": {},
+       "name": "Imtoken User",
+       "ordinal": 0,
+       "slug": "imtoken-user",
+       "tagType": "generic"
+      },
+      {
+       "meta": {},
+       "name": "Miner",
+       "ordinal": 0,
+       "slug": "miner",
+       "tagType": "generic"
+      }
+     ]
+    },
+    "name": null,
+    "private_tags": [],
+    "proxy_type": null,
+    "public_tags": [],
+    "reputation": "ok",
+    "watchlist_names": []
+   },
+   "log_index": 10,
+   "method": "0xad43f73d",
+   "timestamp": "2026-10-14T15:28:25.000000Z",
+   "to": {
+    "ens_domain_name": null,
+    "hash": "0x09AD820aaC5779683B481c4674208A4e1B024Afa",
+    "implementations": [],
+    "is_contract": true,
+    "is_scam": false,
+    "is_verified": true,
+    "metadata": null,
+    "name": "DexAggregatorCore",
+    "private_tags": [],
+    "proxy_type": null,
+    "public_tags": [],
+    "reputation": "ok",
+    "watchlist_names": []
+   },
+   "token": {
+    "address_hash": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+    "circulating_market_cap": "92594877.55091783",
+    "circulating_supply": null,
+    "decimals": "18",
+    "exchange_rate": "2417.49",
+    "holders_count": "584656",
+    "icon_url": "https://assets.coingecko.com/coins/images/2518/small/weth.png?1696503332",
+    "name": "WETH",
+    "new_ui_multiplier": null,
+    "reputation": "ok",
+    "symbol": "WETH",
+    "total_supply": "39776817350176900790175",
+    "type": "ERC-20",
+    "ui_multiplier": null,
+    "ui_multiplier_effective_at": null,
+    "volume_24h": "484438727.89453834"
+   },
+   "token_type": "ERC-20",
+   "total": {
+    "decimals": "18",
+    "ui_multiplier": null,
+    "value": "2201945330671775"
+   },
+   "transaction_hash": "0xbe4d8de828cf0a14590d7f0e88a0482a6e7e7fb7ff7114ff3206bcc0dba43bef",
+   "type": "token_minting"
+  },
+  {
+   "block_hash": "0x5062e55f706be923062c0affadb54f8d0b1e2df606b1ee4c0edc9fcb0b61edde",
+   "block_number": 88474075,
+   "from": {
+    "ens_domain_name": null,
+    "hash": "0x51C72848c68a965f66FA7a88855F9f7784502a7F",
+    "implementations": [],
+    "is_contract": true,
+    "is_scam": false,
+    "is_verified": false,
+    "metadata": {
+     "tags": [
+      {
+       "meta": {},
+       "name": "MEV Bot: 0x51C\u2026a7F",
+       "ordinal": 10,
+       "slug": "mev-bot-0x51ca7f",
+       "tagType": "name"
+      },
+      {
+       "meta": {
+        "tagIcon ": "https://blockscout-icons.s3.us-east-1.amazonaws.com/OLI_tag_logo.svg",
+        "textColor": "#C163D4",
+        "tooltipAttribution": "https://www.openlabelsinitiative.org?utm_source=blockscout",
+        "tooltipAttributionIcon": "https://blockscout-icons.s3.us-east-1.amazonaws.com/OLI_tag_logo.svg",
+        "tooltipDescription": "Provided by OLI",
+        "tooltipUrl": "https://www.wintermute.com/"
+       },
+       "name": "Wintermute 1",
+       "ordinal": 0,
+       "slug": "wintermute-1",
+       "tagType": "name"
+      }
+     ]
+    },
+    "name": null,
+    "private_tags": [],
+    "proxy_type": null,
+    "public_tags": [],
+    "reputation": "ok",
+    "watchlist_names": []
+   },
+   "log_index": 8,
+   "method": "0xb2460c48",
+   "timestamp": "2026-10-14T15:28:25.000000Z",
+   "to": {
+    "ens_domain_name": null,
+    "hash": "0x10CC6BD38112cAc182db90B6a71d8Bb5939526bA",
+    "implementations": [],
+    "is_contract": true,
+    "is_scam": false,
+    "is_verified": true,
+    "metadata": null,
+    "name": "UniswapV3Pool",
+    "private_tags": [],
+    "proxy_type": null,
+    "public_tags": [],
+    "reputation": "ok",
+    "watchlist_names": []
+   },
+   "token": {
+    "address_hash": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+    "circulating_market_cap": "92594877.55091783",
+    "circulating_supply": null,
+    "decimals": "18",
+    "exchange_rate": "2417.49",
+    "holders_count": "584656",
+    "icon_url": "https://assets.coingecko.com/coins/images/2518/small/weth.png?1696503332",
+    "name": "WETH",
+    "new_ui_multiplier": null,
+    "reputation": "ok",
+    "symbol": "WETH",
+    "total_supply": "39776817350176900790175",
+    "type": "ERC-20",
+    "ui_multiplier": null,
+    "ui_multiplier_effective_at": null,
+    "volume_24h": "484438727.89453834"
+   },
+   "token_type": "ERC-20",
+   "total": {
+    "decimals": "18",
+    "ui_multiplier": null,
+    "value": "189541389714288629"
+   },
+   "transaction_hash": "0xc5ee8536bb92be82a9c7022100f21df5ad3ab0be57917b72523fd32658e4a162",
+   "type": "token_transfer"
+  },
+  {
+   "block_hash": "0x5062e55f706be923062c0affadb54f8d0b1e2df606b1ee4c0edc9fcb0b61edde",
+   "block_number": 88474075,
+   "from": {
+    "ens_domain_name": null,
+    "hash": "0x20341b2ECf40125a1102324237550a8A68F74C7C",
+    "implementations": [],
+    "is_contract": true,
+    "is_scam": false,
+    "is_verified": false,
+    "metadata": null,
+    "name": null,
+    "private_tags": [],
+    "proxy_type": null,
+    "public_tags": [],
+    "reputation": "ok",
+    "watchlist_names": []
+   },
+   "log_index": 3,
+   "method": "0xb3938887",
+   "timestamp": "2026-10-14T15:28:25.000000Z",
+   "to": {
+    "ens_domain_name": null,
+    "hash": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+    "implementations": [],
+    "is_contract": true,
+    "is_scam": false,
+    "is_verified": true,
+    "metadata": {
+     "tags": [
+      {
+       "meta": {
+        "tagIcon ": "https://blockscout-icons.s3.us-east-1.amazonaws.com/OLI_tag_logo.svg",
+        "textColor": "#C163D4",
+        "tooltipAttribution": "https://www.openlabelsinitiative.org?utm_source=blockscout",
+        "tooltipAttributionIcon": "https://blockscout-icons.s3.us-east-1.amazonaws.com/OLI_tag_logo.svg",
+        "tooltipDescription": "Provided by OLI"
+       },
+       "name": "PoolManager",
+       "ordinal": 0,
+       "slug": "poolmanager",
+       "tagType": "name"
+      }
+     ]
+    },
+    "name": "PoolManager",
+    "private_tags": [],
+    "proxy_type": null,
+    "public_tags": [],
+    "reputation": "ok",
+    "watchlist_names": []
+   },
+   "token": {
+    "address_hash": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+    "circulating_market_cap": "92594877.55091783",
+    "circulating_supply": null,
+    "decimals": "18",
+    "exchange_rate": "2417.49",
+    "holders_count": "584656",
+    "icon_url": "https://assets.coingecko.com/coins/images/2518/small/weth.png?1696503332",
+    "name": "WETH",
+    "new_ui_multiplier": null,
+    "reputation": "ok",
+    "symbol": "WETH",
+    "total_supply": "39776817350176900790175",
+    "type": "ERC-20",
+    "ui_multiplier": null,
+    "ui_multiplier_effective_at": null,
+    "volume_24h": "484438727.89453834"
+   },
+   "token_type": "ERC-20",
+   "total": {
+    "decimals": "18",
+    "ui_multiplier": null,
+    "value": "239600000000000000"
+   },
+   "transaction_hash": "0x26ec7577909a6bf418b9ecc210a87c65ac172d798768c79520bb9c4c3fabda9d",
+   "type": "token_transfer"
+  }
+ ],
+ "next_page_params": {
+  "index": 2,
+  "block_number": 88474056
+ }
+}

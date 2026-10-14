@@ -2,6 +2,8 @@ import type { FastifyInstance, FastifyRequest } from "fastify";
 import { collectDefaultMetrics, Counter, Gauge, Histogram, Registry } from "prom-client";
 
 type RuntimeMetrics = {
+  explorerCredits: Gauge;
+  explorerRefusals: Counter<"reason">;
   providerCalls: Counter<"provider" | "outcome" | "error_code">;
   providerDuration: Histogram<"provider">;
   rpcSubcalls: Counter<"provider" | "method">;
@@ -127,7 +129,20 @@ export async function installMetrics(app: FastifyInstance): Promise<void> {
     registers: [registry]
   });
   queueDepth.set({ queue: "entity_hydration" }, 0);
+  const explorerCredits = new Gauge({
+    name: "rh_chain_explorer_credits_remaining",
+    help: "Latest daily credits remaining reported by the explorer",
+    registers: [registry]
+  });
+  const explorerRefusals = new Counter({
+    name: "rh_chain_explorer_gate_refusals_total",
+    help: "Explorer requests refused by the process gate",
+    labelNames: ["reason"],
+    registers: [registry]
+  });
   activeMetrics = {
+    explorerCredits,
+    explorerRefusals,
     providerCalls,
     providerDuration,
     rpcSubcalls,
@@ -204,4 +219,12 @@ export function observeRetention(outcome: "success" | "failure", at = new Date()
   activeMetrics?.retentionLastAttempt.set(seconds);
   activeMetrics?.retentionRuns.inc({ outcome });
   if (outcome === "success") activeMetrics?.retentionLastSuccess.set(seconds);
+}
+
+export function observeExplorerCredits(credits: number): void {
+  activeMetrics?.explorerCredits.set(credits);
+}
+
+export function observeExplorerRefusal(reason: "rate_limited" | "credits_exhausted"): void {
+  activeMetrics?.explorerRefusals.inc({ reason });
 }

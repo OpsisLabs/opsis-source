@@ -86,6 +86,7 @@ export class PortfolioService implements PortfolioSnapshotSource {
         spend: dependencies?.rpcSpend,
         client: { maxRetries: 0, rpcWorkload: "portfolio" }
       }),
+      // The Blockscout HTTP factory uses the same process gate as Research.
       blockscout: dependencies?.blockscout ?? createProviderHttp(oneAttemptEnv, "blockscout"),
       budget: dependencies?.budget ?? createPortfolioBudget(env),
       now: dependencies?.now ?? (() => new Date())

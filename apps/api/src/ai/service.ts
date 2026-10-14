@@ -272,6 +272,7 @@ function deterministicAnswer(
     uncertainty: [
       t(locale, "Provider data may be incomplete or temporarily unavailable.", "提供方的数据可能不完整或暂时不可用。"),
       t(locale, "Risk notes are heuristic signals, not guarantees of safety or malicious intent.", "风险提示是启发式信号，并不保证安全，也不保证存在恶意意图。"),
+      ...explorerLimitations(entity, locale),
       ...extraUncertainty
     ],
     riskNotes: entity.riskNotes,
@@ -279,6 +280,22 @@ function deterministicAnswer(
     suggestedQuestions,
     suggestedFollowUps: suggestedQuestions
   };
+}
+
+function explorerLimitations(entity: NormalizedEntity, locale: AiLocale): string[] {
+  if (entity.type !== "token" && entity.type !== "wallet") return [];
+  switch (entity.facts.explorerUnavailableReason) {
+    case "daily_limit": return [t(locale,
+      "Holder and history data from Blockscout return after 00:00 UTC.",
+      "Blockscout 的持有人和历史数据在 UTC 00:00 后恢复。")];
+    case "rate_limited": return [t(locale,
+      "Blockscout was busy and holder and history data were skipped for this lookup.",
+      "Blockscout 繁忙，本次查询跳过了持有人和历史数据。")];
+    case "unavailable": return [t(locale,
+      "Holder and history data from Blockscout could not be read.",
+      "无法读取 Blockscout 的持有人和历史数据。")];
+    default: return [];
+  }
 }
 
 type DeterministicIntent =

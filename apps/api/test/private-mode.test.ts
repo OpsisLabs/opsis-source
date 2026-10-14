@@ -60,6 +60,24 @@ afterEach(async () => {
 });
 
 describe("no-account Private Mode", () => {
+  it.each(["token", "wallet"] as const)("discloses public token reuse only for a %s result", async (type) => {
+    const app = await buildApp(loadEnv({ NODE_ENV: "test", LOG_LEVEL: "silent" }), undefined, {
+      privateAnalysis: {
+        resolve: async () => ({ entity: { ...entity, type }, sources: [], providerDestinations: ["blockscout"] }),
+        answer: async () => answer
+      }
+    });
+    apps.push(app);
+    const response = await app.inject({ method: "POST", url: "/v1/private/analyze", payload: { entity: identifier, entityType: type } });
+    expect(response.statusCode).toBe(200);
+    const disclosure = response.json().privacy.disclosure as string;
+    if (type === "token") {
+      expect(disclosure).toContain("Public token data read from Blockscout may be reused for up to 15 minutes");
+      expect(disclosure).toContain("without any visitor identifier");
+    } else {
+      expect(disclosure).not.toContain("may be reused");
+    }
+  });
   it("finishes a real private transaction resolver without waiting for optional indexer requests", async () => {
     const requests: string[] = [];
     const blockscout = new BlockscoutProvider(loadEnv({ NODE_ENV: "test" }), {
@@ -536,7 +554,7 @@ describe("no-account Private Mode", () => {
 
     const result = await resolver.resolveWithSources("unknown", contract, { privateMode: true });
     expect(getContract).toHaveBeenCalledOnce();
-    expect(result.providerDestinations).toEqual(["blockscout", "robinhood-public-rpc"]);
+    expect(result.providerDestinations).toEqual(["robinhood-public-rpc", "blockscout"]);
     expect(result.entity.type).toBe("contract");
     expect(result.entity.facts).toMatchObject({
       codePresent: true,

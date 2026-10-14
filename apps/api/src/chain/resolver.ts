@@ -6,12 +6,16 @@ import { JsonCache } from "../cache/service.js";
 import { evmAddressSchema, identifyEntity, txHashSchema } from "../entities/identify.js";
 import { AlchemyProvider } from "./alchemy.js";
 import type { AllowanceTarget } from "./alchemy.js";
-import { BlockscoutProvider } from "./blockscout.js";
+import { explorerUnavailableReason, type ExplorerUnavailableReason } from "./explorer-gate.js";
+import { BlockscoutProvider, type ExplorerDocuments } from "./blockscout.js";
 import { GoldRushProvider } from "./goldrush.js";
 import { normalizeEntity } from "./normalize.js";
 import type { ChainProvider, ResolvedEntity, ResolveOptions, SourceDocumentInput } from "./types.js";
 import { AppError } from "../http/errors.js";
 import { delegationTarget } from "./delegation.js";
+
+type TokenBundle = { documents: SourceDocumentInput[]; reason?: ExplorerUnavailableReason };
+const tokenReads = new WeakMap<JsonCache, Map<string, Promise<TokenBundle>>>();
 
 export class ChainEntityResolver {
   private readonly blockscout: ChainProvider;
@@ -56,6 +60,9 @@ export class ChainEntityResolver {
     const identified = validateEntityInput(inputType, value);
     const limit = options.limit ?? 25;
     const cacheKey = `${this.env.ROBINHOOD_CHAIN_ID}:${identified.type}:${identified.value}:${limit}:${options.includeApprovals ?? true}`;
+    // Private results and visitor context never enter server storage. The sole
+    // exception below reuses public explorer token documents, keyed only by
+    // chain, token address and schema version, without a visitor identifier.
     const mayUseServerStorage = !options.privateMode;
     const cached = options.refresh || !mayUseServerStorage ? undefined : await this.cache.get<ResolvedEntity>(cacheKey);
     if (cached) return cached;
@@ -67,6 +74,8 @@ export class ChainEntityResolver {
     const stale = options.refresh || !mayUseServerStorage ? undefined : await this.getPersisted(cacheKey, true);
     let resolvedType = identified.type;
     let docs: SourceDocumentInput[] = [];
+    let explorerReason: ExplorerUnavailableReason | undefined;
+    let explorerCached = false;
     const providerDestinations = new Set<string>();
     if (identified.type === "transaction") {
       const providerResults = await Promise.allSettled(compactProviderRequests([
@@ -86,6 +95,67 @@ export class ChainEntityResolver {
         if (stale) return markStale(stale, providerDestinations);
         throwProviderFailure(providerResults);
       }
+    } else if (identified.type === "wallet" && inputType === "unknown" && options.privateMode && !options.explorerFirst) {
+      try {
+        docs = await this.alchemy.getAddressSummary(identified.value);
+      } catch {
+        // Without the chain read the address cannot be classified cheaply; the
+        // explorer-first path still gives a useful answer.
+        return this.resolveWithSources(inputType, value, { ...options, explorerFirst: true });
+      }
+      providerDestinations.add(this.alchemy.name);
+      resolvedType = hasContractCode(docs) ? "contract" : "wallet";
+      if (resolvedType === "contract" && this.alchemy.getTokenMetadataSample) {
+        try {
+          const code = asRecord(docs.find((doc) => rpcMethod(doc) === "eth_getCode")?.responseJson)?.result as string;
+          const sample = await this.alchemy.getTokenMetadataSample(identified.value, code);
+          const facts = normalizeEntity(this.env.ROBINHOOD_CHAIN_ID, "token", identified.value, sample).facts;
+          if (!sample.some((doc) => asRecord(doc.responseJson)?.readError === true)
+            && typeof facts.decimals === "number" && facts.decimals <= 36
+            && (typeof facts.name === "string" || typeof facts.symbol === "string")) {
+            resolvedType = "token";
+            docs = sample;
+          }
+        } catch {
+          // A failed optional metadata probe leaves the contract evidence intact.
+        }
+      }
+      providerDestinations.add(this.blockscout.name);
+      if (resolvedType === "token") {
+        try {
+          const read = await this.readPrivateToken(identified.value, limit);
+          docs = read.documents;
+          explorerCached = read.cached;
+          explorerReason = read.reason;
+        } catch (error) {
+          explorerReason = explorerUnavailableReason(error);
+        }
+      } else if (resolvedType === "contract") {
+        try { docs.push(...await this.blockscout.getContract(identified.value, { limit })); } catch {
+          // Chain code remains useful when optional contract metadata is absent.
+        }
+      } else {
+        const results = await Promise.allSettled(compactProviderRequests([
+          providerRequest(this.blockscout, providerDestinations, () => this.blockscout.getAddressSummary(identified.value, { limit, detail: "summary" })),
+          providerRequest(this.goldrush, providerDestinations, () => this.goldrush.getAddressSummary(identified.value))
+        ]));
+        const explorer = results[0];
+        explorerReason = explorer?.status === "rejected" ? explorerUnavailableReason(explorer.reason)
+          : explorer?.status === "fulfilled" ? (explorer.value as ExplorerDocuments).explorerUnavailableReason : undefined;
+        docs = [...results.flatMap((result) => result.status === "fulfilled" ? result.value : []), ...docs];
+        if (!hasTokenBalanceSource(docs) && this.alchemy.getReviewedAssetBalances) {
+          try { docs.push(...await this.alchemy.getReviewedAssetBalances(identified.value)); } catch {
+            // The fixed reviewed sample is optional; missing stays unavailable.
+          }
+        }
+        if (options.includeApprovals !== false) {
+          const provisional = normalizeEntity(this.env.ROBINHOOD_CHAIN_ID, "wallet", identified.value, docs);
+          const approvals = provisional.facts.approvalTransactions as Array<Record<string, unknown>>;
+          const targets = approvals.flatMap((approval) => typeof approval.contract === "string" && typeof approval.spender === "string"
+            ? [{ token: approval.contract, spender: approval.spender, method: approval.method }] : []);
+          docs.push(...await this.alchemy.getAllowances(identified.value, targets));
+        }
+      }
     } else if (identified.type === "wallet") {
       const providerResults = await Promise.allSettled(compactProviderRequests([
         providerRequest(this.blockscout, providerDestinations, () => this.blockscout.getAddressSummary(identified.value, {
@@ -95,6 +165,9 @@ export class ChainEntityResolver {
         providerRequest(this.alchemy, providerDestinations, () => this.alchemy.getAddressSummary(identified.value)),
         providerRequest(this.goldrush, providerDestinations, () => this.goldrush.getAddressSummary(identified.value))
       ]));
+      const explorerResult = providerResults[0];
+      explorerReason = explorerResult?.status === "rejected" ? explorerUnavailableReason(explorerResult.reason)
+        : explorerResult?.status === "fulfilled" ? (explorerResult.value as ExplorerDocuments).explorerUnavailableReason : undefined;
       docs = providerResults.flatMap((result) => result.status === "fulfilled" ? result.value : []);
       if (docs.length === 0) {
         if (stale) return markStale(stale, providerDestinations);
@@ -120,7 +193,14 @@ export class ChainEntityResolver {
         }
         if (resolvedType === "token" && !docs.some((doc) => asRecord(doc.responseJson)?.query === "erc20MetadataSample")) {
           providerDestinations.add(this.blockscout.name);
-          docs.push(...(await this.blockscout.getToken(identified.value, { limit })));
+          if (options.privateMode) {
+            const read = await this.readPrivateToken(identified.value, limit);
+            docs.push(...read.documents);
+            explorerCached = read.cached;
+            explorerReason = read.reason;
+          } else {
+            docs.push(...(await this.blockscout.getToken(identified.value, { limit })));
+          }
         }
         if (resolvedType === "contract") {
           providerDestinations.add(this.blockscout.name);
@@ -159,8 +239,16 @@ export class ChainEntityResolver {
     } else if (identified.type === "token") {
       providerDestinations.add(this.blockscout.name);
       try {
-        docs = await this.blockscout.getToken(identified.value, { limit });
+        if (options.privateMode) {
+          const read = await this.readPrivateToken(identified.value, limit);
+          docs = read.documents;
+          explorerCached = read.cached;
+          explorerReason = read.reason;
+        } else {
+          docs = await this.blockscout.getToken(identified.value, { limit });
+        }
       } catch (error) {
+        explorerReason = explorerUnavailableReason(error);
         if (options.privateMode && this.alchemy.getTokenMetadataSample) {
           providerDestinations.add(this.alchemy.name);
           try {
@@ -215,6 +303,12 @@ export class ChainEntityResolver {
       sources: docs,
       providerDestinations: [...providerDestinations]
     };
+    if (explorerReason && (resolvedType === "token" || resolvedType === "wallet")) {
+      resolution.entity.facts.explorerUnavailableReason = explorerReason;
+    }
+    if (resolvedType === "token" && docs.some((doc) => doc.provider === this.blockscout.name)) {
+      resolution.entity.facts.explorerCached = explorerCached;
+    }
     if (resolvedType === "wallet") applyWalletOptions(resolution.entity, options);
     const ttlSeconds = cacheTtlSeconds(resolvedType);
     if (mayUseServerStorage) {
@@ -222,6 +316,32 @@ export class ChainEntityResolver {
       await this.setPersisted(cacheKey, resolution, ttlSeconds);
     }
     return resolution;
+  }
+
+  private async readPrivateToken(address: string, limit: number): Promise<TokenBundle & { cached: boolean }> {
+    const ttl = this.env.BLOCKSCOUT_TOKEN_CACHE_SECONDS;
+    const key = `explorer-token:v1:${this.env.ROBINHOOD_CHAIN_ID}:${address.toLowerCase()}`;
+    if (ttl > 0) {
+      const cached = await this.cache.get<TokenBundle>(key);
+      if (cached) return { documents: cached.documents, cached: true };
+    }
+    let reads = tokenReads.get(this.cache);
+    if (!reads) { reads = new Map(); tokenReads.set(this.cache, reads); }
+    const inflight = reads.get(key);
+    if (inflight) return { ...await inflight, cached: false };
+    const read = (async (): Promise<TokenBundle> => {
+      const documents = await this.blockscout.getToken(address, { limit, detail: "summary" }) as ExplorerDocuments;
+      const bundle = { documents, reason: documents.explorerUnavailableReason };
+      // Only a complete read is shared: a bundle missing holders or transfers
+      // because the explorer was busy would otherwise hide them, without the
+      // reason, for the whole cache period.
+      if (ttl > 0 && !bundle.reason && documents.some((doc) => doc.requestUrl && new URL(doc.requestUrl).pathname.endsWith(`/tokens/${address}`))) {
+        await this.cache.set(key, bundle, ttl);
+      }
+      return bundle;
+    })();
+    reads.set(key, read);
+    try { return { ...await read, cached: false }; } finally { reads.delete(key); }
   }
 
   private async getPersisted(cacheKey: string, includeExpired = false): Promise<ResolvedEntity | undefined> {

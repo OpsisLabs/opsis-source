@@ -1,7 +1,10 @@
+import { explorerUnavailableReason, type ExplorerUnavailableReason } from "./explorer-gate.js";
 import { randomUUID } from "node:crypto";
 import type { Env } from "../config/env.js";
 import type { ChainProvider, ProviderQueryOptions, SourceDocumentInput } from "./types.js";
 import { createProviderHttp, type ProviderHttp } from "./provider-http.js";
+
+export type ExplorerDocuments = SourceDocumentInput[] & { explorerUnavailableReason?: ExplorerUnavailableReason };
 
 export class BlockscoutProvider implements ChainProvider {
   readonly name = "blockscout";
@@ -39,6 +42,8 @@ export class BlockscoutProvider implements ChainProvider {
 
   async getAddressSummary(address: string, options: ProviderQueryOptions = {}): Promise<SourceDocumentInput[]> {
     const maxPages = this.maxPagesFor(options);
+    let reason: ExplorerUnavailableReason | undefined;
+    const onError = (error: unknown) => { reason = mergeReason(reason, explorerUnavailableReason(error)); };
     // Private Mode's first answer needs identity, recent activity and balances,
     // not every transfer/trace collection. Fetch the three useful sources in
     // parallel so one broken optional endpoint cannot hold the whole card for
@@ -46,41 +51,43 @@ export class BlockscoutProvider implements ChainProvider {
     if (options.detail === "summary") {
       const [wallet, transactions, tokenBalances] = await Promise.all([
         this.fetchDoc("wallet", address, `/addresses/${address}`),
-        this.fetchPaginated("wallet", address, `/addresses/${address}/transactions`, true, maxPages),
-        this.fetchOptionalDoc("wallet", address, `/addresses/${address}/token-balances`)
+        this.fetchPaginated("wallet", address, `/addresses/${address}/transactions`, true, maxPages, onError),
+        this.fetchOptionalDoc("wallet", address, `/addresses/${address}/token-balances`, onError)
       ]);
-      return [wallet, ...transactions, ...(tokenBalances ? [tokenBalances] : [])];
+      return Object.assign([wallet, ...transactions, ...(tokenBalances ? [tokenBalances] : [])], { explorerUnavailableReason: reason });
     }
     const wallet = await this.fetchDoc("wallet", address, `/addresses/${address}`);
     const [transactions, tokenTransfers, internalTransactions, tokenBalances] = await Promise.all([
-      this.fetchPaginated("wallet", address, `/addresses/${address}/transactions`, true, maxPages),
-      this.fetchPaginated("wallet", address, `/addresses/${address}/token-transfers`, true, maxPages),
-      this.fetchPaginated("wallet", address, `/addresses/${address}/internal-transactions`, true, maxPages),
-      this.fetchOptionalDoc("wallet", address, `/addresses/${address}/token-balances`)
+      this.fetchPaginated("wallet", address, `/addresses/${address}/transactions`, true, maxPages, onError),
+      this.fetchPaginated("wallet", address, `/addresses/${address}/token-transfers`, true, maxPages, onError),
+      this.fetchPaginated("wallet", address, `/addresses/${address}/internal-transactions`, true, maxPages, onError),
+      this.fetchOptionalDoc("wallet", address, `/addresses/${address}/token-balances`, onError)
     ]);
-    return [wallet, ...transactions, ...tokenTransfers, ...internalTransactions, ...(tokenBalances ? [tokenBalances] : [])];
+    return Object.assign([wallet, ...transactions, ...tokenTransfers, ...internalTransactions, ...(tokenBalances ? [tokenBalances] : [])], { explorerUnavailableReason: reason });
   }
 
   async getToken(address: string, options: ProviderQueryOptions = {}): Promise<SourceDocumentInput[]> {
     const token = await this.fetchDoc("token", address, `/tokens/${address}`);
-    const maxPages = this.maxPagesFor(options);
+    const maxPages = options.detail === "summary" ? 1 : this.maxPagesFor(options);
+    let reason: ExplorerUnavailableReason | undefined;
+    const onError = (error: unknown) => { reason = mergeReason(reason, explorerUnavailableReason(error)); };
     // Holders, lifetime counters and the deploying address are what make
     // distribution analysis possible; the transfer window alone cannot show
     // who actually controls the supply.
     const [transfers, contract, holders, counters, addressInfo] = await Promise.all([
-      this.fetchPaginated("token", address, `/tokens/${address}/transfers`, true, maxPages),
-      this.fetchOptionalDoc("token", address, `/smart-contracts/${address}`),
-      this.fetchOptionalDoc("token", address, `/tokens/${address}/holders`),
-      this.fetchOptionalDoc("token", address, `/tokens/${address}/counters`),
-      this.fetchOptionalDoc("token", address, `/addresses/${address}`)
+      this.fetchPaginated("token", address, `/tokens/${address}/transfers`, true, maxPages, onError),
+      this.fetchOptionalDoc("token", address, `/smart-contracts/${address}`, onError),
+      this.fetchOptionalDoc("token", address, `/tokens/${address}/holders`, onError),
+      this.fetchOptionalDoc("token", address, `/tokens/${address}/counters`, onError),
+      this.fetchOptionalDoc("token", address, `/addresses/${address}`, onError)
     ]);
     // A token amount in the millions means nothing on its own. The transfer
     // rows carry no price, but the transaction that produced each one carries
     // the native coin it moved — fetch that for the largest few only, so the
     // headline transfers can be shown in ETH instead of raw token units.
-    const valueDocs = await this.fetchTopTransferTransactions(address, transfers);
+    const valueDocs = options.detail === "summary" ? [] : await this.fetchTopTransferTransactions(address, transfers);
 
-    return [
+    return Object.assign([
       token,
       ...transfers,
       ...(contract ? [contract] : []),
@@ -88,7 +95,7 @@ export class BlockscoutProvider implements ChainProvider {
       ...(counters ? [counters] : []),
       ...(addressInfo ? [addressInfo] : []),
       ...valueDocs
-    ];
+    ], { explorerUnavailableReason: reason });
   }
 
   /** Transactions behind the five largest transfers, for native-coin pricing. */
@@ -136,7 +143,9 @@ export class BlockscoutProvider implements ChainProvider {
       ? `${this.env.BLOCKSCOUT_PRO_API_BASE_URL.replace(/\/$/, "")}/${this.env.BLOCKSCOUT_CHAIN_ID}/api/v2`
       : this.env.BLOCKSCOUT_API_BASE_URL;
     const baseUrl = configuredBase.endsWith("/") ? configuredBase : `${configuredBase}/`;
-    const requestUrl = new URL(path.replace(/^\//, ""), baseUrl).toString();
+    const publicUrl = new URL(path.replace(/^\//, ""), baseUrl);
+    publicUrl.searchParams.delete("apikey");
+    const requestUrl = publicUrl.toString();
     const authenticatedUrl = new URL(requestUrl);
     const apiKey = this.env.BLOCKSCOUT_PRO_API_KEY ?? this.env.BLOCKSCOUT_API_KEY;
     if (apiKey) authenticatedUrl.searchParams.set("apikey", apiKey);
@@ -157,7 +166,8 @@ export class BlockscoutProvider implements ChainProvider {
     entityValue: string,
     path: string,
     optional = false,
-    maxPages = this.env.BLOCKSCOUT_MAX_PAGES
+    maxPages = this.env.BLOCKSCOUT_MAX_PAGES,
+    onError?: (error: unknown) => void
   ): Promise<SourceDocumentInput[]> {
     const docs: SourceDocumentInput[] = [];
     let nextPath: string | undefined = path;
@@ -168,7 +178,7 @@ export class BlockscoutProvider implements ChainProvider {
       try {
         doc = await this.fetchDoc(entityType, entityValue, nextPath);
       } catch (error) {
-        if (optional) break;
+        if (optional) { onError?.(error); break; }
         throw error;
       }
       docs.push(doc);
@@ -186,11 +196,13 @@ export class BlockscoutProvider implements ChainProvider {
   private async fetchOptionalDoc(
     entityType: SourceDocumentInput["entityType"],
     entityValue: string,
-    path: string
+    path: string,
+    onError?: (error: unknown) => void
   ): Promise<SourceDocumentInput | undefined> {
     try {
       return await this.fetchDoc(entityType, entityValue, path);
-    } catch {
+    } catch (error) {
+      onError?.(error);
       return undefined;
     }
   }
@@ -213,4 +225,10 @@ function nextPageUrl(doc: SourceDocumentInput): string | undefined {
     if (["string", "number", "boolean"].includes(typeof value)) url.searchParams.set(key, String(value));
   }
   return url.toString();
+}
+
+function mergeReason(current: ExplorerUnavailableReason | undefined, next: ExplorerUnavailableReason): ExplorerUnavailableReason {
+  if (current === "daily_limit" || next === "daily_limit") return "daily_limit";
+  if (current === "rate_limited" || next === "rate_limited") return "rate_limited";
+  return "unavailable";
 }

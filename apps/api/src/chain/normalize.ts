@@ -1,3 +1,4 @@
+import type { ExplorerDocuments } from "./blockscout.js";
 import { decodeErc20Metadata } from "./erc20-metadata.js";
 import type { Citation, ChainEntityType, NormalizedEntity, RiskNote } from "@rh-chain/shared";
 import { decodeFunctionData, toFunctionSelector, type Abi, type AbiFunction, type Hex } from "viem";
@@ -34,6 +35,8 @@ export function normalizeEntity(
 ): NormalizedEntity {
   const citations = docs.map((doc) => citation(doc, fieldsUsedForDoc(doc), sourceDescription(doc), explorerBase));
   const facts = summarizeFacts(type, docs, value);
+  const explorerReason = (docs as ExplorerDocuments).explorerUnavailableReason;
+  if ((type === "token" || type === "wallet") && explorerReason) facts.explorerUnavailableReason = explorerReason;
   facts.chainId = chainId;
   facts.explorerUrl = explorerUrl(type, value, explorerBase);
   facts.sourceIds = citations.map((source) => source.id);
@@ -66,6 +69,11 @@ function sourceDescription(doc: SourceDocumentInput): string {
     : path.includes("/raw-trace") ? "Transaction execution trace"
     : path.includes("/state-changes") ? "Transaction state changes"
     : path.includes("/token-balances") ? "Indexed token balances"
+    : path.includes("/transfers") ? "Recent token transfers"
+    : path.includes("/holders") ? "Largest token holders"
+    : path.includes("/counters") ? "Holder and transfer counts"
+    : /\/tokens\/[^/?]+(?:\?|$)/.test(path) ? "Token profile"
+    : /\/addresses\/[^/?]+(?:\?|$)/.test(path) ? "Address profile"
     : path.includes("/transactions") ? (doc.entityType === "transaction" ? "Transaction details" : "Indexed recent transactions")
     : path.includes("/smart-contracts/") ? "Contract metadata and verification"
     : undefined;
@@ -214,6 +222,8 @@ function summarizeFacts(type: ChainEntityType, docs: SourceDocumentInput[], enti
       tokenTransfers,
       internalTransactions,
       tokenBalances,
+      activityCoverage: docs.some((doc) => doc.requestUrl?.includes("/transactions")) ? "indexed_window" : "unavailable",
+      tokenBalanceCoverage: balanceDoc || docs.some((doc) => doc.requestUrl?.includes("/balances_v2/")) ? "indexed_window" : "unavailable",
       ...(reviewedBalanceDoc ? {
         tokenBalanceCoverage: "reviewed_asset_sample",
         tokenBalanceContractsChecked: reviewedBalanceResponse?.contractsChecked
@@ -226,7 +236,7 @@ function summarizeFacts(type: ChainEntityType, docs: SourceDocumentInput[], enti
     };
   }
   if (type === "token") {
-    const tokenDoc = docs.find((doc) => doc.entityType === "token");
+    const tokenDoc = docs.find((doc) => doc.requestUrl && /\/tokens\/[^/?]+(?:\?|$)/.test(doc.requestUrl));
     const token = (tokenDoc?.responseJson ?? primary?.token ?? primary) as Record<string, unknown>;
     const contract = docs.find((doc) => doc.requestUrl?.includes("/smart-contracts/"))?.responseJson as Record<string, unknown> | undefined;
     const counters = docs.find((doc) => doc.requestUrl?.includes("/counters"))?.responseJson as Record<string, unknown> | undefined;
@@ -274,16 +284,23 @@ function summarizeFacts(type: ChainEntityType, docs: SourceDocumentInput[], enti
       address: docs[0]?.entityValue,
       name: token?.name,
       symbol: token?.symbol,
-      decimals: token?.decimals,
+      decimals: boundedInteger(token?.decimals, 255),
       type: token?.type,
-      totalSupply: token?.total_supply,
-      holders: token?.holders ?? token?.holders_count ?? counters?.token_holders_count,
-      lifetimeTransfers: counters?.transfers_count,
+      totalSupply: typeof token?.total_supply === "string" && /^\d+$/.test(token.total_supply) ? token.total_supply : null,
+      holders: boundedInteger(token?.holders ?? token?.holders_count ?? counters?.token_holders_count),
+      lifetimeTransfers: boundedInteger(counters?.transfers_count),
       exchangeRate: token?.exchange_rate,
       deployer,
       deployedAt: contract?.creation_timestamp ?? contract?.deployed_at,
       verified: contract ? Boolean(contract.is_verified || contract.is_verified_via_eth_bytecode_db) : null,
-      proxy: Boolean(contract?.is_proxy || contract?.proxy_type),
+      proxy: contract ? Boolean(contract.is_proxy || contract.proxy_type) : null,
+      proxyType: typeof (contract?.proxy_type ?? addressInfo?.proxy_type) === "string" ? contract?.proxy_type ?? addressInfo?.proxy_type : undefined,
+      implementations: normalizeImplementations(contract?.implementations ?? addressInfo?.implementations),
+      holderCoverage: docs.some((doc) => doc.requestUrl?.includes("/holders")) ? "top_holders" : "unavailable",
+      activityCoverage: docs.some((doc) => doc.requestUrl?.includes("/transfers")) ? "indexed_window" : "unavailable",
+      sourceCoverage: contract ? "explorer_metadata" : "unavailable",
+      explorerObservedAt: docs.filter((doc) => doc.provider === "blockscout").map((doc) => doc.fetchedAt).sort()[0],
+      explorerReputation: typeof token?.reputation === "string" ? token.reputation : undefined,
       recentTransfers: withNativeValues(documentItems(docs, "/transfers").map(normalizeTokenTransfer), docs),
       ...distribution
     };
@@ -544,6 +561,8 @@ function normalizeTokenBalance(value: unknown): Record<string, unknown> {
     tokenName: token.name ?? balance.contract_name,
     tokenSymbol: token.symbol ?? balance.contract_ticker_symbol,
     tokenType: token.type ?? balance.type,
+    reputation: typeof token.reputation === "string" ? token.reputation : undefined,
+    ...(boundedInteger(token.decimals, 255) !== null ? { decimals: boundedInteger(token.decimals, 255) } : {}),
     rawValue: balance.value ?? balance.balance,
     formattedValue: formatUnits(balance.value ?? balance.balance, token.decimals ?? balance.contract_decimals)
   };
@@ -562,6 +581,34 @@ function addressHash(value: unknown): unknown {
   return value;
 }
 
+
+function boundedInteger(value: unknown, maximum = Number.MAX_SAFE_INTEGER): number | null {
+  if (typeof value !== "number" && (typeof value !== "string" || !/^\d+$/.test(value))) return null;
+  const number = Number(value);
+  return Number.isSafeInteger(number) && number >= 0 && number <= maximum ? number : null;
+}
+
+function normalizeImplementations(value: unknown): Array<{ address: string; name?: string }> | undefined {
+  if (!Array.isArray(value)) return undefined;
+  return value.flatMap((item) => {
+    if (!item || typeof item !== "object") return [];
+    const row = item as Record<string, unknown>;
+    const address = row.address_hash ?? row.address;
+    return typeof address === "string" ? [{ address, ...(typeof row.name === "string" ? { name: row.name } : {}) }] : [];
+  });
+}
+
+const BURN_ADDRESSES = new Set([
+  "0x0000000000000000000000000000000000000000",
+  "0x000000000000000000000000000000000000dead",
+  "0xdead000000000000000042069420694206942069"
+]);
+function isBurnAddress(account: Record<string, unknown>): boolean {
+  if (typeof account.hash === "string" && BURN_ADDRESSES.has(account.hash.toLowerCase())) return true;
+  const tags = (account.metadata as { tags?: unknown[] } | undefined)?.tags;
+  return Array.isArray(tags) && tags.some((tag) => typeof (tag as { slug?: unknown })?.slug === "string"
+    && ((tag as { slug: string }).slug).startsWith("null-"));
+}
 
 /** Contracts whose name marks them as a trading pool rather than a holder. */
 const POOL_NAME = /pair|pool|swap|router|lp\b/i;
@@ -582,7 +629,7 @@ function summarizeDistribution(
   deployer: unknown
 ): Record<string, unknown> {
   const supply = Number(rawSupply);
-  if (!Number.isFinite(supply) || supply <= 0 || rawHolders.length === 0) return {};
+  if (!Number.isFinite(supply) || supply <= 0 || rawHolders.length === 0) return { burnedShare: 0 };
 
   const holders = rawHolders
     .map((item) => {
@@ -594,6 +641,7 @@ function summarizeDistribution(
         label: typeof account.name === "string" ? account.name : undefined,
         isContract: Boolean(account.is_contract),
         flaggedScam: Boolean(account.is_scam),
+        isBurn: isBurnAddress(account),
         share: Number.isFinite(value) ? (value / supply) * 100 : 0
       };
     })
@@ -601,17 +649,18 @@ function summarizeDistribution(
     .sort((a, b) => b.share - a.share);
 
   const isPool = (h: (typeof holders)[number]): boolean => h.isContract && Boolean(h.label && POOL_NAME.test(h.label));
-  const pools = holders.filter(isPool);
-  const wallets = holders.filter((h) => !isPool(h));
+  const pools = holders.filter((h) => !h.isBurn && isPool(h));
+  const wallets = holders.filter((h) => !h.isBurn && !isPool(h));
   const share = (list: typeof holders, n: number): number =>
     Math.round(list.slice(0, n).reduce((sum, h) => sum + h.share, 0) * 10) / 10;
 
   const deployerAddress = typeof deployer === "string" ? deployer.toLowerCase() : undefined;
   const deployerHolding = deployerAddress
-    ? holders.find((h) => h.address.toLowerCase() === deployerAddress)
+    ? holders.find((h) => !h.isBurn && h.address.toLowerCase() === deployerAddress)
     : undefined;
 
   return {
+    burnedShare: share(holders.filter((h) => h.isBurn), holders.length),
     liquidityPoolShare: pools.length > 0 ? share(pools, pools.length) : 0,
     liquidityPools: pools.slice(0, 3).map((p) => ({ address: p.address, label: p.label, share: Math.round(p.share * 10) / 10 })),
     top1WalletShare: share(wallets, 1),
@@ -620,7 +669,8 @@ function summarizeDistribution(
     topHolders: holders.slice(0, 10).map((h) => ({
       address: h.address,
       label: h.label,
-      isPool: isPool(h),
+      isPool: !h.isBurn && isPool(h),
+      isBurn: h.isBurn,
       isContract: h.isContract,
       flaggedScam: h.flaggedScam,
       share: Math.round(h.share * 100) / 100
