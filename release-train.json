@@ -406,6 +406,18 @@
       ],
       "outcome": "A dropped connection does not strand a visitor, a refused lookup says why, and the scheduled production check can run against the deployment as it is",
       "shipGate": "A page whose code fails to download is retried, then reloaded once without a loop, and otherwise shows a screen with one heading, a plain explanation and a reload control; no storage API is used. Research names a per-visitor limit with its wait, a chain-data rate or budget refusal and an invalid identifier separately, and keeps the generic sentence for anything else. The private-only launch smoke runs through the web host alone when no API address is given, and says which checks it skipped. English and Chinese, Chromium and WebKit, unit, failure-state, privacy and full release gates pass on the integrated candidate. No provider, chain, execution, paid path, workspace or new public claim."
+    },
+    {
+      "order": 35,
+      "id": "34-explorer-data",
+      "branch": "codex/34-explorer-data",
+      "tagPrefix": "rc/34-explorer-data/",
+      "status": "queued",
+      "dependencies": [
+        "33-recover-and-watch"
+      ],
+      "outcome": "Research shows who holds a token, how it has moved and whether its source is verified, and a wallet's recent history and which of its tokens are reviewed, from the explorer's free plan, and says plainly when that data is not available",
+      "shipGate": "Explorer calls from one API process stay under the free plan's rate with a bounded wait, stop before the daily credits run out until the reset, and fall back to chain reads with holder and history data marked unavailable and the reason stated. A token lookup costs at most six explorer calls; public token data is reused for a bounded time and keeps its original fetch time; Auto mode checks the chain before spending explorer calls. Burn addresses are not counted as holders in concentration figures. Research shows holders, transfers, verification, proxy status, distribution and recent transfers for a token, and recent transactions and reviewed versus self-reported balances, with lookalike symbols flagged, for a wallet, each with an unavailable state. Verified against real chain data on the preview before the gate. English and Chinese, Chromium and WebKit, unit, failure-state, privacy and full release gates pass on the integrated candidate. No paid plan, chain, execution, workspace or new public claim; the explorer key never appears in a response, log or citation."
     }
   ]
 }
