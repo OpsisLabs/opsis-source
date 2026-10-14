@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "2446482241f0668ea683ef2b1f8f9baf4ad2ae89fd4674c56449ed393ad2f7a8",
+  "sourceTreeDigest": "ef29a2ca908478888c7e2565a00a547e05208cd90a691b00eb45f360172662f3",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "440768b16e5dee2c34f21ce95b98678e3decbf29e7bb4fa4a853e45b8ba206a4",
@@ -751,7 +751,7 @@
     "apps/web/src/watch/WalletOverlap.tsx": "d78673f9fef9d4ba5f01b51591206a3c4d26eba4890375114a2929085aa1f4f1",
     "apps/web/src/watch/WatchBriefing.tsx": "d78a79e88a74e4beb0a68fec89c84bb49741357898b23502691a8f4a716345f8",
     "apps/web/src/watch/WatchInbox.test.tsx": "cb53dc3a5488756a805c4f7291c185f7e15e68094bee7a6dbf502346a7cbde18",
-    "apps/web/src/watch/WatchInbox.tsx": "2e45d20a9eb72267dc989f2cbd538babfc069aabd864106a2c04ed03b9a30daf",
+    "apps/web/src/watch/WatchInbox.tsx": "18124c5efd6e1dc003e41d229864092046cad1a8e8ad35eec897f6fbeb1ad02a",
     "apps/web/src/watch/WatchPage.tsx": "62f5b86190a8837a523e0b6e156e55971c4502412abead3496056b65d960e9a8",
     "apps/web/tailwind.config.cjs": "cefb297821c1db21b0387dbefd1c2be168fcb52140d28b53807367686e82fb9d",
     "apps/web/tsconfig.app.json": "b598ff95cc6b3d94660440bd48b34e224eb57437b7b1cdc04224c925df1ef2c4",

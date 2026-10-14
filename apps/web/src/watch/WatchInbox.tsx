@@ -375,6 +375,9 @@ export default function WatchInbox({
               <div className="text-sm font-semibold">{watch.label}</div>
               <div className="mt-2 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-4 [&>*]:min-w-0 [&>*]:max-w-full">
                 <select
+                  // WebKit counts a long option's text as overflow of the
+                  // page at phone width unless the control clips it.
+                  className="w-full overflow-hidden text-ellipsis"
                   aria-label={c("Observed asset", "已观察资产")}
                   value={draft.assetKey}
                   onChange={(event) =>
