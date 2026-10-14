@@ -418,6 +418,18 @@
       ],
       "outcome": "Research shows who holds a token, how it has moved and whether its source is verified, and a wallet's recent history and which of its tokens are reviewed, from the explorer's free plan, and says plainly when that data is not available",
       "shipGate": "Explorer calls from one API process stay under the free plan's rate with a bounded wait, stop before the daily credits run out until the reset, and fall back to chain reads with holder and history data marked unavailable and the reason stated. A token lookup costs at most six explorer calls; public token data is reused for a bounded time and keeps its original fetch time; Auto mode checks the chain before spending explorer calls. Burn addresses are not counted as holders in concentration figures. Research shows holders, transfers, verification, proxy status, distribution and recent transfers for a token, and recent transactions and reviewed versus self-reported balances, with lookalike symbols flagged, for a wallet, each with an unavailable state. Watch checks reviewed assets first within its bound, flags lookalikes the same way and links its sources to the explorer's public pages. Verified against real chain data on the preview before the gate. English and Chinese, Chromium and WebKit, unit, failure-state, privacy and full release gates pass on the integrated candidate. No paid plan, chain, execution, workspace or new public claim; the explorer key never appears in a response, log or citation."
+    },
+    {
+      "order": 36,
+      "id": "35-explorer-accuracy",
+      "branch": "codex/35-explorer-accuracy",
+      "tagPrefix": "rc/35-explorer-accuracy/",
+      "status": "queued",
+      "dependencies": [
+        "34-explorer-data"
+      ],
+      "outcome": "Research names exactly which explorer data was not read, and never says holder or history data is missing when it is shown",
+      "shipGate": "A token or wallet answer carries an explorer limitation only for the holder, transfer, balance or activity data that was not read; a missing contract record, address profile or counter shows its own field as unknown without the holder and history sentence. The page and the deterministic answer say the same thing in English and Chinese. Unit, failure-state, privacy and full release gates pass on the integrated candidate. No provider, chain, execution, paid path, workspace or new public claim."
     }
   ]
 }
