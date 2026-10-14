@@ -90,7 +90,7 @@ test.describe("opsis preview first visit", () => {
     await expect(balances).toContainText("0.123456789012345678 ETH");
     await expect(balances).toContainText("Global Dollar · USDG");
     await expect(balances).toContainText("1,234.56789");
-    await expect(balances).toContainText(EXIT_CHECK_TOKENS.USDG.address.toLowerCase());
+    await expect(balances.getByRole("button", { name: `Copy address ${EXIT_CHECK_TOKENS.USDG.address.toLowerCase()}`, exact: true })).toBeVisible();
     await expect(balances).toContainText("other tokens may be held");
   });
 

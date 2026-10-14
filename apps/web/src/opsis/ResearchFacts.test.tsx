@@ -1,7 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import type { DecodedAction } from "../private/api";
-import { DecodedActions, TokenFacts, WalletBalances } from "./ResearchFacts";
+import type { DecodedAction, ResearchFacts } from "../private/api";
+import { DecodedActions, TokenFacts, WalletBalances, WalletTransactions } from "./ResearchFacts";
+import weth from "./fixtures/research-weth-token.json";
+import pons from "./fixtures/research-pons-token.json";
+import wallet from "./fixtures/research-wallet.json";
+import { KNOWN_ASSETS } from "./known-assets";
 import { orderActions } from "./transactionTimeline";
 
 const language = vi.hoisted(() => ({ chinese: false }));
@@ -75,3 +79,144 @@ describe("first-visit result details", () => {
     expect(reviewed).not.toContain("reports about itself");
   });
 });
+
+
+for (const chinese of [false, true]) {
+  describe(chinese ? "Chinese explorer facts" : "English explorer facts", () => {
+    const renderToken = (facts: ResearchFacts) => {
+      language.chinese = chinese;
+      return renderToStaticMarkup(<TokenFacts facts={facts} />);
+    };
+
+    it("renders the older WETH fixture and the new verification and proxy contract", () => {
+      const legacy = renderToken(weth.entity.facts);
+      expect(text(legacy)).toContain(chinese ? "小数位18" : "Decimals18");
+      expect(text(legacy)).toContain("39,756.656303302136451718");
+      expect(text(legacy)).toContain("584,668");
+      expect(text(legacy)).toContain("486,615,089");
+      expect(text(legacy)).toContain(chinese ? "交易池" : "Trading pool");
+      expect(text(legacy)).toContain(chinese ? "已验证" : "Verified");
+      expect(text(legacy)).toContain(chinese ? "近期转移" : "Recent transfers");
+      const current = renderToken({ ...weth.entity.facts, decimals: 18, holders: 584668, lifetimeTransfers: 486615089,
+        holderCoverage: "top_holders", activityCoverage: "indexed_window", sourceCoverage: "explorer_metadata",
+        proxyType: "eip1967", implementations: [{ address, name: "TokenImplementation" }],
+        explorerObservedAt: "2026-10-14T15:00:00Z", explorerCached: true });
+      expect(current).toContain(`title="${address}"`);
+      expect(current).toContain("eip1967");
+      expect(current).toContain('dateTime="2026-10-14T15:00:00.000Z"');
+      expect(text(current)).toContain(chinese ? "复用了该次读取的数据" : "Reused from that read");
+      expect((current.match(/<li>/g) ?? []).length).toBe(15);
+    });
+
+    it("renders PONS burns separately for both shapes", () => {
+      for (const facts of [pons.entity.facts, { ...pons.entity.facts, decimals: 18, holderCoverage: "top_holders" as const,
+        burnedShare: 32.5, top1WalletShare: 5.4, top10WalletShare: 21.2,
+        topHolders: pons.entity.facts.topHolders.map((holder, index) => ({ ...holder, isBurn: index === 0 })) }]) {
+        const html = renderToken(facts);
+        expect(text(html)).toContain(chinese ? "销毁地址" : "Burn address");
+        expect(text(html)).toContain(chinese ? "销毁地址占比32.5%" : "Burned share32.5%");
+        expect(text(html)).toContain(chinese ? "最大持有人，不含交易池和销毁地址5.4%" : "Largest holder, excluding trading pools and burn addresses5.4%");
+      }
+    });
+
+    it("keeps verification and proxy unknown and reports the explorer flag", () => {
+      const html = renderToken({ holders: "5", verified: null, proxy: null, explorerReputation: "scam" });
+      expect(text(html)).toContain(chinese ? "源代码 · Blockscout未知" : "Source code · BlockscoutUnknown");
+      expect(text(html)).toContain(chinese ? "可升级代理 · Blockscout未知" : "Upgradeable proxy · BlockscoutUnknown");
+      expect(text(html)).toContain(chinese ? "Blockscout 将此代币标记为骗局" : "Blockscout marks this token as a scam");
+      const no = text(renderToken({ holders: 0, verified: false, proxy: false }));
+      expect(no).toContain(chinese ? "未验证" : "Not verified");
+      expect(no).toContain(chinese ? "可升级代理 · Blockscout否" : "Upgradeable proxy · BlockscoutNo");
+    });
+
+    it("groups the older wallet fixture, flags lookalikes and counts failures across the window", () => {
+      language.chinese = chinese;
+      const balances = renderToStaticMarkup(<WalletBalances facts={wallet.entity.facts} />);
+      expect(text(balances)).toContain(chinese ? "使用符号 USDC；此合约不在 Opsis 的已审核资产列表中" : "Uses the symbol USDC; this contract is not on the Opsis reviewed asset list");
+      expect(text(balances)).toContain(chinese ? "使用符号 NVDA，但这不是已审核的 NVDA 合约" : "Uses the symbol NVDA, but this is not the reviewed NVDA contract");
+      // The two USDG lookalikes sit beyond the first ten balances in the explorer's order.
+      expect(text(balances)).toContain(chinese ? "使用符号 USDG，但这不是已审核的 USDG 合约" : "Uses the symbol USDG, but this is not the reviewed USDG contract");
+      expect(text(balances)).not.toContain("CA5HCAT");
+      expect(balances).not.toContain('data-testid="reviewed-balances"');
+      expect(text(balances)).toContain(chinese ? "显示所有其他代币" : "Show all other tokens");
+      const transactions = renderToStaticMarkup(<WalletTransactions facts={wallet.entity.facts} address={wallet.entity.value} />);
+      expect(text(transactions)).toContain(chinese ? "1 笔交易在此窗口中失败" : "1 failed transaction in this window");
+      expect((transactions.match(/<li>/g) ?? []).length).toBe(10);
+      expect(text(transactions)).toContain(chinese ? "发送" : "Sent");
+      expect(transactions).not.toContain("failureDetail");
+    });
+
+    it("shows hidden characters and explorer flags without rendering invisible controls", () => {
+      language.chinese = chinese;
+      const usdc = KNOWN_ASSETS.find((asset) => asset.symbol === "USDG")!;
+      const html = renderToStaticMarkup(<WalletBalances facts={{ tokenBalances: [
+        { tokenAddress: address, tokenName: "PO\u200bNS", tokenSymbol: "US\u202eDC", formattedValue: "10", reputation: "scam", decimals: 18 },
+        { tokenAddress: usdc.address, tokenName: "Global Dollar", tokenSymbol: "USDG", formattedValue: "20" },
+      ] }} />);
+      expect(text(html)).toContain("PO[U+200B]NS");
+      expect(text(html)).toContain("US[U+202E]DC");
+      expect(text(html)).toContain(chinese ? "含有隐藏字符" : "contains hidden characters");
+      expect(text(html)).toContain(chinese ? "Blockscout 将此代币标记为骗局" : "Blockscout marks this token as a scam");
+      expect(html).not.toContain("\u200b");
+      expect(html.indexOf("Global Dollar")).toBeLessThan(html.indexOf("PO[U+200B]NS"));
+    });
+
+    it("renders sent, received and self transactions, methods and exact positive ETH", () => {
+      language.chinese = chinese;
+      const transactions = [
+        { hash: "one", from: address, to: `0x${"2".repeat(40)}`, status: "ok", value: "1000000000000000001", decodedInput: { method_call: "approve(address spender)" } },
+        { hash: "two", from: `0x${"2".repeat(40)}`, to: address, status: "ok", value: "0", method: null },
+        { hash: "three", from: address, to: address, status: "error", value: "0", method: "0xb2460c48", failureDetail: "server-only detail" },
+      ];
+      const html = renderToStaticMarkup(<WalletTransactions facts={{ activityCoverage: "indexed_window", recentTransactions: transactions }} address={address} />);
+      for (const sentence of chinese ? ["发送", "接收", "自身", "转账", "合约调用", "失败"] : ["Sent", "Received", "Self", "Transfer", "Contract call", "Failed"]) expect(text(html)).toContain(sentence);
+      expect(text(html)).toContain("1.000000000000000001 ETH");
+      expect(text(html)).toContain("approve");
+      expect(html).not.toContain("server-only detail");
+      expect(text(html)).not.toContain("0 ETH");
+    });
+
+    it("keeps partial coverage and unavailable rows distinct", () => {
+      const html = renderToken({ ...weth.entity.facts, holderCoverage: "top_holders", activityCoverage: "unavailable", explorerUnavailableReason: "rate_limited",
+        topHolders: [{ address, label: "ExamplePool", isPool: true, isContract: true, flaggedScam: true, share: 3.7 }] });
+      expect(text(html)).toContain(chinese ? "被区块浏览器标记" : "Flagged by the explorer");
+      expect(text(html)).toContain("ExamplePool");
+      expect(html).not.toContain('data-testid="token-transfers"><h3>' + (chinese ? "近期转移" : "Recent transfers") + '</h3><p class="opsis-small">12');
+      expect(text(html)).not.toContain("0.041933053287515482");
+      const balances = renderToStaticMarkup(<WalletBalances facts={{ ...wallet.entity.facts, tokenBalanceCoverage: "unavailable" }} />);
+      expect(balances).not.toContain("<li>");
+      const transactions = renderToStaticMarkup(<WalletTransactions facts={{ ...wallet.entity.facts, activityCoverage: "unavailable" }} address={wallet.entity.value} />);
+      expect(transactions).not.toContain("<li>");
+    });
+
+    it("counts failed transactions beyond the ten displayed rows", () => {
+      language.chinese = chinese;
+      const rows = Array.from({ length: 11 }, (_, index) => ({ hash: String(index), from: address, to: address, status: index === 10 ? "error" : "ok" }));
+      const html = renderToStaticMarkup(<WalletTransactions facts={{ recentTransactions: rows }} address={address} />);
+      expect(text(html)).toContain(chinese ? "1 笔交易在此窗口中失败" : "1 failed transaction in this window");
+      expect((html.match(/<li>/g) ?? []).length).toBe(10);
+    });
+
+    for (const reason of [undefined, "daily_limit", "rate_limited", "unavailable"] as const) {
+      it(`reports missing coverage with ${reason ?? "no reason"}`, () => {
+        const facts: ResearchFacts = { holderCoverage: "unavailable", activityCoverage: "unavailable", tokenBalanceCoverage: "unavailable", explorerUnavailableReason: reason };
+        const html = renderToken(facts);
+        expect(text(html)).toContain(chinese ? "无法从 Blockscout 读取持有人数据" : "Holder data could not be read from Blockscout");
+        expect(text(html)).toContain(chinese ? "无法从 Blockscout 读取近期转移" : "Recent transfers could not be read from Blockscout");
+        const transactions = renderToStaticMarkup(<WalletTransactions facts={facts} address={address} />);
+        expect(text(transactions)).toContain(chinese ? "无法从 Blockscout 读取近期交易" : "Recent transactions could not be read from Blockscout");
+        const balances = renderToStaticMarkup(<WalletBalances facts={facts} />);
+        expect(text(balances)).toContain(chinese ? "无法从 Blockscout 读取代币余额" : "Token balances could not be read from Blockscout");
+        const rpc = renderToken({ ...facts, sourceCoverage: "rpc_sample_only", metadataCoverage: "rpc_partial" });
+        expect(rpc).toContain('data-testid="research-token-rpc-coverage"');
+        const sentence = reason === "daily_limit" ? "00:00 UTC" : reason === "rate_limited" ? (chinese ? "请在一分钟后重试" : "Try again in a minute") : reason === "unavailable" ? (chinese ? "无法从 Blockscout 读取持有人和历史数据" : "Holder and history data could not be read from Blockscout") : null;
+        if (sentence) for (const markup of [html, transactions, balances, rpc]) expect(text(markup)).toContain(sentence);
+        for (const markup of [html, transactions, balances]) {
+          expect(markup).not.toContain("<li>");
+          expect(text(markup)).not.toContain("0 holders");
+          expect(text(markup)).not.toContain("0 transactions");
+        }
+      });
+    }
+  });
+}

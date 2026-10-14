@@ -11,7 +11,7 @@ import {
 import { researchRefusal, researchRefusalCopy, type ResearchRefusal } from "./research-refusal";
 import ResearchIntro from "./ResearchIntro";
 import { KNOWN_ASSETS, resolveKnownAsset, type KnownAsset } from "./known-assets";
-import { DecodedActions, TokenFacts, WalletBalances } from "./ResearchFacts";
+import { DecodedActions, TokenFacts, WalletBalances, WalletTransactions } from "./ResearchFacts";
 import { useCopy } from "./copy";
 import { publicIdentity, workspaceIdentity, researchInputMatchesChoice, workspaceLink, type Capabilities } from "./model";
 
@@ -272,7 +272,7 @@ export default function Research({
                 {result.answer.citations[0]?.fetchedAt ?? c("Unknown", "未知")}
               </p>
               {result.entity.type === "token" ? <TokenFacts facts={result.entity.facts} />
-                : result.entity.type === "wallet" && Array.isArray(result.entity.facts.tokenBalances) ? <WalletBalances facts={result.entity.facts} />
+                : result.entity.type === "wallet" ? <><WalletBalances facts={result.entity.facts} /><WalletTransactions facts={result.entity.facts} address={result.entity.value} /></>
                   : <p className="opsis-result-copy">{result.answer.answer}</p>}
               {actions.length > 0 && <DecodedActions actions={actions} coverage={result.entity.facts.decodeCoverage} />}
               {result.entity.type === "transaction" && (() => {

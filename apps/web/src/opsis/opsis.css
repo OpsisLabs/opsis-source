@@ -1629,3 +1629,49 @@
   min-width: 88px;
   min-height: 44px;
 }
+
+/* Explorer windows use the existing compact fact and balance layout. */
+.opsis-explorer-facts {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.opsis-explorer-facts section,
+.opsis-explorer-facts h4 {
+  margin-top: 1.5rem;
+}
+.opsis-explorer-facts .opsis-metrics > div,
+.opsis-explorer-facts .opsis-metrics dd {
+  min-width: 0;
+}
+.opsis-explorer-facts .opsis-metrics dd {
+  font-size: 1rem;
+}
+.opsis-explorer-facts time {
+  cursor: help;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+.opsis-explorer-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+}
+.opsis-explorer-tags span,
+.opsis-explorer-tag {
+  border: 1px solid currentColor;
+  border-radius: .25rem;
+  padding: .1rem .3rem;
+  font-size: .75rem;
+}
+.opsis-explorer-time button {
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: .2rem 0;
+  font: inherit;
+}
+@media (max-width: 600px) {
+  .opsis-explorer-facts .opsis-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

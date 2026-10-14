@@ -1,0 +1,1845 @@
+{
+ "mode": "private",
+ "entity": {
+  "chainId": 4663,
+  "type": "token",
+  "value": "0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+  "facts": {
+   "address": "0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+   "name": "WETH",
+   "symbol": "WETH",
+   "decimals": "18",
+   "type": "ERC-20",
+   "totalSupply": "39756656303302136451718",
+   "holders": "584668",
+   "lifetimeTransfers": "486615089",
+   "exchangeRate": "2417.49",
+   "deployer": "0xE83b11Faa5693E68388785FecA3595C6805dFb9a",
+   "verified": true,
+   "proxy": true,
+   "recentTransfers": [
+    {
+     "from": "0x6e2A35A7AD683cF634D91492d73bb7FF774c6919",
+     "to": "0x0000000000000000000000000000000000000000",
+     "method": "0x0c307f76",
+     "timestamp": "2026-10-14T15:18:32.000000Z",
+     "transactionHash": "0x4cb103588795a66351847eb30de8b85450e5046a27766eea2f9ebcff4543cbc9",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "41933053287515482",
+     "formattedValue": "0.041933053287515482"
+    },
+    {
+     "from": "0x36dC95F1f088E11c0066DC19173F745655002bC2",
+     "to": "0x6e2A35A7AD683cF634D91492d73bb7FF774c6919",
+     "method": "0x0c307f76",
+     "timestamp": "2026-10-14T15:18:32.000000Z",
+     "transactionHash": "0x4cb103588795a66351847eb30de8b85450e5046a27766eea2f9ebcff4543cbc9",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "41933053287515482",
+     "formattedValue": "0.041933053287515482"
+    },
+    {
+     "from": "0x0000000000000000000000000000000000000000",
+     "to": "0x36dC95F1f088E11c0066DC19173F745655002bC2",
+     "method": "0x0c307f76",
+     "timestamp": "2026-10-14T15:18:32.000000Z",
+     "transactionHash": "0x4cb103588795a66351847eb30de8b85450e5046a27766eea2f9ebcff4543cbc9",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "41933053287515482",
+     "formattedValue": "0.041933053287515482"
+    },
+    {
+     "from": "0x51C72848c68a965f66FA7a88855F9f7784502a7F",
+     "to": "0x52e65B17fB6E5BA00Ed806f37Afcd2DaA50271Ca",
+     "method": "0xb2460c48",
+     "timestamp": "2026-10-14T15:18:32.000000Z",
+     "transactionHash": "0xdd7c6b1f793345e810f7999fc221772e6bbbd8dd59449f420e02ba099a8e41bc",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "159991105719138884",
+     "formattedValue": "0.159991105719138884"
+    },
+    {
+     "from": "0x51C72848c68a965f66FA7a88855F9f7784502a7F",
+     "to": "0x52e65B17fB6E5BA00Ed806f37Afcd2DaA50271Ca",
+     "method": "0xb2460c48",
+     "timestamp": "2026-10-14T15:18:32.000000Z",
+     "transactionHash": "0x753270c369ff9387107013598dff869beafc761710ed749b429014da06b42bdb",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "687612742532316899",
+     "formattedValue": "0.687612742532316899"
+    },
+    {
+     "from": "0x6aa80DbBed9ae5aB45FbF61f9644faDA3b29326E",
+     "to": "0x0000000000000000000000000000000000000000",
+     "method": "0x0a2b8f36",
+     "timestamp": "2026-10-14T15:18:32.000000Z",
+     "transactionHash": "0xfd2691da2e962d8dc07db75936df672b5c36950ad978c629b4710d7e89b4c243",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "18685022603151751",
+     "formattedValue": "0.018685022603151751"
+    },
+    {
+     "from": "0x178A416370769420011546C509b2D3302a271182",
+     "to": "0x6aa80DbBed9ae5aB45FbF61f9644faDA3b29326E",
+     "method": "0x0a2b8f36",
+     "timestamp": "2026-10-14T15:18:32.000000Z",
+     "transactionHash": "0xfd2691da2e962d8dc07db75936df672b5c36950ad978c629b4710d7e89b4c243",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "18685022603151751",
+     "formattedValue": "0.018685022603151751"
+    },
+    {
+     "from": "0x8C7b36c84D7Ddf623DdC126f2A7019B1581A8De5",
+     "to": "0x0000000000000000000000000000000000000000",
+     "method": "0x3593564c",
+     "timestamp": "2026-10-14T15:18:32.000000Z",
+     "transactionHash": "0x7017ed35ad8ba121c08652e35e2bd3a2782e767e9fa90e079c2f70d9f4725eb7",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "1811387775708086",
+     "formattedValue": "0.001811387775708086"
+    },
+    {
+     "from": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+     "to": "0x8C7b36c84D7Ddf623DdC126f2A7019B1581A8De5",
+     "method": "0x3593564c",
+     "timestamp": "2026-10-14T15:18:32.000000Z",
+     "transactionHash": "0x7017ed35ad8ba121c08652e35e2bd3a2782e767e9fa90e079c2f70d9f4725eb7",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "1811387775708086",
+     "formattedValue": "0.001811387775708086"
+    },
+    {
+     "from": "0xCaf681a66D020601342297493863E78C959E5cb2",
+     "to": "0xF8fE1aBEFD611C8383F95FF2C8889A333b6A60eA",
+     "method": "0x04e45aaf",
+     "timestamp": "2026-10-14T15:18:32.000000Z",
+     "transactionHash": "0x30311d5b7a01128093be3fabeac9fe7b08c5f5c93e8b8b0efa1448ca134f7a42",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "233096257040739290",
+     "formattedValue": "0.23309625704073929"
+    },
+    {
+     "from": "0x0000000000000000000000000000000000000000",
+     "to": "0xCaf681a66D020601342297493863E78C959E5cb2",
+     "method": "0x04e45aaf",
+     "timestamp": "2026-10-14T15:18:32.000000Z",
+     "transactionHash": "0x30311d5b7a01128093be3fabeac9fe7b08c5f5c93e8b8b0efa1448ca134f7a42",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "233096257040739290",
+     "formattedValue": "0.23309625704073929"
+    },
+    {
+     "from": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+     "to": "0x73D1C02e17199C0B32093c2c8e6799F82D9FCfE9",
+     "method": "0xb3938887",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x5814a1ea9182a6246cca3431c7f72bd8c53b5d701b3a24e28d6ab267a9395397",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "508211564303690942",
+     "formattedValue": "0.508211564303690942"
+    }
+   ],
+   "liquidityPoolShare": 43.1,
+   "liquidityPools": [
+    {
+     "address": "0x52e65B17fB6E5BA00Ed806f37Afcd2DaA50271Ca",
+     "label": "UniswapV3Pool",
+     "share": 16.4
+    },
+    {
+     "address": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+     "label": "PoolManager",
+     "share": 4.4
+    },
+    {
+     "address": "0x69BfaF19C9f377BB306a89aEd9F6B07e2c1a8d9a",
+     "label": "UniswapV3Pool",
+     "share": 3
+    }
+   ],
+   "top1WalletShare": 3.7,
+   "top5WalletShare": 11.7,
+   "top10WalletShare": 15,
+   "topHolders": [
+    {
+     "address": "0x52e65B17fB6E5BA00Ed806f37Afcd2DaA50271Ca",
+     "label": "UniswapV3Pool",
+     "isPool": true,
+     "isContract": true,
+     "flaggedScam": false,
+     "share": 16.44
+    },
+    {
+     "address": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+     "label": "PoolManager",
+     "isPool": true,
+     "isContract": true,
+     "flaggedScam": false,
+     "share": 4.43
+    },
+    {
+     "address": "0xCef7501b9B060a599a81735bEAD6641C0E6bAF46",
+     "label": "SafeProxy",
+     "isPool": false,
+     "isContract": true,
+     "flaggedScam": false,
+     "share": 3.68
+    },
+    {
+     "address": "0x71f2F1c2dc94cDaBFE29Cb355119f8683AE0969b",
+     "isPool": false,
+     "isContract": false,
+     "flaggedScam": false,
+     "share": 3.27
+    },
+    {
+     "address": "0x69BfaF19C9f377BB306a89aEd9F6B07e2c1a8d9a",
+     "label": "UniswapV3Pool",
+     "isPool": true,
+     "isContract": true,
+     "flaggedScam": false,
+     "share": 3.02
+    },
+    {
+     "address": "0xB7f10f74B39291b9290b779978e19A7637C742D6",
+     "label": "UniswapV3Pool",
+     "isPool": true,
+     "isContract": true,
+     "flaggedScam": false,
+     "share": 2.86
+    },
+    {
+     "address": "0x51C72848c68a965f66FA7a88855F9f7784502a7F",
+     "isPool": false,
+     "isContract": true,
+     "flaggedScam": false,
+     "share": 2.73
+    },
+    {
+     "address": "0x9B050cb1F265094b0977160a2BD7dA8C9E529c3C",
+     "label": "UniswapV3Pool",
+     "isPool": true,
+     "isContract": true,
+     "flaggedScam": false,
+     "share": 2.24
+    },
+    {
+     "address": "0x10CC6BD38112cAc182db90B6a71d8Bb5939526bA",
+     "label": "UniswapV3Pool",
+     "isPool": true,
+     "isContract": true,
+     "flaggedScam": false,
+     "share": 1.73
+    },
+    {
+     "address": "0xDDCBBa3666f578E3F09516f21Ff85BFee859AB5e",
+     "label": "UniswapV3Pool",
+     "isPool": true,
+     "isContract": true,
+     "flaggedScam": false,
+     "share": 1.53
+    }
+   ],
+   "holdersAnalyzed": 50,
+   "deployerStillHolds": 0,
+   "scamFlaggedHolders": 0,
+   "chainId": 4663,
+   "explorerUrl": "https://robinhoodchain.blockscout.com/token/0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+   "sourceIds": [
+    "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+    "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+    "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+    "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+    "dccd1665-5148-4195-8e8c-69bbd2b56436",
+    "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+    "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+    "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+    "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+    "a581cd9d-109b-44ef-b324-46a86caf40f6",
+    "13b7fd86-ee26-4c56-8f77-249c1855a3ff"
+   ]
+  },
+  "citations": [
+   {
+    "id": "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+    "fetchedAt": "2026-10-14T15:18:47.320Z",
+    "fieldsUsed": [
+     "name",
+     "symbol",
+     "decimals",
+     "total_supply",
+     "holders_count"
+    ],
+    "description": "blockscout token source data"
+   },
+   {
+    "id": "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+    "fetchedAt": "2026-10-14T15:18:49.765Z",
+    "fieldsUsed": [
+     "items[].from",
+     "items[].to",
+     "items[].token",
+     "items[].value",
+     "items[].transaction_hash"
+    ],
+    "description": "blockscout token source data"
+   },
+   {
+    "id": "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+    "fetchedAt": "2026-10-14T15:18:51.252Z",
+    "fieldsUsed": [
+     "is_verified",
+     "abi",
+     "name",
+     "proxy_type",
+     "implementations"
+    ],
+    "description": "Contract metadata and verification \u00b7 blockscout"
+   },
+   {
+    "id": "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+    "fetchedAt": "2026-10-14T15:18:49.255Z",
+    "fieldsUsed": [
+     "name",
+     "symbol",
+     "decimals",
+     "total_supply",
+     "holders_count"
+    ],
+    "description": "blockscout token source data"
+   },
+   {
+    "id": "dccd1665-5148-4195-8e8c-69bbd2b56436",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+    "fetchedAt": "2026-10-14T15:18:47.767Z",
+    "fieldsUsed": [
+     "name",
+     "symbol",
+     "decimals",
+     "total_supply",
+     "holders_count"
+    ],
+    "description": "blockscout token source data"
+   },
+   {
+    "id": "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+    "fetchedAt": "2026-10-14T15:18:51.669Z",
+    "fieldsUsed": [
+     "name",
+     "symbol",
+     "decimals",
+     "total_supply",
+     "holders_count"
+    ],
+    "description": "blockscout token source data"
+   },
+   {
+    "id": "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+    "fetchedAt": "2026-10-14T15:18:53.810Z",
+    "fieldsUsed": [
+     "items[].hash",
+     "items[].timestamp",
+     "items[].status",
+     "items[].from",
+     "items[].to",
+     "items[].value",
+     "items[].method"
+    ],
+    "description": "Indexed recent transactions \u00b7 blockscout"
+   },
+   {
+    "id": "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+    "fetchedAt": "2026-10-14T15:18:54.897Z",
+    "fieldsUsed": [
+     "items[].hash",
+     "items[].timestamp",
+     "items[].status",
+     "items[].from",
+     "items[].to",
+     "items[].value",
+     "items[].method"
+    ],
+    "description": "Indexed recent transactions \u00b7 blockscout"
+   },
+   {
+    "id": "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+    "fetchedAt": "2026-10-14T15:18:54.908Z",
+    "fieldsUsed": [
+     "items[].hash",
+     "items[].timestamp",
+     "items[].status",
+     "items[].from",
+     "items[].to",
+     "items[].value",
+     "items[].method"
+    ],
+    "description": "Indexed recent transactions \u00b7 blockscout"
+   },
+   {
+    "id": "a581cd9d-109b-44ef-b324-46a86caf40f6",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+    "fetchedAt": "2026-10-14T15:18:54.454Z",
+    "fieldsUsed": [
+     "items[].hash",
+     "items[].timestamp",
+     "items[].status",
+     "items[].from",
+     "items[].to",
+     "items[].value",
+     "items[].method"
+    ],
+    "description": "Indexed recent transactions \u00b7 blockscout"
+   },
+   {
+    "id": "13b7fd86-ee26-4c56-8f77-249c1855a3ff",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+    "fetchedAt": "2026-10-14T15:18:54.658Z",
+    "fieldsUsed": [
+     "items[].hash",
+     "items[].timestamp",
+     "items[].status",
+     "items[].from",
+     "items[].to",
+     "items[].value",
+     "items[].method"
+    ],
+    "description": "Indexed recent transactions \u00b7 blockscout"
+   }
+  ],
+  "riskNotes": [
+   {
+    "severity": "info",
+    "title": "Proxy contract detected",
+    "detail": "The available explorer metadata indicates proxy behavior. Review the current implementation contract when interpreting source code.",
+    "evidenceCitationIds": [
+     "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+     "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+     "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+     "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+     "dccd1665-5148-4195-8e8c-69bbd2b56436",
+     "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+     "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+     "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+     "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+     "a581cd9d-109b-44ef-b324-46a86caf40f6",
+     "13b7fd86-ee26-4c56-8f77-249c1855a3ff"
+    ]
+   }
+  ]
+ },
+ "answer": {
+  "answer": "This read-only risk check found 1 evidence-based signal for this token. Signals are observations, not a safety or scam verdict; this is informational only, not financial advice.",
+  "summaryBullets": [
+   "INFO: Proxy contract detected \u2014 The available explorer metadata indicates proxy behavior. Review the current implementation contract when interpreting source code."
+  ],
+  "confirmedFacts": [
+   {
+    "fact": "Address: 0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+    "sourceIds": [
+     "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+     "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+     "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+     "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+     "dccd1665-5148-4195-8e8c-69bbd2b56436",
+     "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+     "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+     "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+     "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+     "a581cd9d-109b-44ef-b324-46a86caf40f6",
+     "13b7fd86-ee26-4c56-8f77-249c1855a3ff"
+    ]
+   },
+   {
+    "fact": "Name: WETH",
+    "sourceIds": [
+     "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+     "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+     "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+     "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+     "dccd1665-5148-4195-8e8c-69bbd2b56436",
+     "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+     "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+     "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+     "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+     "a581cd9d-109b-44ef-b324-46a86caf40f6",
+     "13b7fd86-ee26-4c56-8f77-249c1855a3ff"
+    ]
+   },
+   {
+    "fact": "Symbol: WETH",
+    "sourceIds": [
+     "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+     "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+     "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+     "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+     "dccd1665-5148-4195-8e8c-69bbd2b56436",
+     "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+     "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+     "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+     "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+     "a581cd9d-109b-44ef-b324-46a86caf40f6",
+     "13b7fd86-ee26-4c56-8f77-249c1855a3ff"
+    ]
+   },
+   {
+    "fact": "Decimals: 18",
+    "sourceIds": [
+     "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+     "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+     "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+     "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+     "dccd1665-5148-4195-8e8c-69bbd2b56436",
+     "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+     "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+     "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+     "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+     "a581cd9d-109b-44ef-b324-46a86caf40f6",
+     "13b7fd86-ee26-4c56-8f77-249c1855a3ff"
+    ]
+   },
+   {
+    "fact": "Type: ERC-20",
+    "sourceIds": [
+     "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+     "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+     "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+     "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+     "dccd1665-5148-4195-8e8c-69bbd2b56436",
+     "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+     "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+     "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+     "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+     "a581cd9d-109b-44ef-b324-46a86caf40f6",
+     "13b7fd86-ee26-4c56-8f77-249c1855a3ff"
+    ]
+   },
+   {
+    "fact": "Holders: 584668",
+    "sourceIds": [
+     "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+     "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+     "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+     "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+     "dccd1665-5148-4195-8e8c-69bbd2b56436",
+     "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+     "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+     "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+     "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+     "a581cd9d-109b-44ef-b324-46a86caf40f6",
+     "13b7fd86-ee26-4c56-8f77-249c1855a3ff"
+    ]
+   },
+   {
+    "fact": "Lifetime transfers: 486615089",
+    "sourceIds": [
+     "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+     "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+     "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+     "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+     "dccd1665-5148-4195-8e8c-69bbd2b56436",
+     "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+     "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+     "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+     "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+     "a581cd9d-109b-44ef-b324-46a86caf40f6",
+     "13b7fd86-ee26-4c56-8f77-249c1855a3ff"
+    ]
+   },
+   {
+    "fact": "Exchange rate: 2417.49",
+    "sourceIds": [
+     "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+     "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+     "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+     "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+     "dccd1665-5148-4195-8e8c-69bbd2b56436",
+     "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+     "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+     "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+     "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+     "a581cd9d-109b-44ef-b324-46a86caf40f6",
+     "13b7fd86-ee26-4c56-8f77-249c1855a3ff"
+    ]
+   },
+   {
+    "fact": "Deployer: 0xE83b11Faa5693E68388785FecA3595C6805dFb9a",
+    "sourceIds": [
+     "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+     "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+     "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+     "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+     "dccd1665-5148-4195-8e8c-69bbd2b56436",
+     "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+     "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+     "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+     "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+     "a581cd9d-109b-44ef-b324-46a86caf40f6",
+     "13b7fd86-ee26-4c56-8f77-249c1855a3ff"
+    ]
+   },
+   {
+    "fact": "Verified: yes",
+    "sourceIds": [
+     "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+     "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+     "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+     "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+     "dccd1665-5148-4195-8e8c-69bbd2b56436",
+     "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+     "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+     "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+     "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+     "a581cd9d-109b-44ef-b324-46a86caf40f6",
+     "13b7fd86-ee26-4c56-8f77-249c1855a3ff"
+    ]
+   },
+   {
+    "fact": "Proxy: yes",
+    "sourceIds": [
+     "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+     "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+     "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+     "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+     "dccd1665-5148-4195-8e8c-69bbd2b56436",
+     "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+     "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+     "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+     "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+     "a581cd9d-109b-44ef-b324-46a86caf40f6",
+     "13b7fd86-ee26-4c56-8f77-249c1855a3ff"
+    ]
+   },
+   {
+    "fact": "Recent transfers: 50 items returned",
+    "sourceIds": [
+     "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+     "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+     "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+     "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+     "dccd1665-5148-4195-8e8c-69bbd2b56436",
+     "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+     "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+     "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+     "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+     "a581cd9d-109b-44ef-b324-46a86caf40f6",
+     "13b7fd86-ee26-4c56-8f77-249c1855a3ff"
+    ]
+   },
+   {
+    "fact": "Liquidity pool share: 43.1",
+    "sourceIds": [
+     "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+     "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+     "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+     "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+     "dccd1665-5148-4195-8e8c-69bbd2b56436",
+     "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+     "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+     "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+     "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+     "a581cd9d-109b-44ef-b324-46a86caf40f6",
+     "13b7fd86-ee26-4c56-8f77-249c1855a3ff"
+    ]
+   },
+   {
+    "fact": "Liquidity pools: 3 items returned",
+    "sourceIds": [
+     "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+     "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+     "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+     "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+     "dccd1665-5148-4195-8e8c-69bbd2b56436",
+     "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+     "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+     "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+     "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+     "a581cd9d-109b-44ef-b324-46a86caf40f6",
+     "13b7fd86-ee26-4c56-8f77-249c1855a3ff"
+    ]
+   },
+   {
+    "fact": "Top1 wallet share: 3.7",
+    "sourceIds": [
+     "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+     "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+     "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+     "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+     "dccd1665-5148-4195-8e8c-69bbd2b56436",
+     "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+     "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+     "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+     "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+     "a581cd9d-109b-44ef-b324-46a86caf40f6",
+     "13b7fd86-ee26-4c56-8f77-249c1855a3ff"
+    ]
+   },
+   {
+    "fact": "Top5 wallet share: 11.7",
+    "sourceIds": [
+     "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+     "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+     "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+     "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+     "dccd1665-5148-4195-8e8c-69bbd2b56436",
+     "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+     "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+     "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+     "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+     "a581cd9d-109b-44ef-b324-46a86caf40f6",
+     "13b7fd86-ee26-4c56-8f77-249c1855a3ff"
+    ]
+   },
+   {
+    "fact": "Top10 wallet share: 15",
+    "sourceIds": [
+     "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+     "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+     "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+     "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+     "dccd1665-5148-4195-8e8c-69bbd2b56436",
+     "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+     "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+     "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+     "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+     "a581cd9d-109b-44ef-b324-46a86caf40f6",
+     "13b7fd86-ee26-4c56-8f77-249c1855a3ff"
+    ]
+   },
+   {
+    "fact": "Top holders: 10 items returned",
+    "sourceIds": [
+     "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+     "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+     "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+     "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+     "dccd1665-5148-4195-8e8c-69bbd2b56436",
+     "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+     "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+     "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+     "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+     "a581cd9d-109b-44ef-b324-46a86caf40f6",
+     "13b7fd86-ee26-4c56-8f77-249c1855a3ff"
+    ]
+   },
+   {
+    "fact": "Holders analyzed: 50",
+    "sourceIds": [
+     "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+     "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+     "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+     "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+     "dccd1665-5148-4195-8e8c-69bbd2b56436",
+     "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+     "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+     "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+     "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+     "a581cd9d-109b-44ef-b324-46a86caf40f6",
+     "13b7fd86-ee26-4c56-8f77-249c1855a3ff"
+    ]
+   },
+   {
+    "fact": "Deployer still holds: 0",
+    "sourceIds": [
+     "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+     "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+     "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+     "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+     "dccd1665-5148-4195-8e8c-69bbd2b56436",
+     "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+     "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+     "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+     "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+     "a581cd9d-109b-44ef-b324-46a86caf40f6",
+     "13b7fd86-ee26-4c56-8f77-249c1855a3ff"
+    ]
+   },
+   {
+    "fact": "Scam flagged holders: 0",
+    "sourceIds": [
+     "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+     "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+     "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+     "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+     "dccd1665-5148-4195-8e8c-69bbd2b56436",
+     "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+     "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+     "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+     "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+     "a581cd9d-109b-44ef-b324-46a86caf40f6",
+     "13b7fd86-ee26-4c56-8f77-249c1855a3ff"
+    ]
+   },
+   {
+    "fact": "Total supply tokens: 39756.656303302136451718",
+    "sourceIds": [
+     "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+     "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+     "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+     "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+     "dccd1665-5148-4195-8e8c-69bbd2b56436",
+     "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+     "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+     "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+     "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+     "a581cd9d-109b-44ef-b324-46a86caf40f6",
+     "13b7fd86-ee26-4c56-8f77-249c1855a3ff"
+    ]
+   }
+  ],
+  "inferences": [],
+  "facts": {
+   "address": "0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+   "name": "WETH",
+   "symbol": "WETH",
+   "decimals": "18",
+   "type": "ERC-20",
+   "totalSupply": "39756656303302136451718",
+   "holders": "584668",
+   "lifetimeTransfers": "486615089",
+   "exchangeRate": "2417.49",
+   "deployer": "0xE83b11Faa5693E68388785FecA3595C6805dFb9a",
+   "verified": true,
+   "proxy": true,
+   "recentTransfers": [
+    {
+     "from": "0x6e2A35A7AD683cF634D91492d73bb7FF774c6919",
+     "to": "0x0000000000000000000000000000000000000000",
+     "method": "0x0c307f76",
+     "timestamp": "2026-10-14T15:18:32.000000Z",
+     "transactionHash": "0x4cb103588795a66351847eb30de8b85450e5046a27766eea2f9ebcff4543cbc9",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "41933053287515482",
+     "formattedValue": "0.041933053287515482"
+    },
+    {
+     "from": "0x36dC95F1f088E11c0066DC19173F745655002bC2",
+     "to": "0x6e2A35A7AD683cF634D91492d73bb7FF774c6919",
+     "method": "0x0c307f76",
+     "timestamp": "2026-10-14T15:18:32.000000Z",
+     "transactionHash": "0x4cb103588795a66351847eb30de8b85450e5046a27766eea2f9ebcff4543cbc9",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "41933053287515482",
+     "formattedValue": "0.041933053287515482"
+    },
+    {
+     "from": "0x0000000000000000000000000000000000000000",
+     "to": "0x36dC95F1f088E11c0066DC19173F745655002bC2",
+     "method": "0x0c307f76",
+     "timestamp": "2026-10-14T15:18:32.000000Z",
+     "transactionHash": "0x4cb103588795a66351847eb30de8b85450e5046a27766eea2f9ebcff4543cbc9",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "41933053287515482",
+     "formattedValue": "0.041933053287515482"
+    },
+    {
+     "from": "0x51C72848c68a965f66FA7a88855F9f7784502a7F",
+     "to": "0x52e65B17fB6E5BA00Ed806f37Afcd2DaA50271Ca",
+     "method": "0xb2460c48",
+     "timestamp": "2026-10-14T15:18:32.000000Z",
+     "transactionHash": "0xdd7c6b1f793345e810f7999fc221772e6bbbd8dd59449f420e02ba099a8e41bc",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "159991105719138884",
+     "formattedValue": "0.159991105719138884"
+    },
+    {
+     "from": "0x51C72848c68a965f66FA7a88855F9f7784502a7F",
+     "to": "0x52e65B17fB6E5BA00Ed806f37Afcd2DaA50271Ca",
+     "method": "0xb2460c48",
+     "timestamp": "2026-10-14T15:18:32.000000Z",
+     "transactionHash": "0x753270c369ff9387107013598dff869beafc761710ed749b429014da06b42bdb",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "687612742532316899",
+     "formattedValue": "0.687612742532316899"
+    },
+    {
+     "from": "0x6aa80DbBed9ae5aB45FbF61f9644faDA3b29326E",
+     "to": "0x0000000000000000000000000000000000000000",
+     "method": "0x0a2b8f36",
+     "timestamp": "2026-10-14T15:18:32.000000Z",
+     "transactionHash": "0xfd2691da2e962d8dc07db75936df672b5c36950ad978c629b4710d7e89b4c243",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "18685022603151751",
+     "formattedValue": "0.018685022603151751"
+    },
+    {
+     "from": "0x178A416370769420011546C509b2D3302a271182",
+     "to": "0x6aa80DbBed9ae5aB45FbF61f9644faDA3b29326E",
+     "method": "0x0a2b8f36",
+     "timestamp": "2026-10-14T15:18:32.000000Z",
+     "transactionHash": "0xfd2691da2e962d8dc07db75936df672b5c36950ad978c629b4710d7e89b4c243",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "18685022603151751",
+     "formattedValue": "0.018685022603151751"
+    },
+    {
+     "from": "0x8C7b36c84D7Ddf623DdC126f2A7019B1581A8De5",
+     "to": "0x0000000000000000000000000000000000000000",
+     "method": "0x3593564c",
+     "timestamp": "2026-10-14T15:18:32.000000Z",
+     "transactionHash": "0x7017ed35ad8ba121c08652e35e2bd3a2782e767e9fa90e079c2f70d9f4725eb7",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "1811387775708086",
+     "formattedValue": "0.001811387775708086"
+    },
+    {
+     "from": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+     "to": "0x8C7b36c84D7Ddf623DdC126f2A7019B1581A8De5",
+     "method": "0x3593564c",
+     "timestamp": "2026-10-14T15:18:32.000000Z",
+     "transactionHash": "0x7017ed35ad8ba121c08652e35e2bd3a2782e767e9fa90e079c2f70d9f4725eb7",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "1811387775708086",
+     "formattedValue": "0.001811387775708086"
+    },
+    {
+     "from": "0xCaf681a66D020601342297493863E78C959E5cb2",
+     "to": "0xF8fE1aBEFD611C8383F95FF2C8889A333b6A60eA",
+     "method": "0x04e45aaf",
+     "timestamp": "2026-10-14T15:18:32.000000Z",
+     "transactionHash": "0x30311d5b7a01128093be3fabeac9fe7b08c5f5c93e8b8b0efa1448ca134f7a42",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "233096257040739290",
+     "formattedValue": "0.23309625704073929"
+    },
+    {
+     "from": "0x0000000000000000000000000000000000000000",
+     "to": "0xCaf681a66D020601342297493863E78C959E5cb2",
+     "method": "0x04e45aaf",
+     "timestamp": "2026-10-14T15:18:32.000000Z",
+     "transactionHash": "0x30311d5b7a01128093be3fabeac9fe7b08c5f5c93e8b8b0efa1448ca134f7a42",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "233096257040739290",
+     "formattedValue": "0.23309625704073929"
+    },
+    {
+     "from": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+     "to": "0x73D1C02e17199C0B32093c2c8e6799F82D9FCfE9",
+     "method": "0xb3938887",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x5814a1ea9182a6246cca3431c7f72bd8c53b5d701b3a24e28d6ab267a9395397",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "508211564303690942",
+     "formattedValue": "0.508211564303690942"
+    },
+    {
+     "from": "0xCaf681a66D020601342297493863E78C959E5cb2",
+     "to": "0xF8fE1aBEFD611C8383F95FF2C8889A333b6A60eA",
+     "method": "0x04e45aaf",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0xb6d76a229e37896c2e21755c9f37877e194fe8f05272916766fafa4cd1bb9dad",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "511419109022190900",
+     "formattedValue": "0.5114191090221909",
+     "nativeValue": "0.5114191090221909"
+    },
+    {
+     "from": "0x0000000000000000000000000000000000000000",
+     "to": "0xCaf681a66D020601342297493863E78C959E5cb2",
+     "method": "0x04e45aaf",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0xb6d76a229e37896c2e21755c9f37877e194fe8f05272916766fafa4cd1bb9dad",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "511419109022190900",
+     "formattedValue": "0.5114191090221909",
+     "nativeValue": "0.5114191090221909"
+    },
+    {
+     "from": "0x8876789976dEcBfCbBbe364623C63652db8C0904",
+     "to": "0x52e65B17fB6E5BA00Ed806f37Afcd2DaA50271Ca",
+     "method": "0x3f707e6b",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x69332014ed6269e54411aec16bb40002fe5a2dfe544155aef1a435c96c0e2967",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "538472716981734",
+     "formattedValue": "0.000538472716981734"
+    },
+    {
+     "from": "0x0000000000000000000000000000000000000000",
+     "to": "0x8876789976dEcBfCbBbe364623C63652db8C0904",
+     "method": "0x3f707e6b",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x69332014ed6269e54411aec16bb40002fe5a2dfe544155aef1a435c96c0e2967",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "538472716981734",
+     "formattedValue": "0.000538472716981734"
+    },
+    {
+     "from": "0xBd5cd6515ca6285941FbC177381dC8ED4844e6b8",
+     "to": "0x05cBE1b2f0579b9249C7eE93F126bF2Fa90371a4",
+     "method": "0x3f707e6b",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x69332014ed6269e54411aec16bb40002fe5a2dfe544155aef1a435c96c0e2967",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "3005911067060",
+     "formattedValue": "0.00000300591106706"
+    },
+    {
+     "from": "0xEd50bDeeA8aDC232f159486192a4157281D722ff",
+     "to": "0x05cBE1b2f0579b9249C7eE93F126bF2Fa90371a4",
+     "method": "0x3f707e6b",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x69332014ed6269e54411aec16bb40002fe5a2dfe544155aef1a435c96c0e2967",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "66135093813025",
+     "formattedValue": "0.000066135093813025"
+    },
+    {
+     "from": "0xc4a21f9d6485FC5893DD4A491B320a83DAF4Da1D",
+     "to": "0x05cBE1b2f0579b9249C7eE93F126bF2Fa90371a4",
+     "method": "0x3f707e6b",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x69332014ed6269e54411aec16bb40002fe5a2dfe544155aef1a435c96c0e2967",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "159528152189506",
+     "formattedValue": "0.000159528152189506"
+    },
+    {
+     "from": "0xC3c9F0171490Ef0F4536fe493F3b0EbB5ee0CB5e",
+     "to": "0x05cBE1b2f0579b9249C7eE93F126bF2Fa90371a4",
+     "method": "0x3f707e6b",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x69332014ed6269e54411aec16bb40002fe5a2dfe544155aef1a435c96c0e2967",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "10737058949807",
+     "formattedValue": "0.000010737058949807"
+    },
+    {
+     "from": "0xd42A491087a15E5afd51FEb3606066Cc152d2b09",
+     "to": "0x05cBE1b2f0579b9249C7eE93F126bF2Fa90371a4",
+     "method": "0x3f707e6b",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x69332014ed6269e54411aec16bb40002fe5a2dfe544155aef1a435c96c0e2967",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "369872164091649",
+     "formattedValue": "0.000369872164091649"
+    },
+    {
+     "from": "0x62AB521f71431f78ac374CdbadC6cda3c8916b6C",
+     "to": "0x05cBE1b2f0579b9249C7eE93F126bF2Fa90371a4",
+     "method": "0x3f707e6b",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x69332014ed6269e54411aec16bb40002fe5a2dfe544155aef1a435c96c0e2967",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "11009483359975",
+     "formattedValue": "0.000011009483359975"
+    },
+    {
+     "from": "0x6aa80DbBed9ae5aB45FbF61f9644faDA3b29326E",
+     "to": "0x0000000000000000000000000000000000000000",
+     "method": "0x2213bc0b",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x7fcd3447e67a7183903df41daa2437c80675d32bcdf8263c4e55332b0e3105ae",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "237815817783688",
+     "formattedValue": "0.000237815817783688"
+    },
+    {
+     "from": "0xD64FbdA67E1015dF43Fa5e49F02cA844729E5F94",
+     "to": "0x6aa80DbBed9ae5aB45FbF61f9644faDA3b29326E",
+     "method": "0x2213bc0b",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x7fcd3447e67a7183903df41daa2437c80675d32bcdf8263c4e55332b0e3105ae",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "237815817783688",
+     "formattedValue": "0.000237815817783688"
+    },
+    {
+     "from": "0x86b2A6caC0ddD37F57bBE0Def3DCcF654e0C5315",
+     "to": "0x0DCE728253F2Ee31BF1a82B68713E29350fd1b45",
+     "method": "0x00000001",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x5d37c86b89ced3bedb0c6ea701aaf763dc40a99f7e7e8038f192e5b060d170ce",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "18351558966430",
+     "formattedValue": "0.00001835155896643"
+    },
+    {
+     "from": "0x86b2A6caC0ddD37F57bBE0Def3DCcF654e0C5315",
+     "to": "0xDec74a2AfABD34aA6f268c5161D2E9e210ca7185",
+     "method": "0x00000001",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x5d37c86b89ced3bedb0c6ea701aaf763dc40a99f7e7e8038f192e5b060d170ce",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "2322282000000000",
+     "formattedValue": "0.002322282"
+    },
+    {
+     "from": "0x0310Ea1560B9f6DD55e8Db1c5f80bd506DafC116",
+     "to": "0x86b2A6caC0ddD37F57bBE0Def3DCcF654e0C5315",
+     "method": "0x00000001",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x5d37c86b89ced3bedb0c6ea701aaf763dc40a99f7e7e8038f192e5b060d170ce",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "2340633558966430",
+     "formattedValue": "0.00234063355896643"
+    },
+    {
+     "from": "0x8F10B468b06c6FD214B65F87778827F7D113f996",
+     "to": "0x52e65B17fB6E5BA00Ed806f37Afcd2DaA50271Ca",
+     "method": "0x765e827f",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x15d61536aa34531b1e5a04c5977815459c2a8836382d9ab9f14610a1027a8328",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "134012607714466775",
+     "formattedValue": "0.134012607714466775"
+    },
+    {
+     "from": "0xDec74a2AfABD34aA6f268c5161D2E9e210ca7185",
+     "to": "0x8F10B468b06c6FD214B65F87778827F7D113f996",
+     "method": "0x765e827f",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x15d61536aa34531b1e5a04c5977815459c2a8836382d9ab9f14610a1027a8328",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "134012607714466775",
+     "formattedValue": "0.134012607714466775"
+    },
+    {
+     "from": "0x8876789976dEcBfCbBbe364623C63652db8C0904",
+     "to": "0x2aE99f7Bc011325e03Aae5406127B8398c7C697A",
+     "method": "0x3593564c",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0xf374ecb3695fe734e5ef1d4247cb9d4de857e23ad2d8000cd2cbc7ca7a9dfeb5",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "70000000000000000",
+     "formattedValue": "0.07"
+    },
+    {
+     "from": "0x0000000000000000000000000000000000000000",
+     "to": "0x8876789976dEcBfCbBbe364623C63652db8C0904",
+     "method": "0x3593564c",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0xf374ecb3695fe734e5ef1d4247cb9d4de857e23ad2d8000cd2cbc7ca7a9dfeb5",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "70000000000000000",
+     "formattedValue": "0.07"
+    },
+    {
+     "from": "0xccE581F206E26f105B8c09E85E92C57EDAe23673",
+     "to": "0xC3c9F0171490Ef0F4536fe493F3b0EbB5ee0CB5e",
+     "method": "0x266acf9d",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x3f64a808361b4420da70470868108a656fdaa6d6d34b69d13f293ad0e2799e70",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "25702836421023712",
+     "formattedValue": "0.025702836421023712"
+    },
+    {
+     "from": "0x278d858f05b94576C1E6f73285886876ff6eF8D2",
+     "to": "0x3e1afDe90341F843c941fF4077d915bDE3008c7E",
+     "method": "0xa00597a0",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0xcca90c3823205c8d0d64f9010ee2c496d069d4ab63eaf7da55fc623a67b2d7d4",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "59513892001681848",
+     "formattedValue": "0.059513892001681848"
+    },
+    {
+     "from": "0x8876789976dEcBfCbBbe364623C63652db8C0904",
+     "to": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+     "method": "0x3593564c",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0xa99448183934c3770d0ff5b42ece2714f6d3e87369407b17633c6a068af1ba0d",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "25000000000000000",
+     "formattedValue": "0.025"
+    },
+    {
+     "from": "0x0000000000000000000000000000000000000000",
+     "to": "0x8876789976dEcBfCbBbe364623C63652db8C0904",
+     "method": "0x3593564c",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0xa99448183934c3770d0ff5b42ece2714f6d3e87369407b17633c6a068af1ba0d",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "25000000000000000",
+     "formattedValue": "0.025"
+    },
+    {
+     "from": "0x7Ee140DCd065403b58F5271d7feA670f761E285F",
+     "to": "0x9b169052Ee1569Ec5bDF51DbF48D2962526cF6D9",
+     "method": "0x02000000",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x35ab1940f56b313a55bcfa390f4d38b71a51da370683c5cc4d9df2b3d43c276f",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "129327205515140367",
+     "formattedValue": "0.129327205515140367"
+    },
+    {
+     "from": "0x0000000000000000000000000000000000000000",
+     "to": "0x7Ee140DCd065403b58F5271d7feA670f761E285F",
+     "method": "0x02000000",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x35ab1940f56b313a55bcfa390f4d38b71a51da370683c5cc4d9df2b3d43c276f",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "129327205515140367",
+     "formattedValue": "0.129327205515140367"
+    },
+    {
+     "from": "0x3e1afDe90341F843c941fF4077d915bDE3008c7E",
+     "to": "0x9b169052Ee1569Ec5bDF51DbF48D2962526cF6D9",
+     "method": "0x00003e1a",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0xeed6c2af1c07c6ebf08ec06e8cd337595324c34964538d11f3126278b25520f9",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "129524361492533583",
+     "formattedValue": "0.129524361492533583"
+    },
+    {
+     "from": "0x52e65B17fB6E5BA00Ed806f37Afcd2DaA50271Ca",
+     "to": "0x51C72848c68a965f66FA7a88855F9f7784502a7F",
+     "method": "0xb2460c48",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0xc7f00022f9dce1e03725341330b348e1f7c50894a37021c3d0da33149eb1c9ee",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "433555315898808012",
+     "formattedValue": "0.433555315898808012"
+    },
+    {
+     "from": "0x52e65B17fB6E5BA00Ed806f37Afcd2DaA50271Ca",
+     "to": "0x51C72848c68a965f66FA7a88855F9f7784502a7F",
+     "method": "0xb2460c48",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0xe416bb6d4d7b20c2c8318a0a7b47d5e9867863bc7d8db04547624ea04769f560",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "763752926652831373",
+     "formattedValue": "0.763752926652831373"
+    },
+    {
+     "from": "0x8876789976dEcBfCbBbe364623C63652db8C0904",
+     "to": "0x1627A5C85Bb3188FE620f6f443A95B202E561B16",
+     "method": "0xe6cb474f",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x42468f994e3e6264b3a8f5ede0dc28a6bf65b80b33543ff90b41a43f3f5e0a95",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "4560000000000000",
+     "formattedValue": "0.00456"
+    },
+    {
+     "from": "0x0000000000000000000000000000000000000000",
+     "to": "0x8876789976dEcBfCbBbe364623C63652db8C0904",
+     "method": "0xe6cb474f",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x42468f994e3e6264b3a8f5ede0dc28a6bf65b80b33543ff90b41a43f3f5e0a95",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "4560000000000000",
+     "formattedValue": "0.00456"
+    },
+    {
+     "from": "0x6aa80DbBed9ae5aB45FbF61f9644faDA3b29326E",
+     "to": "0xF4D0171f995D576b972Aa982080eAf4dA456Cf9e",
+     "method": "0x765e827f",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x0a82a62306632295fcf5526588bd59f3a5f06922a23bc34bd01143b180f983d0",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "2622180832898439",
+     "formattedValue": "0.002622180832898439"
+    },
+    {
+     "from": "0x6aa80DbBed9ae5aB45FbF61f9644faDA3b29326E",
+     "to": "0x52e65B17fB6E5BA00Ed806f37Afcd2DaA50271Ca",
+     "method": "0x765e827f",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x0a82a62306632295fcf5526588bd59f3a5f06922a23bc34bd01143b180f983d0",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "57549943470613390",
+     "formattedValue": "0.05754994347061339"
+    },
+    {
+     "from": "0x0000000000000000000000000000000000000000",
+     "to": "0x6aa80DbBed9ae5aB45FbF61f9644faDA3b29326E",
+     "method": "0x765e827f",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x0a82a62306632295fcf5526588bd59f3a5f06922a23bc34bd01143b180f983d0",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "60172124303511829",
+     "formattedValue": "0.060172124303511829"
+    },
+    {
+     "from": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+     "to": "0x20341b2ECf40125a1102324237550a8A68F74C7C",
+     "method": "0xb3938887",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x041323689ef1626d3bfd523b65129fa2b60d61cfcde49706cba764008450a8c4",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "978059901297740627",
+     "formattedValue": "0.978059901297740627"
+    },
+    {
+     "from": "0xe492912F37C2A4eCa45D42DC67548F4C6Cd7ce2B",
+     "to": "0x0000000000000000000000000000000000000000",
+     "method": "0x4d819a2a",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x87771c18b5f07f6f2cde854773bb27ce14e597bb1a5a3dfc107247fc867d1082",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "164476393772412392",
+     "formattedValue": "0.164476393772412392"
+    },
+    {
+     "from": "0x69BfaF19C9f377BB306a89aEd9F6B07e2c1a8d9a",
+     "to": "0xe492912F37C2A4eCa45D42DC67548F4C6Cd7ce2B",
+     "method": "0x4d819a2a",
+     "timestamp": "2026-10-14T15:18:31.000000Z",
+     "transactionHash": "0x87771c18b5f07f6f2cde854773bb27ce14e597bb1a5a3dfc107247fc867d1082",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "164476393772412392",
+     "formattedValue": "0.164476393772412392"
+    },
+    {
+     "from": "0x0000317Bec33Af037b5fAb2028f52d14658F6A56",
+     "to": "0x0000000000000000000000000000000000000000",
+     "method": "messageIn",
+     "timestamp": "2026-10-14T15:18:30.000000Z",
+     "transactionHash": "0x45eed784d8e3082edb5f895e75cc1b0462ab2780c144c0c98ce6ca1a0b05cfd8",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "54300902218741345",
+     "formattedValue": "0.054300902218741345"
+    },
+    {
+     "from": "0x52e65B17fB6E5BA00Ed806f37Afcd2DaA50271Ca",
+     "to": "0x9b169052Ee1569Ec5bDF51DbF48D2962526cF6D9",
+     "method": "0x000052e6",
+     "timestamp": "2026-10-14T15:18:30.000000Z",
+     "transactionHash": "0xa89bd98c353e93778e3c4e6e2f2e56f8575de281ce099466e6ba24e41e16e8ce",
+     "tokenAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+     "tokenName": "WETH",
+     "tokenSymbol": "WETH",
+     "tokenType": "ERC-20",
+     "rawValue": "400042359411704561",
+     "formattedValue": "0.400042359411704561"
+    }
+   ],
+   "liquidityPoolShare": 43.1,
+   "liquidityPools": [
+    {
+     "address": "0x52e65B17fB6E5BA00Ed806f37Afcd2DaA50271Ca",
+     "label": "UniswapV3Pool",
+     "share": 16.4
+    },
+    {
+     "address": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+     "label": "PoolManager",
+     "share": 4.4
+    },
+    {
+     "address": "0x69BfaF19C9f377BB306a89aEd9F6B07e2c1a8d9a",
+     "label": "UniswapV3Pool",
+     "share": 3
+    }
+   ],
+   "top1WalletShare": 3.7,
+   "top5WalletShare": 11.7,
+   "top10WalletShare": 15,
+   "topHolders": [
+    {
+     "address": "0x52e65B17fB6E5BA00Ed806f37Afcd2DaA50271Ca",
+     "label": "UniswapV3Pool",
+     "isPool": true,
+     "isContract": true,
+     "flaggedScam": false,
+     "share": 16.44
+    },
+    {
+     "address": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+     "label": "PoolManager",
+     "isPool": true,
+     "isContract": true,
+     "flaggedScam": false,
+     "share": 4.43
+    },
+    {
+     "address": "0xCef7501b9B060a599a81735bEAD6641C0E6bAF46",
+     "label": "SafeProxy",
+     "isPool": false,
+     "isContract": true,
+     "flaggedScam": false,
+     "share": 3.68
+    },
+    {
+     "address": "0x71f2F1c2dc94cDaBFE29Cb355119f8683AE0969b",
+     "isPool": false,
+     "isContract": false,
+     "flaggedScam": false,
+     "share": 3.27
+    },
+    {
+     "address": "0x69BfaF19C9f377BB306a89aEd9F6B07e2c1a8d9a",
+     "label": "UniswapV3Pool",
+     "isPool": true,
+     "isContract": true,
+     "flaggedScam": false,
+     "share": 3.02
+    },
+    {
+     "address": "0xB7f10f74B39291b9290b779978e19A7637C742D6",
+     "label": "UniswapV3Pool",
+     "isPool": true,
+     "isContract": true,
+     "flaggedScam": false,
+     "share": 2.86
+    },
+    {
+     "address": "0x51C72848c68a965f66FA7a88855F9f7784502a7F",
+     "isPool": false,
+     "isContract": true,
+     "flaggedScam": false,
+     "share": 2.73
+    },
+    {
+     "address": "0x9B050cb1F265094b0977160a2BD7dA8C9E529c3C",
+     "label": "UniswapV3Pool",
+     "isPool": true,
+     "isContract": true,
+     "flaggedScam": false,
+     "share": 2.24
+    },
+    {
+     "address": "0x10CC6BD38112cAc182db90B6a71d8Bb5939526bA",
+     "label": "UniswapV3Pool",
+     "isPool": true,
+     "isContract": true,
+     "flaggedScam": false,
+     "share": 1.73
+    },
+    {
+     "address": "0xDDCBBa3666f578E3F09516f21Ff85BFee859AB5e",
+     "label": "UniswapV3Pool",
+     "isPool": true,
+     "isContract": true,
+     "flaggedScam": false,
+     "share": 1.53
+    }
+   ],
+   "holdersAnalyzed": 50,
+   "deployerStillHolds": 0,
+   "scamFlaggedHolders": 0,
+   "chainId": 4663,
+   "explorerUrl": "https://robinhoodchain.blockscout.com/token/0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+   "sourceIds": [
+    "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+    "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+    "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+    "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+    "dccd1665-5148-4195-8e8c-69bbd2b56436",
+    "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+    "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+    "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+    "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+    "a581cd9d-109b-44ef-b324-46a86caf40f6",
+    "13b7fd86-ee26-4c56-8f77-249c1855a3ff"
+   ]
+  },
+  "uncertainty": [
+   "Provider data may be incomplete or temporarily unavailable.",
+   "Risk notes are heuristic signals, not guarantees of safety or malicious intent."
+  ],
+  "riskNotes": [
+   {
+    "severity": "info",
+    "title": "Proxy contract detected",
+    "detail": "The available explorer metadata indicates proxy behavior. Review the current implementation contract when interpreting source code.",
+    "evidenceCitationIds": [
+     "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+     "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+     "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+     "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+     "dccd1665-5148-4195-8e8c-69bbd2b56436",
+     "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+     "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+     "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+     "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+     "a581cd9d-109b-44ef-b324-46a86caf40f6",
+     "13b7fd86-ee26-4c56-8f77-249c1855a3ff"
+    ]
+   }
+  ],
+  "citations": [
+   {
+    "id": "2c3e5c62-2488-45ff-b122-03e5c6ec4477",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+    "fetchedAt": "2026-10-14T15:18:47.320Z",
+    "fieldsUsed": [
+     "name",
+     "symbol",
+     "decimals",
+     "total_supply",
+     "holders_count"
+    ],
+    "description": "blockscout token source data"
+   },
+   {
+    "id": "3035ce8a-3915-423e-ab83-61b1c0633eb6",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+    "fetchedAt": "2026-10-14T15:18:49.765Z",
+    "fieldsUsed": [
+     "items[].from",
+     "items[].to",
+     "items[].token",
+     "items[].value",
+     "items[].transaction_hash"
+    ],
+    "description": "blockscout token source data"
+   },
+   {
+    "id": "4d790e56-d60d-40da-bd34-b5e51d04ef3c",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+    "fetchedAt": "2026-10-14T15:18:51.252Z",
+    "fieldsUsed": [
+     "is_verified",
+     "abi",
+     "name",
+     "proxy_type",
+     "implementations"
+    ],
+    "description": "Contract metadata and verification \u00b7 blockscout"
+   },
+   {
+    "id": "c4bc20ab-2d8b-48bf-a5df-9e89dc2f357e",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+    "fetchedAt": "2026-10-14T15:18:49.255Z",
+    "fieldsUsed": [
+     "name",
+     "symbol",
+     "decimals",
+     "total_supply",
+     "holders_count"
+    ],
+    "description": "blockscout token source data"
+   },
+   {
+    "id": "dccd1665-5148-4195-8e8c-69bbd2b56436",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+    "fetchedAt": "2026-10-14T15:18:47.767Z",
+    "fieldsUsed": [
+     "name",
+     "symbol",
+     "decimals",
+     "total_supply",
+     "holders_count"
+    ],
+    "description": "blockscout token source data"
+   },
+   {
+    "id": "468b53ff-2eb6-4fcb-8015-b49ee4656f33",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+    "fetchedAt": "2026-10-14T15:18:51.669Z",
+    "fieldsUsed": [
+     "name",
+     "symbol",
+     "decimals",
+     "total_supply",
+     "holders_count"
+    ],
+    "description": "blockscout token source data"
+   },
+   {
+    "id": "a3171ded-37e6-4cc1-8f10-e6da1f042162",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+    "fetchedAt": "2026-10-14T15:18:53.810Z",
+    "fieldsUsed": [
+     "items[].hash",
+     "items[].timestamp",
+     "items[].status",
+     "items[].from",
+     "items[].to",
+     "items[].value",
+     "items[].method"
+    ],
+    "description": "Indexed recent transactions \u00b7 blockscout"
+   },
+   {
+    "id": "a44d6290-6301-44cb-8b05-f7c82f7ebedc",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+    "fetchedAt": "2026-10-14T15:18:54.897Z",
+    "fieldsUsed": [
+     "items[].hash",
+     "items[].timestamp",
+     "items[].status",
+     "items[].from",
+     "items[].to",
+     "items[].value",
+     "items[].method"
+    ],
+    "description": "Indexed recent transactions \u00b7 blockscout"
+   },
+   {
+    "id": "79c0158e-6768-4adf-8fa0-b8e4b45974ba",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+    "fetchedAt": "2026-10-14T15:18:54.908Z",
+    "fieldsUsed": [
+     "items[].hash",
+     "items[].timestamp",
+     "items[].status",
+     "items[].from",
+     "items[].to",
+     "items[].value",
+     "items[].method"
+    ],
+    "description": "Indexed recent transactions \u00b7 blockscout"
+   },
+   {
+    "id": "a581cd9d-109b-44ef-b324-46a86caf40f6",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+    "fetchedAt": "2026-10-14T15:18:54.454Z",
+    "fieldsUsed": [
+     "items[].hash",
+     "items[].timestamp",
+     "items[].status",
+     "items[].from",
+     "items[].to",
+     "items[].value",
+     "items[].method"
+    ],
+    "description": "Indexed recent transactions \u00b7 blockscout"
+   },
+   {
+    "id": "13b7fd86-ee26-4c56-8f77-249c1855a3ff",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+    "fetchedAt": "2026-10-14T15:18:54.658Z",
+    "fieldsUsed": [
+     "items[].hash",
+     "items[].timestamp",
+     "items[].status",
+     "items[].from",
+     "items[].to",
+     "items[].value",
+     "items[].method"
+    ],
+    "description": "Indexed recent transactions \u00b7 blockscout"
+   }
+  ],
+  "suggestedQuestions": [
+   "What source data supports this answer?",
+   "Summarize recent activity for this address.",
+   "Are there any evidence-based risk notes?"
+  ],
+  "suggestedFollowUps": [
+   "What source data supports this answer?",
+   "Summarize recent activity for this address.",
+   "Are there any evidence-based risk notes?"
+  ]
+ },
+ "privacy": {
+  "accountRequired": false,
+  "walletConnectionRequired": false,
+  "serverStorage": "none",
+  "browserStorage": "memory_only",
+  "clearsOnReload": true,
+  "modelProvider": "none",
+  "providerDestinations": [
+   "blockscout"
+  ],
+  "disclosure": "Only the public chain identifier is user-supplied to the listed data providers. When indexer balances are unavailable, the dRPC Robinhood Chain gateway may also receive Opsis's fixed 12-contract reviewed sample in one read-only balance call. dRPC is a paid gateway that may route each read to an independent node operator in its network. Your question is not sent to providers or to a model provider."
+ }
+}

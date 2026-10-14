@@ -1,0 +1,1811 @@
+{
+ "mode": "private",
+ "entity": {
+  "chainId": 4663,
+  "type": "token",
+  "value": "0x39dbed3a2bd333467115de45665cc57f813c4571",
+  "facts": {
+   "address": "0x39dbed3a2bd333467115de45665cc57f813c4571",
+   "name": "Pons",
+   "symbol": "PONS",
+   "decimals": "18",
+   "type": "ERC-20",
+   "totalSupply": "1000000000000000000000000000",
+   "holders": "104252",
+   "lifetimeTransfers": "12865084",
+   "exchangeRate": "0.334198",
+   "verified": true,
+   "proxy": false,
+   "recentTransfers": [
+    {
+     "from": "0xb92fe925DC43a0ECdE6c8b1a2709c170Ec4fFf4f",
+     "to": "0x0a5aD16307590df023dD8948592f84B89C3Db829",
+     "method": "0x0a2b8f36",
+     "timestamp": "2026-10-14T15:24:14.000000Z",
+     "transactionHash": "0x92714397815c709d1eca124f77ac95893d85fc26406080453552844dd983e625",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "87847571979295188530",
+     "formattedValue": "87.84757197929518853"
+    },
+    {
+     "from": "0x48A097DF16c7844a33B1c3d11aB353457846e13F",
+     "to": "0xb92fe925DC43a0ECdE6c8b1a2709c170Ec4fFf4f",
+     "method": "0x0a2b8f36",
+     "timestamp": "2026-10-14T15:24:14.000000Z",
+     "transactionHash": "0x92714397815c709d1eca124f77ac95893d85fc26406080453552844dd983e625",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "87847571979295188530",
+     "formattedValue": "87.84757197929518853"
+    },
+    {
+     "from": "0x46534760B24aBE79AafdD82d4a37681DEc311133",
+     "to": "0x48A097DF16c7844a33B1c3d11aB353457846e13F",
+     "method": "0x0a2b8f36",
+     "timestamp": "2026-10-14T15:24:14.000000Z",
+     "transactionHash": "0x92714397815c709d1eca124f77ac95893d85fc26406080453552844dd983e625",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "15252924452734275479",
+     "formattedValue": "15.252924452734275479"
+    },
+    {
+     "from": "0xEC9Aa0a6c2372131a0502ABA6188269Ab52CACb5",
+     "to": "0x48A097DF16c7844a33B1c3d11aB353457846e13F",
+     "method": "0x0a2b8f36",
+     "timestamp": "2026-10-14T15:24:14.000000Z",
+     "transactionHash": "0x92714397815c709d1eca124f77ac95893d85fc26406080453552844dd983e625",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "72594647526560913051",
+     "formattedValue": "72.594647526560913051"
+    },
+    {
+     "from": "0x5A3571DcA43ECAFCd670e87a6EaF6DE0e2d70954",
+     "to": "0xEC9Aa0a6c2372131a0502ABA6188269Ab52CACb5",
+     "method": "0x0a2b8f36",
+     "timestamp": "2026-10-14T15:24:14.000000Z",
+     "transactionHash": "0x92714397815c709d1eca124f77ac95893d85fc26406080453552844dd983e625",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "72594647526560913051",
+     "formattedValue": "72.594647526560913051"
+    },
+    {
+     "from": "0x9990de5A2eadFa50112077dAE6630864d29ac309",
+     "to": "0x0CFd7a9Cf876e3779359653caC2dE7A1Fe0E15A5",
+     "method": "0x67853654",
+     "timestamp": "2026-10-14T15:24:14.000000Z",
+     "transactionHash": "0x574394875216fc48510239a39ebd1ce33ed3a2206cf41c7421fd56b4d6b2dc7e",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "73263672416430327159",
+     "formattedValue": "73.263672416430327159"
+    },
+    {
+     "from": "0x808b25668031dA5e46A1E487cc59E1E2CC9D1794",
+     "to": "0xFb66dFA5A5BdDaf82fafF88f9Fc5A21F13e9E27F",
+     "method": "0x4c5ae641",
+     "timestamp": "2026-10-14T15:24:14.000000Z",
+     "transactionHash": "0xd14369e0453cc1f8a128f2890ad2c64834fffabd5fdcb5837c750e8c44c42c58",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "21689923976570124044",
+     "formattedValue": "21.689923976570124044"
+    },
+    {
+     "from": "0x808b25668031dA5e46A1E487cc59E1E2CC9D1794",
+     "to": "0xf2A0bE59AB76b96f957bd5E5b967F2B75e8dB269",
+     "method": "0x4c5ae641",
+     "timestamp": "2026-10-14T15:24:14.000000Z",
+     "transactionHash": "0xd14369e0453cc1f8a128f2890ad2c64834fffabd5fdcb5837c750e8c44c42c58",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "64170492531934253330",
+     "formattedValue": "64.17049253193425333"
+    },
+    {
+     "from": "0xFb66dFA5A5BdDaf82fafF88f9Fc5A21F13e9E27F",
+     "to": "0x808b25668031dA5e46A1E487cc59E1E2CC9D1794",
+     "method": "0x4c5ae641",
+     "timestamp": "2026-10-14T15:24:14.000000Z",
+     "transactionHash": "0xd14369e0453cc1f8a128f2890ad2c64834fffabd5fdcb5837c750e8c44c42c58",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "85860416508504377374",
+     "formattedValue": "85.860416508504377374"
+    },
+    {
+     "from": "0x8F10B468b06c6FD214B65F87778827F7D113f996",
+     "to": "0x9990de5A2eadFa50112077dAE6630864d29ac309",
+     "method": "0x4c5ae641",
+     "timestamp": "2026-10-14T15:24:14.000000Z",
+     "transactionHash": "0xd14369e0453cc1f8a128f2890ad2c64834fffabd5fdcb5837c750e8c44c42c58",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "46297751685617533137",
+     "formattedValue": "46.297751685617533137"
+    },
+    {
+     "from": "0x297100BBb2921BE14e90FF2819639b58A5B3996c",
+     "to": "0x8F10B468b06c6FD214B65F87778827F7D113f996",
+     "method": "0x4c5ae641",
+     "timestamp": "2026-10-14T15:24:14.000000Z",
+     "transactionHash": "0xd14369e0453cc1f8a128f2890ad2c64834fffabd5fdcb5837c750e8c44c42c58",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "46297751685617533137",
+     "formattedValue": "46.297751685617533137"
+    },
+    {
+     "from": "0xFb66dFA5A5BdDaf82fafF88f9Fc5A21F13e9E27F",
+     "to": "0x297100BBb2921BE14e90FF2819639b58A5B3996c",
+     "method": "0x4c5ae641",
+     "timestamp": "2026-10-14T15:24:14.000000Z",
+     "transactionHash": "0xd14369e0453cc1f8a128f2890ad2c64834fffabd5fdcb5837c750e8c44c42c58",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "46297751685617533137",
+     "formattedValue": "46.297751685617533137"
+    }
+   ],
+   "liquidityPoolShare": 2.2,
+   "liquidityPools": [
+    {
+     "address": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+     "label": "PoolManager",
+     "share": 1.1
+    },
+    {
+     "address": "0x10CC6BD38112cAc182db90B6a71d8Bb5939526bA",
+     "label": "UniswapV3Pool",
+     "share": 0.5
+    },
+    {
+     "address": "0xEd50bDeeA8aDC232f159486192a4157281D722ff",
+     "label": "UniswapV3Pool",
+     "share": 0.4
+    }
+   ],
+   "top1WalletShare": 32.5,
+   "top5WalletShare": 47.4,
+   "top10WalletShare": 53,
+   "topHolders": [
+    {
+     "address": "0x000000000000000000000000000000000000dEaD",
+     "isPool": false,
+     "isContract": false,
+     "flaggedScam": false,
+     "share": 32.45
+    },
+    {
+     "address": "0xB995B91882F5990e5aB3Cc4700b66b20A66C4C79",
+     "isPool": false,
+     "isContract": false,
+     "flaggedScam": false,
+     "share": 5.43
+    },
+    {
+     "address": "0xC882b111A75C0c657fC507C04FbFcD2cC984F071",
+     "isPool": false,
+     "isContract": false,
+     "flaggedScam": false,
+     "share": 4.98
+    },
+    {
+     "address": "0xa64723bFdc2805c4Ad09c509983cfd85362298BA",
+     "isPool": false,
+     "isContract": false,
+     "flaggedScam": false,
+     "share": 2.86
+    },
+    {
+     "address": "0xc0E17AD342AFABD36b3971F8305fF147006962ae",
+     "isPool": false,
+     "isContract": false,
+     "flaggedScam": false,
+     "share": 1.63
+    },
+    {
+     "address": "0x2dBAf98620aC5Bbe3441f756fEfF82702D095b1a",
+     "isPool": false,
+     "isContract": false,
+     "flaggedScam": false,
+     "share": 1.16
+    },
+    {
+     "address": "0xED9Ab5BC05A0152B9dC2f7902e8369Af7bC18771",
+     "isPool": false,
+     "isContract": false,
+     "flaggedScam": false,
+     "share": 1.13
+    },
+    {
+     "address": "0x73D8bD54F7Cf5FAb43fE4Ef40A62D390644946Db",
+     "label": "ERC1967Proxy",
+     "isPool": false,
+     "isContract": true,
+     "flaggedScam": false,
+     "share": 1.12
+    },
+    {
+     "address": "0x0a6EBEd0155EDB4b21D92AD02897A626CD90119E",
+     "isPool": false,
+     "isContract": true,
+     "flaggedScam": false,
+     "share": 1.1
+    },
+    {
+     "address": "0x0823F50a6cAeB5f70A8A43B6521a3a4c3b6E312A",
+     "isPool": false,
+     "isContract": false,
+     "flaggedScam": false,
+     "share": 1.09
+    }
+   ],
+   "holdersAnalyzed": 50,
+   "scamFlaggedHolders": 0,
+   "chainId": 4663,
+   "explorerUrl": "https://robinhoodchain.blockscout.com/token/0x39dbed3a2bd333467115de45665cc57f813c4571",
+   "sourceIds": [
+    "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+    "263c8f09-dc95-4ad0-b5a9-761805b58406",
+    "a97b953c-8999-4162-b448-3c1f042a2fb8",
+    "b038213a-3bce-46ef-b1fb-fbd178aab881",
+    "7165b299-8bed-4963-93ff-78fb15005eba",
+    "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+    "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+    "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+    "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+    "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+   ]
+  },
+  "citations": [
+   {
+    "id": "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x39dbed3a2bd333467115de45665cc57f813c4571",
+    "fetchedAt": "2026-10-14T15:24:21.507Z",
+    "fieldsUsed": [
+     "name",
+     "symbol",
+     "decimals",
+     "total_supply",
+     "holders_count"
+    ],
+    "description": "blockscout token source data"
+   },
+   {
+    "id": "263c8f09-dc95-4ad0-b5a9-761805b58406",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x39dbed3a2bd333467115de45665cc57f813c4571",
+    "fetchedAt": "2026-10-14T15:24:23.299Z",
+    "fieldsUsed": [
+     "items[].from",
+     "items[].to",
+     "items[].token",
+     "items[].value",
+     "items[].transaction_hash"
+    ],
+    "description": "blockscout token source data"
+   },
+   {
+    "id": "a97b953c-8999-4162-b448-3c1f042a2fb8",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x39dbed3a2bd333467115de45665cc57f813c4571",
+    "fetchedAt": "2026-10-14T15:24:23.434Z",
+    "fieldsUsed": [
+     "is_verified",
+     "abi",
+     "name",
+     "proxy_type",
+     "implementations"
+    ],
+    "description": "Contract metadata and verification \u00b7 blockscout"
+   },
+   {
+    "id": "b038213a-3bce-46ef-b1fb-fbd178aab881",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x39dbed3a2bd333467115de45665cc57f813c4571",
+    "fetchedAt": "2026-10-14T15:24:22.662Z",
+    "fieldsUsed": [
+     "name",
+     "symbol",
+     "decimals",
+     "total_supply",
+     "holders_count"
+    ],
+    "description": "blockscout token source data"
+   },
+   {
+    "id": "7165b299-8bed-4963-93ff-78fb15005eba",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x39dbed3a2bd333467115de45665cc57f813c4571",
+    "fetchedAt": "2026-10-14T15:24:22.140Z",
+    "fieldsUsed": [
+     "name",
+     "symbol",
+     "decimals",
+     "total_supply",
+     "holders_count"
+    ],
+    "description": "blockscout token source data"
+   },
+   {
+    "id": "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x39dbed3a2bd333467115de45665cc57f813c4571",
+    "fetchedAt": "2026-10-14T15:24:26.383Z",
+    "fieldsUsed": [
+     "items[].hash",
+     "items[].timestamp",
+     "items[].status",
+     "items[].from",
+     "items[].to",
+     "items[].value",
+     "items[].method"
+    ],
+    "description": "Indexed recent transactions \u00b7 blockscout"
+   },
+   {
+    "id": "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x39dbed3a2bd333467115de45665cc57f813c4571",
+    "fetchedAt": "2026-10-14T15:24:26.085Z",
+    "fieldsUsed": [
+     "items[].hash",
+     "items[].timestamp",
+     "items[].status",
+     "items[].from",
+     "items[].to",
+     "items[].value",
+     "items[].method"
+    ],
+    "description": "Indexed recent transactions \u00b7 blockscout"
+   },
+   {
+    "id": "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x39dbed3a2bd333467115de45665cc57f813c4571",
+    "fetchedAt": "2026-10-14T15:24:26.338Z",
+    "fieldsUsed": [
+     "items[].hash",
+     "items[].timestamp",
+     "items[].status",
+     "items[].from",
+     "items[].to",
+     "items[].value",
+     "items[].method"
+    ],
+    "description": "Indexed recent transactions \u00b7 blockscout"
+   },
+   {
+    "id": "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x39dbed3a2bd333467115de45665cc57f813c4571",
+    "fetchedAt": "2026-10-14T15:24:26.384Z",
+    "fieldsUsed": [
+     "items[].hash",
+     "items[].timestamp",
+     "items[].status",
+     "items[].from",
+     "items[].to",
+     "items[].value",
+     "items[].method"
+    ],
+    "description": "Indexed recent transactions \u00b7 blockscout"
+   },
+   {
+    "id": "02b87772-c5c8-4b4e-920e-8039a09a5ab5",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x39dbed3a2bd333467115de45665cc57f813c4571",
+    "fetchedAt": "2026-10-14T15:24:26.486Z",
+    "fieldsUsed": [
+     "items[].hash",
+     "items[].timestamp",
+     "items[].status",
+     "items[].from",
+     "items[].to",
+     "items[].value",
+     "items[].method"
+    ],
+    "description": "Indexed recent transactions \u00b7 blockscout"
+   }
+  ],
+  "riskNotes": [
+   {
+    "severity": "high",
+    "title": "Supply is concentrated in a few wallets",
+    "detail": "The ten largest private wallets hold 53% of supply, excluding any trading pool. Widely held tokens are usually under 25%. A group this size can move the price on its own.",
+    "evidenceCitationIds": [
+     "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+     "263c8f09-dc95-4ad0-b5a9-761805b58406",
+     "a97b953c-8999-4162-b448-3c1f042a2fb8",
+     "b038213a-3bce-46ef-b1fb-fbd178aab881",
+     "7165b299-8bed-4963-93ff-78fb15005eba",
+     "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+     "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+     "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+     "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+     "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+    ]
+   },
+   {
+    "severity": "medium",
+    "title": "One wallet holds a large share",
+    "detail": "The largest single wallet holds 32.5% of supply. A sale from one address that size would be felt by everyone else.",
+    "evidenceCitationIds": [
+     "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+     "263c8f09-dc95-4ad0-b5a9-761805b58406",
+     "a97b953c-8999-4162-b448-3c1f042a2fb8",
+     "b038213a-3bce-46ef-b1fb-fbd178aab881",
+     "7165b299-8bed-4963-93ff-78fb15005eba",
+     "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+     "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+     "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+     "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+     "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+    ]
+   },
+   {
+    "severity": "medium",
+    "title": "Very little of the supply is tradeable",
+    "detail": "Only 2.2% of supply sits in a trading pool. Thin liquidity means even modest trades move the price sharply, and large positions can be hard to exit.",
+    "evidenceCitationIds": [
+     "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+     "263c8f09-dc95-4ad0-b5a9-761805b58406",
+     "a97b953c-8999-4162-b448-3c1f042a2fb8",
+     "b038213a-3bce-46ef-b1fb-fbd178aab881",
+     "7165b299-8bed-4963-93ff-78fb15005eba",
+     "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+     "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+     "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+     "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+     "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+    ]
+   }
+  ]
+ },
+ "answer": {
+  "answer": "This read-only risk check found 3 evidence-based signals for this token. Signals are observations, not a safety or scam verdict; this is informational only, not financial advice.",
+  "summaryBullets": [
+   "HIGH: Supply is concentrated in a few wallets \u2014 The ten largest private wallets hold 53% of supply, excluding any trading pool. Widely held tokens are usually under 25%. A group this size can move the price on its own.",
+   "MEDIUM: One wallet holds a large share \u2014 The largest single wallet holds 32.5% of supply. A sale from one address that size would be felt by everyone else.",
+   "MEDIUM: Very little of the supply is tradeable \u2014 Only 2.2% of supply sits in a trading pool. Thin liquidity means even modest trades move the price sharply, and large positions can be hard to exit."
+  ],
+  "confirmedFacts": [
+   {
+    "fact": "Address: 0x39dbed3a2bd333467115de45665cc57f813c4571",
+    "sourceIds": [
+     "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+     "263c8f09-dc95-4ad0-b5a9-761805b58406",
+     "a97b953c-8999-4162-b448-3c1f042a2fb8",
+     "b038213a-3bce-46ef-b1fb-fbd178aab881",
+     "7165b299-8bed-4963-93ff-78fb15005eba",
+     "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+     "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+     "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+     "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+     "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+    ]
+   },
+   {
+    "fact": "Name: Pons",
+    "sourceIds": [
+     "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+     "263c8f09-dc95-4ad0-b5a9-761805b58406",
+     "a97b953c-8999-4162-b448-3c1f042a2fb8",
+     "b038213a-3bce-46ef-b1fb-fbd178aab881",
+     "7165b299-8bed-4963-93ff-78fb15005eba",
+     "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+     "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+     "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+     "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+     "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+    ]
+   },
+   {
+    "fact": "Symbol: PONS",
+    "sourceIds": [
+     "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+     "263c8f09-dc95-4ad0-b5a9-761805b58406",
+     "a97b953c-8999-4162-b448-3c1f042a2fb8",
+     "b038213a-3bce-46ef-b1fb-fbd178aab881",
+     "7165b299-8bed-4963-93ff-78fb15005eba",
+     "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+     "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+     "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+     "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+     "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+    ]
+   },
+   {
+    "fact": "Decimals: 18",
+    "sourceIds": [
+     "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+     "263c8f09-dc95-4ad0-b5a9-761805b58406",
+     "a97b953c-8999-4162-b448-3c1f042a2fb8",
+     "b038213a-3bce-46ef-b1fb-fbd178aab881",
+     "7165b299-8bed-4963-93ff-78fb15005eba",
+     "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+     "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+     "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+     "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+     "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+    ]
+   },
+   {
+    "fact": "Type: ERC-20",
+    "sourceIds": [
+     "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+     "263c8f09-dc95-4ad0-b5a9-761805b58406",
+     "a97b953c-8999-4162-b448-3c1f042a2fb8",
+     "b038213a-3bce-46ef-b1fb-fbd178aab881",
+     "7165b299-8bed-4963-93ff-78fb15005eba",
+     "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+     "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+     "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+     "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+     "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+    ]
+   },
+   {
+    "fact": "Holders: 104252",
+    "sourceIds": [
+     "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+     "263c8f09-dc95-4ad0-b5a9-761805b58406",
+     "a97b953c-8999-4162-b448-3c1f042a2fb8",
+     "b038213a-3bce-46ef-b1fb-fbd178aab881",
+     "7165b299-8bed-4963-93ff-78fb15005eba",
+     "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+     "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+     "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+     "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+     "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+    ]
+   },
+   {
+    "fact": "Lifetime transfers: 12865084",
+    "sourceIds": [
+     "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+     "263c8f09-dc95-4ad0-b5a9-761805b58406",
+     "a97b953c-8999-4162-b448-3c1f042a2fb8",
+     "b038213a-3bce-46ef-b1fb-fbd178aab881",
+     "7165b299-8bed-4963-93ff-78fb15005eba",
+     "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+     "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+     "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+     "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+     "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+    ]
+   },
+   {
+    "fact": "Exchange rate: 0.334198",
+    "sourceIds": [
+     "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+     "263c8f09-dc95-4ad0-b5a9-761805b58406",
+     "a97b953c-8999-4162-b448-3c1f042a2fb8",
+     "b038213a-3bce-46ef-b1fb-fbd178aab881",
+     "7165b299-8bed-4963-93ff-78fb15005eba",
+     "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+     "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+     "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+     "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+     "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+    ]
+   },
+   {
+    "fact": "Verified: yes",
+    "sourceIds": [
+     "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+     "263c8f09-dc95-4ad0-b5a9-761805b58406",
+     "a97b953c-8999-4162-b448-3c1f042a2fb8",
+     "b038213a-3bce-46ef-b1fb-fbd178aab881",
+     "7165b299-8bed-4963-93ff-78fb15005eba",
+     "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+     "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+     "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+     "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+     "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+    ]
+   },
+   {
+    "fact": "Proxy: no",
+    "sourceIds": [
+     "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+     "263c8f09-dc95-4ad0-b5a9-761805b58406",
+     "a97b953c-8999-4162-b448-3c1f042a2fb8",
+     "b038213a-3bce-46ef-b1fb-fbd178aab881",
+     "7165b299-8bed-4963-93ff-78fb15005eba",
+     "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+     "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+     "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+     "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+     "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+    ]
+   },
+   {
+    "fact": "Recent transfers: 50 items returned",
+    "sourceIds": [
+     "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+     "263c8f09-dc95-4ad0-b5a9-761805b58406",
+     "a97b953c-8999-4162-b448-3c1f042a2fb8",
+     "b038213a-3bce-46ef-b1fb-fbd178aab881",
+     "7165b299-8bed-4963-93ff-78fb15005eba",
+     "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+     "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+     "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+     "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+     "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+    ]
+   },
+   {
+    "fact": "Liquidity pool share: 2.2",
+    "sourceIds": [
+     "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+     "263c8f09-dc95-4ad0-b5a9-761805b58406",
+     "a97b953c-8999-4162-b448-3c1f042a2fb8",
+     "b038213a-3bce-46ef-b1fb-fbd178aab881",
+     "7165b299-8bed-4963-93ff-78fb15005eba",
+     "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+     "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+     "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+     "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+     "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+    ]
+   },
+   {
+    "fact": "Liquidity pools: 3 items returned",
+    "sourceIds": [
+     "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+     "263c8f09-dc95-4ad0-b5a9-761805b58406",
+     "a97b953c-8999-4162-b448-3c1f042a2fb8",
+     "b038213a-3bce-46ef-b1fb-fbd178aab881",
+     "7165b299-8bed-4963-93ff-78fb15005eba",
+     "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+     "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+     "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+     "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+     "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+    ]
+   },
+   {
+    "fact": "Top1 wallet share: 32.5",
+    "sourceIds": [
+     "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+     "263c8f09-dc95-4ad0-b5a9-761805b58406",
+     "a97b953c-8999-4162-b448-3c1f042a2fb8",
+     "b038213a-3bce-46ef-b1fb-fbd178aab881",
+     "7165b299-8bed-4963-93ff-78fb15005eba",
+     "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+     "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+     "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+     "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+     "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+    ]
+   },
+   {
+    "fact": "Top5 wallet share: 47.4",
+    "sourceIds": [
+     "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+     "263c8f09-dc95-4ad0-b5a9-761805b58406",
+     "a97b953c-8999-4162-b448-3c1f042a2fb8",
+     "b038213a-3bce-46ef-b1fb-fbd178aab881",
+     "7165b299-8bed-4963-93ff-78fb15005eba",
+     "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+     "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+     "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+     "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+     "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+    ]
+   },
+   {
+    "fact": "Top10 wallet share: 53",
+    "sourceIds": [
+     "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+     "263c8f09-dc95-4ad0-b5a9-761805b58406",
+     "a97b953c-8999-4162-b448-3c1f042a2fb8",
+     "b038213a-3bce-46ef-b1fb-fbd178aab881",
+     "7165b299-8bed-4963-93ff-78fb15005eba",
+     "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+     "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+     "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+     "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+     "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+    ]
+   },
+   {
+    "fact": "Top holders: 10 items returned",
+    "sourceIds": [
+     "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+     "263c8f09-dc95-4ad0-b5a9-761805b58406",
+     "a97b953c-8999-4162-b448-3c1f042a2fb8",
+     "b038213a-3bce-46ef-b1fb-fbd178aab881",
+     "7165b299-8bed-4963-93ff-78fb15005eba",
+     "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+     "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+     "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+     "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+     "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+    ]
+   },
+   {
+    "fact": "Holders analyzed: 50",
+    "sourceIds": [
+     "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+     "263c8f09-dc95-4ad0-b5a9-761805b58406",
+     "a97b953c-8999-4162-b448-3c1f042a2fb8",
+     "b038213a-3bce-46ef-b1fb-fbd178aab881",
+     "7165b299-8bed-4963-93ff-78fb15005eba",
+     "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+     "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+     "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+     "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+     "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+    ]
+   },
+   {
+    "fact": "Scam flagged holders: 0",
+    "sourceIds": [
+     "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+     "263c8f09-dc95-4ad0-b5a9-761805b58406",
+     "a97b953c-8999-4162-b448-3c1f042a2fb8",
+     "b038213a-3bce-46ef-b1fb-fbd178aab881",
+     "7165b299-8bed-4963-93ff-78fb15005eba",
+     "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+     "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+     "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+     "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+     "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+    ]
+   },
+   {
+    "fact": "Total supply tokens: 1000000000",
+    "sourceIds": [
+     "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+     "263c8f09-dc95-4ad0-b5a9-761805b58406",
+     "a97b953c-8999-4162-b448-3c1f042a2fb8",
+     "b038213a-3bce-46ef-b1fb-fbd178aab881",
+     "7165b299-8bed-4963-93ff-78fb15005eba",
+     "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+     "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+     "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+     "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+     "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+    ]
+   }
+  ],
+  "inferences": [],
+  "facts": {
+   "address": "0x39dbed3a2bd333467115de45665cc57f813c4571",
+   "name": "Pons",
+   "symbol": "PONS",
+   "decimals": "18",
+   "type": "ERC-20",
+   "totalSupply": "1000000000000000000000000000",
+   "holders": "104252",
+   "lifetimeTransfers": "12865084",
+   "exchangeRate": "0.334198",
+   "verified": true,
+   "proxy": false,
+   "recentTransfers": [
+    {
+     "from": "0xb92fe925DC43a0ECdE6c8b1a2709c170Ec4fFf4f",
+     "to": "0x0a5aD16307590df023dD8948592f84B89C3Db829",
+     "method": "0x0a2b8f36",
+     "timestamp": "2026-10-14T15:24:14.000000Z",
+     "transactionHash": "0x92714397815c709d1eca124f77ac95893d85fc26406080453552844dd983e625",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "87847571979295188530",
+     "formattedValue": "87.84757197929518853"
+    },
+    {
+     "from": "0x48A097DF16c7844a33B1c3d11aB353457846e13F",
+     "to": "0xb92fe925DC43a0ECdE6c8b1a2709c170Ec4fFf4f",
+     "method": "0x0a2b8f36",
+     "timestamp": "2026-10-14T15:24:14.000000Z",
+     "transactionHash": "0x92714397815c709d1eca124f77ac95893d85fc26406080453552844dd983e625",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "87847571979295188530",
+     "formattedValue": "87.84757197929518853"
+    },
+    {
+     "from": "0x46534760B24aBE79AafdD82d4a37681DEc311133",
+     "to": "0x48A097DF16c7844a33B1c3d11aB353457846e13F",
+     "method": "0x0a2b8f36",
+     "timestamp": "2026-10-14T15:24:14.000000Z",
+     "transactionHash": "0x92714397815c709d1eca124f77ac95893d85fc26406080453552844dd983e625",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "15252924452734275479",
+     "formattedValue": "15.252924452734275479"
+    },
+    {
+     "from": "0xEC9Aa0a6c2372131a0502ABA6188269Ab52CACb5",
+     "to": "0x48A097DF16c7844a33B1c3d11aB353457846e13F",
+     "method": "0x0a2b8f36",
+     "timestamp": "2026-10-14T15:24:14.000000Z",
+     "transactionHash": "0x92714397815c709d1eca124f77ac95893d85fc26406080453552844dd983e625",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "72594647526560913051",
+     "formattedValue": "72.594647526560913051"
+    },
+    {
+     "from": "0x5A3571DcA43ECAFCd670e87a6EaF6DE0e2d70954",
+     "to": "0xEC9Aa0a6c2372131a0502ABA6188269Ab52CACb5",
+     "method": "0x0a2b8f36",
+     "timestamp": "2026-10-14T15:24:14.000000Z",
+     "transactionHash": "0x92714397815c709d1eca124f77ac95893d85fc26406080453552844dd983e625",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "72594647526560913051",
+     "formattedValue": "72.594647526560913051"
+    },
+    {
+     "from": "0x9990de5A2eadFa50112077dAE6630864d29ac309",
+     "to": "0x0CFd7a9Cf876e3779359653caC2dE7A1Fe0E15A5",
+     "method": "0x67853654",
+     "timestamp": "2026-10-14T15:24:14.000000Z",
+     "transactionHash": "0x574394875216fc48510239a39ebd1ce33ed3a2206cf41c7421fd56b4d6b2dc7e",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "73263672416430327159",
+     "formattedValue": "73.263672416430327159"
+    },
+    {
+     "from": "0x808b25668031dA5e46A1E487cc59E1E2CC9D1794",
+     "to": "0xFb66dFA5A5BdDaf82fafF88f9Fc5A21F13e9E27F",
+     "method": "0x4c5ae641",
+     "timestamp": "2026-10-14T15:24:14.000000Z",
+     "transactionHash": "0xd14369e0453cc1f8a128f2890ad2c64834fffabd5fdcb5837c750e8c44c42c58",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "21689923976570124044",
+     "formattedValue": "21.689923976570124044"
+    },
+    {
+     "from": "0x808b25668031dA5e46A1E487cc59E1E2CC9D1794",
+     "to": "0xf2A0bE59AB76b96f957bd5E5b967F2B75e8dB269",
+     "method": "0x4c5ae641",
+     "timestamp": "2026-10-14T15:24:14.000000Z",
+     "transactionHash": "0xd14369e0453cc1f8a128f2890ad2c64834fffabd5fdcb5837c750e8c44c42c58",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "64170492531934253330",
+     "formattedValue": "64.17049253193425333"
+    },
+    {
+     "from": "0xFb66dFA5A5BdDaf82fafF88f9Fc5A21F13e9E27F",
+     "to": "0x808b25668031dA5e46A1E487cc59E1E2CC9D1794",
+     "method": "0x4c5ae641",
+     "timestamp": "2026-10-14T15:24:14.000000Z",
+     "transactionHash": "0xd14369e0453cc1f8a128f2890ad2c64834fffabd5fdcb5837c750e8c44c42c58",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "85860416508504377374",
+     "formattedValue": "85.860416508504377374"
+    },
+    {
+     "from": "0x8F10B468b06c6FD214B65F87778827F7D113f996",
+     "to": "0x9990de5A2eadFa50112077dAE6630864d29ac309",
+     "method": "0x4c5ae641",
+     "timestamp": "2026-10-14T15:24:14.000000Z",
+     "transactionHash": "0xd14369e0453cc1f8a128f2890ad2c64834fffabd5fdcb5837c750e8c44c42c58",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "46297751685617533137",
+     "formattedValue": "46.297751685617533137"
+    },
+    {
+     "from": "0x297100BBb2921BE14e90FF2819639b58A5B3996c",
+     "to": "0x8F10B468b06c6FD214B65F87778827F7D113f996",
+     "method": "0x4c5ae641",
+     "timestamp": "2026-10-14T15:24:14.000000Z",
+     "transactionHash": "0xd14369e0453cc1f8a128f2890ad2c64834fffabd5fdcb5837c750e8c44c42c58",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "46297751685617533137",
+     "formattedValue": "46.297751685617533137"
+    },
+    {
+     "from": "0xFb66dFA5A5BdDaf82fafF88f9Fc5A21F13e9E27F",
+     "to": "0x297100BBb2921BE14e90FF2819639b58A5B3996c",
+     "method": "0x4c5ae641",
+     "timestamp": "2026-10-14T15:24:14.000000Z",
+     "transactionHash": "0xd14369e0453cc1f8a128f2890ad2c64834fffabd5fdcb5837c750e8c44c42c58",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "46297751685617533137",
+     "formattedValue": "46.297751685617533137"
+    },
+    {
+     "from": "0xe1C38807c21A1c148e5728b3478c21477AD664a1",
+     "to": "0x907d1D174569b11624bdcEfD20dcEF27600237f8",
+     "method": "0x0c89e77a",
+     "timestamp": "2026-10-14T15:24:05.000000Z",
+     "transactionHash": "0xb234131bea66790124e14e19f86c55979db5907becb9c3cec2a571f1f51489ce",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "1471315163880582238046",
+     "formattedValue": "1471.315163880582238046"
+    },
+    {
+     "from": "0x5A3571DcA43ECAFCd670e87a6EaF6DE0e2d70954",
+     "to": "0xe1C38807c21A1c148e5728b3478c21477AD664a1",
+     "method": "0x0c89e77a",
+     "timestamp": "2026-10-14T15:24:05.000000Z",
+     "transactionHash": "0xb234131bea66790124e14e19f86c55979db5907becb9c3cec2a571f1f51489ce",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "1471315163880582238046",
+     "formattedValue": "1471.315163880582238046"
+    },
+    {
+     "from": "0x22Dd191c8b8CA2098aedf43297CCbe9fDA2F2faE",
+     "to": "0x8018Ee3ad3c0321bE0e69536733CD28e29564dD4",
+     "method": "0x2213bc0b",
+     "timestamp": "2026-10-14T15:24:05.000000Z",
+     "transactionHash": "0x39e8d71bb521e236c6af1dea33218e3a84f77dbcbd4d459f3861c3cf8997aa99",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "969789526449533431",
+     "formattedValue": "0.969789526449533431"
+    },
+    {
+     "from": "0x399AcC46b32145dDDA5B1AE6117D7B85f30f710e",
+     "to": "0x907d1D174569b11624bdcEfD20dcEF27600237f8",
+     "method": "0x3d78507c",
+     "timestamp": "2026-10-14T15:24:05.000000Z",
+     "transactionHash": "0xd5cf2e2efc0b5e69a9b4497ef5155ea45eefa075a9a214b9185755ab55979980",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "1750236444580829883389",
+     "formattedValue": "1750.236444580829883389"
+    },
+    {
+     "from": "0x5A3571DcA43ECAFCd670e87a6EaF6DE0e2d70954",
+     "to": "0x399AcC46b32145dDDA5B1AE6117D7B85f30f710e",
+     "method": "0x3d78507c",
+     "timestamp": "2026-10-14T15:24:05.000000Z",
+     "transactionHash": "0xd5cf2e2efc0b5e69a9b4497ef5155ea45eefa075a9a214b9185755ab55979980",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "1750236444580829883389",
+     "formattedValue": "1750.236444580829883389"
+    },
+    {
+     "from": "0x399AcC46b32145dDDA5B1AE6117D7B85f30f710e",
+     "to": "0x907d1D174569b11624bdcEfD20dcEF27600237f8",
+     "method": "0x3d78507c",
+     "timestamp": "2026-10-14T15:24:05.000000Z",
+     "transactionHash": "0x864986b46aa1d687f690e8ef037b4bd79ef453ffc57deac5c11a8734f91e1b37",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "1750537412307519014162",
+     "formattedValue": "1750.537412307519014162"
+    },
+    {
+     "from": "0x5A3571DcA43ECAFCd670e87a6EaF6DE0e2d70954",
+     "to": "0x399AcC46b32145dDDA5B1AE6117D7B85f30f710e",
+     "method": "0x3d78507c",
+     "timestamp": "2026-10-14T15:24:05.000000Z",
+     "transactionHash": "0x864986b46aa1d687f690e8ef037b4bd79ef453ffc57deac5c11a8734f91e1b37",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "1750537412307519014162",
+     "formattedValue": "1750.537412307519014162"
+    },
+    {
+     "from": "0xEC9Aa0a6c2372131a0502ABA6188269Ab52CACb5",
+     "to": "0xFe7E25dE55e5cBbEcCcb661F3679F873f72B9b0D",
+     "method": "0x174dea71",
+     "timestamp": "2026-10-14T15:24:04.000000Z",
+     "transactionHash": "0x9ee4dcfc02d69a1adc6978f20ab8a94a0cfdf591a0f6e8c49ba2d674c35f3be6",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "11376444955640635760",
+     "formattedValue": "11.37644495564063576"
+    },
+    {
+     "from": "0xb92fe925DC43a0ECdE6c8b1a2709c170Ec4fFf4f",
+     "to": "0xEC9Aa0a6c2372131a0502ABA6188269Ab52CACb5",
+     "method": "0x174dea71",
+     "timestamp": "2026-10-14T15:24:04.000000Z",
+     "transactionHash": "0x9ee4dcfc02d69a1adc6978f20ab8a94a0cfdf591a0f6e8c49ba2d674c35f3be6",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "11376444955640635760",
+     "formattedValue": "11.37644495564063576"
+    },
+    {
+     "from": "0x8084131b8d855aC781b98bFFa707FCe7b380325C",
+     "to": "0xb92fe925DC43a0ECdE6c8b1a2709c170Ec4fFf4f",
+     "method": "0x174dea71",
+     "timestamp": "2026-10-14T15:24:04.000000Z",
+     "transactionHash": "0x9ee4dcfc02d69a1adc6978f20ab8a94a0cfdf591a0f6e8c49ba2d674c35f3be6",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "11376444955640635760",
+     "formattedValue": "11.37644495564063576"
+    },
+    {
+     "from": "0x6aa80DbBed9ae5aB45FbF61f9644faDA3b29326E",
+     "to": "0x22Dd191c8b8CA2098aedf43297CCbe9fDA2F2faE",
+     "method": "0x2213bc0b",
+     "timestamp": "2026-10-14T15:23:55.000000Z",
+     "transactionHash": "0x3b39752250302d3753f3a03046ebacb4b9141fa9524ef904319fc47c8c580d16",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "969789526449533431",
+     "formattedValue": "0.969789526449533431"
+    },
+    {
+     "from": "0x8018Ee3ad3c0321bE0e69536733CD28e29564dD4",
+     "to": "0x6aa80DbBed9ae5aB45FbF61f9644faDA3b29326E",
+     "method": "0x2213bc0b",
+     "timestamp": "2026-10-14T15:23:55.000000Z",
+     "transactionHash": "0x3b39752250302d3753f3a03046ebacb4b9141fa9524ef904319fc47c8c580d16",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "969789526449533431",
+     "formattedValue": "0.969789526449533431"
+    },
+    {
+     "from": "0x808b25668031dA5e46A1E487cc59E1E2CC9D1794",
+     "to": "0xFb66dFA5A5BdDaf82fafF88f9Fc5A21F13e9E27F",
+     "method": "0xd2f586ca",
+     "timestamp": "2026-10-14T15:23:50.000000Z",
+     "transactionHash": "0x8eacfd7069126d4b7d502f7c4b44bad91214911899b2e8cb1946ef976ad0c375",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "9147356600947635890",
+     "formattedValue": "9.14735660094763589"
+    },
+    {
+     "from": "0xf2A0bE59AB76b96f957bd5E5b967F2B75e8dB269",
+     "to": "0x808b25668031dA5e46A1E487cc59E1E2CC9D1794",
+     "method": "0xd2f586ca",
+     "timestamp": "2026-10-14T15:23:50.000000Z",
+     "transactionHash": "0x8eacfd7069126d4b7d502f7c4b44bad91214911899b2e8cb1946ef976ad0c375",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "9147356600947635890",
+     "formattedValue": "9.14735660094763589"
+    },
+    {
+     "from": "0xDA4e81671Dc5df2DAD8989D5916F9af55dA14519",
+     "to": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+     "method": "0x4d819a2a",
+     "timestamp": "2026-10-14T15:23:39.000000Z",
+     "transactionHash": "0x112d18c79ab410719cce04b21e80e95ef92cc7c8bdb89dade6011282eb78f85e",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "900350000000000000000",
+     "formattedValue": "900.35"
+    },
+    {
+     "from": "0x38449A9F677d938faB79e3B90e12F56A3813d892",
+     "to": "0x5A3571DcA43ECAFCd670e87a6EaF6DE0e2d70954",
+     "method": "0x0c89e77a",
+     "timestamp": "2026-10-14T15:23:38.000000Z",
+     "transactionHash": "0xcf037958c4e1caf54307cd0035dab65e4fd12785b6502c041f55a261b7d878d1",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "1479260480004493162581",
+     "formattedValue": "1479.260480004493162581"
+    },
+    {
+     "from": "0x907d1D174569b11624bdcEfD20dcEF27600237f8",
+     "to": "0x38449A9F677d938faB79e3B90e12F56A3813d892",
+     "method": "0x0c89e77a",
+     "timestamp": "2026-10-14T15:23:38.000000Z",
+     "transactionHash": "0xcf037958c4e1caf54307cd0035dab65e4fd12785b6502c041f55a261b7d878d1",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "1479260480004493162581",
+     "formattedValue": "1479.260480004493162581"
+    },
+    {
+     "from": "0x399AcC46b32145dDDA5B1AE6117D7B85f30f710e",
+     "to": "0x5A3571DcA43ECAFCd670e87a6EaF6DE0e2d70954",
+     "method": "0x3d78507c",
+     "timestamp": "2026-10-14T15:23:38.000000Z",
+     "transactionHash": "0x95ec1f7d39be653e3089861ee829636dace5d05bc34c95a91c400b5e343b5d25",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "1642808466628651774308",
+     "formattedValue": "1642.808466628651774308"
+    },
+    {
+     "from": "0x907d1D174569b11624bdcEfD20dcEF27600237f8",
+     "to": "0x399AcC46b32145dDDA5B1AE6117D7B85f30f710e",
+     "method": "0x3d78507c",
+     "timestamp": "2026-10-14T15:23:38.000000Z",
+     "transactionHash": "0x95ec1f7d39be653e3089861ee829636dace5d05bc34c95a91c400b5e343b5d25",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "1642808466628651774308",
+     "formattedValue": "1642.808466628651774308"
+    },
+    {
+     "from": "0x2F393B60eF0CFAf669af63284e5592DC3a657B73",
+     "to": "0x59ffd878fDcedb50a382A78346dcc29F3fB88b7E",
+     "method": "0x70c6cea8",
+     "timestamp": "2026-10-14T15:23:38.000000Z",
+     "transactionHash": "0x6464d147ca677f53a4fd1b5d247e65515b695784b44b03013b5cda0a3dd60a4e",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "10517539710479072881849",
+     "formattedValue": "10517.539710479072881849"
+    },
+    {
+     "from": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+     "to": "0xC216BfA5dA000965E820845c32e6FD88DB275743",
+     "method": "0xdd46508f",
+     "timestamp": "2026-10-14T15:23:37.000000Z",
+     "transactionHash": "0xe06e4ec9eb9554bf5aba35927901dac7c5e1bba09d0b2c1e95937797be119bee",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "21549523046241583046069",
+     "formattedValue": "21549.523046241583046069"
+    },
+    {
+     "from": "0x8F10B468b06c6FD214B65F87778827F7D113f996",
+     "to": "0x46534760B24aBE79AafdD82d4a37681DEc311133",
+     "method": "0x765e827f",
+     "timestamp": "2026-10-14T15:23:28.000000Z",
+     "transactionHash": "0x88d9ee6bd6eebb9b69a0d96aeebce3451704ddb24ad55293b7725e371aaae693",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "11723751379553628501",
+     "formattedValue": "11.723751379553628501"
+    },
+    {
+     "from": "0xb92fe925DC43a0ECdE6c8b1a2709c170Ec4fFf4f",
+     "to": "0x8F10B468b06c6FD214B65F87778827F7D113f996",
+     "method": "0x765e827f",
+     "timestamp": "2026-10-14T15:23:28.000000Z",
+     "transactionHash": "0x88d9ee6bd6eebb9b69a0d96aeebce3451704ddb24ad55293b7725e371aaae693",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "11723751379553628501",
+     "formattedValue": "11.723751379553628501"
+    },
+    {
+     "from": "0x8b1145a2102D74A0B589465b34Ec8FCBDAd8C73f",
+     "to": "0xb92fe925DC43a0ECdE6c8b1a2709c170Ec4fFf4f",
+     "method": "0x765e827f",
+     "timestamp": "2026-10-14T15:23:28.000000Z",
+     "transactionHash": "0x88d9ee6bd6eebb9b69a0d96aeebce3451704ddb24ad55293b7725e371aaae693",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "11723751379553628501",
+     "formattedValue": "11.723751379553628501"
+    },
+    {
+     "from": "0x59ffd878fDcedb50a382A78346dcc29F3fB88b7E",
+     "to": "0x2F393B60eF0CFAf669af63284e5592DC3a657B73",
+     "method": "0xf9fd7055",
+     "timestamp": "2026-10-14T15:23:27.000000Z",
+     "transactionHash": "0xfdf152c4d01620aef5b0f8a0e13b1b3078a1fb975e2f40f676718cf6de7c5e94",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "10517539710479072881850",
+     "formattedValue": "10517.53971047907288185"
+    },
+    {
+     "from": "0xEC9Aa0a6c2372131a0502ABA6188269Ab52CACb5",
+     "to": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+     "method": "0x0a2b8f36",
+     "timestamp": "2026-10-14T15:23:23.000000Z",
+     "transactionHash": "0xeae597b5b29d007d1693a294d971a34fb10fb783a7e00049f7132beaf8824458",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "6606298891960795749",
+     "formattedValue": "6.606298891960795749"
+    },
+    {
+     "from": "0xEC9Aa0a6c2372131a0502ABA6188269Ab52CACb5",
+     "to": "0x422b8Eb9cadbb2451231cD585B1e3f6f9bEDb8Df",
+     "method": "0x0a2b8f36",
+     "timestamp": "2026-10-14T15:23:23.000000Z",
+     "transactionHash": "0xeae597b5b29d007d1693a294d971a34fb10fb783a7e00049f7132beaf8824458",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "8211916458165868500",
+     "formattedValue": "8.2119164581658685"
+    },
+    {
+     "from": "0xEC9Aa0a6c2372131a0502ABA6188269Ab52CACb5",
+     "to": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+     "method": "0x0a2b8f36",
+     "timestamp": "2026-10-14T15:23:23.000000Z",
+     "transactionHash": "0xeae597b5b29d007d1693a294d971a34fb10fb783a7e00049f7132beaf8824458",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "52377449123340741058",
+     "formattedValue": "52.377449123340741058"
+    },
+    {
+     "from": "0x907d1D174569b11624bdcEfD20dcEF27600237f8",
+     "to": "0xEC9Aa0a6c2372131a0502ABA6188269Ab52CACb5",
+     "method": "0x0a2b8f36",
+     "timestamp": "2026-10-14T15:23:23.000000Z",
+     "transactionHash": "0xeae597b5b29d007d1693a294d971a34fb10fb783a7e00049f7132beaf8824458",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "67195664473467405307",
+     "formattedValue": "67.195664473467405307"
+    },
+    {
+     "from": "0x20eF9a203fe54F2c99988ac0E5187a65D8CFC796",
+     "to": "0x8018Ee3ad3c0321bE0e69536733CD28e29564dD4",
+     "method": "0x2213bc0b",
+     "timestamp": "2026-10-14T15:23:21.000000Z",
+     "transactionHash": "0x3fcbf892bf06e571acef334ac4c5b1e23746845319e7dfc3b513026cf42e90fe",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "1385529337665214677",
+     "formattedValue": "1.385529337665214677"
+    },
+    {
+     "from": "0x8F10B468b06c6FD214B65F87778827F7D113f996",
+     "to": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+     "method": "0x0a2b8f36",
+     "timestamp": "2026-10-14T15:23:20.000000Z",
+     "transactionHash": "0x2737ac2ed8736861ab1d7e921555ae14bacda2119a9928c4d3dca83205b6a95f",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "1282822821744396717424",
+     "formattedValue": "1282.822821744396717424"
+    },
+    {
+     "from": "0x907d1D174569b11624bdcEfD20dcEF27600237f8",
+     "to": "0x8F10B468b06c6FD214B65F87778827F7D113f996",
+     "method": "0x0a2b8f36",
+     "timestamp": "2026-10-14T15:23:20.000000Z",
+     "transactionHash": "0x2737ac2ed8736861ab1d7e921555ae14bacda2119a9928c4d3dca83205b6a95f",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "1282822821744396717424",
+     "formattedValue": "1282.822821744396717424"
+    },
+    {
+     "from": "0x99038BB60d8D812F8ac47d3bC3ae6ff0DfD3e68b",
+     "to": "0x78377C8BA253d544d476Aa7255eA1fb50bd65EaF",
+     "method": "0xa9059cbb",
+     "timestamp": "2026-10-14T15:23:20.000000Z",
+     "transactionHash": "0xada359e01f405a3082483888b1853eb7a266bced651cdecc79ea67eb2005ee0b",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "99956356552523506866837",
+     "formattedValue": "99956.356552523506866837"
+    },
+    {
+     "from": "0x6e64c24E0D9811E33fe6c7aE34A42c8E8f891666",
+     "to": "0x907d1D174569b11624bdcEfD20dcEF27600237f8",
+     "method": "0x22000000",
+     "timestamp": "2026-10-14T15:23:15.000000Z",
+     "transactionHash": "0x99217943198e9588099f8cc970af5c25d44071cf0e4d21e68b33643af94701c4",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "1399633997634210572295",
+     "formattedValue": "1399.633997634210572295"
+    },
+    {
+     "from": "0x5A3571DcA43ECAFCd670e87a6EaF6DE0e2d70954",
+     "to": "0x6e64c24E0D9811E33fe6c7aE34A42c8E8f891666",
+     "method": "0x22000000",
+     "timestamp": "2026-10-14T15:23:15.000000Z",
+     "transactionHash": "0x99217943198e9588099f8cc970af5c25d44071cf0e4d21e68b33643af94701c4",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "1399633997634210572295",
+     "formattedValue": "1399.633997634210572295"
+    },
+    {
+     "from": "0x63C247FD4fFF6e0AD051182962243b4365688509",
+     "to": "0x907d1D174569b11624bdcEfD20dcEF27600237f8",
+     "method": "0x0c89e77a",
+     "timestamp": "2026-10-14T15:23:14.000000Z",
+     "transactionHash": "0x226a14026086abb37e4c1df233436e9668bc38dcb301431242cd689d6b321675",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "1475508349071009092505",
+     "formattedValue": "1475.508349071009092505"
+    },
+    {
+     "from": "0x5A3571DcA43ECAFCd670e87a6EaF6DE0e2d70954",
+     "to": "0x63C247FD4fFF6e0AD051182962243b4365688509",
+     "method": "0x0c89e77a",
+     "timestamp": "2026-10-14T15:23:14.000000Z",
+     "transactionHash": "0x226a14026086abb37e4c1df233436e9668bc38dcb301431242cd689d6b321675",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "1475508349071009092505",
+     "formattedValue": "1475.508349071009092505"
+    },
+    {
+     "from": "0x399AcC46b32145dDDA5B1AE6117D7B85f30f710e",
+     "to": "0x907d1D174569b11624bdcEfD20dcEF27600237f8",
+     "method": "0x3d78507c",
+     "timestamp": "2026-10-14T15:23:14.000000Z",
+     "transactionHash": "0x9a4a792fc98aa3edfa3c6bb2f8e9e7a8cdcb32aaca803b22aae0a06e1e5636ff",
+     "tokenAddress": "0x39dBED3a2bd333467115dE45665cC57F813C4571",
+     "tokenName": "Pons",
+     "tokenSymbol": "PONS",
+     "tokenType": "ERC-20",
+     "rawValue": "1962010740695228694106",
+     "formattedValue": "1962.010740695228694106"
+    }
+   ],
+   "liquidityPoolShare": 2.2,
+   "liquidityPools": [
+    {
+     "address": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+     "label": "PoolManager",
+     "share": 1.1
+    },
+    {
+     "address": "0x10CC6BD38112cAc182db90B6a71d8Bb5939526bA",
+     "label": "UniswapV3Pool",
+     "share": 0.5
+    },
+    {
+     "address": "0xEd50bDeeA8aDC232f159486192a4157281D722ff",
+     "label": "UniswapV3Pool",
+     "share": 0.4
+    }
+   ],
+   "top1WalletShare": 32.5,
+   "top5WalletShare": 47.4,
+   "top10WalletShare": 53,
+   "topHolders": [
+    {
+     "address": "0x000000000000000000000000000000000000dEaD",
+     "isPool": false,
+     "isContract": false,
+     "flaggedScam": false,
+     "share": 32.45
+    },
+    {
+     "address": "0xB995B91882F5990e5aB3Cc4700b66b20A66C4C79",
+     "isPool": false,
+     "isContract": false,
+     "flaggedScam": false,
+     "share": 5.43
+    },
+    {
+     "address": "0xC882b111A75C0c657fC507C04FbFcD2cC984F071",
+     "isPool": false,
+     "isContract": false,
+     "flaggedScam": false,
+     "share": 4.98
+    },
+    {
+     "address": "0xa64723bFdc2805c4Ad09c509983cfd85362298BA",
+     "isPool": false,
+     "isContract": false,
+     "flaggedScam": false,
+     "share": 2.86
+    },
+    {
+     "address": "0xc0E17AD342AFABD36b3971F8305fF147006962ae",
+     "isPool": false,
+     "isContract": false,
+     "flaggedScam": false,
+     "share": 1.63
+    },
+    {
+     "address": "0x2dBAf98620aC5Bbe3441f756fEfF82702D095b1a",
+     "isPool": false,
+     "isContract": false,
+     "flaggedScam": false,
+     "share": 1.16
+    },
+    {
+     "address": "0xED9Ab5BC05A0152B9dC2f7902e8369Af7bC18771",
+     "isPool": false,
+     "isContract": false,
+     "flaggedScam": false,
+     "share": 1.13
+    },
+    {
+     "address": "0x73D8bD54F7Cf5FAb43fE4Ef40A62D390644946Db",
+     "label": "ERC1967Proxy",
+     "isPool": false,
+     "isContract": true,
+     "flaggedScam": false,
+     "share": 1.12
+    },
+    {
+     "address": "0x0a6EBEd0155EDB4b21D92AD02897A626CD90119E",
+     "isPool": false,
+     "isContract": true,
+     "flaggedScam": false,
+     "share": 1.1
+    },
+    {
+     "address": "0x0823F50a6cAeB5f70A8A43B6521a3a4c3b6E312A",
+     "isPool": false,
+     "isContract": false,
+     "flaggedScam": false,
+     "share": 1.09
+    }
+   ],
+   "holdersAnalyzed": 50,
+   "scamFlaggedHolders": 0,
+   "chainId": 4663,
+   "explorerUrl": "https://robinhoodchain.blockscout.com/token/0x39dbed3a2bd333467115de45665cc57f813c4571",
+   "sourceIds": [
+    "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+    "263c8f09-dc95-4ad0-b5a9-761805b58406",
+    "a97b953c-8999-4162-b448-3c1f042a2fb8",
+    "b038213a-3bce-46ef-b1fb-fbd178aab881",
+    "7165b299-8bed-4963-93ff-78fb15005eba",
+    "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+    "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+    "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+    "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+    "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+   ]
+  },
+  "uncertainty": [
+   "Provider data may be incomplete or temporarily unavailable.",
+   "Risk notes are heuristic signals, not guarantees of safety or malicious intent."
+  ],
+  "riskNotes": [
+   {
+    "severity": "high",
+    "title": "Supply is concentrated in a few wallets",
+    "detail": "The ten largest private wallets hold 53% of supply, excluding any trading pool. Widely held tokens are usually under 25%. A group this size can move the price on its own.",
+    "evidenceCitationIds": [
+     "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+     "263c8f09-dc95-4ad0-b5a9-761805b58406",
+     "a97b953c-8999-4162-b448-3c1f042a2fb8",
+     "b038213a-3bce-46ef-b1fb-fbd178aab881",
+     "7165b299-8bed-4963-93ff-78fb15005eba",
+     "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+     "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+     "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+     "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+     "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+    ]
+   },
+   {
+    "severity": "medium",
+    "title": "One wallet holds a large share",
+    "detail": "The largest single wallet holds 32.5% of supply. A sale from one address that size would be felt by everyone else.",
+    "evidenceCitationIds": [
+     "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+     "263c8f09-dc95-4ad0-b5a9-761805b58406",
+     "a97b953c-8999-4162-b448-3c1f042a2fb8",
+     "b038213a-3bce-46ef-b1fb-fbd178aab881",
+     "7165b299-8bed-4963-93ff-78fb15005eba",
+     "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+     "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+     "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+     "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+     "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+    ]
+   },
+   {
+    "severity": "medium",
+    "title": "Very little of the supply is tradeable",
+    "detail": "Only 2.2% of supply sits in a trading pool. Thin liquidity means even modest trades move the price sharply, and large positions can be hard to exit.",
+    "evidenceCitationIds": [
+     "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+     "263c8f09-dc95-4ad0-b5a9-761805b58406",
+     "a97b953c-8999-4162-b448-3c1f042a2fb8",
+     "b038213a-3bce-46ef-b1fb-fbd178aab881",
+     "7165b299-8bed-4963-93ff-78fb15005eba",
+     "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+     "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+     "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+     "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+     "02b87772-c5c8-4b4e-920e-8039a09a5ab5"
+    ]
+   }
+  ],
+  "citations": [
+   {
+    "id": "f5976c17-e11a-4acc-ab1f-d2650ba48538",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x39dbed3a2bd333467115de45665cc57f813c4571",
+    "fetchedAt": "2026-10-14T15:24:21.507Z",
+    "fieldsUsed": [
+     "name",
+     "symbol",
+     "decimals",
+     "total_supply",
+     "holders_count"
+    ],
+    "description": "blockscout token source data"
+   },
+   {
+    "id": "263c8f09-dc95-4ad0-b5a9-761805b58406",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x39dbed3a2bd333467115de45665cc57f813c4571",
+    "fetchedAt": "2026-10-14T15:24:23.299Z",
+    "fieldsUsed": [
+     "items[].from",
+     "items[].to",
+     "items[].token",
+     "items[].value",
+     "items[].transaction_hash"
+    ],
+    "description": "blockscout token source data"
+   },
+   {
+    "id": "a97b953c-8999-4162-b448-3c1f042a2fb8",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x39dbed3a2bd333467115de45665cc57f813c4571",
+    "fetchedAt": "2026-10-14T15:24:23.434Z",
+    "fieldsUsed": [
+     "is_verified",
+     "abi",
+     "name",
+     "proxy_type",
+     "implementations"
+    ],
+    "description": "Contract metadata and verification \u00b7 blockscout"
+   },
+   {
+    "id": "b038213a-3bce-46ef-b1fb-fbd178aab881",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x39dbed3a2bd333467115de45665cc57f813c4571",
+    "fetchedAt": "2026-10-14T15:24:22.662Z",
+    "fieldsUsed": [
+     "name",
+     "symbol",
+     "decimals",
+     "total_supply",
+     "holders_count"
+    ],
+    "description": "blockscout token source data"
+   },
+   {
+    "id": "7165b299-8bed-4963-93ff-78fb15005eba",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x39dbed3a2bd333467115de45665cc57f813c4571",
+    "fetchedAt": "2026-10-14T15:24:22.140Z",
+    "fieldsUsed": [
+     "name",
+     "symbol",
+     "decimals",
+     "total_supply",
+     "holders_count"
+    ],
+    "description": "blockscout token source data"
+   },
+   {
+    "id": "e17055c6-ee4e-4642-a581-db86b4f3fee9",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x39dbed3a2bd333467115de45665cc57f813c4571",
+    "fetchedAt": "2026-10-14T15:24:26.383Z",
+    "fieldsUsed": [
+     "items[].hash",
+     "items[].timestamp",
+     "items[].status",
+     "items[].from",
+     "items[].to",
+     "items[].value",
+     "items[].method"
+    ],
+    "description": "Indexed recent transactions \u00b7 blockscout"
+   },
+   {
+    "id": "92aa44c9-2d45-4171-ada2-0d4739ca8556",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x39dbed3a2bd333467115de45665cc57f813c4571",
+    "fetchedAt": "2026-10-14T15:24:26.085Z",
+    "fieldsUsed": [
+     "items[].hash",
+     "items[].timestamp",
+     "items[].status",
+     "items[].from",
+     "items[].to",
+     "items[].value",
+     "items[].method"
+    ],
+    "description": "Indexed recent transactions \u00b7 blockscout"
+   },
+   {
+    "id": "98f70a59-6dbe-4d50-ac6c-05bd9254f601",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x39dbed3a2bd333467115de45665cc57f813c4571",
+    "fetchedAt": "2026-10-14T15:24:26.338Z",
+    "fieldsUsed": [
+     "items[].hash",
+     "items[].timestamp",
+     "items[].status",
+     "items[].from",
+     "items[].to",
+     "items[].value",
+     "items[].method"
+    ],
+    "description": "Indexed recent transactions \u00b7 blockscout"
+   },
+   {
+    "id": "5ac183a6-b606-46e6-a424-eb47316e6c1b",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x39dbed3a2bd333467115de45665cc57f813c4571",
+    "fetchedAt": "2026-10-14T15:24:26.384Z",
+    "fieldsUsed": [
+     "items[].hash",
+     "items[].timestamp",
+     "items[].status",
+     "items[].from",
+     "items[].to",
+     "items[].value",
+     "items[].method"
+    ],
+    "description": "Indexed recent transactions \u00b7 blockscout"
+   },
+   {
+    "id": "02b87772-c5c8-4b4e-920e-8039a09a5ab5",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/token/0x39dbed3a2bd333467115de45665cc57f813c4571",
+    "fetchedAt": "2026-10-14T15:24:26.486Z",
+    "fieldsUsed": [
+     "items[].hash",
+     "items[].timestamp",
+     "items[].status",
+     "items[].from",
+     "items[].to",
+     "items[].value",
+     "items[].method"
+    ],
+    "description": "Indexed recent transactions \u00b7 blockscout"
+   }
+  ],
+  "suggestedQuestions": [
+   "What source data supports this answer?",
+   "Summarize recent activity for this address.",
+   "Are there any evidence-based risk notes?"
+  ],
+  "suggestedFollowUps": [
+   "What source data supports this answer?",
+   "Summarize recent activity for this address.",
+   "Are there any evidence-based risk notes?"
+  ]
+ },
+ "privacy": {
+  "accountRequired": false,
+  "walletConnectionRequired": false,
+  "serverStorage": "none",
+  "browserStorage": "memory_only",
+  "clearsOnReload": true,
+  "modelProvider": "none",
+  "providerDestinations": [
+   "blockscout"
+  ],
+  "disclosure": "Only the public chain identifier is user-supplied to the listed data providers. When indexer balances are unavailable, the dRPC Robinhood Chain gateway may also receive Opsis's fixed 12-contract reviewed sample in one read-only balance call. dRPC is a paid gateway that may route each read to an independent node operator in its network. Your question is not sent to providers or to a model provider."
+ }
+}

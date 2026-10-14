@@ -1,0 +1,2253 @@
+{
+ "mode": "private",
+ "entity": {
+  "chainId": 4663,
+  "type": "wallet",
+  "value": "0x8c11085f7403efb485f4915b35640ca11389f19f",
+  "facts": {
+   "address": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+   "coinBalance": "161436701024491819",
+   "nativeBalanceEth": "0.161436701024491819",
+   "transactionsFetched": 50,
+   "recentTransactions": [
+    {
+     "hash": "0xa51b0b17a3b92f602f5efe31d4616ad4bb4bf061a411a12c59d95c655f2dbb7b",
+     "timestamp": "2026-10-14T15:24:43.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x578c82edcebc0ef5a53b07313e0f69c16544afa63d33dec0cf6d762585340b6a",
+     "timestamp": "2026-10-14T15:24:19.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x7050eab1394aa9a07a0a13339d073515b675d3f9c59bdfec6b8826516106ac67",
+     "timestamp": "2026-10-14T15:23:33.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x0bd1bade2d0385c5f99c8cedcdde076a821005d0885952dbe9dc43d3c2d5eac2",
+     "timestamp": "2026-10-14T15:22:58.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x5d0747274cb7437f03f840d0123e45ddc40bbf133e7c1c3f0cfa5b1f085b131a",
+     "timestamp": "2026-10-14T15:22:21.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x6bfd6286",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xb0454fc2f39f28641d300de7047d2e15cd08610c5d8f2bd3d5348c17c61a39da",
+     "timestamp": "2026-10-14T15:21:52.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x8e4a9f65343295e7e744dc5f9aa1613e492fc5a9dd517fed3336118a55583525",
+     "timestamp": "2026-10-14T15:21:14.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xb928d74c51d099b4748c4fb007a827feb5756fad13f8694b9fe4b4013cf41d1a",
+     "timestamp": "2026-10-14T15:20:23.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xad71076d766e101d572695a698844ce8cfb90baff84bd7ef18e47c54c0d6e21f",
+     "timestamp": "2026-10-14T15:19:43.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x65df7d5955d49e0158be58bf49a652f5d466d34ea7f39c824a5bc11d5ac27bff",
+     "timestamp": "2026-10-14T15:19:19.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x6bfd6286",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x783c7b9cb0a7b995f9f7ecc83e466c3959c43a3006ceb3a99998f4c785f054b4",
+     "timestamp": "2026-10-14T15:17:48.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x90b0a0670e103b4288901d671deab98caab2a701f5ac64f3d2019cbb25f3e57e",
+     "timestamp": "2026-10-14T15:17:30.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    }
+   ],
+   "todayActivity": [
+    {
+     "hash": "0xa51b0b17a3b92f602f5efe31d4616ad4bb4bf061a411a12c59d95c655f2dbb7b",
+     "timestamp": "2026-10-14T15:24:43.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x578c82edcebc0ef5a53b07313e0f69c16544afa63d33dec0cf6d762585340b6a",
+     "timestamp": "2026-10-14T15:24:19.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x7050eab1394aa9a07a0a13339d073515b675d3f9c59bdfec6b8826516106ac67",
+     "timestamp": "2026-10-14T15:23:33.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x0bd1bade2d0385c5f99c8cedcdde076a821005d0885952dbe9dc43d3c2d5eac2",
+     "timestamp": "2026-10-14T15:22:58.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x5d0747274cb7437f03f840d0123e45ddc40bbf133e7c1c3f0cfa5b1f085b131a",
+     "timestamp": "2026-10-14T15:22:21.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x6bfd6286",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xb0454fc2f39f28641d300de7047d2e15cd08610c5d8f2bd3d5348c17c61a39da",
+     "timestamp": "2026-10-14T15:21:52.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x8e4a9f65343295e7e744dc5f9aa1613e492fc5a9dd517fed3336118a55583525",
+     "timestamp": "2026-10-14T15:21:14.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xb928d74c51d099b4748c4fb007a827feb5756fad13f8694b9fe4b4013cf41d1a",
+     "timestamp": "2026-10-14T15:20:23.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xad71076d766e101d572695a698844ce8cfb90baff84bd7ef18e47c54c0d6e21f",
+     "timestamp": "2026-10-14T15:19:43.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x65df7d5955d49e0158be58bf49a652f5d466d34ea7f39c824a5bc11d5ac27bff",
+     "timestamp": "2026-10-14T15:19:19.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x6bfd6286",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x783c7b9cb0a7b995f9f7ecc83e466c3959c43a3006ceb3a99998f4c785f054b4",
+     "timestamp": "2026-10-14T15:17:48.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x90b0a0670e103b4288901d671deab98caab2a701f5ac64f3d2019cbb25f3e57e",
+     "timestamp": "2026-10-14T15:17:30.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    }
+   ],
+   "activityTimeWindow": {
+    "newest": "2026-10-14T15:24:43.000000Z",
+    "oldest": "2026-10-14T14:53:53.000000Z"
+   },
+   "contractsInteractedWith": [
+    "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7"
+   ],
+   "failedTransactions": [
+    {
+     "hash": "0xb0454fc2f39f28641d300de7047d2e15cd08610c5d8f2bd3d5348c17c61a39da",
+     "timestamp": "2026-10-14T15:21:52.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0xbecc7c5c96e580ec5d4e196a9492116b31bbd1ebc77f754c350e5e3035a34e06",
+     "timestamp": "2026-10-14T15:16:51.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x2d03ea094f3e9861f546071e8f0a2aa2d4e60a8f3172ed088f6fbb350373b211",
+     "timestamp": "2026-10-14T15:09:57.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x6bfd6286",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x239d4e90a412a94a95240dc4fd7e5afb0677e37f77242ef9b4b9aea88eda2b6a",
+     "timestamp": "2026-10-14T15:08:43.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x767cd7d52eeb220c4eb8678bbbd1cdb43223819ba712d420e3d68a2705e41691",
+     "timestamp": "2026-10-14T15:08:30.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x3f2b6d509d2905bdec6715a3982088a6df609b337a4e6e206c54543c485236ac",
+     "timestamp": "2026-10-14T15:08:03.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0xda532ef9fe868978336d0300dd6ac5ca9de8621771e11dee1184e629ed7a2ba9",
+     "timestamp": "2026-10-14T15:07:51.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x6bfd6286",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0xb6fe2b9c02eb2a66c659715e7ab4f36a7a3496d2f35532663c95e0647ad3830e",
+     "timestamp": "2026-10-14T15:04:44.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0xfef3247397e710d825a0a4c62e53d8689f3f001d2b38c15d1df856f6a8472f43",
+     "timestamp": "2026-10-14T14:59:37.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x35c91133",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0xd4738184e531141bb72cef37b232e43fad4bb4ff541733a345d434b60c53ff59",
+     "timestamp": "2026-10-14T14:59:07.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0xb54053f21b532a2088b2172ecf5a8770aafdde35abfa8ea0c16cac27b11a2918",
+     "timestamp": "2026-10-14T14:58:56.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x6bfd6286",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x238eada7be954cb84fc9a29ab7432358b58fbd7981aeec54d26b8b9d1affb5ee",
+     "timestamp": "2026-10-14T14:57:27.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x6bfd6286",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x1cecf445c3e2a9f44d75ef1857136d8fafef0e915038724236ed5f04de38d8e2",
+     "timestamp": "2026-10-14T14:55:45.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x89bc8b6c6785e02111d046dfca03a76de47b29794de66e33e81efc8b23e177a9",
+     "timestamp": "2026-10-14T14:55:15.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x35c91133",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    }
+   ],
+   "highValueThresholdWei": "1000000000000000000",
+   "highValueMovements": [],
+   "approvalTransactions": [],
+   "tokenTransfers": [],
+   "internalTransactions": [],
+   "tokenBalances": [
+    {
+     "tokenAddress": "0x047d4C0be17188892D57b10a1d90E90E5F3dA220",
+     "tokenName": "Buy in. Get rewarded.",
+     "tokenSymbol": "PAID",
+     "tokenType": "ERC-20",
+     "rawValue": "1767249333509746065408",
+     "formattedValue": "1767.249333509746065408"
+    },
+    {
+     "tokenAddress": "0x0d0ab8fD1f3ac5c6a6BD83814685bE5A2B63e506",
+     "tokenName": "Heirloom",
+     "tokenSymbol": "HEIR",
+     "tokenType": "ERC-20",
+     "rawValue": "1655837354391429971968",
+     "formattedValue": "1655.837354391429971968"
+    },
+    {
+     "tokenAddress": "0xA6b2bC6E9dE767C7734Eb9E15cDa1Ae371a079e7",
+     "tokenName": "Agemica",
+     "tokenSymbol": "AGE",
+     "tokenType": "ERC-20",
+     "rawValue": "1173078750680173346816",
+     "formattedValue": "1173.078750680173346816"
+    },
+    {
+     "tokenAddress": "0x2627cBc6880Fcc356A49cE70AEe59E18BaA46224",
+     "tokenName": "CA5HCAT",
+     "tokenSymbol": "CA5HCAT",
+     "tokenType": "ERC-20",
+     "rawValue": "500000000000000000000",
+     "formattedValue": "500"
+    },
+    {
+     "tokenAddress": "0xF553178F864abEd95acd723720986C7301E44FC7",
+     "tokenName": "Jollybot",
+     "tokenSymbol": "JOLLY",
+     "tokenType": "ERC-20",
+     "rawValue": "129560474613839069184",
+     "formattedValue": "129.560474613839069184"
+    },
+    {
+     "tokenAddress": "0xce4FAD1Aad37b07AE8d7707de5642e185d9D9019",
+     "tokenName": "United Stable Dollar Coin",
+     "tokenSymbol": "USDC",
+     "tokenType": "ERC-20",
+     "rawValue": "85000000000000000000",
+     "formattedValue": "85"
+    },
+    {
+     "tokenAddress": "0x5DD716Fe12275B69f04b26bEeca343843C8e3539",
+     "tokenName": "NVIDIA Robinhood Coin",
+     "tokenSymbol": "NVDA",
+     "tokenType": "ERC-20",
+     "rawValue": "25000000000000000000",
+     "formattedValue": "25"
+    },
+    {
+     "tokenAddress": "0xf6bA88De6bdEb13ad28aa06241037b63740903f9",
+     "tokenName": "TikTok",
+     "tokenSymbol": "TikTok",
+     "tokenType": "ERC-20",
+     "rawValue": "16000000000000000000",
+     "formattedValue": "16"
+    },
+    {
+     "tokenAddress": "0xAAf877c3dB84f0463972A74bE0674790Dec42767",
+     "tokenName": "Strain Incursion",
+     "tokenSymbol": "SI",
+     "tokenType": "ERC-20",
+     "rawValue": "14000000000000000000",
+     "formattedValue": "14"
+    },
+    {
+     "tokenAddress": "0x5E42D056C4d4E7E7b701542d60Dff0d2B2Bff26b",
+     "tokenName": "Ribita Hood coin",
+     "tokenSymbol": "TIBBIR",
+     "tokenType": "ERC-20",
+     "rawValue": "14000000000000000000",
+     "formattedValue": "14"
+    },
+    {
+     "tokenAddress": "0xe23c94eCA975C5C6a4305D7Bb7afEa77551ab6E6",
+     "tokenName": "Global Dollar Stablecoin",
+     "tokenSymbol": "USDG",
+     "tokenType": "ERC-20",
+     "rawValue": "13000000000000000000",
+     "formattedValue": "13"
+    },
+    {
+     "tokenAddress": "0xDeb4AAfB40868F44cCEeC2635e619EB98555D7c8",
+     "tokenName": "Global Dollar",
+     "tokenSymbol": "USDG",
+     "tokenType": "ERC-20",
+     "rawValue": "10000000000000000000",
+     "formattedValue": "10"
+    },
+    {
+     "tokenAddress": "0x22a68Ae074150397C42d968Ec050CD1FF3501A51",
+     "tokenName": "NVIDIA Robinhood Token",
+     "tokenSymbol": "NVDA",
+     "tokenType": "ERC-20",
+     "rawValue": "10000000000000000000",
+     "formattedValue": "10"
+    },
+    {
+     "tokenAddress": "0x364a0A772BF822F654795a50029917aF24e53131",
+     "tokenName": "United States Dollar Ethena",
+     "tokenSymbol": "USDe",
+     "tokenType": "ERC-20",
+     "rawValue": "10000000000000000000",
+     "formattedValue": "10"
+    },
+    {
+     "tokenAddress": "0x22eCE380e6EA655113d2095f8d6037243B8890f0",
+     "tokenName": "United States Oil Fund",
+     "tokenSymbol": "USDC",
+     "tokenType": "ERC-20",
+     "rawValue": "10000000000000000000",
+     "formattedValue": "10"
+    },
+    {
+     "tokenAddress": "0xC82fb80AB69f68cA9F885f43F2b0cDE0b499102C",
+     "tokenName": "PO\u200bNS",
+     "tokenSymbol": "PO\u200bNS",
+     "tokenType": "ERC-20",
+     "rawValue": "10000000000000000000",
+     "formattedValue": "10"
+    },
+    {
+     "tokenAddress": "0xCE9e866c5a5deAEF13054f304a006aEDE94046Ff",
+     "tokenName": "GodCoin",
+     "tokenSymbol": "God",
+     "tokenType": "ERC-20",
+     "rawValue": "1000000000000000000",
+     "formattedValue": "1"
+    },
+    {
+     "tokenAddress": "0x8Ac8d7a388F9e3e8ffA81c48847E487E5E105e1c",
+     "tokenName": "Artificial Ape",
+     "tokenSymbol": "AIPE",
+     "tokenType": "ERC-20",
+     "rawValue": "1000000000000000000",
+     "formattedValue": "1"
+    },
+    {
+     "tokenAddress": "0xc5bBc1Bd629fE96E124947e3A85A68176c84F467",
+     "tokenName": "ChatGpt",
+     "tokenSymbol": "ChatGpt",
+     "tokenType": "ERC-20",
+     "rawValue": "8",
+     "formattedValue": "0.000000000000000008"
+    },
+    {
+     "tokenAddress": "0x2f7b5EadB0f537e32683b0Cdfd6c52F9344e5820",
+     "tokenName": "musebook",
+     "tokenSymbol": "musebook",
+     "tokenType": "ERC-20",
+     "rawValue": "8",
+     "formattedValue": "0.000000000000000008"
+    }
+   ],
+   "unusualActivity": [
+    "Multiple failed transactions appear in the fetched activity window."
+   ],
+   "hasTokenTransfers": true,
+   "hasTokens": true,
+   "isContract": false,
+   "chainId": 4663,
+   "explorerUrl": "https://robinhoodchain.blockscout.com/address/0x8c11085f7403efb485f4915b35640ca11389f19f",
+   "sourceIds": [
+    "16a05071-1b82-4c0b-8403-746aedd30d51",
+    "a8080916-eba0-4ae1-a537-2276cfab6ee6",
+    "828b1d07-1298-4dcf-8fb6-6d801db0a1d0",
+    "1207aa43-29b9-41ff-a48f-740b49527d3c",
+    "f5e04ead-b02f-41bd-a22e-8ab877eb2ec0"
+   ]
+  },
+  "citations": [
+   {
+    "id": "16a05071-1b82-4c0b-8403-746aedd30d51",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/address/0x8c11085f7403efb485f4915b35640ca11389f19f",
+    "fetchedAt": "2026-10-14T15:24:58.250Z",
+    "fieldsUsed": [
+     "hash",
+     "coin_balance",
+     "is_contract",
+     "token",
+     "implementations"
+    ],
+    "description": "blockscout wallet source data"
+   },
+   {
+    "id": "a8080916-eba0-4ae1-a537-2276cfab6ee6",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/address/0x8c11085f7403efb485f4915b35640ca11389f19f",
+    "fetchedAt": "2026-10-14T15:24:57.932Z",
+    "fieldsUsed": [
+     "items[].hash",
+     "items[].timestamp",
+     "items[].status",
+     "items[].from",
+     "items[].to",
+     "items[].value",
+     "items[].method"
+    ],
+    "description": "Indexed recent transactions \u00b7 blockscout"
+   },
+   {
+    "id": "828b1d07-1298-4dcf-8fb6-6d801db0a1d0",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/address/0x8c11085f7403efb485f4915b35640ca11389f19f",
+    "fetchedAt": "2026-10-14T15:24:57.331Z",
+    "fieldsUsed": [
+     "items[].token",
+     "items[].balance",
+     "items[].value"
+    ],
+    "description": "Indexed token balances \u00b7 blockscout"
+   },
+   {
+    "id": "1207aa43-29b9-41ff-a48f-740b49527d3c",
+    "provider": "drpc",
+    "url": "https://robinhoodchain.blockscout.com/address/0x8c11085f7403efb485f4915b35640ca11389f19f",
+    "fetchedAt": "2026-10-14T15:24:56.869Z",
+    "fieldsUsed": [
+     "result"
+    ],
+    "description": "Contract code / account delegation \u00b7 drpc"
+   },
+   {
+    "id": "f5e04ead-b02f-41bd-a22e-8ab877eb2ec0",
+    "provider": "drpc",
+    "url": "https://robinhoodchain.blockscout.com/address/0x8c11085f7403efb485f4915b35640ca11389f19f",
+    "fetchedAt": "2026-10-14T15:24:56.869Z",
+    "fieldsUsed": [
+     "result"
+    ],
+    "description": "Native ETH balance \u00b7 drpc"
+   }
+  ],
+  "riskNotes": [
+   {
+    "severity": "medium",
+    "title": "Repeated transaction failures",
+    "detail": "14 failed transactions appear in the fetched activity window. This can indicate contract errors, insufficient gas, or repeated unsuccessful attempts.",
+    "evidenceCitationIds": [
+     "16a05071-1b82-4c0b-8403-746aedd30d51",
+     "a8080916-eba0-4ae1-a537-2276cfab6ee6",
+     "828b1d07-1298-4dcf-8fb6-6d801db0a1d0",
+     "1207aa43-29b9-41ff-a48f-740b49527d3c",
+     "f5e04ead-b02f-41bd-a22e-8ab877eb2ec0"
+    ]
+   }
+  ]
+ },
+ "answer": {
+  "answer": "The available records contain 50 transactions covering records from 2026-10-14T14:53:53.000000Z to 2026-10-14T15:24:43.000000Z for this wallet.",
+  "summaryBullets": [
+   "These are observed records; they do not prove buys, sells, or intent.",
+   "Native balance: 0.161436701024491819 ETH.",
+   "20 token balances returned."
+  ],
+  "confirmedFacts": [
+   {
+    "fact": "Address: 0x8c11085F7403eFb485F4915B35640cA11389f19F",
+    "sourceIds": [
+     "16a05071-1b82-4c0b-8403-746aedd30d51",
+     "a8080916-eba0-4ae1-a537-2276cfab6ee6",
+     "828b1d07-1298-4dcf-8fb6-6d801db0a1d0",
+     "1207aa43-29b9-41ff-a48f-740b49527d3c",
+     "f5e04ead-b02f-41bd-a22e-8ab877eb2ec0"
+    ]
+   },
+   {
+    "fact": "Native balance eth: 0.161436701024491819",
+    "sourceIds": [
+     "16a05071-1b82-4c0b-8403-746aedd30d51",
+     "a8080916-eba0-4ae1-a537-2276cfab6ee6",
+     "828b1d07-1298-4dcf-8fb6-6d801db0a1d0",
+     "1207aa43-29b9-41ff-a48f-740b49527d3c",
+     "f5e04ead-b02f-41bd-a22e-8ab877eb2ec0"
+    ]
+   },
+   {
+    "fact": "Transactions fetched: 50",
+    "sourceIds": [
+     "16a05071-1b82-4c0b-8403-746aedd30d51",
+     "a8080916-eba0-4ae1-a537-2276cfab6ee6",
+     "828b1d07-1298-4dcf-8fb6-6d801db0a1d0",
+     "1207aa43-29b9-41ff-a48f-740b49527d3c",
+     "f5e04ead-b02f-41bd-a22e-8ab877eb2ec0"
+    ]
+   },
+   {
+    "fact": "Recent transactions: 25 items returned",
+    "sourceIds": [
+     "16a05071-1b82-4c0b-8403-746aedd30d51",
+     "a8080916-eba0-4ae1-a537-2276cfab6ee6",
+     "828b1d07-1298-4dcf-8fb6-6d801db0a1d0",
+     "1207aa43-29b9-41ff-a48f-740b49527d3c",
+     "f5e04ead-b02f-41bd-a22e-8ab877eb2ec0"
+    ]
+   },
+   {
+    "fact": "Today activity: 50 items returned",
+    "sourceIds": [
+     "16a05071-1b82-4c0b-8403-746aedd30d51",
+     "a8080916-eba0-4ae1-a537-2276cfab6ee6",
+     "828b1d07-1298-4dcf-8fb6-6d801db0a1d0",
+     "1207aa43-29b9-41ff-a48f-740b49527d3c",
+     "f5e04ead-b02f-41bd-a22e-8ab877eb2ec0"
+    ]
+   },
+   {
+    "fact": "Contracts interacted with: 1 item returned",
+    "sourceIds": [
+     "16a05071-1b82-4c0b-8403-746aedd30d51",
+     "a8080916-eba0-4ae1-a537-2276cfab6ee6",
+     "828b1d07-1298-4dcf-8fb6-6d801db0a1d0",
+     "1207aa43-29b9-41ff-a48f-740b49527d3c",
+     "f5e04ead-b02f-41bd-a22e-8ab877eb2ec0"
+    ]
+   },
+   {
+    "fact": "Failed transactions: 14 items returned",
+    "sourceIds": [
+     "16a05071-1b82-4c0b-8403-746aedd30d51",
+     "a8080916-eba0-4ae1-a537-2276cfab6ee6",
+     "828b1d07-1298-4dcf-8fb6-6d801db0a1d0",
+     "1207aa43-29b9-41ff-a48f-740b49527d3c",
+     "f5e04ead-b02f-41bd-a22e-8ab877eb2ec0"
+    ]
+   },
+   {
+    "fact": "High value movements: 0 items returned",
+    "sourceIds": [
+     "16a05071-1b82-4c0b-8403-746aedd30d51",
+     "a8080916-eba0-4ae1-a537-2276cfab6ee6",
+     "828b1d07-1298-4dcf-8fb6-6d801db0a1d0",
+     "1207aa43-29b9-41ff-a48f-740b49527d3c",
+     "f5e04ead-b02f-41bd-a22e-8ab877eb2ec0"
+    ]
+   },
+   {
+    "fact": "Approval transactions: 0 items returned",
+    "sourceIds": [
+     "16a05071-1b82-4c0b-8403-746aedd30d51",
+     "a8080916-eba0-4ae1-a537-2276cfab6ee6",
+     "828b1d07-1298-4dcf-8fb6-6d801db0a1d0",
+     "1207aa43-29b9-41ff-a48f-740b49527d3c",
+     "f5e04ead-b02f-41bd-a22e-8ab877eb2ec0"
+    ]
+   },
+   {
+    "fact": "Token transfers: 0 items returned",
+    "sourceIds": [
+     "16a05071-1b82-4c0b-8403-746aedd30d51",
+     "a8080916-eba0-4ae1-a537-2276cfab6ee6",
+     "828b1d07-1298-4dcf-8fb6-6d801db0a1d0",
+     "1207aa43-29b9-41ff-a48f-740b49527d3c",
+     "f5e04ead-b02f-41bd-a22e-8ab877eb2ec0"
+    ]
+   },
+   {
+    "fact": "Internal transactions: 0 items returned",
+    "sourceIds": [
+     "16a05071-1b82-4c0b-8403-746aedd30d51",
+     "a8080916-eba0-4ae1-a537-2276cfab6ee6",
+     "828b1d07-1298-4dcf-8fb6-6d801db0a1d0",
+     "1207aa43-29b9-41ff-a48f-740b49527d3c",
+     "f5e04ead-b02f-41bd-a22e-8ab877eb2ec0"
+    ]
+   },
+   {
+    "fact": "Token balances: 20 items returned",
+    "sourceIds": [
+     "16a05071-1b82-4c0b-8403-746aedd30d51",
+     "a8080916-eba0-4ae1-a537-2276cfab6ee6",
+     "828b1d07-1298-4dcf-8fb6-6d801db0a1d0",
+     "1207aa43-29b9-41ff-a48f-740b49527d3c",
+     "f5e04ead-b02f-41bd-a22e-8ab877eb2ec0"
+    ]
+   },
+   {
+    "fact": "Unusual activity: 1 item returned",
+    "sourceIds": [
+     "16a05071-1b82-4c0b-8403-746aedd30d51",
+     "a8080916-eba0-4ae1-a537-2276cfab6ee6",
+     "828b1d07-1298-4dcf-8fb6-6d801db0a1d0",
+     "1207aa43-29b9-41ff-a48f-740b49527d3c",
+     "f5e04ead-b02f-41bd-a22e-8ab877eb2ec0"
+    ]
+   },
+   {
+    "fact": "Has token transfers: yes",
+    "sourceIds": [
+     "16a05071-1b82-4c0b-8403-746aedd30d51",
+     "a8080916-eba0-4ae1-a537-2276cfab6ee6",
+     "828b1d07-1298-4dcf-8fb6-6d801db0a1d0",
+     "1207aa43-29b9-41ff-a48f-740b49527d3c",
+     "f5e04ead-b02f-41bd-a22e-8ab877eb2ec0"
+    ]
+   },
+   {
+    "fact": "Has tokens: yes",
+    "sourceIds": [
+     "16a05071-1b82-4c0b-8403-746aedd30d51",
+     "a8080916-eba0-4ae1-a537-2276cfab6ee6",
+     "828b1d07-1298-4dcf-8fb6-6d801db0a1d0",
+     "1207aa43-29b9-41ff-a48f-740b49527d3c",
+     "f5e04ead-b02f-41bd-a22e-8ab877eb2ec0"
+    ]
+   },
+   {
+    "fact": "Is contract: no",
+    "sourceIds": [
+     "16a05071-1b82-4c0b-8403-746aedd30d51",
+     "a8080916-eba0-4ae1-a537-2276cfab6ee6",
+     "828b1d07-1298-4dcf-8fb6-6d801db0a1d0",
+     "1207aa43-29b9-41ff-a48f-740b49527d3c",
+     "f5e04ead-b02f-41bd-a22e-8ab877eb2ec0"
+    ]
+   }
+  ],
+  "inferences": [],
+  "facts": {
+   "address": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+   "coinBalance": "161436701024491819",
+   "nativeBalanceEth": "0.161436701024491819",
+   "transactionsFetched": 50,
+   "recentTransactions": [
+    {
+     "hash": "0xa51b0b17a3b92f602f5efe31d4616ad4bb4bf061a411a12c59d95c655f2dbb7b",
+     "timestamp": "2026-10-14T15:24:43.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x578c82edcebc0ef5a53b07313e0f69c16544afa63d33dec0cf6d762585340b6a",
+     "timestamp": "2026-10-14T15:24:19.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x7050eab1394aa9a07a0a13339d073515b675d3f9c59bdfec6b8826516106ac67",
+     "timestamp": "2026-10-14T15:23:33.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x0bd1bade2d0385c5f99c8cedcdde076a821005d0885952dbe9dc43d3c2d5eac2",
+     "timestamp": "2026-10-14T15:22:58.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x5d0747274cb7437f03f840d0123e45ddc40bbf133e7c1c3f0cfa5b1f085b131a",
+     "timestamp": "2026-10-14T15:22:21.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x6bfd6286",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xb0454fc2f39f28641d300de7047d2e15cd08610c5d8f2bd3d5348c17c61a39da",
+     "timestamp": "2026-10-14T15:21:52.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x8e4a9f65343295e7e744dc5f9aa1613e492fc5a9dd517fed3336118a55583525",
+     "timestamp": "2026-10-14T15:21:14.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xb928d74c51d099b4748c4fb007a827feb5756fad13f8694b9fe4b4013cf41d1a",
+     "timestamp": "2026-10-14T15:20:23.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xad71076d766e101d572695a698844ce8cfb90baff84bd7ef18e47c54c0d6e21f",
+     "timestamp": "2026-10-14T15:19:43.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x65df7d5955d49e0158be58bf49a652f5d466d34ea7f39c824a5bc11d5ac27bff",
+     "timestamp": "2026-10-14T15:19:19.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x6bfd6286",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x783c7b9cb0a7b995f9f7ecc83e466c3959c43a3006ceb3a99998f4c785f054b4",
+     "timestamp": "2026-10-14T15:17:48.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x90b0a0670e103b4288901d671deab98caab2a701f5ac64f3d2019cbb25f3e57e",
+     "timestamp": "2026-10-14T15:17:30.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xb7fa418dd097fb6711d53764c342e6b296939134e0583005bed5c118b453838f",
+     "timestamp": "2026-10-14T15:17:30.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x37f6e1b332571e696763285789620562e0669a414e8da80499ecd822fa964640",
+     "timestamp": "2026-10-14T15:17:09.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x6bfd6286",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x320bb292c6d6a1056d86ee7e77825a74964f1d945e654615a4d9609358c14962",
+     "timestamp": "2026-10-14T15:17:01.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xbecc7c5c96e580ec5d4e196a9492116b31bbd1ebc77f754c350e5e3035a34e06",
+     "timestamp": "2026-10-14T15:16:51.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x69062c1966e62e736edb09ed48974ea96d8706da923ff95cf0957847d27e049f",
+     "timestamp": "2026-10-14T15:16:20.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x6bfd6286",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x56a261f58606425c9ba5a492b8df7a6989f304ffd9fd6e5a893ccd98aadf087e",
+     "timestamp": "2026-10-14T15:16:03.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x6bfd6286",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x9b3793b1389c25561980eacc8b9a7afd147b1909f08cbaa559974e6ce357f807",
+     "timestamp": "2026-10-14T15:15:41.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xcc0d484c75823274809e0bc30792c7c86e9433d3a5f13a8131ccc0c8e000574e",
+     "timestamp": "2026-10-14T15:15:22.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xb8450bcf11f6aefaec444397faa858e7143b61585332224d90a16530dd409d59",
+     "timestamp": "2026-10-14T15:14:29.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x834119f7d699b8bee93c4328a33cd9220cafcbbab1b79241d91ce162c5b74539",
+     "timestamp": "2026-10-14T15:13:58.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xa946531d51b707ec90bcebe84dd596c070943de2598ba385ac3a71ee5bfd0523",
+     "timestamp": "2026-10-14T15:13:35.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x813e9ffe78cf960dfe0919b3f3798dba3d7ca4af2dfb9e7067349b30143ba80d",
+     "timestamp": "2026-10-14T15:12:13.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x06cd24862cf2e721002ef0881d1828c0c49acb2be3accade39b57800a60ec7aa",
+     "timestamp": "2026-10-14T15:10:49.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    }
+   ],
+   "todayActivity": [
+    {
+     "hash": "0xa51b0b17a3b92f602f5efe31d4616ad4bb4bf061a411a12c59d95c655f2dbb7b",
+     "timestamp": "2026-10-14T15:24:43.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x578c82edcebc0ef5a53b07313e0f69c16544afa63d33dec0cf6d762585340b6a",
+     "timestamp": "2026-10-14T15:24:19.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x7050eab1394aa9a07a0a13339d073515b675d3f9c59bdfec6b8826516106ac67",
+     "timestamp": "2026-10-14T15:23:33.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x0bd1bade2d0385c5f99c8cedcdde076a821005d0885952dbe9dc43d3c2d5eac2",
+     "timestamp": "2026-10-14T15:22:58.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x5d0747274cb7437f03f840d0123e45ddc40bbf133e7c1c3f0cfa5b1f085b131a",
+     "timestamp": "2026-10-14T15:22:21.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x6bfd6286",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xb0454fc2f39f28641d300de7047d2e15cd08610c5d8f2bd3d5348c17c61a39da",
+     "timestamp": "2026-10-14T15:21:52.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x8e4a9f65343295e7e744dc5f9aa1613e492fc5a9dd517fed3336118a55583525",
+     "timestamp": "2026-10-14T15:21:14.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xb928d74c51d099b4748c4fb007a827feb5756fad13f8694b9fe4b4013cf41d1a",
+     "timestamp": "2026-10-14T15:20:23.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xad71076d766e101d572695a698844ce8cfb90baff84bd7ef18e47c54c0d6e21f",
+     "timestamp": "2026-10-14T15:19:43.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x65df7d5955d49e0158be58bf49a652f5d466d34ea7f39c824a5bc11d5ac27bff",
+     "timestamp": "2026-10-14T15:19:19.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x6bfd6286",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x783c7b9cb0a7b995f9f7ecc83e466c3959c43a3006ceb3a99998f4c785f054b4",
+     "timestamp": "2026-10-14T15:17:48.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x90b0a0670e103b4288901d671deab98caab2a701f5ac64f3d2019cbb25f3e57e",
+     "timestamp": "2026-10-14T15:17:30.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xb7fa418dd097fb6711d53764c342e6b296939134e0583005bed5c118b453838f",
+     "timestamp": "2026-10-14T15:17:30.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x37f6e1b332571e696763285789620562e0669a414e8da80499ecd822fa964640",
+     "timestamp": "2026-10-14T15:17:09.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x6bfd6286",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x320bb292c6d6a1056d86ee7e77825a74964f1d945e654615a4d9609358c14962",
+     "timestamp": "2026-10-14T15:17:01.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xbecc7c5c96e580ec5d4e196a9492116b31bbd1ebc77f754c350e5e3035a34e06",
+     "timestamp": "2026-10-14T15:16:51.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x69062c1966e62e736edb09ed48974ea96d8706da923ff95cf0957847d27e049f",
+     "timestamp": "2026-10-14T15:16:20.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x6bfd6286",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x56a261f58606425c9ba5a492b8df7a6989f304ffd9fd6e5a893ccd98aadf087e",
+     "timestamp": "2026-10-14T15:16:03.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x6bfd6286",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x9b3793b1389c25561980eacc8b9a7afd147b1909f08cbaa559974e6ce357f807",
+     "timestamp": "2026-10-14T15:15:41.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xcc0d484c75823274809e0bc30792c7c86e9433d3a5f13a8131ccc0c8e000574e",
+     "timestamp": "2026-10-14T15:15:22.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xb8450bcf11f6aefaec444397faa858e7143b61585332224d90a16530dd409d59",
+     "timestamp": "2026-10-14T15:14:29.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x834119f7d699b8bee93c4328a33cd9220cafcbbab1b79241d91ce162c5b74539",
+     "timestamp": "2026-10-14T15:13:58.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xa946531d51b707ec90bcebe84dd596c070943de2598ba385ac3a71ee5bfd0523",
+     "timestamp": "2026-10-14T15:13:35.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x813e9ffe78cf960dfe0919b3f3798dba3d7ca4af2dfb9e7067349b30143ba80d",
+     "timestamp": "2026-10-14T15:12:13.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x06cd24862cf2e721002ef0881d1828c0c49acb2be3accade39b57800a60ec7aa",
+     "timestamp": "2026-10-14T15:10:49.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x2d03ea094f3e9861f546071e8f0a2aa2d4e60a8f3172ed088f6fbb350373b211",
+     "timestamp": "2026-10-14T15:09:57.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x6bfd6286",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x27bf2606fe6dacf7cf18ca77f9c0a92e5ff764350379bb014c65867fffc9fded",
+     "timestamp": "2026-10-14T15:09:28.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xadcb8d0ff64630b9dd251331e32e1d5fc307bdaca28f009da513346d5e095518",
+     "timestamp": "2026-10-14T15:09:09.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x239d4e90a412a94a95240dc4fd7e5afb0677e37f77242ef9b4b9aea88eda2b6a",
+     "timestamp": "2026-10-14T15:08:43.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x767cd7d52eeb220c4eb8678bbbd1cdb43223819ba712d420e3d68a2705e41691",
+     "timestamp": "2026-10-14T15:08:30.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x3f2b6d509d2905bdec6715a3982088a6df609b337a4e6e206c54543c485236ac",
+     "timestamp": "2026-10-14T15:08:03.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0xda532ef9fe868978336d0300dd6ac5ca9de8621771e11dee1184e629ed7a2ba9",
+     "timestamp": "2026-10-14T15:07:51.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x6bfd6286",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0xf495546ef5d1baf9099d1fedbdeaa98458f2de0685687d77730016866aa15c74",
+     "timestamp": "2026-10-14T15:06:49.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x5810cc2251c30ff34a783b02747cc37ad4e31138949bda6c82961e6b55fb7d1c",
+     "timestamp": "2026-10-14T15:05:27.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xb6fe2b9c02eb2a66c659715e7ab4f36a7a3496d2f35532663c95e0647ad3830e",
+     "timestamp": "2026-10-14T15:04:44.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x812c934e3b970cd6b01ec3311a8c800307b5b1e9375702da1bbf455498560d11",
+     "timestamp": "2026-10-14T15:04:27.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x3fc62def6bd3c6750e03f113b5df6526965e984a62c3f3a6591a1f51b9df207f",
+     "timestamp": "2026-10-14T15:03:05.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x6f03382857870ca6177fd5ecc31e0b6e7b0e704af362185ceffb5d560b45fbec",
+     "timestamp": "2026-10-14T15:01:02.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xb45b489b55472db0db353c42075a6b5dad0bf5490314440cc54f69538cfe49bc",
+     "timestamp": "2026-10-14T14:59:55.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xfef3247397e710d825a0a4c62e53d8689f3f001d2b38c15d1df856f6a8472f43",
+     "timestamp": "2026-10-14T14:59:37.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x35c91133",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0xdd12346ae674a1848765cb3b5dc68493e9dfe9c921de28e2f87874523ca9afe2",
+     "timestamp": "2026-10-14T14:59:24.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x35c91133",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0xd4738184e531141bb72cef37b232e43fad4bb4ff541733a345d434b60c53ff59",
+     "timestamp": "2026-10-14T14:59:07.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0xb54053f21b532a2088b2172ecf5a8770aafdde35abfa8ea0c16cac27b11a2918",
+     "timestamp": "2026-10-14T14:58:56.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x6bfd6286",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x6d1589f521d975be688b0893c9dc2f76b0a54cf8f7e63ef7cb6d4279c03228c2",
+     "timestamp": "2026-10-14T14:58:20.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x238eada7be954cb84fc9a29ab7432358b58fbd7981aeec54d26b8b9d1affb5ee",
+     "timestamp": "2026-10-14T14:57:27.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x6bfd6286",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x8fed2d6a42d102178f2c669b4c82243d7e6aaab0e9df3854b49e211426ae8a0b",
+     "timestamp": "2026-10-14T14:56:27.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x1cecf445c3e2a9f44d75ef1857136d8fafef0e915038724236ed5f04de38d8e2",
+     "timestamp": "2026-10-14T14:55:45.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x89bc8b6c6785e02111d046dfca03a76de47b29794de66e33e81efc8b23e177a9",
+     "timestamp": "2026-10-14T14:55:15.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x35c91133",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x7d8253fe524bf17c00371ca2c1226105bc3657e5ff379b04f91fc924e7ec6cb4",
+     "timestamp": "2026-10-14T14:54:39.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    },
+    {
+     "hash": "0x476d9db4b29a925c8d29c8fe78c5158fca48ae0cd77020c8a8ed20fc190d1f43",
+     "timestamp": "2026-10-14T14:53:53.000000Z",
+     "status": "ok",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": "success"
+    }
+   ],
+   "activityTimeWindow": {
+    "newest": "2026-10-14T15:24:43.000000Z",
+    "oldest": "2026-10-14T14:53:53.000000Z"
+   },
+   "contractsInteractedWith": [
+    "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7"
+   ],
+   "failedTransactions": [
+    {
+     "hash": "0xb0454fc2f39f28641d300de7047d2e15cd08610c5d8f2bd3d5348c17c61a39da",
+     "timestamp": "2026-10-14T15:21:52.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0xbecc7c5c96e580ec5d4e196a9492116b31bbd1ebc77f754c350e5e3035a34e06",
+     "timestamp": "2026-10-14T15:16:51.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x2d03ea094f3e9861f546071e8f0a2aa2d4e60a8f3172ed088f6fbb350373b211",
+     "timestamp": "2026-10-14T15:09:57.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x6bfd6286",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x239d4e90a412a94a95240dc4fd7e5afb0677e37f77242ef9b4b9aea88eda2b6a",
+     "timestamp": "2026-10-14T15:08:43.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x767cd7d52eeb220c4eb8678bbbd1cdb43223819ba712d420e3d68a2705e41691",
+     "timestamp": "2026-10-14T15:08:30.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x3f2b6d509d2905bdec6715a3982088a6df609b337a4e6e206c54543c485236ac",
+     "timestamp": "2026-10-14T15:08:03.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0xda532ef9fe868978336d0300dd6ac5ca9de8621771e11dee1184e629ed7a2ba9",
+     "timestamp": "2026-10-14T15:07:51.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x6bfd6286",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0xb6fe2b9c02eb2a66c659715e7ab4f36a7a3496d2f35532663c95e0647ad3830e",
+     "timestamp": "2026-10-14T15:04:44.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0xfef3247397e710d825a0a4c62e53d8689f3f001d2b38c15d1df856f6a8472f43",
+     "timestamp": "2026-10-14T14:59:37.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x35c91133",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0xd4738184e531141bb72cef37b232e43fad4bb4ff541733a345d434b60c53ff59",
+     "timestamp": "2026-10-14T14:59:07.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0xb54053f21b532a2088b2172ecf5a8770aafdde35abfa8ea0c16cac27b11a2918",
+     "timestamp": "2026-10-14T14:58:56.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x6bfd6286",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x238eada7be954cb84fc9a29ab7432358b58fbd7981aeec54d26b8b9d1affb5ee",
+     "timestamp": "2026-10-14T14:57:27.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x6bfd6286",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x1cecf445c3e2a9f44d75ef1857136d8fafef0e915038724236ed5f04de38d8e2",
+     "timestamp": "2026-10-14T14:55:45.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0xb2460c48",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    },
+    {
+     "hash": "0x89bc8b6c6785e02111d046dfca03a76de47b29794de66e33e81efc8b23e177a9",
+     "timestamp": "2026-10-14T14:55:15.000000Z",
+     "status": "error",
+     "from": "0x8c11085F7403eFb485F4915B35640cA11389f19F",
+     "to": "0x520ed467860d840eC6Ca20F1Dacb9c0Fa5168AA7",
+     "value": "0",
+     "method": "0x35c91133",
+     "decodedInput": null,
+     "failureDetail": {
+      "raw": null
+     }
+    }
+   ],
+   "highValueThresholdWei": "1000000000000000000",
+   "highValueMovements": [],
+   "approvalTransactions": [],
+   "tokenTransfers": [],
+   "internalTransactions": [],
+   "tokenBalances": [
+    {
+     "tokenAddress": "0x047d4C0be17188892D57b10a1d90E90E5F3dA220",
+     "tokenName": "Buy in. Get rewarded.",
+     "tokenSymbol": "PAID",
+     "tokenType": "ERC-20",
+     "rawValue": "1767249333509746065408",
+     "formattedValue": "1767.249333509746065408"
+    },
+    {
+     "tokenAddress": "0x0d0ab8fD1f3ac5c6a6BD83814685bE5A2B63e506",
+     "tokenName": "Heirloom",
+     "tokenSymbol": "HEIR",
+     "tokenType": "ERC-20",
+     "rawValue": "1655837354391429971968",
+     "formattedValue": "1655.837354391429971968"
+    },
+    {
+     "tokenAddress": "0xA6b2bC6E9dE767C7734Eb9E15cDa1Ae371a079e7",
+     "tokenName": "Agemica",
+     "tokenSymbol": "AGE",
+     "tokenType": "ERC-20",
+     "rawValue": "1173078750680173346816",
+     "formattedValue": "1173.078750680173346816"
+    },
+    {
+     "tokenAddress": "0x2627cBc6880Fcc356A49cE70AEe59E18BaA46224",
+     "tokenName": "CA5HCAT",
+     "tokenSymbol": "CA5HCAT",
+     "tokenType": "ERC-20",
+     "rawValue": "500000000000000000000",
+     "formattedValue": "500"
+    },
+    {
+     "tokenAddress": "0xF553178F864abEd95acd723720986C7301E44FC7",
+     "tokenName": "Jollybot",
+     "tokenSymbol": "JOLLY",
+     "tokenType": "ERC-20",
+     "rawValue": "129560474613839069184",
+     "formattedValue": "129.560474613839069184"
+    },
+    {
+     "tokenAddress": "0xce4FAD1Aad37b07AE8d7707de5642e185d9D9019",
+     "tokenName": "United Stable Dollar Coin",
+     "tokenSymbol": "USDC",
+     "tokenType": "ERC-20",
+     "rawValue": "85000000000000000000",
+     "formattedValue": "85"
+    },
+    {
+     "tokenAddress": "0x5DD716Fe12275B69f04b26bEeca343843C8e3539",
+     "tokenName": "NVIDIA Robinhood Coin",
+     "tokenSymbol": "NVDA",
+     "tokenType": "ERC-20",
+     "rawValue": "25000000000000000000",
+     "formattedValue": "25"
+    },
+    {
+     "tokenAddress": "0xf6bA88De6bdEb13ad28aa06241037b63740903f9",
+     "tokenName": "TikTok",
+     "tokenSymbol": "TikTok",
+     "tokenType": "ERC-20",
+     "rawValue": "16000000000000000000",
+     "formattedValue": "16"
+    },
+    {
+     "tokenAddress": "0xAAf877c3dB84f0463972A74bE0674790Dec42767",
+     "tokenName": "Strain Incursion",
+     "tokenSymbol": "SI",
+     "tokenType": "ERC-20",
+     "rawValue": "14000000000000000000",
+     "formattedValue": "14"
+    },
+    {
+     "tokenAddress": "0x5E42D056C4d4E7E7b701542d60Dff0d2B2Bff26b",
+     "tokenName": "Ribita Hood coin",
+     "tokenSymbol": "TIBBIR",
+     "tokenType": "ERC-20",
+     "rawValue": "14000000000000000000",
+     "formattedValue": "14"
+    },
+    {
+     "tokenAddress": "0xe23c94eCA975C5C6a4305D7Bb7afEa77551ab6E6",
+     "tokenName": "Global Dollar Stablecoin",
+     "tokenSymbol": "USDG",
+     "tokenType": "ERC-20",
+     "rawValue": "13000000000000000000",
+     "formattedValue": "13"
+    },
+    {
+     "tokenAddress": "0xDeb4AAfB40868F44cCEeC2635e619EB98555D7c8",
+     "tokenName": "Global Dollar",
+     "tokenSymbol": "USDG",
+     "tokenType": "ERC-20",
+     "rawValue": "10000000000000000000",
+     "formattedValue": "10"
+    },
+    {
+     "tokenAddress": "0x22a68Ae074150397C42d968Ec050CD1FF3501A51",
+     "tokenName": "NVIDIA Robinhood Token",
+     "tokenSymbol": "NVDA",
+     "tokenType": "ERC-20",
+     "rawValue": "10000000000000000000",
+     "formattedValue": "10"
+    },
+    {
+     "tokenAddress": "0x364a0A772BF822F654795a50029917aF24e53131",
+     "tokenName": "United States Dollar Ethena",
+     "tokenSymbol": "USDe",
+     "tokenType": "ERC-20",
+     "rawValue": "10000000000000000000",
+     "formattedValue": "10"
+    },
+    {
+     "tokenAddress": "0x22eCE380e6EA655113d2095f8d6037243B8890f0",
+     "tokenName": "United States Oil Fund",
+     "tokenSymbol": "USDC",
+     "tokenType": "ERC-20",
+     "rawValue": "10000000000000000000",
+     "formattedValue": "10"
+    },
+    {
+     "tokenAddress": "0xC82fb80AB69f68cA9F885f43F2b0cDE0b499102C",
+     "tokenName": "PO\u200bNS",
+     "tokenSymbol": "PO\u200bNS",
+     "tokenType": "ERC-20",
+     "rawValue": "10000000000000000000",
+     "formattedValue": "10"
+    },
+    {
+     "tokenAddress": "0xCE9e866c5a5deAEF13054f304a006aEDE94046Ff",
+     "tokenName": "GodCoin",
+     "tokenSymbol": "God",
+     "tokenType": "ERC-20",
+     "rawValue": "1000000000000000000",
+     "formattedValue": "1"
+    },
+    {
+     "tokenAddress": "0x8Ac8d7a388F9e3e8ffA81c48847E487E5E105e1c",
+     "tokenName": "Artificial Ape",
+     "tokenSymbol": "AIPE",
+     "tokenType": "ERC-20",
+     "rawValue": "1000000000000000000",
+     "formattedValue": "1"
+    },
+    {
+     "tokenAddress": "0xc5bBc1Bd629fE96E124947e3A85A68176c84F467",
+     "tokenName": "ChatGpt",
+     "tokenSymbol": "ChatGpt",
+     "tokenType": "ERC-20",
+     "rawValue": "8",
+     "formattedValue": "0.000000000000000008"
+    },
+    {
+     "tokenAddress": "0x2f7b5EadB0f537e32683b0Cdfd6c52F9344e5820",
+     "tokenName": "musebook",
+     "tokenSymbol": "musebook",
+     "tokenType": "ERC-20",
+     "rawValue": "8",
+     "formattedValue": "0.000000000000000008"
+    }
+   ],
+   "unusualActivity": [
+    "Multiple failed transactions appear in the fetched activity window."
+   ],
+   "hasTokenTransfers": true,
+   "hasTokens": true,
+   "isContract": false,
+   "chainId": 4663,
+   "explorerUrl": "https://robinhoodchain.blockscout.com/address/0x8c11085f7403efb485f4915b35640ca11389f19f",
+   "sourceIds": [
+    "16a05071-1b82-4c0b-8403-746aedd30d51",
+    "a8080916-eba0-4ae1-a537-2276cfab6ee6",
+    "828b1d07-1298-4dcf-8fb6-6d801db0a1d0",
+    "1207aa43-29b9-41ff-a48f-740b49527d3c",
+    "f5e04ead-b02f-41bd-a22e-8ab877eb2ec0"
+   ]
+  },
+  "uncertainty": [
+   "Provider data may be incomplete or temporarily unavailable.",
+   "Risk notes are heuristic signals, not guarantees of safety or malicious intent."
+  ],
+  "riskNotes": [
+   {
+    "severity": "medium",
+    "title": "Repeated transaction failures",
+    "detail": "14 failed transactions appear in the fetched activity window. This can indicate contract errors, insufficient gas, or repeated unsuccessful attempts.",
+    "evidenceCitationIds": [
+     "16a05071-1b82-4c0b-8403-746aedd30d51",
+     "a8080916-eba0-4ae1-a537-2276cfab6ee6",
+     "828b1d07-1298-4dcf-8fb6-6d801db0a1d0",
+     "1207aa43-29b9-41ff-a48f-740b49527d3c",
+     "f5e04ead-b02f-41bd-a22e-8ab877eb2ec0"
+    ]
+   }
+  ],
+  "citations": [
+   {
+    "id": "16a05071-1b82-4c0b-8403-746aedd30d51",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/address/0x8c11085f7403efb485f4915b35640ca11389f19f",
+    "fetchedAt": "2026-10-14T15:24:58.250Z",
+    "fieldsUsed": [
+     "hash",
+     "coin_balance",
+     "is_contract",
+     "token",
+     "implementations"
+    ],
+    "description": "blockscout wallet source data"
+   },
+   {
+    "id": "a8080916-eba0-4ae1-a537-2276cfab6ee6",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/address/0x8c11085f7403efb485f4915b35640ca11389f19f",
+    "fetchedAt": "2026-10-14T15:24:57.932Z",
+    "fieldsUsed": [
+     "items[].hash",
+     "items[].timestamp",
+     "items[].status",
+     "items[].from",
+     "items[].to",
+     "items[].value",
+     "items[].method"
+    ],
+    "description": "Indexed recent transactions \u00b7 blockscout"
+   },
+   {
+    "id": "828b1d07-1298-4dcf-8fb6-6d801db0a1d0",
+    "provider": "blockscout",
+    "url": "https://robinhoodchain.blockscout.com/address/0x8c11085f7403efb485f4915b35640ca11389f19f",
+    "fetchedAt": "2026-10-14T15:24:57.331Z",
+    "fieldsUsed": [
+     "items[].token",
+     "items[].balance",
+     "items[].value"
+    ],
+    "description": "Indexed token balances \u00b7 blockscout"
+   },
+   {
+    "id": "1207aa43-29b9-41ff-a48f-740b49527d3c",
+    "provider": "drpc",
+    "url": "https://robinhoodchain.blockscout.com/address/0x8c11085f7403efb485f4915b35640ca11389f19f",
+    "fetchedAt": "2026-10-14T15:24:56.869Z",
+    "fieldsUsed": [
+     "result"
+    ],
+    "description": "Contract code / account delegation \u00b7 drpc"
+   },
+   {
+    "id": "f5e04ead-b02f-41bd-a22e-8ab877eb2ec0",
+    "provider": "drpc",
+    "url": "https://robinhoodchain.blockscout.com/address/0x8c11085f7403efb485f4915b35640ca11389f19f",
+    "fetchedAt": "2026-10-14T15:24:56.869Z",
+    "fieldsUsed": [
+     "result"
+    ],
+    "description": "Native ETH balance \u00b7 drpc"
+   }
+  ],
+  "suggestedQuestions": [
+   "What source data supports this answer?",
+   "Summarize recent activity for this address.",
+   "Are there any evidence-based risk notes?"
+  ],
+  "suggestedFollowUps": [
+   "What source data supports this answer?",
+   "Summarize recent activity for this address.",
+   "Are there any evidence-based risk notes?"
+  ]
+ },
+ "privacy": {
+  "accountRequired": false,
+  "walletConnectionRequired": false,
+  "serverStorage": "none",
+  "browserStorage": "memory_only",
+  "clearsOnReload": true,
+  "modelProvider": "none",
+  "providerDestinations": [
+   "blockscout",
+   "drpc"
+  ],
+  "disclosure": "Only the public chain identifier is user-supplied to the listed data providers. When indexer balances are unavailable, the dRPC Robinhood Chain gateway may also receive Opsis's fixed 12-contract reviewed sample in one read-only balance call. dRPC is a paid gateway that may route each read to an independent node operator in its network. Your question is not sent to providers or to a model provider."
+ }
+}
