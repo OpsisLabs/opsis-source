@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "33-recover-and-watch",
+  "activeRelease": "34-explorer-data",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement. Exception: dRPC under Opsis decision D20, admitted only while it does not request identity or business verification.",
@@ -400,7 +400,7 @@
       "id": "33-recover-and-watch",
       "branch": "codex/33-recover-and-watch",
       "tagPrefix": "rc/33-recover-and-watch/",
-      "status": "active",
+      "status": "released",
       "dependencies": [
         "32-launch-load"
       ],
@@ -412,7 +412,7 @@
       "id": "34-explorer-data",
       "branch": "codex/34-explorer-data",
       "tagPrefix": "rc/34-explorer-data/",
-      "status": "queued",
+      "status": "active",
       "dependencies": [
         "33-recover-and-watch"
       ],
