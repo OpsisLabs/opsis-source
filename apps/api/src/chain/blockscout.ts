@@ -2,7 +2,7 @@ import { explorerUnavailableReason, type ExplorerUnavailableReason } from "./exp
 import { randomUUID } from "node:crypto";
 import type { Env } from "../config/env.js";
 import type { ChainProvider, ProviderQueryOptions, SourceDocumentInput } from "./types.js";
-import { createProviderHttp, type ProviderHttp } from "./provider-http.js";
+import { createProviderHttp, ProviderRequestError, type ProviderHttp } from "./provider-http.js";
 
 export type ExplorerDocuments = SourceDocumentInput[] & { explorerUnavailableReason?: ExplorerUnavailableReason };
 
@@ -67,28 +67,41 @@ export class BlockscoutProvider implements ChainProvider {
   }
 
   async getToken(address: string, options: ProviderQueryOptions = {}): Promise<SourceDocumentInput[]> {
-    const token = await this.fetchDoc("token", address, `/tokens/${address}`);
-    const maxPages = options.detail === "summary" ? 1 : this.maxPagesFor(options);
+    const summary = options.detail === "summary";
+    const maxPages = summary ? 1 : this.maxPagesFor(options);
     let reason: ExplorerUnavailableReason | undefined;
     const onError = (error: unknown) => { reason = mergeReason(reason, explorerUnavailableReason(error)); };
+    // Private Mode asks for every document at once and waits for the optional
+    // ones only up to a bound: the explorer takes up to several seconds per
+    // call, and reading the profile first made every uncached lookup wait for
+    // two round trips. Its callers have already established that the address
+    // is a token, so no call is spent on a non-token. Elsewhere the profile is
+    // still read first.
+    const tokenRead = this.fetchDoc("token", address, `/tokens/${address}`);
+    const token = summary ? undefined : await tokenRead;
+    const bounded = <T>(read: Promise<T>, late: T): Promise<T> => summary
+      ? withDeadline(read, this.env.BLOCKSCOUT_OPTIONAL_WAIT_MS, late, () => onError(new ProviderRequestError("PROVIDER_TIMEOUT", true)))
+      : read;
     // Holders, lifetime counters and the deploying address are what make
     // distribution analysis possible; the transfer window alone cannot show
     // who actually controls the supply.
-    const [transfers, contract, holders, counters, addressInfo] = await Promise.all([
-      this.fetchPaginated("token", address, `/tokens/${address}/transfers`, true, maxPages, onError),
-      this.fetchOptionalDoc("token", address, `/smart-contracts/${address}`, onError),
-      this.fetchOptionalDoc("token", address, `/tokens/${address}/holders`, onError),
-      this.fetchOptionalDoc("token", address, `/tokens/${address}/counters`, onError),
-      this.fetchOptionalDoc("token", address, `/addresses/${address}`, onError)
+    const optional = Promise.all([
+      bounded(this.fetchPaginated("token", address, `/tokens/${address}/transfers`, true, maxPages, onError), []),
+      bounded(this.fetchOptionalDoc("token", address, `/smart-contracts/${address}`, onError), undefined),
+      bounded(this.fetchOptionalDoc("token", address, `/tokens/${address}/holders`, onError), undefined),
+      bounded(this.fetchOptionalDoc("token", address, `/tokens/${address}/counters`, onError), undefined),
+      bounded(this.fetchOptionalDoc("token", address, `/addresses/${address}`, onError), undefined)
     ]);
+    const profile = token ?? await tokenRead;
+    const [transfers, contract, holders, counters, addressInfo] = await optional;
     // A token amount in the millions means nothing on its own. The transfer
     // rows carry no price, but the transaction that produced each one carries
     // the native coin it moved — fetch that for the largest few only, so the
     // headline transfers can be shown in ETH instead of raw token units.
-    const valueDocs = options.detail === "summary" ? [] : await this.fetchTopTransferTransactions(address, transfers);
+    const valueDocs = summary ? [] : await this.fetchTopTransferTransactions(address, transfers);
 
     return Object.assign([
-      token,
+      profile,
       ...transfers,
       ...(contract ? [contract] : []),
       ...(holders ? [holders] : []),
@@ -231,4 +244,13 @@ function mergeReason(current: ExplorerUnavailableReason | undefined, next: Explo
   if (current === "daily_limit" || next === "daily_limit") return "daily_limit";
   if (current === "rate_limited" || next === "rate_limited") return "rate_limited";
   return "unavailable";
+}
+
+/** Resolves with `late` (and calls `onLate`) if `read` has not settled within `ms`. */
+function withDeadline<T>(read: Promise<T>, ms: number, late: T, onLate: () => void): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const deadline = new Promise<T>((resolve) => {
+    timer = setTimeout(() => { onLate(); resolve(late); }, ms);
+  });
+  return Promise.race([read, deadline]).finally(() => clearTimeout(timer));
 }

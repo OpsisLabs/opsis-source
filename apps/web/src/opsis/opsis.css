@@ -1675,3 +1675,26 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* One heading scale for every page inside the shell (release 36). Tools,
+   Quant Lab, the perp scenario, Data status, the legal pages and the system
+   screens had grown five different sizes; the front door's hero lives in its
+   own frame and is unaffected. */
+.opsis.opsis-terminal main#opsis-content h1 {
+  font: 400 clamp(28px, 2.6vw, 36px) / 1.1 Opsis, sans-serif;
+  letter-spacing: -0.055em;
+}
+
+/* A sub-navigation row that scrolls sideways on a phone fades at its edge
+   instead of cutting a word off, and leaves room to scroll the last item
+   clear of the fade. */
+@media (max-width: 760px) {
+  .opsis.opsis-terminal nav.opsis-tool-nav {
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+  }
+  .opsis.opsis-terminal nav.opsis-tool-nav::after {
+    content: "";
+    flex: 0 0 16px;
+  }
+}

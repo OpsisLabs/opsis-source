@@ -122,7 +122,7 @@ export default function OneOffCheck({
           {t("watch.consent")}
         </label>
         <button
-          className="opsis-primary"
+          className="opsis-action"
           disabled={busy || !consent || !address.trim()}
         >
           {busy ? c("Checking…", "正在核查…") : c("Run a check", "运行核查")}
@@ -190,7 +190,7 @@ export default function OneOffCheck({
               ))}
             </ul>
           </details>
-          <button className="opsis-primary" onClick={() => onSave(snapshot)}>
+          <button className="opsis-action" onClick={() => onSave(snapshot)}>
             {c("Save to encrypted watchlist", "保存到加密观察列表")}
           </button>
         </div>

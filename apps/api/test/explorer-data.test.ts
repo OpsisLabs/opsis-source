@@ -274,6 +274,25 @@ describe("Private Mode explorer reads", () => {
     expect(set).toHaveBeenCalledOnce();
   });
 
+  it("reads the six token documents at once and stops waiting for a slow optional one", async () => {
+    const { http } = fixtureHttp();
+    const started: string[] = [];
+    const slow: ProviderHttp = { async requestJson(url, init) {
+      const path = new URL(url).pathname.replace(/^.*\/api\/v2/, "");
+      started.push(path);
+      // The profile resolves last: every optional read must already be under way.
+      if (path === `/tokens/${weth}`) await new Promise((resolve) => setTimeout(resolve, 20));
+      if (path.endsWith("/holders")) await new Promise((resolve) => setTimeout(resolve, 2000));
+      return http.requestJson(url, init);
+    } };
+    const subject = resolver(slow, new JsonCache(), { ...env, BLOCKSCOUT_OPTIONAL_WAIT_MS: 500 });
+    const begun = Date.now();
+    const result = await subject.resolveWithSources("token", weth, { privateMode: true });
+    expect(Date.now() - begun).toBeLessThan(1500);
+    expect(started).toEqual(tokenPaths(weth));
+    expect(result.entity.facts).toMatchObject({ holderCoverage: "unavailable", activityCoverage: "indexed_window", explorerUnavailableReason: "unavailable" });
+  });
+
   it("does not share a token read that is missing documents, so the next lookup reads again", async () => {
     const { http, calls } = fixtureHttp();
     const cache = new JsonCache(); const set = vi.spyOn(cache, "set");

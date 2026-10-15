@@ -6,7 +6,8 @@ describe("environment validation", () => {
     ["BLOCKSCOUT_REQUESTS_PER_SECOND", 4, 1, 50],
     ["BLOCKSCOUT_MAX_WAIT_MS", 2500, 0, 10000],
     ["BLOCKSCOUT_CREDIT_RESERVE", 5000, 0, 100000],
-    ["BLOCKSCOUT_TOKEN_CACHE_SECONDS", 900, 0, 3600]
+    ["BLOCKSCOUT_TOKEN_CACHE_SECONDS", 900, 0, 3600],
+    ["BLOCKSCOUT_OPTIONAL_WAIT_MS", 5000, 500, 10000]
   ] as const)("bounds %s and supplies its default", (setting, fallback, minimum, maximum) => {
     expect(loadEnv({ NODE_ENV: "test" })[setting]).toBe(fallback);
     for (const value of [minimum, maximum]) {

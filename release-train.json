@@ -441,7 +441,7 @@
         "35-explorer-accuracy"
       ],
       "outcome": "Every page reads as one product: the same heading scale and button styles throughout, and what the site says about itself (changelog, privacy) matches what it does",
-      "shipGate": "A whole-site walk of the live preview at laptop and phone sizes, in both themes and both languages, finds no page heading outside the shared scale, no unstyled control and no horizontal scroll; Watch's actions use the shared button style; the changelog lists the releases that shipped through release 35; the Privacy page states the public token data reuse that the product already discloses. Unit, failure-state, privacy and full release gates pass on the integrated candidate. No provider, chain, execution, paid path, workspace or new public claim."
+      "shipGate": "A whole-site walk of the live preview at laptop and phone sizes, in both themes and both languages, finds no page heading outside the shared scale, no unstyled control and no horizontal scroll; Watch's actions use the shared button style; the changelog lists the releases that shipped through release 35; the Privacy page states the public token data reuse that the product already discloses. A Private Mode token read requests its explorer documents at once and waits a bounded time for the optional ones, which then count as not read. Unit, failure-state, privacy and full release gates pass on the integrated candidate. No provider, chain, execution, paid path, workspace or new public claim."
     }
   ]
 }

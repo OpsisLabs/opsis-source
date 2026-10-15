@@ -115,7 +115,53 @@ const RC26_TAGGED = "2026-09-26T04:54:37Z";
 const PRODUCTION_VERIFIED = "2026-09-26T04:59:00Z";
 const RC29_TAGGED = "2026-10-12T23:21:19Z";
 const RC29_PRODUCTION_VERIFIED = "2026-10-12T23:40:00Z";
+const RC31_TAGGED = "2026-10-13T15:53:05Z";
+const RC31_PRODUCTION_VERIFIED = "2026-10-13T16:53:00Z";
+const RC34_TAGGED = "2026-10-14T16:56:05Z";
+const RC34_PRODUCTION_VERIFIED = "2026-10-14T17:05:00Z";
 export const reviewedChangelogEvidence: readonly ChangelogEvidence[] = [
+  {
+    id: "rc-34-holders",
+    releaseId: "34-explorer-data",
+    title: "Holders, transfers and verification in Research",
+    summary: "Research shows a token's holder count, lifetime transfers, source verification and upgradeable proxy, the largest holders with trading pools and burned supply shown separately, recent transfers and when the data was read, from Blockscout. A wallet shows its recent transactions. The explorer has a daily allowance; when it is used up, Research says so and answers from chain reads.",
+    titleZh: "研究中的持有人、转移与验证",
+    summaryZh: "研究会显示代币的持有人数、累计转移次数、源代码验证与可升级代理、最大持有人（交易池与销毁供应量单独列出）、近期转移以及数据读取时间，数据来自 Blockscout。钱包会显示近期交易。区块浏览器设有每日配额；配额用完时，研究会说明这一点，并改用链上读取作答。",
+    workspace: "research",
+    status: "shipped",
+    observedAt: RC34_TAGGED,
+    verifiedAt: RC34_PRODUCTION_VERIFIED,
+    sourceLabel: "Release 34 · rc/34-explorer-data/1",
+    sourceUrl: null,
+  },
+  {
+    id: "rc-34-lookalikes",
+    releaseId: "34-explorer-data",
+    title: "Lookalike tokens flagged in Watch and Research",
+    summary: "A token that uses a reviewed asset's symbol from a different contract, a well-known symbol that is not on the reviewed list, or a name with hidden characters is named as such and listed first. Watch checks reviewed assets first within its bound.",
+    titleZh: "观察与研究中标出仿冒代币",
+    summaryZh: "使用已审核资产符号但合约不同的代币、使用不在已审核列表中的知名符号的代币，以及名称含隐藏字符的代币，都会被明确标出并优先列出。观察会在其范围内优先核查已审核资产。",
+    workspace: "watch",
+    status: "shipped",
+    observedAt: RC34_TAGGED,
+    verifiedAt: RC34_PRODUCTION_VERIFIED,
+    sourceLabel: "Release 34 · rc/34-explorer-data/1",
+    sourceUrl: null,
+  },
+  {
+    id: "rc-31-first-visit",
+    releaseId: "31-first-visit",
+    title: "Research recognises tokens and explains transactions",
+    summary: "Auto mode recognises a token from its address. Transfers, approvals and Uniswap V3 swaps in a transaction are explained in plain words, wallet balances are shown, and reviewed symbols and one-click examples start a lookup. Trade Check no longer quotes a token into itself.",
+    titleZh: "研究可识别代币并解释交易",
+    summaryZh: "自动模式可根据地址识别代币。交易中的转账、授权和 Uniswap V3 兑换会用通俗语言解释，钱包余额会显示出来，已审核符号和一键示例可直接开始查询。交易核查不再把代币报价为其自身。",
+    workspace: "research",
+    status: "shipped",
+    observedAt: RC31_TAGGED,
+    verifiedAt: RC31_PRODUCTION_VERIFIED,
+    sourceLabel: "Release 31 · rc/31-first-visit/1",
+    sourceUrl: null,
+  },
   {
     id: "rc-29-perp-tools",
     releaseId: "29-perp-handoff",

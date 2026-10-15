@@ -43,13 +43,15 @@ describe("evidence-derived changelog", () => {
   });
   it("publishes only verified, bilingual release entries without forbidden claims", () => {
     const entries = deriveChangelog(reviewedChangelogEvidence);
-    expect(entries).toHaveLength(6);
+    expect(entries).toHaveLength(9);
     expect(entries).toHaveLength(reviewedChangelogEvidence.length);
     expect(entries.map((entry) => entry.id)).toEqual([
+      "rc-34-holders", "rc-34-lookalikes", "rc-31-first-visit",
       "rc-29-perp-tools", "rc-25-biggest-trades-1", "rc-26-research",
       "rc-26-trade-check", "rc-26-watch", "rc-26-quant-lab",
     ]);
-    expect(entries[0]).toMatchObject({
+    expect(entries[0]).toMatchObject({ releaseId: "34-explorer-data", workspace: "research", date: "2026-10-14" });
+    expect(entries[3]).toMatchObject({
       releaseId: "29-perp-handoff", workspace: "check", date: "2026-10-12",
       observedAt: "2026-10-12T23:21:19Z", verifiedAt: "2026-10-12T23:40:00Z",
       sourceLabel: "Release 29 · rc/29-perp-handoff/1", sourceUrl: null,
