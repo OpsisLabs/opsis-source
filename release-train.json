@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "35-explorer-accuracy",
+  "activeRelease": "36-cohesion",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement. Exception: dRPC under Opsis decision D20, admitted only while it does not request identity or business verification.",
@@ -424,7 +424,7 @@
       "id": "35-explorer-accuracy",
       "branch": "codex/35-explorer-accuracy",
       "tagPrefix": "rc/35-explorer-accuracy/",
-      "status": "active",
+      "status": "released",
       "dependencies": [
         "34-explorer-data"
       ],
@@ -436,7 +436,7 @@
       "id": "36-cohesion",
       "branch": "codex/36-cohesion",
       "tagPrefix": "rc/36-cohesion/",
-      "status": "queued",
+      "status": "active",
       "dependencies": [
         "35-explorer-accuracy"
       ],
