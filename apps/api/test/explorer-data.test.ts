@@ -21,6 +21,9 @@ const env = loadEnv({ NODE_ENV: "test", ENABLE_PUBLIC_RPC_FALLBACK: "true" });
 const fixture = (name: string): unknown => JSON.parse(readFileSync(new URL(`./fixtures/explorer-live/${name}.json`, import.meta.url), "utf8"));
 const tokenPaths = (address: string) => [`/tokens/${address}`, `/tokens/${address}/transfers`, `/smart-contracts/${address}`,
   `/tokens/${address}/holders`, `/tokens/${address}/counters`, `/addresses/${address}`];
+// Private Mode starts the four slowest documents first, then the profile and counts.
+const summaryOrder = (address: string) => [`/tokens/${address}/transfers`, `/smart-contracts/${address}`, `/addresses/${address}`,
+  `/tokens/${address}/holders`, `/tokens/${address}`, `/tokens/${address}/counters`];
 function tokenDocs(prefix = "weth", address = weth): SourceDocumentInput[] {
   return ["token", "transfers", "contract", "holders", "counters", "address"].map((name, i) => ({
     id: `${prefix}-${name}`, provider: "blockscout", chainId: 4663, entityType: "token", entityValue: address,
@@ -172,7 +175,7 @@ describe("Private Mode explorer reads", () => {
   it("fetches exactly six token documents with one transfer page and no native pricing", async () => {
     const { http, calls } = fixtureHttp();
     const result = await resolver(http).resolveWithSources("token", weth, { privateMode: true, limit: 500 });
-    expect(calls).toEqual(tokenPaths(weth));
+    expect(calls).toEqual(summaryOrder(weth));
     expect(result.sources).toHaveLength(6);
     expect(result.entity.facts.recentTransfers).toHaveLength(12);
     expect((result.entity.facts.recentTransfers as Array<Record<string, unknown>>).every((transfer) => !("nativeValue" in transfer))).toBe(true);
@@ -187,7 +190,7 @@ describe("Private Mode explorer reads", () => {
     } };
     const result = await resolver(orderedHttp, new JsonCache(), env, rpc).resolveWithSources("unknown", weth, { privateMode: true });
     expect(result.entity.type).toBe("token");
-    expect(calls).toEqual(tokenPaths(weth));
+    expect(calls).toEqual(summaryOrder(weth));
     expect(result.entity.facts.sourceCoverage).toBe("explorer_metadata");
     expect(result.sources.some((doc) => doc.provider !== "blockscout")).toBe(false);
   });
@@ -289,8 +292,22 @@ describe("Private Mode explorer reads", () => {
     const begun = Date.now();
     const result = await subject.resolveWithSources("token", weth, { privateMode: true });
     expect(Date.now() - begun).toBeLessThan(1500);
-    expect(started).toEqual(tokenPaths(weth));
+    expect(started).toEqual(summaryOrder(weth));
     expect(result.entity.facts).toMatchObject({ holderCoverage: "unavailable", activityCoverage: "indexed_window", explorerUnavailableReason: "unavailable" });
+  });
+
+  it("shares a read whose address profile failed, and not one whose contract record failed", async () => {
+    for (const [failing, shared] of [[`/addresses/${weth}`, true], [`/smart-contracts/${weth}`, false]] as const) {
+      const { http } = fixtureHttp();
+      const cache = new JsonCache(); const set = vi.spyOn(cache, "set");
+      const subject = resolver({ async requestJson(url, init) {
+        if (new URL(url).pathname.endsWith(failing)) throw new ProviderRequestError("PROVIDER_TIMEOUT", true);
+        return http.requestJson(url, init);
+      } }, cache);
+      const result = await subject.resolveWithSources("token", weth, { privateMode: true });
+      expect(result.entity.facts.holderCoverage).toBe("top_holders");
+      expect(set).toHaveBeenCalledTimes(shared ? 1 : 0);
+    }
   });
 
   it("does not share a token read that is missing documents, so the next lookup reads again", async () => {
@@ -321,7 +338,7 @@ describe("Private Mode explorer reads", () => {
     expect(result.entity.facts.holderCoverage).toBe("top_holders");
     // The explorer address summary classifies it; the token read is the six-call summary.
     expect(calls.filter((path) => path.startsWith("/transactions/"))).toEqual([]);
-    expect(calls.slice(-6)).toEqual(tokenPaths(weth));
+    expect(calls.slice(-6)).toEqual(summaryOrder(weth));
   });
 
   it("never caches wallet summaries, even when their explorer reads succeed", async () => {

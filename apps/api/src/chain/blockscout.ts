@@ -71,29 +71,29 @@ export class BlockscoutProvider implements ChainProvider {
     const maxPages = summary ? 1 : this.maxPagesFor(options);
     let reason: ExplorerUnavailableReason | undefined;
     const onError = (error: unknown) => { reason = mergeReason(reason, explorerUnavailableReason(error)); };
-    // Private Mode asks for every document at once and waits for the optional
-    // ones only up to a bound: the explorer takes up to several seconds per
-    // call, and reading the profile first made every uncached lookup wait for
-    // two round trips. Its callers have already established that the address
-    // is a token, so no call is spent on a non-token. Elsewhere the profile is
-    // still read first.
-    const tokenRead = this.fetchDoc("token", address, `/tokens/${address}`);
-    const token = summary ? undefined : await tokenRead;
+    // Private Mode asks for every document at once instead of reading the
+    // profile first: the explorer takes up to several seconds per call, so the
+    // old order made every uncached lookup wait for two round trips. Under the
+    // per-second limit the four slowest documents start first and the two fast
+    // ones (profile and counts) take the second slot. `BLOCKSCOUT_OPTIONAL_WAIT_MS`
+    // is only a backstop for a document that hangs. Callers have already
+    // established that the address is a token, so no call is spent on a
+    // non-token. Elsewhere the profile is still read first.
     const bounded = <T>(read: Promise<T>, late: T): Promise<T> => summary
       ? withDeadline(read, this.env.BLOCKSCOUT_OPTIONAL_WAIT_MS, late, () => onError(new ProviderRequestError("PROVIDER_TIMEOUT", true)))
       : read;
+    const token = summary ? undefined : await this.fetchDoc("token", address, `/tokens/${address}`);
     // Holders, lifetime counters and the deploying address are what make
     // distribution analysis possible; the transfer window alone cannot show
     // who actually controls the supply.
-    const optional = Promise.all([
-      bounded(this.fetchPaginated("token", address, `/tokens/${address}/transfers`, true, maxPages, onError), []),
-      bounded(this.fetchOptionalDoc("token", address, `/smart-contracts/${address}`, onError), undefined),
-      bounded(this.fetchOptionalDoc("token", address, `/tokens/${address}/holders`, onError), undefined),
-      bounded(this.fetchOptionalDoc("token", address, `/tokens/${address}/counters`, onError), undefined),
-      bounded(this.fetchOptionalDoc("token", address, `/addresses/${address}`, onError), undefined)
-    ]);
-    const profile = token ?? await tokenRead;
-    const [transfers, contract, holders, counters, addressInfo] = await optional;
+    const transfersRead = bounded(this.fetchPaginated("token", address, `/tokens/${address}/transfers`, true, maxPages, onError), []);
+    const contractRead = bounded(this.fetchOptionalDoc("token", address, `/smart-contracts/${address}`, onError), undefined);
+    const addressRead = bounded(this.fetchOptionalDoc("token", address, `/addresses/${address}`, onError), undefined);
+    const holdersRead = bounded(this.fetchOptionalDoc("token", address, `/tokens/${address}/holders`, onError), undefined);
+    const tokenRead = token ? Promise.resolve(token) : this.fetchDoc("token", address, `/tokens/${address}`);
+    const countersRead = bounded(this.fetchOptionalDoc("token", address, `/tokens/${address}/counters`, onError), undefined);
+    const profile = await tokenRead;
+    const [transfers, contract, holders, counters, addressInfo] = await Promise.all([transfersRead, contractRead, holdersRead, countersRead, addressRead]);
     // A token amount in the millions means nothing on its own. The transfer
     // rows carry no price, but the transaction that produced each one carries
     // the native coin it moved — fetch that for the largest few only, so the

@@ -334,10 +334,12 @@ export class ChainEntityResolver {
     const read = (async (): Promise<TokenBundle> => {
       const documents = await this.blockscout.getToken(address, { limit, detail: "summary" }) as ExplorerDocuments;
       const bundle = { documents, reason: documents.explorerUnavailableReason };
-      // Only a complete read is shared: a bundle missing holders or transfers
-      // because the explorer was busy would otherwise hide them, without the
-      // reason, for the whole cache period.
-      if (ttl > 0 && !bundle.reason && documents.some((doc) => doc.requestUrl && new URL(doc.requestUrl).pathname.endsWith(`/tokens/${address}`))) {
+      // Only a read with its core documents is shared: a bundle missing
+      // holders, transfers or the contract record because the explorer was
+      // busy would otherwise hide them, without the reason, for the whole cache
+      // period. A missing address profile or counts document only leaves the
+      // deployer or lifetime counts unknown and does not block reuse.
+      if (ttl > 0 && hasCoreTokenDocuments(documents, address)) {
         await this.cache.set(key, bundle, ttl);
       }
       return bundle;
@@ -578,4 +580,12 @@ function throwProviderFailure(results: PromiseSettledResult<unknown>[]): never {
   const notFound = errors.find((error) => error && typeof error === "object" && "code" in error && error.code === "PROVIDER_HTTP_404");
   if (notFound) throw new AppError("NOT_FOUND", 404, "Entity was not found on Robinhood Chain");
   throw errors[0] ?? new AppError("PROVIDER_UNAVAILABLE", 503, "Chain data providers are unavailable");
+}
+
+function hasCoreTokenDocuments(documents: SourceDocumentInput[], address: string): boolean {
+  const paths = documents.flatMap((doc) => doc.requestUrl ? [new URL(doc.requestUrl).pathname] : []);
+  return paths.some((path) => path.endsWith(`/tokens/${address}`))
+    && paths.some((path) => path.endsWith(`/tokens/${address}/holders`))
+    && paths.some((path) => path.endsWith(`/tokens/${address}/transfers`))
+    && paths.some((path) => path.endsWith(`/smart-contracts/${address}`));
 }

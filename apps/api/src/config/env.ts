@@ -87,7 +87,7 @@ const envSchema = z.object({
   BLOCKSCOUT_MAX_WAIT_MS: z.coerce.number().int().min(0).max(10000).default(2500),
   BLOCKSCOUT_CREDIT_RESERVE: z.coerce.number().int().min(0).default(5000),
   BLOCKSCOUT_TOKEN_CACHE_SECONDS: z.coerce.number().int().min(0).max(3600).default(900),
-  BLOCKSCOUT_OPTIONAL_WAIT_MS: z.coerce.number().int().min(500).max(10000).default(5000),
+  BLOCKSCOUT_OPTIONAL_WAIT_MS: z.coerce.number().int().min(500).max(10000).default(8000),
   BLOCKSCOUT_MAX_PAGES: z.coerce.number().int().min(1).max(10).default(3),
   ALCHEMY_API_KEY: z.string().optional(),
   ALCHEMY_ROBINHOOD_RPC_URL: optionalUrl,
