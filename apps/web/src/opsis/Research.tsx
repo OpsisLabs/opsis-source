@@ -432,7 +432,8 @@ export default function Research({
               </div>
               <ResearchEvidence sources={result.answer.citations} />
               </div>
-              <details className="research-drill-down"><summary>{c("Evidence map and findings", "证据图与分析")}</summary>
+              {/* Open when the visitor asked for the sources; folded away otherwise. */}
+              <details className="research-drill-down" open={task === "evidence" || undefined}><summary>{c("Evidence map and findings", "证据图与分析")}</summary>
               <EvidenceMap
                 key={result.entity.value}
                 findings={[

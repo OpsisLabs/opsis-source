@@ -66,6 +66,10 @@ export default function WorkspaceShell({
             )}
           </div>
         </div>
+        {/* A bilingual product keeps its language one tap away on a phone. */}
+        <button className="opsis-phone-locale" onClick={onLocale}>
+          {locale === "en" ? "中文" : "English"}
+        </button>
         <button
           ref={trigger}
           className="opsis-menu-trigger"
@@ -118,9 +122,6 @@ export default function WorkspaceShell({
             onClick={onTheme}
           >
             {theme === "dark" ? c("Dark", "深色") : c("Light", "浅色")}
-          </button>
-          <button onClick={onLocale}>
-            {locale === "en" ? "中文" : "English"}
           </button>
           {onLock && (
             <button

@@ -311,9 +311,7 @@ test.describe("opsis preview", () => {
       .click();
     await closeOpsisMenu(page);
     await expect(page.locator(".opsis")).toHaveAttribute("data-theme", "dark");
-    await openOpsisMenu(page);
     await page.getByRole("button", { name: "中文", exact: true }).click();
-    await closeOpsisMenu(page);
     await expect(
       page
         .getByRole("navigation", { name: "工作区", exact: true })

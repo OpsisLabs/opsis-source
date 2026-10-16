@@ -582,3 +582,25 @@
   width: 100%;
   max-width: 960px;
 }
+
+/* Phone: the language switch sits beside the menu button; hidden elsewhere. */
+.opsis .opsis-topbar .opsis-phone-locale {
+  display: none;
+}
+@media (max-width: 700px) {
+  .opsis .opsis-topbar .opsis-phone-locale {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    min-width: 44px;
+    margin-left: auto;
+    padding: 0 12px;
+    border: 1px solid var(--brand-muted);
+    background: transparent;
+    color: var(--brand-ink);
+    font: 13px Opsis, sans-serif;
+  }
+  .opsis .opsis-topbar .opsis-phone-locale + .opsis-menu-trigger {
+    margin-left: 8px;
+  }
+}

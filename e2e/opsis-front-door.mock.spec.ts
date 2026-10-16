@@ -78,7 +78,8 @@ test("opsis preview front door Chinese shortcuts and reduced-motion poster", asy
   await expect(film.locator("#poster")).toBeVisible();
   await film.locator('.topbar [data-workspace="research"]').click();
   await page.getByRole("button", { name: "中文", exact: true }).click();
-  await page.locator('.opsis-back').click();
+  // The wordmark returns to the front page (the old back bar is gone).
+  await page.locator('.opsis-topbar a.opsis-logo').click();
   await expect(film.locator("html")).toHaveAttribute("lang", "zh-CN");
   await expect(film.locator("#index-list strong")).toHaveText(["研究", "交易核查", "观察", "股票代币核查", "量化实验室", "世界与市场"]);
   const rail = film.locator("#sidebar-toggle");
@@ -86,6 +87,7 @@ test("opsis preview front door Chinese shortcuts and reduced-motion poster", asy
   await film.locator('#rail-tools [data-tool="watch"]').focus();
   await film.locator('#rail-tools [data-tool="watch"]').press("Enter");
   await expect(page).toHaveURL(/\/watch$/);
-  await page.locator('.opsis-back').click();
+  // The wordmark returns to the front page (the old back bar is gone).
+  await page.locator('.opsis-topbar a.opsis-logo').click();
   await expect(film.locator('#rail-tools [data-tool="watch"]')).toBeFocused();
 });

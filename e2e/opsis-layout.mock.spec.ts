@@ -81,11 +81,8 @@ test.describe("Opsis compact layout", () => {
           await page.goto("/research");
           await expect(page.locator("#research-entity")).toBeVisible();
           if (locale === "zh-CN") {
-            await openOpsisMenu(page);
-            await page
-              .getByRole("button", { name: "中文", exact: true })
-              .click();
-            await closeOpsisMenu(page);
+            // The language switch sits in the top bar on every width.
+            await page.getByRole("button", { name: "中文", exact: true }).click();
           }
           for (const [path, input, action] of [
             [
@@ -126,9 +123,8 @@ test.describe("Opsis compact layout", () => {
         await page.goto("/research");
         await expect(page.locator("#research-entity")).toBeVisible();
         if (locale === "zh-CN") {
-          await openOpsisMenu(page);
+          // The language switch sits in the top bar on every width.
           await page.getByRole("button", { name: "中文", exact: true }).click();
-          await closeOpsisMenu(page);
         }
         const heights: number[] = [];
         const contentTops: number[] = [];
@@ -174,9 +170,8 @@ test.describe("Opsis compact layout", () => {
         await page.goto("/research");
         await expect(page.locator("#research-entity")).toBeVisible();
         if (locale === "zh-CN") {
-          await openOpsisMenu(page);
+          // The language switch sits in the top bar on every width.
           await page.getByRole("button", { name: "中文", exact: true }).click();
-          await closeOpsisMenu(page);
         }
         for (const path of toolRoutes) {
           await page.goto(path);
@@ -309,9 +304,8 @@ test.describe("Opsis compact layout", () => {
       tasks.getByRole("button", { name: "I'm holding assets" }),
     ).toHaveAttribute("aria-pressed", "true");
     await expect(page).toHaveURL(/\/guide$/);
-    await openOpsisMenu(page);
+    // The language switch sits in the top bar on every width.
     await page.getByRole("button", { name: "中文", exact: true }).click();
-    await closeOpsisMenu(page);
     const chineseTasks = page.getByRole("group", { name: "选择任务" });
     await chineseTasks.getByRole("button", { name: "我交易代币" }).click();
     await expect(

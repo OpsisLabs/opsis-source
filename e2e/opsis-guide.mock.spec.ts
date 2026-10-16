@@ -107,9 +107,7 @@ test.describe("Opsis tool finder", () => {
     });
     await expect(suggestions).toContainText("No tools enabled for this task");
     await expect(suggestions.getByRole("link")).toHaveCount(0);
-    await openOpsisMenu(page);
     await page.getByRole("button", { name: "中文", exact: true }).click();
-    await closeOpsisMenu(page);
     await page.setViewportSize({ width: 320, height: 844 });
     await page.getByRole("button", { name: "我探索数据与情景" }).click();
     await expect(
