@@ -52,7 +52,9 @@ for (const chinese of [false, true]) {
       language.chinese = chinese;
       const snapshot = watchFixture();
       const html = renderToStaticMarkup(<WalletSnapshot snapshot={snapshot} onSave={() => {}} />);
-      expect(html).toContain("1.000000000000000001 ETH");
+      // The tile shows a short form; the holdings table keeps the exact value.
+      expect(html).toContain("1.000000… ETH");
+      expect(html).toContain("<td>1.000000000000000001</td>");
       expect(html).toContain(chinese ? "1 个中的 1 个" : "1 of 1");
       expect(html).toContain(chinese ? "保存到加密观察列表" : "Save to encrypted watchlist");
       expect(html).toContain(chinese ? "在此设备上加密" : "Encrypted on this device");

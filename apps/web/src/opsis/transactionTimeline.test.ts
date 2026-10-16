@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { tokenHeading, actionAmount, feePercent, formatExactAmount, scaleRawAmount, receiptTransferObservations, transactionReceiptOutcome, transactionTimelineRows } from "./transactionTimeline";
+import { compactAmount, tokenHeading, actionAmount, feePercent, formatExactAmount, scaleRawAmount, receiptTransferObservations, transactionReceiptOutcome, transactionTimelineRows } from "./transactionTimeline";
 
 describe("transaction observations", () => {
   it("validates receipt Transfer-shaped observations and caps rendered rows at 64", () => {
@@ -98,5 +98,15 @@ describe("exact action amounts", () => {
     expect(actionAmount({ rawAmount: "1000000", amount: "1", token: { decimals: 6 } })).toBe("1");
     expect(actionAmount({ rawAmount: "1000000", amount: "2", token: { decimals: 6 } })).toBeNull();
     expect(actionAmount({ rawAmount: "1", amount: null, token: { decimals: null } })).toBeNull();
+  });
+});
+
+describe("compactAmount", () => {
+  it("cuts long fractions without rounding up and marks the cut", () => {
+    expect(compactAmount("0.153706747198549098")).toBe("0.153706…");
+    expect(compactAmount("1234.5")).toBe("1,234.5");
+    expect(compactAmount("2.000000999")).toBe("2.000000…");
+    expect(compactAmount("0.1234567", 3)).toBe("0.123…");
+    expect(compactAmount("not a number")).toBeNull();
   });
 });

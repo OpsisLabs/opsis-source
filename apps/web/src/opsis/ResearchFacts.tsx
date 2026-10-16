@@ -8,7 +8,7 @@ import {
   latestTimestamp, lookalikeAsset, relativeTime, reviewedAsset,
   researchEvidenceGroups, walletActivity, sharePercent, transactionDirection, transactionMethod, visibleTokenText, wellKnownUnreviewedSymbol,
 } from "./explorer-facts";
-import { actionAmount, feePercent, formatExactAmount, orderActions, scaleRawAmount, transactionReceiptOutcome, transactionTimelineRows } from "./transactionTimeline";
+import { compactAmount, actionAmount, feePercent, formatExactAmount, orderActions, scaleRawAmount, transactionReceiptOutcome, transactionTimelineRows } from "./transactionTimeline";
 
 export function PublicAddress({ address }: { address: string }) {
   const c = useCopy();
@@ -290,7 +290,7 @@ export function ResearchTiles({ facts, type }: { facts: ResearchFacts; type: "to
         {facts.proxy === true && facts.implementations?.map((implementation) => <p key={implementation.address}>{c("Implementation", "实现合约")}: <PublicAddress address={implementation.address} />{implementation.name && <> · {visibleTokenText(implementation.name)}</>}</p>)}
       </>} />
     </> : <>
-      <Tile label={c("ETH balance", "ETH 余额")} value={formatExactAmount(facts.nativeBalanceEth) ?? unknown} detail={formatExactAmount(facts.nativeBalanceEth) === null ? c("Native balance not read", "未读取原生余额") : c("Observed sample", "观察采样")} />
+      <Tile label={c("ETH balance", "ETH 余额")} value={compactAmount(facts.nativeBalanceEth) === null ? unknown : <span title={formatExactAmount(facts.nativeBalanceEth) ?? undefined}>{compactAmount(facts.nativeBalanceEth)}</span>} detail={formatExactAmount(facts.nativeBalanceEth) === null ? c("Native balance not read", "未读取原生余额") : c("Observed sample", "观察采样")} />
       <Tile label={c("Tokens", "代币")} value={tokenCount ?? unknown} detail={tokenCount === null ? c("Token balances not read", "未读取代币余额") : c("In the returned sample", "返回采样中的数量")} />
       <Tile label={c("Recent transactions", "近期交易")} value={activity.count ?? unknown} detail={activity.count === null ? c("Transaction window not read", "未读取交易窗口") : c("In this window", "此窗口中的数量")} />
       <Tile label={c("Failed", "失败")} value={activity.failed ?? unknown} detail={activity.failed === null ? c("Transaction statuses not fully read", "未完整读取交易状态") : c("In this window", "此窗口中的数量")} />

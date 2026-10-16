@@ -137,6 +137,20 @@ export function formatExactAmount(value: unknown): string | null {
   return `${whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}${fraction ? `.${fraction}` : ""}`;
 }
 
+/**
+ * A short form for tight spaces such as fact tiles: at most `places` decimals,
+ * cut (never rounded up) and marked with "…" when digits were dropped, keeping
+ * the zeros so "1.000000…" does not read as a whole number. Show the exact
+ * value beside it or on hover.
+ */
+export function compactAmount(value: unknown, places = 6): string | null {
+  const exact = formatExactAmount(value);
+  if (exact === null) return null;
+  const [whole, fraction] = exact.split(".");
+  if (!fraction || fraction.length <= places) return exact;
+  return `${whole}.${fraction.slice(0, places)}…`;
+}
+
 export function scaleRawAmount(raw: unknown, decimals: unknown): string | null {
   if (!integerString(raw) || typeof decimals !== "number" || !Number.isInteger(decimals) || decimals < 0 || decimals > 255) return null;
   const text = BigInt(raw).toString().padStart(decimals + 1, "0");

@@ -6,6 +6,7 @@ import type {
   PortfolioTokenHolding,
 } from "@rh-chain/shared";
 import { useCopy } from "../opsis/copy";
+import { compactAmount } from "../opsis/transactionTimeline";
 import { visibleTokenText } from "../opsis/explorer-facts";
 import { useI18n } from "../i18n";
 import { checkPublicWallet } from "./one-off";
@@ -344,7 +345,7 @@ export function WalletSnapshot({
   const facts = [
     [
       c("ETH balance", "ETH 余额"),
-      `${snapshot.nativeBalanceEth} ${snapshot.chain.nativeSymbol}`,
+      `${compactAmount(snapshot.nativeBalanceEth) ?? snapshot.nativeBalanceEth} ${snapshot.chain.nativeSymbol}`,
     ],
     [
       c("Tokens checked", "已核查代币"),
