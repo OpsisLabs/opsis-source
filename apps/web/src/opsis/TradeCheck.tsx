@@ -164,9 +164,6 @@ export default function TradeCheck({
   return (
     <div className="opsis-check-page">
       <header className="opsis-heading opsis-check-heading">
-        <p className="opsis-kicker">
-          {c("BEFORE YOU TRADE / TRADE CHECK", "交易前 / 交易核查")}
-        </p>
         <h1>{c("What comes out at this size?", "这个数量能换出多少？")}</h1>
         <p>
           {c("Estimate the output. See the costs.", "估算输出，查看成本。")}

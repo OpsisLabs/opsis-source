@@ -85,7 +85,7 @@
   margin: 0;
 }
 .opsis-perp-review {
-  background: var(--surface-info);
+  background: var(--panel-hover);
 }
 .opsis-perp-venue {
   border-top: 2px solid var(--accent);

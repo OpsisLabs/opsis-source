@@ -306,7 +306,6 @@ export function ResearchIdentity({ entity, checkedAt }: { entity: PrivateAnalysi
   const outcome = transactionReceiptOutcome(facts.status);
   const block = transactionTimelineRows(facts).find((row) => row.key === "block")?.value;
   return <header className="research-identity" data-testid="research-identity">
-    <p className="opsis-kicker">{c("LOOK UP / RESEARCH", "查询 / 研究")}</p>
     <div className="research-identity-title"><h2>{entity.type === "token" ? symbol : entity.type === "wallet" ? c("Wallet", "钱包") : entity.type === "transaction" ? c("Transaction", "交易") : c("Contract", "合约")}</h2>
       {entity.type === "token" && name && name !== symbol && <span>{name}</span>}
       {entity.type === "wallet" && <span className="research-identity-short">{entity.value.slice(0, 8)}…{entity.value.slice(-4)}</span>}

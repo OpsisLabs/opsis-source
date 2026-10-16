@@ -132,7 +132,7 @@
 }
 .opsis .watch-button[aria-current="true"] {
   border-color: var(--accent);
-  background: var(--surface-info);
+  background: var(--panel-hover);
 }
 .opsis .watch-workspace :is(button, input, select, summary, a):focus-visible,
 .opsis .saved-workspace :is(button, input, textarea, summary, a):focus-visible {
@@ -237,7 +237,7 @@
   width: 30%;
 }
 .opsis .watch-holdings thead {
-  background: var(--surface-info);
+  background: var(--panel-hover);
 }
 .opsis .watch-letter {
   display: inline-flex;
@@ -266,7 +266,7 @@
 }
 .opsis .watch-warning-row > td > div {
   padding: 8px 10px;
-  background: var(--surface-info);
+  background: var(--panel-hover);
   font-size: 11px;
   color: var(--ink);
 }
@@ -365,7 +365,7 @@
 .opsis .watch-notice {
   padding: 12px;
   border: 1px solid var(--line);
-  background: var(--surface-info);
+  background: var(--panel-hover);
   font-size: 13px;
 }
 .opsis .watch-inbox-table {
@@ -387,7 +387,7 @@
   margin-left: 5px;
 }
 .opsis .watch-workspace .watch-panel[aria-current="true"] {
-  background: var(--surface-info);
+  background: var(--panel-hover);
   border-color: var(--accent);
 }
 .opsis .saved-workspace .opsis-saved-tabs {
@@ -402,9 +402,10 @@
     monospace;
 }
 .opsis .saved-workspace .opsis-saved-tabs a[aria-current="page"] {
-  background: var(--surface-info);
-  color: var(--accent);
+  background: var(--panel-hover);
+  color: var(--ink);
   border-color: var(--accent);
+  box-shadow: inset 0 -2px 0 var(--accent);
 }
 .opsis .opsis-report-shelf {
   min-width: 0;
@@ -433,7 +434,7 @@
 }
 .opsis .saved-report-grid > aside nav button[aria-current="true"] {
   border-left: 3px solid var(--accent);
-  background: var(--surface-info);
+  background: var(--panel-hover);
 }
 .opsis .saved-report-grid > aside nav button {
   border-radius: 0;
@@ -616,4 +617,21 @@
 }
 .opsis .saved-report-grid > .saved-report-detail {
   background: var(--panel) !important;
+}
+
+/* The Vault's own buttons take the shared primary style inside Saved (the
+   Vault component keeps its legacy utility classes for other hosts). */
+.opsis .saved-vault-panel button.clip-btn-sm,
+.opsis .saved-vault-panel button.clip-btn {
+  background: var(--button);
+  color: var(--button-ink);
+  border: 1px solid var(--button);
+  border-radius: 0;
+  font: 400 14px/1.2 Opsis, sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.opsis .saved-vault-panel button.clip-btn-sm:disabled,
+.opsis .saved-vault-panel button.clip-btn:disabled {
+  opacity: .48;
 }

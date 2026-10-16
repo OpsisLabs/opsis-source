@@ -87,7 +87,6 @@ export default function Lab() {
     <section className="opsis-native-lab">
       <header className="opsis-studio-heading">
         <div>
-          <p className="opsis-kicker">04 / {c("QUANT LAB", "量化实验室")}</p>
           <h1>{c("Quant Lab", "量化实验室")}</h1>
         </div>
         <p>

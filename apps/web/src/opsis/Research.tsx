@@ -136,7 +136,6 @@ export default function Research({
   return (
     <div className="research-workspace">
       <header className="opsis-heading">
-        <p className="opsis-kicker">01 / {c("RESEARCH", "研究")}</p>
         <h1>{c("What does the evidence show?", "证据表明了什么？")}</h1>
         <p>
           {c(

@@ -200,7 +200,7 @@
   margin-top: 4px;
 }
 .opsis-check-note {
-  background: var(--surface-info);
+  background: var(--panel-hover);
   padding: 12px;
   font:
     11px/1.6 OpsisMono,
@@ -230,7 +230,7 @@
   border-color: var(--accent);
 }
 .opsis-check-page :is(.opsis-bar-track, .opsis-check-bar-track) {
-  background: var(--surface-info);
+  background: var(--panel-hover);
 }
 .opsis-check-page :is(.opsis-bar-track, .opsis-check-bar-track) > span {
   display: block;
@@ -310,7 +310,7 @@
 }
 .opsis-check-page .opsis-perp-shock-choice[aria-pressed="true"] {
   border-color: var(--accent);
-  background: var(--surface-info);
+  background: var(--panel-hover);
 }
 .opsis-check-page table {
   width: 100%;

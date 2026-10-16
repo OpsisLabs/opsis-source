@@ -576,3 +576,9 @@
 .opsis .opsis-content .opsis-secondary:hover {
   background: var(--panel-hover);
 }
+
+/* The overview's search spans the content column, as in the concept. */
+.opsis .opsis-overview-search {
+  width: 100%;
+  max-width: 960px;
+}

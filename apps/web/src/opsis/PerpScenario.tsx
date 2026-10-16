@@ -211,9 +211,6 @@ export default function PerpScenario({
   return (
     <section className="opsis-perp-scenario opsis-check-page">
       <header className="opsis-heading opsis-check-heading">
-        <p className="opsis-kicker">
-          {c("BEFORE YOU TRADE / PERP COST SCENARIO", "交易前 / 永续成本情景")}
-        </p>
         <h1>
           {c("What remains after closing costs?", "平仓成本后还剩多少？")}
         </h1>

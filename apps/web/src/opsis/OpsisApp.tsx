@@ -445,7 +445,6 @@ export default function OpsisApp() {
             <NavigationFeedback capabilities={access} />
             <main id="opsis-content" className="opsis-content" tabIndex={-1}>
               <ToolPath />
-              <ToolOrientation capabilities={access} />
               <LoadBoundary shell resetKey={location.pathname}>
               <Suspense
                 fallback={
@@ -685,6 +684,7 @@ export default function OpsisApp() {
                 </OpsisCopy>
               </Suspense>
               </LoadBoundary>
+              <ToolOrientation capabilities={access} />
               <footer className="opsis-footer">
                 <Link to="/saved">{c("Saved", "已保存")}</Link>
                 <Link to="/status">{c("Data status", "数据状态")}</Link>
