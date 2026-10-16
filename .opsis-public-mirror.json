@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "26a9f522ac634cbba66fc3ebd71341a4a7244d43bd2f0cfaf56960999deea21e",
+  "sourceTreeDigest": "fc990178211f61afb740614653c37830ad73e103b8b8be367bf444474c3ee243",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "097f2a6d053a59da8dcdff90695121df3b9c84b794a5419c8677be4d26462e4d",
@@ -502,7 +502,7 @@
     "apps/web/src/opsis/model.ts": "863912af78084ac03e128ce032e6428383fbe3702c9f4c08081b3a80fd1a6811",
     "apps/web/src/opsis/NavigationFeedback.tsx": "a39e928f145a5b00f427913fe6d7092b18b666fa64df68ed2a291526f6b9392e",
     "apps/web/src/opsis/opsis.css": "76138487aae48a65dade210237fe164a293486eae66fde9dd92a394504ef3013",
-    "apps/web/src/opsis/OpsisApp.tsx": "0c1498ff1ee0a04b1e808a40812559a7cf19d8881ceb7592a567c46aaa287069",
+    "apps/web/src/opsis/OpsisApp.tsx": "5986ea4061d2232b118b652782229f603308307592e347a4016be9d13de0c37a",
     "apps/web/src/opsis/OpsisCopy.tsx": "8f15d5a79e88368cd4bb15a39ac561898e66141a770987d15b12639cfbb806a7",
     "apps/web/src/opsis/OriginalLanding.bridge.ts": "15d526c2157fd54a9a4b877d0998b0df58a4e1213d0c778c163c783116fb1587",
     "apps/web/src/opsis/OriginalLanding.test.tsx": "59f5904120495d1d3a84d05d3df63635ce1b19f16f9fd9d31617e70d080afcaa",
@@ -559,7 +559,7 @@
     "apps/web/src/opsis/SavedWorkspace.tsx": "a25fb267a8a453a6aef7919a29733d7c49f866e541adde60b7210026b831fa11",
     "apps/web/src/opsis/shell-model.test.ts": "e35906dba7af1108fe68565652ae12ba1233a6f1fab0a64bd65b9667605955ab",
     "apps/web/src/opsis/shell-model.ts": "c86b6dd55afb286e8443787fe90872be17ea82374049249f635447a9ec0f0cc2",
-    "apps/web/src/opsis/shell.css": "0354b553d2723790ac4bd03f9319ae6dda5549b9beb2a514403e777e2096e070",
+    "apps/web/src/opsis/shell.css": "8d95f2503f8c5c7e6b2fc7001ae9f18a8260bfba4d0410285222d0e0116e64de",
     "apps/web/src/opsis/shell/GroupPicture.tsx": "f980932a941a92b1c2dd2f9fb9fea5775ab3853241420146b84d8eac3200ad8d",
     "apps/web/src/opsis/shell/icons.tsx": "175b7dc367416d10997dfadf554d287f94185cbd9508c017bd38244d145ad3c1",
     "apps/web/src/opsis/shell/menu.test.tsx": "573fd313908acaa0edcf853a35cd4baae99a32ee97788a29f4267763eb364a9e",

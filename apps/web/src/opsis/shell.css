@@ -604,3 +604,24 @@
     margin-left: 8px;
   }
 }
+
+/* The footer sits after main (a contentinfo landmark), aligned with it. */
+.opsis.opsis-terminal > .opsis-footer {
+  margin: 0;
+  padding: 14px 32px 18px;
+  gap: 12px 20px;
+  background: var(--ground);
+  border-top: 1px solid var(--line);
+  font:
+    10px/1.6 OpsisMono,
+    monospace;
+  color: var(--soft);
+}
+.opsis.opsis-terminal > .opsis-footer a {
+  color: var(--soft);
+}
+@media (max-width: 700px) {
+  .opsis.opsis-terminal > .opsis-footer {
+    padding: 14px 16px 18px;
+  }
+}

@@ -685,7 +685,9 @@ export default function OpsisApp() {
               </Suspense>
               </LoadBoundary>
               <ToolOrientation capabilities={access} />
-              <footer className="opsis-footer">
+            </main>
+            {/* Outside main so it stays the page's contentinfo landmark. */}
+            <footer className="opsis-footer">
                 <Link to="/saved">{c("Saved", "已保存")}</Link>
                 <Link to="/status">{c("Data status", "数据状态")}</Link>
                 <Link to="/community">{c("Community", "社区")}</Link>
@@ -698,7 +700,6 @@ export default function OpsisApp() {
                   )}
                 </span>
               </footer>
-            </main>
           </>
         )}
       </div>
