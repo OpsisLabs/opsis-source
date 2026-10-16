@@ -1,3 +1,4 @@
+import { openOpsisMenu, closeOpsisMenu } from "./opsis-test-helpers";
 import { expect, test } from "@playwright/test";
 
 const enabled = process.env.VITE_OPSIS_WORKSPACES_ENABLED === "true" && process.env.VITE_OPSIS_PUBLIC_ACCESS_ENABLED === "true";
@@ -46,7 +47,10 @@ test("basis import race is guarded and Chinese mobile layout stays within viewpo
   await page.goto("/lab");
   await page.getByRole("button", { name: /Quant research/ }).click();
   await page.locator("summary").filter({ hasText: "Mark / index basis dataset" }).click();
+  // At phone width the theme switch is in the menu.
+  await openOpsisMenu(page);
   await page.getByRole("button", { name: "Theme: Light", exact: true }).click();
+  await closeOpsisMenu(page);
   await expect(page.locator(".opsis")).toHaveAttribute("data-theme", "dark");
   const darkBackground = await page.locator(".opsis-basis button").first().evaluate((element) => getComputedStyle(element).backgroundColor);
   expect(darkBackground).not.toBe("rgba(0, 0, 0, 0)");

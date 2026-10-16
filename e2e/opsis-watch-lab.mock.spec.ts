@@ -57,7 +57,7 @@ test("opsis preview watch one-off", async ({ page }) => {
   await form.getByRole("button", { name: "Run a check", exact: true }).click();
   await expect(
     page.getByRole("region", { name: "Public wallet snapshot", exact: true }),
-  ).toContainText("1.000000000000000001 ETH");
+  ).toContainText("1.000000… ETH");
   await expect(page.locator('input[type="password"]')).toHaveCount(0);
   expect(
     await page.evaluate(

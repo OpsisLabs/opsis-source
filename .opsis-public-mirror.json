@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "dcc2188b5a798bbf99ac096d5c8b273a08d138da9d899bb6a5d8dbdf322cc73f",
+  "sourceTreeDigest": "26a9f522ac634cbba66fc3ebd71341a4a7244d43bd2f0cfaf56960999deea21e",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "097f2a6d053a59da8dcdff90695121df3b9c84b794a5419c8677be4d26462e4d",
@@ -793,7 +793,7 @@
     "e2e/market.mock.spec.ts": "930682945ab9ecc5d132cfac9b1b78cbf526e984f1c56a328f6fc8f1192397f2",
     "e2e/open-data-disabled.mock.spec.ts": "2a4643310f2eef08e613b2a0ff26510bd2addb11621d425fc66eec08c3432232",
     "e2e/open-data.mock.spec.ts": "2cc2f930366c6b4d5911e327bc949e3345125a9239be405567e6a466425074df",
-    "e2e/opsis-basis.mock.spec.ts": "9c651d897f946c29eb88d377f0c1d3af2792f9ae769439922ed1dc5803af1326",
+    "e2e/opsis-basis.mock.spec.ts": "8f1537a471d1fd361fcf6f8cae16833a0032cc89b5627277a6d3b09a8222d961",
     "e2e/opsis-controls.mock.spec.ts": "332f35c8c16d8d43306da181f0150c90ffb619c2b8ba7bed6c6b5d3e89dd9126",
     "e2e/opsis-design.mock.spec.ts": "caa2b942e719083f4073c6110771bc9a0be6d20d0c22931a22b8918901301931",
     "e2e/opsis-exit-curve.mock.spec.ts": "138d8a6bb91ec4db73b8642c5685912bf66c987a6a5a8bdf09df5254b6b2f867",
@@ -815,7 +815,7 @@
     "e2e/opsis-shell.mock.spec.ts": "cd426645305c75dd9a923c3ab4bc7aac4923bce296a08074268138855f68a33e",
     "e2e/opsis-test-helpers.ts": "22eaced816471d10e2ca683ef63d8ab4fda331bbf58e211dfee266af287d46d2",
     "e2e/opsis-watch-inbox.mock.spec.ts": "ed0cd79567bc2942c5321c6d51f1d591b7ddd1a9b8194aeeee4d346ec2976577",
-    "e2e/opsis-watch-lab.mock.spec.ts": "b6038678d18c4cdef86649c3bc7e6320dfd026f9a7152c50911f1c18e607aca0",
+    "e2e/opsis-watch-lab.mock.spec.ts": "2339ac69057179cfd3e8cc8e9ef475df9621abf2ec4aac9e05f56447f18ad759",
     "e2e/opsis-watch-tokens.mock.spec.ts": "8482929cc476424819c7c17bdac99f1b890639b4fd8af5368112c4dbc063a216",
     "e2e/opsis-wiring.mock.spec.ts": "70b9e2e82513bdb064520d3a9cc0319824a818ffa33c9e0fa8e2527d85e7fda3",
     "e2e/opsis.mock.spec.ts": "56d4ee22e707c72566048a01aa571d02bbcea666ff79f5807dc850598f03a823",
