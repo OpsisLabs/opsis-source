@@ -442,6 +442,18 @@
       ],
       "outcome": "Every page reads as one product: the same heading scale and button styles throughout, and what the site says about itself (changelog, privacy) matches what it does",
       "shipGate": "A whole-site walk of the live preview at laptop and phone sizes, in both themes and both languages, finds no page heading outside the shared scale, no unstyled control and no horizontal scroll; Watch's actions use the shared button style; the changelog lists the releases that shipped through release 35; the Privacy page states the public token data reuse that the product already discloses. A Private Mode token read requests its explorer documents at once and waits a bounded time for the optional ones, which then count as not read. Unit, failure-state, privacy and full release gates pass on the integrated candidate. No provider, chain, execution, paid path, workspace or new public claim."
+    },
+    {
+      "order": 38,
+      "id": "37-workspace-redesign",
+      "branch": "codex/37-workspace-redesign",
+      "tagPrefix": "rc/37-workspace-redesign/",
+      "status": "queued",
+      "dependencies": [
+        "36-cohesion"
+      ],
+      "outcome": "Every tool has its own clear layout inside one shell that matches the front page: tinted blue paper, a blue top bar and a left rail with four groups named by what you want to do, and an overview that shows them",
+      "shipGate": "The workspace uses the D25 surface in light and dark themes with WCAG AA contrast, the front page's wordmark, type and button style, and a left rail (a menu on a phone) listing the four groups and their tools with one-line purposes; an overview page shows the groups with a picture of what each does and a search field. Research, Trade Check and Watch have their D25 layouts; every other tool sits in the new shell with the new surface. Every route keeps exactly one heading, no horizontal scroll at 375 px, keyboard paths and visible focus, English and Chinese. A whole-site walk of the preview at laptop and phone sizes, both themes and both languages finds no error, failed request or overflow, and every flow works with real inputs. Unit, failure-state, privacy and full release gates pass on the integrated candidate. No provider, chain, execution, paid path, new public claim, or change to the front page."
     }
   ]
 }
