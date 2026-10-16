@@ -61,7 +61,7 @@ test("opsis preview shell navigation", async ({ page }) => {
   await expect(page).toHaveTitle("Opsis · Research");
   const researchTop = await contentTop(page);
   const researchHeaderHeight = (await page.locator(".opsis-header").boundingBox())!.height;
-  await expect(page.locator(".opsis-header .opsis-navigation nav a")).toHaveCount(4);
+  await expect(page.locator(".opsis-desktop-rail .opsis-tool-rail section")).toHaveCount(4);
 
   await workspace(page, "Trade Check").click();
   await expect(page.getByTestId("opsis-navigation-progress")).toHaveAttribute("data-pending", "true");
@@ -91,7 +91,7 @@ test("opsis preview shell navigation", async ({ page }) => {
   await expect(page.locator(".opsis-tool-workspace")).toBeVisible();
   expect(await contentTop(page)).toBe(researchTop);
   expect((await page.locator(".opsis-header").boundingBox())!.height).toBe(researchHeaderHeight);
-  await expect(page.locator(".opsis-tool-nav")).toContainText("Compare saved wallet checks");
+  await expect(workspace(page, "Watch")).toHaveAttribute("aria-current", "page");
   await workspace(page, "Trade Check").click();
   await expect(page.getByTestId("opsis-quote")).toBeVisible();
   await expect(page.getByLabel("Amount to check", { exact: true })).toHaveValue("1.5");
@@ -120,7 +120,7 @@ test("opsis preview shell navigation", async ({ page }) => {
   await page.getByRole("button", { name: "中文", exact: true }).click();
   await expect(page).toHaveTitle("Opsis · 研究");
   await expect(page.getByRole("button", { name: "主题：深色", exact: true })).toBeVisible();
-  await page.getByRole("link", { name: "← 返回总览", exact: true }).click();
+  await page.locator(".opsis-topbar .opsis-logo").click();
   await expect(page).toHaveURL(/\/$/);
   await expect(page.locator("iframe.opsis-original-film")).toBeFocused();
 });

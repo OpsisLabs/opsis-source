@@ -59,12 +59,21 @@ it("keeps text, controls and status tokens at AA contrast on both work surfaces"
   const blocks = [css.match(/\.opsis \{([^}]+)\}/)![1], css.match(/\.opsis\[data-theme="light"\] \{([^}]+)\}/)![1]];
   for (const block of blocks) {
     const tokens = Object.fromEntries([...block.matchAll(/--surface-([\w-]+): (#[\da-f]+);/g)].map((m) => [m[1], m[2]]));
-    for (const ground of [tokens.ground, tokens.panel]) {
+    for (const ground of [tokens.ground, tokens.panel, tokens.hover]) {
       for (const text of [tokens.ink, tokens.soft, tokens.accent, tokens.negative, tokens.positive, tokens.info, tokens.purple]) {
-        expect(contrast(text, ground)).toBeGreaterThanOrEqual(4.5);
+        expect(contrast(text, ground), `${text} on ${ground}`).toBeGreaterThanOrEqual(4.5);
       }
       expect(contrast(tokens.line, ground)).toBeGreaterThanOrEqual(3);
     }
     expect(contrast(tokens.button, tokens["button-ink"])).toBeGreaterThanOrEqual(4.5);
+  }
+});
+
+it("keeps rail text and the active tool text at AA contrast", () => {
+  const css = readFileSync(new URL("./opsis.css", import.meta.url), "utf8");
+  const brand = Object.fromEntries([...css.matchAll(/--brand([\w-]*): (#[\da-f]+);/g)].map((m) => [m[1] || "ground", m[2]]));
+  for (const background of [brand.ground, brand["-hover"]]) {
+    expect(contrast(brand["-ink"], background)).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(brand["-muted"], background)).toBeGreaterThanOrEqual(4.5);
   }
 });

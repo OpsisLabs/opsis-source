@@ -1,3 +1,4 @@
+import { openOpsisMenu, closeOpsisMenu } from "./opsis-test-helpers";
 import {
   watchFixture,
   WATCH_TEST_ADDRESS,
@@ -55,9 +56,9 @@ test.describe("Opsis visual workspaces", () => {
       await expect(page.locator("#opsis-content h1").first()).toBeVisible();
       await expect(page.locator("#opsis-content")).toHaveCSS(
         "background-color",
-        "rgb(247, 247, 242)",
+        "rgb(238, 240, 255)",
       );
-      await expect(page.locator(".opsis-terminal")).toHaveCSS(
+      await expect(page.locator(".opsis-topbar")).toHaveCSS(
         "background-color",
         "rgb(16, 0, 255)",
       );
@@ -70,21 +71,25 @@ test.describe("Opsis visual workspaces", () => {
           `${route} at ${width}`,
         ).toBeLessThanOrEqual(1);
       }
+      await openOpsisMenu(page);
       await page
         .getByRole("button", { name: "Theme: Light", exact: true })
         .click();
+      await closeOpsisMenu(page);
       // The dark surface keeps the electric-blue navigation.
-      await expect(page.locator(".opsis-terminal")).toHaveCSS(
+      await expect(page.locator(".opsis-topbar")).toHaveCSS(
         "background-color",
         "rgb(16, 0, 255)",
       );
       await expect(page.locator("#opsis-content")).toHaveCSS(
         "background-color",
-        "rgb(21, 17, 39)",
+        "rgb(18, 16, 45)",
       );
+      await openOpsisMenu(page);
       await page
         .getByRole("button", { name: "Theme: Dark", exact: true })
         .click();
+      await closeOpsisMenu(page);
     }
     expect(errors).toEqual([]);
   });
@@ -109,12 +114,23 @@ test.describe("Opsis visual workspaces", () => {
       await page.goto(route);
       await expect(page.locator("#opsis-content h1").first()).toBeVisible();
       // Measure settled colors: theme changes animate through in-between values.
-      await page.addStyleTag({ content: "*, *::before, *::after { transition: none !important; animation: none !important; }" });
+      await page.addStyleTag({
+        content:
+          "*, *::before, *::after { transition: none !important; animation: none !important; }",
+      });
       for (const theme of ["light", "dark"]) {
         // The choice is remembered across pages, so switch only when needed.
-        if ((await page.locator(".opsis").getAttribute("data-theme")) !== theme)
+        if (
+          (await page.locator(".opsis").getAttribute("data-theme")) !== theme
+        ) {
+          await openOpsisMenu(page);
           await page.getByRole("button", { name: /^Theme: / }).click();
-        await expect(page.locator(".opsis")).toHaveAttribute("data-theme", theme);
+          await closeOpsisMenu(page);
+        }
+        await expect(page.locator(".opsis")).toHaveAttribute(
+          "data-theme",
+          theme,
+        );
         const result = await new AxeBuilder({ page })
           .include(".opsis")
           .withTags(["wcag2a", "wcag2aa"])
@@ -168,9 +184,11 @@ test.describe("Opsis visual workspaces", () => {
       .press("ArrowRight");
     await expect(page.getByTestId("lab-scenario-pl")).not.toHaveText(before);
     await page.getByRole("button", { name: /Reset view/ }).click();
+    await openOpsisMenu(page);
     await page
       .getByRole("button", { name: "Theme: Light", exact: true })
       .click();
+    await closeOpsisMenu(page);
     await page.setViewportSize({ width: 390, height: 844 });
     expect(
       await page.evaluate(
@@ -306,7 +324,9 @@ test.describe("Opsis visual workspaces", () => {
       return route.fulfill({ json: watchFixture(block++) });
     });
     await page.goto("/watch");
-    await page.getByRole("button", { name: "Open encrypted watchlist", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Open encrypted watchlist", exact: true })
+      .click();
     await page
       .getByLabel("Vault passphrase", { exact: true })
       .fill("opsis-test-only-passphrase");
@@ -326,7 +346,9 @@ test.describe("Opsis visual workspaces", () => {
     await form.getByLabel("Private label (optional)").fill("LOCAL CHART LABEL");
     await form.getByLabel("Allow this public-address lookup").check();
     await form.getByRole("button", { name: "Save wallet & check" }).click();
-    await page.getByRole("button", { name: "Wallet details", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Wallet details", exact: true })
+      .click();
     await expect(
       page.getByRole("heading", { name: "Baseline saved" }),
     ).toBeVisible();

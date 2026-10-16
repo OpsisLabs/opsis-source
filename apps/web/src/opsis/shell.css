@@ -1,0 +1,578 @@
+/* D25: the front door stays in its own frame; these rules shape the workspace. */
+.opsis.opsis-terminal {
+  --rail-width: 240px;
+  margin: 0;
+  border: 0;
+  padding: 52px 0 0 var(--rail-width);
+  min-height: 100dvh;
+}
+.opsis.opsis-terminal > .opsis-topbar,
+.opsis > .opsis-topbar {
+  --ink: var(--brand-ink);
+  --soft: var(--brand-muted);
+  --line: var(--brand-muted);
+  --accent: var(--brand-ink);
+  position: fixed;
+  z-index: 30;
+  inset: 0 0 auto;
+  height: 52px;
+  display: flex;
+  padding: 0 24px;
+  gap: 20px;
+  color: var(--brand-ink);
+  background: var(--brand);
+  border-bottom: 1px solid var(--brand-muted);
+}
+.opsis .opsis-topbar .opsis-logo,
+.opsis .opsis-tool-menu .opsis-logo {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font:
+    500 28px/1 Opsis,
+    sans-serif;
+  letter-spacing: -0.065em;
+  color: var(--brand-ink);
+}
+.opsis .opsis-topbar-tools {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+  min-width: 0;
+}
+.opsis .opsis-chain,
+.opsis .opsis-stage,
+.opsis .opsis-menu-context {
+  font:
+    11px/1.4 OpsisMono,
+    monospace;
+}
+.opsis .opsis-stage {
+  white-space: nowrap;
+}
+.opsis .opsis-desktop-controls,
+.opsis .opsis-mobile-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.opsis .opsis-topbar button,
+.opsis .opsis-tool-menu button {
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid transparent;
+  padding: 0 10px;
+  background: transparent;
+  color: var(--brand-ink);
+  font:
+    12px OpsisMono,
+    monospace;
+}
+.opsis .opsis-topbar button:hover,
+.opsis .opsis-tool-menu button:hover {
+  border-color: currentColor;
+}
+.opsis .opsis-topbar .opsis-menu-trigger {
+  display: none;
+}
+.opsis .opsis-desktop-rail {
+  --ink: var(--brand-ink);
+  --soft: var(--brand-muted);
+  --accent: var(--brand-ink);
+  position: fixed;
+  inset: 52px auto 0 0;
+  width: var(--rail-width);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--brand);
+  color: var(--brand-ink);
+  border-right: 1px solid var(--brand-muted);
+  scrollbar-color: var(--brand-muted) var(--brand);
+}
+.opsis .opsis-tool-rail {
+  padding: 12px 10px 24px;
+}
+.opsis .opsis-tool-rail a {
+  color: var(--brand-ink);
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  min-height: 44px;
+  padding: 10px 14px;
+  font:
+    15px/1.25 Opsis,
+    sans-serif;
+}
+.opsis .opsis-tool-rail a svg {
+  flex: 0 0 24px;
+  margin-top: 2px;
+}
+.opsis .opsis-tool-rail a small {
+  display: block;
+  font:
+    12px/1.4 Opsis,
+    sans-serif;
+  color: var(--brand-ink);
+  margin-top: 3px;
+}
+.opsis .opsis-tool-rail a[aria-current="page"] {
+  background: var(--brand-hover);
+  box-shadow: inset 3px 0 currentColor;
+}
+.opsis .opsis-tool-rail section {
+  border-top: 1px solid var(--brand-muted);
+  margin: 12px 12px 0;
+  padding-top: 16px;
+}
+.opsis .opsis-tool-rail section a {
+  margin-inline: -12px;
+}
+.opsis .opsis-tool-rail .opsis-rail-label {
+  font:
+    11px/1.4 OpsisMono,
+    monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--brand-ink);
+  margin: 0 4px 8px;
+}
+.opsis .opsis-rail-empty {
+  color: var(--brand-muted);
+  font-size: 12px;
+  padding: 4px;
+}
+.opsis .opsis-tool-menu {
+  --ink: var(--brand-ink);
+  --accent: var(--brand-ink);
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: min(100%, 420px);
+  max-width: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  padding: 0 14px 24px;
+  border: 0;
+  color: var(--brand-ink);
+  background: var(--brand);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: var(--brand-muted) var(--brand);
+}
+.opsis .opsis-tool-menu:not([open]) {
+  display: none;
+}
+.opsis .opsis-tool-menu::backdrop {
+  background: var(--surface-ground);
+  opacity: 0.85;
+}
+.opsis .opsis-menu-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 52px;
+}
+.opsis .opsis-menu-context {
+  margin-block: 12px;
+}
+.opsis .opsis-search {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 0;
+  gap: 0;
+  border: 1px solid var(--accent);
+  background: var(--panel);
+  color: var(--soft);
+}
+.opsis .opsis-search svg {
+  flex: 0 0 22px;
+  margin-left: 20px;
+}
+.opsis .opsis-search input {
+  flex: 1;
+  width: 0;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  padding: 10px 16px;
+  min-height: 44px;
+}
+.opsis .opsis-search input::placeholder {
+  color: var(--soft);
+  opacity: 1;
+}
+.opsis .opsis-search button {
+  flex: 0 0 52px;
+  min-height: 48px;
+  padding: 0;
+  background: var(--button);
+  border: 0;
+  color: var(--button-ink);
+  font:
+    24px Opsis,
+    sans-serif;
+}
+.opsis .opsis-search button:disabled {
+  opacity: 1;
+  cursor: not-allowed;
+}
+.opsis .opsis-topbar .opsis-search,
+.opsis .opsis-tool-menu .opsis-search {
+  --panel: var(--brand);
+  --ink: var(--brand-ink);
+  --soft: var(--brand-ink);
+  --accent: var(--brand-muted);
+  --button: var(--brand-ink);
+  --button-ink: var(--brand);
+  flex: 1;
+  max-width: 400px;
+  color: var(--brand-ink);
+  font-size: 12px;
+}
+.opsis .opsis-topbar .opsis-search {
+  height: 40px;
+}
+.opsis .opsis-topbar .opsis-search input {
+  min-height: 38px;
+  padding: 6px 10px;
+}
+.opsis .opsis-topbar .opsis-search button {
+  min-height: 38px;
+  flex-basis: 40px;
+}
+.opsis .opsis-topbar .opsis-search svg {
+  margin-left: 12px;
+  flex-basis: 18px;
+}
+.opsis .opsis-tool-menu .opsis-search {
+  max-width: none;
+}
+.opsis.opsis-terminal > main.opsis-content {
+  margin: 0;
+  padding: 28px 32px 16px;
+  min-width: 0;
+  min-height: calc(100dvh - 52px);
+  color: var(--ink);
+  background: var(--ground);
+}
+.opsis.opsis-terminal .opsis-content .opsis-footer {
+  margin-top: 28px;
+  padding: 14px 0 0;
+  gap: 12px 20px;
+  font:
+    10px/1.6 OpsisMono,
+    monospace;
+  color: var(--soft);
+}
+.opsis .opsis-content .opsis-footer a {
+  color: var(--soft);
+}
+.opsis .opsis-kicker {
+  font:
+    11px/1.5 OpsisMono,
+    monospace;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.opsis.opsis-terminal .opsis-content .opsis-studio-heading,
+.opsis.opsis-terminal .opsis-content .opsis-heading {
+  display: block;
+  padding: 0;
+  margin: 0 0 20px;
+  border: 0;
+}
+.opsis.opsis-terminal .opsis-content .opsis-studio-heading > p,
+.opsis.opsis-terminal .opsis-content .opsis-heading > p:last-child {
+  max-width: none;
+  margin: 8px 0 0;
+  color: var(--soft);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.opsis.opsis-terminal main#opsis-content h1 {
+  font:
+    400 clamp(30px, 3.6vw, 54px)/1.08 Opsis,
+    sans-serif;
+  letter-spacing: -0.055em;
+  margin: 6px 0;
+  overflow-wrap: break-word;
+}
+.opsis.opsis-terminal .opsis-content .opsis-guide-heading h1 {
+  font-size: clamp(32px, 4.2vw, 60px);
+}
+.opsis .opsis-content .opsis-action,
+.opsis .opsis-content a.opsis-action,
+.opsis .opsis-content .stress-primary {
+  font:
+    400 15px/1.3 Opsis,
+    sans-serif;
+  text-transform: none;
+  letter-spacing: 0;
+  border-radius: 0;
+  background: var(--button);
+  color: var(--button-ink);
+  border: 1px solid var(--button);
+}
+.opsis .opsis-content .opsis-action:hover {
+  background: var(--panel);
+  color: var(--accent);
+}
+.opsis .opsis-content .opsis-action-secondary {
+  background: transparent;
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.opsis .opsis-guide-examples {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin: 12px 0 28px;
+  font:
+    12px/1.5 OpsisMono,
+    monospace;
+}
+.opsis .opsis-guide-examples span {
+  text-transform: uppercase;
+  color: var(--soft);
+}
+.opsis .opsis-guide-examples a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+.opsis .opsis-overview-search input {
+  min-height: 64px;
+  font-size: 18px;
+}
+.opsis .opsis-overview-search button {
+  align-self: stretch;
+  flex-basis: 72px;
+}
+.opsis .opsis-overview-groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.opsis .opsis-overview-group {
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  padding: 20px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+}
+.opsis .opsis-overview-group > .opsis-kicker {
+  color: var(--soft);
+  margin-bottom: 12px;
+}
+.opsis .opsis-overview-group h2 {
+  font:
+    400 clamp(23px, 2.3vw, 34px)/1.15 Opsis,
+    sans-serif;
+  letter-spacing: -0.045em;
+  margin-bottom: 18px;
+}
+.opsis .opsis-overview-group ul {
+  position: relative;
+  z-index: 1;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 56%;
+}
+.opsis .opsis-overview-group li + li {
+  margin-top: 8px;
+}
+.opsis .opsis-overview-group a {
+  color: var(--accent);
+  font-size: 15px;
+}
+.opsis .opsis-overview-group a span {
+  padding-left: 12px;
+}
+.opsis .opsis-group-picture {
+  position: absolute;
+  z-index: -1;
+  right: 12px;
+  bottom: 16px;
+  width: 46%;
+  height: auto;
+  max-height: 140px;
+  color: var(--accent);
+}
+.opsis .opsis-group-picture text {
+  font:
+    10px OpsisMono,
+    monospace;
+}
+.opsis .opsis-task-chooser {
+  margin-top: 28px;
+}
+.opsis .opsis-task-chooser > summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 10px 0;
+}
+.opsis .opsis-task-chooser[open] > summary {
+  margin-bottom: 12px;
+}
+.opsis .opsis-content .opsis-audience-options button[aria-pressed="true"] {
+  color: var(--button-ink);
+  background: var(--button);
+}
+.opsis .opsis-content .opsis-panel {
+  background: var(--panel);
+  border-color: var(--line);
+}
+@media (min-width: 1600px) {
+  .opsis.opsis-terminal {
+    --rail-width: 270px;
+  }
+  .opsis.opsis-terminal > main.opsis-content {
+    padding: 34px 42px 18px;
+  }
+}
+@media (min-width: 701px) and (max-width: 1100px) {
+  .opsis.opsis-terminal {
+    --rail-width: 220px;
+  }
+  .opsis .opsis-stage {
+    max-width: 90px;
+    white-space: normal;
+    font-size: 9px;
+  }
+  .opsis .opsis-topbar-tools {
+    gap: 10px;
+  }
+  .opsis .opsis-overview-groups {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 700px) {
+  .opsis.opsis-terminal {
+    padding: 48px 0 0;
+  }
+  .opsis.opsis-terminal > .opsis-topbar,
+  .opsis > .opsis-topbar {
+    height: 48px;
+    padding: 0 16px;
+  }
+  .opsis .opsis-topbar-tools,
+  .opsis .opsis-desktop-rail {
+    display: none;
+  }
+  .opsis .opsis-topbar .opsis-menu-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    border-color: var(--brand-muted);
+  }
+  .opsis.opsis-terminal > main.opsis-content {
+    padding: 20px 16px 12px;
+    min-height: calc(100dvh - 48px);
+  }
+  .opsis.opsis-terminal main#opsis-content h1,
+  .opsis.opsis-terminal .opsis-content .opsis-guide-heading h1 {
+    font-size: 32px;
+    line-height: 1.08;
+  }
+  .opsis.opsis-terminal .opsis-content .opsis-heading > p:last-child {
+    font-size: 15px;
+  }
+  .opsis .opsis-overview-search input {
+    min-height: 46px;
+    font:
+      11px OpsisMono,
+      monospace;
+    padding: 8px;
+  }
+  .opsis .opsis-overview-search button {
+    min-height: 46px;
+    flex-basis: 44px;
+  }
+  .opsis .opsis-search svg {
+    margin-left: 12px;
+    flex-basis: 20px;
+  }
+  .opsis .opsis-guide-examples {
+    font-size: 11px;
+    gap: 16px;
+    margin: 10px 0 20px;
+  }
+  .opsis .opsis-overview-groups {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+  .opsis .opsis-overview-group {
+    padding: 14px;
+  }
+  .opsis .opsis-overview-group > .opsis-kicker {
+    font-size: 9px;
+    margin-bottom: 8px;
+  }
+  .opsis .opsis-overview-group h2 {
+    font-size: 22px;
+    margin-bottom: 10px;
+  }
+  .opsis .opsis-overview-group ul {
+    width: 58%;
+  }
+  .opsis .opsis-overview-group li + li {
+    margin-top: 4px;
+  }
+  .opsis .opsis-overview-group a {
+    font:
+      11px/1.4 OpsisMono,
+      monospace;
+    text-decoration: underline;
+  }
+  .opsis .opsis-overview-group a span {
+    padding-left: 0;
+  }
+  .opsis .opsis-group-picture {
+    width: 44%;
+    right: 4px;
+    bottom: 18px;
+  }
+  .opsis .opsis-footer span {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+.opsis .opsis-content > .opsis-tool-path {
+  order: -3;
+  margin-bottom: 8px;
+}
+.opsis .opsis-content:has(> .opsis-tool-path) > .opsis-heading > .opsis-kicker,
+.opsis
+  .opsis-content:has(> .opsis-tool-path)
+  .opsis-native-lab
+  > .opsis-studio-heading
+  .opsis-kicker,
+.opsis
+  .opsis-content:has(> .opsis-tool-path)
+  .opsis-perp-scenario
+  > .opsis-kicker {
+  display: none;
+}
+.opsis .opsis-content .opsis-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid var(--accent);
+  border-radius: 0;
+  background: transparent;
+  color: var(--accent);
+  font: 400 15px/1.3 Opsis, sans-serif;
+}
+.opsis .opsis-content .opsis-secondary:hover {
+  background: var(--panel-hover);
+}

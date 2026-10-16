@@ -11,7 +11,7 @@ import {
 import { researchRefusal, researchRefusalCopy, type ResearchRefusal } from "./research-refusal";
 import ResearchIntro from "./ResearchIntro";
 import { KNOWN_ASSETS, resolveKnownAsset, type KnownAsset } from "./known-assets";
-import { DecodedActions, TokenFacts, WalletBalances, WalletTransactions } from "./ResearchFacts";
+import { DecodedActions, ResearchIdentity, ResearchTiles, ResearchEvidence, TokenFacts, WalletBalances, WalletTransactions } from "./ResearchFacts";
 import { useCopy } from "./copy";
 import { publicIdentity, workspaceIdentity, researchInputMatchesChoice, workspaceLink, type Capabilities } from "./model";
 
@@ -19,11 +19,12 @@ import { publicSession } from "./public-session";
 
 import ReportShelf from "./ReportShelf";
 import { researchReport } from "./reports";
-import { tokenHeading, receiptTransferObservations, transactionReceiptOutcome, transactionTimelineRows } from "./transactionTimeline";
+import { receiptTransferObservations, transactionReceiptOutcome, transactionTimelineRows } from "./transactionTimeline";
 // Imported, not lazy: a panel revealed after its result moves the controls below
 // it, and a press already under way on them is released over another element.
 import ContractControls from "./ContractControls";
 import EvidenceMap from "./EvidenceMap";
+import "./research.css";
 
 /** Uncached explorer reads take several seconds; say so once the wait is noticeable. */
 function BusyStatus() {
@@ -133,7 +134,7 @@ export default function Research({
       ? publicIdentity(result.entity.value)
       : "";
   return (
-    <>
+    <div className="research-workspace">
       <header className="opsis-heading">
         <p className="opsis-kicker">01 / {c("RESEARCH", "研究")}</p>
         <h1>{c("What does the evidence show?", "证据表明了什么？")}</h1>
@@ -144,15 +145,15 @@ export default function Research({
           )}
         </p>
       </header>
-      <div className="opsis-two-column">
+      <div className="research-workflow">
         <form
-          className="opsis-panel"
+          className="opsis-panel research-input-band"
           onSubmit={(e) => {
             e.preventDefault();
             if (publicIdentity(inputIdentity) && inputMatchesChoice) void run();
           }}
         >
-          <label htmlFor="research-entity">
+          <div className="research-input-field"><label htmlFor="research-entity">
             {c("Reviewed symbol, address or transaction hash", "已审核符号、地址或交易哈希")}
           </label>
           <input
@@ -167,7 +168,7 @@ export default function Research({
             autoComplete="off"
             spellCheck={false}
             placeholder="0x…"
-          />
+          /></div>
           {resolvedAsset && <p className="opsis-small opsis-resolved-asset" role="status">{c("Resolved", "已识别")}: {resolvedAsset.name} · {resolvedAsset.symbol} · {c("Token · chain 4663", "代币 · 链 4663")}<br /><code>{resolvedAsset.address}</code></p>}
           <div className="opsis-asset-examples" aria-label={c("Research examples", "研究示例")}>
             <span>{c("Examples", "示例")}:</span>
@@ -264,25 +265,20 @@ export default function Research({
           {busy && <BusyStatus />}
           {result && (
             <section
-              className="opsis-panel"
+              className="research-result"
               data-testid="opsis-research-result"
             >
-              <p className="opsis-kicker">
-                {c("OBSERVED / PARTIAL COVERAGE", "已观察 / 部分覆盖")}
-              </p>
-              <h2>{result.entity.type === "token" ? tokenHeading(result.entity.facts, c("Token", "代币")) : result.answer.card?.title ?? result.entity.type}</h2>
-              <p className="opsis-identity">
-                {c("Chain", "链")} {result.entity.chainId} ·{" "}
-                {result.entity.type === "token" ? c("Token", "代币") : result.entity.type}
-                <br />
-                {result.entity.value}
-              </p>
-              <p className="opsis-small">
-                {c("Checked at", "核查时间")}:{" "}
-                {result.answer.citations[0]?.fetchedAt ?? c("Unknown", "未知")}
-              </p>
-              {result.entity.type === "token" ? <TokenFacts facts={result.entity.facts} />
-                : result.entity.type === "wallet" ? <><WalletBalances facts={result.entity.facts} /><WalletTransactions facts={result.entity.facts} address={result.entity.value} /></>
+              <ResearchIdentity entity={result.entity} checkedAt={result.answer.citations[0]?.fetchedAt} />
+              {(result.entity.type === "token" || result.entity.type === "wallet") && <ResearchTiles facts={result.entity.facts} type={result.entity.type} />}
+              {token && capabilities.exitCheck && import.meta.env.VITE_EXIT_CHECK_ENABLED === "true" ? (
+                <Link className="opsis-action research-next-step" to={workspaceLink("/check", token)}>{c("Check what comes out at your size →", "查看您的数量可换得多少 →")}</Link>
+              ) : follow && capabilities.watch && isWatchEnabled() ? (
+                <Link className="opsis-action research-next-step" to={"/watch?address=" + encodeURIComponent(follow.address)}>{c("Follow this public address →", "观察此公开地址 →")}</Link>
+              ) : null}
+              <div className="research-result-columns">
+              <div className="research-main">
+              {result.entity.type === "token" ? <TokenFacts facts={result.entity.facts} showTiles={false} />
+                : result.entity.type === "wallet" ? <><WalletTransactions facts={result.entity.facts} address={result.entity.value} /><WalletBalances facts={result.entity.facts} /></>
                   : <p className="opsis-result-copy">{result.answer.answer}</p>}
               {actions.length > 0 && <DecodedActions actions={actions} coverage={result.entity.facts.decodeCoverage} />}
               {result.entity.type === "transaction" && (() => {
@@ -434,6 +430,10 @@ export default function Research({
                     </p>
                   </section>
                 )}
+              </div>
+              <ResearchEvidence sources={result.answer.citations} />
+              </div>
+              <details className="research-drill-down"><summary>{c("Evidence map and findings", "证据图与分析")}</summary>
               <EvidenceMap
                 key={result.entity.value}
                 findings={[
@@ -453,25 +453,7 @@ export default function Research({
                   "提供商覆盖范围可能不完整。除非证据明确提供，否则新鲜度和最终性未知。",
                 )}
               </p>
-              {token &&
-              capabilities.exitCheck &&
-              import.meta.env.VITE_EXIT_CHECK_ENABLED === "true" ? (
-                <Link
-                  className="opsis-action"
-                  to={workspaceLink("/check", token)}
-                >
-                  {c("Check an amount →", "核查数量 →")}
-                </Link>
-              ) : follow &&
-                capabilities.watch &&
-                isWatchEnabled() ? (
-                <Link
-                  className="opsis-action"
-                  to={`/watch?address=${encodeURIComponent(follow.address)}`}
-                >
-                  {c("Follow this public address →", "观察此公开地址 →")}
-                </Link>
-              ) : null}
+              </details>
               <details>
                 <summary>
                   {c("Sources, findings and limitations", "来源、分析与限制")} (
@@ -492,23 +474,6 @@ export default function Research({
                     </li>
                   ))}
                 </ul>
-                {result.answer.citations.map((source) => (
-                  <p key={source.id} className="opsis-small">
-                    [{source.id}]{" "}
-                    {safeHttpUrl(source.url) ? (
-                      <a
-                        href={safeHttpUrl(source.url)!}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {source.label} ↗
-                      </a>
-                    ) : (
-                      source.label
-                    )}{" "}
-                    · {source.provider} · {source.fetchedAt}
-                  </p>
-                ))}
                 <p className="opsis-small">{result.privacy.disclosure}</p>
               </details>
             </section>
@@ -556,6 +521,6 @@ export default function Research({
             )}
         </div>
       </details>
-    </>
+    </div>
   );
 }

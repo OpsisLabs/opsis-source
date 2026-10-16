@@ -58,3 +58,150 @@ export function landingTools(capabilities: Capabilities, flags = toolFlags): str
     ...(capabilities.swapPreview ? ["swap"] : []),
   ];
 }
+
+export type ShellTool = {
+  path: string;
+  name: readonly [string, string];
+  purpose: readonly [string, string];
+  icon: import("./shell/icons").ToolIconName;
+};
+export type ToolGroup = {
+  id: "lookup" | "trade" | "watch" | "data";
+  name: readonly [string, string];
+  heading: readonly [string, string];
+  tools: ShellTool[];
+};
+const groups: ToolGroup[] = [
+  {
+    id: "lookup",
+    name: ["Look up", "查询"],
+    heading: ["Start with the facts.", "从事实开始。"],
+    tools: [
+      {
+        path: "/research",
+        name: routeNames["/research"],
+        purpose: [
+          "Token, wallet, contract or transaction",
+          "代币、钱包、合约或交易",
+        ],
+        icon: "research",
+      },
+      {
+        path: "/rwa",
+        name: routeNames["/rwa"],
+        purpose: ["Check the backing", "核查支持资产"],
+        icon: "stock",
+      },
+      {
+        path: "/biggest-trades",
+        name: routeNames["/biggest-trades"],
+        purpose: ["Compare observed swaps", "比较已观察的兑换"],
+        icon: "trades",
+      },
+      {
+        path: "/research/events",
+        name: routeNames["/research/events"],
+        purpose: ["Put moves in context", "理解变动的背景"],
+        icon: "world",
+      },
+    ],
+  },
+  {
+    id: "trade",
+    name: ["Before you trade", "交易之前"],
+    heading: ["Know what comes out.", "了解输出数量。"],
+    tools: [
+      {
+        path: "/check",
+        name: routeNames["/check"],
+        purpose: ["What comes out at your size", "您的数量对应的输出"],
+        icon: "check",
+      },
+      {
+        path: "/check/perp-scenario",
+        name: routeNames["/check/perp-scenario"],
+        purpose: ["Compare holding costs", "比较持仓成本"],
+        icon: "perp",
+      },
+      {
+        path: "/stress-test",
+        name: routeNames["/stress-test"],
+        purpose: ["Test a market move", "测试市场变动"],
+        icon: "shocks",
+      },
+    ],
+  },
+  {
+    id: "watch",
+    name: ["Keep watch", "持续关注"],
+    heading: ["See what changed.", "查看变化。"],
+    tools: [
+      {
+        path: "/watch",
+        name: routeNames["/watch"],
+        purpose: ["What changed in a wallet", "钱包发生了什么变化"],
+        icon: "watch",
+      },
+      {
+        path: "/saved",
+        name: routeNames["/saved"],
+        purpose: ["Encrypted on this device", "在此设备上加密"],
+        icon: "saved",
+      },
+    ],
+  },
+  {
+    id: "data",
+    name: ["Explore data", "探索数据"],
+    heading: ["Look for a pattern.", "寻找规律。"],
+    tools: [
+      {
+        path: "/lab",
+        name: routeNames["/lab"],
+        purpose: ["Pool atlas, surface, experiments", "资金池图谱、曲面、实验"],
+        icon: "lab",
+      },
+    ],
+  },
+];
+export function toolGroups(
+  capabilities: Capabilities,
+  flags = toolFlags,
+): ToolGroup[] {
+  const available = new Set([
+    ...researchToolPaths(capabilities, flags).filter(
+      (path) => path !== "/research" || capabilities.research,
+    ),
+    ...tradeToolPaths(capabilities, flags).filter(
+      (path) =>
+        path !== "/check" ||
+        (capabilities.exitCheck &&
+          import.meta.env.VITE_EXIT_CHECK_ENABLED === "true"),
+    ),
+    ...(capabilities.watch && isWatchEnabled() ? ["/watch"] : []),
+    "/saved",
+    "/lab",
+  ]);
+  return groups.map((group) => ({
+    ...group,
+    tools: group.tools.filter((tool) => available.has(tool.path)),
+  }));
+}
+export function toolIsActive(path: string, current: string): boolean {
+  return (
+    path === current ||
+    (path === "/research" && current === "/research/details") ||
+    (path === "/check" && ["/swap", "/simulate"].includes(current))
+  );
+}
+export function toolPathCopy(
+  path: string,
+): readonly [string, string] | undefined {
+  const group = groups.find((group) =>
+    group.tools.some((tool) => toolIsActive(tool.path, path)),
+  );
+  const name = routeNames[path];
+  return group && name
+    ? [`${group.name[0]} / ${name[0]}`, `${group.name[1]} / ${name[1]}`]
+    : undefined;
+}

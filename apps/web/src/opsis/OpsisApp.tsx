@@ -3,17 +3,14 @@ import { robotsDirective } from "../product/public-pages";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import {
   Link,
-  NavLink,
   Navigate,
   Route,
   Routes,
   useLocation,
-  useNavigate,
 } from "react-router";
 import { useI18n } from "../i18n";
 import { useCopy } from "./copy";
 import {
-  publicIdentity,
   workspaceIdentity,
   unlockPreview,
   PreviewAccessError,
@@ -25,7 +22,8 @@ import { accessRetry, accessRetrySeconds, type AccessRetryEvent, type AccessRetr
 import { setOpsisPreviewToken } from "./preview-token";
 import OriginalLanding from "./OriginalLanding";
 import ToolOrientation from "./ToolOrientation";
-import ToolNavigation from "./ToolNavigation";
+import WorkspaceShell from "./shell/WorkspaceShell";
+import ToolPath from "./shell/ToolPath";
 import ToolWorkspace from "./ToolWorkspace";
 import OpsisCopy from "./OpsisCopy";
 import NavigationFeedback, { FrontDoorProgress, RouteReady } from "./NavigationFeedback";
@@ -38,6 +36,7 @@ const Lab = lazy(chunks.Lab.load);
 import "./opsis.css";
 import "./legacy-theme.css";
 import "./studio.css";
+import "./shell.css";
 
 const publicAccess =
   import.meta.env.VITE_OPSIS_PUBLIC_ACCESS_ENABLED === "true";
@@ -72,35 +71,6 @@ function Unavailable() {
         )}
       </p>
     </section>
-  );
-}
-function PublicSearch({ hero = false }: { hero?: boolean }) {
-  const c = useCopy();
-  const navigate = useNavigate();
-  const [value, setValue] = useState("");
-  return (
-    <form
-      className={hero ? "opsis-search hero-search" : "opsis-search"}
-      onSubmit={(e) => {
-        e.preventDefault();
-        if (publicIdentity(value)) navigate(workspaceLink("/research", value));
-      }}
-    >
-      <label className="sr-only" htmlFor={hero ? "hero-entity" : "nav-entity"}>
-        {c("Public address or transaction hash", "公开地址或交易哈希")}
-      </label>
-      <input
-        id={hero ? "hero-entity" : "nav-entity"}
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder={c("Address or transaction hash", "地址或交易哈希")}
-        autoComplete="off"
-        spellCheck={false}
-      />
-      <button disabled={!publicIdentity(value)}>
-        {c("Research →", "研究 →")}
-      </button>
-    </form>
   );
 }
 const PerpScenario = lazy(chunks.PerpScenario.load);
@@ -354,133 +324,30 @@ export default function OpsisApp() {
         data-theme={theme}
         data-workspace={location.pathname.split("/")[1] || "overview"}
       >
-        {access && location.pathname !== "/" && (
-          <Link to="/" className="opsis-back">
-            {c("← Back to overview", "← 返回总览")}
-          </Link>
-        )}
         <a href="#opsis-content" className="opsis-skip">
           {c("Skip to content", "跳至内容")}
         </a>
-        <header className="opsis-header">
-          <div className="opsis-header-main">
-            <Link to="/" className="opsis-logo">
-              OPSIS
-            </Link>
-            {access && (
-              <div className="opsis-navigation">
-                <nav aria-label={c("Workspaces", "工作区")}>
-                  {[
-                    [
-                      "/research",
-                      c("Research", "研究"),
-                      c("Understand an asset", "理解资产"),
-                    ],
-                    [
-                      "/check",
-                      c("Trade Check", "交易核查"),
-                      c("Check trading costs", "核查交易成本"),
-                    ],
-                    [
-                      "/watch",
-                      c("Watch", "观察"),
-                      c("Compare wallet checks", "比较钱包核查"),
-                    ],
-                    [
-                      "/lab",
-                      c("Quant Lab", "量化实验室"),
-                      c("Explore data & scenarios", "探索数据与情景"),
-                    ],
-                  ].map(([path, label, purpose]) => (
-                    <NavLink
-                      key={path}
-                      to={path}
-                      aria-label={label}
-                      aria-describedby={`workspace-purpose-${path.slice(1)}`}
-                      className={({ isActive }) =>
-                        isActive ||
-                        (path === "/research" &&
-                          ["/rwa", "/biggest-trades"].includes(location.pathname)) ||
-                        (path === "/check" &&
-                          ["/swap", "/simulate", "/stress-test"].includes(
-                            location.pathname,
-                          ))
-                          ? "active"
-                          : undefined
-                      }
-                    >
-                      {label}
-                      <small id={`workspace-purpose-${path.slice(1)}`}>
-                        {purpose}
-                      </small>
-                    </NavLink>
-                  ))}
-                </nav>
-              </div>
-            )}
-            <div className="opsis-controls">
-              {access && (
-                <Link className="opsis-guide-link" to="/guide">
-                  {c("Find your tool →", "选择工具 →")}
-                </Link>
-              )}
-              <button
-                aria-pressed={theme === "dark"}
-                aria-label={
-                  theme === "dark"
-                    ? c("Theme: Dark", "主题：深色")
-                    : c("Theme: Light", "主题：浅色")
-                }
-                onClick={() => {
-                  const next = theme === "dark" ? "light" : "dark";
-                  persistTheme(next);
-                  setTheme(next);
-                }}
-              >
-                {theme === "dark" ? c("Dark", "深色") : c("Light", "浅色")}
-              </button>
-              <button onClick={() => setLocale(locale === "en" ? "zh-CN" : "en")}>
-                {locale === "en" ? "中文" : "English"}
-              </button>
-              {access && !publicAccess && (
-                <button
-                  aria-label={c("Lock preview", "锁定预览")}
-                  onClick={() => {
-                    setOpsisPreviewToken("");
-                    clearPublicSession();
-                    setAccess(null);
-                    setError(false);
-                  }}
-                >
-                  {c("Lock", "锁定")}
-                </button>
-              )}
-            </div>
-          </div>
-          {access && (
-            <div className="opsis-header-tools">
-              <ToolNavigation capabilities={access} />
-              <div className="opsis-preview-note">
-                {c(
-                  betaRelease
-                    ? "BETA · Robinhood Chain 4663"
-                    : publicAccess
-                      ? "PREVIEW · Robinhood Chain 4663"
-                      : "PRIVATE PREVIEW · Test data only · Robinhood Chain 4663",
-                  betaRelease
-                    ? "测试版 · Robinhood Chain 4663"
-                    : publicAccess
-                      ? "预览 · Robinhood Chain 4663"
-                      : "私密预览 · 仅限测试数据 · Robinhood Chain 4663",
-                )}
-              </div>
-              <details className="opsis-header-search">
-                <summary>{c("Search", "搜索")}</summary>
-                <PublicSearch />
-              </details>
-            </div>
+        <WorkspaceShell
+          capabilities={access}
+          theme={theme}
+          onTheme={() => {
+            const next = theme === "dark" ? "light" : "dark";
+            persistTheme(next);
+            setTheme(next);
+          }}
+          locale={locale}
+          onLocale={() => setLocale(locale === "en" ? "zh-CN" : "en")}
+          stage={c(
+            betaRelease ? "BETA" : publicAccess ? "PREVIEW" : "PRIVATE PREVIEW · Test data only",
+            betaRelease ? "测试版" : publicAccess ? "预览" : "私密预览 · 仅限测试数据",
           )}
-        </header>
+          onLock={access && !publicAccess ? () => {
+            setOpsisPreviewToken("");
+            clearPublicSession();
+            setAccess(null);
+            setError(false);
+          } : undefined}
+        />
         {!access && publicAccess ? (
           <main id="opsis-content" className="opsis-unlock">
             {error ? (
@@ -577,6 +444,7 @@ export default function OpsisApp() {
           <>
             <NavigationFeedback capabilities={access} />
             <main id="opsis-content" className="opsis-content" tabIndex={-1}>
+              <ToolPath />
               <ToolOrientation capabilities={access} />
               <LoadBoundary shell resetKey={location.pathname}>
               <Suspense
@@ -817,21 +685,20 @@ export default function OpsisApp() {
                 </OpsisCopy>
               </Suspense>
               </LoadBoundary>
+              <footer className="opsis-footer">
+                <Link to="/saved">{c("Saved", "已保存")}</Link>
+                <Link to="/status">{c("Data status", "数据状态")}</Link>
+                <Link to="/community">{c("Community", "社区")}</Link>
+                <Link to="/privacy">{c("Privacy", "隐私")}</Link>
+                <Link to="/terms">{c("Terms", "条款")}</Link>
+                <span>
+                  {c(
+                    "Read-only research · Sources with read times",
+                    "只读研究 · 来源附读取时间",
+                  )}
+                </span>
+              </footer>
             </main>
-            <footer className="opsis-footer">
-              <Link to="/saved">{c("Saved", "已保存")}</Link>
-              <Link to="/status">{c("Data status", "数据状态")}</Link>
-              <Link to="/guide">{c("Find your tool", "选择工具")}</Link>
-              <Link to="/community">{c("Community", "社区")}</Link>
-              <Link to="/privacy">{c("Privacy", "隐私")}</Link>
-              <Link to="/terms">{c("Terms", "条款")}</Link>
-              <span>
-                {c(
-                  "Local encrypted records · No transaction execution",
-                  "本地加密记录 · 不执行交易",
-                )}
-              </span>
-            </footer>
           </>
         )}
       </div>

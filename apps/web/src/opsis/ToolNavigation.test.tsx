@@ -5,19 +5,20 @@ import I18nProvider from "../i18n/I18nProvider";
 import * as localeCookie from "../i18n/locale";
 import type { Capabilities } from "./model";
 import ToolNavigation from "./ToolNavigation";
-
 const capabilities: Capabilities = {
-  expiresAt: "2026-10-13T12:00:00Z",
+  expiresAt: "2026-10-16T12:00:00Z",
   chainId: 4663,
   research: true,
   exitCheck: true,
   watch: true,
   rwa: true,
   observedTrades: true,
-  swapPreview: false,
   perpExecution: false,
 };
-afterEach(() => vi.restoreAllMocks());
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllEnvs();
+});
 function navigation(
   path: string,
   locale: "en" | "zh-CN",
@@ -32,50 +33,44 @@ function navigation(
     </I18nProvider>,
   );
 }
-it.each([
-  ["/watch", "Compare saved wallet checks", "比较已保存的钱包核查"],
-  ["/lab", "Explore data and scenarios", "探索数据与情景"],
-  ["/guide", "Find a tool for your task", "按任务选择工具"],
-  ["/saved", "Encrypted observations on this device", "此设备上的加密观察"],
-  ["/missing", "Tools and their data limits", "工具及其数据限制"],
-])(
-  "fills the sub-navigation band on %s in both languages",
-  (path, english, chinese) => {
-    for (const [locale, copy] of [
-      ["en", english],
-      ["zh-CN", chinese],
-    ] as const) {
-      const html = navigation(path, locale);
-      expect(html).toContain(`<p>${copy}</p>`);
-      expect(html).not.toContain("aria-hidden");
-      expect(html).not.toContain("<nav");
-    }
+it.each(["en", "zh-CN"] as const)(
+  "renders four groups, tool purposes and an overview in %s",
+  (locale) => {
+    const html = navigation("/research", locale);
+    expect(html.match(/<section/g)).toHaveLength(4);
+    expect(html).toContain('href="/guide"');
+    expect(html).toContain(
+      locale === "en" ? "Check the backing" : "核查支持资产",
+    );
+    expect(html).toContain('aria-current="page"');
   },
 );
-it("keeps unavailable trade tools out of navigation", () => {
+it("omits disabled tools rather than leaving disabled links", () => {
   const html = navigation("/check", "en", {
     ...capabilities,
-    swapPreview: undefined,
-  });
-  expect(html).toContain('href="/check"');
-  expect(html).toContain('href="/check/perp-scenario"');
-  expect(html).not.toContain('href="/swap"');
-  expect(html).not.toContain('href="/simulate"');
-});
-it("keeps detailed research in its workspace and marks the research link current", () => {
-  const html = navigation("/research/details", "zh-CN");
-  expect(html).toContain('aria-label="工作区工具"');
-  expect(html).toContain('class="active" href="/research"');
-  expect(html).toContain("研究");
-  expect(html).not.toContain('href="/check"');
-});
-it("keeps the research link when enrichment capabilities are unavailable", () => {
-  const html = navigation("/research", "en", {
-    ...capabilities,
+    research: false,
+    exitCheck: false,
+    watch: false,
     rwa: false,
     observedTrades: false,
   });
-  expect(html).toContain('href="/research"');
-  expect(html).not.toContain('href="/rwa"');
-  expect(html).not.toContain('href="/biggest-trades"');
+  for (const path of [
+    "/research",
+    "/rwa",
+    "/watch",
+    "/check",
+    "/biggest-trades",
+    "/swap",
+    "/simulate",
+  ])
+    expect(html).not.toContain(`href="${path}"`);
+  expect(html).toContain('href="/check/perp-scenario"');
+});
+it("marks detailed research as Research and the perp tool independently", () => {
+  expect(navigation("/research/details", "zh-CN")).toMatch(
+    /aria-current="page"[^>]*href="\/research"/,
+  );
+  expect(navigation("/check/perp-scenario", "en")).toMatch(
+    /aria-current="page"[^>]*href="\/check\/perp-scenario"/,
+  );
 });

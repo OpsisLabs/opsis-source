@@ -1,0 +1,373 @@
+.opsis-check-page {
+  min-width: 0;
+  font-family: Opsis, sans-serif;
+  color: var(--ink);
+}
+.opsis-check-page .opsis-check-heading {
+  max-width: none;
+  margin: 12px 0 24px;
+}
+.opsis.opsis-terminal .opsis-content .opsis-check-heading h1 {
+  font:
+    400 clamp(32px, 4vw, 64px)/1.04 Opsis,
+    sans-serif;
+  letter-spacing: -0.055em;
+  margin: 12px 0;
+}
+.opsis-check-page .opsis-check-heading > p:last-child {
+  font-size: clamp(16px, 1.8vw, 23px);
+  line-height: 1.4;
+  margin: 0;
+}
+.opsis-check-columns,
+.opsis-perp-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: 12px;
+  align-items: start;
+}
+.opsis-check-with-curve {
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.05fr) minmax(0, 1.3fr);
+}
+.opsis-check-page .opsis-panel {
+  padding: 24px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: 0;
+}
+.opsis-check-page > details,
+.opsis-check-handoff {
+  margin-top: 12px;
+}
+.opsis-check-page :is(section, div, label, fieldset) {
+  min-width: 0;
+}
+.opsis-check-page :is(h2, h3) {
+  font-family: Opsis, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.045em;
+}
+.opsis-check-page h2.opsis-kicker {
+  font:
+    400 11px/1.5 OpsisMono,
+    monospace;
+  letter-spacing: 0.08em;
+  margin: 0 0 20px;
+}
+.opsis-check-page label {
+  display: block;
+  font:
+    12px/1.5 OpsisMono,
+    monospace;
+  color: var(--soft);
+}
+.opsis-check-page
+  :is(input:not([type="checkbox"]):not([type="radio"]), select) {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  margin: 5px 0 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--panel);
+  color: var(--ink);
+  font:
+    15px/1.4 OpsisMono,
+    monospace;
+}
+.opsis-check-page :is(button, a, input, select, summary, pre):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.opsis.opsis-terminal form.opsis-check-input {
+  position: static;
+}
+.opsis-check-input .opsis-form-row {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  margin-top: 16px;
+}
+.opsis-check-amount {
+  position: relative;
+}
+.opsis-check-amount:has(> span) input {
+  padding-right: 5rem;
+}
+.opsis-check-amount > span {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-40%);
+  font:
+    12px OpsisMono,
+    monospace;
+  pointer-events: none;
+}
+.opsis-check-page .opsis-resolved-asset {
+  margin: 8px 0;
+  font:
+    10px/1.5 OpsisMono,
+    monospace;
+  overflow-wrap: anywhere;
+}
+.opsis-check-page .opsis-asset-examples {
+  margin: 10px 0;
+  font:
+    11px OpsisMono,
+    monospace;
+}
+.opsis-check-page .opsis-curve-optin {
+  display: flex;
+  font-size: 11px;
+  margin: 16px 0;
+  gap: 8px;
+}
+.opsis-check-input > .opsis-action {
+  width: 100%;
+  justify-content: center;
+}
+.opsis-check-input .opsis-receipt {
+  margin: 18px 0 0;
+  padding: 14px 0 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  font:
+    10px/1.6 OpsisMono,
+    monospace;
+}
+.opsis-check-placeholder {
+  font-size: 20px;
+  line-height: 1.5;
+  max-width: 32ch;
+  color: var(--soft);
+}
+.opsis-check-caption,
+.opsis-check-rows,
+.opsis-check-page .opsis-small {
+  font-family: OpsisMono, monospace;
+}
+.opsis-check-caption {
+  font-size: 12px;
+  margin: 18px 0 4px;
+}
+.opsis-check-send {
+  font-size: clamp(24px, 2.5vw, 36px);
+  line-height: 1.15;
+  letter-spacing: -0.04em;
+  overflow-wrap: anywhere;
+  margin: 0;
+}
+.opsis-check-arrow {
+  font-size: 28px;
+  text-align: center;
+  margin: 8px 0;
+}
+.opsis-check-page .opsis-check-output {
+  font-size: clamp(28px, 3vw, 44px);
+  color: var(--accent);
+  margin: 6px 0 24px;
+}
+.opsis-check-output span {
+  color: inherit;
+}
+.opsis-check-rows {
+  margin: 20px 0;
+  font-size: 12px;
+}
+.opsis-check-rows > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+.opsis-check-rows > div:last-child {
+  border-bottom: 1px solid var(--line);
+}
+.opsis-check-rows dt {
+  color: var(--soft);
+}
+.opsis-check-rows dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+.opsis-check-rows dd > span:not(.opsis-check-bar-track) {
+  display: block;
+  color: var(--soft);
+  font-size: 10px;
+  margin-top: 4px;
+}
+.opsis-check-note {
+  background: var(--surface-info);
+  padding: 12px;
+  font:
+    11px/1.6 OpsisMono,
+    monospace;
+}
+.opsis-check-pools {
+  margin: 18px 0;
+}
+.opsis-check-handoff {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.opsis-check-handoff .opsis-action {
+  flex-shrink: 0;
+}
+.opsis-check-page .opsis-pool-comparison {
+  margin-top: 18px;
+}
+.opsis-check-page .opsis-bar-list button {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  border-radius: 0;
+}
+.opsis-check-page .opsis-bar-list button[aria-pressed="true"] {
+  border-color: var(--accent);
+}
+.opsis-check-page :is(.opsis-bar-track, .opsis-check-bar-track) {
+  background: var(--surface-info);
+}
+.opsis-check-page :is(.opsis-bar-track, .opsis-check-bar-track) > span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+.opsis-perp-workspace {
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+}
+.opsis-perp-inputs {
+  display: grid;
+  gap: 16px;
+}
+.opsis-check-step > h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 28px;
+  font-size: 28px;
+  margin: 0 0 18px;
+}
+.opsis-check-step > h2 > span {
+  color: var(--accent);
+  font:
+    28px OpsisMono,
+    monospace;
+}
+.opsis-check-fields,
+.opsis-check-step .opsis-two-column {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 14px 0;
+}
+.opsis-check-result-link {
+  display: inline-block;
+  font:
+    12px/1.6 OpsisMono,
+    monospace;
+  color: var(--accent);
+  padding: 10px 0;
+}
+.opsis-check-net {
+  font-size: clamp(28px, 3vw, 52px);
+  color: var(--accent);
+  line-height: 1.1;
+  margin: 12px 0 24px;
+  overflow-wrap: anywhere;
+}
+.opsis-check-bar-track {
+  display: block;
+  height: 12px;
+  margin-top: 7px;
+}
+.opsis-check-page .opsis-perp-estimate > section + section {
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  margin-top: 24px;
+}
+.opsis-check-liquidation-title {
+  font-size: 26px;
+  margin: 0 0 12px;
+}
+.opsis-check-page [data-testid="opsis-perp-liquidation"] {
+  font:
+    24px/1.4 OpsisMono,
+    monospace;
+}
+.opsis-check-page .opsis-perp-shock-choice {
+  margin: 4px;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  background: var(--panel);
+  font:
+    12px OpsisMono,
+    monospace;
+}
+.opsis-check-page .opsis-perp-shock-choice[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--surface-info);
+}
+.opsis-check-page table {
+  width: 100%;
+  border-collapse: collapse;
+  font:
+    11px/1.6 OpsisMono,
+    monospace;
+}
+.opsis-check-page :is(th, td) {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+.opsis-check-page .opsis-table-scroll {
+  overflow-x: auto;
+}
+@media (max-width: 1100px) and (min-width: 761px) {
+  .opsis-check-with-curve {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  }
+  .opsis-check-curve {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 760px) {
+  .opsis-check-columns,
+  .opsis-perp-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .opsis-check-page .opsis-panel {
+    padding: 16px;
+  }
+  .opsis-check-page .opsis-check-heading {
+    margin: 8px 0 18px;
+  }
+  .opsis.opsis-terminal .opsis-content .opsis-check-heading h1 {
+    font-size: 32px;
+    line-height: 1.08;
+    margin: 8px 0;
+  }
+  .opsis-check-input .opsis-form-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .opsis-check-page .opsis-curve-optin {
+    margin: 10px 0;
+  }
+  .opsis-check-handoff {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .opsis-check-step > h2 {
+    margin-bottom: 12px;
+  }
+  .opsis-check-fields,
+  .opsis-check-step .opsis-two-column {
+    gap: 10px;
+    margin: 10px 0;
+  }
+}

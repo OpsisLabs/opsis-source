@@ -4,6 +4,7 @@ import { useI18n } from "../i18n";
 import type { Capabilities } from "./model";
 import { DIRECTORY_CHECKED_AT, directoryNeedsReview, sourcesForRegion, venuesForRegion, type PerpVenue, type Region } from "./perp-venues";
 import "./perp-handoff.css";
+import "./check.css";
 
 export default function PerpHandoff({ capabilities, summary }: { capabilities: Capabilities; summary: string[] | null }) {
   const c = useCopy();

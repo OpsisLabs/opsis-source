@@ -87,7 +87,7 @@ describe("task guidance", () => {
         </I18nProvider>,
       );
       const buttons = html.match(/<button\b[^>]*>[\s\S]*?<\/button>/g) ?? [];
-      expect(buttons).toHaveLength(8);
+      expect(buttons.filter((button) => button.includes("aria-pressed"))).toHaveLength(8);
       expect(
         buttons.filter((button) => button.includes('aria-pressed="true"')),
       ).toHaveLength(1);

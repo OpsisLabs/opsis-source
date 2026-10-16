@@ -2,6 +2,7 @@ import type { ExitCheckQuote } from "../exit-check/api";
 import { useState } from "react";
 import { useCopy } from "./copy";
 import "./ExitSizeCurve.css";
+import "./check.css";
 
 export default function ExitSizeCurve({
   result,
@@ -15,7 +16,10 @@ export default function ExitSizeCurve({
   if (!result.curve) return null;
   const selectedPoolText =
     result.curve.scope.strategy === "selected_pool"
-      ? `${formatFeeTier(result.curve.scope.pool.fee)}% fee pool`
+      ? c(
+          `${formatFeeTier(result.curve.scope.pool.fee)}% fee pool`,
+          `${formatFeeTier(result.curve.scope.pool.fee)}% 费率池`,
+        )
       : null;
   const usable = result.curve.points.filter(
     (point) => point.status === "ok" && point.amountOutDisplay !== null,
@@ -40,6 +44,12 @@ export default function ExitSizeCurve({
       <h3 id="exit-size-curve-title">{c("Exit size curve", "退出数量曲线")}</h3>
       <p className="opsis-small">
         {c(
+          "Observed points only. Actual output by input size.",
+          "仅显示观察点。按输入数量显示实际输出。",
+        )}
+      </p>
+      <p className="opsis-small">
+        {c(
           result.curve.scope.strategy === "selected_pool"
             ? `Every point uses the selected ${selectedPoolText} for the entered size and the smaller/larger points. Another pool may quote better at another size. Unknown points stay unavailable.`
             : "No pool returned a usable quote for the entered size. Curve points stay unavailable.",
@@ -60,7 +70,7 @@ export default function ExitSizeCurve({
         <line x1="10" y1="110" x2="290" y2="110" />
         <line x1="10" y1="10" x2="10" y2="110" />
         <text x="12" y="9" className="opsis-curve-axis">
-          {result.output?.symbol ?? "output"}
+          {result.output?.symbol ?? c("output", "输出")}
         </text>
         <text x="250" y="123" className="opsis-curve-axis">
           {c("input size", "输入数量")}

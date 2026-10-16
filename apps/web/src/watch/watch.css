@@ -1,0 +1,619 @@
+.watch-workspace,
+.watch-check,
+.watch-result,
+.saved-workspace,
+.saved-report-grid,
+.saved-report-detail {
+  min-width: 0;
+  max-width: 100%;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.opsis .watch-check {
+  display: grid;
+  gap: 12px;
+}
+.opsis .watch-check p,
+.opsis .watch-result p,
+.opsis .watch-panel p,
+.opsis .saved-workspace p {
+  margin: 0;
+}
+.opsis .watch-panel,
+.opsis .saved-vault-panel {
+  min-width: 0;
+  max-width: 100%;
+  padding: 20px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: 0;
+}
+.opsis :is(.watch-panel, .saved-workspace) :is(h2, h3, h4) {
+  font-family: Opsis, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.04em;
+}
+.opsis .watch-panel h3 {
+  margin: 0 0 12px;
+  font-size: 27px;
+  line-height: 1.15;
+}
+.opsis .watch-small {
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--soft);
+}
+.opsis .watch-kicker,
+.opsis .watch-facts dt,
+.opsis .watch-holdings th {
+  font:
+    11px/1.5 OpsisMono,
+    monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--soft);
+}
+.opsis .watch-check-form {
+  display: grid;
+  gap: 6px;
+}
+.opsis .watch-check-band {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  border: 1px solid var(--accent);
+  padding: 6px;
+  background: var(--panel);
+}
+.opsis .watch-check-band label {
+  flex: 1;
+  min-width: 0;
+  padding: 2px 8px 0;
+  font:
+    11px/1.5 OpsisMono,
+    monospace;
+  color: var(--soft);
+}
+.opsis .opsis-content .watch-check-band input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 36px;
+  margin: 0;
+  padding: 3px 0;
+  border: 0;
+  border-radius: 0;
+  font:
+    16px/1.5 OpsisMono,
+    monospace;
+  color: var(--ink);
+  background: var(--panel);
+}
+.opsis .watch-consent {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  font:
+    12px/1.5 OpsisMono,
+    monospace;
+}
+.opsis .watch-consent input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+}
+.opsis .watch-check-band .opsis-action {
+  margin: 0;
+  min-height: 50px;
+}
+.opsis :is(.watch-button, .watch-primary) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid var(--accent);
+  border-radius: 0;
+  font:
+    12px/1.5 OpsisMono,
+    monospace;
+  text-align: center;
+}
+.opsis .watch-button {
+  color: var(--accent);
+  background: var(--panel);
+}
+.opsis .watch-button:hover {
+  background: var(--panel-hover);
+}
+.opsis .watch-button[aria-current="true"] {
+  border-color: var(--accent);
+  background: var(--surface-info);
+}
+.opsis .watch-workspace :is(button, input, select, summary, a):focus-visible,
+.opsis .saved-workspace :is(button, input, textarea, summary, a):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.opsis .watch-workspace button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.opsis .opsis-content .watch-input {
+  display: block;
+  min-height: 44px;
+  width: 100%;
+  min-width: 0;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--panel);
+  color: var(--ink);
+  font-size: 16px;
+}
+.opsis .watch-result {
+  display: grid;
+  gap: 14px;
+  margin-top: 8px;
+}
+.opsis .watch-identity {
+  padding: 0;
+}
+.opsis .watch-identity header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 20px;
+}
+.opsis .watch-identity h3 {
+  font-size: 26px;
+  margin-bottom: 4px;
+}
+.opsis .watch-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+  border-top: 1px solid var(--line);
+}
+.opsis .watch-facts > div {
+  min-width: 0;
+  padding: 16px 20px;
+  border-right: 1px solid var(--line);
+}
+.opsis .watch-facts > div:last-child {
+  border-right: 0;
+}
+.opsis .watch-facts dd {
+  margin: 4px 0 0;
+  font:
+    24px/1.3 OpsisMono,
+    monospace;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.opsis .watch-result-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 14px;
+}
+.opsis .watch-result-columns > * {
+  min-width: 0;
+}
+.opsis .watch-holdings {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font:
+    13px/1.5 OpsisMono,
+    monospace;
+}
+.opsis .watch-holdings caption {
+  text-align: left;
+  margin-bottom: 8px;
+  color: var(--soft);
+  font-size: 11px;
+}
+.opsis .watch-holdings :is(th, td) {
+  border: 1px solid var(--line);
+  padding: 10px;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+.opsis .watch-holdings th:first-child {
+  width: 46%;
+}
+.opsis .watch-holdings th:nth-child(2) {
+  width: 24%;
+}
+.opsis .watch-holdings th:last-child {
+  width: 30%;
+}
+.opsis .watch-holdings thead {
+  background: var(--surface-info);
+}
+.opsis .watch-letter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--line);
+  margin-right: 10px;
+  color: var(--accent);
+  font-size: 14px;
+}
+.opsis .watch-tag {
+  display: inline-block;
+  border: 1px solid var(--accent);
+  padding: 2px 5px;
+  margin-top: 3px;
+  color: var(--accent);
+  font:
+    10px/1.5 OpsisMono,
+    monospace;
+}
+.opsis .watch-warning-row > td {
+  padding: 0 10px 10px;
+  border-top: 0;
+}
+.opsis .watch-warning-row > td > div {
+  padding: 8px 10px;
+  background: var(--surface-info);
+  font-size: 11px;
+  color: var(--ink);
+}
+.opsis .watch-warning-row p {
+  display: inline;
+}
+.opsis .watch-warning-row p + p::before {
+  content: " ";
+}
+.opsis .watch-copy {
+  font-family: OpsisMono, monospace;
+  font-size: 0.8em;
+}
+.opsis .watch-copy button {
+  display: inline;
+  padding: 2px 0;
+  min-height: 32px;
+  color: var(--accent);
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.opsis .watch-copy [role="status"] {
+  display: block;
+  font-size: 11px;
+}
+.opsis .watch-selectable {
+  display: block;
+  user-select: all;
+  overflow-wrap: anywhere;
+}
+.opsis .watch-save {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-top: 14px;
+}
+.opsis .watch-activity > .watch-kicker {
+  margin-bottom: 8px;
+}
+.opsis .watch-timeline {
+  list-style: none;
+  margin: 20px 0;
+  padding: 0 0 0 10px;
+}
+.opsis .watch-timeline > li,
+.opsis .watch-timeline-item {
+  position: relative;
+  min-width: 0;
+  padding: 0 0 22px 24px;
+  border-left: 1px solid var(--accent);
+  font:
+    14px/1.6 OpsisMono,
+    monospace;
+}
+.opsis .watch-timeline > li::before,
+.opsis .watch-timeline-item::before {
+  content: "";
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  left: -5px;
+  top: 6px;
+  background: var(--accent);
+}
+.opsis .watch-timeline > li:last-child {
+  padding-bottom: 0;
+}
+.opsis .watch-timeline .opsis-text-link {
+  font-size: 11px;
+}
+.opsis .watch-sources {
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+.opsis .watch-sources h3 {
+  font-size: 21px;
+}
+.opsis .watch-sources ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font:
+    11px/1.8 OpsisMono,
+    monospace;
+}
+.opsis .watch-receipt {
+  padding-block: 10px;
+  border-block: 1px solid var(--line);
+  font-size: 12px;
+}
+.opsis .watch-receipt summary {
+  cursor: pointer;
+  min-height: 32px;
+}
+.opsis .watch-notice {
+  padding: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface-info);
+  font-size: 13px;
+}
+.opsis .watch-inbox-table {
+  border-collapse: collapse;
+}
+.opsis .watch-inbox-table th {
+  font:
+    11px/1.5 OpsisMono,
+    monospace;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+.opsis .watch-inbox-table td:nth-child(3) {
+  font:
+    11px/1.6 OpsisMono,
+    monospace;
+}
+.opsis .watch-saved-activity .watch-timeline-item {
+  margin-left: 5px;
+}
+.opsis .watch-workspace .watch-panel[aria-current="true"] {
+  background: var(--surface-info);
+  border-color: var(--accent);
+}
+.opsis .saved-workspace .opsis-saved-tabs {
+  gap: 0;
+  margin-bottom: 16px;
+}
+.opsis .saved-workspace .opsis-saved-tabs a {
+  border-color: var(--line);
+  color: var(--soft);
+  font:
+    12px/1.5 OpsisMono,
+    monospace;
+}
+.opsis .saved-workspace .opsis-saved-tabs a[aria-current="page"] {
+  background: var(--surface-info);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.opsis .opsis-report-shelf {
+  min-width: 0;
+  margin-top: 0;
+}
+.opsis .saved-vault-state {
+  margin: 0 0 16px;
+}
+.opsis .saved-report-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr);
+  gap: 14px;
+  align-items: start;
+}
+.opsis .saved-report-grid > aside {
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  padding: 20px;
+  border-radius: 0;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+.opsis .saved-report-grid > aside nav {
+  max-height: none;
+}
+.opsis .saved-report-grid > aside nav button[aria-current="true"] {
+  border-left: 3px solid var(--accent);
+  background: var(--surface-info);
+}
+.opsis .saved-report-grid > aside nav button {
+  border-radius: 0;
+}
+.opsis .saved-report-grid > aside nav button span:last-child {
+  font:
+    11px/1.5 OpsisMono,
+    monospace;
+}
+.opsis .saved-report-detail {
+  min-height: 260px;
+}
+.opsis .saved-report-detail > section {
+  margin: 16px 0;
+}
+.opsis .saved-report-detail article {
+  padding: 16px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  background: var(--panel);
+}
+.opsis .saved-report-empty h2 {
+  margin-bottom: 12px;
+}
+.opsis .saved-privacy {
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+  margin-top: 14px;
+  font-family: OpsisMono, monospace;
+}
+.opsis .saved-vault-panel .workspace-layout {
+  padding: 0;
+}
+@media (max-width: 1050px) {
+  .opsis .watch-result-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .opsis .watch-facts dd {
+    font-size: 20px;
+  }
+}
+@media (max-width: 700px) {
+  .opsis .watch-panel,
+  .opsis .saved-vault-panel,
+  .opsis .saved-report-grid > aside {
+    padding: 14px;
+  }
+  .opsis .watch-identity {
+    padding: 0;
+  }
+  .opsis .watch-identity header {
+    padding: 14px;
+  }
+  .opsis .watch-identity h3 {
+    font-size: 21px;
+  }
+  .opsis .watch-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .opsis .watch-facts > div {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .opsis .watch-facts > div:nth-child(2n) {
+    border-right: 0;
+  }
+  .opsis .watch-facts > div:nth-last-child(-n + 2) {
+    border-bottom: 0;
+  }
+  .opsis .watch-check-band {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .opsis .watch-check-band label {
+    flex-basis: 100%;
+  }
+  .opsis .watch-check-band .opsis-action {
+    width: 100%;
+    min-height: 44px;
+  }
+  .opsis .watch-holdings :is(th, td) {
+    padding: 7px 5px;
+    font-size: 11px;
+  }
+  .opsis .watch-holdings th:first-child {
+    width: 40%;
+  }
+  .opsis .watch-holdings th:nth-child(2) {
+    width: 25%;
+  }
+  .opsis .watch-holdings th:last-child {
+    width: 35%;
+  }
+  .opsis .watch-letter {
+    display: none;
+  }
+  .opsis .watch-save .opsis-action {
+    width: 100%;
+  }
+  .opsis .saved-report-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .opsis .opsis-watch-board > section[aria-labelledby="watch-access-title"] {
+    display: block;
+    padding: 14px;
+  }
+  .opsis
+    .opsis-watch-board
+    > section[aria-labelledby="watch-access-title"]
+    > form {
+    margin-top: 16px;
+  }
+}
+.opsis .saved-report-list {
+  display: grid;
+  gap: 16px;
+}
+.opsis .saved-report-list > header {
+  display: flex;
+  align-items: start;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+}
+.opsis .saved-report-list h2 {
+  margin-top: 8px;
+  font-size: 25px;
+}
+.opsis .saved-report-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--line);
+}
+.opsis .saved-report-select {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 12px;
+  flex: 1;
+  min-width: 0;
+  padding: 16px 10px;
+  text-align: left;
+  border: 0;
+}
+.opsis .saved-report-select .watch-tag {
+  grid-column: 1;
+  justify-self: start;
+}
+.opsis .saved-report-date {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  color: var(--soft);
+  font:
+    10px/1.7 OpsisMono,
+    monospace;
+}
+.opsis .saved-report-name {
+  overflow-wrap: anywhere;
+  font-size: 16px;
+}
+.opsis .saved-report-delete {
+  font-size: 11px;
+}
+.opsis .saved-unlock {
+  display: grid;
+  gap: 12px;
+}
+.opsis .saved-unlock > label {
+  min-width: 0;
+}
+@media (max-width: 420px) {
+  .opsis .saved-report-select {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .opsis .saved-report-date {
+    grid-column: 1;
+    grid-row: auto;
+  }
+}
+.opsis .saved-report-grid > .saved-report-detail {
+  background: var(--panel) !important;
+}

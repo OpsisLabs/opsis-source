@@ -1,19 +1,21 @@
-import { useState } from "react";
-import type { DecodedAction, Leg, ResearchFacts } from "../private/api";
+import { useState, useEffect, type ReactNode } from "react";
+import type { SourceCitation } from "../dashboard/types";
+import { safeHttpUrl } from "../dashboard/adapters";
+import type { DecodedAction, Leg, PrivateAnalysis, ResearchFacts } from "../private/api";
 import { useCopy } from "./copy";
 import {
   explorerCount, explorerNumber, hasHiddenCharacters, holderShares, isBurnAddress,
   latestTimestamp, lookalikeAsset, relativeTime, reviewedAsset,
-  sharePercent, transactionDirection, transactionMethod, visibleTokenText, wellKnownUnreviewedSymbol,
+  researchEvidenceGroups, walletActivity, sharePercent, transactionDirection, transactionMethod, visibleTokenText, wellKnownUnreviewedSymbol,
 } from "./explorer-facts";
-import { actionAmount, feePercent, formatExactAmount, orderActions, scaleRawAmount } from "./transactionTimeline";
+import { actionAmount, feePercent, formatExactAmount, orderActions, scaleRawAmount, transactionReceiptOutcome, transactionTimelineRows } from "./transactionTimeline";
 
-function PublicAddress({ address }: { address: string }) {
+export function PublicAddress({ address }: { address: string }) {
   const c = useCopy();
   const [copied, setCopied] = useState(false);
   const [failed, setFailed] = useState(false);
   return <span className="opsis-address-control">
-    <span title={address}>{address.slice(0, 8)}…{address.slice(-6)}</span>
+    <span title={address}>{address.slice(0, 6)}…{address.slice(-4)}</span>
     <button type="button" title={address} aria-label={`${c("Copy address", "复制地址")} ${address}`} onClick={async () => {
       try {
         await navigator.clipboard.writeText(address);
@@ -105,44 +107,54 @@ function Share({ value }: { value: unknown }) {
   return <>{sharePercent(value) ?? c("Unknown", "未知")}</>;
 }
 
-export function TokenFacts({ facts }: { facts: ResearchFacts }) {
+export function TokenFacts({ facts, showTiles = true }: { facts: ResearchFacts; showTiles?: boolean }) {
   const c = useCopy();
   const decimals = explorerCount(facts.decimals);
   const supply = scaleRawAmount(facts.totalSupply, decimals);
-  const holders = explorerCount(facts.holders);
-  const transfers = explorerCount(facts.lifetimeTransfers);
-  const explorer = facts.holderCoverage === "top_holders" || holders !== null;
   const distribution = facts.holderCoverage === "top_holders" || (facts.holderCoverage !== "unavailable" && Array.isArray(facts.topHolders));
   const history = facts.activityCoverage === "indexed_window" || (facts.activityCoverage !== "unavailable" && Array.isArray(facts.recentTransfers));
   const rows = facts.recentTransfers ?? [];
   const shares = holderShares(facts);
+  const largestBar = Math.max(0, ...(facts.topHolders ?? []).slice(0, 10).map((holder) => {
+    const share = explorerNumber(holder.share);
+    return share !== null && share <= 100 ? share : 0;
+  }));
   const rpc = facts.sourceCoverage === "rpc_sample_only" || facts.metadataCoverage === "rpc_partial" || facts.metadataCoverage === "rpc_insufficient";
   return <div data-testid="token-facts" className="opsis-explorer-facts">
-    <p className="opsis-small" data-testid="token-name-origin">{reviewedAsset(facts.address)
-      ? c("This contract is on the Opsis reviewed asset list.", "此合约在 Opsis 的已审核资产列表中。")
-      : c("Name and symbol are what this contract reports about itself. Anyone can deploy a token with any name, so identify it by the contract address above.", "名称和符号由该合约自行报告。任何人都可以用任意名称部署代币，请以上方的合约地址为准。")}</p>
-    <dl className="opsis-metrics">
+    {showTiles && <TokenNameOrigin address={facts.address} />}
+    {showTiles && <ResearchTiles facts={facts} type="token" />}
+    <dl className="research-token-metadata">
       <div><dt>{c("Decimals", "小数位")}</dt><dd>{decimals !== null && decimals <= 255 ? decimals : c("Unknown", "未知")}</dd></div>
-      <div><dt>{c("Total supply", "总供应量")}</dt><dd title={supply ?? undefined}>{formatExactAmount(supply) ?? c("Unknown", "未知")}</dd></div>
-      {explorer && <>
-        <div><dt>{c("Holders · Blockscout", "持有人 · Blockscout")}</dt><dd>{holders === null ? c("Unknown", "未知") : formatExactAmount(String(holders))}</dd></div>
-        <div><dt>{c("Transfers (lifetime) · Blockscout", "转移（累计）· Blockscout")}</dt><dd>{transfers === null ? c("Unknown", "未知") : formatExactAmount(String(transfers))}</dd></div>
-        <div><dt>{c("Source code · Blockscout", "源代码 · Blockscout")}</dt><dd>{facts.verified === true ? c("Verified", "已验证") : facts.verified === false ? c("Not verified", "未验证") : c("Unknown", "未知")}</dd></div>
-        <div><dt>{c("Upgradeable proxy · Blockscout", "可升级代理 · Blockscout")}</dt><dd>{facts.proxy === true ? <>
-          {c("Yes", "是")}{facts.proxyType && <> · {visibleTokenText(facts.proxyType)}</>}
-          {facts.implementations?.map((implementation) => <p className="opsis-small" key={implementation.address}>{c("Implementation", "实现合约")}: <PublicAddress address={implementation.address} />{implementation.name && <> · {visibleTokenText(implementation.name)}</>}</p>)}
-        </> : facts.proxy === false ? c("No", "否") : c("Unknown", "未知")}</dd></div>
-      </>}
+      <div><dt>{c("Total supply", "总供应量")}</dt><dd>{formatExactAmount(supply) ?? c("Unknown", "未知")}</dd></div>
     </dl>
     {typeof facts.totalSupply === "string" && <details><summary>{c("Exact supply", "精确供应量")}</summary>
       {supply !== null && <p>{c("Total supply", "总供应量")}: <code>{supply}</code></p>}
       <p>{c("Raw supply", "原始供应量")}: <code>{facts.totalSupply}</code></p>
     </details>}
     {facts.explorerReputation === "scam" && <p className="opsis-small">{c("Blockscout marks this token as a scam.", "Blockscout 将此代币标记为骗局。")}</p>}
-    {(distribution || facts.holderCoverage === "unavailable") && <section data-testid="token-holders">
-      <h3>{c("Who holds it", "谁持有它")}</h3>
+    {(distribution || facts.holderCoverage === "unavailable") && <section className="research-card research-holders" data-testid="token-holders">
+      <div className="research-card-heading"><h3>{c("Who holds it", "谁持有它")}</h3><span>{c("Top 10 hold", "前十大持有")} <Share value={shares.ten} />*</span></div>
       {facts.holderCoverage === "unavailable" ? <p>{c("Holder data could not be read from Blockscout.", "无法从 Blockscout 读取持有人数据。")} <ExplorerReason reason={facts.explorerUnavailableReason} /></p> : <>
         <p className="opsis-small">{c("These are the largest", "这些是从 Blockscout 读取的最大的")} {explorerCount(facts.holdersAnalyzed) ?? facts.topHolders?.length ?? c("Unknown", "未知")} {c("holders read from Blockscout. Shares are percentages of total supply.", "个持有人。占比均以总供应量为基准。")}</p>
+        {!!facts.topHolders?.length && <ol className="research-holder-list">{facts.topHolders.slice(0, 10).map((holder, index) => {
+          const share = explorerNumber(holder.share);
+          const valid = share !== null && share <= 100;
+          return <li key={holder.address} data-testid="holder-bar">
+            <span className="research-rank">{String(index + 1).padStart(2, "0")}</span>
+            <PublicAddress address={holder.address} />
+            <span className="research-bar-track" aria-hidden="true"><span style={{ width: valid && largestBar > 0 ? String(share / largestBar * 100) + "%" : "0%" }} /></span>
+            <span className="research-share"><Share value={holder.share} /></span>
+            <span className="opsis-explorer-tags">
+              {holder.label && <span>{visibleTokenText(holder.label)}</span>}
+              {holder.isPool && <span>{c("Trading pool", "交易池")}</span>}
+              {holder.isContract && <span>{c("Contract", "合约")}</span>}
+              {(holder.isBurn || isBurnAddress(holder.address)) && <span>{c("Burn address", "销毁地址")}</span>}
+              {holder.flaggedScam && <span>{c("Flagged by the explorer", "被区块浏览器标记")}</span>}
+            </span>
+          </li>;
+        })}</ol>}
+        <p className="research-share-summary">{c("In trading pools", "交易池中的占比")}: <Share value={facts.liquidityPoolShare} /> · {c("Burned share", "销毁地址占比")}: <Share value={shares.burned} /></p>
+        <details><summary>{c("Concentration, pools and burns", "集中度、交易池与销毁地址")}</summary>
         <dl className="opsis-metrics">
           <div><dt>{c("Largest holder, excluding trading pools and burn addresses", "最大持有人，不含交易池和销毁地址")}</dt><dd><Share value={shares.largest} /></dd></div>
           <div><dt>{c("Ten largest, excluding trading pools and burn addresses", "前十大持有人，不含交易池和销毁地址")}</dt><dd><Share value={shares.ten} /></dd></div>
@@ -150,26 +162,22 @@ export function TokenFacts({ facts }: { facts: ResearchFacts }) {
           {(explorerNumber(shares.burned) ?? 0) > 0 && <div><dt>{c("Burned share", "销毁地址占比")}</dt><dd><Share value={shares.burned} /></dd></div>}
           {explorerNumber(facts.deployerStillHolds) !== null && !isBurnAddress(facts.deployer) && <div><dt>{c("Deployer still holds", "部署者仍持有")}{typeof facts.deployer === "string" && <> · <PublicAddress address={facts.deployer} /></>}</dt><dd><Share value={facts.deployerStillHolds} /></dd></div>}
         </dl>
-        {!!facts.topHolders?.length && <ul className="opsis-balance-list">{facts.topHolders.slice(0, 10).map((holder) => <li key={holder.address}>
-          <PublicAddress address={holder.address} />{holder.label && <> · {visibleTokenText(holder.label)}</>} · <strong><Share value={holder.share} /></strong>
-          <p className="opsis-small opsis-explorer-tags">
-            {holder.isPool && <span>{c("Trading pool", "交易池")}</span>}
-            {holder.isContract && <span>{c("Contract", "合约")}</span>}
-            {(holder.isBurn || isBurnAddress(holder.address)) && <span>{c("Burn address", "销毁地址")}</span>}
-            {holder.flaggedScam && <span>{c("Flagged by the explorer", "被区块浏览器标记")}</span>}
-          </p>
-        </li>)}</ul>}
+        </details>
+        <p className="opsis-small">{c("* Top 10 excludes trading pools and burn addresses. Bars scale to the largest returned holder; numbers are shares of total supply. Observed balances · Blockscout", "* 前十大不含交易池和销毁地址。条形以返回的最大持有人为比例基准；数字为总供应量占比。观察到的余额 · Blockscout")}</p>
       </>}
     </section>}
-    {(history || facts.activityCoverage === "unavailable") && <section data-testid="token-transfers">
+    {(history || facts.activityCoverage === "unavailable") && <section className="research-card" data-testid="token-transfers">
       <h3>{c("Recent transfers", "近期转移")}</h3>
       {facts.activityCoverage === "unavailable" ? <p>{c("Recent transfers could not be read from Blockscout.", "无法从 Blockscout 读取近期转移。")} <ExplorerReason reason={facts.explorerUnavailableReason} /></p> : <>
         <p className="opsis-small">{rows.length} {c("transfers in this Blockscout window.", "笔转移记录在此 Blockscout 窗口中。")}{rows.length > 0 && <> {c("Latest", "最近一笔")}: <ObservedTime value={latestTimestamp(rows)} /></>}</p>
-        {rows.length > 0 && <ul className="opsis-balance-list">{rows.slice(0, 5).map((row, index) => <li key={`${row.transactionHash}:${index}`}>
-          <ObservedTime value={row.timestamp} />
-          <p>{c("From", "从")} <Party address={row.from} role="from" /> {c("to", "至")} <Party address={row.to} role="to" /></p>
-          <strong>{formatExactAmount(row.formattedValue) ?? c("Amount unknown", "数量未知")} {visibleTokenText(row.tokenSymbol ?? "")}</strong>
-        </li>)}</ul>}
+        {rows.length > 0 && <table className="research-table">
+          <thead><tr><th>{c("Time", "时间")}</th><th>{c("From → to", "发送方 → 接收方")}</th><th>{c("Amount", "数量")}</th></tr></thead>
+          <tbody>{rows.slice(0, 5).map((row, index) => <tr key={String(row.transactionHash) + ":" + index}>
+            <td><ObservedTime value={row.timestamp} /></td>
+            <td><Party address={row.from} role="from" /> <span aria-hidden="true">→</span> <Party address={row.to} role="to" /></td>
+            <td>{formatExactAmount(row.formattedValue) ?? c("Amount unknown", "数量未知")} {visibleTokenText(row.tokenSymbol ?? "")}</td>
+          </tr>)}</tbody>
+        </table>}
       </>}
     </section>}
     {facts.explorerObservedAt && <p className="opsis-small" data-testid="explorer-read-time">{c("Blockscout data read", "Blockscout 数据读取于")}: <ObservedTime value={facts.explorerObservedAt} />{facts.explorerCached && <> · {c("Reused from that read.", "复用了该次读取的数据。")}</>}</p>}
@@ -211,8 +219,8 @@ export function WalletBalances({ facts }: { facts: ResearchFacts }) {
     || balance.reputation === "scam");
   const unreviewed = balances.filter((balance) => !reviewedAsset(balance.tokenAddress));
   const other = [...unreviewed.filter(flagged), ...unreviewed.filter((balance) => !flagged(balance))];
-  return <section data-testid="wallet-balances" className="opsis-explorer-facts">
-    <h3>{c("Observed balances", "观察到的余额")}</h3>
+  return <section data-testid="wallet-balances" className="opsis-explorer-facts research-card">
+    <h3>{c("Holdings", "持仓")}</h3>
     <p>{c("Native balance", "原生余额")}: {formatExactAmount(facts.nativeBalanceEth) ?? c("Unknown", "未知")} ETH</p>
     {reviewed.length > 0 && <ul className="opsis-balance-list" data-testid="reviewed-balances">{reviewed.map((balance, index) => <Balance key={index} balance={balance} />)}</ul>}
     {other.length > 0 && <>
@@ -231,25 +239,115 @@ export function WalletBalances({ facts }: { facts: ResearchFacts }) {
 export function WalletTransactions({ facts, address }: { facts: ResearchFacts; address: string }) {
   const c = useCopy();
   const rows = facts.recentTransactions ?? [];
-  const failed = rows.filter((row) => row.status !== "ok").length;
-  return <section data-testid="wallet-transactions" className="opsis-explorer-facts">
+  const failed = walletActivity(facts).failed;
+  return <section data-testid="wallet-transactions" className="opsis-explorer-facts research-card">
     <h3>{c("Recent transactions", "近期交易")}</h3>
     {facts.activityCoverage === "unavailable" || !Array.isArray(facts.recentTransactions) ? <p>{c("Recent transactions could not be read from Blockscout.", "无法从 Blockscout 读取近期交易。")} <ExplorerReason reason={facts.explorerUnavailableReason} /></p> : <>
-      <p className="opsis-small">{rows.length} {c("transactions in this Blockscout window.", "笔交易记录在此 Blockscout 窗口中。")}{failed > 0 && <> {failed} {failed === 1 ? c("failed transaction in this window.", "笔交易在此窗口中失败。") : c("failed transactions in this window.", "笔交易在此窗口中失败。")}</>}</p>
-      {rows.length > 0 && <ul className="opsis-balance-list">{rows.slice(0, 10).map((row) => {
+      <p className="opsis-small">{rows.length} {c("transactions in this Blockscout window.", "笔交易记录在此 Blockscout 窗口中。")}{failed !== null && failed > 0 && <> {failed} {failed === 1 ? c("failed transaction in this window.", "笔交易在此窗口中失败。") : c("failed transactions in this window.", "笔交易在此窗口中失败。")}</>}</p>
+      {rows.length > 0 && <table className="research-table research-wallet-table">
+        <thead><tr><th>{c("Time", "时间")}</th><th>{c("Direction", "方向")}</th><th>{c("Counterparty", "交易对方")}</th><th>{c("Method / value", "方法／金额")}</th></tr></thead><tbody>{rows.slice(0, 10).map((row) => {
         const direction = transactionDirection(row.from, row.to, address);
         const counterparty = direction === "sent" ? row.to : direction === "received" ? row.from : direction === "self" ? address : null;
         const method = transactionMethod(row);
         const value = scaleRawAmount(row.value, 18);
-        return <li key={row.hash}>
-          <ObservedTime value={row.timestamp} /> · {direction === "sent" ? c("Sent", "发送") : direction === "received" ? c("Received", "接收") : direction === "self" ? c("Self", "自身") : c("Direction unknown", "方向未知")}
-          {counterparty && <> · <PublicAddress address={counterparty} /></>}
-          <p>{method.kind === "decoded" ? method.text : method.kind === "transfer" ? c("Transfer", "转账") : <>{c("Contract call", "合约调用")}{method.text && <> · <code>{method.text}</code></>}</>}
+        return <tr key={row.hash}>
+          <td><ObservedTime value={row.timestamp} /></td><td>{direction === "sent" ? c("Sent", "发送") : direction === "received" ? c("Received", "接收") : direction === "self" ? c("Self", "自身") : c("Direction unknown", "方向未知")}</td>
+          <td>{counterparty ? <PublicAddress address={counterparty} /> : c("Unknown", "未知")}</td>
+          <td>{method.kind === "decoded" ? method.text : method.kind === "transfer" ? c("Transfer", "转账") : <>{c("Contract call", "合约调用")}{method.text && <> · <code>{method.text}</code></>}</>}
             {value !== null && /[1-9]/.test(value) && <> · {formatExactAmount(value)} ETH</>}
-            {row.status !== "ok" && <> · <span className="opsis-explorer-tag">{c("Failed", "失败")}</span></>}
-          </p>
-        </li>;
-      })}</ul>}
+            {value === null && <> · {c("Amount unknown", "数量未知")}</>}
+            {transactionReceiptOutcome(row.status) === "failed" && <> · <span className="opsis-explorer-tag">{c("Failed", "失败")}</span></>}
+            {transactionReceiptOutcome(row.status) === "unknown" && <> · {c("Status unknown", "状态未知")}</>}
+          </td>
+        </tr>;
+      })}</tbody></table>}
     </>}
   </section>;
+}
+
+function Tile({ label, value, detail }: { label: string; value: ReactNode; detail?: ReactNode }) {
+  return <div className="research-tile" data-testid="research-fact-tile"><dt>{label}</dt><dd>{value}</dd>{detail && <dd className="research-tile-detail">{detail}</dd>}</div>;
+}
+
+export function ResearchTiles({ facts, type }: { facts: ResearchFacts; type: "token" | "wallet" }) {
+  const c = useCopy();
+  const unknown = c("Unknown", "未知");
+  const notRead = c("Counter not read", "未读取计数");
+  const count = (value: unknown) => {
+    const number = explorerCount(value);
+    return number === null ? unknown : formatExactAmount(String(number));
+  };
+  const activity = walletActivity(facts);
+  const tokenCount = facts.tokenBalanceCoverage === "unavailable" || !Array.isArray(facts.tokenBalances) ? null : facts.tokenBalances.length;
+  return <dl className="research-tiles" data-testid="research-fact-tiles">
+    {type === "token" ? <>
+      <Tile label={c("Holders · Blockscout", "持有人 · Blockscout")} value={count(facts.holders)} detail={explorerCount(facts.holders) === null ? notRead : undefined} />
+      <Tile label={c("Transfers (lifetime) · Blockscout", "转移（累计）· Blockscout")} value={count(facts.lifetimeTransfers)} detail={explorerCount(facts.lifetimeTransfers) === null ? notRead : undefined} />
+      <Tile label={c("Source code · Blockscout", "源代码 · Blockscout")} value={facts.verified === true ? c("Verified", "已验证") : facts.verified === false ? c("Not verified", "未验证") : unknown} detail={facts.verified == null ? c("Contract record not read", "未读取合约记录") : undefined} />
+      <Tile label={c("Contract", "合约")} value={facts.proxy === true ? c("Upgradeable proxy", "可升级代理") : facts.proxy === false ? c("Not a proxy", "非代理合约") : unknown} detail={<>
+        {facts.proxy == null && c("Proxy record not read", "未读取代理记录")}
+        {facts.proxy === true && facts.proxyType && visibleTokenText(facts.proxyType)}
+        {facts.proxy === true && facts.implementations?.map((implementation) => <p key={implementation.address}>{c("Implementation", "实现合约")}: <PublicAddress address={implementation.address} />{implementation.name && <> · {visibleTokenText(implementation.name)}</>}</p>)}
+      </>} />
+    </> : <>
+      <Tile label={c("ETH balance", "ETH 余额")} value={formatExactAmount(facts.nativeBalanceEth) ?? unknown} detail={formatExactAmount(facts.nativeBalanceEth) === null ? c("Native balance not read", "未读取原生余额") : c("Observed sample", "观察采样")} />
+      <Tile label={c("Tokens", "代币")} value={tokenCount ?? unknown} detail={tokenCount === null ? c("Token balances not read", "未读取代币余额") : c("In the returned sample", "返回采样中的数量")} />
+      <Tile label={c("Recent transactions", "近期交易")} value={activity.count ?? unknown} detail={activity.count === null ? c("Transaction window not read", "未读取交易窗口") : c("In this window", "此窗口中的数量")} />
+      <Tile label={c("Failed", "失败")} value={activity.failed ?? unknown} detail={activity.failed === null ? c("Transaction statuses not fully read", "未完整读取交易状态") : c("In this window", "此窗口中的数量")} />
+    </>}
+  </dl>;
+}
+
+export function ResearchIdentity({ entity, checkedAt }: { entity: PrivateAnalysis["entity"]; checkedAt?: string }) {
+  const c = useCopy();
+  const facts = entity.facts;
+  const symbol = typeof facts.symbol === "string" ? visibleTokenText(facts.symbol) : c("Token", "代币");
+  const name = typeof facts.name === "string" ? visibleTokenText(facts.name) : "";
+  const outcome = transactionReceiptOutcome(facts.status);
+  const block = transactionTimelineRows(facts).find((row) => row.key === "block")?.value;
+  return <header className="research-identity" data-testid="research-identity">
+    <p className="opsis-kicker">{c("LOOK UP / RESEARCH", "查询 / 研究")}</p>
+    <div className="research-identity-title"><h2>{entity.type === "token" ? symbol : entity.type === "wallet" ? c("Wallet", "钱包") : entity.type === "transaction" ? c("Transaction", "交易") : c("Contract", "合约")}</h2>
+      {entity.type === "token" && name && name !== symbol && <span>{name}</span>}
+      {entity.type === "wallet" && <span className="research-identity-short">{entity.value.slice(0, 8)}…{entity.value.slice(-4)}</span>}
+    </div>
+    <p className="opsis-identity"><PublicAddress address={entity.value} /> · {c("Chain", "链")} {entity.chainId} · {entity.type === "token" ? c("Token", "代币") : entity.type === "wallet" ? c("Wallet", "钱包") : entity.type === "transaction" ? c("Transaction", "交易") : c("Contract", "合约")}</p>
+    <details className="research-exact-identity"><summary>{c("Exact identifier", "完整标识符")}</summary><code>{entity.value}</code></details>
+    {entity.type === "transaction" && <p className="opsis-identity">{outcome === "success" ? c("Success", "成功") : outcome === "failed" ? c("Failed", "失败") : outcome === "pending" ? c("Pending", "待处理") : c("Status unknown", "状态未知")} · {c("Block", "区块")} {block ?? c("Unknown", "未知")} · <ObservedTime value={facts.timestamp} /></p>}
+    <p className="opsis-small" data-testid={entity.type !== "token" ? "explorer-read-time" : undefined}>{c("Read", "读取于")} <ObservedTime value={facts.explorerObservedAt ?? checkedAt} /> · {facts.explorerObservedAt ? "Blockscout" : c("Chain data", "链上数据")}</p>
+    {entity.type === "token" && <TokenNameOrigin address={entity.value} />}
+  </header>;
+}
+
+export function ResearchEvidence({ sources }: { sources: SourceCitation[] }) {
+  const c = useCopy();
+  const [desktop, setDesktop] = useState(false);
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 901px)");
+    const update = () => setDesktop(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+  return <details className="research-evidence research-card" data-testid="research-evidence" open={desktop || undefined}>
+    <summary><span>{c("Sources & read times", "来源与读取时间")}</span><small>{sources.length} {c("observations", "条观察记录")}</small></summary>
+    <div className="research-evidence-groups">
+      {sources.length === 0 && <p>{c("No source receipts returned.", "未返回来源记录。")}</p>}
+      {researchEvidenceGroups(sources).map((group) => <section key={group.sources[0].id}>
+        <h4>{visibleTokenText(group.label) || c("Source", "来源")}</h4>
+        {group.sources.map((source) => <p key={source.id}>
+          {safeHttpUrl(source.url) ? <a href={safeHttpUrl(source.url)!} target="_blank" rel="noopener noreferrer">{visibleTokenText(source.provider ?? c("Unknown source", "来源未知"))} ↗</a> : visibleTokenText(source.provider ?? c("Unknown source", "来源未知"))}
+          <span>{c("Read", "读取于")} <ObservedTime value={source.fetchedAt} /></span>
+        </p>)}
+      </section>)}
+      <p className="opsis-small">{c("Public data. Time-stamped.", "公开数据，附有时间戳。")}</p>
+    </div>
+  </details>;
+}
+
+function TokenNameOrigin({ address }: { address: unknown }) {
+  const c = useCopy();
+  return <p className="opsis-small" data-testid="token-name-origin">{reviewedAsset(address)
+      ? c("This contract is on the Opsis reviewed asset list.", "此合约在 Opsis 的已审核资产列表中。")
+      : c("Name and symbol are what this contract reports about itself. Anyone can deploy a token with any name, so identify it by the contract address above.", "名称和符号由该合约自行报告。任何人都可以用任意名称部署代币，请以上方的合约地址为准。")}</p>;
 }

@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { mockPublicOpsisAccess } from "./opsis-test-helpers";
 import { mockLocalScenarioAccess } from "./opsis-local-scenarios.helpers";
 
 const enabled =
@@ -94,6 +95,28 @@ test.describe("Opsis local perp analysis", () => {
   test.beforeEach(async ({ page }) => {
     await mockLocalScenarioAccess(page);
   });
+
+  for (const width of [1280, 375]) for (const chinese of [false, true]) {
+    test(`opsis preview numbered perp panels and exact result fit ${width}px in ${chinese ? "Chinese" : "English"}`, async ({ page }) => {
+      await mockPublicOpsisAccess(page);
+      await page.setViewportSize({ width, height: width === 1280 ? 800 : 812 });
+      await page.goto("/check/perp-scenario");
+      if (chinese) await page.getByRole("button", { name: "中文", exact: true }).click();
+      await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+      await expect(page.locator("#perp-position-title")).toHaveText(chinese ? "01仓位" : "01Position");
+      await expect(page.locator("#perp-costs-title")).toHaveText(chinese ? "02成本" : "02Costs");
+      await expect(page.locator("#perp-exit-title")).toHaveText(chinese ? "03平仓" : "03Exit");
+      await expect(page.getByLabel(fields.quantity[chinese ? 1 : 0], { exact: true })).toBeInViewport({ ratio: 1 });
+      await expect(page.getByRole("link", { name: chinese ? "查看情景估算 ↓" : "View scenario estimate ↓", exact: true })).toBeInViewport({ ratio: 1 });
+      await fillScenario(page, chinese ? 1 : 0);
+      await fillCollateral(page, chinese ? 1 : 0);
+      await expect(page.locator(".opsis-perp-breakdown")).toContainText("20.00000000");
+      await expect(page.locator(".opsis-check-bar-track")).toHaveCount(5);
+      await expect(page.getByTestId("opsis-perp-result")).toContainText("18.18000000");
+      await expect(page.getByTestId("opsis-perp-liquidation")).toContainText("78.94736843");
+      await expect.poll(() => page.locator("html").evaluate((el) => el.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+    });
+  }
 
   test("opsis preview funding counts full intervals and requires explicit adoption", async ({
     page,

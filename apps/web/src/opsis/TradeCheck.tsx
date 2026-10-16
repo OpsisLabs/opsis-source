@@ -6,11 +6,24 @@ import {
   type ExitCheckQuote,
   type ExitCheckOutputSymbol,
 } from "../exit-check/api";
-import { KNOWN_ASSETS, resolveKnownAsset, type KnownAsset } from "./known-assets";
+import {
+  KNOWN_ASSETS,
+  resolveKnownAsset,
+  type KnownAsset,
+} from "./known-assets";
 import { differentOutput, observeTradeQuote } from "./trade-check";
-import { tradeRefusal, tradeRefusalCopy, type TradeRefusal } from "./trade-refusal";
+import {
+  tradeRefusal,
+  tradeRefusalCopy,
+  type TradeRefusal,
+} from "./trade-refusal";
 import { useCopy } from "./copy";
-import { publicIdentity, workspaceIdentity, workspaceLink, type Capabilities } from "./model";
+import {
+  publicIdentity,
+  workspaceIdentity,
+  workspaceLink,
+  type Capabilities,
+} from "./model";
 
 import { publicSession } from "./public-session";
 import { tradeToolPaths, routeNames } from "./shell-model";
@@ -21,6 +34,7 @@ import ExitSizeCurve from "./ExitSizeCurve";
 // Imported, not lazy, so the quote and its comparison appear together and the
 // save controls below do not move after the result is shown.
 import PoolComparison from "./PoolComparison";
+import "./check.css";
 
 export default function TradeCheck({
   capabilities,
@@ -33,16 +47,32 @@ export default function TradeCheck({
   const incoming = workspaceIdentity("/check", location.search);
   const remembered = !incoming || incoming === publicSession.check.token;
   const [token, setToken] = useState(incoming || publicSession.check.token);
-  const [amount, setAmount] = useState(remembered ? publicSession.check.amount : "");
-  const [output, setOutput] = useState<ExitCheckOutputSymbol>(() => differentOutput(incoming || publicSession.check.token, remembered ? publicSession.check.output : "WETH"));
-  const [curveEnabled, setCurveEnabled] = useState(remembered && publicSession.check.curveEnabled);
-  const [result, setResult] = useState<ExitCheckQuote | null>(remembered ? publicSession.check.result : null);
+  const [amount, setAmount] = useState(
+    remembered ? publicSession.check.amount : "",
+  );
+  const [output, setOutput] = useState<ExitCheckOutputSymbol>(() =>
+    differentOutput(
+      incoming || publicSession.check.token,
+      remembered ? publicSession.check.output : "WETH",
+    ),
+  );
+  const [curveEnabled, setCurveEnabled] = useState(
+    remembered && publicSession.check.curveEnabled,
+  );
+  const [result, setResult] = useState<ExitCheckQuote | null>(
+    remembered ? publicSession.check.result : null,
+  );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<TradeRefusal | null>(null);
   const [resolved, setResolved] = useState<KnownAsset | null>(null);
   const known = resolveKnownAsset(token);
-  const resolvedAsset = resolved ?? known;
   const tokenIdentity = known?.address ?? token.trim();
+  const resolvedAsset =
+    resolved ??
+    known ??
+    KNOWN_ASSETS.find(
+      (asset) => asset.address.toLowerCase() === tokenIdentity.toLowerCase(),
+    );
   const selectedOutput = differentOutput(tokenIdentity, output);
   const [now, setNow] = useState(Date.now);
   const pending = useRef<AbortController | null>(null);
@@ -53,7 +83,13 @@ export default function TradeCheck({
     return () => clearInterval(timer);
   }, [result]);
   useEffect(() => {
-    publicSession.check = { token: publicIdentity(token), amount, output, curveEnabled, result };
+    publicSession.check = {
+      token: publicIdentity(token),
+      amount,
+      output,
+      curveEnabled,
+      result,
+    };
   }, [token, amount, output, curveEnabled, result]);
   useEffect(() => {
     if (incoming && incoming !== token) {
@@ -82,12 +118,18 @@ export default function TradeCheck({
     setError(null);
   }
   function resolveInput() {
-    if (known) { setToken(known.address); setResolved(known); }
+    if (known) {
+      setToken(known.address);
+      setResolved(known);
+    }
     setOutput(selectedOutput);
   }
   async function run() {
     if (!valid) return;
-    if (known) { setToken(known.address); setResolved(known); }
+    if (known) {
+      setToken(known.address);
+      setResolved(known);
+    }
     setOutput(selectedOutput);
     clear();
     const controller = new AbortController();
@@ -120,27 +162,32 @@ export default function TradeCheck({
   );
   const stale = result ? now >= Date.parse(result.expiresAt) : true;
   return (
-    <>
-      <header className="opsis-heading">
-        <p className="opsis-kicker">02 / {c("TRADE CHECK", "交易核查")}</p>
+    <div className="opsis-check-page">
+      <header className="opsis-heading opsis-check-heading">
+        <p className="opsis-kicker">
+          {c("BEFORE YOU TRADE / TRADE CHECK", "交易前 / 交易核查")}
+        </p>
         <h1>{c("What comes out at this size?", "这个数量能换出多少？")}</h1>
         <p>
-          {c(
-            "An observed V3 quote on Robinhood Chain. Excluded: gas. This does not prove a trade can execute.",
-            "Robinhood Chain 上观察到的 V3 报价。不含 Gas 费用。这不证明交易可执行。",
-          )}
+          {c("Estimate the output. See the costs.", "估算输出，查看成本。")}
         </p>
       </header>
-      <div className="opsis-two-column">
+      <div
+        className={`opsis-check-columns${result?.curve ? " opsis-check-with-curve" : ""}`}
+      >
         <form
-          className="opsis-panel"
+          className="opsis-panel opsis-check-input"
           onSubmit={(event) => {
             event.preventDefault();
             if (valid) void run();
           }}
         >
+          <h2 className="opsis-kicker">{c("YOUR CHECK", "您的核查")}</h2>
           <label htmlFor="check-token">
-            {c("Reviewed symbol or token contract · chain 4663", "已审核符号或代币合约 · 链 4663")}
+            {c(
+              "Reviewed symbol or token contract · chain 4663",
+              "已审核符号或代币合约 · 链 4663",
+            )}
           </label>
           <input
             id="check-token"
@@ -156,33 +203,71 @@ export default function TradeCheck({
             autoComplete="off"
             spellCheck={false}
           />
-          {resolvedAsset && <p className="opsis-small opsis-resolved-asset" role="status">{c("Resolved", "已识别")}: {resolvedAsset.name} · {resolvedAsset.symbol} · {c("Token · chain 4663", "代币 · 链 4663")}<br /><code>{resolvedAsset.address}</code></p>}
-          {token.trim() && !known && !token.trim().startsWith("0x") && <p role="alert" className="opsis-small">{c("Only reviewed symbols are recognised. Enter a token contract address.", "仅识别已审核的符号。请输入代币合约地址。")}</p>}
-          <div className="opsis-asset-examples" aria-label={c("Trade Check examples", "交易核查示例")}>
+          {resolvedAsset && (
+            <p className="opsis-small opsis-resolved-asset" role="status">
+              {c("Resolved", "已识别")}: {resolvedAsset.name} ·{" "}
+              {resolvedAsset.symbol} ·{" "}
+              {c("Token · chain 4663", "代币 · 链 4663")}
+              <br />
+              <code>{resolvedAsset.address}</code>
+            </p>
+          )}
+          {token.trim() && !known && !token.trim().startsWith("0x") && (
+            <p role="alert" className="opsis-small">
+              {c(
+                "Only reviewed symbols are recognised. Enter a token contract address.",
+                "仅识别已审核的符号。请输入代币合约地址。",
+              )}
+            </p>
+          )}
+          <div
+            className="opsis-asset-examples"
+            aria-label={c("Trade Check examples", "交易核查示例")}
+          >
             <span>{c("Examples", "示例")}:</span>
-            {KNOWN_ASSETS.filter((asset) => ["WETH", "AAPL"].includes(asset.symbol)).map((asset) => <button key={asset.symbol} type="button" disabled={busy} onClick={() => {
-              clear(); setToken(asset.address); setResolved(asset); setAmount(asset.symbol === "WETH" ? "0.1" : "1"); setOutput(differentOutput(asset.address, "WETH"));
-            }}>{asset.symbol}</button>)}
+            {KNOWN_ASSETS.filter((asset) =>
+              ["WETH", "AAPL"].includes(asset.symbol),
+            ).map((asset) => (
+              <button
+                key={asset.symbol}
+                type="button"
+                disabled={busy}
+                onClick={() => {
+                  clear();
+                  setToken(asset.address);
+                  setResolved(asset);
+                  setAmount(asset.symbol === "WETH" ? "0.1" : "1");
+                  setOutput(differentOutput(asset.address, "WETH"));
+                }}
+              >
+                {asset.symbol}
+              </button>
+            ))}
           </div>
           <div className="opsis-form-row">
             <div>
               <label htmlFor="check-amount">
                 {c("Amount to check", "核查数量")}
               </label>
-              <input
-                id="check-amount"
-                value={amount}
-                onChange={(e) => {
-                  clear();
-                  setAmount(e.target.value);
-                }}
-                inputMode="decimal"
-                autoComplete="off"
-                placeholder="0.0"
-              />
+              <div className="opsis-check-amount">
+                <input
+                  id="check-amount"
+                  value={amount}
+                  onChange={(e) => {
+                    clear();
+                    setAmount(e.target.value);
+                  }}
+                  inputMode="decimal"
+                  autoComplete="off"
+                  placeholder="0.0"
+                />
+                {resolvedAsset && <span>{resolvedAsset.symbol}</span>}
+              </div>
             </div>
             <div>
-              <label htmlFor="check-output">{c("Output asset", "输出资产")}</label>
+              <label htmlFor="check-output">
+                {c("Output asset", "输出资产")}
+              </label>
               <select
                 id="check-output"
                 value={selectedOutput}
@@ -191,7 +276,15 @@ export default function TradeCheck({
                   setOutput(e.target.value as ExitCheckOutputSymbol);
                 }}
               >
-                {(["WETH", "USDG"] as const).filter((symbol) => EXIT_CHECK_TOKENS[symbol].address.toLowerCase() !== tokenIdentity.toLowerCase()).map((symbol) => <option key={symbol}>{symbol}</option>)}
+                {(["WETH", "USDG"] as const)
+                  .filter(
+                    (symbol) =>
+                      EXIT_CHECK_TOKENS[symbol].address.toLowerCase() !==
+                      tokenIdentity.toLowerCase(),
+                  )
+                  .map((symbol) => (
+                    <option key={symbol}>{symbol}</option>
+                  ))}
               </select>
             </div>
           </div>
@@ -209,6 +302,9 @@ export default function TradeCheck({
               "同时核查数量曲线（半数、输入数量、两倍）",
             )}
           </label>
+          <button className="opsis-action" disabled={busy || !valid}>
+            {busy ? c("Checking…", "正在核查…") : c("Run a check", "运行核查")}
+          </button>
           {curveEnabled && (
             <p className="opsis-small">
               {c(
@@ -217,9 +313,6 @@ export default function TradeCheck({
               )}
             </p>
           )}
-          <button className="opsis-action" disabled={busy || !valid}>
-            {busy ? c("Checking…", "正在核查…") : c("Run a check", "运行核查")}
-          </button>
           <p className="opsis-receipt">
             {c(
               "Sends this contract, entered amount and output asset to Opsis and the configured Robinhood RPC. Saved holdings are never filled automatically. No wallet connection or transaction is requested.",
@@ -227,41 +320,29 @@ export default function TradeCheck({
             )}
           </p>
         </form>
-        <div aria-live="polite">
+        <div className="opsis-panel opsis-check-receipt" aria-live="polite">
+          <h2 className="opsis-kicker">{c("ESTIMATED OUTPUT", "估算输出")}</h2>
           {busy && (
             <p role="status">
               {c("Reading pools at one block…", "正在读取同一区块的资金池…")}
             </p>
           )}
           {error && (
-            <section className="opsis-panel" role="alert">
+            <section role="alert">
               <h2>{c("Quote unavailable", "报价不可用")}</h2>
-              <p>
-                {c(...tradeRefusalCopy(error))}
-              </p>
+              <p>{c(...tradeRefusalCopy(error))}</p>
             </section>
           )}
           {!result && !busy && !error && (
-            <section className="opsis-panel opsis-empty">
-              <p className="opsis-kicker">
-                {c("OBSERVATION, NOT EXECUTION", "观察，并非执行")}
-              </p>
-              <h2>
-                {c(
-                  "A price is only part of the picture.",
-                  "价格只是信息的一部分。",
-                )}
-              </h2>
-              <p>
-                {c(
-                  "Compare output, price impact and pool fees at your entered amount. Unknown coverage stays visible.",
-                  "按输入数量比较输出、价格影响和池费用。未知覆盖范围始终可见。",
-                )}
-              </p>
-            </section>
+            <p className="opsis-check-placeholder">
+              {c(
+                "Run a check to see estimated output, price impact and pool fees at your entered amount.",
+                "运行核查，查看输入数量的估算输出、价格影响及池费用。",
+              )}
+            </p>
           )}
           {result && (
-            <section className="opsis-panel" data-testid="opsis-quote">
+            <section data-testid="opsis-quote">
               <p className="opsis-kicker">
                 {stale
                   ? c("STALE QUOTE", "报价已过期")
@@ -272,20 +353,35 @@ export default function TradeCheck({
                 <br />
                 {result.input.contract}
               </p>
-              <p className="opsis-small">
-                {c("Checked at", "核查时间")}: {result.quotedAt} ·{" "}
-                {c("Block", "区块")} {result.anchor.blockNumber}
-              </p>
               {result.supported && result.quote && result.output ? (
                 <>
-                  <p className="opsis-small">
-                    {c("Observed output", "观察到的输出")}
+                  <p className="opsis-check-caption">
+                    {c("You send", "您送出")}
                   </p>
-                  <h2 className="opsis-number">
+                  <p className="opsis-check-send">
+                    {result.input.amount}{" "}
+                    {result.input.symbol ?? c("input token", "输入代币")}
+                  </p>
+                  <p className="opsis-check-arrow" aria-hidden="true">
+                    ↓
+                  </p>
+                  <p className="opsis-check-caption">
+                    {c("You’d receive about", "您大约收到")}
+                  </p>
+                  <h3 className="opsis-number opsis-check-output">
                     {result.quote.amountOutDisplay}{" "}
                     <span>{result.output.symbol}</span>
-                  </h2>
-                  <dl className="opsis-metrics">
+                  </h3>
+                  <dl className="opsis-check-rows">
+                    <div>
+                      <dt>{c("Pool", "资金池")}</dt>
+                      <dd>
+                        Uniswap V3{" "}
+                        <span>
+                          {result.quote.feePercent}% {c("fee tier", "费率档位")}
+                        </span>
+                      </dd>
+                    </div>
                     <div>
                       <dt>{c("Price impact", "价格影响")}</dt>
                       <dd>
@@ -296,14 +392,41 @@ export default function TradeCheck({
                     </div>
                     <div>
                       <dt>{c("Included pool fee", "已计入的池费用")}</dt>
-                      <dd>{result.quote.feePercent}%</dd>
+                      <dd>
+                        {result.quote.feeAmountDisplay}{" "}
+                        {result.input.symbol ?? c("input token", "输入代币")}
+                      </dd>
                     </div>
                     <div>
                       <dt>{c("Quoted pools", "已报价池")}</dt>
                       <dd>{result.coverage.poolsQuoted.length}</dd>
                     </div>
+                    <div>
+                      <dt>{c("Gas not included", "不含 Gas")}</dt>
+                      <dd>—</dd>
+                    </div>
                   </dl>
-                  <PoolComparison key={result.quotedAt} result={result} />
+                  <p className="opsis-small">
+                    {c("Checked at", "核查时间")}: {result.quotedAt} ·{" "}
+                    {c("Block", "区块")} {result.anchor.blockNumber} ·{" "}
+                    {Math.max(
+                      0,
+                      Math.floor((now - Date.parse(result.quotedAt)) / 1000),
+                    )}{" "}
+                    {c("s ago", "秒前")}
+                  </p>
+                  <p className="opsis-check-note">
+                    {c(
+                      "Estimate, not an executable quote.",
+                      "估算，并非可执行报价。",
+                    )}
+                  </p>
+                  <details className="opsis-check-pools" open>
+                    <summary>
+                      {c("Compare observed pools", "比较已观察资金池")}
+                    </summary>
+                    <PoolComparison key={result.quotedAt} result={result} />
+                  </details>
                   <p className="opsis-receipt">
                     {c(
                       "Partial scope: single-hop V3 pools only. Excluded: gas, approvals, transfer taxes, execution failure and other routes. A quote is not sellability proof.",
@@ -318,23 +441,13 @@ export default function TradeCheck({
                       )}
                     </p>
                   )}
-                  <a
-                    className="opsis-action"
-                    href={`https://app.uniswap.org/swap?chain=robinhood&inputCurrency=${result.input.contract}&outputCurrency=${result.output.address}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {c("Open Uniswap ↗", "打开 Uniswap ↗")}
-                  </a>
-                  <p className="opsis-small">
-                    {c(
-                      "Leaves Opsis. Only public asset identities are passed; re-enter your amount and obtain a new quote. Network and protocol costs apply.",
-                      "离开 Opsis。仅传递公开资产标识；请重新输入数量并获取新报价。需承担网络和协议费用。",
-                    )}
-                  </p>
                 </>
               ) : (
                 <>
+                  <p className="opsis-small">
+                    {c("Checked at", "核查时间")}: {result.quotedAt} ·{" "}
+                    {c("Block", "区块")} {result.anchor.blockNumber}
+                  </p>
                   <h2>
                     {c(
                       "No observed quote at this size",
@@ -356,11 +469,6 @@ export default function TradeCheck({
                   </p>
                 </>
               )}
-              <ExitSizeCurve
-                key={result.quotedAt}
-                result={result}
-                outputSymbol={output}
-              />
               <details>
                 <summary>
                   {c("Sources, time and limits", "来源、时间和限制")}
@@ -396,7 +504,34 @@ export default function TradeCheck({
             </section>
           )}
         </div>
+        {result?.curve && (
+          <div className="opsis-panel opsis-check-curve">
+            <ExitSizeCurve
+              key={result.quotedAt}
+              result={result}
+              outputSymbol={output}
+            />
+          </div>
+        )}
       </div>
+      {result?.supported && result.quote && result.output && (
+        <div className="opsis-panel opsis-check-handoff">
+          <a
+            className="opsis-action"
+            href={`https://app.uniswap.org/swap?chain=robinhood&inputCurrency=${result.input.contract}&outputCurrency=${result.output.address}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {c("Open Uniswap ↗", "打开 Uniswap ↗")}
+          </a>
+          <p className="opsis-small">
+            {c(
+              "Leaves Opsis. Only public asset identities are passed; re-enter your amount and obtain a new quote. Network and protocol costs apply.",
+              "离开 Opsis。仅传递公开资产标识；请重新输入数量并获取新报价。需承担网络和协议费用。",
+            )}
+          </p>
+        </div>
+      )}
       <details className="opsis-panel">
         <summary>
           {c("Save this check / revisit conditions", "保存此核查／复查条件")}
@@ -415,9 +550,13 @@ export default function TradeCheck({
               {c("Research this token →", "研究此代币 →")}
             </Link>
           )}
-          {tradeToolPaths(capabilities).filter((path) => path !== "/check").map((path) => (
-            <Link key={path} to={path}>{c(...routeNames[path])} →</Link>
-          ))}
+          {tradeToolPaths(capabilities)
+            .filter((path) => path !== "/check")
+            .map((path) => (
+              <Link key={path} to={path}>
+                {c(...routeNames[path])} →
+              </Link>
+            ))}
         </div>
       </details>
       <details className="opsis-panel">
@@ -431,6 +570,6 @@ export default function TradeCheck({
           )}
         </p>
       </details>
-    </>
+    </div>
   );
 }

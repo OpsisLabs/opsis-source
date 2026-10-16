@@ -41,14 +41,14 @@ test.describe("opsis preview explorer data", () => {
     const facts = result.getByTestId("token-facts");
     await expect(facts).toContainText("Decimals18");
     await expect(facts).toContainText("39,756.656303302136451718");
-    await expect(facts).toContainText("584,668");
-    await expect(facts).toContainText("486,615,089");
-    await expect(facts).toContainText("Verified");
-    await expect(facts).toContainText("eip1967");
-    await expect(facts.getByRole("button", { name: `Copy address ${implementation}`, exact: true })).toBeVisible();
+    await expect(result.getByTestId("research-fact-tiles")).toContainText("584,668");
+    await expect(result.getByTestId("research-fact-tiles")).toContainText("486,615,089");
+    await expect(result.getByTestId("research-fact-tiles")).toContainText("Verified");
+    await expect(result.getByTestId("research-fact-tiles")).toContainText("eip1967");
+    await expect(result.getByRole("button", { name: `Copy address ${implementation}`, exact: true })).toBeVisible();
     await expect(facts.getByTestId("token-holders")).toContainText("Trading pool");
     await expect(facts.getByTestId("token-holders").locator("li")).toHaveCount(10);
-    await expect(facts.getByTestId("token-transfers").locator("li")).toHaveCount(5);
+    await expect(facts.getByTestId("token-transfers").locator("tbody tr")).toHaveCount(5);
     await expect(facts.getByTestId("token-transfers")).toContainText("0.041933053287515482 WETH");
     await expect(facts.getByTestId("explorer-read-time")).toContainText("Reused from that read");
     await expect(facts.getByTestId("explorer-read-time").locator("time")).toHaveAttribute("title", "2026-10-14T15:00:00.000Z");
@@ -56,12 +56,51 @@ test.describe("opsis preview explorer data", () => {
     await expect(facts.getByTestId("explorer-read-time").locator("code")).toHaveText("2026-10-14T15:00:00.000Z");
     await compact(page);
     await page.getByRole("button", { name: "中文", exact: true }).click();
-    await expect(facts).toContainText("已验证");
+    await expect(result.getByTestId("research-fact-tiles")).toContainText("已验证");
     await expect(facts.getByTestId("token-holders")).toContainText("交易池");
     await expect(facts.getByTestId("token-transfers")).toContainText("近期转移");
     await expect(facts.getByTestId("explorer-read-time")).toContainText("复用了该次读取的数据");
     await compact(page);
   });
+
+  for (const width of [1280, 375]) {
+    test("opsis preview Research identity, tiles, holder bars and evidence at " + width + "px", async ({ page }) => {
+      await page.setViewportSize({ width, height: width === 375 ? 812 : 800 });
+      const payload = { ...weth, entity: { ...weth.entity, facts: { ...weth.entity.facts,
+        holderCoverage: "top_holders", activityCoverage: "indexed_window", explorerObservedAt: "2026-10-14T15:00:00Z",
+      } } };
+      await page.route("**/v1/private/analyze", (route) => route.fulfill({ json: payload }));
+      await page.goto("/research");
+      const input = page.locator("#research-entity");
+      const run = page.getByRole("button", { name: "Run research", exact: true });
+      for (const control of [input, run]) {
+        const box = await control.boundingBox();
+        expect(box).not.toBeNull();
+        expect(box!.y).toBeGreaterThanOrEqual(0);
+        expect(box!.y + box!.height).toBeLessThanOrEqual(width === 375 ? 812 : 800);
+      }
+      await input.fill("WETH");
+      await run.click();
+      const result = page.getByTestId("opsis-research-result");
+      await expect(result.getByTestId("research-identity")).toContainText("WETH");
+      await expect(result.getByTestId("research-fact-tile")).toHaveCount(4);
+      await expect(result.getByTestId("holder-bar")).toHaveCount(10);
+      await expect(result.getByTestId("holder-bar").first().locator(".research-bar-track > span")).toHaveAttribute("style", /width:/);
+      const evidence = result.getByTestId("research-evidence");
+      if (width === 375) {
+        await expect(evidence).not.toHaveAttribute("open", "");
+        await evidence.locator("summary").click();
+      }
+      await expect(evidence.locator(".research-evidence-groups")).toBeVisible();
+      await compact(page);
+      await page.getByRole("button", { name: "中文", exact: true }).click();
+      await expect(result.getByTestId("research-identity")).toContainText("链 4663");
+      await expect(result.getByTestId("research-fact-tile")).toHaveCount(4);
+      await expect(result.getByTestId("holder-bar")).toHaveCount(10);
+      await expect(evidence.locator("summary")).toContainText("来源与读取时间");
+      await compact(page);
+    });
+  }
 
   test("opsis preview chain-read fallback explains the daily explorer allowance without empty history", async ({ page }) => {
     const fallback = researchToken();
@@ -75,7 +114,7 @@ test.describe("opsis preview explorer data", () => {
     await expect(result.getByTestId("token-holders")).toContainText("Holder data could not be read from Blockscout");
     await expect(result.getByTestId("token-transfers")).toContainText("Recent transfers could not be read from Blockscout");
     await expect(result.getByTestId("token-holders").locator("li")).toHaveCount(0);
-    await expect(result.getByTestId("token-transfers").locator("li")).toHaveCount(0);
+    await expect(result.getByTestId("token-transfers").locator("tbody tr")).toHaveCount(0);
     await expect(result).not.toContainText("0 holders");
     await compact(page);
   });
@@ -119,7 +158,7 @@ test.describe("opsis preview explorer data", () => {
     await expect(history).toContainText("Sent");
     await expect(history).toContainText("Contract call");
     await expect(history).toContainText("Failed");
-    await expect(history.locator("li")).toHaveCount(10);
+    await expect(history.locator("tbody tr")).toHaveCount(10);
     await expect(history.locator("time").first()).toHaveAttribute("title", "2026-10-14T15:24:43.000Z");
     await compact(page);
   });

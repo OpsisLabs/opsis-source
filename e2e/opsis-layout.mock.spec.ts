@@ -1,3 +1,4 @@
+import { openOpsisMenu, closeOpsisMenu } from "./opsis-test-helpers";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
 const enabled =
@@ -68,13 +69,24 @@ test.describe("Opsis compact layout", () => {
           test.skip(process.env.VITE_EXIT_CHECK_ENABLED !== "true");
           await page.setViewportSize(viewport);
           // The theme is an explicit, saved choice (D15); it does not follow the system setting.
-          await page.context().addCookies([{ name: "opsis_theme", value: theme, url: `http://localhost:${process.env.PW_APP_PORT ?? "5173"}` }]);
+          await page
+            .context()
+            .addCookies([
+              {
+                name: "opsis_theme",
+                value: theme,
+                url: `http://localhost:${process.env.PW_APP_PORT ?? "5173"}`,
+              },
+            ]);
           await page.goto("/research");
           await expect(page.locator("#research-entity")).toBeVisible();
-          if (locale === "zh-CN")
+          if (locale === "zh-CN") {
+            await openOpsisMenu(page);
             await page
               .getByRole("button", { name: "中文", exact: true })
               .click();
+            await closeOpsisMenu(page);
+          }
           for (const [path, input, action] of [
             [
               "/research",
@@ -113,30 +125,26 @@ test.describe("Opsis compact layout", () => {
         await page.setViewportSize(viewport);
         await page.goto("/research");
         await expect(page.locator("#research-entity")).toBeVisible();
-        if (locale === "zh-CN")
+        if (locale === "zh-CN") {
+          await openOpsisMenu(page);
           await page.getByRole("button", { name: "中文", exact: true }).click();
+          await closeOpsisMenu(page);
+        }
         const heights: number[] = [];
         const contentTops: number[] = [];
         for (const path of toolRoutes) {
           await page.goto(path);
           await expect(page.locator("#opsis-content h1").first()).toBeVisible();
           const header = page.locator(".opsis-header");
-          await expect(header.locator(".opsis-navigation nav a")).toHaveCount(
-            4,
-          );
-          await expect(header.locator(".opsis-tool-nav")).toHaveCount(1);
-          expect(
-            (await header.locator(".opsis-tool-nav").innerText()).trim(),
-          ).not.toBe("");
-          await expect(header.locator(".opsis-tool-nav")).not.toHaveAttribute(
-            "aria-hidden",
-            "true",
-          );
+          await expect(header.locator(".opsis-logo")).toHaveText("Opsis");
+          await expect(
+            page.locator(".opsis-desktop-rail .opsis-tool-rail section"),
+          ).toHaveCount(4);
           await page.evaluate(() => document.fonts.ready);
           const box = await header.boundingBox();
           expect(box).not.toBeNull();
           heights.push(box!.height);
-          // Include the phone's Back to overview row in the first-screen budget.
+          // Include the slim top bar in the first-screen budget.
           const top = await page
             .locator("#opsis-content")
             .evaluate((el) => el.getBoundingClientRect().top);
@@ -165,8 +173,11 @@ test.describe("Opsis compact layout", () => {
         await page.setViewportSize({ width, height: 812 });
         await page.goto("/research");
         await expect(page.locator("#research-entity")).toBeVisible();
-        if (locale === "zh-CN")
+        if (locale === "zh-CN") {
+          await openOpsisMenu(page);
           await page.getByRole("button", { name: "中文", exact: true }).click();
+          await closeOpsisMenu(page);
+        }
         for (const path of toolRoutes) {
           await page.goto(path);
           await expect(page.locator("#opsis-content h1").first()).toBeVisible();
@@ -175,19 +186,19 @@ test.describe("Opsis compact layout", () => {
               () => document.documentElement.scrollWidth - innerWidth,
             ),
           ).toBeLessThanOrEqual(0);
-          const search = page.locator(".opsis-header-search");
-          await search.locator("summary").click();
-          await expect(search.locator("#nav-entity")).toBeVisible();
-          await fullyInViewport(search.locator("#nav-entity"), {
-            width,
-            height: 812,
-          });
+          await openOpsisMenu(page);
+          const search =
+            width <= 700
+              ? page.locator("#menu-entity")
+              : page.locator("#nav-entity");
+          await expect(search).toBeVisible();
+          await fullyInViewport(search, { width, height: 812 });
           expect(
             await page.evaluate(
               () => document.documentElement.scrollWidth - innerWidth,
             ),
           ).toBeLessThanOrEqual(0);
-          await search.locator("summary").click();
+          await closeOpsisMenu(page);
           if (width < 800) {
             for (const target of await page
               .locator(
@@ -288,6 +299,7 @@ test.describe("Opsis compact layout", () => {
         requests.push(request.url());
     });
     await page.goto("/guide");
+    await page.getByText("Pick what describes you", { exact: true }).click();
     const tasks = page.getByRole("group", { name: "Choose your task" });
     await expect(tasks.getByRole("button", { pressed: true })).toHaveCount(1);
     await expect(tasks).not.toContainText("↗");
@@ -297,7 +309,9 @@ test.describe("Opsis compact layout", () => {
       tasks.getByRole("button", { name: "I'm holding assets" }),
     ).toHaveAttribute("aria-pressed", "true");
     await expect(page).toHaveURL(/\/guide$/);
+    await openOpsisMenu(page);
     await page.getByRole("button", { name: "中文", exact: true }).click();
+    await closeOpsisMenu(page);
     const chineseTasks = page.getByRole("group", { name: "选择任务" });
     await chineseTasks.getByRole("button", { name: "我交易代币" }).click();
     await expect(

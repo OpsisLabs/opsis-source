@@ -1,3 +1,4 @@
+import { openOpsisMenu, closeOpsisMenu } from "./opsis-test-helpers";
 import { test, expect } from "@playwright/test";
 const enabled =
   process.env.VITE_OPSIS_WORKSPACES_ENABLED === "true" &&
@@ -30,12 +31,16 @@ test.describe("Opsis tool finder", () => {
     });
     await page.goto("/guide");
     await expect(
-      page.getByRole("heading", { name: "Find your tool", level: 1 }),
+      page.getByRole("heading", {
+        name: "What do you want to find out?",
+        level: 1,
+      }),
     ).toBeVisible();
     await page.screenshot({
       path: "output/opsis-guidance/finder-desktop.png",
       fullPage: true,
     });
+    await page.getByText("Pick what describes you", { exact: true }).click();
     const suggestions = page.getByRole("region", {
       name: "Suggested starting points",
     });
@@ -56,14 +61,14 @@ test.describe("Opsis tool finder", () => {
       suggestions.getByRole("link", { name: "Open Quant Lab →", exact: true }),
     ).toHaveAttribute("href", "/lab");
     await page.getByRole("button", { name: "I trade perpetuals" }).click();
-    await expect(suggestions).toContainText(
-      "Opsis has no perp trading.",
-    );
+    await expect(suggestions).toContainText("Opsis has no perp trading.");
     await expect(
       suggestions.getByRole("link", { name: "Open Perp cost scenario →" }),
     ).toHaveAttribute("href", "/check/perp-scenario");
     await expect(
-      suggestions.getByRole("link", { name: "Open Quant Lab for funding records →" }),
+      suggestions.getByRole("link", {
+        name: "Open Quant Lab for funding records →",
+      }),
     ).toHaveAttribute("href", "/lab");
     expect(lookups).toEqual([]);
     await page
@@ -96,12 +101,15 @@ test.describe("Opsis tool finder", () => {
       }),
     );
     await page.goto("/guide");
+    await page.getByText("Pick what describes you", { exact: true }).click();
     const suggestions = page.getByRole("region", {
       name: "Suggested starting points",
     });
-    await expect(suggestions).toContainText("Not enabled on this deployment");
+    await expect(suggestions).toContainText("No tools enabled for this task");
     await expect(suggestions.getByRole("link")).toHaveCount(0);
+    await openOpsisMenu(page);
     await page.getByRole("button", { name: "中文", exact: true }).click();
+    await closeOpsisMenu(page);
     await page.setViewportSize({ width: 320, height: 844 });
     await page.getByRole("button", { name: "我探索数据与情景" }).click();
     await expect(
@@ -134,12 +142,11 @@ test.describe("Opsis tool finder", () => {
       .click();
     await expect(page).toHaveURL(/\/guide$/);
     await expect(
-      page.getByRole("heading", { name: "Find your tool", level: 1 }),
+      page.getByRole("heading", {
+        name: "What do you want to find out?",
+        level: 1,
+      }),
     ).toBeVisible();
-    await expect(
-      page
-        .getByRole("navigation", { name: "Workspaces", exact: true })
-        .getByRole("link"),
-    ).toHaveCount(4);
+    await expect(page.locator(".opsis-tool-rail section")).toHaveCount(4);
   });
 });

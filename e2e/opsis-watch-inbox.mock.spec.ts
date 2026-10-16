@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { mockPublicOpsisAccess } from "./opsis-test-helpers";
 import {
   watchFixture,
   WATCH_TEST_ADDRESS,
@@ -9,27 +10,14 @@ const enabled =
   process.env.VITE_OPSIS_PUBLIC_ACCESS_ENABLED === "true";
 const passphrase = "test-only-watch-inbox-passphrase",
   label = "PRIVATE-INBOX-CANARY";
-test("Opsis Watch conditions and review state persist encrypted across refresh and reload", async ({
+test("opsis preview Watch conditions and review state persist encrypted across refresh and reload", async ({
   page,
 }) => {
   test.skip(!enabled);
   test.setTimeout(60000);
   const requests: string[] = [];
   page.on("request", (r) => requests.push(r.url() + (r.postData() ?? "")));
-  await page.route("**/v1/private/opsis/access", (r) =>
-    r.fulfill({
-      json: {
-        expiresAt: new Date(Date.now() + 3600000).toISOString(),
-        chainId: 4663,
-        research: true,
-        exitCheck: true,
-        watch: true,
-        rwa: false,
-        observedTrades: false,
-        perpExecution: false,
-      },
-    }),
-  );
+  await mockPublicOpsisAccess(page);
   let block = 100;
   await page.route("**/v1/private/watch/snapshot", (r) => {
     expect(r.request().postDataJSON()).toEqual({ address: WATCH_TEST_ADDRESS });

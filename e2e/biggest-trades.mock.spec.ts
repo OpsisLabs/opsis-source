@@ -254,7 +254,7 @@ test("biggest observed trades clears stale results on input change and unmount",
   await expect(page.getByText("5100").first()).toBeVisible();
   expect(calls).toHaveLength(2);
 
-  await page.getByRole("link", { name: "Find your tool", exact: true }).first().click();
+  await page.getByRole("link", { name: "Overview", exact: true }).click();
   await expect(page).toHaveURL(/\/guide$/);
   await expect(
     page.getByRole("heading", { name: "Big trades", exact: true, level: 1 }),

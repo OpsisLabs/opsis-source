@@ -11,9 +11,9 @@
   width: 64px;
   height: 100dvh;
   border: 0;
-  border-right: 1px solid #ffffff40;
+  border-right: 1px solid var(--brand-muted);
   padding: 28px 22px;
-  background: #1000ff;
+  background: var(--accent);
 }
 .opsis .opsis-header {
   padding: 22px 36px;
@@ -26,21 +26,6 @@
   padding: 12px 36px;
 }
 .opsis .opsis-content {
-  --ground: #f7f7f2;
-  --panel: #fff;
-  --panel-hover: #eeedf9;
-  --ink: #181249;
-  --soft: #59546e;
-  --line: #21184c24;
-  --accent: #1000ff;
-  --button: #1000ff;
-  --button-ink: #fff;
-  --ink-2: #fff;
-  --ink-3: #eae9f3;
-  --text-primary: #181249;
-  --text-secondary: #59546e;
-  --text-muted: #59546e;
-  --orange: #1000ff;
   color: var(--ink);
   background: var(--ground);
   padding: 32px 36px 56px;
@@ -49,12 +34,12 @@
   color-scheme: light;
 }
 .opsis .opsis-content .opsis-legacy {
-  --ink-2: #fff;
-  --ink-3: #eae9f3;
+  --ink-2: var(--panel);
+  --ink-3: var(--panel-hover);
   --text-primary: var(--ink);
   --text-secondary: var(--soft);
   --text-muted: var(--soft);
-  --orange: #1000ff;
+  --orange: var(--accent);
 }
 .opsis .opsis-footer {
   padding: 24px 36px;
@@ -110,15 +95,15 @@
 .opsis .opsis-content textarea {
   background: var(--panel);
   color: var(--ink);
-  border-color: #20135240;
+  border-color: var(--line);
   border-radius: 0;
 }
 .opsis .opsis-content input::placeholder {
-  color: #706982;
+  color: var(--soft);
   opacity: 1;
 }
 .opsis .opsis-content input[type="range"] {
-  accent-color: #1000ff;
+  accent-color: var(--accent);
 }
 .opsis .opsis-engine-content > div {
   background: transparent !important;
@@ -218,19 +203,19 @@
 .opsis .opsis-content [class~="text-[#ffabbc]"],
 .opsis .opsis-content [class~="text-[#e0738a]"],
 .opsis .opsis-content [class~="text-[#ffbbca]"] {
-  color: #a12137 !important;
+  color: var(--surface-negative) !important;
 }
 .opsis .opsis-engine-content .stress-positive,
 .opsis .opsis-content [class~="text-[#7fb069]"],
 .opsis .opsis-content [class~="text-[#99d6b3]"],
 .opsis .opsis-content [class~="text-[#9fc68f]"] {
-  color: #176b46 !important;
+  color: var(--surface-positive) !important;
 }
 .opsis .opsis-content [class~="text-[#7cc4f8]"] {
-  color: #185e8a !important;
+  color: var(--surface-info) !important;
 }
 .opsis .opsis-content [class~="text-[#c9a6ff]"] {
-  color: #633696 !important;
+  color: var(--surface-purple) !important;
 }
 .opsis .opsis-engine-content .stress-mobile-summary {
   background: var(--ground);
@@ -266,7 +251,7 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #1000ff;
+  background: var(--accent);
 }
 .opsis .opsis-dataset-strip > span:last-child {
   margin-left: auto;
@@ -300,8 +285,8 @@
     monospace;
 }
 .opsis .opsis-lab-mode button[aria-pressed="true"] {
-  color: #fff;
-  background: #1000ff;
+  color: var(--button-ink);
+  background: var(--button);
 }
 .opsis .opsis-lab-workbench {
   display: grid;
@@ -335,8 +320,8 @@
   max-width: 130px;
 }
 .opsis .opsis-spatial {
-  background: #1000ff;
-  color: #fff;
+  background: var(--brand);
+  color: var(--brand-ink);
   position: relative;
   min-width: 0;
   flex: 1;
@@ -350,19 +335,19 @@
   font:
     9px/1.6 OpsisMono,
     monospace;
-  color: #dedbff;
+  color: var(--brand-muted);
 }
 .opsis .opsis-spatial-toolbar > div {
   display: flex;
   gap: 5px;
 }
 .opsis .opsis-spatial-toolbar button {
-  border: 1px solid #ffffff40;
+  border: 1px solid var(--brand-muted);
   min-width: 32px;
   min-height: 32px;
   padding: 6px 8px;
   background: transparent;
-  color: #fff;
+  color: var(--brand-ink);
   white-space: nowrap;
 }
 .opsis .opsis-spatial canvas {
@@ -381,7 +366,7 @@
   font:
     10px/1.7 OpsisMono,
     monospace;
-  border-top: 1px solid #ffffff35;
+  border-top: 1px solid var(--brand-muted);
 }
 .opsis .opsis-plot-note {
   font-size: 12px;
@@ -471,7 +456,7 @@
 .opsis .opsis-scenario-result > output {
   font-size: 40px;
   letter-spacing: -0.05em;
-  color: #1000ff;
+  color: var(--accent);
   line-height: 1.3;
 }
 .opsis .opsis-scenario-result > p:last-child {
@@ -590,7 +575,7 @@
     min-height: 0;
     writing-mode: horizontal-tb;
     padding: 12px 22px;
-    border-bottom: 1px solid #ffffff40;
+    border-bottom: 1px solid var(--brand-muted);
   }
   .opsis .opsis-header {
     padding: 18px 22px;
@@ -727,8 +712,8 @@
   margin-top: 6px;
 }
 .opsis .opsis-token-choices button[aria-pressed="true"] {
-  color: white;
-  background: #1000ff;
+  color: var(--button-ink);
+  background: var(--button);
 }
 .opsis .opsis-token-choices button:disabled {
   opacity: 0.7;
@@ -753,13 +738,13 @@
   font: 12px monospace;
 }
 .opsis .opsis-comparison-track {
-  background: #eeedf9;
+  background: var(--panel-hover);
   height: 22px;
 }
 .opsis .opsis-comparison-track i {
   display: block;
   height: 100%;
-  background: #1000ff;
+  background: var(--accent);
 }
 .opsis .opsis-token-comparison th small {
   display: block;
@@ -793,8 +778,8 @@
 .opsis .opsis-content .stress-page button[aria-pressed="true"],
 .opsis .opsis-content .stress-primary:hover,
 .opsis .opsis-content .stress-page button[aria-pressed="true"]:hover {
-  color: #fff;
-  background: #1000ff;
+  color: var(--button-ink);
+  background: var(--button);
 }
 
 /* Task guidance stays in the shared shell; it does not create a fifth workspace. */
@@ -857,11 +842,11 @@
   min-width: 0;
 }
 .opsis .opsis-audience-options button[aria-pressed="true"] {
-  color: #fff;
-  background: #1000ff;
+  color: var(--button-ink);
+  background: var(--button);
 }
 .opsis .opsis-audience-options button:hover {
-  border-color: #1000ff;
+  border-color: var(--accent);
 }
 .opsis .opsis-route-goal {
   font-size: 21px;
@@ -922,11 +907,11 @@
 }
 
 .opsis-report-shelf { margin-top: 1.5rem; }
-.opsis-report-shelf textarea { display: block; width: 100%; min-height: 6rem; margin: .75rem 0 1rem; padding: .75rem; background: var(--opsis-paper, #f6f4ef); color: #242424; border: 1px solid #777; }
+.opsis-report-shelf textarea { display: block; width: 100%; min-height: 6rem; margin: .75rem 0 1rem; padding: .75rem; background: var(--panel); color: var(--ink); border: 1px solid var(--line); }
 .opsis-text-link { display: inline-flex; align-items: center; min-height: 44px; margin-inline-end: 1rem; text-decoration: underline; }
 .opsis-saved-tabs { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.5rem; }
 .opsis-saved-tabs a { padding: .8rem 1rem; border: 1px solid currentColor; }
-.opsis-saved-tabs a[aria-current="page"] { background: #1538d6; color: #fff; }
+.opsis-saved-tabs a[aria-current="page"] { background: var(--button); color: var(--button-ink); }
 
 /* Keep the task in reach; the full audience guidance is available on demand. */
 .opsis .opsis-tool-orientation {

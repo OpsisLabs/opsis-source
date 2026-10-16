@@ -1,4 +1,5 @@
 import type { ResearchFacts } from "../private/api";
+import type { SourceCitation } from "../dashboard/types";
 import { KNOWN_ASSETS } from "./known-assets";
 
 export function explorerNumber(value: unknown): number | null {
@@ -101,4 +102,26 @@ export function transactionMethod(transaction: { decodedInput?: unknown; method?
   const method = transaction.method;
   if (!method || method === "0x") return { kind: "transfer" as const };
   return { kind: "contract" as const, text: /^0x[0-9a-f]{8}$/i.test(method) ? method : undefined };
+}
+
+/** Keep separate read times and field receipts when a source label repeats. */
+export function researchEvidenceGroups(sources: SourceCitation[]) {
+  const groups = new Map<string, { label: string; sources: SourceCitation[] }>();
+  for (const source of sources) {
+    const key = `${source.provider}:${source.label}`;
+    const group = groups.get(key) ?? { label: source.label ?? source.provider ?? "", sources: [] };
+    group.sources.push(source);
+    groups.set(key, group);
+  }
+  return [...groups.values()];
+}
+
+/** A missing status remains unknown rather than being counted as a failure. */
+export function walletActivity(facts: ResearchFacts) {
+  const rows = facts.activityCoverage === "unavailable" ? undefined : facts.recentTransactions;
+  return {
+    count: rows ? rows.length : null,
+    failed: rows && rows.every((row) => ["ok", "error", "failed", "success", "0x0", "0x1"].includes(row.status ?? ""))
+      ? rows.filter((row) => ["error", "failed", "0x0"].includes(row.status ?? "")).length : null,
+  };
 }

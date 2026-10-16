@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { mockPublicOpsisAccess } from "./opsis-test-helpers";
 import {
   watchFixture,
   WATCH_TEST_ADDRESS,
@@ -6,20 +7,7 @@ import {
 
 const enabled = process.env.VITE_OPSIS_WORKSPACES_ENABLED === "true";
 async function access(page: Page, path: string) {
-  await page.route("**/v1/private/opsis/access", (route) =>
-    route.fulfill({
-      json: {
-        expiresAt: new Date(Date.now() + 3600000).toISOString(),
-        chainId: 4663,
-        research: true,
-        exitCheck: true,
-        watch: true,
-        rwa: false,
-        observedTrades: false,
-        perpExecution: false,
-      },
-    }),
-  );
+  await mockPublicOpsisAccess(page);
   await page.goto(path);
   if (process.env.VITE_OPSIS_PUBLIC_ACCESS_ENABLED !== "true") {
     await page.getByLabel("Preview access key").fill("a".repeat(64));

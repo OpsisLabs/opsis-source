@@ -1,64 +1,62 @@
-import { NavLink, useLocation } from "react-router";
+import { Link, useLocation } from "react-router";
 import { useCopy } from "./copy";
 import type { Capabilities } from "./model";
-import { researchToolPaths, routeNames, tradeToolPaths } from "./shell-model";
+import { toolGroups, toolIsActive } from "./shell-model";
+import { ToolIcon } from "./shell/icons";
 
 export default function ToolNavigation({
   capabilities,
+  mobile = false,
+  onNavigate,
 }: {
   capabilities: Capabilities;
+  mobile?: boolean;
+  onNavigate?: () => void;
 }) {
   const c = useCopy();
+  const prefix = mobile ? "menu" : "rail";
   const { pathname } = useLocation();
-  const trade = [
-    "/check",
-    "/check/perp-scenario",
-    "/swap",
-    "/simulate",
-    "/stress-test",
-  ].includes(pathname);
-  const research =
-    pathname.startsWith("/research") ||
-    ["/rwa", "/biggest-trades"].includes(pathname);
-  const paths = trade
-    ? tradeToolPaths(capabilities)
-    : research
-      ? researchToolPaths(capabilities)
-      : [];
-  const description =
-    pathname === "/watch"
-      ? c("Compare saved wallet checks", "比较已保存的钱包核查")
-      : pathname === "/lab"
-        ? c("Explore data and scenarios", "探索数据与情景")
-        : pathname === "/guide"
-          ? c("Find a tool for your task", "按任务选择工具")
-          : pathname === "/saved"
-            ? c("Encrypted observations on this device", "此设备上的加密观察")
-            : c("Tools and their data limits", "工具及其数据限制");
-  if (!paths.length)
-    return (
-      <div className="opsis-tool-nav opsis-tool-description">
-        <p>{description}</p>
-      </div>
-    );
   return (
-    <nav
-      className="opsis-tool-nav"
-      aria-label={c("Workspace tools", "工作区工具")}
-    >
-      {paths.map((to) => (
-        <NavLink
-          key={to}
-          to={to}
-          end
-          className={({ isActive }) =>
-            isActive || (to === "/research" && pathname === "/research/details")
-              ? "active"
-              : undefined
-          }
-        >
-          {c(...routeNames[to])}
-        </NavLink>
+    <nav className="opsis-tool-rail" aria-label={c("Workspaces", "工作区")}>
+      <Link
+        to="/guide"
+        className="opsis-rail-overview"
+        aria-current={pathname === "/guide" ? "page" : undefined}
+        onClick={onNavigate}
+      >
+        {c("Overview", "总览")}
+      </Link>
+      {toolGroups(capabilities).map((group) => (
+        <section key={group.id} aria-labelledby={`${prefix}-${group.id}`}>
+          <h2 id={`${prefix}-${group.id}`} className="opsis-rail-label">
+            {c(...group.name)}
+          </h2>
+          {group.tools.map((tool) => (
+            <Link
+              key={tool.path}
+              to={tool.path}
+              aria-label={c(...tool.name)}
+              aria-describedby={`${prefix}-purpose-${tool.icon}`}
+              aria-current={
+                toolIsActive(tool.path, pathname) ? "page" : undefined
+              }
+              onClick={onNavigate}
+            >
+              <ToolIcon name={tool.icon} />
+              <span>
+                {c(...tool.name)}
+                <small id={`${prefix}-purpose-${tool.icon}`}>
+                  {c(...tool.purpose)}
+                </small>
+              </span>
+            </Link>
+          ))}
+          {!group.tools.length && (
+            <p className="opsis-rail-empty">
+              {c("No tools enabled", "未启用工具")}
+            </p>
+          )}
+        </section>
       ))}
     </nav>
   );

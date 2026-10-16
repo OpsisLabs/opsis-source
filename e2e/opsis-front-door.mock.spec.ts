@@ -64,7 +64,7 @@ test("opsis preview front door", async ({ page }) => {
   expect(await film.locator("body").evaluate(() => Reflect.get(window, "frontDoorBlockingStates"))).toEqual([]);
   await expect(page.locator(frameSelector)).toHaveAttribute("inert", "");
   await expect(page.locator(frameSelector)).toHaveAttribute("aria-hidden", "true");
-  await page.getByRole("link", { name: "Back to overview" }).click();
+  await page.locator(".opsis-topbar .opsis-logo").click();
   await expect(research).toBeFocused();
 });
 

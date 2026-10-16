@@ -31,9 +31,9 @@
   background: #1000ff;
 }
 .opsis {
-  --surface-ground: #151127;
-  --surface-panel: #211b36;
-  --surface-hover: #302944;
+  --surface-ground: #12102d;
+  --surface-panel: #1c1841;
+  --surface-hover: #29234f;
   --surface-ink: #f4f1ff;
   --surface-soft: #c8c4da;
   --surface-line: #8d87ad;
@@ -44,15 +44,19 @@
   --surface-positive: #9de3be;
   --surface-info: #9fd6ff;
   --surface-purple: #d3b4ff;
-  --ground: #1000ff;
-  --panel: #170ce6;
-  --panel-hover: #291df3;
-  --ink: #fff;
-  --soft: #d1ceff;
-  --line: #8981ff;
-  --accent: #fff;
-  --button: #fff;
-  --button-ink: #1000ff;
+  --brand: #1000ff;
+  --brand-ink: #fff;
+  --brand-muted: #d1ceff;
+  --brand-hover: #3628ff;
+  --ground: var(--surface-ground);
+  --panel: var(--surface-panel);
+  --panel-hover: var(--surface-hover);
+  --ink: var(--surface-ink);
+  --soft: var(--surface-soft);
+  --line: var(--surface-line);
+  --accent: var(--surface-accent);
+  --button: var(--surface-button);
+  --button-ink: var(--surface-button-ink);
   color: var(--ink);
   background: var(--ground);
   font:
@@ -62,12 +66,12 @@
   min-height: 100dvh;
 }
 .opsis[data-theme="light"] {
-  --surface-ground: #f7f7f2;
-  --surface-panel: #fff;
-  --surface-hover: #eeedf9;
+  --surface-ground: #eef0ff;
+  --surface-panel: #f7f8ff;
+  --surface-hover: #e2e5ff;
   --surface-ink: #181249;
   --surface-soft: #59546e;
-  --surface-line: #817d92;
+  --surface-line: #7f7a9b;
   --surface-accent: #1000ff;
   --surface-button: #1000ff;
   --surface-button-ink: #fff;

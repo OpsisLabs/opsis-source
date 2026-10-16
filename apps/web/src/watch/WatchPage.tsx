@@ -1,6 +1,7 @@
 import type { PortfolioSnapshot } from "@rh-chain/shared";
-import OneOffCheck from "./OneOffCheck";
-import { tokenLabel } from "./holdings";
+import OneOffCheck, { TokenTable, WatchTimeline } from "./OneOffCheck";
+import { visibleTokenText } from "../opsis/explorer-facts";
+import "./watch.css";
 import { workspaceLink } from "../opsis/model";
 import { useCopy } from "../opsis/copy";
 import { OPSIS_PRESENTATION } from "../opsis/presentation";
@@ -28,13 +29,10 @@ import WatchInbox from "./WatchInbox";
 import QuantityBars from "../opsis/QuantityBars";
 
 
-const button =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-sm border border-[#63564c] px-4 py-2 text-sm text-[#e9e0d1] transition-colors hover:border-[#fa6c34] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff985e] disabled:cursor-not-allowed disabled:opacity-50";
-const primary = `${button} border-[#fa6c34] bg-[#fa6c34] !text-[#191817] hover:bg-[#ff8655]`;
-const input =
-  "mt-2 block min-h-11 w-full min-w-0 rounded-sm border border-[#63564c] bg-[#191817] px-3 py-2 text-base text-[#e9e0d1] focus:border-[#ff985e] focus:outline-none";
-const panel =
-  "min-w-0 rounded-sm border border-[#514a45] bg-[#23211f] p-5 sm:p-6";
+const button = "watch-button";
+const primary = "opsis-action watch-primary";
+const input = "watch-input";
+const panel = "watch-panel";
 type WatchSession = ReturnType<typeof useWatchVault>;
 const sample = "0x9c34fb7b54f05eba5d28af3ff18f8dd9d66f7292";
 const explorer = "https://robinhoodchain.blockscout.com";
@@ -67,17 +65,17 @@ function Access({ session }: { session: WatchSession }) {
   const create = session.phase === "empty";
   return (
     <section className={panel} aria-labelledby="watch-access-title">
-      <LockKeyhole className="mb-3 text-[#fa6c34]" size={24} aria-hidden />
+      <LockKeyhole className="mb-3 text-[var(--accent)]" size={24} aria-hidden />
       <h2 id="watch-access-title" className="text-xl">
         {t("watch.accessTitle")}
       </h2>
-      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#bbb2a8]">
+      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--soft)]">
         {t("watch.accessBody")}
       </p>
       {pendingAddress && (
         <p
           role="status"
-          className="mt-4 border-l-2 border-[#fa6c34] bg-[#241d18] px-3 py-2 text-sm text-[#ffd0a8]"
+          className="mt-4 border-l-2 border-[var(--accent)] bg-[var(--panel)] px-3 py-2 text-sm text-[var(--soft)]"
         >
           {t("watch.prefill.waiting", { address: short(pendingAddress) })}
         </p>
@@ -132,12 +130,12 @@ function Access({ session }: { session: WatchSession }) {
         </form>
       )}
       {error && (
-        <p role="alert" className="mt-3 text-sm text-[#ffabbc]">
+        <p role="alert" className="mt-3 text-sm text-[var(--soft)]">
           {error}
         </p>
       )}
       <Link
-        className="mt-3 inline-flex min-h-11 items-center text-sm text-[#ff985e] underline"
+        className="mt-3 inline-flex min-h-11 items-center text-sm text-[var(--accent)] underline"
         to="/saved?view=assets"
       >
         {c("Saved", "已保存")}
@@ -155,11 +153,11 @@ function LookupConsent({
 }) {
   const { t } = useI18n();
   return (
-    <div className="mt-4 space-y-2 text-sm leading-relaxed text-[#bbb2a8]">
+    <div className="mt-4 space-y-2 text-sm leading-relaxed text-[var(--soft)]">
       <p>{t("watch.disclosure")}</p>
-      <label className="flex min-h-11 cursor-pointer items-center gap-3 text-[#e9e0d1]">
+      <label className="flex min-h-11 cursor-pointer items-center gap-3 text-[var(--ink)]">
         <input
-          className="h-5 w-5 shrink-0 accent-[#fa6c34]"
+          className="h-5 w-5 shrink-0 accent-[var(--accent)]"
           type="checkbox"
           checked={consent}
           onChange={(event) => setConsent(event.target.checked)}
@@ -341,7 +339,7 @@ function Workspace({ session, tradeCheckEnabled }: { session: WatchSession; trad
             </div>
             <LookupConsent consent={consent} setConsent={setConsent} />
             {error && (
-              <p role="alert" className="mb-3 text-sm text-[#ffabbc]">
+              <p role="alert" className="mb-3 text-sm text-[var(--soft)]">
                 {error}
               </p>
             )}
@@ -373,19 +371,19 @@ function Workspace({ session, tradeCheckEnabled }: { session: WatchSession; trad
             <h2 id="watch-list-title" className="text-xl">
               {t("watch.list")}
             </h2>
-            <span className="text-sm text-[#bbb2a8]">
+            <span className="text-sm text-[var(--soft)]">
               {t("watch.count", { count: session.watches.length })}
             </span>
           </div>
           {!session.watches.length ? (
             <div className={`${panel} border-dashed py-10 text-center`}>
               <Eye
-                className="mx-auto mb-4 text-[#fa6c34]"
+                className="mx-auto mb-4 text-[var(--accent)]"
                 size={30}
                 aria-hidden
               />
               <h3 className="text-lg">{t("watch.empty")}</h3>
-              <p className="mt-2 text-sm text-[#bbb2a8]">
+              <p className="mt-2 text-sm text-[var(--soft)]">
                 {t("watch.emptyDetail")}
               </p>
             </div>
@@ -400,15 +398,15 @@ function Workspace({ session, tradeCheckEnabled }: { session: WatchSession; trad
                   disabled={session.busy}
                   onClick={() => setSelected(row.id)}
                   aria-current={row.id === item?.id ? "true" : undefined}
-                  className={`${panel} text-left transition-colors hover:border-[#fa6c34] ${row.id === item?.id ? "!border-[#fa6c34]" : ""}`}
+                  className={`${panel} text-left transition-colors hover:border-[var(--accent)] ${row.id === item?.id ? "!border-[var(--accent)]" : ""}`}
                 >
                   <span className="block truncate text-base font-medium">
                     {row.label}
                   </span>
-                  <span className="mt-1 block font-mono text-xs text-[#bbb2a8]">
+                  <span className="mt-1 block font-mono text-xs text-[var(--soft)]">
                     {short(row.address)}
                   </span>
-                  <span className="mt-4 block break-all text-xl text-[#ff985e]">
+                  <span className="mt-4 block break-all text-xl text-[var(--accent)]">
                     {row.snapshots.at(-1)!.nativeBalanceEth}{" "}
                     <span className="text-xs">ETH</span>
                   </span>
@@ -463,25 +461,25 @@ function WatchDetail({
     <section
       id={`watch-detail-${item.id}`}
       tabIndex={-1}
-      className="scroll-mt-24 space-y-5 outline-none"
+      className="watch-detail scroll-mt-24 space-y-5 outline-none"
       aria-label={t("watch.latest")}
     >
       <div className={panel}>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-xs uppercase tracking-wider text-[#bbb2a8]">
+            <p className="text-xs uppercase tracking-wider text-[var(--soft)]">
               {t("watch.latest")}
             </p>
             <h2 className="mt-2 break-words text-2xl">{item.label}</h2>
-            <p className="mt-2 break-all font-mono text-xs text-[#bbb2a8]">
+            <p className="mt-2 break-all font-mono text-xs text-[var(--soft)]">
               {item.address}
             </p>
-            <p className="mt-2 text-sm text-[#bbb2a8]">
+            <p className="mt-2 text-sm text-[var(--soft)]">
               {date(latest.anchor.fetchedAt)} ·{" "}
               {t("watch.block", { block: latest.anchor.blockNumber })}
             </p>
           </div>
-          <Eye size={28} className="text-[#fa6c34]" aria-hidden />
+          <Eye size={28} className="text-[var(--accent)]" aria-hidden />
         </div>
         <LookupConsent consent={consent} setConsent={setConsent} />
         <div className="mt-2 flex flex-wrap gap-3">
@@ -514,7 +512,7 @@ function WatchDetail({
       {gaps.length > 0 && (
         <aside
           aria-label={t("watch.partialTitle")}
-          className="border-l-2 border-[#ff985e] bg-[#2a231d] p-4 text-sm text-[#ffd0a8]"
+          className="border-l-2 border-[var(--line)] bg-[var(--panel)] p-4 text-sm text-[var(--soft)]"
         >
           <h3 className="font-semibold">{t("watch.partialTitle")}</h3>
           <p className="mt-2 leading-relaxed">{t("watch.partialBody")}</p>
@@ -524,7 +522,7 @@ function WatchDetail({
         <>
           <div className="flex flex-wrap items-end justify-between gap-3">
             <h2 className="flex items-center gap-3 text-2xl">
-              <ArrowDownUp className="text-[#fa6c34]" size={23} aria-hidden />
+              <ArrowDownUp className="text-[var(--accent)]" size={23} aria-hidden />
               {t("watch.compare")}
             </h2>
             <label className="text-sm">
@@ -550,10 +548,10 @@ function WatchDetail({
               ["watch.unknown", comparison.unknown],
             ].map(([key, count]) => (
               <div key={key} className={panel}>
-                <p className="text-sm text-[#bbb2a8]">
+                <p className="text-sm text-[var(--soft)]">
                   {t(key as "watch.changed")}
                 </p>
-                <p className="mt-3 text-4xl text-[#ff985e]">{count}</p>
+                <p className="mt-3 text-4xl text-[var(--accent)]">{count}</p>
               </div>
             ))}
           </div>
@@ -565,13 +563,13 @@ function WatchDetail({
               const snapshot = row as typeof latest;
               return (
                 <div key={String(key)} className={panel}>
-                  <p className="text-sm text-[#bbb2a8]">
+                  <p className="text-sm text-[var(--soft)]">
                     {t(key as "watch.before")}
                   </p>
                   <p className="my-2 break-all text-xl">
                     {snapshot.nativeBalanceEth} ETH
                   </p>
-                  <p className="text-xs text-[#bbb2a8]">
+                  <p className="text-xs text-[var(--soft)]">
                     {t("watch.block", { block: snapshot.anchor.blockNumber })} ·{" "}
                     {date(snapshot.anchor.fetchedAt)}
                   </p>
@@ -587,22 +585,22 @@ function WatchDetail({
               {comparison.rows.map((row) => (
                 <article
                   key={row.key}
-                  className="grid min-w-0 gap-3 border-t border-[#48413b] py-4 lg:grid-cols-[1.4fr_1fr_1fr_1fr]"
+                  className="grid min-w-0 gap-3 border-t border-[var(--line)] py-4 lg:grid-cols-[1.4fr_1fr_1fr_1fr]"
                 >
                   <div className="min-w-0">
                     <h4 className="break-words font-medium">{row.label}</h4>
                     {row.contract && (
-                      <p className="mt-1 break-all font-mono text-[11px] text-[#bbb2a8]">
+                      <p className="mt-1 break-all font-mono text-[11px] text-[var(--soft)]">
                         {row.contract}
                       </p>
                     )}
                     {OPSIS_PRESENTATION && tradeCheckEnabled && row.contract && /^0x[0-9a-f]{40}$/i.test(row.contract) && <Link className="opsis-text-link" to={workspaceLink("/check", row.contract)}>{c("Check a new amount →", "核查新数量 →")}</Link>}
-                    <p className="mt-1 text-xs text-[#bbb2a8]">
+                    <p className="mt-1 text-xs text-[var(--soft)]">
                       {t(`watch.status.${row.status}`)}
                     </p>
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs text-[#bbb2a8]">
+                    <p className="text-xs text-[var(--soft)]">
                       {t("watch.before")}
                     </p>
                     <p className="mt-1 break-all tabular-nums">
@@ -610,15 +608,15 @@ function WatchDetail({
                     </p>
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs text-[#bbb2a8]">{t("watch.after")}</p>
+                    <p className="text-xs text-[var(--soft)]">{t("watch.after")}</p>
                     <p className="mt-1 break-all tabular-nums">
                       {row.after ?? t("watch.notReturned")}
                     </p>
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs text-[#bbb2a8]">{t("watch.delta")}</p>
+                    <p className="text-xs text-[var(--soft)]">{t("watch.delta")}</p>
                     <p
-                      className={`mt-1 break-all font-medium tabular-nums ${row.delta?.startsWith("-") ? "text-[#ffabbc]" : "text-[#ffd0a8]"}`}
+                      className="mt-1 break-all font-medium tabular-nums text-[var(--ink)]"
                     >
                       {row.delta ?? "—"}
                     </p>
@@ -627,22 +625,22 @@ function WatchDetail({
               ))}
             </div>
           </section>
-          <section className={panel} aria-labelledby="watch-activity-title">
+          <section className={`${panel} watch-saved-activity`} aria-labelledby="watch-activity-title">
             <h3 id="watch-activity-title" className="mb-4 text-lg">
               {t("watch.activity")}
             </h3>
             {!comparison.observed.length && (
-              <p className="text-sm leading-relaxed text-[#bbb2a8]">
+              <p className="text-sm leading-relaxed text-[var(--soft)]">
                 {t("watch.noActivity")}
               </p>
             )}
-            {comparison.observed.map((tx) => (
+            {[...comparison.observed].sort((a, b) => b.blockNumber - a.blockNumber).map((tx) => (
               <article
                 key={tx.hash}
-                className="min-w-0 space-y-2 border-t border-[#48413b] py-4 text-sm"
+                className="watch-timeline-item min-w-0 space-y-2 text-sm"
               >
                 <p>
-                  <span className="text-[#ff985e]">
+                  <span className="text-[var(--accent)]">
                     {t(`watch.flow.${tx.direction}`)}
                   </span>{" "}
                   · {t(`watch.tx.${tx.status}`)} ·{" "}
@@ -652,10 +650,10 @@ function WatchDetail({
                       : "watch.olderDiscovered",
                   )}
                 </p>
-                <p className="break-all font-mono text-xs text-[#bbb2a8]">
+                <p className="break-all font-mono text-xs text-[var(--soft)]">
                   {tx.hash}
                 </p>
-                <p className="text-[#bbb2a8]">
+                <p className="text-[var(--soft)]">
                   {t("watch.block", { block: tx.blockNumber })}
                 </p>
                 {latest.movements
@@ -663,16 +661,16 @@ function WatchDetail({
                   .map((movement, index) => (
                     <p key={index} className="break-all">
                       {t(`watch.flow.${movement.direction}`)} ·{" "}
-                      {movement.quantity} {movement.symbol || movement.kind}
+                      {movement.quantity} {visibleTokenText(movement.symbol) || movement.kind}
                       {movement.contract && (
-                        <span className="ml-2 font-mono text-xs text-[#bbb2a8]">
+                        <span className="ml-2 font-mono text-xs text-[var(--soft)]">
                           {short(movement.contract)}
                         </span>
                       )}
                     </p>
                   ))}
                 <a
-                  className="inline-flex min-h-11 items-center gap-2 text-[#ff985e] underline"
+                  className="inline-flex min-h-11 items-center gap-2 text-[var(--accent)] underline"
                   href={`${explorer}/tx/${tx.hash}`}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -686,26 +684,18 @@ function WatchDetail({
           </section>
         </>
       ) : (
-        <div className={`${panel} !border-[#fa6c34]/60`}>
-          <h2 className="text-2xl text-[#ff985e]">{t("watch.baseline")}</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[#bbb2a8]">
+        <div className={`${panel} !border-[var(--accent)]`}>
+          <h2 className="text-2xl text-[var(--accent)]">{t("watch.baseline")}</h2>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--soft)]">
             {t("watch.baselineBody")}
           </p>
           <h3 className="mt-6 text-base">{t("watch.currentHoldings")}</h3>
+          <TokenTable tokens={latest.tokens} native={{ quantity: latest.nativeBalanceEth, symbol: latest.chain.nativeSymbol }} />
           <ul className="mt-3 space-y-3 text-sm">
-            <li className="break-all">{latest.nativeBalanceEth} ETH</li>
-            {latest.tokens.map((token) => (
-              <li className="break-all" key={token.contract}>
-                {token.quantity} {tokenLabel(token, c)}
-                <span className="ml-3 font-mono text-xs text-[#bbb2a8]">
-                  {token.contract}
-                </span>
-              </li>
-            ))}
             {latest.nfts.map((nft) => (
               <li className="break-all" key={`${nft.contract}:${nft.tokenId}`}>
                 {nft.quantity} × {nft.name || nft.kind} #{nft.tokenId}
-                <span className="ml-3 font-mono text-xs text-[#bbb2a8]">
+                <span className="ml-3 font-mono text-xs text-[var(--soft)]">
                   {nft.contract}
                 </span>
               </li>
@@ -713,6 +703,7 @@ function WatchDetail({
           </ul>
         </div>
       )}
+      {!comparison && <WatchTimeline snapshot={latest} />}
       <div className={panel}>
         <h3 className="text-lg">{t("watch.history")}</h3>
         {import.meta.env.VITE_OPSIS_WORKSPACES_ENABLED === "true" && <QuantityBars
@@ -724,20 +715,20 @@ function WatchDetail({
           {item.snapshots.map((row, index) => (
             <li
               key={row.anchor.blockHash}
-              className="min-w-0 border-l-2 border-[#fa6c34] pl-3 text-sm"
+              className="min-w-0 border-l-2 border-[var(--accent)] pl-3 text-sm"
             >
-              <span className="text-xs text-[#ff985e]">0{index + 1}</span>
+              <span className="text-xs text-[var(--accent)]">0{index + 1}</span>
               <p className="my-2 break-all">{row.nativeBalanceEth} ETH</p>
-              <p className="text-xs text-[#bbb2a8]">
+              <p className="text-xs text-[var(--soft)]">
                 {date(row.anchor.fetchedAt)}
               </p>
-              <p className="text-xs text-[#bbb2a8]">
+              <p className="text-xs text-[var(--soft)]">
                 {t("watch.block", { block: row.anchor.blockNumber })}
               </p>
             </li>
           ))}
         </ol>
-        <p className="mt-4 text-xs leading-relaxed text-[#bbb2a8]">
+        <p className="mt-4 text-xs leading-relaxed text-[var(--soft)]">
           {t("watch.retention")}
         </p>
       </div>
@@ -745,12 +736,12 @@ function WatchDetail({
         <summary className="cursor-pointer text-base">
           {t("watch.coverage")}
         </summary>
-        <p className="mt-4 text-sm leading-relaxed text-[#bbb2a8]">
+        <p className="mt-4 text-sm leading-relaxed text-[var(--soft)]">
           {t("watch.coverageBody")}
         </p>
-        <p className="mt-3 text-sm text-[#bbb2a8]">{t("watch.blockNote")}</p>
+        <p className="mt-3 text-sm text-[var(--soft)]">{t("watch.blockNote")}</p>
         {gaps.length > 0 && (
-          <div className="mt-4 border-l-2 border-[#ff985e] pl-3 text-sm text-[#ffd0a8]">
+          <div className="mt-4 border-l-2 border-[var(--line)] pl-3 text-sm text-[var(--soft)]">
             <p>{t("watch.coverageGaps")}</p>
             <ul className="mt-2 list-disc space-y-1 break-words pl-5">
               {gaps.map((gap) => (
@@ -762,13 +753,13 @@ function WatchDetail({
         <h4 className="mt-4 text-sm">
           {t("watch.sourceCount", { count: latest.citations.length })}
         </h4>
-        <ul className="mt-2 space-y-2 text-xs text-[#bbb2a8]">
+        <ul className="mt-2 space-y-2 text-xs text-[var(--soft)]">
           {latest.citations.map((source) => (
             <li key={source.id} className="break-words">
               {source.provider}:{" "}
               {evidenceUrl(source.url) ? (
                 <a
-                  className="inline-flex min-h-11 items-center text-[#ff985e] underline"
+                  className="inline-flex min-h-11 items-center text-[var(--accent)] underline"
                   href={evidenceUrl(source.url)!}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -820,7 +811,7 @@ function WatchDetail({
           <div
             role="group"
             aria-label={t("watch.remove")}
-            className="mt-4 space-y-3 border border-[#b97864] p-4"
+            className="mt-4 space-y-3 border border-[var(--line)] p-4"
           >
             <p className="text-sm">{t("watch.confirmRemove")}</p>
             <div className="flex flex-wrap gap-3">
@@ -852,7 +843,7 @@ function OpsisWatch({ tradeCheckEnabled }: { tradeCheckEnabled: boolean }) {
   const c = useCopy();
   const [opened, setOpened] = useState(false);
   const [pending, setPending] = useState<PortfolioSnapshot | null>(null);
-  return <div className="space-y-6">
+  return <div className="watch-workspace space-y-6">
     {!opened ? <>
       <OneOffCheck onSave={(snapshot) => { setPending(snapshot); setOpened(true); }} />
       <button className="opsis-secondary" onClick={() => setOpened(true)}>{c("Open encrypted watchlist", "打开加密观察列表")}</button>
@@ -868,9 +859,9 @@ function SavedWatch({ tradeCheckEnabled, pending, onSaved }: { tradeCheckEnabled
   const { t } = useI18n();
   const session = useWatchVault();
   return (
-    <main className={OPSIS_PRESENTATION ? "opsis-watch-board" : "mx-auto w-full max-w-[1240px] space-y-6 px-4 py-8 text-[#e9e0d1] sm:px-8 sm:py-12"}>
-      {!OPSIS_PRESENTATION && (      <header className="border-b border-[#48413b] pb-7">
-        <p className="flex items-center gap-2 text-xs tracking-wider text-[#ff985e]">
+    <main className={OPSIS_PRESENTATION ? "opsis-watch-board watch-workspace" : "mx-auto w-full max-w-[1240px] space-y-6 px-4 py-8 text-[var(--ink)] sm:px-8 sm:py-12"}>
+      {!OPSIS_PRESENTATION && (      <header className="border-b border-[var(--line)] pb-7">
+        <p className="flex items-center gap-2 text-xs tracking-wider text-[var(--accent)]">
           <ShieldCheck size={16} aria-hidden />
           {t("watch.badge")}
         </p>
@@ -878,19 +869,19 @@ function SavedWatch({ tradeCheckEnabled, pending, onSaved }: { tradeCheckEnabled
           {t("watch.title")}
         </h1>
         <p className="mt-3 text-xl sm:text-2xl">{t("watch.headline")}</p>
-        <p className="mt-3 max-w-2xl text-base leading-relaxed text-[#bbb2a8]">
+        <p className="mt-3 max-w-2xl text-base leading-relaxed text-[var(--soft)]">
           {t("watch.intro")}
         </p>
-        <ol className="mt-6 flex flex-wrap gap-3 text-sm text-[#ddd3c4]">
+        <ol className="mt-6 flex flex-wrap gap-3 text-sm text-[var(--soft)]">
           {["watch.step1", "watch.step2", "watch.step3"].map((key, index) => (
             <li key={key} className="flex items-center gap-2">
-              <span className="flex h-7 w-7 items-center justify-center border border-[#7f503b] bg-[#30221a] text-xs text-[#ff985e]">
+              <span className="flex h-7 w-7 items-center justify-center border border-[var(--line)] bg-[var(--panel)] text-xs text-[var(--accent)]">
                 {index + 1}
               </span>
               {t(key as "watch.step1")}
               {index < 2 && (
                 <ArrowRight
-                  className="ml-1 text-[#8c8076]"
+                  className="ml-1 text-[var(--soft)]"
                   size={15}
                   aria-hidden
                 />
@@ -920,7 +911,7 @@ function SavedWatch({ tradeCheckEnabled, pending, onSaved }: { tradeCheckEnabled
       {session.error && (
         <div
           role="alert"
-          className="break-words rounded-sm border border-[#a76978] bg-[#2b2023] p-4 text-sm text-[#ffbbca]"
+          className="break-words border border-[var(--line)] bg-[var(--panel)] p-4 text-sm text-[var(--soft)]"
         >
           {session.error}
         </div>
@@ -928,7 +919,7 @@ function SavedWatch({ tradeCheckEnabled, pending, onSaved }: { tradeCheckEnabled
       {session.notice && (
         <p
           role="status"
-          className="rounded-sm border border-[#52634b] bg-[#20261e] p-4 text-sm text-[#d1dfc9]"
+          className="border border-[var(--line)] bg-[var(--panel)] p-4 text-sm text-[var(--soft)]"
         >
           {t(session.notice)}
         </p>
@@ -936,10 +927,10 @@ function SavedWatch({ tradeCheckEnabled, pending, onSaved }: { tradeCheckEnabled
       {session.recovery ? (
         <section className={panel}>
           <h2 className="text-xl">{t("watch.recoveryTitle")}</h2>
-          <p className="mt-3 text-sm leading-relaxed text-[#bbb2a8]">
+          <p className="mt-3 text-sm leading-relaxed text-[var(--soft)]">
             {t("watch.recoveryBody")}
           </p>
-          <code className="my-5 block select-all break-all border border-[#63564c] bg-[#191817] p-4 text-sm">
+          <code className="my-5 block select-all break-all border border-[var(--line)] bg-[var(--panel)] p-4 text-sm">
             {session.recovery}
           </code>
           <button className={primary} onClick={session.acknowledgeRecovery}>
@@ -956,7 +947,7 @@ function SavedWatch({ tradeCheckEnabled, pending, onSaved }: { tradeCheckEnabled
           <Workspace session={session} tradeCheckEnabled={tradeCheckEnabled} />
         </>
       )}
-      <p className="text-xs leading-relaxed text-[#bbb2a8]">
+      <p className="text-xs leading-relaxed text-[var(--soft)]">
         {t("watch.storageNote")}
       </p>
     </main>

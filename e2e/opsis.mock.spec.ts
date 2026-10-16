@@ -1,3 +1,4 @@
+import { openOpsisMenu, closeOpsisMenu } from "./opsis-test-helpers";
 import { fixture, research } from "../apps/web/src/opsis/test-fixtures";
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
@@ -8,7 +9,12 @@ const key = "a".repeat(64);
 
 async function access(
   page: Page,
-  options: { watch?: boolean; exitCheck?: boolean; expiry?: number; swapPreview?: boolean } = {},
+  options: {
+    watch?: boolean;
+    exitCheck?: boolean;
+    expiry?: number;
+    swapPreview?: boolean;
+  } = {},
 ) {
   await page.route("**/v1/private/opsis/access", (route) => {
     expect(route.request().headers().authorization).toBe(`Preview ${key}`);
@@ -124,12 +130,14 @@ test.describe("opsis preview", () => {
     await page
       .getByRole("button", { name: "Run research", exact: true })
       .click();
-    await expect(page.getByTestId("opsis-research-result")).toContainText(
-      "Fixture Token · FIX",
-    );
-    await page.getByRole("link", { name: "Check an amount" }).click();
+    // The identity header shows the symbol and the name as separate lines.
+    await expect(page.getByTestId("opsis-research-result")).toContainText("FIX");
+    await expect(page.getByTestId("opsis-research-result")).toContainText("Fixture Token");
+    await page.getByRole("link", { name: "Check what comes out at your size" }).click();
     await expect(
-      page.getByLabel("Reviewed symbol or token contract · chain 4663", { exact: true }),
+      page.getByLabel("Reviewed symbol or token contract · chain 4663", {
+        exact: true,
+      }),
     ).toHaveValue(TOKEN);
     await expect(
       page.getByLabel("Amount to check", { exact: true }),
@@ -144,9 +152,17 @@ test.describe("opsis preview", () => {
       path: "test-results/opsis-check.png",
       fullPage: true,
     });
-    await expect(page.getByRole("region", {name: "Observed pool comparison"})).toBeVisible();
-    await page.getByRole("region", {name: "Observed pool comparison"}).getByRole("button").first().click();
-    await expect(page.getByRole("region", {name: "Observed pool comparison"})).toContainText(POOL);
+    await expect(
+      page.getByRole("region", { name: "Observed pool comparison" }),
+    ).toBeVisible();
+    await page
+      .getByRole("region", { name: "Observed pool comparison" })
+      .getByRole("button")
+      .first()
+      .click();
+    await expect(
+      page.getByRole("region", { name: "Observed pool comparison" }),
+    ).toContainText(POOL);
     const venue = await page
       .getByRole("link", { name: "Open Uniswap" })
       .getAttribute("href");
@@ -157,28 +173,44 @@ test.describe("opsis preview", () => {
       .click();
     await expect(page.getByTestId("opsis-quote")).toHaveCount(0);
   });
-  test("Research result keeps the tools bar scrollable without widening narrow viewports", async ({ page }) => {
+  test("Research result keeps the phone menu reachable without widening narrow viewports", async ({
+    page,
+  }) => {
     await access(page);
     const analysis = research();
-    analysis.answer.confirmedFacts = [{
-      fact: `Address: ${TOKEN}`,
-      sourceIds: ["s1", "s2", "s3", "s4", "s5"],
-    }];
-    await page.route("**/v1/private/analyze", (route) => route.fulfill({ json: analysis }));
+    analysis.answer.confirmedFacts = [
+      {
+        fact: `Address: ${TOKEN}`,
+        sourceIds: ["s1", "s2", "s3", "s4", "s5"],
+      },
+    ];
+    await page.route("**/v1/private/analyze", (route) =>
+      route.fulfill({ json: analysis }),
+    );
     await unlock(page, "/research");
     await page.locator("#research-entity").fill(TOKEN);
     await page.getByLabel("Look up as").selectOption("token");
-    await page.getByRole("button", { name: "Run research", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Run research", exact: true })
+      .click();
     await expect(page.getByTestId("opsis-research-result")).toBeVisible();
-    const toolNav = page.getByRole("navigation", { name: "Workspace tools", exact: true });
-    const lastTool = toolNav.getByRole("link").last();
-    await expect(lastTool).toBeAttached();
     for (const width of [390, 320]) {
       await page.setViewportSize({ width, height: 900 });
-      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
-      expect(await toolNav.evaluate((nav) => getComputedStyle(nav).overflowX)).toBe("auto");
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth),
+      ).toBeLessThanOrEqual(width + 1);
+      await openOpsisMenu(page);
+      const lastTool = page
+        .locator("#opsis-tool-menu")
+        .getByRole("navigation")
+        .getByRole("link")
+        .last();
       await lastTool.scrollIntoViewIfNeeded();
-      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+      await expect(lastTool).toBeVisible();
+      await closeOpsisMenu(page);
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth),
+      ).toBeLessThanOrEqual(width + 1);
     }
   });
   test("quote errors, unsupported pools and changed input do not leave a misleading result", async ({
@@ -240,9 +272,7 @@ test.describe("opsis preview", () => {
       fullPage: true,
     });
     await expect(
-      page
-        .getByRole("navigation", { name: "Workspaces", exact: true })
-        .getByRole("link"),
+      page.locator(".opsis-desktop-rail .opsis-tool-rail section"),
     ).toHaveCount(4);
     for (const width of [320, 390, 1440]) {
       await page.setViewportSize({ width, height: 1000 });
@@ -252,14 +282,19 @@ test.describe("opsis preview", () => {
         ),
       ).toBeLessThanOrEqual(1);
     }
-    await page
-      .getByRole("navigation", { name: "Workspaces", exact: true })
-      .getByRole("link", { name: "Trade Check", exact: true })
-      .click();
+    await expect(
+      page
+        .getByRole("navigation", { name: "Workspaces", exact: true })
+        .getByRole("link", { name: "Trade Check", exact: true }),
+    ).toHaveCount(0);
+    await unlock(page, "/check");
     await expect(
       page.getByRole("heading", { name: "Not enabled on this deployment" }),
     ).toBeVisible();
-    await page.getByRole("link", { name: "Saved", exact: true }).click();
+    await page
+      .locator(".opsis-footer")
+      .getByRole("link", { name: "Saved", exact: true })
+      .click();
     await expect(
       page.getByRole("button", { name: "CREATE ENCRYPTED VAULT", exact: true }),
     ).toBeVisible();
@@ -267,12 +302,18 @@ test.describe("opsis preview", () => {
       .getByRole("navigation", { name: "Workspaces", exact: true })
       .getByRole("link", { name: "Quant Lab", exact: true })
       .click();
-    await expect(page.getByRole("img", {name:/Interactive captured pool map/})).toBeVisible();
+    await expect(
+      page.getByRole("img", { name: /Interactive captured pool map/ }),
+    ).toBeVisible();
+    await openOpsisMenu(page);
     await page
       .getByRole("button", { name: "Theme: Light", exact: true })
       .click();
+    await closeOpsisMenu(page);
     await expect(page.locator(".opsis")).toHaveAttribute("data-theme", "dark");
+    await openOpsisMenu(page);
     await page.getByRole("button", { name: "中文", exact: true }).click();
+    await closeOpsisMenu(page);
     await expect(
       page
         .getByRole("navigation", { name: "工作区", exact: true })
@@ -321,22 +362,20 @@ test.describe("opsis preview", () => {
       ),
     );
     await expect(page).toHaveURL(/\/$/);
-    await overview
-      .locator("body")
-      .evaluate(() =>
-        document.dispatchEvent(
-          new CustomEvent("opsis:navigate", {
-            detail: { type: "opsis:open-tool", tool: "https://example.com/" },
-          }),
-        ),
-      );
+    await overview.locator("body").evaluate(() =>
+      document.dispatchEvent(
+        new CustomEvent("opsis:navigate", {
+          detail: { type: "opsis:open-tool", tool: "https://example.com/" },
+        }),
+      ),
+    );
     await expect(page).toHaveURL(/\/$/);
     await overview.locator("#public-entity").fill(TOKEN);
     await overview.locator("#public-search button").click();
     await expect(page).toHaveURL(new RegExp(`/research\\?entity=${TOKEN}$`));
     await expect(page.locator("#research-entity")).toHaveValue(TOKEN);
     expect(lookups).toBe(0);
-    await page.getByRole("link", { name: "Back to overview" }).click();
+    await page.locator(".opsis-topbar .opsis-logo").click();
     const scroll = await overview
       .locator("body")
       .evaluate(() => window.scrollY);
@@ -346,7 +385,7 @@ test.describe("opsis preview", () => {
       .filter({ hasText: "Trade Check" })
       .click();
     await expect(page).toHaveURL(/\/check$/);
-    await page.getByRole("link", { name: "Back to overview" }).click();
+    await page.locator(".opsis-topbar .opsis-logo").click();
     await expect(overview.locator("#terminal")).not.toBeVisible();
     expect(
       await overview.locator("body").evaluate(() => window.scrollY),
@@ -375,10 +414,11 @@ test.describe("opsis preview", () => {
     await access(page);
     await unlock(page, "/research");
     for (const theme of ["light", "dark"]) {
-      if (theme === "dark")
-        await page
-          .getByRole("button", { name: "Theme: Light", exact: true })
-          .click();
+      if (theme === "dark") await openOpsisMenu(page);
+      await page
+        .getByRole("button", { name: "Theme: Light", exact: true })
+        .click();
+      await closeOpsisMenu(page);
       const results = await new AxeBuilder({ page })
         .include(".opsis")
         .withTags(["wcag2a", "wcag2aa"])
@@ -394,7 +434,9 @@ test.describe("opsis preview", () => {
 
 test.describe("opsis preview swap capability", () => {
   test.skip(!enabled);
-  test("hides Swap preview and never requests a quote when the server has it switched off", async ({ page }) => {
+  test("hides Swap preview and never requests a quote when the server has it switched off", async ({
+    page,
+  }) => {
     let quotes = 0;
     await page.route("**/v1/swaps/quote", (route) => {
       quotes++;
@@ -402,11 +444,23 @@ test.describe("opsis preview swap capability", () => {
     });
     await access(page, { swapPreview: false });
     await unlock(page, "/swap");
-    await expect(page.getByRole("heading", { name: "Not enabled on this deployment" })).toBeVisible();
-    await page.getByRole("navigation", { name: "Workspaces", exact: true }).getByRole("link", { name: /Trade Check/ }).click();
-    const tools = page.getByRole("navigation", { name: "Workspace tools", exact: true });
-    await expect(tools.getByRole("link", { name: "Trade Check", exact: true })).toBeVisible();
-    await expect(tools.getByRole("link", { name: "Swap preview", exact: true })).toHaveCount(0);
+    await expect(
+      page.getByRole("heading", { name: "Not enabled on this deployment" }),
+    ).toBeVisible();
+    await page
+      .getByRole("navigation", { name: "Workspaces", exact: true })
+      .getByRole("link", { name: /Trade Check/ })
+      .click();
+    const tools = page.getByRole("navigation", {
+      name: "Workspaces",
+      exact: true,
+    });
+    await expect(
+      tools.getByRole("link", { name: "Trade Check", exact: true }),
+    ).toBeVisible();
+    await expect(
+      tools.getByRole("link", { name: "Swap preview", exact: true }),
+    ).toHaveCount(0);
     expect(quotes).toBe(0);
   });
 });

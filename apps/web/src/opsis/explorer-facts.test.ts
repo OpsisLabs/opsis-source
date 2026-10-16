@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { explorerCount, explorerNumber, hasHiddenCharacters, holderShares, isBurnAddress, latestTimestamp, lookalikeAsset, relativeTime, reviewedAsset, sharePercent, transactionDirection, transactionMethod, visibleTokenText, wellKnownUnreviewedSymbol } from "./explorer-facts";
+import { explorerCount, explorerNumber, hasHiddenCharacters, holderShares, isBurnAddress, latestTimestamp, lookalikeAsset, relativeTime, researchEvidenceGroups, walletActivity, reviewedAsset, sharePercent, transactionDirection, transactionMethod, visibleTokenText, wellKnownUnreviewedSymbol } from "./explorer-facts";
 import { KNOWN_ASSETS } from "./known-assets";
 import pons from "./fixtures/research-pons-token.json";
 
@@ -26,6 +26,23 @@ describe("explorer facts", () => {
     expect(shares.ten).toBeNull();
     expect(holderShares({ burnedShare: 32.5, top1WalletShare: 5.4, top10WalletShare: 21.2 })).toEqual({ largest: 5.4, ten: 21.2, burned: 32.5 });
     expect(holderShares({}).burned).toBeNull();
+  });
+
+  it("keeps wallet window counts unknown when unavailable or statuses are missing", () => {
+    const rows = [{ hash: "one", from: address, status: "ok" }, { hash: "two", from: address, status: "error" }];
+    expect(walletActivity({ recentTransactions: rows })).toEqual({ count: 2, failed: 1 });
+    expect(walletActivity({ recentTransactions: [] })).toEqual({ count: 0, failed: 0 });
+    expect(walletActivity({ recentTransactions: [{ hash: "unknown", from: address }] })).toEqual({ count: 1, failed: null });
+    expect(walletActivity({ activityCoverage: "unavailable", recentTransactions: rows })).toEqual({ count: null, failed: null });
+    expect(walletActivity({})).toEqual({ count: null, failed: null });
+  });
+
+  it("groups repeated source labels within each provider without discarding receipts", () => {
+    const base = { id: "one", provider: "Blockscout", label: "Identity", fetchedAt: "2026-10-14T15:00:00Z", url: null, entityId: address, entityType: "token" as const, fieldsUsed: ["name"] };
+    const sources = [base, { ...base, id: "two", fetchedAt: "2026-10-14T15:01:00Z" }, { ...base, id: "three", provider: "Chain RPC" }];
+    const groups = researchEvidenceGroups(sources);
+    expect(groups.map((group) => group.sources.length)).toEqual([2, 1]);
+    expect(groups[0].sources).toEqual(sources.slice(0, 2));
   });
 
   it("detects lookalikes by symbol and reviewed identity by address", () => {

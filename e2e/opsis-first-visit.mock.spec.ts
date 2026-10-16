@@ -51,7 +51,8 @@ test.describe("opsis preview first visit", () => {
     await expect(result.getByRole("heading", { name: "WETH", exact: true })).toBeVisible();
     await expect(result).toContainText(payload.entity.value);
     await expect(result).toContainText("Chain 4663 · Token");
-    await expect(result).toContainText("Checked at");
+    await expect(result.getByTestId("research-identity")).toContainText("Read");
+    await expect(result.getByTestId("research-fact-tile")).toHaveCount(4);
     await expect(result.getByTestId("token-facts")).toContainText("1,234,567.890123456789012345");
     await result.getByText("Exact supply", { exact: true }).click();
     await expect(result).toContainText("1234567.890123456789012345");
@@ -93,6 +94,24 @@ test.describe("opsis preview first visit", () => {
     await expect(balances.getByRole("button", { name: `Copy address ${EXIT_CHECK_TOKENS.USDG.address.toLowerCase()}`, exact: true })).toBeVisible();
     await expect(balances).toContainText("other tokens may be held");
   });
+
+  for (const width of [1280, 375]) for (const chinese of [false, true]) {
+    test(`opsis preview Trade Check input and action fit ${width}px in ${chinese ? "Chinese" : "English"}`, async ({ page }) => {
+      await page.setViewportSize({ width, height: width === 1280 ? 800 : 812 });
+      await page.goto("/check");
+      if (chinese) await page.getByRole("button", { name: "中文", exact: true }).click();
+      await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+      await expect(page.locator(".opsis-check-placeholder")).toContainText(chinese ? "运行核查" : "Run a check");
+      await page.getByRole("button", { name: "WETH", exact: true }).click();
+      const action = page.getByRole("button", { name: chinese ? "运行核查" : "Run a check", exact: true });
+      await expect(action).toBeEnabled();
+      await expect(page.locator("#check-token")).toBeInViewport({ ratio: 1 });
+      await expect(action).toBeInViewport({ ratio: 1 });
+      await page.getByRole("checkbox").check();
+      await expect(action).toBeInViewport({ ratio: 1 });
+      await expect.poll(() => page.locator("html").evaluate((el) => el.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+    });
+  }
 
   test("opsis preview WETH output is USDG and changes cannot select the input", async ({ page }) => {
     await page.goto(`/check?token=${EXIT_CHECK_TOKENS.WETH.address}`);

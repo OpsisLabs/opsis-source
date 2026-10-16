@@ -59,3 +59,21 @@ it("passes only enabled front-door tools and never enables execution", () => {
   expect(landingTools({ ...capabilities, swapPreview: true }, flags)).toContain("swap");
   expect(landingTools({ ...capabilities, research: false, exitCheck: false, watch: false, rwa: false }, { ...flags, world: false })).toEqual(["quant", "saved", "guide"]);
 });
+
+it("keeps the four D25 groups and tool order, with only enabled tools", async () => {
+  const { toolGroups, toolIsActive, toolPathCopy } = await import("./shell-model");
+  vi.stubEnv("VITE_EXIT_CHECK_ENABLED", "true");
+  vi.stubEnv("VITE_WATCH_ENABLED", "true");
+  const groups = toolGroups(capabilities, flags);
+  expect(groups.map((group) => group.id)).toEqual(["lookup", "trade", "watch", "data"]);
+  expect(groups.map((group) => group.name[0])).toEqual(["Look up", "Before you trade", "Keep watch", "Explore data"]);
+  expect(groups.map((group) => group.tools.map((tool) => tool.path))).toEqual([
+    ["/research", "/rwa", "/biggest-trades", "/research/events"],
+    ["/check", "/check/perp-scenario", "/stress-test"], ["/watch", "/saved"], ["/lab"],
+  ]);
+  const disabled = toolGroups({ ...capabilities, research: false, exitCheck: false, watch: false, rwa: false, observedTrades: false }, { ...flags, world: false, stress: false });
+  expect(disabled.map((group) => group.tools.map((tool) => tool.path))).toEqual([[], ["/check/perp-scenario"], ["/saved"], ["/lab"]]);
+  expect(toolIsActive("/research", "/research/details")).toBe(true);
+  expect(toolIsActive("/check", "/check/perp-scenario")).toBe(false);
+  expect(toolPathCopy("/rwa")).toEqual(["Look up / Stock-token check", "查询 / 股票代币核查"]);
+});

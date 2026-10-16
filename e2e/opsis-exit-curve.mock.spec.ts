@@ -1,26 +1,14 @@
 import { expect, test } from "@playwright/test";
+import { mockPublicOpsisAccess } from "./opsis-test-helpers";
 import { fixture } from "../apps/web/src/opsis/test-fixtures";
 const enabled =
   process.env.VITE_OPSIS_WORKSPACES_ENABLED === "true" &&
   process.env.VITE_OPSIS_PUBLIC_ACCESS_ENABLED === "true";
-test("Opsis exit curve sends explicit opt-in and supports point selection", async ({
+test("opsis preview exit curve sends explicit opt-in and supports point selection", async ({
   page,
 }) => {
   test.skip(!enabled);
-  await page.route("**/v1/private/opsis/access", (r) =>
-    r.fulfill({
-      json: {
-        expiresAt: new Date(Date.now() + 3600000).toISOString(),
-        chainId: 4663,
-        research: true,
-        exitCheck: true,
-        watch: false,
-        rwa: false,
-        observedTrades: false,
-        perpExecution: false,
-      },
-    }),
-  );
+  await mockPublicOpsisAccess(page);
   const base = fixture();
   let body: unknown;
   let calls = 0;
@@ -104,6 +92,21 @@ test("Opsis exit curve sends explicit opt-in and supports point selection", asyn
     page.getByRole("heading", { name: "Exit size curve", exact: true }),
   ).toBeVisible();
   await expect(page.getByText(/selected 0\.3% fee pool/)).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+  const receipt = page.getByTestId("opsis-quote");
+  await expect(receipt).toContainText("You send");
+  await expect(receipt).toContainText("You’d receive about");
+  await expect(receipt).toContainText("Gas not included");
+  await expect(receipt).toContainText("Estimate, not an executable quote.");
+  await expect(receipt.locator(".opsis-curve")).toHaveCount(0);
+  await expect(page.locator(".opsis-check-curve table")).toContainText(
+    "0.0000009 WETH",
+  );
+  await expect(
+    page
+      .locator(".opsis-check-handoff")
+      .getByRole("link", { name: "Open Uniswap ↗", exact: true }),
+  ).toBeVisible();
   expect(body).toEqual({
     token: base.input.contract,
     amount: "1.5",

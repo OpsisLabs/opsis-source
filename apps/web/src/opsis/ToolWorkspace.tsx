@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
 import { useLocation } from "react-router";
-import { routeNames } from "./shell-model";
+import { toolPathCopy } from "./shell-model";
 import { useCopy } from "./copy";
 const pages: Record<string, [string, string, string, string, string]> = {
   "/watch": [
     "03 / WATCH",
-    "Follow the changes.",
-    "跟踪变化。",
+    "What changed in this wallet?",
+    "这个钱包有什么变化？",
     "Your wallets, your timeline. Compare saved checks in a private workspace.",
     "您的钱包、您的时间线。在私密工作区比较保存的核查。",
   ],
@@ -72,7 +72,7 @@ export default function ToolWorkspace({ children }: { children: ReactNode }) {
       {page && (
         <header className="opsis-studio-heading">
           <div>
-            <p className="opsis-kicker">{c(...(routeNames[pathname] ?? [page[0], page[0]]))}</p>
+            <p className="opsis-kicker">{c(...(toolPathCopy(pathname) ?? [page[0], page[0]]))}</p>
             <h1>{c(page[1], page[2])}</h1>
           </div>
           <p>{c(page[3], page[4])}</p>

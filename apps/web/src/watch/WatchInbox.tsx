@@ -6,6 +6,7 @@ import { useCopy } from "../opsis/copy";
 import { deriveWatchInbox, type WatchInboxItem } from "./inbox";
 import { visibleTokenText } from "../opsis/explorer-facts";
 import { tokenLabel } from "./holdings";
+import "./watch.css";
 
 function conditionReason(reason: string | undefined, chinese: boolean): string {
   const labels = {
@@ -76,12 +77,12 @@ export default function WatchInbox({
         "Check again to compare a later observation.",
         "再次检查以比较后续观察。",
       ),
-      balanceDelta: `${item.detailValues?.before ?? "unknown"} → ${item.detailValues?.after ?? "unknown"} (${item.detailValues?.delta ?? "unknown"})`,
+      balanceDelta: `${item.detailValues?.before ?? c("unknown", "未知")} → ${item.detailValues?.after ?? c("unknown", "未知")} (${item.detailValues?.delta ?? c("unknown", "未知")})`,
       notComparable: c(
         "The two observations cannot be compared exactly.",
         "两次观察无法精确比较。",
       ),
-      coverage: item.detailValues?.gaps ?? "unknown",
+      coverage: c("Some source coverage is unavailable or bounded.", "部分来源覆盖不可用或受限。"),
       conditionMet: c(
         `Observed change reached ${item.detailValues?.threshold ?? ""} ${item.assetContract ? assetLabel(item) : visibleTokenText(item.detailValues?.unit ?? "")}.`,
         `观察到的变化达到 ${item.detailValues?.threshold ?? ""} ${item.assetContract ? assetLabel(item) : visibleTokenText(item.detailValues?.unit ?? "")}。`,
@@ -181,12 +182,12 @@ export default function WatchInbox({
   );
   return (
     <section
-      className="opsis-panel min-w-0 max-w-full [overflow-wrap:anywhere]"
+      className="watch-panel watch-inbox min-w-0 max-w-full [overflow-wrap:anywhere]"
       aria-labelledby="watch-inbox-title"
     >
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-[#3569ff]">
+          <p className="watch-kicker">
             {c("WATCH · ON DEMAND", "WATCH · 按需检查")}
           </p>
           <h2 id="watch-inbox-title" className="text-2xl">
@@ -213,12 +214,12 @@ export default function WatchInbox({
       ) : (
         <>
           <div className="mt-5 hidden max-w-full overflow-x-auto overscroll-x-contain md:block">
-            <table className="w-full min-w-[680px] text-left text-sm">
+            <table className="watch-inbox-table w-full min-w-[680px] text-left text-sm">
               <caption className="sr-only">
                 {c("Watch inbox evidence", "Watch 证据收件箱")}
               </caption>
               <thead>
-                <tr className="border-b border-black/15 text-xs uppercase tracking-wide opacity-65">
+                <tr className="border-b border-[var(--line)] text-xs uppercase tracking-wide opacity-65">
                   <th className="px-2 py-2">{c("State", "状态")}</th>
                   <th className="px-2 py-2">{c("Evidence", "证据")}</th>
                   <th className="px-2 py-2">{c("Observed", "观察时间")}</th>
@@ -229,7 +230,7 @@ export default function WatchInbox({
                 {visible.map((entry) => (
                   <tr
                     key={entry.id}
-                    className="border-b border-black/10 align-top"
+                    className="border-b border-[var(--line)] align-top"
                   >
                     <td className="px-2 py-3 font-semibold">
                       {stateLabel(entry)}
@@ -271,7 +272,7 @@ export default function WatchInbox({
             {visible.map((entry) => (
               <article
                 key={entry.id}
-                className="min-w-0 border border-black/15 p-3 text-sm"
+                className="watch-timeline-item min-w-0 border border-[var(--line)] p-3 text-sm"
                 aria-label={`${stateLabel(entry)}: ${title(entry)}`}
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -305,7 +306,7 @@ export default function WatchInbox({
                   </p>
                 )}
                 {openLinks(entry)}
-                <div className="mt-3 border-t border-black/10 pt-3">
+                <div className="mt-3 border-t border-[var(--line)] pt-3">
                   {actions(entry)}
                 </div>
               </article>
@@ -332,7 +333,7 @@ export default function WatchInbox({
               {reviewed.map((entry) => (
                 <div
                   key={entry.id}
-                  className="flex flex-wrap items-center justify-between gap-2 border border-black/10 p-3 text-sm"
+                  className="flex flex-wrap items-center justify-between gap-2 border border-[var(--line)] p-3 text-sm"
                 >
                   <span>
                     {title(entry)} ·{" "}
@@ -354,7 +355,7 @@ export default function WatchInbox({
           )}
         </div>
       )}
-      <div className="mt-6 border-t border-black/10 pt-5">
+      <div className="mt-6 border-t border-[var(--line)] pt-5">
         <h3 className="text-lg">{c("Saved conditions", "已保存条件")}</h3>
         <p className="mt-1 text-sm opacity-70">
           {c(
@@ -371,7 +372,7 @@ export default function WatchInbox({
           const selected =
             assets.find((asset) => asset.key === draft.assetKey) ?? assets[0];
           return (
-            <div key={watch.id} className="mt-3 border border-black/10 p-3">
+            <div key={watch.id} className="mt-3 border border-[var(--line)] p-3">
               <div className="text-sm font-semibold">{watch.label}</div>
               <div className="mt-2 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-4 [&>*]:min-w-0 [&>*]:max-w-full">
                 <select

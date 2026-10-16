@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { ExitCheckQuote } from "../exit-check/api";
 import { useCopy } from "./copy";
 import { relativeBar } from "./visual-model";
+import "./check.css";
 
 export default function PoolComparison({ result }: { result: ExitCheckQuote }) {
   const c = useCopy();
@@ -28,6 +29,7 @@ export default function PoolComparison({ result }: { result: ExitCheckQuote }) {
         {rows.map((row, index) => (
           <button
             key={row.pool}
+            type="button"
             aria-pressed={current === row}
             onClick={() => setSelected(index)}
           >

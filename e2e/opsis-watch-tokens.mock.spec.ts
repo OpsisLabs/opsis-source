@@ -33,24 +33,25 @@ test("opsis preview Watch shows reviewed and flagged tokens at 375 px in both la
   await form.getByRole("button", { name: "Run a check", exact: true }).click();
   const table = page.getByTestId("watch-token-table");
   await expect(table).toBeVisible();
-  const rows = table.locator("tbody tr");
-  await expect(rows).toHaveCount(4);
-  await expect(rows.nth(0)).toContainText("Reviewed token");
-  await expect(rows.nth(0)).toContainText("Reviewed asset");
-  await expect(rows.nth(1)).toContainText("Uses the symbol NVDA, but this is not the reviewed NVDA contract.");
-  await expect(rows.nth(2)).toContainText("Reported[U+202E]name · PO[U+200B]NS");
-  await expect(rows.nth(2)).toContainText("The name or symbol contains hidden characters, shown in brackets above.");
-  await expect(rows.nth(2)).toContainText("Blockscout marks this token as a scam.");
-  await expect(rows.nth(3)).toContainText("Ordinary token");
+  const rows = table.locator("tbody tr.watch-holding-row");
+  const warnings = table.locator("tbody tr.watch-warning-row");
+  await expect(rows).toHaveCount(5);
+  await expect(rows.nth(1)).toContainText("Reviewed token");
+  await expect(rows.nth(1)).toContainText("Reviewed asset");
+  await expect(warnings.nth(0)).toContainText("Uses the symbol NVDA, but this is not the reviewed NVDA contract.");
+  await expect(rows.nth(3)).toContainText("Reported[U+202E]name · PO[U+200B]NS");
+  await expect(warnings.nth(1)).toContainText("The name or symbol contains hidden characters, shown in brackets above.");
+  await expect(warnings.nth(1)).toContainText("Blockscout marks this token as a scam.");
+  await expect(rows.nth(4)).toContainText("Ordinary token");
   await expect(form).toContainText("Names and symbols are what each contract reports about itself.");
   await expect(page.locator("h1")).toHaveCount(1);
   expect(await page.locator("html").evaluate((element) => element.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
 
   await page.getByRole("button", { name: "中文", exact: true }).click();
-  await expect(rows.nth(0)).toContainText("已审核资产");
-  await expect(rows.nth(1)).toContainText("使用符号 NVDA，但这不是已审核的 NVDA 合约。");
-  await expect(rows.nth(2)).toContainText("名称或符号含有隐藏字符，已在上方用方括号显示。");
-  await expect(rows.nth(2)).toContainText("Blockscout 将此代币标记为骗局。");
+  await expect(rows.nth(1)).toContainText("已审核资产");
+  await expect(warnings.nth(0)).toContainText("使用符号 NVDA，但这不是已审核的 NVDA 合约。");
+  await expect(warnings.nth(1)).toContainText("名称或符号含有隐藏字符，已在上方用方括号显示。");
+  await expect(warnings.nth(1)).toContainText("Blockscout 将此代币标记为骗局。");
   await expect(page.getByRole("region", { name: "单次公开钱包核查" })).toContainText("名称和符号由各合约自行报告。");
   await expect(page.locator("h1")).toHaveCount(1);
   expect(await page.locator("html").evaluate((element) => element.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
@@ -79,3 +80,55 @@ test("opsis preview Watch shows reviewed and flagged tokens at 375 px in both la
   await expect(page.locator("h1")).toHaveCount(1);
   expect(await page.locator("html").evaluate((element) => element.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
 });
+
+for (const width of [1280, 375]) {
+  test(`opsis preview Watch and Saved layout at ${width} px`, async ({ page }) => {
+    test.skip(!enabled);
+    await page.setViewportSize({ width, height: width === 375 ? 812 : 800 });
+    await mockPublicOpsisAccess(page);
+    await page.route("**/v1/private/watch/snapshot", (route) => {
+      const snapshot = watchFixture(101);
+      snapshot.transactions.push({ ...snapshot.transactions[0], hash: `0x${"d".repeat(64)}`, blockNumber: 102, status: "failed" });
+      snapshot.reconciliation.activityCandidates = snapshot.transactions.length;
+      snapshot.reconciliation.activityConfirmed = snapshot.transactions.length;
+      snapshot.anchor.blockNumber = 102;
+      snapshot.anchor.blockHash = `0x${(102).toString(16).padStart(64, "0")}`;
+      return route.fulfill({ json: snapshot });
+    });
+    await page.goto("/watch");
+    const form = page.getByRole("region", { name: "One-off public wallet check" });
+    const input = form.getByLabel("Public Robinhood wallet address");
+    const run = form.getByRole("button", { name: "Run a check", exact: true });
+    await expect(input).toBeVisible();
+    await expect(run).toBeVisible();
+    for (const control of [input, run]) {
+      const box = await control.boundingBox();
+      expect(box).not.toBeNull();
+      expect(box!.y).toBeGreaterThanOrEqual(0);
+      expect(box!.y + box!.height).toBeLessThanOrEqual(width === 375 ? 812 : 800);
+    }
+    await input.fill(WATCH_TEST_ADDRESS);
+    await form.getByRole("checkbox").check();
+    await run.click();
+    const timeline = page.getByRole("region", { name: "Recent changes", exact: true });
+    await expect(timeline.locator(".watch-timeline > li").first()).toContainText("Failed transaction");
+    await expect(timeline).toContainText("Sent 0.1 ETH");
+    await expect(page.getByTestId("watch-token-table")).toBeVisible();
+    await expect(page.locator("h1")).toHaveCount(1);
+    expect(await page.locator("html").evaluate((element) => element.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+    await page.getByRole("button", { name: "中文", exact: true }).click();
+    await expect(page.getByRole("region", { name: "最近变化", exact: true })).toContainText("交易失败");
+    await expect(page.locator("h1")).toHaveCount(1);
+    expect(await page.locator("html").evaluate((element) => element.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+    await page.getByRole("button", { name: "English", exact: true }).click();
+    await page.goto("/saved?view=reports");
+    await expect(page.getByRole("complementary", { name: "Saved research & checks" })).toBeVisible();
+    await expect(page.getByText("Nothing is uploaded. Saved items stay encrypted on this device.", { exact: true })).toBeVisible();
+    await expect(page.locator("h1")).toHaveCount(1);
+    expect(await page.locator("html").evaluate((element) => element.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+    await page.getByRole("button", { name: "中文", exact: true }).click();
+    await expect(page.getByRole("complementary", { name: "已保存研究与核查" })).toBeVisible();
+    await expect(page.locator("h1")).toHaveCount(1);
+    expect(await page.locator("html").evaluate((element) => element.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+  });
+}

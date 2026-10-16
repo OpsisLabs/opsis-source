@@ -48,11 +48,12 @@ test.describe("public Opsis", () => {
       page.getByRole("button", { name: "Lock preview", exact: true }),
     ).toHaveCount(0);
     expect(lookups).toBe(0);
-    await page.getByRole("link", { name: "Trade Check", exact: true }).click();
+    await expect(page.getByRole("navigation", { name: "Workspaces", exact: true }).getByRole("link", { name: "Trade Check", exact: true })).toHaveCount(0);
+    await page.goto("/check");
     await expect(
       page.getByRole("heading", { name: "Not enabled on this deployment" }),
     ).toBeVisible();
-    await page.getByRole("link", { name: "Saved", exact: true }).click();
+    await page.locator(".opsis-footer").getByRole("link", { name: "Saved", exact: true }).click();
     await expect(
       page.getByRole("button", { name: "CREATE ENCRYPTED VAULT", exact: true }),
     ).toBeVisible();

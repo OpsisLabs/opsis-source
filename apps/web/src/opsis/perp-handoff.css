@@ -59,3 +59,42 @@
   max-width: 100%;
   white-space: normal;
 }
+
+.opsis-perp-handoff :is(h2, h3, h4) {
+  font-family: Opsis, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.04em;
+}
+.opsis-perp-handoff h2 {
+  font-size: 28px;
+  margin: 0 0 16px;
+}
+.opsis-perp-handoff h3 {
+  font-size: 22px;
+}
+.opsis-perp-handoff :is(legend, .opsis-kicker, .opsis-small, pre) {
+  font-family: OpsisMono, monospace;
+}
+.opsis-perp-handoff .opsis-perp-regions label {
+  display: inline-flex;
+}
+.opsis-perp-handoff .opsis-perp-regions input {
+  width: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  margin: 0;
+}
+.opsis-perp-review {
+  background: var(--surface-info);
+}
+.opsis-perp-venue {
+  border-top: 2px solid var(--accent);
+}
+.opsis-perp-handoff .opsis-perp-summary pre {
+  background: var(--ground);
+  font-family: OpsisMono, monospace;
+}
+.opsis-perp-handoff :is(button, a, input, pre):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}

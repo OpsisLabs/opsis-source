@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { KNOWN_ASSETS } from "../opsis/known-assets";
 import { watchFixture } from "./fixture";
-import { orderTokens, tokenFlags, tokenLabel } from "./holdings";
+import { orderTokens, tokenFlags, tokenLabel, watchTimeline } from "./holdings";
 
 const base = watchFixture().tokens[0];
 const c = (en: string) => en;
@@ -37,5 +37,39 @@ describe("Watch token identity", () => {
     expect(tokenLabel(token, c)).toBe("Reported[U+202E]name · N[U+200B]VDA · Lookalike");
     expect(tokenLabel(token, (_en, zh) => zh)).toContain("同符号不同合约");
     expect(tokenLabel(base, c)).toBe("Test token · TEST");
+  });
+});
+
+describe("Watch timeline ordering", () => {
+  it("groups movements and approvals by transaction and sorts by block without mutating the snapshot", () => {
+    const snapshot = watchFixture(101);
+    const approval = { transactionHash: snapshot.transactions[1].hash.toUpperCase(), contract: base.contract, spender: snapshot.address, kind: "erc20" as const, symbol: "TEST", active: true, unlimited: false, currentAmount: "1", sourceIds: ["rpc"] };
+    snapshot.approvals.push(approval);
+    snapshot.transactions[1].timestamp = null;
+    const entries = watchTimeline(snapshot);
+    expect(entries).toHaveLength(2);
+    expect(entries[0]).toMatchObject({ blockNumber: 101, timestamp: null, movements: [snapshot.movements[0]], approvals: [approval] });
+    expect(snapshot.transactions[0].blockNumber).toBe(99);
+  });
+
+  it("retains movement-only and undated approval evidence, with unknown chronology last", () => {
+    const snapshot = watchFixture(101);
+    snapshot.transactions = [];
+    snapshot.approvals = [{ transactionHash: `0x${"e".repeat(64)}`, contract: base.contract, spender: snapshot.address, kind: "erc20", symbol: "TEST", active: false, unlimited: false, currentAmount: "0", sourceIds: ["rpc"] }];
+    const entries = watchTimeline(snapshot);
+    expect(entries.map((entry) => entry.blockNumber)).toEqual([101, null]);
+    expect(entries[1].timestamp).toBeNull();
+    expect(entries[1].transaction).toBeUndefined();
+    expect(watchTimeline({ ...snapshot, movements: [], approvals: [] })).toEqual([]);
+  });
+
+  it("orders same-block timestamps and undated ties deterministically", () => {
+    const snapshot = watchFixture(101);
+    snapshot.transactions = [
+      { ...snapshot.transactions[0], timestamp: null, blockNumber: 101 },
+      { ...snapshot.transactions[1], timestamp: "2026-10-16T12:00:00Z" },
+      { ...snapshot.transactions[1], hash: `0x${"d".repeat(64)}`, timestamp: "2026-10-16T12:01:00Z" },
+    ];
+    expect(watchTimeline(snapshot).map((entry) => entry.hash)).toEqual([snapshot.transactions[2].hash, snapshot.transactions[1].hash, snapshot.transactions[0].hash]);
   });
 });
