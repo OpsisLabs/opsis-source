@@ -859,7 +859,7 @@ function SavedWatch({ tradeCheckEnabled, pending, onSaved }: { tradeCheckEnabled
   const { t } = useI18n();
   const session = useWatchVault();
   return (
-    <main className={OPSIS_PRESENTATION ? "opsis-watch-board watch-workspace" : "mx-auto w-full max-w-[1240px] space-y-6 px-4 py-8 text-[var(--ink)] sm:px-8 sm:py-12"}>
+    <main className={OPSIS_PRESENTATION ? "opsis-watch-board watch-workspace" : "watch-legacy-tokens mx-auto w-full max-w-[1240px] space-y-6 px-4 py-8 text-[var(--ink)] sm:px-8 sm:py-12"}>
       {!OPSIS_PRESENTATION && (      <header className="border-b border-[var(--line)] pb-7">
         <p className="flex items-center gap-2 text-xs tracking-wider text-[var(--accent)]">
           <ShieldCheck size={16} aria-hidden />

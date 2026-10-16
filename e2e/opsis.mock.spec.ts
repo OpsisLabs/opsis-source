@@ -412,11 +412,13 @@ test.describe("opsis preview", () => {
     await access(page);
     await unlock(page, "/research");
     for (const theme of ["light", "dark"]) {
-      if (theme === "dark") await openOpsisMenu(page);
-      await page
-        .getByRole("button", { name: "Theme: Light", exact: true })
-        .click();
-      await closeOpsisMenu(page);
+      if (theme === "dark") {
+        await openOpsisMenu(page);
+        await page
+          .getByRole("button", { name: "Theme: Light", exact: true })
+          .click();
+        await closeOpsisMenu(page);
+      }
       const results = await new AxeBuilder({ page })
         .include(".opsis")
         .withTags(["wcag2a", "wcag2aa"])

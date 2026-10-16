@@ -1,9 +1,10 @@
-.watch-workspace,
-.watch-check,
-.watch-result,
-.saved-workspace,
-.saved-report-grid,
-.saved-report-detail {
+/* Scoped to the Opsis shell: the same components also render in the older app. */
+.opsis .watch-workspace,
+.opsis .watch-check,
+.opsis .watch-result,
+.opsis .saved-workspace,
+.opsis .saved-report-grid,
+.opsis .saved-report-detail {
   min-width: 0;
   max-width: 100%;
   color: var(--ink);
@@ -634,4 +635,39 @@
 .opsis .saved-vault-panel button.clip-btn-sm:disabled,
 .opsis .saved-vault-panel button.clip-btn:disabled {
   opacity: .48;
+}
+
+/* The Watch components use the Opsis tokens by name. Outside the Opsis shell
+   (the older app, whose own --ink is its dark ground) map them to that app's
+   palette for the Watch subtree only. */
+.watch-legacy-tokens {
+  --ink: var(--text-primary);
+  --soft: var(--text-secondary);
+  --panel: var(--ink-2);
+  --panel-hover: var(--ink-3);
+  --line: #383838;
+  --accent: var(--orange);
+  --button: var(--orange);
+  --button-ink: #1d1d1d;
+  --surface-positive: #9de3be;
+  --surface-negative: #ffb4be;
+  --surface-info: #9fd6ff;
+}
+/* Inputs keep the older app's look there (the Opsis rule above is shell-scoped). */
+.watch-legacy-tokens .watch-input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  border: 1px solid #63564c;
+  border-radius: 2px;
+  background: #191817;
+  color: #e9e0d1;
+  font-size: 16px;
+}
+.watch-legacy-tokens .watch-input:focus {
+  border-color: #ff985e;
+  outline: none;
 }
