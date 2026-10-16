@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "36-cohesion",
+  "activeRelease": "37-workspace-redesign",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement. Exception: dRPC under Opsis decision D20, admitted only while it does not request identity or business verification.",
@@ -436,7 +436,7 @@
       "id": "36-cohesion",
       "branch": "codex/36-cohesion",
       "tagPrefix": "rc/36-cohesion/",
-      "status": "active",
+      "status": "released",
       "dependencies": [
         "35-explorer-accuracy"
       ],
@@ -448,7 +448,7 @@
       "id": "37-workspace-redesign",
       "branch": "codex/37-workspace-redesign",
       "tagPrefix": "rc/37-workspace-redesign/",
-      "status": "queued",
+      "status": "active",
       "dependencies": [
         "36-cohesion"
       ],
