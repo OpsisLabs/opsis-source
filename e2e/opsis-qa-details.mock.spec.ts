@@ -38,16 +38,21 @@ async function openDetails(page: Page, chinese: boolean, theme: "light" | "dark"
   await page.getByRole("button", { name: chinese ? "私密解读" : "EXPLAIN PRIVATELY", exact: true }).click();
   const result = page.getByTestId("answer-card");
   await expect(result).toBeVisible();
-  await result.locator("summary").filter({ hasText: chinese ? "支持事实与证据" : "Supporting facts & evidence" }).click();
   await expect(page.locator(".opsis").first()).toHaveAttribute("data-theme", theme);
-  // Measure the settled page: fonts loaded, colour transitions done, the typed answer complete.
+  // Work on the settled page: fonts loaded, colour transitions done, the typed answer complete.
+  // Opening the evidence before the answer finishes typing can be undone by its final render.
   await page.evaluate(() => document.fonts.ready);
   await page.waitForFunction(() => document.getAnimations().every((animation) => !(animation instanceof CSSTransition) || animation.playState !== "running"));
-  await expect.poll(async () => {
+  const settled = async () => {
     const before = await result.innerText();
     await page.waitForTimeout(250);
     return before === (await result.innerText());
-  }).toBe(true);
+  };
+  await expect.poll(settled).toBe(true);
+  const evidence = result.locator("details").filter({ has: page.locator("summary", { hasText: chinese ? "支持事实与证据" : "Supporting facts & evidence" }) });
+  await evidence.locator("summary").first().click();
+  await expect(evidence.first()).toHaveAttribute("open", "");
+  await expect.poll(settled).toBe(true);
   return result;
 }
 
