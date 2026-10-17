@@ -219,7 +219,7 @@ export default function JointPortfolioPanel({ first, spec, singleInstrumentOnly 
         <div><span>{c("Tail count", "尾部数量")}</span><strong>{run.stats.tailCount}</strong></div>
       </div>
       <div ref={chartRef} className="opsis-quant-joint-chart" role="img" aria-label={c("Joint portfolio pointwise fan chart with 50%, 80% and 95% bands; all values appear in the table below", "联合投资组合逐点扇形图，显示 50%、80%、95% 区间；全部数值见下表")} />
-      <div className="opsis-table-scroll opsis-quant-fan-scroll"><table className="opsis-quant-fan-table">
+      <div className="opsis-table-scroll opsis-quant-fan-scroll" tabIndex={0} role="region" aria-label={c("Joint portfolio steps", "联合组合步骤")}><table className="opsis-quant-fan-table">
         <caption>{c("Every simulated step; normalized wealth ratios rounded to four decimals (full precision in export)", "每个模拟步骤；标准化财富比率保留四位小数（导出为完整精度）")}</caption>
         <thead><tr><th>{c("Step", "步骤")}</th><th>{c("50% low", "50% 下界")}</th><th>{c("50% high", "50% 上界")}</th><th>{c("80% low", "80% 下界")}</th><th>{c("80% high", "80% 上界")}</th><th>{c("95% low", "95% 下界")}</th><th>{c("95% high", "95% 上界")}</th><th>{c("Median", "中位数")}</th></tr></thead>
         <tbody>{run.bootstrap.path.map((point) => <tr key={point.date}><td>{point.date}</td>{([0.5, 0.8, 0.95] as const).flatMap((confidence) => { const band = point.bands.find((entry) => entry.confidence === confidence)!; return [<td key={`${confidence}-low`}>{band.low.toFixed(4)}</td>, <td key={`${confidence}-high`}>{band.high.toFixed(4)}</td>]; })}<td>{point.median.toFixed(4)}</td></tr>)}</tbody>

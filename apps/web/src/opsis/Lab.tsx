@@ -393,7 +393,7 @@ export default function Lab() {
                   {pools.length} {c("POOLS IN VIEW", "个资金池")}
                 </span>
               </div>
-              <div className="opsis-table-scroll">
+              <div className="opsis-table-scroll" tabIndex={0} role="region" aria-label={c("Pools in view", "视图中的资金池")}>
                 <table>
                   <caption>
                     {c(
@@ -444,7 +444,7 @@ export default function Lab() {
               <div className="opsis-section-label">
                 03 / {c("THE SELECTED SCENARIO", "所选情景")}
               </div>
-              <div className="opsis-table-scroll">
+              <div className="opsis-table-scroll" tabIndex={0} role="region" aria-label={c("Selected scenario", "所选情景")}>
                 <table>
                   <caption>
                     {c("Exact inputs and derived values", "精确输入和派生值")}

@@ -508,7 +508,7 @@ export default function QuantWorkbench() {
               <h3 id="opsis-return-histogram-title">{c("Observed daily return histogram", "观察到的每日收益直方图")}</h3>
               <p>{c("Observed sample returns; no future path is inferred.", "观察样本收益；不推断未来路径。")} {c("Observations", "观察数")}: {histogram.observations}. {c("Negative tail (≤ -5%)", "负向尾部（≤ -5%）")}: {histogram.negativeTailCount}; {c("Positive tail (≥ +5%)", "正向尾部（≥ +5%）")}: {histogram.positiveTailCount}.</p>
               <div ref={histogramRef} className="opsis-quant-histogram" role="img" aria-label={c("Observed daily return histogram; numeric bin counts are listed in the table.", "观察到的每日收益直方图；数值分箱计数见表格。")} />
-              <div className="opsis-table-scroll opsis-quant-histogram-scroll">
+              <div className="opsis-table-scroll opsis-quant-histogram-scroll" tabIndex={0} role="region" aria-label={c("Return histogram bins", "收益直方图分组")}>
                 <table className="opsis-quant-histogram-table">
                   <caption>{c("Observed daily return bins; edges are raw fractional values with round-trip numeric precision. Left edge included; right edge excluded except the final bin.", "观察到的每日收益分箱；边界以可往返的原始比例数值显示。包含左边界；排除右边界，最后一箱除外。")}</caption>
                   <thead><tr><th>{c("Bin", "分箱")}</th><th>{c("Lower edge (fraction)", "下边界（比例）")}</th><th>{c("Upper edge (fraction)", "上边界（比例）")}</th><th>{c("Observed count", "观察计数")}</th></tr></thead>
@@ -524,7 +524,7 @@ export default function QuantWorkbench() {
               <p>{c("Dated observed prices only; each value compares that day's price with the highest earlier or same-day observed price. Missing days are refused, not filled.", "仅使用带日期的观察价格；每个数值将当日价格与此前或当日观察到的最高价格比较。缺失日期会被拒绝，不会填补。")}</p>
               <p>{c("Observed maximum drawdown", "观察到的最大回撤")}: {(drawdown.maxDrawdown * 100).toFixed(2)}% · {c("Dated observations", "带日期的观察数")}: {drawdown.points.length}</p>
               <div ref={drawdownRef} className="opsis-quant-histogram" role="img" aria-label={c("Observed dated drawdown curve in percent; exact values and peak dates are in the table below.", "按日期显示的观察回撤百分比曲线；精确数值和峰值日期见下表。")}/>
-              <div className="opsis-table-scroll opsis-quant-histogram-scroll">
+              <div className="opsis-table-scroll opsis-quant-histogram-scroll" tabIndex={0} role="region" aria-label={c("Observed drawdowns", "观察到的回撤")}>
                 <table className="opsis-quant-drawdown-table">
                   <caption>{c("Every observed daily drawdown as a raw fractional value; zero means a new or matched observed peak.", "每个观察日的回撤原始比例值；零表示达到或追平观察到的峰值。")}</caption>
                   <thead><tr><th>{c("Observation date", "观察日期")}</th><th>{c("Peak date", "峰值日期")}</th><th>{c("Drawdown (fraction)", "回撤（比例）")}</th></tr></thead>
@@ -608,7 +608,7 @@ export default function QuantWorkbench() {
                 "逐点模拟扇形图，显示 50%、80%、95% 区间和中位数；数值见下方表格",
               )}
             />
-            <div className="opsis-table-scroll opsis-quant-fan-scroll">
+            <div className="opsis-table-scroll opsis-quant-fan-scroll" tabIndex={0} role="region" aria-label={c("Simulation fan values", "模拟扇形数值")}>
               <table className="opsis-quant-fan-table">
                 <caption>
                   {c(
@@ -652,7 +652,7 @@ export default function QuantWorkbench() {
           <div className="opsis-panel">
             <h2>{c("5. Compare or export", "5. 比较或导出")}</h2>
             {history.length > 1 && (
-              <div className="opsis-table-scroll">
+              <div className="opsis-table-scroll" tabIndex={0} role="region" aria-label={c("Run comparison", "运行比较")}>
                 <table>
                   <caption>
                     {c("At most two local runs", "最多两个本地运行")}

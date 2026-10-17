@@ -97,7 +97,7 @@ export default function EvidenceMap({
       </div>
       <details>
         <summary>{c("Evidence as a table", "证据表格")}</summary>
-        <div className="opsis-table-scroll">
+        <div className="opsis-table-scroll" tabIndex={0} role="region" aria-label={c("Evidence as a table", "证据表格")}>
           <table>
             <thead>
               <tr>

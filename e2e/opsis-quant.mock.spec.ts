@@ -21,10 +21,12 @@ test("pre-run dataset card shows captured CSV identity and provenance labels", a
   await expect(page.getByText("Quote currency: USD")).toBeVisible();
   await expect(page.getByText(/Daily crypto, 24\/7/)).toBeVisible();
   await expect(page.getByText("Source: Local fixture source")).toBeVisible();
+  // Metadata edited after the file is chosen is the metadata that runs and exports.
   await page.getByLabel("Symbol").fill("EDITED_AFTER_IMPORT");
   await page.getByLabel("Source").fill("Edited source");
-  await expect(page.getByText(/Chain 4663 · .* · CSV_ORIGINAL/)).toBeVisible();
-  await expect(page.getByText("Source: Local fixture source")).toBeVisible();
+  await expect(page.getByText(/Chain 4663 · .* · EDITED_AFTER_IMPORT/)).toBeVisible();
+  await expect(page.getByText("Source: Edited source")).toBeVisible();
+  await expect(page.getByText(/CSV_ORIGINAL/)).toHaveCount(0);
 });
 
 test("30-return import is refused by default and accepted in short-window research mode", async ({ page }) => {
