@@ -104,3 +104,51 @@ describe("Perp scenario presentation", () => {
     expect(html).not.toMatch(/width:-|NaN|Infinity/);
   });
 });
+
+it.each(["en", "zh-CN"])(
+  "names every focusable result table and groups disclosures in %s",
+  (locale) => {
+    harness.locale = locale;
+    harness.states[3] = "50";
+    harness.states[4] = "500";
+    harness.states[7] = values;
+    const html = markup();
+    expect(
+      html.match(/tabindex="0" role="region" aria-label="[^"]+"/g),
+    ).toHaveLength(3);
+    expect(html).toContain('class="opsis-panel opsis-perp-disclosures"><aside');
+  },
+);
+
+it.each(["en", "zh-CN"])(
+  "associates an invalid fee with an actionable message in %s",
+  (locale) => {
+    harness.locale = locale;
+    harness.states[7] = { ...values, entryFeeBps: "-1" };
+    const html = markup();
+    expect(html).toMatch(
+      /aria-label="[^"]+"[^>]+aria-invalid="true" aria-describedby="[^"]+"/,
+    );
+    expect(html).toContain(
+      locale === "en"
+        ? "Enter a fee from 0 to 10000"
+        : "请输入 0 至 10000 基点的费用",
+    );
+    expect(html).toContain(
+      locale === "en" ? "Correct the highlighted inputs" : "请更正标记的输入",
+    );
+    expect(html).not.toContain(
+      locale === "en" ? "Complete the assumptions" : "补全假设",
+    );
+  },
+);
+
+it("identifies a malformed custom shock beside the field even before completing the scenario", () => {
+  harness.states[2] = "letters";
+  const html = markup();
+  expect(html).toContain('aria-invalid="true"');
+  expect(html).toContain("Enter a shock from -95% to +500%");
+  expect(html.indexOf('id="perp-custom-shock-error"')).toBeLessThan(
+    html.indexOf('id="perp-custom-shock-help"'),
+  );
+});

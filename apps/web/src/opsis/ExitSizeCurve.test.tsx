@@ -59,3 +59,19 @@ describe("Exit size curve presentation", () => {
     },
   );
 });
+
+it.each(["en", "zh-CN"])(
+  "formats the fee tier and names the keyboard region in %s",
+  (locale) => {
+    language.locale = locale;
+    const result = quote();
+    result.curve!.points[0].pool!.fee = 500;
+    const html = renderToStaticMarkup(
+      <ExitSizeCurve result={result} outputSymbol="WETH" />,
+    );
+    expect(html).toContain(locale === "en" ? "Fee tier</th>" : "费率档位</th>");
+    expect(html).toContain("<td>0.05%</td>");
+    expect(html).not.toContain("<td>500</td>");
+    expect(html).toMatch(/tabindex="0" role="region" aria-label="[^"]+"/);
+  },
+);

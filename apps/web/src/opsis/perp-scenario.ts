@@ -493,3 +493,106 @@ export function perpCollateralBuffer(
     custom: customResult ? calc(customResult.exit, customResult.netRaw) : null,
   };
 }
+
+export type PerpNumericField =
+  | "customShock"
+  | "quantity"
+  | "entry"
+  | "exit"
+  | "entryFeeBps"
+  | "exitFeeBps"
+  | "funding"
+  | "otherCosts"
+  | "collateral"
+  | "maintenanceBps"
+  | "rateBps"
+  | "intervalHours"
+  | "holdingHours";
+
+export function perpInputError(
+  field: PerpNumericField,
+  value: string,
+): [string, string] | null {
+  if (!value.trim()) return null;
+  if (field === "customShock") {
+    try {
+      parseCustomShock(value.trim());
+      return null;
+    } catch {
+      return [
+        "Enter a shock from -95% to +500% with at most two decimal places.",
+        "请输入 -95% 至 +500% 的冲击值，小数最多两位。",
+      ];
+    }
+  }
+  const positive: [string, string] = [
+    "Enter a positive number with at most 16 whole digits and eight decimal places.",
+    "请输入正数，整数最多 16 位，小数最多八位。",
+  ];
+  const decimal: [string, string] = [
+    "Enter a non-negative number with at most 16 whole digits and eight decimal places.",
+    "请输入非负数，整数最多 16 位，小数最多八位。",
+  ];
+  const signed: [string, string] = [
+    "Enter a signed number with at most 16 whole digits and eight decimal places; positive is paid, negative is received.",
+    "请输入带符号的数字，整数最多 16 位，小数最多八位；支付为正，收取为负。",
+  ];
+  const fee: [string, string] = [
+    "Enter a fee from 0 to 10000 bps with at most eight decimal places.",
+    "请输入 0 至 10000 基点的费用，小数最多八位。",
+  ];
+  const maintenance: [string, string] = [
+    "Enter whole basis points from 0 to 10000; the liquidation estimate requires 0–9999.",
+    "请输入 0 至 10000 的整数基点；清算估算要求 0–9999。",
+  ];
+  const rate: [string, string] = [
+    "Enter a funding rate from -1000 to 1000 bps with at most four decimal places.",
+    "请输入 -1000 至 1000 基点的资金费率，小数最多四位。",
+  ];
+  const hours: [string, string] =
+    field === "intervalHours"
+      ? ["Enter whole hours from 1 to 24.", "请输入 1 至 24 的整数小时。"]
+      : [
+          "Enter whole hours from 0 to 87600.",
+          "请输入 0 至 87600 的整数小时。",
+        ];
+  const message = ["quantity", "entry", "exit", "collateral"].includes(field)
+    ? positive
+    : field === "funding"
+      ? signed
+      : field === "entryFeeBps" || field === "exitFeeBps"
+        ? fee
+        : field === "maintenanceBps"
+          ? maintenance
+          : field === "rateBps"
+            ? rate
+            : field === "intervalHours" || field === "holdingHours"
+              ? hours
+              : decimal;
+  try {
+    if (field === "intervalHours" || field === "holdingHours") {
+      wholeHours(
+        value,
+        field === "intervalHours" ? 1n : 0n,
+        field === "intervalHours" ? 24n : 87600n,
+      );
+    } else if (field === "maintenanceBps") {
+      if (!/^(?:0|[1-9]\d{0,4})$/.test(value) || BigInt(value) > 10000n)
+        return message;
+    } else {
+      const number = fixed(value, field === "funding" || field === "rateBps");
+      if (message === positive && number <= 0n) return message;
+      if (message === fee && number > 10000n * SCALE) return message;
+      if (
+        field === "rateBps" &&
+        (!/^-?(?:0|[1-9]\d{0,3})(?:\.\d{1,4})?$/.test(value) ||
+          number < -1000n * SCALE ||
+          number > 1000n * SCALE)
+      )
+        return message;
+    }
+    return null;
+  } catch {
+    return message;
+  }
+}

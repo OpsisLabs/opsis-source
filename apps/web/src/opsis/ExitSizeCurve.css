@@ -16,8 +16,7 @@
 .opsis-curve table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed;
-  overflow-wrap: anywhere;
+  table-layout: auto;
   font:
     11px/1.6 OpsisMono,
     monospace;
@@ -27,6 +26,7 @@
   border-bottom: 1px solid var(--line);
   padding: 8px 4px;
   text-align: left;
+  white-space: nowrap;
 }
 .opsis-curve-optin {
   display: flex;
