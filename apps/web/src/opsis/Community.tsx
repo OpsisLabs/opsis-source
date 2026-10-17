@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useI18n } from "../i18n";
 import { useCopy } from "./copy";
 import {
   deriveChangelog,
@@ -23,6 +24,7 @@ function download(name: string, content: string, type: string) {
 
 export default function Community() {
   const c = useCopy();
+  const { locale } = useI18n();
   const [draft, setDraft] = useState<SuggestionDraft | null>(null);
   const [fields, setFields] = useState<SuggestionFields>(emptySuggestionFields);
   const [message, setMessage] = useState("");
@@ -81,7 +83,7 @@ export default function Community() {
             <p className="opsis-muted">{c("Review the destination before sharing. Exported files contain only the fields shown above. Nothing is saved after this session.", "分享前请核实目的地。导出文件只包含上面显示的字段。会话结束后不会保留任何内容。")}</p>
             <div className="community-actions">
               <button className="opsis-action" disabled={!draft} onClick={() => draft && download("opsis-suggestion.json", suggestionExport(draft), "application/json")}>{c("Export JSON", "导出 JSON")}</button>
-              <button className="opsis-action" disabled={!draft} onClick={() => draft && download("opsis-suggestion.md", suggestionMarkdown(draft), "text/markdown")}>{c("Export Markdown", "导出 Markdown")}</button>
+              <button className="opsis-action" disabled={!draft} onClick={() => draft && download("opsis-suggestion.md", suggestionMarkdown(draft, locale), "text/markdown")}>{c("Export Markdown", "导出 Markdown")}</button>
             </div>
             {draft && <p className="opsis-small">{c(`Draft saved ${new Date(draft.updatedAt).toLocaleString()}.`, `草稿保存于 ${new Date(draft.updatedAt).toLocaleString()}。`)}</p>}
           </section>

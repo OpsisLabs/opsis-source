@@ -29,6 +29,20 @@ describe("community local suggestion", () => {
     expect(suggestionMarkdown(first)).toContain("This is a local draft");
     expect(first.createdAt).toBe("2026-09-22T12:00:00.000Z");
   });
+  for (const locale of ["en", "zh-CN"]) {
+    for (const creditOptIn of [true, false]) {
+      it(`preserves the JSON consent choice in ${locale} Markdown (${creditOptIn})`, () => {
+        const draft = createSuggestionDraft({ ...fields, creditName: "demo-account", creditOptIn });
+        const json = JSON.parse(suggestionExport(draft));
+        const markdown = suggestionMarkdown(draft, locale);
+        expect(json.creditOptIn).toBe(creditOptIn);
+        expect(markdown).toContain(locale === "en"
+          ? `Ask before using this name in a changelog: ${creditOptIn ? "Yes" : "No"}`
+          : `在更新日志中使用此名称前请先征得我的同意: ${creditOptIn ? "是" : "否"}`);
+        expect(markdown.includes("demo-account")).toBe(creditOptIn);
+      });
+    }
+  }
 });
 
 describe("evidence-derived changelog", () => {

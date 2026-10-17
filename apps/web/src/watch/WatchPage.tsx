@@ -61,7 +61,7 @@ function Access({ session }: { session: WatchSession }) {
     requested && isAddress(requested, { strict: true }) ? requested : "";
   const [passphrase, setPassphrase] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState<"watch.error.confirm" | "watch.error.address" | null>(null);
   const create = session.phase === "empty";
   return (
     <section className={panel} aria-labelledby="watch-access-title">
@@ -89,9 +89,9 @@ function Access({ session }: { session: WatchSession }) {
           className="mt-5 flex flex-wrap items-end gap-3"
           onSubmit={(event) => {
             event.preventDefault();
-            setError("");
+            setError(null);
             if (create && (passphrase.length < 12 || passphrase !== confirm)) {
-              setError(t("watch.error.confirm"));
+              setError("watch.error.confirm");
               return;
             }
             const value = passphrase;
@@ -131,7 +131,7 @@ function Access({ session }: { session: WatchSession }) {
       )}
       {error && (
         <p role="alert" className="mt-3 text-sm text-[var(--soft)]">
-          {error}
+          {t(error)}
         </p>
       )}
       <Link
@@ -181,7 +181,7 @@ function Workspace({ session, tradeCheckEnabled }: { session: WatchSession; trad
   const [address, setAddress] = useState(prefillAddress);
   const [label, setLabel] = useState("");
   const [consent, setConsent] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<"watch.error.confirm" | "watch.error.address" | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const opsisWorkspaces = import.meta.env.VITE_OPSIS_WORKSPACES_ENABLED === "true";
   const [view, setView] = useState<"wallets" | "inbox" | "feed" | "overlap">(opsisWorkspaces ? "inbox" : "wallets");
@@ -283,7 +283,7 @@ function Workspace({ session, tradeCheckEnabled }: { session: WatchSession; trad
               setAddress(sample);
               setLabel(t("watch.sampleLabel"));
               setConsent(false);
-              setError("");
+              setError(null);
             }}
           >
             {t("watch.sample")}
@@ -292,10 +292,10 @@ function Workspace({ session, tradeCheckEnabled }: { session: WatchSession; trad
             className="mt-4"
             onSubmit={(event) => {
               event.preventDefault();
-              setError("");
+              setError(null);
               const normalized = address.trim();
               if (!isAddress(normalized, { strict: true })) {
-                setError(t("watch.error.address"));
+                setError("watch.error.address");
                 return;
               }
               if (!consent) return;
@@ -322,7 +322,7 @@ function Workspace({ session, tradeCheckEnabled }: { session: WatchSession; trad
                   onChange={(event) => {
                     setAddress(event.target.value);
                     setConsent(false);
-                    setError("");
+                    setError(null);
                   }}
                 />
               </label>
@@ -340,7 +340,7 @@ function Workspace({ session, tradeCheckEnabled }: { session: WatchSession; trad
             <LookupConsent consent={consent} setConsent={setConsent} />
             {error && (
               <p role="alert" className="mb-3 text-sm text-[var(--soft)]">
-                {error}
+                {t(error)}
               </p>
             )}
             <button

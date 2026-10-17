@@ -4,7 +4,6 @@ import { echarts } from "./echarts";
 import {
   exportRun,
   realizedStats,
-  parseCsv,
   validateDataset,
   observedReturnHistogram,
   observedDrawdown,
@@ -16,6 +15,7 @@ import { useCopy } from "../copy";
 import JointPortfolioPanel from "./JointPortfolioPanel";
 import QuantReplayPanel from "./QuantReplayPanel";
 import "./quant.css";
+import { buildImportedDataset, datasetDiagnosticChinese, type DatasetImport } from "./dataset-import";
 
 type WorkerMessage = {
   id: number;
@@ -28,7 +28,7 @@ type StoredRun = QuantRun & { dataset: PriceDataset };
 
 export default function QuantWorkbench() {
   const c = useCopy();
-  const [dataset, setDataset] = useState<PriceDataset | null>(null);
+  const [importedFile, setImportedFile] = useState<DatasetImport | null>(null);
   const [datasetRevision, setDatasetRevision] = useState(0);
   const [fileError, setFileError] = useState("");
   const [source, setSource] = useState("User supplied local file");
@@ -50,6 +50,15 @@ export default function QuantWorkbench() {
   const drawdownRef = useRef<HTMLDivElement>(null);
   const workerRef = useRef<Worker | null>(null);
   const messageId = useRef(0);
+  const importId = useRef(0);
+  const imported = useMemo(() => importedFile ? buildImportedDataset(importedFile, {
+    schemaVersion: 1,
+    instrument: { chainId: Number(chainId), address: address.trim(), symbol: symbol.trim() },
+    quoteCurrency: quoteCurrency.trim().toUpperCase(),
+    clock: "daily_crypto_24_7",
+    provenance: { source: source.trim(), observedAt: importedFile.observedAt },
+  }) : { dataset: null, error: "" }, [importedFile, chainId, address, symbol, quoteCurrency, source]);
+  const dataset = imported.dataset;
   const jointSpec: ExperimentSpec = useMemo(() => ({
     bootstrapRuns: runs,
     seed,
@@ -61,9 +70,9 @@ export default function QuantWorkbench() {
 
   useEffect(
     () => () => {
+      importId.current++;
       workerRef.current?.terminate();
       workerRef.current = null;
-      setDataset(null);
     },
     [],
   );
@@ -142,7 +151,7 @@ export default function QuantWorkbench() {
       ? (researchMode
         ? c(`Short-window research mode still requires at least 30 daily returns; this dataset has ${dataset.observations.length - 1}.`, `短窗口研究模式仍至少需要 30 个每日收益；此数据集有 ${dataset.observations.length - 1} 个。`)
         : c(`At least 180 daily returns are required; this dataset has ${dataset.observations.length - 1}. Enable short-window research mode to run with 30 returns.`, `至少需要 180 个每日收益；此数据集有 ${dataset.observations.length - 1} 个。启用短窗口研究模式即可使用 30 个收益运行。`))
-      : runEligibility.issues.map((issue) => issue.message).join(" "))
+      : runEligibility.issues.map((issue) => c(issue.message, datasetDiagnosticChinese(issue.message))).join(" "))
     : "";
   useEffect(() => {
     if (!histogramRef.current || !histogram) return;
@@ -183,63 +192,35 @@ export default function QuantWorkbench() {
     return () => { window.removeEventListener("resize", resize); chart.dispose(); };
   }, [drawdown, c]);
 
-  const metadata = (): Omit<PriceDataset, "observations"> => ({
-    schemaVersion: 1,
-    instrument: {
-      chainId: Number(chainId),
-      address: address.trim(),
-      symbol: symbol.trim(),
-    },
-    quoteCurrency: quoteCurrency.trim().toUpperCase(),
-    clock: "daily_crypto_24_7",
-    provenance: { source: source.trim(), observedAt: new Date().toISOString() },
-  });
-  const loadFile = async (file: File, selectedCsvMetadata: Omit<PriceDataset, "observations">) => {
-    const generation = ++messageId.current;
-    setConsent(false);
+  const clearRun = () => {
+    messageId.current++;
     workerRef.current?.terminate();
     workerRef.current = null;
     setBusy(false);
-    setFileError("");
     setRun(null);
-    setDataset(null);
+    setConsent(false);
+    setFileError("");
+    setDatasetRevision((current) => current + 1);
+  };
+  const editMetadata = (setter: (value: string) => void, value: string) => {
+    clearRun();
+    setter(value);
+  };
+  const loadFile = async (file: File) => {
+    clearRun();
+    const generation = ++importId.current;
+    setImportedFile(null);
     if (file.size > 2_000_000) {
-      setFileError(
-        c(
-          "Files are limited to 2 MB for this local run.",
-          "本地运行文件限制为 2 MB。",
-        ),
-      );
+      setFileError("Files are limited to 2 MB for this local run.");
       return;
     }
     try {
       const text = await file.text();
-      const loaded = file.name.toLowerCase().endsWith(".csv")
-        ? parseCsv(text, selectedCsvMetadata)
-        : (JSON.parse(text) as PriceDataset);
-      // The pre-run card needs at least two observations to show a dated range.
-      const check = validateDataset(loaded, new Date(), { minimumReturns: 1 });
-      if (!check.ok)
-        throw new Error(check.issues.map((issue) => issue.message).join(" "));
-      if (!check.dataset)
-        throw new Error(
-          c(
-            "Dataset did not produce a clean validated copy.",
-            "数据集未生成通过验证的副本。",
-          ),
-        );
-      if (generation !== messageId.current) return;
-      setDatasetRevision((current) => current + 1);
-      setDataset(check.dataset);
-      setConsent(false);
-    } catch (error) {
-      if (generation !== messageId.current) return;
-      setDataset(null);
-      setFileError(
-        error instanceof Error
-          ? error.message
-          : c("Could not read this file.", "无法读取该文件。"),
-      );
+      if (generation !== importId.current) return;
+      setImportedFile({ text, csv: file.name.toLowerCase().endsWith(".csv"), observedAt: new Date().toISOString() });
+    } catch {
+      if (generation !== importId.current) return;
+      setFileError("Could not read this file.");
     }
   };
   const startRun = () => {
@@ -251,7 +232,7 @@ export default function QuantWorkbench() {
     } catch {
       setBusy(false);
       setRun(null);
-      setFileError(c("The local worker could not start.", "本地工作线程无法启动。"));
+      setFileError("The local worker could not start.");
       return;
     }
     workerRef.current = worker;
@@ -272,7 +253,7 @@ export default function QuantWorkbench() {
       ) {
         setFileError(
           event.data.issues?.map((x) => x.message).join(" ") ??
-            c("Run refused.", "运行被拒绝。"),
+            "Run refused.",
         );
         return;
       }
@@ -303,12 +284,7 @@ export default function QuantWorkbench() {
       setBusy(false);
       worker.terminate();
       workerRef.current = null;
-      setFileError(
-        c(
-          "The local worker failed before producing a result.",
-          "本地工作线程未能生成结果。",
-        ),
-      );
+      setFileError("The local worker failed before producing a result.");
     };
     worker.postMessage({ id, dataset, spec: jointSpec });
   };
@@ -317,12 +293,7 @@ export default function QuantWorkbench() {
     workerRef.current?.terminate();
     workerRef.current = null;
     setBusy(false);
-    setFileError(
-      c(
-        "Run cancelled. Input cleared from the worker.",
-        "运行已取消。工作线程中的输入已清除。",
-      ),
-    );
+    setFileError("Run cancelled. Input cleared from the worker.");
   };
   const download = () => {
     if (!run || !consent) return;
@@ -372,8 +343,8 @@ export default function QuantWorkbench() {
           <h2>{c("1. Define the dataset", "1. 定义数据集")}</h2>
           <p>
             {c(
-              "Provide closed daily crypto observations with an exact chain-qualified instrument. JSON carries metadata; CSV uses the fields below.",
-              "提供完整的每日加密观察数据和精确的链限定资产。JSON 自带元数据；CSV 使用以下字段。",
+              "Provide closed daily crypto observations with an exact chain-qualified instrument. JSON carries metadata; its metadata fields below are disabled. CSV uses the editable fields below; edits revalidate the dataset and clear the previous run.",
+              "提供完整的每日加密观察数据和精确的链限定资产。JSON 自带元数据，以下元数据字段会禁用。CSV 使用以下可编辑字段；修改后会重新验证数据集并清除上次运行。",
             )}
           </p>
           <label>
@@ -383,16 +354,17 @@ export default function QuantWorkbench() {
               accept=".csv,.json,application/json,text/csv"
               onChange={(event) => {
                 const file = event.target.files?.[0];
-                if (file) void loadFile(file, metadata());
+                if (file) void loadFile(file);
               }}
             />
           </label>
           <div className="opsis-quant-fields">
             <label>
-              Chain ID
+              {c("Chain ID", "链 ID")}
               <input
                 value={chainId}
-                onChange={(e) => setChainId(e.target.value)}
+                disabled={importedFile?.csv === false}
+                onChange={(e) => editMetadata(setChainId, e.target.value)}
                 inputMode="numeric"
               />
             </label>
@@ -400,28 +372,32 @@ export default function QuantWorkbench() {
               {c("Contract / address", "合约 / 地址")}
               <input
                 value={address}
-                onChange={(e) => setAddress(e.target.value)}
+                disabled={importedFile?.csv === false}
+                onChange={(e) => editMetadata(setAddress, e.target.value)}
               />
             </label>
             <label>
               {c("Symbol", "符号")}
               <input
                 value={symbol}
-                onChange={(e) => setSymbol(e.target.value)}
+                disabled={importedFile?.csv === false}
+                onChange={(e) => editMetadata(setSymbol, e.target.value)}
               />
             </label>
             <label>
               {c("Quote currency", "报价货币")}
               <input
                 value={quoteCurrency}
-                onChange={(e) => setQuoteCurrency(e.target.value)}
+                disabled={importedFile?.csv === false}
+                onChange={(e) => editMetadata(setQuoteCurrency, e.target.value)}
               />
             </label>
             <label>
               {c("Source", "来源")}
               <input
                 value={source}
-                onChange={(e) => setSource(e.target.value)}
+                disabled={importedFile?.csv === false}
+                onChange={(e) => editMetadata(setSource, e.target.value)}
               />
             </label>
           </div>
@@ -438,9 +414,9 @@ export default function QuantWorkbench() {
               <p>{dataset.observations.length} {c("observations loaded", "条观察已载入")}</p>
             </section>
           )}
-          {fileError && (
+          {(fileError || imported.error) && (
             <p role="alert" className="opsis-error">
-              {fileError}
+              {c(fileError || imported.error, datasetDiagnosticChinese(fileError || imported.error))}
             </p>
           )}
         </div>

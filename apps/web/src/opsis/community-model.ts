@@ -85,17 +85,20 @@ export function suggestionExport(draft: SuggestionDraft): string {
   return JSON.stringify({ ...draft, exportedAt: new Date().toISOString() }, null, 2);
 }
 
-export function suggestionMarkdown(draft: SuggestionDraft): string {
+export function suggestionMarkdown(draft: SuggestionDraft, locale = "en"): string {
+  const c = (en: string, zh: string) => locale === "zh-CN" ? zh : en;
   return [
-    "# Opsis improvement suggestion",
+    c("# Opsis improvement suggestion", "# Opsis 改进建议"),
     "",
-    `What I was trying to do\n\n${draft.whatWereYouTrying}`,
+    `${c("What I was trying to do", "我尝试做什么")}\n\n${draft.whatWereYouTrying}`,
     "",
-    `What stopped me\n\n${draft.whatStoppedYou}`,
-    ...(draft.contact ? ["", `Contact (optional)\n\n${draft.contact}`] : []),
-    ...(draft.creditOptIn && draft.creditName ? ["", `Credit name\n\n${draft.creditName}`] : []),
+    `${c("What stopped me", "什么阻止了我")}\n\n${draft.whatStoppedYou}`,
+    ...(draft.contact ? ["", `${c("Contact (optional)", "联系方式（可选）")}\n\n${draft.contact}`] : []),
+    ...(draft.creditOptIn && draft.creditName ? ["", `${c("Credit name", "署名")}\n\n${draft.creditName}`] : []),
     "",
-    "This is a local draft. It has not been posted or sent.",
+    `${c("Ask before using this name in a changelog", "在更新日志中使用此名称前请先征得我的同意")}: ${draft.creditOptIn ? c("Yes", "是") : c("No", "否")}`,
+    "",
+    c("This is a local draft. It has not been posted or sent.", "这是本地草稿，尚未发布或发送。"),
   ].join("\n");
 }
 

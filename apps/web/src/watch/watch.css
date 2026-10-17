@@ -209,6 +209,7 @@
   min-width: 0;
 }
 .opsis .watch-holdings {
+  min-width: 540px;
   width: 100%;
   border-collapse: collapse;
   text-align: left;
@@ -226,7 +227,10 @@
   border: 1px solid var(--line);
   padding: 10px;
   vertical-align: top;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+}
+.opsis .watch-holdings td:nth-child(2) {
+  white-space: nowrap;
 }
 .opsis .watch-holdings th:first-child {
   width: 46%;
@@ -279,7 +283,7 @@
 }
 .opsis .watch-copy {
   font-family: OpsisMono, monospace;
-  font-size: 0.8em;
+  font-size: 13px;
 }
 .opsis .watch-copy button {
   display: inline;
@@ -670,4 +674,29 @@
 .watch-legacy-tokens .watch-input:focus {
   border-color: #ff985e;
   outline: none;
+}
+
+/* Keep visually hidden file controls inside their Vault labels. */
+.opsis .saved-vault-panel label:has(input[type="file"].sr-only) {
+  position: relative;
+  overflow-wrap: anywhere;
+}
+.opsis .saved-vault-panel input[type="file"].sr-only {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 1px;
+  height: 1px;
+  min-height: 0;
+  padding: 0;
+  margin: -1px;
+  border: 0;
+  clip-path: inset(50%);
+  overflow: hidden;
+}
+.opsis .saved-vault-panel label:has(input[type="file"]:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.opsis .saved-vault-panel [class~="text-[#e0a96d]"] {
+  color: var(--ink);
 }

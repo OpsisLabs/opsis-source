@@ -16,6 +16,7 @@ import {
 } from "./lab-data";
 import { safeHttpUrl } from "../dashboard/adapters";
 import StockGap from "./StockGap";
+import "./quant/quant.css";
 
 const QuantWorkbench = lazy(() => import("./quant/QuantWorkbench"));
 const StockGapSeriesPanel = lazy(() => import("./StockGapSeriesPanel"));
