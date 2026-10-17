@@ -9,6 +9,8 @@ import {
   classificationFromAddressObject,
 } from "../watch/followWallet";
 import { researchRefusal, researchRefusalCopy, type ResearchRefusal } from "./research-refusal";
+import { ResearchHistory, researchIdentityKey } from "./research-history";
+import { researchFactCopy, researchNoteCopy, researchPrivacyCopy, researchSeverityCopy } from "./research-copy";
 import ResearchIntro from "./ResearchIntro";
 import { KNOWN_ASSETS, resolveKnownAsset, type KnownAsset } from "./known-assets";
 import { DecodedActions, ResearchIdentity, ResearchTiles, ResearchEvidence, TokenFacts, WalletBalances, WalletTransactions } from "./ResearchFacts";
@@ -49,7 +51,7 @@ export default function Research({
   const location = useLocation();
   const navigate = useNavigate();
   const incoming = workspaceIdentity("/research", location.search);
-  const remembered = !incoming || incoming === publicSession.research.entity;
+  const remembered = !incoming || researchIdentityKey(incoming) === researchIdentityKey(publicSession.research.entity);
   const [entity, setEntity] = useState(() =>
     incoming || publicSession.research.entity,
   );
@@ -58,6 +60,9 @@ export default function Research({
   const [result, setResult] = useState<PrivateAnalysis | null>(remembered ? publicSession.research.result : null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<ResearchRefusal | null>(null);
+  const history = useRef(new ResearchHistory(publicSession.research));
+  const displayedIdentity = useRef(incoming || entity);
+  const entered = useRef(false);
   const pending = useRef<AbortController | null>(null);
   const [resolved, setResolved] = useState<KnownAsset | null>(null);
   const trimmedEntity = entity.trim();
@@ -75,19 +80,23 @@ export default function Research({
     publicSession.research = { entity: publicIdentity(entity), task, entityType, result };
   }, [entity, task, entityType, result]);
   useEffect(() => {
-    if (incoming && incoming !== entity) {
+    if (researchIdentityKey(incoming) !== researchIdentityKey(displayedIdentity.current)) {
+      displayedIdentity.current = incoming;
+      const previous = history.current.find(incoming);
       pending.current?.abort();
       // Synchronize explicit router context without initiating a lookup.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setEntity(incoming);
       setResolved(null);
-      setResult(null);
+      setResult(previous?.result ?? null);
+      setTask(previous?.task ?? "overview");
+      setEntityType(previous?.entityType ?? "unknown");
       setBusy(false);
       setError(null);
     }
-  }, [incoming]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [incoming]);
   useEffect(() => {
-    const path = workspaceLink("/research", incoming || publicSession.research.entity);
+    const path = workspaceLink("/research", incoming || (!entered.current ? publicSession.research.entity : ""));
+    entered.current = true;
     if (`/research${location.search}` !== path) navigate(path, { replace: true });
   }, [incoming, location.search, navigate]);
   function clear() {
@@ -97,20 +106,27 @@ export default function Research({
     setError(null);
   }
   async function run(input = inputIdentity) {
-    if (!publicIdentity(input) || !researchInputMatchesChoice(input, entityType)) return;
+    input = publicIdentity(input);
+    if (!input || !researchInputMatchesChoice(input, entityType)) return;
     const asset = KNOWN_ASSETS.find((asset) => asset.address.toLowerCase() === input.toLowerCase());
-    if (asset) { setEntity(asset.address); setResolved(asset); }
+    setEntity(input);
+    setResolved(asset ?? null);
     clear();
     const controller = new AbortController();
     pending.current = controller;
     setBusy(true);
-    navigate(workspaceLink("/research", input), { replace: true });
+    const replace = researchIdentityKey(incoming) === researchIdentityKey(input);
+    displayedIdentity.current = input;
+    navigate(workspaceLink("/research", input), { replace });
     try {
       const next = await analyzePrivate(
         { entity: input, entityType, task },
         controller.signal,
       );
-      if (!controller.signal.aborted) setResult(next);
+      if (!controller.signal.aborted) {
+        history.current.remember({ entity: input, entityType, task, result: next });
+        setResult(next);
+      }
     } catch (failure) {
       if (!controller.signal.aborted) setError(researchRefusal(failure));
     } finally {
@@ -214,15 +230,15 @@ export default function Research({
                 <option value="overview">{c("What is this?", "这是什么？")}</option>
                 <option value="risk">
                   {c(
-                    "Which controls and limits were found?",
-                    "发现了哪些控制机制和限制？",
+                    "Controls & limits",
+                    "控制与限制",
                   )}
                 </option>
                 <option value="activity">
-                  {c("What activity was observed?", "观察到了哪些活动？")}
+                  {c("Observed activity", "观察到的活动")}
                 </option>
                 <option value="evidence">
-                  {c("What are the sources?", "有哪些来源？")}
+                  {c("Sources", "来源")}
                 </option>
               </select>
             </div>
@@ -440,11 +456,11 @@ export default function Research({
                   ...result.answer.riskNotes
                     .filter((note) => note.severity === "high")
                     .map((note) => ({
-                      fact: `${note.severity}: ${note.note}`,
+                      fact: `${c(...researchSeverityCopy(note.severity))}: ${c(...researchNoteCopy(note.note))}`,
                       sourceIds: note.sourceIds,
                     })),
                   ...result.answer.confirmedFacts.filter((finding) => result.entity.type !== "token" || !/holder|activity|verif|持有人|活动|验证/i.test(finding.fact)),
-                ].slice(0, 3)}
+                ].slice(0, 3).map((finding) => ({ ...finding, fact: c(...researchFactCopy(finding.fact)) }))}
                 sources={result.answer.citations}
               />
               <p className="opsis-receipt">
@@ -454,7 +470,7 @@ export default function Research({
                 )}
               </p>
               </details>
-              <details>
+              <details className="research-limitations">
                 <summary>
                   {c("Sources, findings and limitations", "来源、分析与限制")} (
                   {result.answer.citations.length})
@@ -463,18 +479,18 @@ export default function Research({
                 <ul>
                   {result.answer.riskNotes.map((note, i) => (
                     <li key={i}>
-                      {note.severity}: {note.note} [{note.sourceIds.join(", ")}]
+                      {c(...researchSeverityCopy(note.severity))}: {c(...researchNoteCopy(note.note))} [{note.sourceIds.join(", ")}]
                     </li>
                   ))}
                 </ul>
                 <ul>
                   {(result.entity.type === "token" ? result.answer.confirmedFacts : result.answer.confirmedFacts.slice(3)).map((fact, i) => (
                     <li key={i}>
-                      {fact.fact} [{fact.sourceIds.join(", ")}]
+                      {c(...researchFactCopy(fact.fact))} [{fact.sourceIds.join(", ")}]
                     </li>
                   ))}
                 </ul>
-                <p className="opsis-small">{result.privacy.disclosure}</p>
+                <p className="opsis-small">{c(...researchPrivacyCopy(result.privacy.disclosure))}</p>
               </details>
             </section>
           )}

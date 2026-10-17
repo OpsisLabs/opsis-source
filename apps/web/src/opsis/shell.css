@@ -634,3 +634,12 @@
     padding: 14px 16px 18px;
   }
 }
+
+.opsis.opsis-terminal .opsis-content :is([id], input, select, textarea, button, [tabindex]) {
+  scroll-margin-top: 64px;
+}
+@media (max-width: 700px) {
+  .opsis.opsis-terminal .opsis-content :is([id], input, select, textarea, button, [tabindex]) {
+    scroll-margin-top: 60px;
+  }
+}

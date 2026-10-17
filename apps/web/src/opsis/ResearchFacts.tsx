@@ -275,7 +275,7 @@ export function ResearchTiles({ facts, type }: { facts: ResearchFacts; type: "to
   const notRead = c("Counter not read", "未读取计数");
   const count = (value: unknown) => {
     const number = explorerCount(value);
-    return number === null ? unknown : formatExactAmount(String(number));
+    return number === null ? unknown : <span className="research-number">{formatExactAmount(String(number))}</span>;
   };
   const activity = walletActivity(facts);
   const tokenCount = facts.tokenBalanceCoverage === "unavailable" || !Array.isArray(facts.tokenBalances) ? null : facts.tokenBalances.length;
