@@ -253,7 +253,7 @@ test("Stock-token verification and consent actions have AA contrast for both exa
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/rwa");
   await page.addStyleTag({ content: "* { transition: none !important; }" });
-  const submit = page.locator("form button[type=submit]");
+  const submit = page.locator("#opsis-content form button[type=submit]");
   await expect(submit).toBeDisabled();
   for (const chinese of [false, true]) {
     if (chinese) await language(page, true);
@@ -368,7 +368,7 @@ test("Big trades translates limitations, narrowed windows and privacy, and keeps
   );
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/biggest-trades");
-  await page.locator("form button[type=submit]").click();
+  await page.locator("#opsis-content form button[type=submit]").click();
   const rows = page.locator("ol[aria-label] > li");
   await expect(rows).toHaveCount(2);
   await page.addStyleTag({ content: "* { transition: none !important; }" });

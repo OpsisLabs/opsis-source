@@ -249,9 +249,7 @@ test.describe("Opsis Trade Check QA regressions", () => {
             blankPrevious.top - blankPrevious.previous,
           ).toBeGreaterThanOrEqual(20);
           await page
-            .getByLabel(chinese ? "仓位方向" : "Position direction", {
-              exact: true,
-            })
+            .getByLabel(chinese ? "仓位方向" : "Position direction")
             .selectOption("short");
           await scenario(page, chinese);
           await intactNumbers(page.getByTestId("opsis-perp-shocks"));

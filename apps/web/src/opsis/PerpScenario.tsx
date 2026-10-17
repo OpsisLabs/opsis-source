@@ -298,7 +298,20 @@ export default function PerpScenario({
                 />
               </label>
             </div>
-            <a className="opsis-check-result-link" href="#perp-result-title">
+            <a
+              className="opsis-check-result-link"
+              href="#perp-result-title"
+              onClick={(event) => {
+                // Scroll and move focus together, so keyboard and screen-reader users land on the estimate too.
+                const heading = document.getElementById("perp-result-title");
+                if (!heading) return;
+                event.preventDefault();
+                const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+                heading.scrollIntoView({ block: "start", behavior: reduce ? "auto" : "smooth" });
+                heading.focus({ preventScroll: true });
+                window.history.replaceState(window.history.state, "", "#perp-result-title");
+              }}
+            >
               {c("View scenario estimate ↓", "查看情景估算 ↓")}
             </a>
           </section>
@@ -510,7 +523,7 @@ export default function PerpScenario({
           <section aria-live="polite" data-testid="opsis-perp-result">
             <p className="opsis-kicker">{c("SCENARIO ESTIMATE", "情景估算")}</p>
             <p>{c("Estimated result", "估算结果")}</p>
-            <h2 id="perp-result-title" className="opsis-check-net">
+            <h2 id="perp-result-title" className="opsis-check-net" tabIndex={-1}>
               {result
                 ? `${result.net} ${c("quote units net", "报价单位净额")}`
                 : Object.entries(values).some(([key, value]) =>

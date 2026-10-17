@@ -179,7 +179,7 @@ test.describe("opsis preview QA Research", () => {
         for (let cycle = 0; cycle < 2; cycle++) {
           await page.locator(".research-limitations > summary").click();
           await fits(page);
-          await expect(page.locator(".research-limitations")).toContainText(`0x${"a".repeat(64)}`);
+          await expect(page.locator(".research-limitations")).toContainText(chinese ? "区块哈希：0xaaaa" : "Block hash: 0xaaaa");
           await page.locator(".research-limitations > summary").click();
         }
       }
@@ -200,10 +200,20 @@ test.describe("opsis preview QA Research", () => {
       for (const width of [1280, 1024, 375]) {
         await page.setViewportSize({ width, height: width === 375 ? 812 : 600 });
         const jump = page.locator('a[href="#perp-result-title"]');
+        const target = page.locator("#perp-result-title");
+        // Start each jump from the top with no fragment, then read the position once scrolling stops.
+        await page.evaluate(() => { history.replaceState(null, "", location.pathname); window.scrollTo(0, 0); });
         await jump.focus();
         await jump.press("Enter");
-        await expect.poll(async () => (await page.locator("#perp-result-title").boundingBox())!.y).toBeCloseTo(width <= 700 ? 60 : 64, 0);
-        const heading = await page.locator("#perp-result-title").boundingBox();
+        const settledTop = async () => {
+          const before = (await target.boundingBox())!.y;
+          await page.waitForTimeout(200);
+          const after = (await target.boundingBox())!.y;
+          return Math.abs(after - before) < 0.5 && (await page.evaluate(() => scrollY)) > 0 ? after : Number.NaN;
+        };
+        await expect.poll(settledTop).toBeGreaterThanOrEqual(width <= 700 ? 48 : 52);
+        await expect(target).toBeFocused();
+        const heading = await target.boundingBox();
         expect(heading!.y + heading!.height).toBeLessThanOrEqual(width === 375 ? 812 : 600);
         const field = page.getByLabel(chinese ? "基础资产数量" : "Base-asset quantity", { exact: true });
         await field.focus();

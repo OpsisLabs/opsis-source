@@ -40,6 +40,14 @@ async function openDetails(page: Page, chinese: boolean, theme: "light" | "dark"
   await expect(result).toBeVisible();
   await result.locator("summary").filter({ hasText: chinese ? "支持事实与证据" : "Supporting facts & evidence" }).click();
   await expect(page.locator(".opsis").first()).toHaveAttribute("data-theme", theme);
+  // Measure the settled page: fonts loaded, colour transitions done, the typed answer complete.
+  await page.evaluate(() => document.fonts.ready);
+  await page.waitForFunction(() => document.getAnimations().every((animation) => !(animation instanceof CSSTransition) || animation.playState !== "running"));
+  await expect.poll(async () => {
+    const before = await result.innerText();
+    await page.waitForTimeout(250);
+    return before === (await result.innerText());
+  }).toBe(true);
   return result;
 }
 

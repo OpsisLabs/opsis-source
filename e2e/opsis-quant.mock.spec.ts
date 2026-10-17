@@ -33,7 +33,7 @@ test("30-return import is refused by default and accepted in short-window resear
   await page.goto("/lab");
   await page.getByRole("button", { name: /Quant research/ }).click();
   const requests: string[] = [];
-  page.on("request", (request) => requests.push(`${request.url()}${request.postData() ?? ""}`));
+  page.on("request", (request) => { if (!["script", "stylesheet", "image", "font"].includes(request.resourceType())) requests.push(`${request.url()}${request.postData() ?? ""}`); });
   const rows = Array.from({ length: 31 }, (_, index) => ({
     date: new Date(Date.UTC(2026, 0, index + 1)).toISOString().slice(0, 10),
     price: 100 + index,
@@ -72,7 +72,7 @@ test("local quant workflow validates, runs, and requires export consent", async 
   await page.getByRole("button", { name: /Quant research/ }).click();
   await expect(page.getByText("1. Define the dataset")).toBeVisible();
   const requests: string[] = [];
-  page.on("request", (request) => requests.push(`${request.url()}${request.postData() ?? ""}`));
+  page.on("request", (request) => { if (!["script", "stylesheet", "image", "font"].includes(request.resourceType())) requests.push(`${request.url()}${request.postData() ?? ""}`); });
   const rows = Array.from({ length: 190 }, (_, index) => {
     const date = new Date(Date.UTC(2026, 0, index + 1)).toISOString().slice(0, 10);
     return { date, price: 100 + index };
@@ -149,7 +149,7 @@ test("parametric GBM comparison is labeled bilingually and stays local", async (
   await page.goto("/lab");
   await page.getByRole("button", { name: /Quant research/ }).click();
   const requests: string[] = [];
-  page.on("request", (request) => requests.push(`${request.url()}${request.postData() ?? ""}`));
+  page.on("request", (request) => { if (!["script", "stylesheet", "image", "font"].includes(request.resourceType())) requests.push(`${request.url()}${request.postData() ?? ""}`); });
   const rows = Array.from({ length: 190 }, (_, index) => ({
     date: new Date(Date.UTC(2026, 0, index + 1)).toISOString().slice(0, 10),
     price: 100 * Math.pow(index % 2 ? 1.02 : 0.98, Math.floor(index / 2)),
@@ -193,7 +193,7 @@ test("stock-token gap series stays local and shows session, corporate-action and
   await page.getByRole("button", { name: /Quant research/ }).click();
   await page.locator("summary").filter({ hasText: "Stock-token reference gap" }).click();
   const requests: string[] = [];
-  page.on("request", (request) => requests.push(`${request.url()}${request.postData() ?? ""}`));
+  page.on("request", (request) => { if (!["script", "stylesheet", "image", "font"].includes(request.resourceType())) requests.push(`${request.url()}${request.postData() ?? ""}`); });
   const base = {
     schemaVersion: 1,
     instrument: { chainId: 4663, address: "0x0000000000000000000000000000000000000abc", symbol: "SYN" },
@@ -250,7 +250,7 @@ test("joint portfolio keeps three imports and weights local, preserves the share
   await page.goto("/lab");
   await page.getByRole("button", { name: /Quant research/ }).click();
   const requests: string[] = [];
-  page.on("request", (request) => requests.push(`${request.url()}${request.postData() ?? ""}`));
+  page.on("request", (request) => { if (!["script", "stylesheet", "image", "font"].includes(request.resourceType())) requests.push(`${request.url()}${request.postData() ?? ""}`); });
   const rows = Array.from({ length: 190 }, (_, index) => ({
     date: new Date(Date.UTC(2026, 0, index + 1)).toISOString().slice(0, 10),
     price: 100 + index,
