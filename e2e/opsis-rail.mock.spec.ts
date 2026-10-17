@@ -111,3 +111,62 @@ test("opsis preview phone menu supports keyboard, restores focus and fits 375 pi
   await expect(page).toHaveURL(/\/research$/);
   await expect(page.locator("#opsis-content h1")).toHaveCount(1);
 });
+
+test("opsis preview rail colour runs the full page length, also in a full-page capture", async ({
+  page,
+}) => {
+  test.skip(!enabled);
+  await mockPublicOpsisAccess(page);
+  const sample = async (theme: "light" | "dark") => {
+    await page.emulateMedia({ colorScheme: theme });
+    await page.goto("/check/perp-scenario");
+    await expect(page.locator("#opsis-content h1")).toHaveCount(1);
+    // A page several screens long, whatever the tool's own content height.
+    await page.addStyleTag({
+      content: ".opsis-content { min-height: 3200px !important; }",
+    });
+    const railWidth = await page
+      .locator(".opsis-desktop-rail")
+      .evaluate((element) => element.getBoundingClientRect().width);
+    const capture = await page.screenshot({ fullPage: true });
+    return page.evaluate(
+      async ({ png, railWidth }) => {
+        const image = new Image();
+        image.src = `data:image/png;base64,${png}`;
+        await image.decode();
+        const canvas = document.createElement("canvas");
+        canvas.width = image.width;
+        canvas.height = image.height;
+        const context = canvas.getContext("2d")!;
+        context.drawImage(image, 0, 0);
+        const at = (x: number, y: number) =>
+          Array.from(context.getImageData(x, y, 1, 1).data.slice(0, 3));
+        const bottom = image.height - 4;
+        return {
+          height: image.height,
+          viewport: innerHeight,
+          railBottom: at(12, bottom),
+          railMiddle: at(12, Math.round(image.height / 2)),
+          edgeBottom: at(Math.round(railWidth) - 1, bottom),
+          contentBottom: at(Math.round(railWidth) + 12, bottom),
+        };
+      },
+      { png: capture.toString("base64"), railWidth },
+    );
+  };
+  for (const width of [1280, 900]) {
+    for (const theme of ["light", "dark"] as const) {
+      const label = `${width} ${theme}`;
+      await page.setViewportSize({ width, height: 800 });
+      const result = await sample(theme);
+      expect(result.height).toBeGreaterThan(result.viewport * 3);
+      expect(result.railMiddle, label).toEqual([16, 0, 255]);
+      expect(result.railBottom, label).toEqual([16, 0, 255]);
+      expect(result.edgeBottom, label).toEqual([209, 206, 255]);
+      expect(result.contentBottom, label).not.toEqual([16, 0, 255]);
+    }
+  }
+  await page.setViewportSize({ width: 375, height: 812 });
+  const phone = await sample("light");
+  expect(phone.railBottom).not.toEqual([16, 0, 255]);
+});

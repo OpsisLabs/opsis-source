@@ -5,6 +5,14 @@
   border: 0;
   padding: 52px 0 0 var(--rail-width);
   min-height: 100dvh;
+  /* The rail is fixed; painting its column here keeps the blue (and its edge)
+     running the whole page length, including in full-page captures. */
+  background-image: linear-gradient(
+    to right,
+    var(--brand) calc(var(--rail-width) - 1px),
+    var(--brand-muted) calc(var(--rail-width) - 1px) var(--rail-width),
+    transparent var(--rail-width)
+  );
 }
 .opsis.opsis-terminal > .opsis-topbar,
 .opsis > .opsis-topbar {
@@ -454,6 +462,7 @@
 @media (max-width: 700px) {
   .opsis.opsis-terminal {
     padding: 48px 0 0;
+    background-image: none;
   }
   .opsis.opsis-terminal > .opsis-topbar,
   .opsis > .opsis-topbar {
