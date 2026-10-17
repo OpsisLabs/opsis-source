@@ -38,6 +38,8 @@ import { useLocalHistory } from "../private/useLocalHistory";
 import { LocalHistory, SavedConversation } from "../private/LocalHistory";
 import type { VaultConversationTurn } from "../vault/types";
 import { useI18n } from "../i18n";
+import { detailedWidgets } from "../private/detailedWidgets";
+import "../private/details.css";
 
 /**
  * The followable public addresses the current answer actually shows: the wallet
@@ -669,7 +671,7 @@ export default function PrivateExplorer() {
                     </section>
                   )}
                   <AnswerCard
-                    ai={result.answer}
+                    ai={OPSIS_PRESENTATION ? { ...result.answer, widgets: detailedWidgets(result.entity.facts, result.entity.type) } : result.answer}
                     onPivot={chooseEntity}
                     animateText
                     layout="answer-first"

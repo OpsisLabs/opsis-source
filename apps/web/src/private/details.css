@@ -1,0 +1,61 @@
+.opsis .detail-widget {
+  min-width: 0;
+}
+.opsis .detail-widget-heading {
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+.opsis .detail-widget-heading > p {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+.opsis .detail-widget-row {
+  padding-bottom: 8px;
+  min-height: 44px;
+}
+.opsis .opsis-legacy .detail-widget-fill {
+  top: auto;
+  bottom: 0;
+  height: 3px;
+  background: var(--accent) !important;
+}
+.opsis .detail-widget-sub {
+  display: block;
+  margin-left: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.opsis .detail-widget-value {
+  max-width: 48%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.opsis .detail-donut {
+  flex-wrap: wrap;
+}
+.opsis .detail-donut > :last-child {
+  min-width: min(100%, 160px);
+}
+.opsis [data-testid="copy-control"] textarea {
+  max-width: 100%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 420px) {
+  .opsis .detail-widget-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .opsis .detail-widget-row > span:not(.detail-widget-fill) {
+    grid-column: 1;
+  }
+  .opsis .detail-widget-value {
+    max-width: 100%;
+  }
+  .opsis .detail-widget-row > svg {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+}
