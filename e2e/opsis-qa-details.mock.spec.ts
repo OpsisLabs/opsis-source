@@ -139,4 +139,17 @@ test.describe("opsis preview detailed research QA fixes", () => {
       }
     }
   }
+
+  test("a new lookup moves the address to the identifier it read", async ({ page }) => {
+    const weth = "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73";
+    await mockPublicOpsisAccess(page);
+    await page.route("**/v1/private/analyze", (route) => route.fulfill({ json: tokenPayload }));
+    await page.goto(`/research/details?entity=${weth}`);
+    await page.getByRole("textbox", { name: "Public chain identifier" }).fill(tokenPayload.entity.value);
+    await page.getByRole("button", { name: "EXPLAIN PRIVATELY", exact: true }).click();
+    await expect(page.getByTestId("answer-card")).toBeVisible();
+    await expect(page).toHaveURL(new RegExp(`/research/details\\?entity=${tokenPayload.entity.value}$`, "i"));
+    await page.reload();
+    await expect(page.getByRole("textbox", { name: "Public chain identifier" })).toHaveValue(new RegExp(tokenPayload.entity.value, "i"));
+  });
 });

@@ -45,6 +45,11 @@ test("30-return import is refused by default and accepted in short-window resear
   const runButton = page.getByRole("button", { name: "Run local experiment" });
   await expect(runButton).toBeDisabled();
   await expect(page.getByText(/USER IMPORT \/ PROVENANCE NOT VERIFIED/)).toBeVisible();
+  // The locked metadata fields show the JSON file's own identity and source.
+  await expect(page.getByLabel("Symbol")).toBeDisabled();
+  await expect(page.getByLabel("Symbol")).toHaveValue("SHORT");
+  await expect(page.getByLabel("Contract / address")).toHaveValue("0x0000000000000000000000000000000000000abc");
+  await expect(page.getByLabel("Source")).toHaveValue("Local fixture");
   await expect(page.getByText(/File flags this as synthetic; not independently certified/)).toBeVisible();
   await expect(page.getByText(/At least 180 daily returns are required; this dataset has 30/)).toBeVisible();
   await page.getByLabel(/Short-window research mode/).check();

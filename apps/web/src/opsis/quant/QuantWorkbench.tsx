@@ -59,6 +59,8 @@ export default function QuantWorkbench() {
     provenance: { source: source.trim(), observedAt: importedFile.observedAt },
   }) : { dataset: null, error: "" }, [importedFile, chainId, address, symbol, quoteCurrency, source]);
   const dataset = imported.dataset;
+  // A JSON file carries its own metadata: the locked fields show it rather than earlier CSV entries.
+  const jsonMetadata = importedFile?.csv === false ? dataset : null;
   const jointSpec: ExperimentSpec = useMemo(() => ({
     bootstrapRuns: runs,
     seed,
@@ -362,7 +364,7 @@ export default function QuantWorkbench() {
             <label>
               {c("Chain ID", "链 ID")}
               <input
-                value={chainId}
+                value={jsonMetadata ? String(jsonMetadata.instrument.chainId) : chainId}
                 disabled={importedFile?.csv === false}
                 onChange={(e) => editMetadata(setChainId, e.target.value)}
                 inputMode="numeric"
@@ -371,7 +373,7 @@ export default function QuantWorkbench() {
             <label>
               {c("Contract / address", "合约 / 地址")}
               <input
-                value={address}
+                value={jsonMetadata ? jsonMetadata.instrument.address : address}
                 disabled={importedFile?.csv === false}
                 onChange={(e) => editMetadata(setAddress, e.target.value)}
               />
@@ -379,7 +381,7 @@ export default function QuantWorkbench() {
             <label>
               {c("Symbol", "符号")}
               <input
-                value={symbol}
+                value={jsonMetadata ? jsonMetadata.instrument.symbol : symbol}
                 disabled={importedFile?.csv === false}
                 onChange={(e) => editMetadata(setSymbol, e.target.value)}
               />
@@ -387,7 +389,7 @@ export default function QuantWorkbench() {
             <label>
               {c("Quote currency", "报价货币")}
               <input
-                value={quoteCurrency}
+                value={jsonMetadata ? jsonMetadata.quoteCurrency : quoteCurrency}
                 disabled={importedFile?.csv === false}
                 onChange={(e) => editMetadata(setQuoteCurrency, e.target.value)}
               />
@@ -395,7 +397,7 @@ export default function QuantWorkbench() {
             <label>
               {c("Source", "来源")}
               <input
-                value={source}
+                value={jsonMetadata ? jsonMetadata.provenance.source : source}
                 disabled={importedFile?.csv === false}
                 onChange={(e) => editMetadata(setSource, e.target.value)}
               />

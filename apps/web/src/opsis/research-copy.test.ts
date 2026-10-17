@@ -22,6 +22,7 @@ describe("Research generated interface copy", () => {
     expect(researchFactCopy("Implementations: 1 item returned")[1]).toBe("实现合约：返回 1 项");
     expect(researchFactCopy("Holder coverage: top_holders")[1]).toBe("持有人覆盖：主要持有人");
     expect(researchFactCopy("Deployer: 0x1234")[1]).toBe("部署者：0x1234");
+    expect(researchFactCopy("Top1 holder is contract: no")[1]).toBe("最大持有人是否为合约：否");
     expect(researchFactCopy("New provider wording")).toEqual(["New provider wording", "New provider wording"]);
   });
   it("translates the proxy explanation and severity without weakening its limit", () => {

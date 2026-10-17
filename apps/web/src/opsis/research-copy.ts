@@ -21,6 +21,7 @@ const factLabels: Record<string, string> = {
   Observation: "观察类型", "Observation finality": "观察最终性", "Decode coverage": "解码覆盖",
   "Source verified": "来源已验证", "Contract name": "合约名称", "Deployed at": "部署时间",
   "Token balance contracts checked": "已检查余额的代币合约", "Top10 contract count": "前十大持有人中的合约数量",
+  "Top1 holder is contract": "最大持有人是否为合约", "Top1 holder label": "最大持有人标签",
   "Transaction evidence coverage": "交易证据覆盖", "Receipt transfer coverage": "收据转移覆盖",
   "Receipt transfer events": "收据转移事件", "Decoded actions": "已解码操作", Status: "状态", Value: "金额",
   Timestamp: "时间戳", Method: "方法", "Method id": "方法标识", "Transaction hash": "交易哈希",

@@ -233,10 +233,10 @@
   white-space: nowrap;
 }
 .opsis .watch-holdings th:first-child {
-  width: 46%;
+  width: 38%;
 }
 .opsis .watch-holdings th:nth-child(2) {
-  width: 24%;
+  width: 32%;
 }
 .opsis .watch-holdings th:last-child {
   width: 30%;

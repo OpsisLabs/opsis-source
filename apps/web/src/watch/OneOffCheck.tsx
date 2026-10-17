@@ -47,6 +47,18 @@ function CopyAddress({ address }: { address: string }) {
   );
 }
 
+/** Long balances show six decimals marked "…"; the exact value is on hover and read out in full. */
+function Quantity({ value }: { value: string }) {
+  const short = compactAmount(value);
+  if (!short || short === value) return <>{value}</>;
+  return (
+    <span title={value}>
+      <span aria-hidden="true">{short}</span>
+      <span className="sr-only">{value}</span>
+    </span>
+  );
+}
+
 export function TokenTable({
   tokens,
   native,
@@ -84,7 +96,7 @@ export function TokenTable({
                   </span>
                   {native.symbol}
                 </td>
-                <td>{native.quantity}</td>
+                <td><Quantity value={native.quantity} /></td>
                 <td>{c("Native", "原生资产")}</td>
               </tr>
             )}
@@ -134,7 +146,7 @@ export function TokenTable({
                         </span>
                       )}
                     </td>
-                    <td>{token.quantity}</td>
+                    <td><Quantity value={token.quantity} /></td>
                     <td>
                       <CopyAddress address={token.contract} />
                     </td>

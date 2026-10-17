@@ -109,6 +109,10 @@ for (const width of [320, 375, 1280]) {
           expect(await copy.evaluate((element) => parseFloat(getComputedStyle(element).fontSize))).toBeGreaterThanOrEqual(12);
           await readable(copy);
           await expect(copy).toHaveAttribute("title", /^0x[\da-fA-F]{40}$/);
+          // Quantities stay inside their own column (long balances use the short form with the exact value kept).
+          for (const cell of await table.locator("tbody tr.watch-holding-row td:nth-child(2)").all()) {
+            expect(await cell.evaluate((element) => element.scrollWidth - element.clientWidth)).toBeLessThanOrEqual(1);
+          }
           await table.locator("..").focus();
           await expect(table.locator("..")).toBeFocused();
           await fits(page);

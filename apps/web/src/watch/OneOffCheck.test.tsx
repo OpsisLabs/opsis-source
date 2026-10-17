@@ -54,7 +54,8 @@ for (const chinese of [false, true]) {
       const html = renderToStaticMarkup(<WalletSnapshot snapshot={snapshot} onSave={() => {}} />);
       // The tile shows a short form; the holdings table keeps the exact value.
       expect(html).toContain("1.000000… ETH");
-      expect(html).toContain("<td>1.000000000000000001</td>");
+      // The table cell shows the short form and keeps the exact quantity on hover and for screen readers.
+      expect(html).toContain('<td><span title="1.000000000000000001"><span aria-hidden="true">1.000000…</span><span class="sr-only">1.000000000000000001</span></span></td>');
       expect(html).toContain(chinese ? "1 个中的 1 个" : "1 of 1");
       expect(html).toContain(chinese ? "保存到加密观察列表" : "Save to encrypted watchlist");
       expect(html).toContain(chinese ? "在此设备上加密" : "Encrypted on this device");

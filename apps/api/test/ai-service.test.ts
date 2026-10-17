@@ -493,6 +493,14 @@ describe("risk signal summary", () => {
     expect(chinese).toContain("无法评估风险信号");
   });
 
+  it("closes the overview answer with the advice limit in the requested language", async () => {
+    const coverage = { holderCoverage: "complete", activityCoverage: "complete", sourceCoverage: "complete" };
+    expect((await service.answer("", token(coverage), "en", "overview")).answer).toContain("This is informational only, not financial advice.");
+    const chinese = (await service.answer("", token(coverage), "zh-CN", "overview")).answer;
+    expect(chinese).toContain("仅供参考，不构成财务建议。");
+    expect(chinese).not.toContain("financial advice");
+  });
+
   it("keeps the count when coverage was read", async () => {
     const bullets = (await service.answer("", token({ holderCoverage: "complete", activityCoverage: "complete", sourceCoverage: "complete" }), "en", "overview")).summaryBullets.join(" ");
     expect(bullets).toContain("0 evidence-based risk signals identified.");
