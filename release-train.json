@@ -1,7 +1,7 @@
 {
   "version": 1,
   "baseBranch": "main",
-  "activeRelease": "38-full-length-rail",
+  "activeRelease": "39-qa-fixes",
   "rules": {
     "incrementalVendorBudgetUsdPerMonth": 0,
     "providerOnboarding": "No provider with a publicly stated KYB/KYC requirement. Exception: dRPC under Opsis decision D20, admitted only while it does not request identity or business verification.",
@@ -460,7 +460,7 @@
       "id": "38-full-length-rail",
       "branch": "codex/38-full-length-rail",
       "tagPrefix": "rc/38-full-length-rail/",
-      "status": "active",
+      "status": "released",
       "dependencies": [
         "37-workspace-redesign"
       ],
@@ -472,7 +472,7 @@
       "id": "39-qa-fixes",
       "branch": "codex/39-qa-fixes",
       "tagPrefix": "rc/39-qa-fixes/",
-      "status": "queued",
+      "status": "active",
       "dependencies": [
         "38-full-length-rail"
       ],

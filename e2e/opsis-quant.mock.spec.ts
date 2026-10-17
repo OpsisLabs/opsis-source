@@ -21,17 +21,19 @@ test("pre-run dataset card shows captured CSV identity and provenance labels", a
   await expect(page.getByText("Quote currency: USD")).toBeVisible();
   await expect(page.getByText(/Daily crypto, 24\/7/)).toBeVisible();
   await expect(page.getByText("Source: Local fixture source")).toBeVisible();
+  // Metadata edited after the file is chosen is the metadata that runs and exports.
   await page.getByLabel("Symbol").fill("EDITED_AFTER_IMPORT");
   await page.getByLabel("Source").fill("Edited source");
-  await expect(page.getByText(/Chain 4663 · .* · CSV_ORIGINAL/)).toBeVisible();
-  await expect(page.getByText("Source: Local fixture source")).toBeVisible();
+  await expect(page.getByText(/Chain 4663 · .* · EDITED_AFTER_IMPORT/)).toBeVisible();
+  await expect(page.getByText("Source: Edited source")).toBeVisible();
+  await expect(page.getByText(/CSV_ORIGINAL/)).toHaveCount(0);
 });
 
 test("30-return import is refused by default and accepted in short-window research mode", async ({ page }) => {
   await page.goto("/lab");
   await page.getByRole("button", { name: /Quant research/ }).click();
   const requests: string[] = [];
-  page.on("request", (request) => requests.push(`${request.url()}${request.postData() ?? ""}`));
+  page.on("request", (request) => { if (!["script", "stylesheet", "image", "font"].includes(request.resourceType())) requests.push(`${request.url()}${request.postData() ?? ""}`); });
   const rows = Array.from({ length: 31 }, (_, index) => ({
     date: new Date(Date.UTC(2026, 0, index + 1)).toISOString().slice(0, 10),
     price: 100 + index,
@@ -43,6 +45,11 @@ test("30-return import is refused by default and accepted in short-window resear
   const runButton = page.getByRole("button", { name: "Run local experiment" });
   await expect(runButton).toBeDisabled();
   await expect(page.getByText(/USER IMPORT \/ PROVENANCE NOT VERIFIED/)).toBeVisible();
+  // The locked metadata fields show the JSON file's own identity and source.
+  await expect(page.getByLabel("Symbol")).toBeDisabled();
+  await expect(page.getByLabel("Symbol")).toHaveValue("SHORT");
+  await expect(page.getByLabel("Contract / address")).toHaveValue("0x0000000000000000000000000000000000000abc");
+  await expect(page.getByLabel("Source")).toHaveValue("Local fixture");
   await expect(page.getByText(/File flags this as synthetic; not independently certified/)).toBeVisible();
   await expect(page.getByText(/At least 180 daily returns are required; this dataset has 30/)).toBeVisible();
   await page.getByLabel(/Short-window research mode/).check();
@@ -70,7 +77,7 @@ test("local quant workflow validates, runs, and requires export consent", async 
   await page.getByRole("button", { name: /Quant research/ }).click();
   await expect(page.getByText("1. Define the dataset")).toBeVisible();
   const requests: string[] = [];
-  page.on("request", (request) => requests.push(`${request.url()}${request.postData() ?? ""}`));
+  page.on("request", (request) => { if (!["script", "stylesheet", "image", "font"].includes(request.resourceType())) requests.push(`${request.url()}${request.postData() ?? ""}`); });
   const rows = Array.from({ length: 190 }, (_, index) => {
     const date = new Date(Date.UTC(2026, 0, index + 1)).toISOString().slice(0, 10);
     return { date, price: 100 + index };
@@ -147,7 +154,7 @@ test("parametric GBM comparison is labeled bilingually and stays local", async (
   await page.goto("/lab");
   await page.getByRole("button", { name: /Quant research/ }).click();
   const requests: string[] = [];
-  page.on("request", (request) => requests.push(`${request.url()}${request.postData() ?? ""}`));
+  page.on("request", (request) => { if (!["script", "stylesheet", "image", "font"].includes(request.resourceType())) requests.push(`${request.url()}${request.postData() ?? ""}`); });
   const rows = Array.from({ length: 190 }, (_, index) => ({
     date: new Date(Date.UTC(2026, 0, index + 1)).toISOString().slice(0, 10),
     price: 100 * Math.pow(index % 2 ? 1.02 : 0.98, Math.floor(index / 2)),
@@ -191,7 +198,7 @@ test("stock-token gap series stays local and shows session, corporate-action and
   await page.getByRole("button", { name: /Quant research/ }).click();
   await page.locator("summary").filter({ hasText: "Stock-token reference gap" }).click();
   const requests: string[] = [];
-  page.on("request", (request) => requests.push(`${request.url()}${request.postData() ?? ""}`));
+  page.on("request", (request) => { if (!["script", "stylesheet", "image", "font"].includes(request.resourceType())) requests.push(`${request.url()}${request.postData() ?? ""}`); });
   const base = {
     schemaVersion: 1,
     instrument: { chainId: 4663, address: "0x0000000000000000000000000000000000000abc", symbol: "SYN" },
@@ -248,7 +255,7 @@ test("joint portfolio keeps three imports and weights local, preserves the share
   await page.goto("/lab");
   await page.getByRole("button", { name: /Quant research/ }).click();
   const requests: string[] = [];
-  page.on("request", (request) => requests.push(`${request.url()}${request.postData() ?? ""}`));
+  page.on("request", (request) => { if (!["script", "stylesheet", "image", "font"].includes(request.resourceType())) requests.push(`${request.url()}${request.postData() ?? ""}`); });
   const rows = Array.from({ length: 190 }, (_, index) => ({
     date: new Date(Date.UTC(2026, 0, index + 1)).toISOString().slice(0, 10),
     price: 100 + index,

@@ -427,7 +427,7 @@ function overviewView(entity: NormalizedEntity, locale: AiLocale, note?: string)
     `这个只读概览解释了此${entityTypeLabel(entity.type, locale)}在 Robinhood Chain 上可用的事实。${riskCount > 0 ? `其中包含 ${riskCount} 个基于证据的风险信号。` : ""}`
   );
   return {
-    answer: note ? `${note} ${lead}` : `${lead} This is informational only, not financial advice.`,
+    answer: note ? `${note} ${lead}` : `${lead} ${t(locale, "This is informational only, not financial advice.", "仅供参考，不构成财务建议。")}`,
     summaryBullets
   };
 }

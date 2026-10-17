@@ -287,13 +287,15 @@ export const formatUsd = (value) => {
   })}`;
 };
 
-export const formatDuration = (minutes) => {
+export const formatDuration = (minutes, locale = "en") => {
   if (!Number.isFinite(minutes) || minutes < 0) return "";
-  if (minutes < 1) return "<1m";
-  if (minutes < 60) return `${Math.round(minutes)}m`;
+  const minuteUnit = locale === "zh-CN" ? "分钟" : "m";
+  const hourUnit = locale === "zh-CN" ? "小时" : "h";
+  if (minutes < 1) return `<1${minuteUnit}`;
+  if (minutes < 60) return `${Math.round(minutes)}${minuteUnit}`;
   const hours = Math.floor(minutes / 60);
   const remaining = Math.round(minutes % 60);
-  return `${hours}h${remaining ? ` ${remaining}m` : ""}`;
+  return `${hours}${hourUnit}${remaining ? ` ${remaining}${minuteUnit}` : ""}`;
 };
 
 export const formatEthChange = (value) => {
@@ -302,9 +304,9 @@ export const formatEthChange = (value) => {
   return `${sign}${Math.abs(value).toFixed(2)}%`;
 };
 
-export const formatUtcRange = (startMs, endMs) => {
+export const formatUtcRange = (startMs, endMs, locale = "en") => {
   if (!Number.isFinite(startMs) || !Number.isFinite(endMs)) return "";
   const from = new Date(startMs).toISOString().slice(0, 16).replace("T", " ");
   const to = new Date(endMs).toISOString().slice(0, 16).replace("T", " ");
-  return `${from} UTC to ${to} UTC`;
+  return `${from} UTC ${locale === "zh-CN" ? "至" : "to"} ${to} UTC`;
 };

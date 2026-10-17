@@ -47,6 +47,18 @@ function CopyAddress({ address }: { address: string }) {
   );
 }
 
+/** Long balances show six decimals marked "…"; the exact value is on hover and read out in full. */
+function Quantity({ value }: { value: string }) {
+  const short = compactAmount(value);
+  if (!short || short === value) return <>{value}</>;
+  return (
+    <span title={value}>
+      <span aria-hidden="true">{short}</span>
+      <span className="sr-only">{value}</span>
+    </span>
+  );
+}
+
 export function TokenTable({
   tokens,
   native,
@@ -57,7 +69,7 @@ export function TokenTable({
   const c = useCopy();
   return (
     <>
-      <div className="watch-table-wrap min-w-0 max-w-full overflow-x-auto">
+      <div className="watch-table-wrap min-w-0 max-w-full overflow-x-auto" tabIndex={0} role="region" aria-label={c("Observed token balances", "观察到的代币余额")}>
         <table
           className="watch-holdings w-full table-fixed"
           data-testid="watch-token-table"
@@ -84,7 +96,7 @@ export function TokenTable({
                   </span>
                   {native.symbol}
                 </td>
-                <td>{native.quantity}</td>
+                <td><Quantity value={native.quantity} /></td>
                 <td>{c("Native", "原生资产")}</td>
               </tr>
             )}
@@ -134,7 +146,7 @@ export function TokenTable({
                         </span>
                       )}
                     </td>
-                    <td>{token.quantity}</td>
+                    <td><Quantity value={token.quantity} /></td>
                     <td>
                       <CopyAddress address={token.contract} />
                     </td>
@@ -465,7 +477,7 @@ export default function OneOffCheck({
   });
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<"watch.error.address" | "watch.error.refresh" | null>(null);
   const [snapshot, setSnapshot] = useState<PortfolioSnapshot | null>(null);
   const controller = useRef<AbortController | null>(null);
   useEffect(() => () => controller.current?.abort(), []);
@@ -481,19 +493,19 @@ export default function OneOffCheck({
           event.preventDefault();
           if (!consent || busy) return;
           if (!isAddress(address.trim(), { strict: true })) {
-            setError(t("watch.error.address"));
+            setError("watch.error.address");
             return;
           }
           const abort = new AbortController();
           controller.current = abort;
           setBusy(true);
-          setError("");
+          setError(null);
           setSnapshot(null);
           try {
             const result = await checkPublicWallet(address, abort.signal);
             if (!abort.signal.aborted) setSnapshot(result);
           } catch {
-            if (!abort.signal.aborted) setError(t("watch.error.refresh"));
+            if (!abort.signal.aborted) setError("watch.error.refresh");
           } finally {
             if (!abort.signal.aborted) {
               setBusy(false);
@@ -518,7 +530,7 @@ export default function OneOffCheck({
                 setAddress(event.target.value);
                 setConsent(false);
                 setSnapshot(null);
-                setError("");
+                setError(null);
               }}
             />
           </label>
@@ -548,7 +560,7 @@ export default function OneOffCheck({
       </p>
       {error && (
         <p role="alert" className="watch-notice">
-          {error}
+          {t(error)}
         </p>
       )}
       {snapshot && <WalletSnapshot snapshot={snapshot} onSave={onSave} />}

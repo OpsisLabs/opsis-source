@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useId, useState, type InputHTMLAttributes } from "react";
 import { useCopy } from "./copy";
 import {
   perpCollateralBuffer,
+  perpInputError,
+  type PerpNumericField,
   perpCostComparison,
   perpCustomShockScenario,
   perpFundingOverHold,
@@ -64,7 +66,7 @@ export default function PerpScenario({
     null;
   let comparisonUnavailable = false;
   let customResult: ReturnType<typeof perpCustomShockScenario> = null;
-  let customError = false;
+  let customError = !!perpInputError("customShock", customShock);
   let collateralResult: ReturnType<typeof perpCollateralBuffer> | null = null;
   let collateralInvalid = false;
   try {
@@ -245,7 +247,9 @@ export default function PerpScenario({
               {(["quantity", "entry"] as const).map((key) => (
                 <label key={key}>
                   {labels[key]}
-                  <input
+                  <PerpNumberInput
+                    field={key}
+                    aria-label={labels[key]}
                     inputMode="decimal"
                     value={values[key]}
                     onChange={(e) =>
@@ -262,7 +266,12 @@ export default function PerpScenario({
                   "User-entered collateral (quote units)",
                   "用户输入的抵押品（报价单位）",
                 )}
-                <input
+                <PerpNumberInput
+                  field="collateral"
+                  aria-label={c(
+                    "User-entered collateral (quote units)",
+                    "用户输入的抵押品（报价单位）",
+                  )}
                   inputMode="decimal"
                   autoComplete="off"
                   value={collateral}
@@ -275,7 +284,12 @@ export default function PerpScenario({
                   "User-entered maintenance requirement (bps)",
                   "用户输入的维持保证金要求（基点）",
                 )}
-                <input
+                <PerpNumberInput
+                  field="maintenanceBps"
+                  aria-label={c(
+                    "User-entered maintenance requirement (bps)",
+                    "用户输入的维持保证金要求（基点）",
+                  )}
                   inputMode="numeric"
                   autoComplete="off"
                   value={maintenanceBps}
@@ -284,7 +298,20 @@ export default function PerpScenario({
                 />
               </label>
             </div>
-            <a className="opsis-check-result-link" href="#perp-result-title">
+            <a
+              className="opsis-check-result-link"
+              href="#perp-result-title"
+              onClick={(event) => {
+                // Scroll and move focus together, so keyboard and screen-reader users land on the estimate too.
+                const heading = document.getElementById("perp-result-title");
+                if (!heading) return;
+                event.preventDefault();
+                const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+                heading.scrollIntoView({ block: "start", behavior: reduce ? "auto" : "smooth" });
+                heading.focus({ preventScroll: true });
+                window.history.replaceState(window.history.state, "", "#perp-result-title");
+              }}
+            >
               {c("View scenario estimate ↓", "查看情景估算 ↓")}
             </a>
           </section>
@@ -302,7 +329,9 @@ export default function PerpScenario({
               ).map((key) => (
                 <label key={key}>
                   {labels[key]}
-                  <input
+                  <PerpNumberInput
+                    field={key}
+                    aria-label={labels[key]}
                     inputMode="decimal"
                     value={values[key]}
                     onChange={(e) =>
@@ -352,7 +381,24 @@ export default function PerpScenario({
                           ),
                         }[key]
                       }
-                      <input
+                      <PerpNumberInput
+                        field={key}
+                        aria-label={
+                          {
+                            rateBps: c(
+                              "Funding rate per interval (bps)",
+                              "每个间隔的资金费率（基点）",
+                            ),
+                            intervalHours: c(
+                              "Funding interval (hours)",
+                              "资金费间隔（小时）",
+                            ),
+                            holdingHours: c(
+                              "Holding period (hours)",
+                              "持有期（小时）",
+                            ),
+                          }[key]
+                        }
                         inputMode={key === "rateBps" ? "decimal" : "numeric"}
                         autoComplete="off"
                         value={fundingInputs[key]}
@@ -427,7 +473,9 @@ export default function PerpScenario({
               {(["exit"] as const).map((key) => (
                 <label key={key}>
                   {labels[key]}
-                  <input
+                  <PerpNumberInput
+                    field={key}
+                    aria-label={labels[key]}
                     inputMode="decimal"
                     value={values[key]}
                     onChange={(e) =>
@@ -450,6 +498,19 @@ export default function PerpScenario({
                 onChange={(e) => setCustomShock(e.target.value)}
               />
             </label>
+            {customError && (
+              <p
+                className="opsis-field-error"
+                id="perp-custom-shock-error"
+                role="alert"
+                data-testid="opsis-perp-custom-shock-error"
+              >
+                {c(
+                  "Enter a shock from -95% to +500% with at most two decimal places.",
+                  "请输入 -95% 至 +500% 的冲击值，小数最多两位。",
+                )}
+              </p>
+            )}
             <p id="perp-custom-shock-help" className="opsis-small">
               {c(
                 "Optional local scenario from -95% to +500%, in 0.01 percentage-point steps. Leave blank to omit.",
@@ -462,10 +523,20 @@ export default function PerpScenario({
           <section aria-live="polite" data-testid="opsis-perp-result">
             <p className="opsis-kicker">{c("SCENARIO ESTIMATE", "情景估算")}</p>
             <p>{c("Estimated result", "估算结果")}</p>
-            <h2 id="perp-result-title" className="opsis-check-net">
+            <h2 id="perp-result-title" className="opsis-check-net" tabIndex={-1}>
               {result
                 ? `${result.net} ${c("quote units net", "报价单位净额")}`
-                : c("Complete the assumptions to calculate", "补全假设以计算")}
+                : Object.entries(values).some(([key, value]) =>
+                      perpInputError(key as PerpNumericField, value),
+                    )
+                  ? c(
+                      "Correct the highlighted inputs to calculate",
+                      "请更正标记的输入以计算",
+                    )
+                  : c(
+                      "Complete the assumptions to calculate",
+                      "补全假设以计算",
+                    )}
             </h2>
             {result && (
               <dl className="opsis-check-rows opsis-perp-breakdown">
@@ -582,7 +653,15 @@ export default function PerpScenario({
                   )}
                   : {collateralResult.entryLeverage}×
                 </p>
-                <div className="opsis-table-scroll opsis-perp-collateral-table">
+                <div
+                  className="opsis-table-scroll opsis-perp-collateral-table"
+                  tabIndex={0}
+                  role="region"
+                  aria-label={c(
+                    "Hypothetical collateral buffer",
+                    "假设抵押品缓冲",
+                  )}
+                >
                   <table>
                     <caption>
                       {c(
@@ -702,7 +781,13 @@ export default function PerpScenario({
                         funding: labels.funding,
                       }[key]
                     }
-                    <input
+                    <PerpNumberInput
+                      field={key === "label" ? undefined : key}
+                      aria-label={
+                        key === "label"
+                          ? c("Your label", "您的标签")
+                          : labels[key]
+                      }
                       value={set[key]}
                       maxLength={key === "label" ? 24 : undefined}
                       inputMode={key === "label" ? "text" : "decimal"}
@@ -746,7 +831,12 @@ export default function PerpScenario({
           {c("Add assumption set", "添加假设组")}
         </button>
         {costRows && (
-          <div className="opsis-table-scroll opsis-perp-cost-table">
+          <div
+            className="opsis-table-scroll opsis-perp-cost-table"
+            tabIndex={0}
+            role="region"
+            aria-label={c("Hypothetical cost comparison", "假设成本比较")}
+          >
             <table>
               <caption>
                 {c(
@@ -960,7 +1050,12 @@ export default function PerpScenario({
               </div>
             )}
           </div>
-          <div style={{ overflowX: "auto" }}>
+          <div
+            className="opsis-table-scroll"
+            tabIndex={0}
+            role="region"
+            aria-label={c("Exact price-shock results", "精确价格冲击结果")}
+          >
             <table>
               <caption>
                 {c(
@@ -1007,18 +1102,6 @@ export default function PerpScenario({
           </div>
         </section>
       )}
-      {customError && (
-        <p
-          id="perp-custom-shock-error"
-          role="alert"
-          data-testid="opsis-perp-custom-shock-error"
-        >
-          {c(
-            "Enter a shock from -95% to +500% with at most two decimal places.",
-            "请输入 -95% 至 +500% 的冲击值，小数最多两位。",
-          )}
-        </p>
-      )}
       {customShock.trim() && !customError && result && !customResult && (
         <p role="status" data-testid="opsis-perp-custom-shock-unavailable">
           {c(
@@ -1042,22 +1125,54 @@ export default function PerpScenario({
           )}
         </p>
       )}
-      <aside
-        className="opsis-small"
-        aria-label={c("Scenario disclosure", "情景披露")}
-      >
-        {c(
-          "Informational hypothetical tool only; this is not personalized investment advice. Fees, funding and other costs are user-entered estimates, and losses can exceed the amount modeled. Trading availability depends on your jurisdiction, venue rules and eligibility. This calculator does not verify eligibility, connect a wallet or submit orders.",
-          "仅供信息参考的假设工具，不构成个性化投资建议。费用、资金费及其他成本是用户输入的估算；损失可能超过模型金额。交易可用性取决于您的司法管辖区、场所规则和资格。本计算器不会验证资格、连接钱包或提交订单。",
-        )}
-      </aside>
-      <p className="opsis-receipt">
-        {c(
-          "Calculated locally in memory at eight-decimal precision. Cost terms truncate toward zero; liquidation price rounds toward earlier liquidation. Funding frequency is only what you enter; no annualization. Collateral is not a fee. This is not venue margin math: margin tiers, mark-price rules, inverse/quanto contracts, collateral FX, partial fills and venue rounding are outside this model. A scenario is hypothetical, not a close quote. Opsis does not place, route, transmit or receive orders. The venue's own figure governs.",
-          "仅在本地内存以八位小数精度计算。成本项向零截断；清算价格向更早清算的方向取整。资金费频率仅使用您的输入；不年化。抵押品不是费用。这不是场所保证金计算：保证金等级、标记价格规则、反向／Quanto 合约、抵押品汇率、部分成交及场所取整规则均在模型外。情景是假设，并非平仓报价。Opsis 不放置、路由、传输或接收订单。以场所自身的数值为准。",
-        )}
-      </p>
+      <div className="opsis-panel opsis-perp-disclosures">
+        <aside
+          className="opsis-small"
+          aria-label={c("Scenario disclosure", "情景披露")}
+        >
+          {c(
+            "Informational hypothetical tool only; this is not personalized investment advice. Fees, funding and other costs are user-entered estimates, and losses can exceed the amount modeled. Trading availability depends on your jurisdiction, venue rules and eligibility. This calculator does not verify eligibility, connect a wallet or submit orders.",
+            "仅供信息参考的假设工具，不构成个性化投资建议。费用、资金费及其他成本是用户输入的估算；损失可能超过模型金额。交易可用性取决于您的司法管辖区、场所规则和资格。本计算器不会验证资格、连接钱包或提交订单。",
+          )}
+        </aside>
+        <p className="opsis-receipt">
+          {c(
+            "Calculated locally in memory at eight-decimal precision. Cost terms truncate toward zero; liquidation price rounds toward earlier liquidation. Funding frequency is only what you enter; no annualization. Collateral is not a fee. This is not venue margin math: margin tiers, mark-price rules, inverse/quanto contracts, collateral FX, partial fills and venue rounding are outside this model. A scenario is hypothetical, not a close quote. Opsis does not place, route, transmit or receive orders. The venue's own figure governs.",
+            "仅在本地内存以八位小数精度计算。成本项向零截断；清算价格向更早清算的方向取整。资金费频率仅使用您的输入；不年化。抵押品不是费用。这不是场所保证金计算：保证金等级、标记价格规则、反向／Quanto 合约、抵押品汇率、部分成交及场所取整规则均在模型外。情景是假设，并非平仓报价。Opsis 不放置、路由、传输或接收订单。以场所自身的数值为准。",
+          )}
+        </p>
+      </div>
       <PerpHandoff capabilities={capabilities} summary={summary} />
     </section>
+  );
+}
+
+function PerpNumberInput({
+  field,
+  ...props
+}: InputHTMLAttributes<HTMLInputElement> & {
+  field?: PerpNumericField;
+  value: string;
+}) {
+  const c = useCopy();
+  const id = useId();
+  const error = field ? perpInputError(field, props.value) : null;
+  return (
+    <>
+      <input
+        {...props}
+        aria-invalid={!!error || undefined}
+        aria-describedby={
+          [props["aria-describedby"], error ? id : undefined]
+            .filter(Boolean)
+            .join(" ") || undefined
+        }
+      />
+      {error && (
+        <span id={id} className="opsis-field-error" role="alert">
+          {c(...error)}
+        </span>
+      )}
+    </>
   );
 }

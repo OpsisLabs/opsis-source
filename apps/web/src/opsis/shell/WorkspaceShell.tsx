@@ -5,6 +5,7 @@ import type { Capabilities } from "../model";
 import ToolNavigation from "../ToolNavigation";
 import PublicSearch from "./PublicSearch";
 import { closeToolMenu, openToolMenu } from "./menu";
+import { useScrollRegionKeys } from "./scroll-keys";
 
 export default function WorkspaceShell({
   capabilities,
@@ -27,6 +28,7 @@ export default function WorkspaceShell({
   const dialog = useRef<HTMLDialogElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
+  useScrollRegionKeys();
   function close() {
     if (dialog.current) closeToolMenu(dialog.current, trigger.current);
     setOpen(false);

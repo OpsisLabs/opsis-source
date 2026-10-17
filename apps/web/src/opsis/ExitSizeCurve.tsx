@@ -110,7 +110,15 @@ export default function ExitSizeCurve({
             c("Unavailable", "不可用")}
         </p>
       )}
-      <div className="opsis-curve-table">
+      <div
+        className="opsis-curve-table"
+        tabIndex={0}
+        role="region"
+        aria-label={c(
+          "Observed output by entered size",
+          "按输入数量显示观察到的输出",
+        )}
+      >
         <table>
           <caption className="sr-only">
             {c("Observed output by entered size", "按输入数量显示观察到的输出")}
@@ -120,7 +128,7 @@ export default function ExitSizeCurve({
               <th>{c("Input", "输入")}</th>
               <th>{c("Output", "输出")}</th>
               <th>{c("Impact", "影响")}</th>
-              <th>{c("Pool", "资金池")}</th>
+              <th>{c("Fee tier", "费率档位")}</th>
             </tr>
           </thead>
           <tbody>
@@ -137,7 +145,9 @@ export default function ExitSizeCurve({
                     ? `${point.priceImpactPercent}%`
                     : "—"}
                 </td>
-                <td>{point.pool?.fee ?? "—"}</td>
+                <td>
+                  {point.pool ? `${formatFeeTier(point.pool.fee)}%` : "—"}
+                </td>
               </tr>
             ))}
           </tbody>

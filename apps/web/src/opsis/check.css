@@ -76,7 +76,8 @@
     15px/1.4 OpsisMono,
     monospace;
 }
-.opsis-check-page :is(button, a, input, select, summary, pre):focus-visible {
+.opsis-check-page
+  :is(button, a, input, select, summary, pre, [tabindex="0"]):focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
@@ -370,4 +371,23 @@
     gap: 10px;
     margin: 10px 0;
   }
+}
+
+.opsis-check-page .opsis-field-error {
+  display: block;
+  margin: 6px 0 0;
+  color: var(--ink);
+  font:
+    12px/1.5 OpsisMono,
+    monospace;
+  overflow-wrap: break-word;
+}
+.opsis-perp-scenario .opsis-table-scroll td {
+  white-space: nowrap;
+}
+.opsis-perp-disclosures {
+  margin-top: 24px;
+}
+.opsis-perp-disclosures > :first-child {
+  margin-top: 0;
 }

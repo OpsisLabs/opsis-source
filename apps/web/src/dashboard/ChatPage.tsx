@@ -6,6 +6,8 @@ import { useWallet } from "./walletStore";
 import { shortAddress } from "./wallet";
 import type { AiExplorerAnswer, AnswerCardMeta, AnswerStat, AnswerWidget, ChatMessage, ChatSession, EntitySummary, Severity } from "./types";
 import { useI18n, type TranslationKey } from "../i18n";
+import { CopyControl } from "../private/CopyControl";
+import type { DetailedWidget } from "../private/detailedWidgets";
 
 const SEV_STYLE: Record<Severity, { dot: string; text: string; icon: React.ReactNode }> = {
   info: { dot: "#7cc4f8", text: "text-[#7cc4f8]", icon: <Info size={12} /> },
@@ -74,22 +76,13 @@ function Linkified({ text, onPivot }: { text: string; onPivot: (v: string) => vo
 
 function CopyButton({ value }: { value: string }) {
   const { t } = useI18n();
-  const [done, setDone] = useState(false);
-  return (
-    <button
-      onClick={() => {
-        navigator.clipboard?.writeText(value).then(() => {
-          setDone(true);
-          setTimeout(() => setDone(false), 1200);
-        });
-      }}
+  return <CopyControl
+      value={value}
+      label={t("cloud.chat.copy")}
       className="flex items-center gap-1 font-mono-d text-[10px] text-[#635d5a] transition-colors hover:text-[#e9e0d1]"
-      aria-label={t("cloud.chat.copyAddress")}
-    >
-      <Copy size={11} />
-      {done ? t("cloud.chat.copied") : t("cloud.chat.copy")}
-    </button>
-  );
+      ariaLabel={t("cloud.chat.copyAddress")}
+      icon={<Copy size={11} />}
+    />;
 }
 
 
@@ -275,11 +268,6 @@ export function ResolvingAnswerCard({ entity }: { entity?: ChatSession["entity"]
 
 function CardActions({ card, answer }: { card: AnswerCardMeta; answer: string }) {
   const { t } = useI18n();
-  const [flash, setFlash] = useState<"" | "copy" | "share">("");
-  const blink = (kind: "copy" | "share") => {
-    setFlash(kind);
-    setTimeout(() => setFlash(""), 1200);
-  };
   const explorer =
     card.kind === "transaction"
       ? `${EXPLORER}/tx/${card.id}`
@@ -295,10 +283,8 @@ function CardActions({ card, answer }: { card: AnswerCardMeta; answer: string })
 
   return (
     <div className="mt-5 flex flex-wrap items-center gap-2">
-      <button type="button" className={CHIP_CLASS} onClick={() => navigator.clipboard?.writeText(card.id).then(() => blink("copy"))}>
-        <Copy size={10} />
-        {flash === "copy" ? t("cloud.chat.copied") : card.kind === "transaction" ? t("cloud.chat.copyHash") : t("cloud.chat.copyAddressAction")}
-      </button>
+      <CopyControl value={card.id} className={CHIP_CLASS} icon={<Copy size={10} />}
+        label={card.kind === "transaction" ? t("cloud.chat.copyHash") : t("cloud.chat.copyAddressAction")} />
       <a className={CHIP_CLASS} href={explorer} target="_blank" rel="noreferrer">
         {t("cloud.chat.explorer")} <ExternalLink size={10} />
       </a>
@@ -312,9 +298,7 @@ function CardActions({ card, answer }: { card: AnswerCardMeta; answer: string })
           </a>
         </>
       )}
-      <button type="button" className={CHIP_CLASS} onClick={() => navigator.clipboard?.writeText(shareText).then(() => blink("share"))}>
-        {flash === "share" ? t("cloud.chat.copied") : t("cloud.chat.share")}
-      </button>
+      <CopyControl value={shareText} className={CHIP_CLASS} label={t("cloud.chat.share")} />
     </div>
   );
 }
@@ -333,7 +317,7 @@ function Donut({ segments, onPivot }: { segments: NonNullable<AnswerWidget["segm
   const offsets = segments.map((_, index) => segments.slice(0, index).reduce((sum, segment) => sum + segment.pct, 0));
   const top = segments[0];
   return (
-    <div className="flex items-center gap-5">
+    <div className="detail-donut flex items-center gap-5">
       <div className="relative h-[108px] w-[108px] shrink-0">
         <svg viewBox="0 0 84 84" className="h-full w-full -rotate-90">
           <circle cx="42" cy="42" r={R} fill="none" stroke="#2e2e2e" strokeWidth="9" />
@@ -370,7 +354,7 @@ function Donut({ segments, onPivot }: { segments: NonNullable<AnswerWidget["segm
             type="button"
             disabled={!seg.pivot}
             onClick={() => seg.pivot && onPivot(seg.pivot)}
-            title={seg.pivot ? `Look up ${seg.pivot}` : undefined}
+            title={seg.pivot ? t("cloud.chat.lookUp", { value: seg.pivot }) : seg.label}
             className="flex w-full items-center gap-2 px-1.5 py-1 text-left transition-colors enabled:hover:bg-[#242424]"
           >
             <span className="h-2 w-2 shrink-0" style={{ background: DONUT_PALETTE[i % DONUT_PALETTE.length] }} />
@@ -390,11 +374,12 @@ function Donut({ segments, onPivot }: { segments: NonNullable<AnswerWidget["segm
   );
 }
 
-function WidgetPanel({ w, onPivot, delay = 0 }: { w: AnswerWidget; onPivot: (v: string) => void; delay?: number }) {
+function WidgetPanel({ w, onPivot, delay = 0 }: { w: DetailedWidget; onPivot: (v: string) => void; delay?: number }) {
+  const { t } = useI18n();
   const max = Math.max(...(w.bars ?? []).map((b) => b.count), 1);
   return (
-    <div className="deck-rise border border-[#2e2e2e] bg-[#1f1f1f] p-4" style={{ animationDelay: `${delay}ms` }}>
-      <div className="flex items-baseline justify-between gap-3">
+    <div className="detail-widget deck-rise border border-[#2e2e2e] bg-[#1f1f1f] p-4" style={{ animationDelay: `${delay}ms` }}>
+      <div className="detail-widget-heading flex items-baseline justify-between gap-3">
         <p className="font-mono-d text-[10px] tracking-wider text-[#635d5a]">{w.title.toUpperCase()}</p>
         {w.note && <p className="truncate font-mono-d text-[9px] text-[#4c4844]">{w.note.toUpperCase()}</p>}
       </div>
@@ -431,16 +416,17 @@ function WidgetPanel({ w, onPivot, delay = 0 }: { w: AnswerWidget; onPivot: (v: 
               <>
                 {r.barPct !== undefined && (
                   <span
-                    className="absolute inset-y-0 left-0 bg-[#fa6c34]/10"
+                    aria-hidden="true"
+                    className="detail-widget-fill absolute inset-y-0 left-0 bg-[#fa6c34]/10"
                     style={{ width: `${Math.max(2, r.barPct)}%` }}
                   />
                 )}
                 <span className="relative min-w-0 flex-1 truncate text-left">
-                  <span className="font-mono-d text-[11.5px] text-[#d6ccba]">{r.label}</span>
-                  {r.sub && <span className="ml-2 font-mono-d text-[10px] text-[#635d5a]">{r.sub}</span>}
+                  <span title={r.pivot ?? r.label} className="font-mono-d text-[11.5px] text-[#d6ccba]">{r.label}</span>
+                  {r.sub && <span title={r.sub} className="detail-widget-sub ml-2 font-mono-d text-[10px] text-[#635d5a]">{r.sub}</span>}
                 </span>
                 {r.value && (
-                  <span className={`relative shrink-0 font-num text-[11.5px] ${STAT_TONE[r.tone ?? "neutral"]}`}>{r.value}</span>
+                  <span title={r.exactValue ?? r.value} className={`detail-widget-value relative shrink-0 font-num text-[11.5px] ${STAT_TONE[r.tone ?? "neutral"]}`}>{r.value}</span>
                 )}
               </>
             );
@@ -449,14 +435,14 @@ function WidgetPanel({ w, onPivot, delay = 0 }: { w: AnswerWidget; onPivot: (v: 
                 key={`${r.label}${i}`}
                 type="button"
                 onClick={() => onPivot(r.pivot!)}
-                className="relative flex w-full items-center gap-2 overflow-hidden border border-transparent px-2 py-1.5 transition-colors hover:border-[#2e2e2e] hover:bg-[#242424]"
-                title={`Look up ${r.pivot}`}
+                className="detail-widget-row relative flex w-full items-center gap-2 overflow-hidden border border-transparent px-2 py-1.5 transition-colors hover:border-[#2e2e2e] hover:bg-[#242424]"
+                title={t("cloud.chat.lookUp", { value: r.pivot })}
               >
                 {inner}
                 <Search size={10} className="relative shrink-0 text-[#635d5a]" />
               </button>
             ) : (
-              <div key={`${r.label}${i}`} className="relative flex items-center gap-2 overflow-hidden px-2 py-1.5">
+              <div key={`${r.label}${i}`} className="detail-widget-row relative flex items-center gap-2 overflow-hidden px-2 py-1.5">
                 {inner}
               </div>
             );

@@ -4,7 +4,6 @@ import { echarts } from "./echarts";
 import {
   exportRun,
   realizedStats,
-  parseCsv,
   validateDataset,
   observedReturnHistogram,
   observedDrawdown,
@@ -16,6 +15,7 @@ import { useCopy } from "../copy";
 import JointPortfolioPanel from "./JointPortfolioPanel";
 import QuantReplayPanel from "./QuantReplayPanel";
 import "./quant.css";
+import { buildImportedDataset, datasetDiagnosticChinese, type DatasetImport } from "./dataset-import";
 
 type WorkerMessage = {
   id: number;
@@ -28,7 +28,7 @@ type StoredRun = QuantRun & { dataset: PriceDataset };
 
 export default function QuantWorkbench() {
   const c = useCopy();
-  const [dataset, setDataset] = useState<PriceDataset | null>(null);
+  const [importedFile, setImportedFile] = useState<DatasetImport | null>(null);
   const [datasetRevision, setDatasetRevision] = useState(0);
   const [fileError, setFileError] = useState("");
   const [source, setSource] = useState("User supplied local file");
@@ -50,6 +50,17 @@ export default function QuantWorkbench() {
   const drawdownRef = useRef<HTMLDivElement>(null);
   const workerRef = useRef<Worker | null>(null);
   const messageId = useRef(0);
+  const importId = useRef(0);
+  const imported = useMemo(() => importedFile ? buildImportedDataset(importedFile, {
+    schemaVersion: 1,
+    instrument: { chainId: Number(chainId), address: address.trim(), symbol: symbol.trim() },
+    quoteCurrency: quoteCurrency.trim().toUpperCase(),
+    clock: "daily_crypto_24_7",
+    provenance: { source: source.trim(), observedAt: importedFile.observedAt },
+  }) : { dataset: null, error: "" }, [importedFile, chainId, address, symbol, quoteCurrency, source]);
+  const dataset = imported.dataset;
+  // A JSON file carries its own metadata: the locked fields show it rather than earlier CSV entries.
+  const jsonMetadata = importedFile?.csv === false ? dataset : null;
   const jointSpec: ExperimentSpec = useMemo(() => ({
     bootstrapRuns: runs,
     seed,
@@ -61,9 +72,9 @@ export default function QuantWorkbench() {
 
   useEffect(
     () => () => {
+      importId.current++;
       workerRef.current?.terminate();
       workerRef.current = null;
-      setDataset(null);
     },
     [],
   );
@@ -142,7 +153,7 @@ export default function QuantWorkbench() {
       ? (researchMode
         ? c(`Short-window research mode still requires at least 30 daily returns; this dataset has ${dataset.observations.length - 1}.`, `短窗口研究模式仍至少需要 30 个每日收益；此数据集有 ${dataset.observations.length - 1} 个。`)
         : c(`At least 180 daily returns are required; this dataset has ${dataset.observations.length - 1}. Enable short-window research mode to run with 30 returns.`, `至少需要 180 个每日收益；此数据集有 ${dataset.observations.length - 1} 个。启用短窗口研究模式即可使用 30 个收益运行。`))
-      : runEligibility.issues.map((issue) => issue.message).join(" "))
+      : runEligibility.issues.map((issue) => c(issue.message, datasetDiagnosticChinese(issue.message))).join(" "))
     : "";
   useEffect(() => {
     if (!histogramRef.current || !histogram) return;
@@ -183,63 +194,35 @@ export default function QuantWorkbench() {
     return () => { window.removeEventListener("resize", resize); chart.dispose(); };
   }, [drawdown, c]);
 
-  const metadata = (): Omit<PriceDataset, "observations"> => ({
-    schemaVersion: 1,
-    instrument: {
-      chainId: Number(chainId),
-      address: address.trim(),
-      symbol: symbol.trim(),
-    },
-    quoteCurrency: quoteCurrency.trim().toUpperCase(),
-    clock: "daily_crypto_24_7",
-    provenance: { source: source.trim(), observedAt: new Date().toISOString() },
-  });
-  const loadFile = async (file: File, selectedCsvMetadata: Omit<PriceDataset, "observations">) => {
-    const generation = ++messageId.current;
-    setConsent(false);
+  const clearRun = () => {
+    messageId.current++;
     workerRef.current?.terminate();
     workerRef.current = null;
     setBusy(false);
-    setFileError("");
     setRun(null);
-    setDataset(null);
+    setConsent(false);
+    setFileError("");
+    setDatasetRevision((current) => current + 1);
+  };
+  const editMetadata = (setter: (value: string) => void, value: string) => {
+    clearRun();
+    setter(value);
+  };
+  const loadFile = async (file: File) => {
+    clearRun();
+    const generation = ++importId.current;
+    setImportedFile(null);
     if (file.size > 2_000_000) {
-      setFileError(
-        c(
-          "Files are limited to 2 MB for this local run.",
-          "本地运行文件限制为 2 MB。",
-        ),
-      );
+      setFileError("Files are limited to 2 MB for this local run.");
       return;
     }
     try {
       const text = await file.text();
-      const loaded = file.name.toLowerCase().endsWith(".csv")
-        ? parseCsv(text, selectedCsvMetadata)
-        : (JSON.parse(text) as PriceDataset);
-      // The pre-run card needs at least two observations to show a dated range.
-      const check = validateDataset(loaded, new Date(), { minimumReturns: 1 });
-      if (!check.ok)
-        throw new Error(check.issues.map((issue) => issue.message).join(" "));
-      if (!check.dataset)
-        throw new Error(
-          c(
-            "Dataset did not produce a clean validated copy.",
-            "数据集未生成通过验证的副本。",
-          ),
-        );
-      if (generation !== messageId.current) return;
-      setDatasetRevision((current) => current + 1);
-      setDataset(check.dataset);
-      setConsent(false);
-    } catch (error) {
-      if (generation !== messageId.current) return;
-      setDataset(null);
-      setFileError(
-        error instanceof Error
-          ? error.message
-          : c("Could not read this file.", "无法读取该文件。"),
-      );
+      if (generation !== importId.current) return;
+      setImportedFile({ text, csv: file.name.toLowerCase().endsWith(".csv"), observedAt: new Date().toISOString() });
+    } catch {
+      if (generation !== importId.current) return;
+      setFileError("Could not read this file.");
     }
   };
   const startRun = () => {
@@ -251,7 +234,7 @@ export default function QuantWorkbench() {
     } catch {
       setBusy(false);
       setRun(null);
-      setFileError(c("The local worker could not start.", "本地工作线程无法启动。"));
+      setFileError("The local worker could not start.");
       return;
     }
     workerRef.current = worker;
@@ -272,7 +255,7 @@ export default function QuantWorkbench() {
       ) {
         setFileError(
           event.data.issues?.map((x) => x.message).join(" ") ??
-            c("Run refused.", "运行被拒绝。"),
+            "Run refused.",
         );
         return;
       }
@@ -303,12 +286,7 @@ export default function QuantWorkbench() {
       setBusy(false);
       worker.terminate();
       workerRef.current = null;
-      setFileError(
-        c(
-          "The local worker failed before producing a result.",
-          "本地工作线程未能生成结果。",
-        ),
-      );
+      setFileError("The local worker failed before producing a result.");
     };
     worker.postMessage({ id, dataset, spec: jointSpec });
   };
@@ -317,12 +295,7 @@ export default function QuantWorkbench() {
     workerRef.current?.terminate();
     workerRef.current = null;
     setBusy(false);
-    setFileError(
-      c(
-        "Run cancelled. Input cleared from the worker.",
-        "运行已取消。工作线程中的输入已清除。",
-      ),
-    );
+    setFileError("Run cancelled. Input cleared from the worker.");
   };
   const download = () => {
     if (!run || !consent) return;
@@ -372,8 +345,8 @@ export default function QuantWorkbench() {
           <h2>{c("1. Define the dataset", "1. 定义数据集")}</h2>
           <p>
             {c(
-              "Provide closed daily crypto observations with an exact chain-qualified instrument. JSON carries metadata; CSV uses the fields below.",
-              "提供完整的每日加密观察数据和精确的链限定资产。JSON 自带元数据；CSV 使用以下字段。",
+              "Provide closed daily crypto observations with an exact chain-qualified instrument. JSON carries metadata; its metadata fields below are disabled. CSV uses the editable fields below; edits revalidate the dataset and clear the previous run.",
+              "提供完整的每日加密观察数据和精确的链限定资产。JSON 自带元数据，以下元数据字段会禁用。CSV 使用以下可编辑字段；修改后会重新验证数据集并清除上次运行。",
             )}
           </p>
           <label>
@@ -383,45 +356,50 @@ export default function QuantWorkbench() {
               accept=".csv,.json,application/json,text/csv"
               onChange={(event) => {
                 const file = event.target.files?.[0];
-                if (file) void loadFile(file, metadata());
+                if (file) void loadFile(file);
               }}
             />
           </label>
           <div className="opsis-quant-fields">
             <label>
-              Chain ID
+              {c("Chain ID", "链 ID")}
               <input
-                value={chainId}
-                onChange={(e) => setChainId(e.target.value)}
+                value={jsonMetadata ? String(jsonMetadata.instrument.chainId) : chainId}
+                disabled={importedFile?.csv === false}
+                onChange={(e) => editMetadata(setChainId, e.target.value)}
                 inputMode="numeric"
               />
             </label>
             <label>
               {c("Contract / address", "合约 / 地址")}
               <input
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
+                value={jsonMetadata ? jsonMetadata.instrument.address : address}
+                disabled={importedFile?.csv === false}
+                onChange={(e) => editMetadata(setAddress, e.target.value)}
               />
             </label>
             <label>
               {c("Symbol", "符号")}
               <input
-                value={symbol}
-                onChange={(e) => setSymbol(e.target.value)}
+                value={jsonMetadata ? jsonMetadata.instrument.symbol : symbol}
+                disabled={importedFile?.csv === false}
+                onChange={(e) => editMetadata(setSymbol, e.target.value)}
               />
             </label>
             <label>
               {c("Quote currency", "报价货币")}
               <input
-                value={quoteCurrency}
-                onChange={(e) => setQuoteCurrency(e.target.value)}
+                value={jsonMetadata ? jsonMetadata.quoteCurrency : quoteCurrency}
+                disabled={importedFile?.csv === false}
+                onChange={(e) => editMetadata(setQuoteCurrency, e.target.value)}
               />
             </label>
             <label>
               {c("Source", "来源")}
               <input
-                value={source}
-                onChange={(e) => setSource(e.target.value)}
+                value={jsonMetadata ? jsonMetadata.provenance.source : source}
+                disabled={importedFile?.csv === false}
+                onChange={(e) => editMetadata(setSource, e.target.value)}
               />
             </label>
           </div>
@@ -438,9 +416,9 @@ export default function QuantWorkbench() {
               <p>{dataset.observations.length} {c("observations loaded", "条观察已载入")}</p>
             </section>
           )}
-          {fileError && (
+          {(fileError || imported.error) && (
             <p role="alert" className="opsis-error">
-              {fileError}
+              {c(fileError || imported.error, datasetDiagnosticChinese(fileError || imported.error))}
             </p>
           )}
         </div>
@@ -532,7 +510,7 @@ export default function QuantWorkbench() {
               <h3 id="opsis-return-histogram-title">{c("Observed daily return histogram", "观察到的每日收益直方图")}</h3>
               <p>{c("Observed sample returns; no future path is inferred.", "观察样本收益；不推断未来路径。")} {c("Observations", "观察数")}: {histogram.observations}. {c("Negative tail (≤ -5%)", "负向尾部（≤ -5%）")}: {histogram.negativeTailCount}; {c("Positive tail (≥ +5%)", "正向尾部（≥ +5%）")}: {histogram.positiveTailCount}.</p>
               <div ref={histogramRef} className="opsis-quant-histogram" role="img" aria-label={c("Observed daily return histogram; numeric bin counts are listed in the table.", "观察到的每日收益直方图；数值分箱计数见表格。")} />
-              <div className="opsis-table-scroll opsis-quant-histogram-scroll">
+              <div className="opsis-table-scroll opsis-quant-histogram-scroll" tabIndex={0} role="region" aria-label={c("Return histogram bins", "收益直方图分组")}>
                 <table className="opsis-quant-histogram-table">
                   <caption>{c("Observed daily return bins; edges are raw fractional values with round-trip numeric precision. Left edge included; right edge excluded except the final bin.", "观察到的每日收益分箱；边界以可往返的原始比例数值显示。包含左边界；排除右边界，最后一箱除外。")}</caption>
                   <thead><tr><th>{c("Bin", "分箱")}</th><th>{c("Lower edge (fraction)", "下边界（比例）")}</th><th>{c("Upper edge (fraction)", "上边界（比例）")}</th><th>{c("Observed count", "观察计数")}</th></tr></thead>
@@ -548,7 +526,7 @@ export default function QuantWorkbench() {
               <p>{c("Dated observed prices only; each value compares that day's price with the highest earlier or same-day observed price. Missing days are refused, not filled.", "仅使用带日期的观察价格；每个数值将当日价格与此前或当日观察到的最高价格比较。缺失日期会被拒绝，不会填补。")}</p>
               <p>{c("Observed maximum drawdown", "观察到的最大回撤")}: {(drawdown.maxDrawdown * 100).toFixed(2)}% · {c("Dated observations", "带日期的观察数")}: {drawdown.points.length}</p>
               <div ref={drawdownRef} className="opsis-quant-histogram" role="img" aria-label={c("Observed dated drawdown curve in percent; exact values and peak dates are in the table below.", "按日期显示的观察回撤百分比曲线；精确数值和峰值日期见下表。")}/>
-              <div className="opsis-table-scroll opsis-quant-histogram-scroll">
+              <div className="opsis-table-scroll opsis-quant-histogram-scroll" tabIndex={0} role="region" aria-label={c("Observed drawdowns", "观察到的回撤")}>
                 <table className="opsis-quant-drawdown-table">
                   <caption>{c("Every observed daily drawdown as a raw fractional value; zero means a new or matched observed peak.", "每个观察日的回撤原始比例值；零表示达到或追平观察到的峰值。")}</caption>
                   <thead><tr><th>{c("Observation date", "观察日期")}</th><th>{c("Peak date", "峰值日期")}</th><th>{c("Drawdown (fraction)", "回撤（比例）")}</th></tr></thead>
@@ -632,7 +610,7 @@ export default function QuantWorkbench() {
                 "逐点模拟扇形图，显示 50%、80%、95% 区间和中位数；数值见下方表格",
               )}
             />
-            <div className="opsis-table-scroll opsis-quant-fan-scroll">
+            <div className="opsis-table-scroll opsis-quant-fan-scroll" tabIndex={0} role="region" aria-label={c("Simulation fan values", "模拟扇形数值")}>
               <table className="opsis-quant-fan-table">
                 <caption>
                   {c(
@@ -676,7 +654,7 @@ export default function QuantWorkbench() {
           <div className="opsis-panel">
             <h2>{c("5. Compare or export", "5. 比较或导出")}</h2>
             {history.length > 1 && (
-              <div className="opsis-table-scroll">
+              <div className="opsis-table-scroll" tabIndex={0} role="region" aria-label={c("Run comparison", "运行比较")}>
                 <table>
                   <caption>
                     {c("At most two local runs", "最多两个本地运行")}

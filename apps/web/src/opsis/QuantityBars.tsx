@@ -53,7 +53,7 @@ export default function QuantityBars({
       <p className="opsis-small">{note}</p>
       <details>
         <summary>{c("View exact data", "查看精确数据")}</summary>
-        <div className="opsis-table-scroll">
+        <div className="opsis-table-scroll" tabIndex={0} role="region" aria-label={c("Exact data", "精确数据")}>
           <table>
             <thead>
               <tr>

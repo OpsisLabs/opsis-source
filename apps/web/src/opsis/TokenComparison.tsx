@@ -75,7 +75,7 @@ export default function TokenComparison({ data }: { data: LabData }) {
         </p>
       )}
       {!!tokens.length && (
-        <div className="opsis-table-scroll">
+        <div className="opsis-table-scroll" tabIndex={0} role="region" aria-label={c("Token comparison", "代币比较")}>
           <table>
             <caption>
               {c("Exact captured token comparison", "精确的历史代币比较")}

@@ -6,8 +6,8 @@ import {
   useState,
   type FormEvent,
 } from "react";
-import { Link, useLocation } from "react-router";
-import { publicIdentity } from "../opsis/model";
+import { Link, useLocation, useNavigate } from "react-router";
+import { publicIdentity, workspaceLink } from "../opsis/model";
 import {
   CheckCircle2,
   DatabaseZap,
@@ -38,6 +38,8 @@ import { useLocalHistory } from "../private/useLocalHistory";
 import { LocalHistory, SavedConversation } from "../private/LocalHistory";
 import type { VaultConversationTurn } from "../vault/types";
 import { useI18n } from "../i18n";
+import { detailedWidgets } from "../private/detailedWidgets";
+import "../private/details.css";
 
 /**
  * The followable public addresses the current answer actually shows: the wallet
@@ -76,6 +78,7 @@ function shortAddress(address: string): string {
 export default function PrivateExplorer() {
   const { t } = useI18n();
   const location = useLocation();
+  const navigate = useNavigate();
   const [entityInput, setEntityInput] = useState(() => OPSIS_PRESENTATION ? publicIdentity(new URLSearchParams(location.search).get("entity")) : "");
   const [question, setQuestion] = useState("");
   const [questionSource, setQuestionSource] = useState<"goal" | "freeform">("freeform");
@@ -158,6 +161,8 @@ export default function PrivateExplorer() {
       chainId: identified.chainId,
       id: identified.id,
     });
+    // Keep the address on the identifier being read, so a reload or shared link opens this lookup.
+    if (OPSIS_PRESENTATION) navigate(workspaceLink("/research/details", identified.id), { replace: true });
     try {
       const response = await analyzePrivate(
         {
@@ -669,7 +674,7 @@ export default function PrivateExplorer() {
                     </section>
                   )}
                   <AnswerCard
-                    ai={result.answer}
+                    ai={OPSIS_PRESENTATION ? { ...result.answer, widgets: detailedWidgets(result.entity.facts, result.entity.type) } : result.answer}
                     onPivot={chooseEntity}
                     animateText
                     layout="answer-first"

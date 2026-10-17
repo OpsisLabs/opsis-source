@@ -64,7 +64,12 @@ export default function PoolComparison({ result }: { result: ExitCheckQuote }) {
       </p>
       <details>
         <summary>{c("Exact pool outputs", "精确资金池输出")}</summary>
-        <div className="opsis-table-scroll">
+        <div
+          className="opsis-table-scroll"
+          tabIndex={0}
+          role="region"
+          aria-label={c("Exact pool outputs", "精确资金池输出")}
+        >
           <table>
             <thead>
               <tr>

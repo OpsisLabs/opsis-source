@@ -1,6 +1,8 @@
 /* Research uses the shared shell tokens; data and receipts retain exact values. */
 .opsis .research-workspace {
   min-width: 0;
+  container-type: inline-size;
+  overflow-wrap: break-word;
   color: var(--ink);
   font-family: Opsis, sans-serif;
 }
@@ -20,6 +22,9 @@
 .opsis .research-workflow {
   display: grid;
   gap: 20px;
+}
+.opsis .research-workflow > div {
+  min-width: 0;
 }
 .opsis form.research-input-band {
   position: static;
@@ -119,7 +124,7 @@
 }
 .opsis .research-tiles {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
   gap: 10px;
   padding: 0;
   margin: 0 0 16px;
@@ -130,7 +135,7 @@
   padding: 16px;
   border: 1px solid var(--line);
   background: var(--panel);
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 .opsis .research-tile dt {
   color: var(--soft);
@@ -145,6 +150,9 @@
 .opsis .research-tile:nth-child(-n+2) dd:not(.research-tile-detail) {
   font-family: OpsisMono, monospace;
   letter-spacing: -.05em;
+}
+.opsis .research-number {
+  white-space: nowrap;
 }
 .opsis .research-tile dd.research-tile-detail {
   font: 10px/1.5 OpsisMono, monospace;
@@ -168,7 +176,7 @@
   border: 1px solid var(--line);
   background: var(--panel);
   min-width: 0;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   margin-bottom: 12px;
 }
 .opsis .research-main .opsis-explorer-facts section {
@@ -379,11 +387,10 @@
   .opsis .research-input-band > :is(.opsis-resolved-asset, [role="alert"]) { order: 4; }
   .opsis .research-input-band > .opsis-receipt { order: 5; }
   .opsis .research-input-band .opsis-form-row {
-    grid-template-columns: minmax(0, .7fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, .55fr) minmax(0, 1fr);
     gap: 8px;
   }
   .opsis .research-tiles {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
   }
   .opsis .research-tile {
@@ -431,5 +438,21 @@
   }
   .opsis .research-holder-list .opsis-explorer-tags {
     grid-column: 5;
+  }
+}
+
+.opsis .research-limitations {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+@container (max-width: 700px) {
+  .opsis form.research-input-band {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .opsis .research-input-band .research-input-field,
+  .opsis .research-input-band .opsis-form-row,
+  .opsis .research-input-band > .opsis-action {
+    grid-column: 1;
+    grid-row: auto;
   }
 }

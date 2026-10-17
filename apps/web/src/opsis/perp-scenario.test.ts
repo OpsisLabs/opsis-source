@@ -1,6 +1,8 @@
-import { it, expect } from "vitest";
+import { describe, it, expect } from "vitest";
 import {
   perpCollateralBuffer,
+  perpInputError,
+  type PerpNumericField,
   perpCostComparison,
   perpCustomShockScenario,
   perpFundingOverHold,
@@ -581,4 +583,45 @@ it("omits unknown optional summary figures and refuses incomplete or invalid mai
     expect(() =>
       perpScenarioSummary({ ...input, ...invalid }, summaryLabels),
     ).toThrow();
+});
+
+describe("per-field numeric validation", () => {
+  it.each([
+    ["customShock", "letters"],
+    ["customShock", "500.01"],
+    ["entryFeeBps", "-1"],
+    ["exitFeeBps", "letters"],
+    ["entryFeeBps", "10000.00000001"],
+    ["quantity", "0"],
+    ["entry", "1.123456789"],
+    ["exit", "-1"],
+    ["otherCosts", "-1"],
+    ["funding", "NaN"],
+    ["collateral", "0"],
+    ["maintenanceBps", "1.5"],
+    ["rateBps", "1000.0001"],
+    ["intervalHours", "0"],
+    ["holdingHours", "87601"],
+    ["holdingHours", "1.5"],
+  ])("rejects %s=%s with bilingual guidance", (field, value) => {
+    const error = perpInputError(field as PerpNumericField, value);
+    expect(error).toHaveLength(2);
+    expect(error![1]).toMatch(/[\u4e00-\u9fff]/);
+  });
+  it.each([
+    ["customShock", "-95"],
+    ["customShock", "500"],
+    ["entryFeeBps", "0"],
+    ["exitFeeBps", "10000"],
+    ["quantity", "0.00000001"],
+    ["funding", "-3.5"],
+    ["otherCosts", "0"],
+    ["maintenanceBps", "10000"],
+    ["rateBps", "-1000.0000"],
+    ["intervalHours", "24"],
+    ["holdingHours", "0"],
+    ["entry", ""],
+  ])("accepts %s=%s or leaves blanks unknown", (field, value) => {
+    expect(perpInputError(field as PerpNumericField, value)).toBeNull();
+  });
 });

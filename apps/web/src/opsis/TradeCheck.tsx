@@ -63,7 +63,9 @@ export default function TradeCheck({
     remembered ? publicSession.check.result : null,
   );
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<TradeRefusal | null>(null);
+  const [error, setError] = useState<
+    (TradeRefusal & { message: string }) | null
+  >(null);
   const [resolved, setResolved] = useState<KnownAsset | null>(null);
   const known = resolveKnownAsset(token);
   const tokenIdentity = known?.address ?? token.trim();
@@ -151,7 +153,12 @@ export default function TradeCheck({
         setResult(quote);
       }
     } catch (error) {
-      if (!controller.signal.aborted) setError(tradeRefusal(error));
+      if (!controller.signal.aborted) {
+        setError({
+          ...tradeRefusal(error),
+          message: error instanceof Error ? error.message : "",
+        });
+      }
     } finally {
       if (!controller.signal.aborted) setBusy(false);
     }
@@ -160,6 +167,29 @@ export default function TradeCheck({
     () => (result ? tradeReport(result, output) : null),
     [result, output],
   );
+  const invalidAmount =
+    error?.status === 400 && error.code === "EXIT_CHECK_INVALID_AMOUNT";
+  const refusalReason =
+    invalidAmount && error.message
+      ? c(
+          error.message,
+          error.message
+            .replace(
+              /^Enter a positive amount with no more than (\d+) decimal places$/,
+              "请输入正数数量，小数最多 $1 位",
+            )
+            .replace(/^Enter a positive decimal amount$/, "请输入正的小数数量"),
+        )
+      : error
+        ? c(...tradeRefusalCopy(error))
+        : "";
+  const inputSymbol =
+    result?.input.symbol ??
+    KNOWN_ASSETS.find(
+      (asset) =>
+        asset.address.toLowerCase() === result?.input.contract.toLowerCase(),
+    )?.symbol ??
+    c("input token", "输入代币");
   const stale = result ? now >= Date.parse(result.expiresAt) : true;
   return (
     <div className="opsis-check-page">
@@ -249,6 +279,10 @@ export default function TradeCheck({
               <div className="opsis-check-amount">
                 <input
                   id="check-amount"
+                  aria-invalid={invalidAmount || undefined}
+                  aria-describedby={
+                    invalidAmount ? "check-amount-error" : undefined
+                  }
                   value={amount}
                   onChange={(e) => {
                     clear();
@@ -260,6 +294,15 @@ export default function TradeCheck({
                 />
                 {resolvedAsset && <span>{resolvedAsset.symbol}</span>}
               </div>
+              {invalidAmount && (
+                <p
+                  id="check-amount-error"
+                  className="opsis-field-error"
+                  role="alert"
+                >
+                  {error.code}: {refusalReason}
+                </p>
+              )}
             </div>
             <div>
               <label htmlFor="check-output">
@@ -324,10 +367,10 @@ export default function TradeCheck({
               {c("Reading pools at one block…", "正在读取同一区块的资金池…")}
             </p>
           )}
-          {error && (
+          {error && !invalidAmount && (
             <section role="alert">
               <h2>{c("Quote unavailable", "报价不可用")}</h2>
-              <p>{c(...tradeRefusalCopy(error))}</p>
+              <p>{refusalReason}</p>
             </section>
           )}
           {!result && !busy && !error && (
@@ -356,8 +399,7 @@ export default function TradeCheck({
                     {c("You send", "您送出")}
                   </p>
                   <p className="opsis-check-send">
-                    {result.input.amount}{" "}
-                    {result.input.symbol ?? c("input token", "输入代币")}
+                    {result.input.amount} {inputSymbol}
                   </p>
                   <p className="opsis-check-arrow" aria-hidden="true">
                     ↓
@@ -390,8 +432,7 @@ export default function TradeCheck({
                     <div>
                       <dt>{c("Included pool fee", "已计入的池费用")}</dt>
                       <dd>
-                        {result.quote.feeAmountDisplay}{" "}
-                        {result.input.symbol ?? c("input token", "输入代币")}
+                        {result.quote.feeAmountDisplay} {inputSymbol}
                       </dd>
                     </div>
                     <div>
@@ -494,7 +535,9 @@ export default function TradeCheck({
                 </p>
                 <ul>
                   {result.limitations.map((limit, i) => (
-                    <li key={i}>{limit}</li>
+                    <li key={i}>
+                      {c(limit, quoteLimitChinese[limit] ?? limit)}
+                    </li>
                   ))}
                 </ul>
               </details>
@@ -570,3 +613,28 @@ export default function TradeCheck({
     </div>
   );
 }
+
+const quoteLimitChinese: Record<string, string> = {
+  "This is a read-only single-pool estimate from the official Uniswap V3 factory and QuoterV2 on Robinhood Chain, captured at one block.":
+    "这是来自 Robinhood Chain 官方 Uniswap V3 工厂和 QuoterV2 的只读单池估算，捕获于同一区块。",
+  "It is not a guaranteed fill, a maximum slippage, or proof that the token can be transferred or sold. Token transfer restrictions, paused contracts, allowlists, taxes, and hooks are not checked.":
+    "这不保证成交，不代表最大滑点，也不证明代币可转移或卖出。未检查代币转账限制、暂停合约、白名单、税费和钩子。",
+  "Only standard Uniswap V3 fee-tier pools created by the official factory are tested. Uniswap v4 and other venues are not included.":
+    "仅测试官方工厂创建的标准 Uniswap V3 费率档位池。不包含 Uniswap v4 及其他场所。",
+  "Pleiades and other non-admitted venues are excluded from this estimate.":
+    "此估算不包含 Pleiades 及其他未获准接入的场所。",
+  "Price impact is the exact BigInt gap between the quote and the same-block pre-fee spot price, so it already includes the pool fee; it is not slippage.":
+    "价格影响是报价与同区块扣费前现货价格之间的精确 BigInt 差值，已包含池费用；它不是滑点。",
+  "The fee amount shown is a floor estimate of the input-side pool fee and can differ from the exact charge because V3 rounding and the actual tick path are not reproduced.":
+    "显示的费用是输入侧池费用的向下取整估算；由于未复现 V3 取整和实际跨越的价格刻度路径，可能与实际收费不同。",
+  "Only a QuoterV2 result that did not end at a price-boundary is shown. A boundary result can indicate a partial fill, so full execution is never proven.":
+    "仅显示未在价格边界结束的 QuoterV2 结果。边界结果可能表示部分成交，因此从不证明可完全执行。",
+  "Active V3 liquidity (L) is a raw pool parameter, not the dollar amount you can sell without moving the price.":
+    "活跃 V3 流动性（L）是原始池参数，不是您可以在不影响价格的情况下卖出的美元金额。",
+  "Network gas is paid separately and is not included in this estimate.":
+    "网络 Gas 另行支付，不包含在此估算中。",
+  "Opsis does not sign, approve, submit, or broadcast anything. The official Uniswap app independently requotes and owns execution.":
+    "Opsis 不签名、授权、提交或广播任何内容。官方 Uniswap 应用独立重新报价并负责执行。",
+  "This is not a guaranteed fill, a maximum slippage, or proof that the token can be transferred or sold.":
+    "这不保证成交，不代表最大滑点，也不证明代币可转移或卖出。",
+};
