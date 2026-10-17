@@ -466,6 +466,18 @@
       ],
       "outcome": "The blue rail runs the whole length of every tool page, in the browser and in full-page captures, so it never looks like it stops part way down",
       "shipGate": "At laptop and tablet widths, in light and dark themes, a full-page capture of a page several screens long shows the rail colour and its edge from the top bar to the bottom of the page; on a phone, where the rail is a menu, no rail column is painted. The rail tests run in the release gate in Chromium and WebKit. A walk of the live preview at laptop and phone sizes finds no error, failed request or overflow. Unit, failure-state, privacy and full release gates pass on the integrated candidate. No provider, chain, execution, paid path, workspace, new public claim, or change to the front page."
+    },
+    {
+      "order": 40,
+      "id": "39-qa-fixes",
+      "branch": "codex/39-qa-fixes",
+      "tagPrefix": "rc/39-qa-fixes/",
+      "status": "queued",
+      "dependencies": [
+        "38-full-length-rail"
+      ],
+      "outcome": "The problems six QA agents found by using the live site like real visitors are fixed: lookups that silently dropped, misleading units and labels, unreadable text and buttons, layouts that spill or hide content, untranslated Chinese, and keyboard gaps",
+      "shipGate": "Every finding from the 17 October 2026 QA review recorded in docs/releases/39-qa-fixes.md is fixed and covered by a test, or recorded there with the reason it is not fixed. A pasted identifier with surrounding spaces runs on the first click; consecutive Research lookups create history entries. Detailed research labels token amounts with their token and shows burned supply. Primary actions and labels meet WCAG AA contrast in both themes on Stock-token check, World & markets, Big trades, Saved and Quant Lab. No page scrolls sideways at 375 px with any disclosure open. Anchors and focused fields are never hidden under the top bar. Scrollable result tables are reachable by keyboard in WebKit. Chinese mode shows Chinese for the interface text named in the findings. A repeat of the agent review on the preview finds none of the fixed problems. Unit, failure-state, privacy and full release gates pass on the integrated candidate. No provider, chain, execution, paid path, workspace, new public claim, or change to the front page."
     }
   ]
 }
