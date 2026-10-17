@@ -90,4 +90,15 @@ export const trades: Record<string, string> = {
     "查看精确窗口时间戳、扫描数量以及最大的已签名买入/卖出。",
   "product.feature.biggest-trades.step.4":
     "仅对已验证的公共 EOA 发送方使用 观察 交接。",
+  "trades.limitations.1": "仅观察一个经工厂验证的 Uniswap V3 池；这不是全链或所有交易场所的排名。",
+  "trades.limitations.2": "窗口仅为有限的近期区块范围，并非 UTC 全天，也不代表完整覆盖。缺失日志绝不视为零。",
+  "trades.limitations.3": "每行是此池中的一个带符号 V3 Swap 事件，仅根据 amount0/amount1 分类，绝不根据代币转账分类。",
+  "trades.limitations.4": "单笔交易可包含多个 Swap、闪电贷或多跳路由；一行不代表交易者的净头寸、利润、身份或协同行为。",
+  "trades.limitations.5": "事件发送方和接收方是池事件中的地址。交易发送方是为该笔交易付费的账户，未必是真实个人或实际受益所有者。",
+  "trades.limitations.6": "此处不提供安全结论、价格、建议或聪明钱信号。",
+  "trades.result.narrowedNote": "所请求范围的日志数量超过 RPC 提供方的返回上限，因此 Opsis 改为观察较小但完整的窗口，而非不完整的较大窗口。",
+  "trades.privacy.disclosure": "你点击后，请求将公共代币合约、工厂派生的池地址和有限区块范围发送至 {destination}，该提供方返回公开 Swap 日志和所显示行的交易数据。交易密集的区块可能连同其全部公开交易一并返回；系统核对其哈希以确保一致性，仅用显示的交易标记行，不保留未使用的交易数据。可能会读取所显示行的公共发送方地址和账户代码。这些是公共链标识符，不是你的钱包。未发送私人钱包、金库、标签、备注、所有权或 AI 数据。",
+  "trades.privacy.routing": " dRPC 是付费网关，可能会将每次读取路由至其网络中的独立节点运营方。",
+  "trades.result.fee": "费率 {fee}",
+  "trades.table.blockLog": "区块 {block} · 日志 {log}",
 };

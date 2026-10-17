@@ -1,5 +1,6 @@
 import { OPSIS_PRESENTATION } from "../opsis/presentation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { tradeText } from "./copy";
 import { useI18n } from "../i18n";
 import { ApiError } from "../dashboard/http";
 import { isObservedTradesEnabled } from "../product/availability";
@@ -261,7 +262,7 @@ function Result({ data }: { data: ObservedTradesResponse }) {
               ) : (
                 data.pair.pool
               )}
-              <span className="ml-2 text-[#aaa39b]">fee {data.pair.fee}</span>
+              <span className="ml-2 text-[#aaa39b]">{t("trades.result.fee", { fee: data.pair.fee })}</span>
             </dd>
           </div>
           <div>
@@ -306,7 +307,7 @@ function Result({ data }: { data: ObservedTradesResponse }) {
             <p className={LABEL}>{t("trades.result.notes")}</p>
             <ul className="mt-2 space-y-1 text-[13px] text-[#b8b0a7]">
               {data.window.notes.map((note) => (
-                <li key={note}>{note}</li>
+                <li key={note}>{tradeText(note, t)}</li>
               ))}
             </ul>
           </div>
@@ -354,13 +355,13 @@ function Result({ data }: { data: ObservedTradesResponse }) {
         <ul className="mt-3 space-y-2 text-[13px] leading-relaxed text-[#b8b0a7]">
           {data.limitations.map((limitation) => (
             <li key={limitation} className="border-t border-[#34312f] pt-2">
-              {limitation}
+              {tradeText(limitation, t)}
             </li>
           ))}
         </ul>
         <p className="mt-4 border-t border-[#34312f] pt-3 text-[12px] leading-relaxed text-[#8f837b]">
           <span className={LABEL}>{t("trades.privacy.label")}: </span>
-          {data.privacy.disclosure}
+          {tradeText(data.privacy.disclosure, t)}
         </p>
       </article>
     </section>
@@ -384,8 +385,8 @@ function Observation({
         <span
           className={`rounded-sm px-2 py-0.5 text-[11px] font-semibold ${
             observation.side === "buy"
-              ? "bg-[#1f3a2b] text-[#8fd0a8]"
-              : "bg-[#3a231f] text-[#e0a08a]"
+              ? "bg-[var(--panel,#1f3a2b)] text-[var(--surface-positive,#8fd0a8)]"
+              : "bg-[var(--panel,#3a231f)] text-[var(--surface-negative,#e0a08a)]"
           }`}
         >
           {t(tradeSideKey(observation.side))}
@@ -421,7 +422,7 @@ function Observation({
         <div>
           <dt className={LABEL}>{t("trades.table.tx")}</dt>
           <dd className="mt-0.5 break-all font-mono text-[#e9e0d1]">
-            block {observation.blockNumber} · log {observation.logIndex}
+            {t("trades.table.blockLog", { block: observation.blockNumber, log: observation.logIndex })}
           </dd>
         </div>
         <div>
