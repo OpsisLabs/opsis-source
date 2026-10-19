@@ -146,14 +146,27 @@ Opsis identity policy even when a bot performs the push.
 The minimal setup is an organization-owned GitHub App, installed only on this
 public repository, with Contents read/write and no webhooks or user authorization.
 Publishing changes to workflow files additionally requires Workflows write.
-Store its private key in GitHub Actions secrets, never in the source tree or chat.
-Use `actions/create-github-app-token`, restrict the issued token to this repository,
-and leave automatic token revocation enabled. The push must use that token, not
-the checkout's default credentials. Existing Activity records keep their actors.
+For local publication, keep its private key only in the public clone's
+`.git/opsis-bot.private-key.pem`, mode `0600`, and configure the non-secret Client ID
+with `git config --local opsis.appClientId APP_CLIENT_ID`. Never put the key in the
+source tree or chat. Existing Activity records keep their actors.
 
-A bot-authenticated local push through the same identity and manifest hooks also
-works and consumes no Actions minutes. CI is optional for the publishing identity;
-it does not supply a custom bot account automatically.
+A bot-authenticated local push consumes no Actions minutes and triggers the slim
+public verification workflow. After synchronizing the reviewed export, run from
+the public clone with the supported Node version:
+
+```bash
+node scripts/push-public-as-bot.mjs --check
+node scripts/push-public-as-bot.mjs
+```
+
+The helper checks the App owner, slug, installation and single-repository token
+scope. It keeps the identity/manifest hooks active, refuses a dirty clone or a
+different destination, and never force-pushes. Credentials stay out of Git remotes
+and command arguments. The short-lived installation token is revoked after the
+push, including failures. It creates no commits and does not change commit names.
+The App has no private-source access, polling job, webhook service or Actions
+permission. Public verification needs no App private key or write token.
 
 References: [GitHub Activity](https://docs.github.com/en/repositories/viewing-activity-and-data-for-your-repository/using-the-activity-view-to-see-changes-to-a-repository),
 [Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions),

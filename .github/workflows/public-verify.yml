@@ -34,7 +34,7 @@ jobs:
         if: github.event_name != 'pull_request'
         run: node scripts/identity-guard.mjs history HEAD && node scripts/verify-public-tree.mjs HEAD
       - name: Test publication policy and CI scope
-        run: node scripts/test-identity-guard.mjs && node scripts/test-public-export.mjs && node scripts/test-public-history.mjs && node --test scripts/test-public-ci-scope.mjs
+        run: node scripts/test-identity-guard.mjs && node scripts/test-public-export.mjs && node scripts/test-public-history.mjs && node --test scripts/test-public-ci-scope.mjs scripts/test-bot-publication.mjs
       - name: Choose checks for this change
         id: scope
         env:
