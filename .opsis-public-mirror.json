@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "a0c3f69aad63d3fae41209b1cd09616b0448471626174bdb36bd869c65bcd999",
+  "sourceTreeDigest": "772ace2609181ceefd6a92cd5be81f36f44d8e22b4f4b45bae700ab196884344",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "097f2a6d053a59da8dcdff90695121df3b9c84b794a5419c8677be4d26462e4d",
@@ -8,7 +8,7 @@
     ".githooks/pre-commit": "919c6a46fd512ba1b8837f4c87de156c67a6870bdc9d926caacb97d88c55dd3d",
     ".githooks/pre-push": "35a10006294bc8551f310127ab1234c09c11caf91bd1ae38a0a964d33c5a23bc",
     ".github/security/pnpm-audit-baseline.json": "afa1b9f504fcf72d8be598bd8a81cf61145e3ed4fb6af79c554d806e8cd002a8",
-    ".github/workflows/public-verify.yml": "8daf564a7b4a5b394819ad81d12ba812b1f1eeeacd916d900f1fa08f0accc635",
+    ".github/workflows/public-verify.yml": "176ab1e2c946abeaa95a1be284b96f15fd8ca7265557dbb77e2a9ee5801cec54",
     ".gitignore": "fc431b1589bf1c43f704a4f2099875f292031d28ccd9312f85ce14aec740b229",
     ".gitleaks.toml": "58d9707aa11bbe2a0be61c83e399047f6ba8029efd120553cff4288c2b46d555",
     ".node-version": "7d2df647f25529bd87500319c41564e032e2be642e565350fa6136d7a1ec4d10",
@@ -888,7 +888,7 @@
     "pnpm-lock.yaml": "fc284585d7f8b55e9f214434ae27bccf7981f3da9f0f15316f36cee1d00c446c",
     "pnpm-workspace.yaml": "08d75840c97ab0e72d1d9b5b84a17e47a2e06cb159a5fbec5ee0a6a56682dad7",
     "public-source-policy.json": "2adcec49b7fb7a49f17c5e233d989c2713f8f27b8fac239ce0faf7b5f52a5a47",
-    "README.md": "830456f2a24a9e45345f10dd891dc9fab28c87286196ffe2386ebe43eb14608a",
+    "README.md": "6e59442344c991867b3e45fafd8718ac2ef0def46006823a58b10f1cc29e505d",
     "release-train.json": "dbba0ea500bedf7f3279704cb2bda7fb833338d2aa95bef098af47069867ac23",
     "scripts/audit-production-dependencies.mjs": "f9ec006aaa2b64ef6302e5bebcc10295ee7e1d5ac0a01222d22b9e73e99f1152",
     "scripts/check-product-name.mjs": "b6015ca9cbe32f99841f3fcfdebc0df1b56366930185ab1390f3a0e0fb4a40df",

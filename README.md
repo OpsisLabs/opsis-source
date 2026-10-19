@@ -86,7 +86,7 @@ Use **Node.js 22.12–22.x** and **pnpm 8.15.9**. The lockfile is included.
 ```bash
 pnpm install --frozen-lockfile
 cp .env.example .env
-pnpm --filter @rh-chain/shared build
+pnpm --filter @rh-chain/shared --filter @rh-chain/quant build
 pnpm --filter @rh-chain/api db:generate
 ```
 

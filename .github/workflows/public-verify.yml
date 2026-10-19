@@ -27,7 +27,7 @@ jobs:
       - name: Test publication policy
         run: node scripts/test-identity-guard.mjs && node scripts/test-public-export.mjs && node scripts/test-public-history.mjs
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @rh-chain/shared build && pnpm --filter @rh-chain/api db:generate
+      - run: pnpm --filter @rh-chain/shared --filter @rh-chain/quant build && pnpm --filter @rh-chain/api db:generate
       - run: pnpm audit:prod && pnpm licenses:check
       - run: pnpm lint && pnpm typecheck && pnpm test && pnpm build
       - run: pnpm exec playwright install --with-deps chrome webkit
