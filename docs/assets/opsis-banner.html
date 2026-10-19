@@ -1,0 +1,37 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Opsis — See what the chart misses</title>
+<style>html,body{margin:0;background:#08004c}canvas{display:block;width:1400px;height:520px}</style>
+<canvas width="1400" height="520" aria-label="Opsis. See what the chart misses. Research, Trade Check, Watch, Quant Lab."></canvas>
+<script>
+const canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d');
+const W=1400,H=520,TAU=Math.PI*2;
+function ellipseGlow(x,y,rx,ry,color){ctx.save();ctx.translate(x,y);ctx.scale(rx,ry);const g=ctx.createRadialGradient(0,0,0,0,0,1);g.addColorStop(0,color);g.addColorStop(1,'transparent');ctx.fillStyle=g;ctx.fillRect(-1,-1,2,2);ctx.restore()}
+const points=[];
+const emblem=new Image();emblem.src="opsis-emblem.jpg";
+async function setup(){
+ const font=new FontFace('Space','url(../../apps/web/public/opsis/space-medium.ttf)');await font.load();document.fonts.add(font);
+ const mono=new FontFace('Plex','url(../../apps/web/public/opsis/plex-regular.ttf)');await mono.load();document.fonts.add(mono);
+ const mask=document.createElement('canvas');mask.width=W;mask.height=H;const m=mask.getContext('2d');m.font='196px Space';m.fillText('Opsis',72,262);
+ const data=m.getImageData(0,0,W,H).data;for(let y=80;y<290;y+=5)for(let x=72;x<670;x+=5)if(data[(y*W+x)*4+3]>150)points.push({x,y,logo:false});
+ await emblem.decode();
+ window.ready=true;renderFrame(0);
+}
+function renderFrame(t){
+ const phase=TAU*t/8;ctx.fillStyle='#08004c';ctx.fillRect(0,0,W,H);
+ const base=ctx.createLinearGradient(0,0,W,H);base.addColorStop(0,'#1100dc');base.addColorStop(.5,'#1000ae');base.addColorStop(1,'#04002d');ctx.fillStyle=base;ctx.fillRect(0,0,W,H);
+ ellipseGlow(575+40*Math.sin(phase),40,860,340,'rgba(36,54,255,.78)');ellipseGlow(1140,210,390,300,'rgba(38,67,255,.43)');ellipseGlow(75,485,640,270,'rgba(38,15,255,.53)');
+ ctx.strokeStyle='rgba(180,190,255,.035)';ctx.lineWidth=1;for(let y=5;y<H;y+=8){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+ ctx.strokeStyle='rgba(190,200,255,.26)';ctx.beginPath();ctx.moveTo(76,62);ctx.lineTo(1324,62);ctx.moveTo(76,431);ctx.lineTo(1324,431);ctx.stroke();
+ ctx.font='13px Plex';ctx.fillStyle='#b8bdff';ctx.fillText('OPSIS / SOURCE',76,43);ctx.textAlign='right';ctx.fillText('ROBINHOOD CHAIN',1324,43);ctx.textAlign='left';
+ for(const blur of [18,6,0]){
+  ctx.shadowBlur=blur;ctx.shadowColor='#b3caff';
+  for(const p of points){const glint=.5+.5*Math.cos((p.x/1400)*TAU-phase);const a=.58+.4*glint;ctx.fillStyle=blur?'rgba(169,190,255,.24)':`rgba(230,240,255,${a})`;let x=p.x,y=p.y;if(p.logo){const angle=.035*Math.sin(phase),dx=x-1100,dy=y-244;x=1100+dx*Math.cos(angle)-dy*Math.sin(angle);y=244+dx*Math.sin(angle)+dy*Math.cos(angle)}const r=p.logo?1.7:1.45;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill()}
+ }
+ ctx.shadowBlur=0;ctx.save();ctx.translate(1100,244);ctx.rotate(.025*Math.sin(phase));ctx.beginPath();ctx.arc(0,0,174,0,TAU);ctx.clip();ctx.drawImage(emblem,-180,-180,360,360);ctx.restore();
+ ctx.strokeStyle='rgba(174,190,255,.24)';ctx.beginPath();ctx.arc(1100,244,181,0,TAU);ctx.stroke();
+ ctx.shadowBlur=0;ctx.fillStyle='#f3f1ff';ctx.font='38px Space';ctx.fillText('See what the chart misses.',76,338);ctx.font='17px Space';ctx.fillStyle='#b8bdff';ctx.fillText('Public evidence. Private context.',78,376);
+ ctx.font='13px Plex';ctx.fillStyle='#d5d8ff';ctx.fillText('RESEARCH   /   TRADE CHECK   /   WATCH   /   QUANT LAB',76,470);ctx.textAlign='right';ctx.fillStyle='#afb4ef';ctx.fillText('SOURCE AVAILABLE · NONCOMMERCIAL',1324,470);ctx.textAlign='left';
+}
+window.renderFrame=renderFrame;setup();
+</script>

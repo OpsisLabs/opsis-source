@@ -1,118 +1,87 @@
-> **Opsis** is a research and trading-intelligence hub built on this repository’s existing engines. The product direction, scope and build order are in [docs/opsis/](docs/opsis/README.md). Opsis is the final name (decision D22).
-
 <p align="center">
-  <img src="docs/assets/opsis-source.svg" alt="Opsis — public facts, private context. Explore, understand, keep privately." width="100%" />
+  <picture>
+    <source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/opsis-banner.png">
+    <img src="docs/assets/opsis-banner.gif" alt="Opsis — See what the chart misses. Public evidence. Private context." width="1400">
+  </picture>
 </p>
 
 <p align="center">
-  <a href="LICENSE">License: PolyForm Noncommercial 1.0.0</a>
+  <a href="LICENSE"><img alt="License: PolyForm Noncommercial 1.0.0" src="https://img.shields.io/badge/license-PolyForm_Noncommercial_1.0.0-1000ff?style=flat-square"></a>
+  <img alt="Research: read only" src="https://img.shields.io/badge/research-read_only-1000ff?style=flat-square">
+  <img alt="Vault: encrypted locally" src="https://img.shields.io/badge/vault-encrypted_locally-1000ff?style=flat-square">
+  <img alt="Node: 22.12–22.x" src="https://img.shields.io/badge/node-22.12–22.x-39335c?style=flat-square">
 </p>
 
-```text
-  +----------------------------------------------------------------+
-  |  OPSIS                                           CHAIN // 4663 |
-  |                                                                |
-  |  Public chain facts  --->  Clear explanations                  |
-  |  Your private context --->  Your encrypted, local Vault        |
-  |                                                                |
-  |  READ-ONLY BY DESIGN.  NO KEYS.  NO TRADE EXECUTION.           |
-  +----------------------------------------------------------------+
-```
+<p align="center">
+  <a href="#four-ways-to-look-closer">Explore the tools</a> ·
+  <a href="#run-locally">Run locally</a> ·
+  <a href="docs/public-source.md">Source & identity policy</a> ·
+  <a href="LICENSE">License</a>
+</p>
 
-# Understand what you own. Keep your context private.
+# See what the chart misses.
 
-Opsis is a read-only asset intelligence workspace for **Robinhood Chain**.
-Explore wallets and transactions, inspect tokenized-asset claims, preview supported
-swaps, and keep your own crypto, NFT, Pokémon card, collectible, and real-world
-asset records together in an encrypted, browser-local Vault.
+**Opsis is a research and trading-intelligence hub for Robinhood Chain.**
+Paste a token, wallet, or transaction. Inspect the evidence behind it, explore
+what an exit at your size looks like, revisit saved observations, and run
+reproducible experiments on your own data.
 
-The distinction is deliberate: **public evidence comes from public sources;
-your purchase prices, ownership notes, photos, and saved chats stay local.**
+Research without connecting a wallet or signing up. Public lookups carry their
+sources and coverage limits. Your saved notes, purchase lots, watchlists, and
+imported datasets stay in your browser.
 
-> This repository is a public source mirror, not a deployment feed. Source
-> availability does not mean every feature is enabled on the hosted site.
-> Its history is a filtered reconstruction: original commit dates, counts and
-> merge relationships are retained, while author/committer identities are
-> normalized to the project. Private files and deployment automation are omitted.
+> **Source available, for noncommercial use.** This is a filtered public source
+> repository, not a deployment feed. Included code does not mean a feature is
+> enabled on the hosted product. In-app transaction execution is not available.
 
-## What you can do
+## Four ways to look closer
 
-| Workspace | What it does | Important boundary |
+| Area | Tools in the source | What to expect |
 | --- | --- | --- |
-| **Research** | Explain a public wallet, token, contract, or transaction with source-linked facts and follow-up questions. | No account or wallet connection required. Provider gaps are reported, not invented away. |
-| **Encrypted Vault** | Track assets, exact purchase lots, notes, local photos, and dated values. Export, restore, recover, and lock your records. | Browser-local ciphertext; not automatic cloud sync. Manual ownership and valuations are your claims. |
-| **Local chat history** | Opt into encrypted autosave by unlocking the Vault in Explorer. Reopen saved conversations and include them in backups. | Same browser profile and site origin. Saved answers are dated snapshots, not refreshed evidence. |
-| **Portfolio Intelligence** | Build a read-only holdings/activity snapshot and combine it with private local context. | Coverage is bounded and provider-dependent. A captured current block is not a finality guarantee. |
-| **Stock-token check** | Check exact-address Stock Token and Morpho vault identity, source evidence, and limitations. | A registry match is not proof of physical authenticity, solvency, redemption eligibility, or safety. |
-| **Swap preview** | Inspect a supported WETH/USDG preview, freshness, minimum received, costs, and simulation information. | Official Uniswap independently requotes and owns signing/execution. Opsis never submits a trade. |
-| **Collectible Catalog** | Match supported Pokémon card identity and attach owner-reported variant, condition, grading, photos, and references. | Catalog metadata and permitted image paths do not authenticate a card or establish its value. Manual entry remains available. |
-| **Market & Inventory** | Compare supported public observations and approved merchant mappings with private landed-cost inputs. | Opt-in, flag-controlled. Coverage and freshness vary; unsupported venues use outbound handoffs. |
-| **Replay Actions** | Rebuild a supported trade or purchase with fresh inputs and current evidence. | Flag-controlled. It does not infer or reuse historical intent, calldata, approvals, or checkout sessions. |
-| **Open Data API** | Reuse a small reviewed support registry and normalize identifier syntax. | Flag-controlled. Not a general price feed, wallet-history API, or API for private Vault data. |
+| **Look up** | Research, Stock-token check, Big trades, World & markets | Source-linked observations about public identifiers. Captured editions remain dated; provider gaps stay visible. |
+| **Before you trade** | Trade Check, Perp cost scenario, Portfolio shocks | Size-specific exit observations where supported, plus local hypothetical scenarios with explicit inputs and assumptions. |
+| **Keep watch** | Watch, Saved | Encrypted local observations and comparisons when you refresh. No promise of monitoring while your browser is closed. |
+| **Explore data** | Quant Lab | Local dataset validation, realized-risk calculations and seeded bootstrap experiments. Simulated outcomes are not predictions. |
 
-### What this does not do
+Supported checks are bounded by chain, pool, source, quota, and feature flags.
+Missing evidence is **unknown**, not zero. A verified contract is not a safety
+verdict, and a quote preview is not an executable guarantee.
 
-- Hold private keys, seed phrases, funds, or custody of assets.
-- Sign, broadcast, route, or execute transactions; mint or redeem assets.
-- Promise complete portfolio coverage, trustworthy issuers, or accurate manual valuations.
-- Guarantee that a browser will retain local data forever.
-- Enable cloud research by default. It is not an implied launch feature simply
-  because code is public.
+Opsis does not hold private keys, sign, broadcast, or submit transactions.
+Official external tools own execution and independently requote. Network,
+liquidity, and protocol costs can apply there. Perp scenarios use your inputs;
+the venue's own liquidation figure and eligibility rules govern any actual trade.
 
-Network gas, liquidity, and protocol costs may apply at an official execution
-venue. Read-only does **not** mean third-party actions are free.
-
-## How the pieces fit together
+## Public evidence. Private context.
 
 ```mermaid
 flowchart LR
-  A[Public identifier + your question] --> B[React workspace]
-  B -->|Explicit public lookup| C[Fastify API]
-  C --> D[Reviewed public providers]
-  D --> E[Normalized evidence + citations]
+  A[Public identifier] --> B[Opsis workspace]
+  B -->|Explicit lookup| C[Bounded read-only API]
+  C --> D[Reviewed public sources]
+  D --> E[Evidence, timestamps, limits]
   E --> B
-  B -->|Opt-in local save| F[Web Crypto encryption]
-  F --> G[(IndexedDB Vault)]
-  G --> H[Encrypted backup]
-  B -->|User-chosen handoff| I[Official external app]
+  B -->|Opt-in save| F[Encrypted local Vault]
+  F --> G[Encrypted backup]
 ```
 
-The API validates identifiers, applies request limits and provider budgets,
-normalizes the available evidence, and returns citations and limitations.
-Supported AI paths can explain those facts; a deterministic fallback remains
-available. Public Research uses the privacy-specific route and reports
-the actual destinations in its privacy receipt. Optional cloud/AI paths have
-different data boundaries and must not be confused with that mode.
+Public providers can observe the identifiers you ask them to read. Local privacy
+is not network anonymity. Vault notes, lots, photos, and imported datasets are
+not inputs to those public lookups or model explanations.
 
-Private notes, purchase lots, photos, Vault keys, and passphrases are not inputs
-to public-provider lookups. Providers can still observe identifiers you choose
-to send them. “Private” does not mean anonymous networking or invisible traffic.
+The Vault uses browser Web Crypto: **AES-256-GCM**, fresh random IVs, and a master
+key wrapped with a **PBKDF2-HMAC-SHA-256** passphrase key using 600,000 iterations
+and a random salt. Encrypted records and wrapped keys live in IndexedDB.
+Recovery and encrypted backup/restore are included.
 
-## Inside the encrypted Vault
-
-- **Encryption:** AES-256-GCM via browser Web Crypto, with fresh random IVs.
-- **Passphrase wrapping:** PBKDF2-HMAC-SHA-256 with 600,000 iterations and a random
-  salt derives a key that wraps the Vault's master key.
-- **Recovery:** a separately generated recovery secret wraps the master key;
-  recovery rotates the relevant recovery material.
-- **Storage:** encrypted records and wrapped keys live in IndexedDB. The unlocked
-  key exists in the page's memory and is removed from application state on lock.
-- **Backups:** encrypted JSON includes the records and wrapped key material.
-  Restore verifies the backup before replacing local data. Keep the matching
-  passphrase or recovery code separately and test restoration.
-
-This does not defend against a compromised device, malicious browser extension,
-or malicious code executing in the page while the Vault is unlocked. A copied
-backup can be attacked offline; use a strong, unique passphrase. Clearing site
-data, browser eviction, private browsing, a lost device, or lost recovery material
-can permanently lose access. Another browser, subdomain, or port is a different
-storage location. **Export backups regularly.**
+**Export backups regularly.** Browser data can be cleared or evicted; a different
+site origin or browser profile has different storage. Keep the matching
+passphrase or recovery material separately. Encryption does not protect an
+unlocked page from a compromised device, browser extension, or malicious script.
 
 ## Run locally
 
-Prerequisites: **Node.js 22.12–22.x**, **pnpm 8.15.9**, and Git. Version files and
-the lockfile are included. No global services or paid subscriptions are needed
-for the minimal deterministic development path.
+Use **Node.js 22.12–22.x** and **pnpm 8.15.9**. The lockfile is included.
 
 ```bash
 pnpm install --frozen-lockfile
@@ -121,7 +90,8 @@ pnpm --filter @rh-chain/shared build
 pnpm --filter @rh-chain/api db:generate
 ```
 
-In your local `.env`, use the deterministic path to start without a model:
+For the minimal deterministic development path, set these values in your local
+`.env` (the checked-in example otherwise selects Ollama):
 
 ```dotenv
 AI_PROVIDER=fallback
@@ -130,95 +100,35 @@ CLOUD_WORKSPACE_ENABLED=false
 VITE_CLOUD_WORKSPACE_ENABLED=false
 ```
 
-Then start the API and frontend:
-
 ```bash
 pnpm dev
 ```
 
-| Local service | Address |
-| --- | --- |
-| Web workspace | `http://localhost:5173/app` |
-| Local Vault | `http://localhost:5173/vault` |
-| API | `http://localhost:4000` |
-| API documentation | `http://localhost:4000/docs` |
-| Readiness check | `http://localhost:4000/readyz` |
+Open the workspace at **http://localhost:5173/app**. The API listens on
+**http://localhost:4000**; local API docs are at `/docs` and readiness at `/readyz`.
+This setup does not configure production providers or enable every specialist
+tool. See [.env.example](.env.example) and
+[environment validation](apps/api/src/config/env.ts) for configuration and limits.
+Keep unused integrations disabled. Never put a provider secret in a `VITE_*`
+variable or commit `.env`.
 
-The checked-in example defaults to Ollama; override `AI_PROVIDER` as above if you
-do not have it running. For a local model, configure `AI_PROVIDER=ollama`,
-`OLLAMA_BASE_URL`, and `OLLAMA_MODEL` after installing and starting Ollama yourself.
-An OpenAI path also exists, but requires explicit configuration and can incur
-costs. **Never place provider secrets in `VITE_*` variables or commit `.env`.**
-
-Minimal development can use in-memory server dependencies. That is not a
-production persistence recommendation. Production validation requires an explicit
-HTTPS origin and distributed rate-limit storage; enabling cloud research adds
-database, authentication, retention, and recovery requirements.
-
-### Feature switches
-
-The example intentionally leaves specialist network features off. Enable only
-the paths you have configured and reviewed; changing a flag does not provision a
-provider account or make unsupported data available.
-
-| Feature | Server configuration | Web configuration |
-| --- | --- | --- |
-| Public RPC fallback | `ENABLE_PUBLIC_RPC_FALLBACK=true` | — |
-| Portfolio | `PORTFOLIO_MODE_ENABLED=true` | — |
-| RWA evidence | `RWA_VERIFY_ENABLED=true` | — |
-| Collectibles | `COLLECTIBLE_CATALOG_ENABLED=true` | `VITE_COLLECTIBLE_CATALOG_ENABLED=true` |
-| Market | `MARKET_INVENTORY_ENABLED=true` | `VITE_MARKET_INVENTORY_ENABLED=true` |
-| Replay UI | Underlying market/swap features must be configured | `VITE_REPLAY_ACTIONS_ENABLED=true` |
-| Open Data | `OPEN_DATA_API_ENABLED=true` | `VITE_OPEN_DATA_API_ENABLED=true` |
-| Swap previews | `UNISWAP_QUOTE_ENABLED=true` and supported provider configuration | — |
-
-See [.env.example](.env.example) and [environment validation](apps/api/src/config/env.ts)
-for the full set of limits and dependencies. Keep unused integrations disabled.
-
-## Public API versus private records
-
-The optional Open Data surface exposes only:
+## Inside the repository
 
 ```text
-GET  /v1/public/open-data/v1/registry
-POST /v1/public/open-data/v1/normalize
+apps/web/          React workspace, local Vault, charts and tools
+apps/api/          Fastify routes, evidence, providers and request budgets
+packages/shared/   Shared contracts and validation
+packages/quant/    Local statistics and reproducible experiments
+e2e/               Browser workflows, privacy and failure-state tests
+scripts/           Verification, identity guards and source export
+.githooks/         Commit identity and approved-destination checks
+docs/              Reviewed public documentation and banner assets
 ```
 
-It returns reviewed static support information and syntactic normalization—not
-proof of ownership, current market prices, or transaction safety. The separate
-Research endpoint is `POST /v1/private/analyze`. Specialist private
-routes support explicit consent receipts and bounded public lookups.
-See the [Open Data specification](apps/web/public/open-data-v1.openapi.json).
+**TypeScript · React · Vite · Fastify · Zod · viem · ECharts · Web Crypto**
 
-## Data availability and honest failure states
-
-Public providers can rate-limit, reject requests, change terms, or return partial
-results. Current reviewed-source behavior includes a limited 12-contract RPC
-sample when indexed token balances are unavailable. **Zero sample matches is
-not zero assets.** Missing activity is not proof of inactivity. A verified
-contract's source code is not proof that the asset is safe.
-
-As of the September 2026 review, public Blockscout requests were returning 403 in
-the tested deployment. Complete indexed holdings/activity is not established.
-Supported authorized access must be configured and retested; no paid provider or
-access-control workaround is implied by this repository.
-
-## Development map
-
-```text
-opsis/
-|-- apps/
-|   |-- api/           Fastify routes, providers, evidence, limits, migrations
-|   `-- web/           React workspace, local encryption, asset tools, design
-|-- packages/shared/   Shared contracts and validation schemas
-|-- e2e/               Chromium and WebKit workflow/privacy regression tests
-|-- scripts/           Verification, identity guard, reviewed-source export
-|-- docs/              Public architecture, source policy and dependency notices
-`-- .githooks/         Local author, committer and push-destination checks
-```
-
-Stack: TypeScript · React 19 · Vite · Tailwind · GSAP · ECharts · Fastify · Zod ·
-viem · Prisma · PostgreSQL/Redis where enabled · Web Crypto · IndexedDB.
+PostgreSQL, Redis, and provider integrations are used where configured. Minimal
+in-memory development is not a production persistence recommendation.
 
 ```bash
 pnpm lint
@@ -227,64 +137,53 @@ pnpm test
 pnpm build
 pnpm exec playwright install chrome webkit
 pnpm test:e2e
-node scripts/test-identity-guard.mjs
 ```
 
-Most browser tests use deterministic provider fixtures so privacy and failure
-states are repeatable. Real-provider checks are opt-in and subject to availability.
-Database integration tests need their isolated test services. Passing these checks
-is useful evidence, **not an independent security audit or guarantee of safety**.
+Browser regressions use deterministic provider fixtures. Live-provider and
+database integration checks have separate requirements. Passing tests is not an
+independent security audit. The animated banner is reproducible with
+`node scripts/render-readme-banner.mjs` (Chrome and ffmpeg required); a
+[still version](docs/assets/opsis-banner.png) is included.
 
-## Source mirror and contributions
+## Publication and identity guards
 
-Development happens upstream. Reviewed source history is exported into this
-repository one commit at a time. Application source, tests, lockfile,
-and build configuration are kept byte-identical; internal operations documents,
-private operational files, and production automation are excluded by policy.
+Development happens in a separate private repository. The reviewed export keeps
+application source, tests, and build inputs, while excluding internal operations,
+secrets, original identity metadata, and deployment automation.
 
-Author and committer timestamps are preserved from the original Git records;
-they describe upstream development, not when this repository became public.
-Private-only changes remain clearly labeled empty checkpoints to preserve the
-real commit count. Commit hashes change because the trees and identity metadata
-are filtered. Project attribution is a publication identity, not a claim that
-every original contribution was authored by a single person. No commits or dates
-are manufactured to suggest extra development activity.
+Every public commit uses **`Opsis <source@opsis.invalid>`** for both author and
+committer. Attribution trailers are removed during export. The reserved address
+is a publication identity, not a contact mailbox or a claim of sole authorship.
+GitHub may still display the account performing a push in its activity records.
 
-See [the public-source workflow](docs/public-source.md) for synchronization,
-identity setup, audit requirements, and verification. Do not use `git push --mirror`
-from a private development clone. Public pushes do not deploy the product.
+History is explicitly a **filtered reconstruction**. Original development dates
+and parent relationships are preserved; they are not publication dates. Changes
+that only touched excluded material become labeled checkpoints. No activity is
+invented or backdated to manufacture a development record. The private history
+is not rewritten, and private branches and tags are never pushed here.
 
-Commit metadata uses `Opsis <source@opsis.invalid>`; the reserved address
-is deliberately not a personal mailbox. This avoids personal author/email
-attribution in project commits, **not GitHub activity attribution or anonymity**.
-Local hooks must be installed per clone and can be bypassed; CI is a secondary
-detection layer, not a way to undo an already published identity.
+Install the local hooks in each clone using the instructions in
+[the public-source policy](docs/public-source.md). They check author and committer
+identity, attribution trailers, the approved push destination, and the reviewed
+public tree. Hooks reduce accidental disclosure; they cannot promise anonymity.
 
-For suspected vulnerabilities, do not post secrets or exploit details in public
-issues. A support and security contact is to be published on this page.
+For a suspected vulnerability, do not publish secrets or exploit details in a
+public issue. A support and security contact is to be published on this page.
 
-## Rights, dependencies and independence
+## Noncommercial license
 
-Project-authored code and documentation in this revision are **source-available
-under [PolyForm Noncommercial 1.0.0](LICENSE)**, not permissively licensed open source.
-You may use, modify, self-host, and redistribute them for purposes permitted by
-that license, while preserving its terms and required notices. These include
-noncommercial purposes and the personal uses and organizations specified in the
-license. Commercial uses outside those permissions require a separate written
-license from the applicable rights holders; publishing the code is not permission
-to sell it or run a commercial hosted clone.
+Project-authored code and documentation are **source-available under
+[PolyForm Noncommercial 1.0.0](LICENSE)**. Use, modification, self-hosting, and
+redistribution must stay within its permitted purposes and preserve required
+notices. Commercial use outside those permissions needs a separate written
+license from the applicable rights holders.
 
-The complete [LICENSE](LICENSE) controls; this paragraph is only a summary.
-For commercial licensing enquiries, a maintainer contact is to be published on this page.
-No personal contact details or copyright ownership transfers are implied by project commit identities.
-This license does not retroactively change the terms of earlier revisions.
-It grants no trademark rights or permission to imply Opsis endorsement.
+This is not a permissive open-source license. The complete license controls;
+earlier revisions retain their original terms. Dependencies and bundled assets
+retain their own licenses—see [dependency licensing](docs/dependency-licenses.md)
+and [third-party notices](apps/web/public/THIRD_PARTY_NOTICES.txt). The project
+license grants no rights to third-party data or trademarks and does not transfer
+copyright ownership through commit identity normalization.
 
-Dependencies and third-party bundled assets retain their own terms;
-see [dependency licensing](docs/dependency-licenses.md) and
-[third-party notices](apps/web/public/THIRD_PARTY_NOTICES.txt). A project license
-does not grant rights to third-party artwork, trademarks, or provider data.
-
-Opsis is an independent project. Robinhood, Uniswap, Morpho, Pokémon, and
-other referenced providers or brands do not imply sponsorship or endorsement.
-The software is informational, not investment advice or an assurance about an asset.
+Opsis is independent. Referenced providers and brands do not imply sponsorship
+or endorsement. **Informational software. Not investment advice.**
