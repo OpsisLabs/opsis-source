@@ -12,13 +12,13 @@ try {
   const page = await browser.newPage({ viewport: { width: 1400, height: 520 }, deviceScaleFactor: 1 });
   await page.goto(pathToFileURL(join(root, 'docs/assets/opsis-banner.html')).href);
   await page.waitForFunction(() => window.ready === true);
-  for (let frame = 0; frame < 80; frame++) {
-    await page.evaluate(t => window.renderFrame(t), frame / 10);
+  for (let frame = 0; frame < 160; frame++) {
+    await page.evaluate(t => window.renderFrame(t), frame / 20);
     await page.screenshot({ path: join(frames, `${String(frame).padStart(3, '0')}.png`) });
   }
   copyFileSync(join(frames, '000.png'), join(root, 'docs/assets/opsis-banner.png'));
-  execFileSync('ffmpeg', ['-v', 'error', '-y', '-framerate', '10', '-i', join(frames, '%03d.png'), '-filter_complex', '[0:v]split[a][b];[a]palettegen=max_colors=128:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4', '-loop', '0', join(root, 'docs/assets/opsis-banner.gif')], { stdio: 'inherit' });
-  console.log('Rendered 80 frames / 8 seconds; PNG fallback and looping GIF.');
+  execFileSync('ffmpeg', ['-v', 'error', '-y', '-framerate', '20', '-i', join(frames, '%03d.png'), '-filter_complex', '[0:v]scale=1120:416:flags=lanczos,split[a][b];[a]palettegen=max_colors=96:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4', '-loop', '0', join(root, 'docs/assets/opsis-banner.gif')], { stdio: 'inherit' });
+  console.log('Rendered 160 frames / 8 seconds; PNG fallback and looping GIF.');
 } finally {
   await browser.close();
   rmSync(frames, { recursive: true, force: true });

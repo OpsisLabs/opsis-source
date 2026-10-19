@@ -13,23 +13,26 @@ async function setup(){
  const font=new FontFace('Space','url(../../apps/web/public/opsis/space-medium.ttf)');await font.load();document.fonts.add(font);
  const mono=new FontFace('Plex','url(../../apps/web/public/opsis/plex-regular.ttf)');await mono.load();document.fonts.add(mono);
  const mask=document.createElement('canvas');mask.width=W;mask.height=H;const m=mask.getContext('2d');m.font='196px Space';m.fillText('Opsis',72,262);
- const data=m.getImageData(0,0,W,H).data;for(let y=80;y<290;y+=5)for(let x=72;x<670;x+=5)if(data[(y*W+x)*4+3]>150)points.push({x,y,logo:false});
+ const data=m.getImageData(0,0,W,H).data;for(let y=80;y<290;y+=5)for(let x=72;x<670;x+=5)if(data[(y*W+x)*4+3]>150)points.push({x,y});
  await emblem.decode();
  window.ready=true;renderFrame(0);
 }
 function renderFrame(t){
  const phase=TAU*t/8;ctx.fillStyle='#08004c';ctx.fillRect(0,0,W,H);
  const base=ctx.createLinearGradient(0,0,W,H);base.addColorStop(0,'#1100dc');base.addColorStop(.5,'#1000ae');base.addColorStop(1,'#04002d');ctx.fillStyle=base;ctx.fillRect(0,0,W,H);
- ellipseGlow(575+40*Math.sin(phase),40,860,340,'rgba(36,54,255,.78)');ellipseGlow(1140,210,390,300,'rgba(38,67,255,.43)');ellipseGlow(75,485,640,270,'rgba(38,15,255,.53)');
+ ellipseGlow(575,40,860,340,'rgba(36,54,255,.78)');ellipseGlow(1140,210,390,300,'rgba(38,67,255,.43)');ellipseGlow(75,485,640,270,'rgba(38,15,255,.53)');
  ctx.strokeStyle='rgba(180,190,255,.035)';ctx.lineWidth=1;for(let y=5;y<H;y+=8){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
  ctx.strokeStyle='rgba(190,200,255,.26)';ctx.beginPath();ctx.moveTo(76,62);ctx.lineTo(1324,62);ctx.moveTo(76,431);ctx.lineTo(1324,431);ctx.stroke();
  ctx.font='13px Plex';ctx.fillStyle='#b8bdff';ctx.fillText('OPSIS / SOURCE',76,43);ctx.textAlign='right';ctx.fillText('ROBINHOOD CHAIN',1324,43);ctx.textAlign='left';
  for(const blur of [18,6,0]){
   ctx.shadowBlur=blur;ctx.shadowColor='#b3caff';
-  for(const p of points){const glint=.5+.5*Math.cos((p.x/1400)*TAU-phase);const a=.58+.4*glint;ctx.fillStyle=blur?'rgba(169,190,255,.24)':`rgba(230,240,255,${a})`;let x=p.x,y=p.y;if(p.logo){const angle=.035*Math.sin(phase),dx=x-1100,dy=y-244;x=1100+dx*Math.cos(angle)-dy*Math.sin(angle);y=244+dx*Math.sin(angle)+dy*Math.cos(angle)}const r=p.logo?1.7:1.45;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill()}
+  for(const p of points){const glint=Math.pow(.5+.5*Math.cos((p.x/700)*TAU-phase*2),8);const a=.38+.62*glint;ctx.fillStyle=blur?`rgba(169,190,255,${.12+.4*glint})`:`rgba(230,240,255,${a})`;ctx.beginPath();ctx.arc(p.x,p.y,1.4+.55*glint,0,TAU);ctx.fill()}
  }
- ctx.shadowBlur=0;ctx.save();ctx.translate(1100,244);ctx.rotate(.025*Math.sin(phase));ctx.beginPath();ctx.arc(0,0,174,0,TAU);ctx.clip();ctx.drawImage(emblem,-180,-180,360,360);ctx.restore();
+ ctx.shadowBlur=0;ctx.save();ctx.translate(1100,244);ctx.rotate(phase);ctx.beginPath();ctx.arc(0,0,174,0,TAU);ctx.clip();ctx.drawImage(emblem,-180,-180,360,360);ctx.restore();
  ctx.strokeStyle='rgba(174,190,255,.24)';ctx.beginPath();ctx.arc(1100,244,181,0,TAU);ctx.stroke();
+ // A luminous orbit makes motion readable even in a scaled-down README.
+ for(let i=0;i<32;i++){const angle=-phase-TAU/4-i*.018;ctx.strokeStyle=`rgba(190,215,255,${.85*(1-i/32)})`;ctx.lineWidth=3;ctx.beginPath();ctx.arc(1100,244,190,angle-.025,angle);ctx.stroke()}
+ const orbit=-phase-TAU/4;ctx.shadowBlur=18;ctx.shadowColor='#b9d9ff';ctx.fillStyle='#e8f4ff';ctx.beginPath();ctx.arc(1100+190*Math.cos(orbit),244+190*Math.sin(orbit),4,0,TAU);ctx.fill();
  ctx.shadowBlur=0;ctx.fillStyle='#f3f1ff';ctx.font='38px Space';ctx.fillText('See what the chart misses.',76,338);ctx.font='17px Space';ctx.fillStyle='#b8bdff';ctx.fillText('Public evidence. Private context.',78,376);
  ctx.font='13px Plex';ctx.fillStyle='#d5d8ff';ctx.fillText('RESEARCH   /   TRADE CHECK   /   WATCH   /   QUANT LAB',76,470);ctx.textAlign='right';ctx.fillStyle='#afb4ef';ctx.fillText('SOURCE AVAILABLE · NONCOMMERCIAL',1324,470);ctx.textAlign='left';
 }
