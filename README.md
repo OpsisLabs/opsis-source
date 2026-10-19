@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="docs/assets/opsis-banner.gif?v=2" alt="Opsis — See what the chart misses. Public evidence. Private context." width="1400">
+  <img src="docs/assets/opsis-banner.gif?v=3" alt="Opsis — See what the chart misses. Public evidence. Private context." width="1400">
 </p>
 
-<p align="center"><a href="docs/assets/opsis-banner.gif?raw=true&amp;v=2">Play animated banner</a> · <a href="docs/assets/opsis-banner.png">View still image</a></p>
+<p align="center"><a href="docs/assets/opsis-banner.gif?raw=true&amp;v=3">Play animated banner</a> · <a href="docs/assets/opsis-banner.png">View still image</a></p>
 
 <p align="center">
   <a href="LICENSE"><img alt="License: PolyForm Noncommercial 1.0.0" src="https://img.shields.io/badge/license-PolyForm_Noncommercial_1.0.0-1000ff?style=flat-square"></a>

@@ -15,8 +15,9 @@ node scripts/render-readme-banner.mjs
 ```
 
 This requires the existing Playwright dependency, Chrome, and ffmpeg. It renders
-160 deterministic frames at 20 fps into the looping GIF and a static PNG. A full
-emblem rotation, an orbiting light and a sweep across the wordmark make the loop
-visible at README size. The README embeds the GIF directly and provides a
+160 deterministic frames at 20 fps into the looping GIF and a static PNG. The
+emblem stays upright with a subtle eight-second pulse in scale and brightness;
+an orbiting light and a sweep across the wordmark complete the loop. The README
+embeds the GIF directly and provides a
 separate still-image link for readers who prefer no motion. No product data or
 performance metric is depicted in the banner.

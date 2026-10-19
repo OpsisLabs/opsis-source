@@ -28,7 +28,10 @@ function renderFrame(t){
   ctx.shadowBlur=blur;ctx.shadowColor='#b3caff';
   for(const p of points){const glint=Math.pow(.5+.5*Math.cos((p.x/700)*TAU-phase*2),8);const a=.38+.62*glint;ctx.fillStyle=blur?`rgba(169,190,255,${.12+.4*glint})`:`rgba(230,240,255,${a})`;ctx.beginPath();ctx.arc(p.x,p.y,1.4+.55*glint,0,TAU);ctx.fill()}
  }
- ctx.shadowBlur=0;ctx.save();ctx.translate(1100,244);ctx.rotate(phase);ctx.beginPath();ctx.arc(0,0,174,0,TAU);ctx.clip();ctx.drawImage(emblem,-180,-180,360,360);ctx.restore();
+ // One gentle breath per loop; the emblem keeps its original orientation.
+ const breath=.5-.5*Math.cos(phase);
+ ctx.shadowBlur=0;ellipseGlow(1100,244,215,215,`rgba(100,140,255,${.04+.1*breath})`);
+ ctx.save();ctx.translate(1100,244);ctx.scale(1+.018*breath,1+.018*breath);ctx.beginPath();ctx.arc(0,0,174,0,TAU);ctx.clip();ctx.filter=`brightness(${.94+.06*breath})`;ctx.drawImage(emblem,-180,-180,360,360);ctx.restore();
  ctx.strokeStyle='rgba(174,190,255,.24)';ctx.beginPath();ctx.arc(1100,244,181,0,TAU);ctx.stroke();
  // A luminous orbit makes motion readable even in a scaled-down README.
  for(let i=0;i<32;i++){const angle=-phase-TAU/4-i*.018;ctx.strokeStyle=`rgba(190,215,255,${.85*(1-i/32)})`;ctx.lineWidth=3;ctx.beginPath();ctx.arc(1100,244,190,angle-.025,angle);ctx.stroke()}
