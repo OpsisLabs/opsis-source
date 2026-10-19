@@ -4,16 +4,54 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      full_checks:
+        description: Run application and browser checks as well as publication checks
+        type: boolean
+        default: true
 permissions:
   contents: read
+concurrency:
+  group: public-source-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
+  policy:
+    name: Publication checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      full: ${{ steps.scope.outputs.full }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.12.0
+      - name: Verify public commit metadata and reviewed tree
+        if: github.event_name != 'pull_request'
+        run: node scripts/identity-guard.mjs history HEAD && node scripts/verify-public-tree.mjs HEAD
+      - name: Test publication policy and CI scope
+        run: node scripts/test-identity-guard.mjs && node scripts/test-public-export.mjs && node scripts/test-public-history.mjs && node --test scripts/test-public-ci-scope.mjs
+      - name: Choose checks for this change
+        id: scope
+        env:
+          CI_EVENT_NAME: ${{ github.event_name }}
+          CI_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          CI_FULL_CHECKS: ${{ inputs.full_checks }}
+        run: node scripts/public-ci-scope.mjs
   verify:
+    name: Application and browser checks
+    needs: policy
+    if: needs.policy.outputs.full == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          fetch-depth: 0
+          persist-credentials: false
       - uses: pnpm/action-setup@7088e561eb65bb68695d245aa206f005ef30921d
         with:
           version: 8.15.9
@@ -21,11 +59,6 @@ jobs:
         with:
           node-version: 22.12.0
           cache: pnpm
-      - name: Verify public commit metadata
-        if: github.event_name == 'push'
-        run: node scripts/identity-guard.mjs history HEAD && node scripts/verify-public-tree.mjs HEAD
-      - name: Test publication policy
-        run: node scripts/test-identity-guard.mjs && node scripts/test-public-export.mjs && node scripts/test-public-history.mjs
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @rh-chain/shared --filter @rh-chain/quant build && pnpm --filter @rh-chain/api db:generate
       - run: pnpm audit:prod && pnpm licenses:check

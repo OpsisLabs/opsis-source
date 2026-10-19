@@ -117,6 +117,48 @@ address is intentionally not a personal, verified GitHub email or contact mailbo
 The snapshot exporter never commits or pushes; the history exporter creates local
 commits but never pushes, configures a remote, or creates a GitHub repository.
 Neither reads ignored environment files. `--check` and `--verify` are read-only.
+
+## Activity and CI
+
+The repository's **Commit history** is the development timeline. GitHub's
+**Activity** view records authenticated pushes, merges and branch operations.
+Importing hundreds of commits creates one publication event, and commit dates
+do not set the dates of those events. Existing Activity actors cannot be changed
+by editing commit metadata.
+
+Public CI always runs identity, tree-integrity and publication-policy checks.
+README, license and artwork-only updates skip dependency installation, application
+builds and browser tests. Code, dependency, workflow, claim-boundary or unrecognized
+changes run the existing application/browser checks. Missing comparison data also
+selects full checks. A manual run can select either mode. Superseded runs on the
+same branch are cancelled; no scheduled polling or uploaded artifacts are used.
+
+Standard GitHub-hosted runners on a public repository have free execution minutes.
+Private-repository jobs, larger runners and stored artifacts have separate billing
+rules; keep publication checks here on a standard runner.
+
+A custom Activity actor such as `opsis-bot[bot]` requires a GitHub App with that
+name/slug, installed on this repository, and an **installation** access token for
+the push. The built-in `GITHUB_TOKEN` acts as GitHub Actions; setting `git user.name`
+does not rename that authenticated actor. Keep commit metadata under the existing
+Opsis identity policy even when a bot performs the push.
+
+The minimal setup is an organization-owned GitHub App, installed only on this
+public repository, with Contents read/write and no webhooks or user authorization.
+Publishing changes to workflow files additionally requires Workflows write.
+Store its private key in GitHub Actions secrets, never in the source tree or chat.
+Use `actions/create-github-app-token`, restrict the issued token to this repository,
+and leave automatic token revocation enabled. The push must use that token, not
+the checkout's default credentials. Existing Activity records keep their actors.
+
+A bot-authenticated local push through the same identity and manifest hooks also
+works and consumes no Actions minutes. CI is optional for the publishing identity;
+it does not supply a custom bot account automatically.
+
+References: [GitHub Activity](https://docs.github.com/en/repositories/viewing-activity-and-data-for-your-repository/using-the-activity-view-to-see-changes-to-a-repository),
+[Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions),
+[GitHub App registration](https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app),
+[installation-token action](https://github.com/actions/create-github-app-token).
 The source/public hash mapping stays only in the public clone's
 `.git/opsis-history-map.json`; retain it privately for future synchronization.
 Do not commit it or export the `.git` directory. A new clone without that ledger

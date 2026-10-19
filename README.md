@@ -14,6 +14,7 @@
 <p align="center">
   <a href="#four-ways-to-look-closer">Explore the tools</a> ·
   <a href="#run-locally">Run locally</a> ·
+  <a href="https://github.com/OpsisLabs/opsis-source/commits/main/">Commit history</a> ·
   <a href="docs/public-source.md">Source & identity policy</a> ·
   <a href="LICENSE">License</a>
 </p>
@@ -154,6 +155,10 @@ Every public commit uses **`Opsis <source@opsis.invalid>`** for both author and
 committer. Attribution trailers are removed during export. The reserved address
 is a publication identity, not a contact mailbox or a claim of sole authorship.
 GitHub may still display the account performing a push in its activity records.
+
+Browse the [complete commit history](https://github.com/OpsisLabs/opsis-source/commits/main/)
+for the development timeline. GitHub's Activity view records publication pushes
+and branch events, so one imported history appears as one publication event.
 
 History is explicitly a **filtered reconstruction**. Original development dates
 and parent relationships are preserved; they are not publication dates. Changes
