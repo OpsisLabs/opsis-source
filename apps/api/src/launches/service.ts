@@ -80,6 +80,7 @@ export const caps = {
   feedLogCalls: 90,
   feedEntries: 200,
 } as const;
+export const maxFeedMinutes = 360;
 type Scan = { launch: Launch; log: ChainLog; receipt?: ChainLog[] };
 type Discovery = {
   rows: Scan[];
@@ -150,11 +151,11 @@ export class LaunchCardsService implements LaunchCardsSource {
   }
   async feed(minutes = 10): Promise<Record<string, unknown>> {
     this.enabled();
-    if (!Number.isInteger(minutes) || minutes < 1 || minutes > 60)
+    if (!Number.isInteger(minutes) || minutes < 1 || minutes > maxFeedMinutes)
       throw new AppError(
         "INVALID_WINDOW",
         400,
-        "Use a window from 1 to 60 minutes",
+        `Use a window from 1 to ${maxFeedMinutes} minutes`,
       );
     const existing = this.pending.get(minutes);
     if (existing) return existing;

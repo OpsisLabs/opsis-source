@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { PortfolioSnapshot } from "@rh-chain/shared";
 import { useI18n } from "../i18n";
+import { ExplorerLink } from "../opsis/ExplorerLink";
 import { approvalIdentity, permissionMeaning, uniqueApprovals } from "./model";
 
 export function ApprovalManager({ snapshot }: { snapshot: PortfolioSnapshot }) {
@@ -17,7 +18,7 @@ export function ApprovalManager({ snapshot }: { snapshot: PortfolioSnapshot }) {
   const filtered = rows.filter(row => (filter === "all" || (filter === "active" ? row.active : !row.active)) && `${row.symbol} ${row.contract} ${row.spender}`.toLowerCase().includes(query.toLowerCase()));
   return <section aria-label={t("actions.approvals.title")} className="mt-6 space-y-5 border border-[#383838] bg-[#242424] p-5 text-[#e9e0d1]">
     <h2 className="text-2xl">{t("actions.approvals.title")}</h2>
-    <p className="break-all text-sm">{t("actions.approvals.snapshotWallet", { address: snapshot.address })}</p>
+    <p className="break-all text-sm">{t("actions.approvals.snapshotWallet", { address: snapshot.address })}<ExplorerLink kind="address" value={snapshot.address} /></p>
     <p className="text-sm text-[#b5ada2]">{t("actions.approvals.snapshotMeta", { block: snapshot.anchor.blockNumber, fetched: new Date(snapshot.anchor.fetchedAt).toLocaleString() })}</p>
     {!discoveryUnavailable && <p>{t("actions.approvals.summary", { active: rows.filter(row => row.active).length, broad: rows.filter(row => row.active && row.unlimited).length, unresolved })}</p>}
     <p className="text-sm text-[#b5ada2]">{t("actions.approvals.discoveryLimit")}</p>
@@ -31,8 +32,8 @@ export function ApprovalManager({ snapshot }: { snapshot: PortfolioSnapshot }) {
       <h3>{row.symbol} · {row.active ? row.unlimited ? t("actions.approvals.stateBroad") : t("actions.approvals.stateActive") : t("actions.approvals.stateInactive")}</h3>
       <p className="text-sm">{permissionMeaning(row)}</p>
       {row.kind === "erc20" && <p className="text-sm">{t("actions.approvals.balance", { quantity: snapshot.tokens.find(token => token.contract.toLowerCase() === row.contract.toLowerCase())?.quantity ?? t("actions.approvals.balanceUnknown") })}</p>}
-      <p className="break-all text-sm">{t("actions.approvals.contract", { contract: row.contract })}</p><p className="break-all text-sm">{t("actions.approvals.spender", { spender: row.spender })}</p>
-      <details><summary className="cursor-pointer text-[#fa6c34]">{t("actions.approvals.evidenceSummary")}</summary><p className="break-all">{t("actions.approvals.rawState", { amount: row.currentAmount })}</p><p className="break-all">{t("actions.approvals.discoveryTx", { hash: row.transactionHash })}</p><p>{t("actions.approvals.sourceIds", { ids: row.sourceIds.join(", ") })}</p>{/^0x[0-9a-f]{64}$/i.test(row.transactionHash) && <a className="block text-[#fa6c34] underline" href={`https://robinhoodchain.blockscout.com/tx/${row.transactionHash}`} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">{t("actions.approvals.inspectTx")}</a>}<p>{t("actions.approvals.txHistorical", { block: snapshot.anchor.blockNumber })}</p></details>
+      <p className="break-all text-sm">{t("actions.approvals.contract", { contract: row.contract })}<ExplorerLink kind="token" value={row.contract} /></p><p className="break-all text-sm">{t("actions.approvals.spender", { spender: row.spender })}<ExplorerLink kind="address" value={row.spender} /></p>
+      <details><summary className="cursor-pointer text-[#fa6c34]">{t("actions.approvals.evidenceSummary")}</summary><p className="break-all">{t("actions.approvals.rawState", { amount: row.currentAmount })}</p><p className="break-all">{t("actions.approvals.discoveryTx", { hash: row.transactionHash })}<ExplorerLink kind="tx" value={row.transactionHash} /></p><p>{t("actions.approvals.sourceIds", { ids: row.sourceIds.join(", ") })}</p><p>{t("actions.approvals.txHistorical", { block: snapshot.anchor.blockNumber })}</p></details>
     </article>)}
     <button className="min-h-[44px] border border-[#fa6c34] px-4 text-[#fa6c34]" onClick={() => setHandoff(!handoff)} aria-expanded={handoff}>{t("actions.approvals.reviewRevocation")}</button>
     {handoff && <div className="space-y-3 border border-[#fa6c34] p-4"><h3>{t("actions.approvals.handoffTitle")}</h3><p>{t("actions.approvals.handoffBody")}</p><p>{t("actions.approvals.handoffPrivacy")}</p><a className="inline-block min-h-[44px] text-[#fa6c34] underline" href="https://revoke.cash/token-approval-checker/robinhood-chain" target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">{t("actions.approvals.handoffLink")}</a></div>}

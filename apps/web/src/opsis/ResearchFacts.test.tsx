@@ -288,3 +288,19 @@ for (const chinese of [false, true]) {
     }
   });
 }
+
+it("links Research identity, decoded parties, token contracts and holders", () => {
+  language.chinese = false;
+  const hash = `0x${"a".repeat(64)}`;
+  const identity = (type: "token" | "wallet" | "contract" | "transaction", value: string) => renderToStaticMarkup(<ResearchIdentity entity={{ type, value, chainId: 4663, facts: {}, citations: [], riskNotes: [] }} />);
+  for (const type of ["token", "wallet", "contract", "transaction"] as const) {
+    const value = type === "transaction" ? hash : address;
+    const kind = type === "transaction" ? "tx" : type === "token" ? "token" : "address";
+    expect(identity(type, value)).toContain(`href="https://robinhoodchain.blockscout.com/${kind}/${value}"`);
+  }
+  const actions = renderToStaticMarkup(<DecodedActions coverage="decoded" actions={[{ kind: "erc20_transfer", logIndex: 1, token, from: address, to: address, rawAmount: "1000000", amount: "1" }]} />);
+  expect(actions).toContain(`href="https://robinhoodchain.blockscout.com/address/${address}"`);
+  expect(actions).toContain(`href="https://robinhoodchain.blockscout.com/token/${address}"`);
+  const holders = renderToStaticMarkup(<TokenFacts facts={{ topHolders: [{ address, share: 1 }] }} />);
+  expect(holders).toContain(`href="https://robinhoodchain.blockscout.com/address/${address}"`);
+});

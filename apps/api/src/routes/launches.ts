@@ -3,9 +3,11 @@ import { z } from "zod";
 import type { Env } from "../config/env.js";
 import { rateLimitKey } from "../http/authenticate.js";
 import { AppError } from "../http/errors.js";
-import type { LaunchCardsSource } from "../launches/service.js";
+import { maxFeedMinutes, type LaunchCardsSource } from "../launches/service.js";
 const query = z
-  .object({ minutes: z.coerce.number().int().min(1).max(60).default(10) })
+  .object({
+    minutes: z.coerce.number().int().min(1).max(maxFeedMinutes).default(10),
+  })
   .strict();
 const params = z
   .object({ token: z.string().regex(/^0x[0-9a-fA-F]{40}$/) })

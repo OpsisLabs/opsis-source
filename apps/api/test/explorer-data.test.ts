@@ -9,6 +9,7 @@ import { ExplorerGate } from "../src/chain/explorer-gate.js";
 import { explorerReasonApplies, normalizeEntity } from "../src/chain/normalize.js";
 import { ProviderHttpClient, ProviderRequestError, type ProviderHttp } from "../src/chain/provider-http.js";
 import { ChainEntityResolver } from "../src/chain/resolver.js";
+import { contractFacts } from "../src/chain/contract-facts.js";
 import type { SourceDocumentInput } from "../src/chain/types.js";
 import { loadEnv } from "../src/config/env.js";
 import { applyPrivateProviderCoverage } from "../src/routes/private.js";
@@ -240,6 +241,8 @@ describe("Private Mode explorer reads", () => {
     expect(first.entity.facts.explorerCached).toBe(false);
     expect(second.entity.facts.explorerCached).toBe(true);
     expect(second.sources).toEqual(first.sources);
+    expect(contractFacts(4663, weth, second.sources)).toEqual(contractFacts(4663, weth, first.sources));
+    expect(contractFacts(4663, weth, second.sources).sourceVerified.source?.fetchedAt).toBe(first.sources.find((source) => source.requestUrl?.includes("/smart-contracts/"))?.fetchedAt);
     expect(second.entity.facts.explorerObservedAt).toBe(first.entity.facts.explorerObservedAt);
     expect(set).toHaveBeenCalledExactlyOnceWith(`explorer-token:v1:4663:${weth}`, { documents: first.sources, reason: undefined }, 900);
     await vi.advanceTimersByTimeAsync(1);

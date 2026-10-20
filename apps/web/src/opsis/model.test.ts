@@ -287,7 +287,7 @@ it("parses optional reach flags and rejects missing or mismatched manifest rows"
     original.mockResolvedValueOnce(new Response(JSON.stringify(body), { status: 200 }));
     return unlockPreview("", new AbortController().signal);
   };
-  for (const id of ["publicCards", "publicMcp", "telegramBot", "stockDesk", "openDataSql", "openDataDatasets", "alerts"] as const) {
+  for (const id of ["contractFacts", "publicCards", "publicMcp", "telegramBot", "stockDesk", "openDataSql", "openDataDatasets", "alerts"] as const) {
     expect((await parse(base))[id]).toBeUndefined();
     for (const enabled of [false, true]) {
       const capabilities = (["research", "tokenControls", "exitCheck", "watch", "rwa", "observedTrades"] as const).map((key) => ({ id: key, enabled: base[key], scope: "sample", origin: "sample", freshness: "sample", coverage: "partial", limits: "unknown" }));
@@ -299,4 +299,19 @@ it("parses optional reach flags and rejects missing or mismatched manifest rows"
     }
     for (const invalid of [null, "true", 1]) await expect(parse({ ...base, [id]: invalid })).rejects.toThrow("Invalid preview response");
   }
+});
+
+it("validates the optional network pulse capability and manifest parity", async () => {
+  const parse = async (body: unknown) => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify(body))));
+    return unlockPreview("", new AbortController().signal);
+  };
+  const base = await response(Date.now() + 60_000).json();
+  expect((await parse(base)).networkPulse).toBeUndefined();
+  const row = { id: "networkPulse", enabled: true, scope: "Robinhood Chain 4663", origin: "RPC", freshness: "15 seconds", coverage: "bounded", limits: "four reads" };
+  const enabled = { ...base, networkPulse: true, manifest: { ...base.manifest, capabilities: [...base.manifest.capabilities, row] } };
+  expect((await parse(enabled)).networkPulse).toBe(true);
+  await expect(parse({ ...base, networkPulse: true })).rejects.toThrow("Invalid preview response");
+  await expect(parse({ ...enabled, networkPulse: false })).rejects.toThrow("Invalid preview response");
+  await expect(parse({ ...base, networkPulse: "true" })).rejects.toThrow("Invalid preview response");
 });

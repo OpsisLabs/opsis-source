@@ -1,4 +1,11 @@
 export const rwa = {
+  "desk.share": "Share card",
+  "desk.share.loading": "Loading public card preview…",
+  "desk.share.error": "Card unavailable. Source or budget limits may apply. Try again.",
+  "desk.share.preview": "Stock Token card preview",
+  "desk.share.copy": "Copy SVG URL",
+  "desk.share.copied": "SVG URL copied.",
+  "desk.share.copyFailed": "Could not copy the URL. Check clipboard permissions and try again.",
   "desk.title": "Stock Token Desk",
   "desk.boundary": "On request: the public contract goes to the existing RPC, issuer registry, Chainlink directory and explorer paths. The index scans ten reviewed Stock Tokens.",
   "desk.disclaimer": "A Stock Token tracks a stock; it is not a share. The issuer sets who can hold it; Opsis does not check eligibility. Not investment advice.",

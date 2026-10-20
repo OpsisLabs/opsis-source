@@ -2,6 +2,13 @@ import { describe, expect, it } from "vitest";
 import { loadEnv } from "../src/config/env.js";
 
 describe("environment validation", () => {
+  it("defaults network pulse off and binds enabled reads to chain 4663", () => {
+    expect(loadEnv({ NODE_ENV: "test" }).NETWORK_PULSE_ENABLED).toBe(false);
+    expect(loadEnv({ NODE_ENV: "test", NETWORK_PULSE_ENABLED: "true" }).NETWORK_PULSE_ENABLED).toBe(true);
+    expect(() => loadEnv({ NODE_ENV: "test", NETWORK_PULSE_ENABLED: "true", ROBINHOOD_CHAIN_ID: "1" })).toThrow(/4663/);
+    expect(() => loadEnv({ NODE_ENV: "test", NETWORK_PULSE_ENABLED: "yes" })).toThrow(/NETWORK_PULSE_ENABLED/);
+    expect(() => loadEnv({ NODE_ENV: "development", NETWORK_PULSE_ENABLED: "true", ROBINHOOD_PUBLIC_RPC_URL: "https://rpc.example.com" })).toThrow(/existing official/);
+  });
   it.each([
     ["BLOCKSCOUT_REQUESTS_PER_SECOND", 4, 1, 50],
     ["BLOCKSCOUT_MAX_WAIT_MS", 2500, 0, 10000],

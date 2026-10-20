@@ -11,6 +11,22 @@ export const statusDetails: Record<
     limits: [string, string];
   }
 > = {
+  contractFacts: {
+    label: ["Contract facts", "合约事实"],
+    scope: ["Blockscout contract metadata", "Blockscout 合约元数据"],
+    origin: ["Existing explorer documents on request", "按请求读取现有区块浏览器文档"],
+    freshness: ["Original read time; follows the token cache window", "保留原始读取时间；遵循代币缓存期限"],
+    coverage: ["Reported verification, compiler and proxy fields", "已报告的验证、编译器与代理字段"],
+    limits: ["Missing or malformed evidence stays unknown. Verification does not establish contract behaviour.", "缺失或格式错误的证据保持未知。源代码验证不能证明合约行为。"],
+  },
+  networkPulse: {
+    label: ["Network now", "网络现况"],
+    scope: ["Robinhood Chain 4663", "Robinhood Chain 4663"],
+    origin: ["Read-only RPC and on-chain Chainlink ETH/USD", "只读 RPC 与链上 Chainlink ETH/USD"],
+    freshness: ["15-second server cache; refreshes every 30 seconds while visible", "服务器缓存 15 秒；面板可见时每 30 秒刷新"],
+    coverage: ["Latest and safe blocks, gas price, ETH/USD round and RPC read latency", "最新区块、safe 区块、Gas 价格、ETH/USD 轮次与 RPC 读取延迟"],
+    limits: ["Four independent batched reads; current, not final. No network-wide uptime claim.", "四次独立读取，合并为一批；当前数据，非最终确认。不代表全网在线率。"],
+  },
   linkedWallets: {
     label: ["Wallets linked by funding", "资金关联钱包"],
     scope: ["Top 100 explorer holders", "区块浏览器前 100 名持有人"],

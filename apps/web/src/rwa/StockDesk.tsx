@@ -8,17 +8,21 @@ import type {
 import { privateApi } from "../dashboard/http";
 import { useI18n, type TranslationKey } from "../i18n";
 import { ReceiptActions } from "../opsis/ReceiptActions";
+import { stockCardPath } from "./stock-card";
+import { ExplorerLink } from "../opsis/ExplorerLink";
 
 export default function StockDesk({
   address,
   onSelect,
   receipts = false,
+  publicCards = false,
 }: {
   address: string;
   onSelect(address: string): void;
   receipts?: boolean;
+  publicCards?: boolean;
 }) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [desk, setDesk] = useState<StockDeskResult | null>(null);
   const [index, setIndex] = useState<StockDeskIndex | null>(null);
   const [error, setError] = useState(false);
@@ -65,6 +69,7 @@ export default function StockDesk({
           {t("desk.index")}
         </button>
       </div>
+      {publicCards && <StockCardShare key={`${address}:${locale}`} address={address} />}
       {pending && <p role="status">{t("desk.loading")}</p>}
       {error && <p role="alert">{t("desk.error")}</p>}
       {desk && <DeskFacts desk={desk} receipts={receipts} />}
@@ -97,7 +102,7 @@ export default function StockDesk({
                       <li key={value}>
                         <Link to={entry.href} onClick={() => onSelect(value)}>
                           {entry.desk.symbol ?? value} · {value}
-                        </Link>
+                        </Link><ExplorerLink kind="token" value={value} />
                         <DeskFacts desk={entry.desk} compact />
                       </li>
                     );
@@ -138,6 +143,53 @@ export default function StockDesk({
         </div>
       )}
     </section>
+  );
+}
+
+export function StockCardShare({ address }: { address: string }) {
+  const { t, locale } = useI18n();
+  const path = stockCardPath(address, locale);
+  const [preview, setPreview] = useState("");
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState(false);
+  const [copy, setCopy] = useState<"idle" | "copied" | "failed">("idle");
+  if (!path) return null;
+  const url = () => new URL(`${import.meta.env.VITE_API_BASE_URL ?? ""}${path}`, window.location.origin).href;
+  const load = async () => {
+    if (pending) return;
+    setPending(true);
+    setError(false);
+    try {
+      const response = await fetch(url(), { credentials: "omit", referrerPolicy: "no-referrer" });
+      if (!response.ok || !response.headers.get("content-type")?.startsWith("image/svg+xml")) throw new Error();
+      const svg = await response.text();
+      if (new TextEncoder().encode(svg).byteLength >= 16 * 1024) throw new Error();
+      setPreview(`data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`);
+    } catch {
+      setError(true);
+    } finally {
+      setPending(false);
+    }
+  };
+  const copyUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(url());
+      setCopy("copied");
+    } catch {
+      setCopy("failed");
+    }
+  };
+  return (
+    <div className="my-4">
+      <button className="rwa-ws-primary" disabled={pending} onClick={() => void load()}>{t("desk.share")}</button>
+      {pending && <p role="status">{t("desk.share.loading")}</p>}
+      {error && <p role="alert">{t("desk.share.error")}</p>}
+      {preview && <div className="mt-3">
+        <img className="w-full max-w-sm" src={preview} alt={t("desk.share.preview")} />
+        <button className="rwa-ws-primary mt-3" onClick={() => void copyUrl()}>{t("desk.share.copy")}</button>
+        {copy !== "idle" && <p role={copy === "failed" ? "alert" : "status"}>{t(copy === "copied" ? "desk.share.copied" : "desk.share.copyFailed")}</p>}
+      </div>}
+    </div>
   );
 }
 /** Round a non-negative decimal string for display; the exact value stays in the title. */
@@ -237,6 +289,7 @@ export function DeskFacts({
   }
   return (
     <div>
+      <p><code>{desk.address}</code><ExplorerLink kind="token" value={desk.address} /></p>
       <p>
         {t(`desk.canonical.${desk.canonical}`)} · {desk.observedAt}
       </p>
@@ -259,6 +312,7 @@ export function DeskFacts({
                     ? value.evidence.map((e, j) => (
                         <div key={j}>
                           {e.source}
+                          {/^(chainlink|exit-check):/.test(e.source) && <ExplorerLink kind="address" value={e.source.split(":")[1] ?? ""} />}
                           {e.value && ` · ${e.value} ${e.unit}`} ·{" "}
                           {t("desk.block")} {e.block ?? t("desk.unknown")} ·{" "}
                           {e.time}

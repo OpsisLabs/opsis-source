@@ -1,5 +1,6 @@
 import { useEffect, useId, useState } from "react";
 import { useCopy } from "./copy";
+import { ExplorerLink } from "./ExplorerLink";
 import {
   correctionUrl,
   readLaunches,
@@ -143,7 +144,7 @@ function State({ state, reason }: { state: string; reason?: string }) {
     </p>
   );
 }
-function Value({ value, depth = 0 }: { value: unknown; depth?: number }) {
+function Value({ value, depth = 0, field = "" }: { value: unknown; depth?: number; field?: string }) {
   const c = useCopy();
   if (value === null || value === undefined)
     return (
@@ -157,6 +158,7 @@ function Value({ value, depth = 0 }: { value: unknown; depth?: number }) {
             ? c("Yes", "是")
             : c("No", "否")
           : c(...(names[String(value)] ?? [String(value), String(value)]))}
+        {typeof value === "string" && <ExplorerLink kind={field === "transactionHash" || field === "transactions" ? "tx" : ["token", "token0", "token1", "tokenAddress", "pairToken"].includes(field) ? "token" : "address"} value={value} />}
         {["early buyer", "same-tx multi-buy", "new wallet"].includes(
           String(value),
         ) && <Dispute />}
@@ -169,7 +171,7 @@ function Value({ value, depth = 0 }: { value: unknown; depth?: number }) {
       <ul>
         {value.map((v, i) => (
           <li key={i}>
-            <Value value={v} depth={depth + 1} />
+            <Value value={v} depth={depth + 1} field={field} />
           </li>
         ))}
       </ul>
@@ -202,7 +204,7 @@ function Value({ value, depth = 0 }: { value: unknown; depth?: number }) {
             <div key={k}>
               <dt>{c(...(names[k] ?? [k, k]))}</dt>
               <dd>
-                <Value value={v} depth={depth + 1} />
+                <Value value={v} depth={depth + 1} field={k} />
               </dd>
             </div>
           ))}
@@ -265,8 +267,8 @@ export function TagRule({
         </span>
         <Dispute />
       </td>
-      <td>{tag.wallet}</td>
-      <td>{tag.transactionHash}</td>
+      <td>{tag.wallet}<ExplorerLink kind="address" value={tag.wallet} /></td>
+      <td>{tag.transactionHash}<ExplorerLink kind="tx" value={tag.transactionHash} /></td>
     </tr>
   );
 }
@@ -275,6 +277,8 @@ export function LaunchCardView({ card }: { card: LaunchCardData }) {
   const launch = card.launch.value as
     | {
         launchpad?: string;
+        deployer?: string | null;
+        pool?: string | null;
         created?: { timestamp: string };
         t0?: { timestamp: string };
         unknownReasons?: Record<string, string>;
@@ -290,6 +294,7 @@ export function LaunchCardView({ card }: { card: LaunchCardData }) {
   return (
     <section className="launch-card">
       <h2>{c("Launch facts", "发行事实")}</h2>
+      <p className="launch-address">{card.token}<ExplorerLink kind="token" value={card.token} /></p>
       <p>
         {c("Anchor block", "锚定区块")} {card.anchor.blockNumber} ·{" "}
         {card.anchor.timestamp}
@@ -322,6 +327,8 @@ export function LaunchCardView({ card }: { card: LaunchCardData }) {
               {launch.launchpad}
               <Dispute />
             </p>
+            {launch.deployer && <p>{c("Deployer", "部署者")}: {launch.deployer}<ExplorerLink kind="address" value={launch.deployer} /></p>}
+            {launch.pool && <p>{c("Pool", "资金池")}: {launch.pool}<ExplorerLink kind="address" value={launch.pool} /></p>}
             <p>
               {c("Launch event", "发行事件")}:{" "}
               {launch.created?.timestamp ?? c("Unknown", "未知")}

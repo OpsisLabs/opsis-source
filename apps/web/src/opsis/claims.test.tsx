@@ -9,7 +9,7 @@ import {
   type Receipt,
 } from "@rh-chain/shared";
 import I18nProvider from "../i18n/I18nProvider";
-import ClaimCheck, { ClaimResults } from "./ClaimCheck";
+import ClaimCheck, { ClaimEvidence, ClaimResults } from "./ClaimCheck";
 import { receiptFixture } from "./receipt-test-fixtures";
 import * as localeCookie from "../i18n/locale";
 import { addressConfirmed, claimInput, requestClaims } from "./claims-model";
@@ -324,4 +324,14 @@ describe("capability, navigation and bilingual parity", () => {
     expect(keys.length).toBeGreaterThan(40);
     for (const key of keys) expect(zhCN).toHaveProperty(key);
   });
+});
+
+it("links public claim evidence and leaves unknown values and block hashes unlinked", () => {
+  const owner = `0x${"2".repeat(40)}`;
+  const blockHash = `0x${"a".repeat(64)}`;
+  const html = renderToStaticMarkup(<I18nProvider><ClaimEvidence evidence={{ owner, token: address, recipients: `${owner}, ${address}`, blockHash, admin: "unknown", source: "javascript:alert(1)" }} /></I18nProvider>);
+  expect(html).toContain(`href="https://robinhoodchain.blockscout.com/address/${owner}"`);
+  expect(html).toContain(`href="https://robinhoodchain.blockscout.com/token/${address}"`);
+  expect(html).not.toContain(`/tx/${blockHash}`);
+  expect(html.match(/<a /g)).toHaveLength(4);
 });

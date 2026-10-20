@@ -16,9 +16,12 @@ import {
   capabilityRows,
   type Availability,
 } from "./status-model";
+import NetworkPulsePanel from "./NetworkPulsePanel";
 import "./utility-workspace.css";
 
 const sources: Record<CapabilityId, [string, string]> = {
+  contractFacts: ["Blockscout contract metadata", "Blockscout 合约元数据"],
+  networkPulse: ["Read-only RPC and Chainlink", "只读 RPC 与 Chainlink"],
   linkedWallets: ["Explorer and read-only RPC", "浏览器与只读 RPC"],
   claimCheck: ["Existing controls, explorer and launch facts", "现有控制、浏览器与发行事实"],
   launchCards: ["Reviewed launch registry, RPC and explorer", "已查阅发行登记、RPC 与区块浏览器"],
@@ -41,6 +44,8 @@ const sources: Record<CapabilityId, [string, string]> = {
   telegramBot: ["Shared token card engines", "共享代币卡片引擎"],
 };
 const destinations: Record<CapabilityId, string> = {
+  contractFacts: "/research",
+  networkPulse: "/status",
   linkedWallets: "/research",
   claimCheck: "/research/claims",
   launchCards: "/research/launches",
@@ -99,8 +104,10 @@ const manifestLabels: Record<
 
 export default function Status({
   capabilities,
+  previewKey = "",
 }: {
   capabilities: Capabilities;
+  previewKey?: string;
 }) {
   const c = useCopy();
   const rows = capabilityRows(capabilities);
@@ -126,6 +133,7 @@ export default function Status({
   ) => (copy ? c(...copy[key]) : "");
   return (
     <div className="utility-ws status-ws">
+      <NetworkPulsePanel capabilities={capabilities} previewKey={previewKey} />
       <div className="status-ws-layout">
         <section
           className="utility-ws-panel status-ws-registry"
@@ -430,8 +438,8 @@ export default function Status({
       <div className="utility-ws-context">
         <p>
           {c(
-            "Robinhood Chain · 4663. Server configuration only; provider health is unknown.",
-            "Robinhood Chain · 4663。仅显示服务器配置；提供商运行状况未知。",
+            "Robinhood Chain · 4663. Registry flags show server configuration; the network panel has its own observation time.",
+            "Robinhood Chain · 4663。登记表标志表示服务器配置；网络面板另有观测时间。",
           )}
         </p>
         <span className="utility-ws-mono">

@@ -20,7 +20,9 @@ export function capabilityRows(capabilities: Capabilities): CapabilityStatus[] {
   if (capabilities.manifest) return capabilities.manifest.capabilities;
   const ids: CapabilityId[] = [
     "research",
+    "networkPulse",
     "tokenControls",
+    "contractFacts",
     "exitCheck",
     "watch",
     "rwa",

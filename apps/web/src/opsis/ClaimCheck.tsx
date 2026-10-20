@@ -14,6 +14,7 @@ import { lookup } from "../i18n/translate";
 import type { Capabilities } from "./model";
 import { addressConfirmed, initialClaim, requestClaims } from "./claims-model";
 import { ReceiptActions } from "./ReceiptActions";
+import { ExplorerLink } from "./ExplorerLink";
 import "./utility-workspace.css";
 import "./claims.css";
 export default function ClaimCheck({
@@ -366,14 +367,7 @@ export function ClaimResults({ result, receipts = false }: { result: ClaimRespon
               {t("claims.reason")}: {detail(r.reason)}
             </p>
           )}
-          <dl aria-label={t("claims.evidence")}>
-            {Object.entries(r.evidence).map(([k, v]) => (
-              <div key={k}>
-                <dt>{lookup(locale, `claims.evidenceKey.${k}`) ?? k}</dt>
-                <dd>{detail(v)}</dd>
-              </div>
-            ))}
-          </dl>
+          <ClaimEvidence evidence={r.evidence} />
         </article>
       ))}
     </section>
@@ -385,4 +379,16 @@ export function ClaimResults({ result, receipts = false }: { result: ClaimRespon
       {receipts && <ReceiptActions receipt={result.receipt} />}
     </>
   );
+}
+
+export function ClaimEvidence({ evidence }: { evidence: Record<string, string> }) {
+  const { t, locale } = useI18n();
+  return <dl aria-label={t("claims.evidence")}>
+    {Object.entries(evidence).map(([key, value]) => <div key={key}>
+      <dt>{lookup(locale, `claims.evidenceKey.${key}`) ?? key}</dt>
+      <dd>{(key === "recipients" ? value.split(", ") : [value]).map((part, index) => <span key={index}>
+        {index > 0 && ", "}{lookup(locale, `claims.detail.${part}`) ?? part}<ExplorerLink kind={key === "transactionHash" ? "tx" : key === "token" || key === "tokenAddress" ? "token" : "address"} value={part} />
+      </span>)}</dd>
+    </div>)}
+  </dl>;
 }

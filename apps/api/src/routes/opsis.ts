@@ -56,6 +56,8 @@ export async function opsisRoutes(app: FastifyInstance, env: Env, alertsStatus?:
         capabilities: [
           ...(env.SAVED_CHECK_COMPARISONS_ENABLED ? [{ id: "savedCheckComparisons", enabled: true, scope: "Local saved token Research and Trade Check comparisons", origin: "encrypted browser records", freshness: "historical observation times", coverage: "matching typed evidence only", limits: "No automatic lookup; different inputs or missing coverage are not market changes." }] : []),
           { id: "research", enabled: env.PRIVATE_MODE_ENABLED, scope: "Robinhood Chain public-identifier research", origin: "live on request", freshness: "checked per request", coverage: "bounded by upstream source coverage", limits: "Provider health and complete coverage are unknown until each lookup." },
+          { id: "contractFacts", enabled: env.PRIVATE_MODE_ENABLED && env.CONTRACT_FACTS_ENABLED, scope: "Blockscout contract facts", origin: "existing explorer documents on request", freshness: "original explorer read time; token documents reused within the configured cache window", coverage: "reported verification, compiler and proxy metadata only", limits: "Unavailable or malformed evidence stays unknown. Source verification does not establish contract behaviour." },
+          ...(env.NETWORK_PULSE_ENABLED ? [{ id: "networkPulse", enabled: true, scope: "Robinhood Chain 4663 network observations", origin: "read-only RPC and on-chain Chainlink ETH/USD", freshness: "15-second server cache; 30-second visible-page refresh", coverage: "latest and safe blocks, gas price, ETH/USD round and RPC read latency", limits: "Four independent batched RPC reads; current, not final. Unknown values carry a reason; no network-wide uptime claim." }] : []),
           { id: "tokenControls", enabled: env.PRIVATE_MODE_ENABLED && env.TOKEN_CONTROLS_ENABLED, scope: "Robinhood Chain standard contract controls", origin: "live RPC on request", freshness: "block-anchored per request", coverage: "owner, pause responses and three proxy slots only", limits: "Mint privileges, custom roles, transfer taxes and concentration are not inferred; optional explorer enrichment may be unavailable." },
           { id: "exitCheck", enabled: env.EXIT_CHECK_ENABLED, scope: "Robinhood Chain official Uniswap V3 standard fee tiers", origin: "live RPC on request", freshness: "block-anchored per quote", coverage: "bounded factory pools and configured RPC quota", limits: "Does not prove transferability, sellability or execution; V4 and other venues are excluded." },
           { id: "watch", enabled: env.WATCH_ENABLED && env.PORTFOLIO_MODE_ENABLED, scope: "Robinhood Chain user-triggered wallet snapshots", origin: "captured on user request", freshness: "snapshot timestamp; no background monitoring", coverage: "supported assets and upstream discovery coverage", limits: "Not continuous monitoring; missing upstream data stays unknown." },
@@ -79,8 +81,10 @@ export async function opsisRoutes(app: FastifyInstance, env: Env, alertsStatus?:
       return {
         expiresAt: new Date(expiresAt).toISOString(),
         chainId: 4663,
+        networkPulse: env.NETWORK_PULSE_ENABLED,
         research: env.PRIVATE_MODE_ENABLED,
         tokenControls: env.PRIVATE_MODE_ENABLED && env.TOKEN_CONTROLS_ENABLED,
+        contractFacts: env.PRIVATE_MODE_ENABLED && env.CONTRACT_FACTS_ENABLED,
         exitCheck: env.EXIT_CHECK_ENABLED,
         watch: env.WATCH_ENABLED && env.PORTFOLIO_MODE_ENABLED,
         rwa: env.RWA_VERIFY_ENABLED,

@@ -14,6 +14,7 @@ import { unlockPreview } from "./model";
 import { researchToolPaths, routeTitle, toolGroups } from "./shell-model";
 import { capabilityRows } from "./status-model";
 import { statusDetails } from "./status-copy";
+import { launchRowKey } from "./launch-radar-model";
 import { readFileSync } from "node:fs";
 const language = vi.hoisted(() => ({ chinese: false }));
 vi.mock("./copy", () => ({
@@ -142,6 +143,7 @@ const feed: LaunchFeed = {
   entries: [
     {
       token,
+      adapter: "pons",
       launchpad: "Pons",
       deployer: null,
       created: { timestamp: time },
@@ -154,6 +156,7 @@ const feed: LaunchFeed = {
     },
     {
       token: other,
+      adapter: "long",
       launchpad: "Long",
       deployer: wallet,
       created: { timestamp: "2026-10-19T23:59:00.000Z" },
@@ -218,7 +221,9 @@ describe("launch fact fixture presentation", () => {
       "mailto:not-an-address",
     ])
       expect(correctionUrl(value)).toBeNull();
-    expect(correctionUrl("mailto:support@opsis.example")).toBe("mailto:support@opsis.example");
+    expect(correctionUrl("mailto:support@opsis.example")).toBe(
+      "mailto:support@opsis.example",
+    );
   });
   it("renders no feature or requests while off, including direct client calls", async () => {
     const fetcher = vi.fn();
@@ -282,6 +287,98 @@ describe("launch fact fixture presentation", () => {
       expect(html).not.toMatch(/top picks|score/i);
     },
   );
+  it.each([false, true])(
+    "renders filters, live-off controls and disclosures in Chinese=%s",
+    (chinese) => {
+      language.chinese = chinese;
+      const html = renderToStaticMarkup(<LaunchRadar enabled />);
+      for (const text of chinese
+        ? [
+            "全部",
+            "Pons",
+            "Long",
+            "Uniswap 流动性发行器",
+            "时间范围",
+            "10 分钟",
+            "1 小时",
+            "6 小时",
+            "实时刷新",
+            "不作排名",
+            "非投资建议",
+          ]
+        : [
+            "All",
+            "Pons",
+            "Long",
+            "Uniswap Liquidity Launcher",
+            "Time window",
+            "10 min",
+            "1 h",
+            "6 h",
+            "Live",
+            "No ranking",
+            "Not investment advice",
+          ])
+        expect(html).toContain(text);
+      expect(html).toContain('aria-pressed="true"');
+      expect(html).not.toContain('checked=""');
+      const filtered = renderToStaticMarkup(
+        <MemoryRouter>
+          <LaunchFeedView
+            feed={feed}
+            filter="pons"
+            newRows={new Set([launchRowKey(feed.entries[0]!)])}
+          />
+        </MemoryRouter>,
+      );
+      expect(filtered).toContain(token);
+      expect(filtered).not.toContain(other);
+      expect(filtered).toContain(chinese ? "新增" : "New");
+      const empty = renderToStaticMarkup(
+        <MemoryRouter>
+          <LaunchFeedView feed={feed} filter="launcher" />
+        </MemoryRouter>,
+      );
+      expect(empty).toContain(
+        chinese ? "未发现符合筛选条件" : "No launches found for these filters",
+      );
+    },
+  );
+  it.each([10, 60, 360])(
+    "requests the selected %i-minute window with an abort signal",
+    async (minutes) => {
+      const selected = { ...feed, minutes };
+      const fetcher = vi
+        .fn()
+        .mockResolvedValue(new Response(JSON.stringify(selected)));
+      vi.stubGlobal("fetch", fetcher);
+      const signal = new AbortController().signal;
+      expect(await readLaunches(true, undefined, signal, minutes)).toEqual(
+        selected,
+      );
+      expect(fetcher).toHaveBeenCalledWith(
+        `/v1/private/opsis/launches?minutes=${minutes}`,
+        expect.objectContaining({
+          signal,
+          credentials: "omit",
+          cache: "no-store",
+        }),
+      );
+    },
+  );
+  it("rejects out-of-range query windows and feed responses", async () => {
+    const fetcher = vi.fn();
+    vi.stubGlobal("fetch", fetcher);
+    for (const minutes of [0, 361, 1.5, NaN])
+      await expect(
+        readLaunches(true, undefined, undefined, minutes),
+      ).rejects.toThrow("Invalid launch window");
+    expect(fetcher).not.toHaveBeenCalled();
+    fetcher.mockResolvedValue(
+      new Response(JSON.stringify({ ...feed, minutes: 361 })),
+    );
+    await expect(readLaunches(true)).rejects.toThrow("malformed");
+  });
   it.each([false, true])(
     "retains unknown-time feed entries and their block in Chinese=%s",
     async (chinese) => {
@@ -441,4 +538,19 @@ describe("launch fact fixture presentation", () => {
     for (const invalid of [null, "true", 1, {}, []])
       await expect(parse({ ...base, launchCards: invalid })).rejects.toThrow();
   });
+});
+
+it("links tokens, deployer, buyer wallets and pools using their own explorer paths", () => {
+  language.chinese = false;
+  const pool = `0x${"4".repeat(40)}`;
+  const blockHash = `0x${"b".repeat(64)}`;
+  const html = renderToStaticMarkup(<LaunchCardView card={{ ...card,
+    anchor: { ...card.anchor, blockHash },
+    launch: { ...card.launch, value: { ...(card.launch.value as Record<string, unknown>), deployer: other, pool } },
+    directPools: { state: "available", value: [{ pool, token0: token, token1: other, transactionHash: hash, poolId: blockHash }] },
+  }} />);
+  for (const address of [token, other]) expect(html).toContain(`href="https://robinhoodchain.blockscout.com/token/${address}"`);
+  for (const address of [wallet, other, pool]) expect(html).toContain(`href="https://robinhoodchain.blockscout.com/address/${address}"`);
+  expect(html).toContain(`href="https://robinhoodchain.blockscout.com/tx/${hash}"`);
+  expect(html).not.toContain(`/tx/${blockHash}`);
 });

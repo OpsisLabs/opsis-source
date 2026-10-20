@@ -1,5 +1,28 @@
 /* D29: private draft and operational registry, isolated from legacy form styles. */
 @import "./utility-shell.css";
+.opsis.opsis-terminal .opsis-content .network-pulse {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 24px;
+  overflow-wrap: anywhere;
+}
+.opsis.opsis-terminal .opsis-content .network-pulse header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+}
+.opsis.opsis-terminal .opsis-content .network-pulse-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 16px;
+}
+.opsis.opsis-terminal .opsis-content .network-pulse-facts dt { color: var(--soft); }
+.opsis.opsis-terminal .opsis-content .network-pulse-facts dd {
+  margin: 4px 0 0;
+  font-family: OpsisMono, monospace;
+  font-variant-numeric: tabular-nums;
+}
 .opsis.opsis-terminal .opsis-content .utility-ws {
   margin: 0;
   padding: 0;

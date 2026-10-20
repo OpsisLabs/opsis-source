@@ -106,6 +106,10 @@ test.describe("opsis preview detailed research workspace", () => {
       .fill(`  ${payload.entity.value}  `);
     await run(page);
     expect(requests).toHaveLength(1);
+    const holderLink = page.locator(`.details-ws-holders a.opsis-explorer-link[href="https://robinhoodchain.blockscout.com/address/${address}"]`);
+    await expect(holderLink).toHaveAttribute("target", "_blank");
+    await expect(holderLink).toHaveAttribute("rel", "noopener noreferrer");
+    await expect(holderLink).toHaveAccessibleName("View 0x1111…1111 on Blockscout");
     expect(requests[0]).toMatchObject({ entity: payload.entity.value });
     await expect(page).toHaveURL(
       new RegExp(`entity=${payload.entity.value}$`, "i"),
@@ -259,7 +263,7 @@ test.describe("opsis preview detailed research workspace", () => {
       await open(page, 375);
       await run(page);
       const row = page.locator(".details-ws-holders tbody tr").nth(1);
-      await expect(row.getByRole("link")).toHaveAttribute(
+      await expect(row.locator("a.details-ws-address")).toHaveAttribute(
         "href",
         `/research/details?entity=${address}`,
       );

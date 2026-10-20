@@ -2,6 +2,7 @@ import { adaptAnswer, type BackendAnswer, type BackendEntity } from "../dashboar
 import { privateApi } from "../dashboard/http";
 import type { AiExplorerAnswer, ChainEntityType, ExplorerAnswerTask } from "../dashboard/types";
 import { readLocaleCookie } from "../i18n/locale";
+import type { ContractFacts } from "@rh-chain/shared";
 
 export type PrivatePrivacyReceipt = {
   accountRequired: false;
@@ -56,6 +57,7 @@ export type ResearchFacts = Record<string, unknown> & {
 };
 
 export type PrivateAnalysis = {
+  contractFacts?: ContractFacts;
   entity: BackendEntity & { facts: ResearchFacts };
   answer: AiExplorerAnswer;
   privacy: PrivatePrivacyReceipt;
@@ -69,6 +71,7 @@ export async function analyzePrivate(input: {
 }, signal?: AbortSignal): Promise<PrivateAnalysis> {
   const response = await privateApi<{
     mode: "private";
+    contractFacts?: ContractFacts;
     entity: BackendEntity;
     answer: BackendAnswer;
     privacy: PrivatePrivacyReceipt;
@@ -81,6 +84,7 @@ export async function analyzePrivate(input: {
   }, signal);
   return {
     entity: response.entity,
+    ...(response.contractFacts ? { contractFacts: response.contractFacts } : {}),
     answer: adaptAnswer(response.answer, { type: response.entity.type, id: response.entity.value }),
     privacy: response.privacy
   };

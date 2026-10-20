@@ -497,14 +497,14 @@ export default function OpsisApp() {
                     />
                     <Route
                       path="/status"
-                      element={<ToolWorkspace><Status capabilities={access} /></ToolWorkspace>}
+                      element={<ToolWorkspace><Status capabilities={access} previewKey={key} /></ToolWorkspace>}
                     />
                     <Route
                       path="/rwa"
                       element={
                         access.rwa ? (
                           <ToolWorkspace>
-                            <Rwa stockDesk={access.stockDesk === true} receipts={access.receipts === true} />
+                            <Rwa stockDesk={access.stockDesk === true} receipts={access.receipts === true} publicCards={access.publicCards === true} />
                           </ToolWorkspace>
                         ) : (
                           <Unavailable />

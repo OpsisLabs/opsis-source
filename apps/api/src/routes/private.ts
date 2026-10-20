@@ -8,6 +8,7 @@ import { z } from "zod";
 import { AiService, type AiLocale } from "../ai/service.js";
 import { AlchemyProvider } from "../chain/alchemy.js";
 import { ChainEntityResolver } from "../chain/resolver.js";
+import { contractFacts } from "../chain/contract-facts.js";
 import { robinhoodRpcEndpoint, rpcRoutingDisclosure, type RpcSpendBudget } from "../chain/robinhood-rpc.js";
 import type { ResolvedEntity } from "../chain/types.js";
 import type { ResolveOptions } from "../chain/types.js";
@@ -174,6 +175,8 @@ export async function privateRoutes(
       return {
         mode: "private" as const,
         entity: resolution.entity,
+        ...(env.CONTRACT_FACTS_ENABLED && (resolution.entity.type === "token" || resolution.entity.type === "contract")
+          ? { contractFacts: contractFacts(resolution.entity.chainId, resolution.entity.value, resolution.sources) } : {}),
         answer,
         privacy: {
           accountRequired: false,

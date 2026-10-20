@@ -1,7 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import weth from "../apps/web/src/opsis/fixtures/research-weth-token.json";
 import wallet from "../apps/web/src/opsis/fixtures/research-wallet.json";
-import { researchToken } from "../apps/web/src/opsis/test-fixtures";
+import { researchToken, researchTransaction } from "../apps/web/src/opsis/test-fixtures";
 import { mockPublicOpsisAccess } from "./opsis-test-helpers";
 
 const enabled = process.env.VITE_OPSIS_WORKSPACES_ENABLED === "true" && process.env.VITE_OPSIS_PUBLIC_ACCESS_ENABLED === "true";
@@ -39,6 +39,12 @@ test.describe("opsis preview explorer data", () => {
     } } };
     const result = await analyze(page, payload);
     const facts = result.getByTestId("token-facts");
+    const identityLink = result.getByTestId("research-identity").locator("p.opsis-identity .opsis-explorer-link");
+    await expect(identityLink).toHaveAttribute("href", `https://robinhoodchain.blockscout.com/token/${payload.entity.value}`);
+    await expect(identityLink).toHaveAttribute("target", "_blank");
+    await expect(identityLink).toHaveAttribute("rel", "noopener noreferrer");
+    await expect(identityLink).toHaveAttribute("title", "View on Blockscout ↗");
+    await expect(facts.getByTestId("holder-bar").first().locator(".opsis-explorer-link")).toHaveAttribute("href", /^https:\/\/robinhoodchain\.blockscout\.com\/address\/0x[0-9a-fA-F]{40}$/);
     await expect(facts).toContainText("Decimals18");
     await expect(facts).toContainText("39,756.656303302136451718");
     await expect(result.getByTestId("research-fact-tiles")).toContainText("584,668");
@@ -56,6 +62,8 @@ test.describe("opsis preview explorer data", () => {
     await expect(facts.getByTestId("explorer-read-time").locator("code")).toHaveText("2026-10-14T15:00:00.000Z");
     await compact(page);
     await page.getByRole("button", { name: "中文", exact: true }).click();
+    await expect(identityLink).toHaveAttribute("title", "在 Blockscout 查看 ↗");
+    await expect(identityLink).toHaveAccessibleName(/^在 Blockscout 查看 0x/);
     await expect(result.getByTestId("research-fact-tiles")).toContainText("已验证");
     await expect(facts.getByTestId("token-holders")).toContainText("交易池");
     await expect(facts.getByTestId("token-transfers")).toContainText("近期转移");
@@ -162,4 +170,21 @@ test.describe("opsis preview explorer data", () => {
     await expect(history.locator("time").first()).toHaveAttribute("title", "2026-10-14T15:24:43.000Z");
     await compact(page);
   });
+});
+
+test("opsis preview transaction links preserve the hash and decoded contract paths", async ({ page }) => {
+  test.skip(!enabled);
+  await mockPublicOpsisAccess(page);
+  const transaction = researchTransaction();
+  const blockHash = `0x${"a".repeat(64)}`;
+  const payload = { ...transaction, entity: { ...transaction.entity, facts: { ...transaction.entity.facts, blockHash } } };
+  const result = await analyze(page, payload);
+  const identity = result.getByTestId("research-identity").locator("p.opsis-identity .opsis-explorer-link");
+  await expect(identity).toHaveAttribute("href", `https://robinhoodchain.blockscout.com/tx/${payload.entity.value}`);
+  const decoded = result.getByTestId("decoded-actions");
+  await expect(decoded.locator('a[href*="/address/"]').first()).toHaveAttribute("rel", "noopener noreferrer");
+  await expect(decoded.locator('a[href*="/token/"]').first()).toHaveAttribute("href", /^https:\/\/robinhoodchain\.blockscout\.com\/token\/0x[0-9a-fA-F]{40}$/);
+  await expect(result.locator(`a[href="https://robinhoodchain.blockscout.com/tx/${blockHash}"]`)).toHaveCount(0);
+  await page.getByRole("button", { name: "中文", exact: true }).click();
+  await expect(identity).toHaveAttribute("title", "在 Blockscout 查看 ↗");
 });

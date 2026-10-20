@@ -1,12 +1,30 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { useCopy } from "./copy";
-import { readLaunches, sortLaunches, type LaunchFeed } from "./launch-model";
+import { ExplorerLink } from "./ExplorerLink";
+import { sortLaunches, type LaunchFeed } from "./launch-model";
+import {
+  filterLaunches,
+  initialRadarState,
+  launchRowKey,
+  startLaunchRadar,
+  type LaunchpadFilter,
+  type LaunchWindow,
+} from "./launch-radar-model";
 import { Dispute } from "./LaunchCard";
 import "./launches.css";
-export function LaunchFeedView({ feed }: { feed: LaunchFeed }) {
+export function LaunchFeedView({
+  feed,
+  filter = "all",
+  newRows,
+}: {
+  feed: LaunchFeed;
+  filter?: LaunchpadFilter;
+  newRows?: ReadonlySet<string>;
+}) {
   const c = useCopy(),
-    [sort, setSort] = useState<"time" | "launchpad" | "deployer">("time");
+    [sort, setSort] = useState<"time" | "launchpad" | "deployer">("time"),
+    entries = filterLaunches(feed.entries, filter);
   return (
     <>
       <p>
@@ -63,8 +81,8 @@ export function LaunchFeedView({ feed }: { feed: LaunchFeed }) {
             </tr>
           </thead>
           <tbody>
-            {sortLaunches(feed.entries, sort).map((row, i) => (
-              <tr key={`${row.token}-${i}`}>
+            {sortLaunches(entries, sort).map((row) => (
+              <tr key={launchRowKey(row)}>
                 <td>
                   {row.created.timestamp ??
                     `${c("Time unknown", "时间未知")} · ${c("Block", "区块")} ${row.created.blockNumber}`}
@@ -75,6 +93,10 @@ export function LaunchFeedView({ feed }: { feed: LaunchFeed }) {
                   >
                     {row.token}
                   </Link>
+                  <ExplorerLink kind="token" value={row.token} />
+                  {newRows?.has(launchRowKey(row)) && (
+                    <span className="launch-new">{c("New", "新增")}</span>
+                  )}
                 </td>
                 <td>
                   {row.launchpad}
@@ -87,6 +109,7 @@ export function LaunchFeedView({ feed }: { feed: LaunchFeed }) {
                       "Unknown — event does not identify deployer",
                       "未知 — 事件未标识部署者",
                     )}
+                  {row.deployer && <ExplorerLink kind="address" value={row.deployer} />}
                 </td>
                 <td>
                   {row.t0?.timestamp ??
@@ -109,47 +132,126 @@ export function LaunchFeedView({ feed }: { feed: LaunchFeed }) {
           </tbody>
         </table>
       </div>
-      {feed.entries.length === 0 && (
+      {entries.length === 0 && (
         <p>
           {c(
-            "No launches found in the covered read window",
-            "已覆盖读取范围内未发现发行事件",
+            "No launches found for these filters in the covered read window",
+            "已覆盖读取范围内未发现符合筛选条件的发行事件",
           )}
         </p>
       )}
-      <p>{c("Not investment advice", "非投资建议")}</p>
     </>
   );
 }
 function EnabledRadar() {
   const c = useCopy(),
-    [feed, setFeed] = useState<LaunchFeed>(),
-    [error, setError] = useState(false);
+    [state, setState] = useState(initialRadarState),
+    [filter, setFilter] = useState<LaunchpadFilter>("all"),
+    model = useRef<ReturnType<typeof startLaunchRadar> | undefined>(undefined);
   useEffect(() => {
-    const controller = new AbortController();
-    void readLaunches<LaunchFeed>(true, undefined, controller.signal)
-      .then((data) => {
-        if (!controller.signal.aborted) setFeed(data);
-      })
-      .catch(() => {
-        if (!controller.signal.aborted) setError(true);
-      });
-    return () => controller.abort();
+    const radar = startLaunchRadar({ onChange: setState });
+    model.current = radar;
+    return () => radar.stop();
   }, []);
   return (
     <section className="launch-card">
       <h2>{c("Launch Radar", "发行雷达")}</h2>
-      {feed ? (
-        <LaunchFeedView feed={feed} />
-      ) : (
+      <p>
+        {c("No ranking", "不作排名")} ·{" "}
+        {c("Not investment advice", "非投资建议")}
+      </p>
+      <div
+        className="launch-filters"
+        role="group"
+        aria-label={c("Launchpad filters", "发行平台筛选")}
+      >
+        {(
+          [
+            ["all", c("All", "全部")],
+            ["pons", c("Pons", "Pons")],
+            ["long", c("Long", "Long")],
+            [
+              "launcher",
+              c("Uniswap Liquidity Launcher", "Uniswap 流动性发行器"),
+            ],
+          ] as const
+        ).map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            aria-pressed={filter === value}
+            onClick={() => setFilter(value)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      <div className="launch-controls">
+        <label>
+          {c("Time window", "时间范围")}{" "}
+          <select
+            aria-label={c("Time window", "时间范围")}
+            value={state.minutes}
+            onChange={(e) =>
+              model.current?.setMinutes(Number(e.target.value) as LaunchWindow)
+            }
+          >
+            <option value={10}>{c("10 min", "10 分钟")}</option>
+            <option value={60}>{c("1 h", "1 小时")}</option>
+            <option value={360}>{c("6 h", "6 小时")}</option>
+          </select>
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={state.live}
+            onChange={(e) => model.current?.setLive(e.target.checked)}
+          />{" "}
+          {c("Live", "实时刷新")}
+        </label>
+        {state.ageSeconds !== undefined && (
+          <span role="timer">
+            {c(
+              `Updated ${state.ageSeconds}s ago`,
+              `${state.ageSeconds} 秒前更新`,
+            )}
+          </span>
+        )}
+      </div>
+      <p>
+        {c(
+          "Live refreshes every 60 seconds while this tab is visible; read limits still apply.",
+          "实时刷新在此标签页可见时每 60 秒进行一次；仍受读取限额约束。",
+        )}
+      </p>
+      {state.error && (
         <p role="status">
-          {error
+          {state.feed
             ? c(
+                "Refresh failed — live paused. Last successful read shown.",
+                "刷新失败 — 实时刷新已暂停。当前显示上次成功读取的数据。",
+              )
+            : c(
                 "Launch feed unavailable — request failed",
                 "发行列表不可用 — 请求失败",
-              )
-            : c("Reading launch events…", "正在读取发行事件…")}
+              )}{" "}
+          <button type="button" onClick={() => void model.current?.refresh()}>
+            {c("Retry", "重试")}
+          </button>
         </p>
+      )}
+      {state.feed ? (
+        <LaunchFeedView
+          feed={state.feed}
+          filter={filter}
+          newRows={state.newRows}
+        />
+      ) : (
+        !state.error && (
+          <p role="status">
+            {c("Reading launch events…", "正在读取发行事件…")}
+          </p>
+        )
       )}
     </section>
   );

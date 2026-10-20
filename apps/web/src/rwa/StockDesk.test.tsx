@@ -1,10 +1,11 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router";
 import { afterEach, expect, it, vi } from "vitest";
-import type { Receipt, StockDeskResult } from "@rh-chain/shared";
+import { REVIEWED_ROBINHOOD_ASSET_SAMPLE, type Receipt, type StockDeskResult } from "@rh-chain/shared";
 import I18nProvider from "../i18n/I18nProvider";
 import * as localeCookie from "../i18n/locale";
 import StockDesk, { DeskFacts } from "./StockDesk";
+import { stockCardPath } from "./stock-card";
 import RwaWorkspace from "./RwaWorkspace";
 import { createRef } from "react";
 import { rwaWorkspaceFixture } from "./test-fixtures";
@@ -131,4 +132,35 @@ it("rounds the small-size pool price for display and keeps the exact value in th
   const html = render(<DeskFacts desk={withPool} />);
   expect(html).toContain("217.2100 USDG");
   expect(html).toContain(`title="${exact} USDG"`);
+});
+
+it("offers sharing only for reviewed stocks and the public-cards capability, without fetching a preview on render", () => {
+  const fetch = vi.spyOn(globalThis, "fetch");
+  const address = REVIEWED_ROBINHOOD_ASSET_SAMPLE.find((asset) => asset.symbol === "AAPL")!.address;
+  expect(render(<StockDesk address={address} onSelect={() => {}} />)).not.toContain("Share card");
+  const html = render(<StockDesk address={address} onSelect={() => {}} publicCards />);
+  expect(html).toContain("Share card");
+  expect(html).not.toContain("<img");
+  expect(fetch).not.toHaveBeenCalled();
+  expect(render(<StockDesk address={address} onSelect={() => {}} publicCards />, "zh-CN")).toContain("分享卡片");
+  expect(render(<StockDesk address={desk.address} onSelect={() => {}} publicCards />)).not.toContain("Share card");
+  expect(stockCardPath(address.toLowerCase(), "en")).toBe("/v1/public/open-data/v1/cards/stock/AAPL.svg");
+  expect(stockCardPath(address, "zh-CN")).toBe("/v1/public/open-data/v1/cards/stock/AAPL.svg?lang=zh-CN");
+  for (const asset of REVIEWED_ROBINHOOD_ASSET_SAMPLE.filter((entry) => entry.symbol === "USDG" || entry.symbol === "WETH"))
+    expect(stockCardPath(asset.address, "en")).toBeNull();
+});
+
+it("links the exact token and feed contracts without linking a block hash", () => {
+  const feed = `0x${"2".repeat(40)}`;
+  const blockHash = `0x${"a".repeat(64)}`;
+  const withFeed: StockDeskResult = { ...desk, feed: {
+    state: "available",
+    value: { updatedAt: desk.observedAt, ageSeconds: 10, heartbeatSeconds: 3600, stale: false, paused: false, expectedOffHours: false, offHoursBasis: "fixture" },
+    evidence: [{ source: `chainlink:${feed}`, block: 100, blockHash, time: desk.observedAt }],
+  } };
+  const html = render(<DeskFacts desk={withFeed} />);
+  expect(html).toContain(`href="https://robinhoodchain.blockscout.com/token/${desk.address}"`);
+  expect(html).toContain(`href="https://robinhoodchain.blockscout.com/address/${feed}"`);
+  expect(html).not.toContain(`/tx/${blockHash}`);
+  expect(render(<DeskFacts desk={withFeed} />, "zh-CN")).toContain("在 Blockscout 查看 ↗");
 });

@@ -3,7 +3,7 @@ import type { Page } from "@playwright/test";
 export async function mockPublicOpsisAccess(
   page: Page,
   responses: Array<{ status?: number; retryAfter?: string }> = [],
-  capabilities: { rwa?: boolean; observedTrades?: boolean; stockDesk?: boolean; claimCheck?: boolean; receipts?: boolean } = {},
+  capabilities: { rwa?: boolean; observedTrades?: boolean; stockDesk?: boolean; claimCheck?: boolean; receipts?: boolean; contractFacts?: boolean; networkPulse?: boolean } = {},
 ) {
   const access = { requests: 0 };
   let last = 0;

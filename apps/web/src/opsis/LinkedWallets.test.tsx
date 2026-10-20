@@ -156,6 +156,9 @@ it.each([false, true])(
     expect(html).toContain(
       `https://robinhoodchain.blockscout.com/tx/${hash(1)}`,
     );
+    for (const wallet of [a, b, funder]) expect(html).toContain(`href="https://robinhoodchain.blockscout.com/address/${wallet}"`);
+    expect(html).not.toContain(`/tx/${graph().anchor.blockHash}`);
+    expect(html).toContain(chinese ? "在 Blockscout 查看 ↗" : "View on Blockscout ↗");
     expect(html).toContain(chinese ? "自动标记" : "Auto-flagged");
     expect(html).toContain(
       chinese ? "同秒购买（弱关联）" : "Buys in the same second (weak)",

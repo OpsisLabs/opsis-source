@@ -6,6 +6,7 @@ import type {
   PortfolioTokenHolding,
 } from "@rh-chain/shared";
 import { useCopy } from "../opsis/copy";
+import { ExplorerLink, type ExplorerKind } from "../opsis/ExplorerLink";
 import { compactAmount } from "../opsis/transactionTimeline";
 import { visibleTokenText } from "../opsis/explorer-facts";
 import { useI18n } from "../i18n";
@@ -14,7 +15,7 @@ import { orderTokens, tokenFlags, watchActivitySummary, watchTimeline } from "./
 import { SnapshotExport } from "./SnapshotExport";
 import "./watch.css";
 
-function CopyAddress({ address }: { address: string }) {
+function CopyAddress({ address, kind = "address" }: { address: string; kind?: ExplorerKind }) {
   const c = useCopy();
   const [copied, setCopied] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -37,6 +38,7 @@ function CopyAddress({ address }: { address: string }) {
       >
         {address.slice(0, 8)}…{address.slice(-4)} <span aria-hidden>⧉</span>
       </button>
+      <ExplorerLink kind={kind} value={address} />
       {copied && !failed && <span role="status">{c("Copied", "已复制")}</span>}
       {failed && (
         <span role="status">
@@ -149,7 +151,7 @@ export function TokenTable({
                     </td>
                     <td><Quantity value={token.quantity} /></td>
                     <td>
-                      <CopyAddress address={token.contract} />
+                      <CopyAddress kind="token" address={token.contract} />
                     </td>
                   </tr>
                   {warnings.length > 0 && (
@@ -222,7 +224,7 @@ export function WatchTimeline({ snapshot }: { snapshot: PortfolioSnapshot }) {
                     {movement.contract && (
                       <>
                         {" "}
-                        · <CopyAddress address={movement.contract} />
+                        · <CopyAddress kind="token" address={movement.contract} />
                       </>
                     )}
                     {movement.tokenId && (
@@ -249,7 +251,7 @@ export function WatchTimeline({ snapshot }: { snapshot: PortfolioSnapshot }) {
                     {approval.unlimited
                       ? c("Unlimited", "无限额")
                       : approval.currentAmount}{" "}
-                    · <CopyAddress address={approval.contract} /> ·{" "}
+                    · <CopyAddress kind="token" address={approval.contract} /> ·{" "}
                     {c("Spender", "被授权方")}{" "}
                     <CopyAddress address={approval.spender} />
                   </p>
@@ -272,15 +274,7 @@ export function WatchTimeline({ snapshot }: { snapshot: PortfolioSnapshot }) {
                 {c("Movement coverage is partial.", "转移记录覆盖不完整。")}
               </p>
             )}
-            <a
-              className="opsis-text-link"
-              href={`https://robinhoodchain.blockscout.com/tx/${entry.hash}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              referrerPolicy="no-referrer"
-            >
-              {c("Open transaction evidence ↗", "查看交易证据 ↗")}
-            </a>
+            <span className="watch-small">{entry.hash.slice(0, 8)}…{entry.hash.slice(-4)}<ExplorerLink kind="tx" value={entry.hash} /></span>
           </li>
         ))}
       </ol>

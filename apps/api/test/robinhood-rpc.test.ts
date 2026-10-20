@@ -235,7 +235,7 @@ describe("dRPC environment validation", () => {
       METRICS_TOKEN: "metrics-secret-at-least-32-characters"
     };
     expect(() => loadEnv(production)).toThrow(/admitted dRPC transport/);
-    for (const flag of ["PORTFOLIO_MODE_ENABLED", "RWA_VERIFY_ENABLED", "EXIT_CHECK_ENABLED", "OBSERVED_TRADES_ENABLED"]) {
+    for (const flag of ["NETWORK_PULSE_ENABLED", "PORTFOLIO_MODE_ENABLED", "RWA_VERIFY_ENABLED", "EXIT_CHECK_ENABLED", "OBSERVED_TRADES_ENABLED"]) {
       expect(() => loadEnv({ ...production, PRIVATE_MODE_ENABLED: "false", [flag]: "true" })).toThrow(/admitted dRPC transport/);
     }
     expect(loadEnv({ ...production, PRIVATE_MODE_ENABLED: "false" }).ROBINHOOD_RPC_PROVIDER).toBe("robinhood-public");

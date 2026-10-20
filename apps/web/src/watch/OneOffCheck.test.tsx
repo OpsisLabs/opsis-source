@@ -41,6 +41,7 @@ for (const chinese of [false, true]) {
       expect(renderToStaticMarkup(<TokenTable tokens={[]} />)).toContain("<tbody></tbody>");
       const html = renderToStaticMarkup(<TokenTable tokens={[base]} />);
       expect(html).toContain("Test token · TEST");
+      expect(html).toContain(`href="https://robinhoodchain.blockscout.com/token/${base.contract}"`);
       expect(html).not.toContain(chinese ? "标记为骗局" : "marks this token as a scam");
     });
   });
@@ -78,8 +79,10 @@ for (const chinese of [false, true]) {
       const html = renderToStaticMarkup(<WatchTimeline snapshot={snapshot} />);
       expect(html.indexOf(chinese ? "交易失败" : "Failed transaction")).toBeLessThan(html.indexOf(chinese ? "已发送 0.1 ETH" : "Sent 0.1 ETH"));
       expect(html).not.toContain("987654");
+      expect(html).toContain(`href="https://robinhoodchain.blockscout.com/tx/${hash}"`);
+      expect(html).not.toContain(`/tx/${snapshot.anchor.blockHash}`);
       expect(html).toContain(chinese ? "来源与读取时间" : "Sources &amp; read times");
-      expect(html).toContain(chinese ? "查看交易证据" : "Open transaction evidence");
+      expect(html).toContain(chinese ? "在 Blockscout 查看 ↗" : "View on Blockscout ↗");
       const empty = watchFixture();
       empty.transactions = [];
       expect(renderToStaticMarkup(<WatchTimeline snapshot={empty} />)).toContain(chinese ? "覆盖缺失不代表历史为空" : "Missing coverage is not an empty history");

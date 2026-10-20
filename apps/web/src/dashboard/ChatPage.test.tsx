@@ -22,6 +22,8 @@ describe("shared answer renderer", () => {
     const html = renderToStaticMarkup(<AnswerCard ai={answer} onPivot={() => {}} />);
     expect(html).toContain("COPY ADDRESS");
     expect(html).toContain("SHARE");
+    expect(html).toContain(`href="https://robinhoodchain.blockscout.com/token/${address}"`);
+    expect(html).toContain('aria-label="View 0x1111…1111 on Blockscout"');
     expect(html).toContain("absolute inset-y-0 left-0 bg-[#fa6c34]/10");
     expect(html.indexOf("COPY ADDRESS")).toBeLessThan(html.indexOf("Sample public evidence."));
     expect(html).not.toContain("<details");

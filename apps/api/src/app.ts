@@ -2,13 +2,14 @@ import { linkedWalletsRoutes } from "./routes/linked-wallets.js";
 import { LinkedWalletsService, type LinkedWalletsSource } from "./linked-wallets/service.js";
 import { createLinkedWalletsBudget } from "./linked-wallets/budget.js";
 import { claimRoutes } from "./routes/claims.js";
-import { ClaimCheckService } from "./claims/service.js";
+import { ClaimCheckService, type ClaimSource } from "./claims/service.js";
 import { EngineClaimSession } from "./claims/sources.js";
 import { createClaimCheckBudget } from "./claims/budget.js";
 import { launchRoutes } from "./routes/launches.js";
 import { LaunchCardsService, type LaunchCardsSource } from "./launches/service.js";
 import { createLaunchCardsBudget } from "./launches/budget.js";
-import { StockDeskService, STOCK_DESK_ASSETS } from "./stock-desk/service.js";
+import { StockCardService } from "./cards/stock.js";
+import { StockDeskService, STOCK_DESK_ASSETS, type StockDeskSource } from "./stock-desk/service.js";
 import { reserveBudget } from "./stock-desk/budget.js";
 import { stockDeskRoutes } from "./routes/stock-desk.js";
 import { TokenCardService, type TokenCardSource } from "./cards/service.js";
@@ -24,6 +25,8 @@ import { receiptRoutes } from "./routes/receipts.js";
 import { controlsRoutes } from "./routes/controls.js";
 import { ControlsService } from "./controls/service.js";
 import { opsisRoutes, installOpsisPreviewGuard } from "./routes/opsis.js";
+import { networkPulseRoutes } from "./routes/network-pulse.js";
+import { NetworkPulseService } from "./network-pulse/service.js";
 import cors from "@fastify/cors";
 import cookie from "@fastify/cookie";
 import helmet from "@fastify/helmet";
@@ -89,6 +92,8 @@ export async function buildApp(
     observedTrades?: ObservedTradesSource;
     openDataLimiter?: OpenDataLimiter;
     launchCards?: LaunchCardsSource;
+    claims?: ClaimSource;
+    stockDesk?: StockDeskSource;
     linkedWallets?: LinkedWalletsSource;
     exitCheck?: ExitCheckSource;
     tokenCards?: TokenCardSource;
@@ -195,6 +200,7 @@ export async function buildApp(
   const receipts = configuredReceiptService(env);
   await receiptRoutes(app, env, receipts);
   const portfolioBudget = createPortfolioBudget(env, redis);
+  await networkPulseRoutes(app, env, new NetworkPulseService(env, { budget: portfolioBudget, rpcSpend, redis }));
   const controls = new ControlsService(env, portfolioBudget, undefined, undefined, rpcSpend);
   const exitBudget = createExitCheckBudget(env, redis);
   const exit = dependencies?.exitCheck ?? new ExitCheckService(env, cache, { budget: exitBudget, rpcSpend });
@@ -209,20 +215,16 @@ export async function buildApp(
   await controlsRoutes(app, env, controls, receipts);
   const claimBudget = createClaimCheckBudget(env, redis);
   const claimLaunchBudget = createLaunchCardsBudget(env, redis);
-  await claimRoutes(app, env, new ClaimCheckService(() => new EngineClaimSession(env, claimBudget, portfolioBudget, claimLaunchBudget, rpcSpend), receipts, env.RECEIPTS_ENABLED));
-  await launchRoutes(app, env, dependencies?.launchCards ?? new LaunchCardsService(env, cache, { budget: claimLaunchBudget, rpcSpend, receipts }));
+  const claims = dependencies?.claims ?? new ClaimCheckService(() => new EngineClaimSession(env, claimBudget, portfolioBudget, claimLaunchBudget, rpcSpend), receipts, env.RECEIPTS_ENABLED);
+  const launches = dependencies?.launchCards ?? new LaunchCardsService(env, cache, { budget: claimLaunchBudget, rpcSpend, receipts });
+  await claimRoutes(app, env, claims);
+  await launchRoutes(app, env, launches);
   await linkedWalletsRoutes(app, env, dependencies?.linkedWallets ?? new LinkedWalletsService(env, cache, { budget: createLinkedWalletsBudget(env, redis), rpcSpend, receipts }));
-  await openDataRoutes(app, env, redis, openDataLimiter, cards);
-  await app.register(async (scope) => {
-    reachResponseHeaders(scope);
-    await publicMcpRoutes(scope, env, openDataLimiter, cards, receipts);
-  });
   const telegramBot = dependencies?.telegramBot ?? (env.TELEGRAM_BOT_ENABLED ? new TelegramBotApi(env.TELEGRAM_BOT_TOKEN!) : undefined);
   const telegramDispatch = new TelegramBuckets(env.TELEGRAM_WEBHOOK_SECRET ?? "");
   const alerts = createAlertsRuntime(env, redis, rpcSpend, telegramBot, telegramDispatch);
   if (alerts) await alerts.initialize(message => app.log.warn(message));
   await opsisRoutes(app, env, () => alerts?.status);
-  await telegramRoutes(app, env, cards, telegramBot, alerts?.commands, telegramDispatch);
   if (alerts) {
     // Tests construct and start followers explicitly with fakes.
     if (env.NODE_ENV !== "test") app.addHook("onReady", async () => { alerts.follower.start(); });
@@ -239,7 +241,7 @@ export async function buildApp(
   await rwaRoutes(app, env, dependencies?.rwaVerification ?? deskRwa);
   const deskExitBudget = exitBudget;
   const deskEngines = { rwa: deskRwa, exit, market: new EngineCardSources(env, portfolioBudget, rpcSpend) };
-  await stockDeskRoutes(app, env, new StockDeskService(deskEngines, async () => {
+  const stockDesk = dependencies?.stockDesk ?? new StockDeskService(deskEngines, async () => {
     const count = STOCK_DESK_ASSETS.length;
     const rwaReservation = await reserveBudget(rwaBudget, count * env.RWA_MAX_RPC_SUBCALLS);
     const exitReservation = await reserveBudget(deskExitBudget, count * 4 * env.EXIT_CHECK_MAX_RPC_SUBCALLS);
@@ -249,7 +251,14 @@ export async function buildApp(
       exit: new ExitCheckService(env, cache, { budget: exitReservation, rpcSpend }),
       market: new EngineCardSources(env, explorerReservation, rpcSpend),
     };
-  }, env.STOCK_DESK_CACHE_SECONDS, receipts));
+  }, env.STOCK_DESK_CACHE_SECONDS, receipts);
+  await stockDeskRoutes(app, env, stockDesk);
+  await telegramRoutes(app, env, cards, telegramBot, alerts?.commands, telegramDispatch, { stockDesk, launches });
+  await app.register(async (scope) => {
+    reachResponseHeaders(scope);
+    await publicMcpRoutes(scope, env, openDataLimiter, cards, receipts, { stockDesk, launchCards: launches, claims });
+  });
+  await openDataRoutes(app, env, redis, openDataLimiter, cards, new StockCardService(stockDesk, cache, env.PUBLIC_CARDS_CACHE_SECONDS));
   await collectibleRoutes(
     app,
     env,

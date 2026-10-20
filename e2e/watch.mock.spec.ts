@@ -130,12 +130,12 @@ test("Watch combined feed filters locally, deduplicates and clears on lock", asy
     name: "All your wallets. One view.",
   });
   await expect(
-    feed.getByRole("link", { name: /Open transaction evidence/ }),
+    feed.getByRole("link", { name: /^View .* on Blockscout$/ }).and(page.locator('a[href*="/tx/"]')),
   ).toHaveCount(2);
   await expect(feed.getByText("2 wallet view(s)").first()).toBeVisible();
   await feed.getByLabel("Filter by asset type").selectOption("native");
   await expect(
-    feed.getByRole("link", { name: /Open transaction evidence/ }),
+    feed.getByRole("link", { name: /^View .* on Blockscout$/ }).and(page.locator('a[href*="/tx/"]')),
   ).toHaveCount(1);
   await feed
     .getByLabel("Filter by wallet")
@@ -210,7 +210,7 @@ test("Watch combined feed filters locally, deduplicates and clears on lock", asy
   await expect(
     page
       .getByRole("region", { name: "All your wallets. One view." })
-      .getByRole("link", { name: /Open transaction evidence/ }),
+      .getByRole("link", { name: /^View .* on Blockscout$/ }).and(page.locator('a[href*="/tx/"]')),
   ).toHaveCount(2);
   expect(bodies).toHaveLength(2);
 });

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { ArrowRight, ListFilter, Radio } from "lucide-react";
+import { ListFilter, Radio } from "lucide-react";
+import { ExplorerLink } from "../opsis/ExplorerLink";
 import type { VaultWatch } from "../vault/types";
 import { useI18n } from "../i18n";
 import { filterActivity, savedActivity, type ActivityKind } from "./activity";
@@ -162,17 +163,9 @@ export function ActivityFeed({
         {rows.slice(0, limit).map((event) => (
           <li className={panel} key={event.hash}>
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#514a45] pb-3">
-              <a
-                href={`https://robinhoodchain.blockscout.com/tx/${event.hash}`}
-                className="inline-flex min-h-11 items-center gap-2 font-mono text-sm text-[#ff985e] underline"
-                target="_blank"
-                rel="noopener noreferrer"
-                referrerPolicy="no-referrer"
-                aria-label={`${t("watch.txLink")} ${event.hash}`}
-              >
-                {short(event.hash)}
-                <ArrowRight size={16} aria-hidden />
-              </a>
+              <span className="font-mono text-sm text-[#ff985e]">
+                {short(event.hash)}<ExplorerLink kind="tx" value={event.hash} />
+              </span>
               <p className="text-xs text-[#bbb2a8]">
                 {t("watch.block", { block: event.block })} ·{" "}
                 {t("feed.seenIn", { count: event.observations.length })}
@@ -198,6 +191,7 @@ export function ActivityFeed({
                         {short(row.wallet.address)}
                       </span>
                     </button>
+                    <ExplorerLink kind="address" value={row.wallet.address} />
                     <p className="text-right text-sm">
                       {t(`watch.flow.${row.transaction.direction}`)} ·{" "}
                       {t(`watch.tx.${row.transaction.status}`)}
@@ -224,7 +218,7 @@ export function ActivityFeed({
                           {m.tokenId !== null ? ` #${m.tokenId}` : ""}
                           {m.contract && (
                             <span className="ml-2 font-mono text-xs text-[#bbb2a8]">
-                              {short(m.contract)}
+                              {short(m.contract)}<ExplorerLink kind="token" value={m.contract} />
                             </span>
                           )}
                         </li>
@@ -244,7 +238,7 @@ export function ActivityFeed({
                       {t("feed.details")}
                     </summary>
                     <p className="break-all text-xs text-[#bbb2a8]">
-                      {row.transaction.hash}
+                      {row.transaction.hash}<ExplorerLink kind="tx" value={row.transaction.hash} />
                     </p>
                     <p className="mt-2 text-xs text-[#bbb2a8]">
                       {t("feed.captured", {
@@ -265,7 +259,7 @@ export function ActivityFeed({
                           {m.symbol || m.kind}
                           {m.tokenId !== null ? ` #${m.tokenId}` : ""}
                           <span className="block font-mono text-xs text-[#bbb2a8]">
-                            {m.contract ?? "ETH"}
+                            {m.contract ?? "ETH"}{m.contract && <ExplorerLink kind="token" value={m.contract} />}
                           </span>
                         </li>
                       ))}

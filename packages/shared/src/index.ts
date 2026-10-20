@@ -1,4 +1,5 @@
 export type { BenchmarkInput, CardBenchmark } from "./benchmarks.js";
+export type { ContractFact, ContractFacts } from "./contract-facts.js";
 export { REVIEWED_ASSET_SAMPLE_REVIEWED_ON, REVIEWED_ROBINHOOD_ASSET_SAMPLE } from "./reviewed-asset-sample.js";
 export const CHAIN_IDS = {
   robinhoodMainnet: 4663,

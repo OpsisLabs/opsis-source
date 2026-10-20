@@ -184,3 +184,83 @@ function stockResult() {
     privacy: { serverStorage: "none", modelProvider: "none", providerDestinations: ["Robinhood Stock Token API", "Robinhood Public RPC", "Chainlink feed directory"], disclosure: "The public contract was sent only to the listed sources. Nothing was saved." }
   };
 }
+
+test.describe("Stock Token share cards", () => {
+  test.skip(process.env.VITE_OPSIS_WORKSPACES_ENABLED !== "true" || process.env.VITE_OPSIS_PUBLIC_ACCESS_ENABLED !== "true");
+
+  for (const locale of ["en", "zh-CN"] as const) {
+    test(`previews and copies only the public SVG URL (${locale}) with failure states`, async ({ page, context, baseURL }) => {
+      await context.addCookies([{ name: "opsis_locale_v1", value: locale, url: baseURL! }]);
+      await page.addInitScript(() => {
+        Object.defineProperty(navigator, "clipboard", {
+          configurable: true,
+          value: { writeText: async (value: string) => {
+            const state = window as unknown as { copiedCardUrl: string; denyStockCopy: boolean };
+            if (state.denyStockCopy) throw new DOMException("Denied", "NotAllowedError");
+            state.copiedCardUrl = value;
+          } },
+        });
+      });
+      await mockStockCardAccess(page, true);
+      await mockResult(page, stockResult());
+      const cardPath = `/v1/public/open-data/v1/cards/stock/AAPL.svg${locale === "zh-CN" ? "?lang=zh-CN" : ""}`;
+      let cardRequests = 0;
+      await page.route(`**${cardPath}`, async (route) => {
+        cardRequests++;
+        const request = route.request();
+        expect(request.method()).toBe("GET");
+        expect(request.headers().cookie).toBeUndefined();
+        expect(request.headers().authorization).toBeUndefined();
+        expect(request.headers().referer).toBeUndefined();
+        expect(request.postData()).toBeNull();
+        if (cardRequests === 1) return route.fulfill({ status: 503, json: { error: { code: "RWA_DAILY_BUDGET_EXCEEDED" } } });
+        return route.fulfill({ contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="640" height="494"><text x="20" y="30">AAPL</text></svg>' });
+      });
+      await openStockCardDesk(page, locale);
+      expect(cardRequests).toBe(0);
+      const share = page.getByRole("button", { name: locale === "en" ? "Share card" : "分享卡片", exact: true });
+      await share.click();
+      await expect(page.getByRole("alert")).toContainText(locale === "en" ? "Card unavailable" : "卡片不可用");
+      await share.click();
+      const image = page.getByRole("img", { name: locale === "en" ? "Stock Token card preview" : "股票代币卡片预览" });
+      await expect(image).toBeVisible();
+      await expect(image).toHaveJSProperty("complete", true);
+      const copy = page.getByRole("button", { name: locale === "en" ? "Copy SVG URL" : "复制 SVG 链接", exact: true });
+      await copy.click();
+      await expect(page.getByRole("status")).toHaveText(locale === "en" ? "SVG URL copied." : "已复制 SVG 链接。");
+      expect(await page.evaluate(() => (window as unknown as { copiedCardUrl: string }).copiedCardUrl)).toBe(`${baseURL}${cardPath}`);
+      await page.evaluate(() => { (window as unknown as { denyStockCopy: boolean }).denyStockCopy = true; });
+      await copy.click();
+      await expect(page.getByRole("alert")).toContainText(locale === "en" ? "Could not copy" : "无法复制");
+      expect(cardRequests).toBe(2);
+    });
+  }
+
+  test("hides sharing when public cards are disabled", async ({ page }) => {
+    await mockStockCardAccess(page, false);
+    await mockResult(page, stockResult());
+    const requests: string[] = [];
+    page.on("request", (request) => {
+      if (request.url().includes("/cards/stock/")) requests.push(request.url());
+    });
+    await openStockCardDesk(page, "en");
+    await expect(page.getByRole("button", { name: "Share card", exact: true })).toHaveCount(0);
+    expect(requests).toEqual([]);
+  });
+});
+
+async function mockStockCardAccess(page: Page, publicCards: boolean) {
+  await page.route("**/v1/private/opsis/access", (route) => route.fulfill({ json: {
+    expiresAt: new Date(Date.now() + 3_500_000).toISOString(), chainId: 4663,
+    research: true, exitCheck: true, watch: true, rwa: true,
+    observedTrades: true, perpExecution: false, stockDesk: true, publicCards,
+  } }));
+}
+
+async function openStockCardDesk(page: Page, locale: "en" | "zh-CN") {
+  await page.goto("/rwa");
+  await page.getByRole("textbox", { name: locale === "en" ? "Token or vault contract" : "代币或金库合约", exact: true }).fill(STOCK);
+  await page.getByRole("button", { name: locale === "en" ? "Run check" : "运行核查", exact: true }).click();
+  await page.getByRole("button", { name: locale === "en" ? "Confirm public lookup" : "确认公开查询", exact: true }).click();
+  await expect(page.getByRole("region", { name: locale === "en" ? "Stock Token Desk" : "股票代币数据台", exact: true })).toBeVisible();
+}

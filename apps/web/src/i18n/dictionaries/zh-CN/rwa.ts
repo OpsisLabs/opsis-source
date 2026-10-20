@@ -1,4 +1,11 @@
 export const rwa: Record<string, string> = {
+  "desk.share": "分享卡片",
+  "desk.share.loading": "正在加载公开卡片预览…",
+  "desk.share.error": "卡片不可用，可能受数据源或预算限制。请重试。",
+  "desk.share.preview": "股票代币卡片预览",
+  "desk.share.copy": "复制 SVG 链接",
+  "desk.share.copied": "已复制 SVG 链接。",
+  "desk.share.copyFailed": "无法复制链接。请检查剪贴板权限后重试。",
   "desk.title": "股票代币数据台",
   "desk.boundary": "按请求：公开合约发送至现有 RPC、发行方注册表、Chainlink 目录及浏览器路径。索引扫描十种已审阅股票代币。",
   "desk.disclaimer": "股票代币追踪股票；它不是股票股份。发行方决定持有资格；Opsis 不核查资格。非投资建议。",

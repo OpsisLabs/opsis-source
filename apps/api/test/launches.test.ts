@@ -1019,6 +1019,35 @@ describe("recent feed, cache and guards", () => {
     expect(result.coverage.state).toBe("partial");
     expect(result.coverage.rpcCalls).toBeLessThanOrEqual(40);
   });
+  it.each([10, 60, 360])(
+    "accepts a %i-minute feed without raising scan or RPC caps",
+    async (minutes) => {
+      const f = fixture(
+        [],
+        { LAUNCH_CARDS_FEED_MAX_RPC_SUBCALLS: "40" },
+        1_000_000,
+        2_000,
+      );
+      const result = (await f.service.feed(minutes)) as any;
+      expect(result.minutes).toBe(minutes);
+      expect(result.coverage.state).toBe("partial");
+      expect(result.coverage.rpcCalls).toBeLessThanOrEqual(40);
+      expect(result.coverage.logCalls).toBeLessThanOrEqual(90);
+      expect(result.coverage.entryCap).toBe(200);
+      expect(Object.keys(result.coverage.adapters)).toEqual([
+        "pons", "long", "launcher", "instant",
+      ]);
+      const reads = f.seen.length;
+      expect(await f.service.feed(minutes)).toEqual(result);
+      expect(f.seen).toHaveLength(reads);
+    },
+  );
+  it.each([0, 361, 10.5])("refuses an invalid %s-minute service window before reads", async (minutes) => {
+    const f = fixture();
+    await expect(f.service.feed(minutes)).rejects.toMatchObject({ statusCode: 400 });
+    expect(f.seen).toHaveLength(0);
+    expect(f.budget.consume).not.toHaveBeenCalled();
+  });
   it("defaults off and 404s before validation or any reads", async () => {
     expect(loadEnv({ NODE_ENV: "test" }).LAUNCH_CARDS_ENABLED).toBe(false);
     expect(loadEnv({ NODE_ENV: "test" }).LAUNCH_SELL_TEST_ENABLED).toBe(false);
@@ -1110,9 +1139,17 @@ describe("recent feed, cache and guards", () => {
     const validation = Fastify();
     installErrorHandler(validation);
     await launchRoutes(validation, f.config, source);
+    for (const minutes of [10, 60, 360]) {
+      expect((await validation.inject({
+        method: "GET",
+        url: `/v1/private/opsis/launches?minutes=${minutes}`,
+      })).statusCode).toBe(200);
+      expect(source.feed).toHaveBeenLastCalledWith(minutes);
+    }
     for (const url of [
-      "/v1/private/opsis/launches?minutes=121",
+      "/v1/private/opsis/launches?minutes=361",
       "/v1/private/opsis/launches?minutes=0",
+      "/v1/private/opsis/launches?minutes=10.5",
       "/v1/private/opsis/launches/bad",
     ])
       expect((await validation.inject({ method: "GET", url })).statusCode).toBe(

@@ -33,6 +33,10 @@ test("opsis preview Watch shows reviewed and flagged tokens at 375 px in both la
   await form.getByRole("button", { name: "Run a check", exact: true }).click();
   const table = page.getByTestId("watch-token-table");
   await expect(table).toBeVisible();
+  const tokenLink = table.locator(`a.opsis-explorer-link[href="https://robinhoodchain.blockscout.com/token/${REVIEWED.address.toLowerCase()}"]`);
+  await expect(tokenLink).toHaveAttribute("target", "_blank");
+  await expect(tokenLink).toHaveAttribute("rel", "noopener noreferrer");
+  await expect(tokenLink).toHaveAttribute("title", "View on Blockscout ↗");
   const rows = table.locator("tbody tr.watch-holding-row");
   const warnings = table.locator("tbody tr.watch-warning-row");
   await expect(rows).toHaveCount(5);
@@ -48,6 +52,7 @@ test("opsis preview Watch shows reviewed and flagged tokens at 375 px in both la
   expect(await page.locator("html").evaluate((element) => element.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
 
   await page.getByRole("button", { name: "中文", exact: true }).click();
+  await expect(tokenLink).toHaveAttribute("title", "在 Blockscout 查看 ↗");
   await expect(rows.nth(1)).toContainText("已审核资产");
   await expect(warnings.nth(0)).toContainText("使用符号 NVDA，但这不是已审核的 NVDA 合约。");
   await expect(warnings.nth(1)).toContainText("名称或符号含有隐藏字符，已在上方用方括号显示。");
@@ -65,6 +70,7 @@ test("opsis preview Watch shows reviewed and flagged tokens at 375 px in both la
   await page.getByRole("button", { name: "Save checked snapshot", exact: true }).click();
   await page.getByRole("button", { name: "Wallet details", exact: true }).click();
   const saved = page.getByRole("region", { name: "Latest saved check" });
+  await expect(saved.locator(`a.opsis-explorer-link[href="https://robinhoodchain.blockscout.com/address/${WATCH_TEST_ADDRESS}"]`).first()).toHaveAttribute("target", "_blank");
   await expect(saved).toContainText("NVIDIA Robinhood Coin · NVDA · Lookalike");
   await expect(saved).toContainText("Reported[U+202E]name · PO[U+200B]NS");
   await page.getByRole("button", { name: "Inbox", exact: true }).click();

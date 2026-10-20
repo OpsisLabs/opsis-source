@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import { ExplorerLink } from "../opsis/ExplorerLink";
 import { useLocation, useNavigate, useOutletContext, useParams } from "react-router";
 import { AlertTriangle, ArrowUp, CheckCircle2, ChevronDown, ChevronRight, Copy, ExternalLink, Info, Search, ShieldAlert, Sparkles } from "lucide-react";
 import { classify, EXPLORER, listMessages, listSessions, SAMPLE_TX, SAMPLE_WALLET, sendMessage } from "./api";
@@ -268,12 +269,6 @@ export function ResolvingAnswerCard({ entity }: { entity?: ChatSession["entity"]
 
 function CardActions({ card, answer }: { card: AnswerCardMeta; answer: string }) {
   const { t } = useI18n();
-  const explorer =
-    card.kind === "transaction"
-      ? `${EXPLORER}/tx/${card.id}`
-      : card.kind === "token"
-        ? `${EXPLORER}/token/${card.id}`
-        : `${EXPLORER}/address/${card.id}`;
   const shareText = [
     `${card.title}${card.subtitle ? ` (${card.subtitle})` : ""} — Robinhood Chain`,
     card.stats.map((s) => `${s.label}: ${s.value}`).join(" · "),
@@ -285,9 +280,7 @@ function CardActions({ card, answer }: { card: AnswerCardMeta; answer: string })
     <div className="mt-5 flex flex-wrap items-center gap-2">
       <CopyControl value={card.id} className={CHIP_CLASS} icon={<Copy size={10} />}
         label={card.kind === "transaction" ? t("cloud.chat.copyHash") : t("cloud.chat.copyAddressAction")} />
-      <a className={CHIP_CLASS} href={explorer} target="_blank" rel="noreferrer">
-        {t("cloud.chat.explorer")} <ExternalLink size={10} />
-      </a>
+      <ExplorerLink kind={card.kind === "transaction" ? "tx" : card.kind === "token" ? "token" : "address"} value={card.id} />
       {card.kind === "token" && (
         <>
           <a className={CHIP_CLASS} href={`${EXPLORER}/token/${card.id}?tab=holders`} target="_blank" rel="noreferrer">

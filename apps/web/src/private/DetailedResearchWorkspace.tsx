@@ -3,7 +3,6 @@ import {
   ArrowLeft,
   Copy,
   Check,
-  ExternalLink,
   ArrowLeftRight,
   Braces,
   Database,
@@ -18,6 +17,7 @@ import { AnswerCard } from "../dashboard/ChatPage";
 import { safeHttpUrl } from "../dashboard/adapters";
 import type { SourceCitation } from "../dashboard/types";
 import { useCopy } from "../opsis/copy";
+import { ExplorerLink } from "../opsis/ExplorerLink";
 import {
   explorerNumber,
   holderShares,
@@ -486,6 +486,7 @@ export function DetailedResearchWorkspace({
                                       >
                                         {short(row.address)}
                                       </Link>
+                                      <ExplorerLink kind="address" value={row.address} />
                                       <CopyAddress value={row.address} />
                                     </div>
                                   </td>
@@ -746,7 +747,7 @@ export function DetailedResearchWorkspace({
                               onClick={() => onPivot(row.from)}
                             >
                               {short(row.from)}
-                            </button>
+                            </button><ExplorerLink kind="address" value={row.from} />
                             <span aria-hidden> → </span>
                             <button
                               type="button"
@@ -754,7 +755,7 @@ export function DetailedResearchWorkspace({
                               onClick={() => onPivot(row.to)}
                             >
                               {short(row.to)}
-                            </button>
+                            </button><ExplorerLink kind="address" value={row.to} />
                           </div>
                           <p>
                             <code>
@@ -924,25 +925,6 @@ export function DetailedResearchWorkspace({
                 >
                   <div className="details-ws-panel-head">
                     <h2 id="details-dock-contract">{c("Contract", "合约")}</h2>
-                    {safeHttpUrl(
-                      typeof facts.explorerUrl === "string"
-                        ? facts.explorerUrl
-                        : undefined,
-                    ) && (
-                      <a
-                        href={safeHttpUrl(
-                          typeof facts.explorerUrl === "string"
-                            ? facts.explorerUrl
-                            : undefined,
-                        )!}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        referrerPolicy="no-referrer"
-                        aria-label={c("Open contract source", "打开合约来源")}
-                      >
-                        <ExternalLink size={14} aria-hidden />
-                      </a>
-                    )}
                   </div>
                   <dl className="details-ws-facts">
                     <div>
@@ -955,7 +937,7 @@ export function DetailedResearchWorkspace({
                         <code title={result?.entity.value}>
                           {result ? short(result.entity.value) : unknown}
                         </code>
-                        {result && <CopyAddress value={result.entity.value} />}
+                        {result && <><ExplorerLink kind={result.entity.type === "transaction" ? "tx" : result.entity.type === "token" ? "token" : "address"} value={result.entity.value} /><CopyAddress value={result.entity.value} /></>}
                       </dd>
                     </div>
                     <div>

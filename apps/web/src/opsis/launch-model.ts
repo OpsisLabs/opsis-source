@@ -7,9 +7,15 @@ export type LaunchFact = {
 };
 export type LaunchEntry = {
   token: string;
+  adapter?: string;
   launchpad: string;
   deployer: string | null;
-  created: { timestamp: string | null; blockNumber?: number };
+  created: {
+    timestamp: string | null;
+    blockNumber?: number;
+    transactionHash?: string;
+    logIndex?: number;
+  };
   t0: { timestamp: string } | null;
   unknownReasons: Record<string, string>;
   partial?: boolean;
@@ -49,7 +55,8 @@ export function correctionUrl(
 ): string | null {
   if (!value) return null;
   // A plain support mailbox is allowed; no subject, body or other mailto parameters.
-  if (/^mailto:[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value)) return value;
+  if (/^mailto:[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value))
+    return value;
   try {
     const url = new URL(value);
     return url.protocol === "https:" && !url.username && !url.password
@@ -63,11 +70,17 @@ export async function readLaunches<T>(
   enabled: boolean,
   token?: string,
   signal?: AbortSignal,
+  minutes?: number,
 ): Promise<T> {
   if (!enabled) throw new Error("Launch cards unavailable");
   if (token !== undefined && !/^0x[0-9a-f]{40}$/i.test(token))
     throw new Error("Invalid token");
-  const path = `/v1/private/opsis/launches${token ? `/${token}` : ""}`;
+  if (
+    minutes !== undefined &&
+    (!Number.isInteger(minutes) || minutes < 1 || minutes > 360)
+  )
+    throw new Error("Invalid launch window");
+  const path = `/v1/private/opsis/launches${token ? `/${token}` : minutes === undefined ? "" : `?minutes=${minutes}`}`;
   const auth = opsisPreviewAuthorization(path);
   const response = await fetch(
     `${import.meta.env.VITE_API_BASE_URL ?? ""}${path}`,
@@ -162,7 +175,7 @@ function validLaunchResponse(value: unknown, token?: string): boolean {
   return (
     Number.isInteger(feed.minutes) &&
     feed.minutes >= 1 &&
-    feed.minutes <= 60 &&
+    feed.minutes <= 360 &&
     !!feed.coverage &&
     ["available", "partial"].includes(feed.coverage.state) &&
     Array.isArray(feed.entries) &&

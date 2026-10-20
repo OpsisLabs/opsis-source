@@ -128,6 +128,7 @@ const envSchema = z.object({
   LAUNCH_CARDS_FEED_CACHE_SECONDS: z.coerce.number().int().min(1).max(300).default(60),
   RATE_LIMIT_LAUNCH_CARDS_PER_HOUR: z.coerce.number().int().min(1).max(60).default(10),
   TOKEN_CONTROLS_ENABLED: envBoolean.default(false),
+  CONTRACT_FACTS_ENABLED: envBoolean.default(false),
   OPSIS_WORKSPACES_ENABLED: envBoolean.default(false),
   OPSIS_PUBLIC_ACCESS_ENABLED: envBoolean.default(false),
   PERP_HANDOFF_ENABLED: envBoolean.default(false),
@@ -146,6 +147,7 @@ const envSchema = z.object({
   RWA_DAILY_RPC_UNIT_BUDGET: z.coerce.number().int().min(100).max(100_000).default(3_000),
   RWA_MAX_RPC_SUBCALLS: z.coerce.number().int().min(8).max(50).default(24),
   EXIT_CHECK_ENABLED: envBoolean.default(false),
+  NETWORK_PULSE_ENABLED: envBoolean.default(false),
   EXIT_CHECK_DAILY_RPC_UNIT_BUDGET: z.coerce.number().int().min(100).max(100_000).default(2_000),
   EXIT_CHECK_MAX_RPC_SUBCALLS: z.coerce.number().int().min(4).max(50).default(24),
   COLLECTIBLE_CATALOG_ENABLED: envBoolean.default(false),
@@ -234,6 +236,15 @@ const envSchema = z.object({
   // When set, /metrics requires this bearer token and 404s otherwise.
   METRICS_TOKEN: optionalString
 }).superRefine((env, context) => {
+  if (env.NETWORK_PULSE_ENABLED && env.ROBINHOOD_CHAIN_ID !== 4663) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["ROBINHOOD_CHAIN_ID"], message: "Network pulse supports chain 4663 only" });
+  }
+  if (env.NETWORK_PULSE_ENABLED && env.ROBINHOOD_RPC_PROVIDER === "robinhood-public" && env.NODE_ENV !== "test") {
+    const rpc = new URL(env.ROBINHOOD_PUBLIC_RPC_URL);
+    if (rpc.origin !== "https://rpc.mainnet.chain.robinhood.com" || !["", "/"].includes(rpc.pathname) || rpc.search || rpc.hash || rpc.username || rpc.password) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ["ROBINHOOD_PUBLIC_RPC_URL"], message: "Network pulse requires the existing official Robinhood Chain public RPC in development" });
+    }
+  }
   if ((env.PUBLIC_CARDS_ENABLED || env.PUBLIC_MCP_ENABLED) && (!env.PUBLIC_CARDS_HMAC_SECRET || Buffer.byteLength(env.PUBLIC_CARDS_HMAC_SECRET) < 32)) {
     context.addIssue({ code: z.ZodIssueCode.custom, path: ["PUBLIC_CARDS_HMAC_SECRET"], message: "Public cards and MCP require an HMAC secret of at least 32 bytes" });
   }
@@ -456,6 +467,7 @@ const envSchema = z.object({
     context.addIssue({ code: z.ZodIssueCode.custom, message: "Public RPC fallback must be disabled in production" });
   }
   const chainReadsEnabled = env.PRIVATE_MODE_ENABLED
+    || env.NETWORK_PULSE_ENABLED
     || env.PUBLIC_CARDS_ENABLED || env.PUBLIC_MCP_ENABLED || env.TELEGRAM_BOT_ENABLED
     || env.PORTFOLIO_MODE_ENABLED
     || env.STOCK_DESK_ENABLED

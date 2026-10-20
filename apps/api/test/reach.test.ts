@@ -1145,6 +1145,14 @@ describe("prompted Telegram cards", () => {
       `/opsis ${address} extra`,
       `/other ${address}`,
       `/opsis@bad ${address}`,
+      "/desk@bad AAPL",
+      "/desk AAPL extra",
+      "/launches@bad",
+      "/launches extra",
+      "/help@bad",
+      "/help extra",
+      "/desk AAPL",
+      "/launches",
     ])
       expect(
         (

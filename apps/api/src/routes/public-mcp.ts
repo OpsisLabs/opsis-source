@@ -13,6 +13,14 @@ import {
 } from "../open-data/card-guard.js";
 import type { OpenDataLimiter } from "../open-data/limiter.js";
 import { AppError } from "../http/errors.js";
+import {
+  STOCK_DESK_ASSETS,
+  type StockDeskSource,
+} from "../stock-desk/service.js";
+import type { LaunchCardsSource } from "../launches/service.js";
+import type { ClaimSource } from "../claims/service.js";
+import { claimRequestSchema } from "./claims.js";
+import { MCP_RESEARCH_TOOLS, stockDeskInput } from "./public-mcp-tools.js";
 const address = z
   .object({ address: z.string().regex(/^0x[0-9a-fA-F]{40}$/) })
   .strict();
@@ -24,7 +32,7 @@ export const MCP_TOOLS = [
   {
     name: "token_card",
     description:
-      "Read a partial token card with proof of work in request headers. Carries its observation receipt when enabled. Not investment advice",
+      "Read-only partial token card for a contract address, with proof of work in request headers. Carries its observation receipt when enabled. Not investment advice. / 只读查询合约地址的部分代币信息卡，需要工作量证明请求头。启用回执时包含观测回执。不构成投资建议。",
     inputSchema: {
       type: "object",
       properties: {
@@ -37,7 +45,7 @@ export const MCP_TOOLS = [
   {
     name: "verify_receipt",
     description:
-      "Check canonical receipt integrity against published keys. Returns no receipt. Not investment advice",
+      "Read-only integrity check of a serialized receipt against published keys. Returns no receipt. Not investment advice. / 只读检查序列化回执与已公布公钥的一致性。不返回回执。不构成投资建议。",
     inputSchema: {
       type: "object",
       properties: {
@@ -50,14 +58,20 @@ export const MCP_TOOLS = [
   {
     name: "open_data_assets",
     description:
-      "Read the reviewed static support registry. Returns no receipt. Not investment advice",
+      "Read-only reviewed static support registry; accepts an empty object. Returns no receipt. Not investment advice. / 只读查询经审查的静态支持列表，输入为空对象。不返回回执。不构成投资建议。",
     inputSchema: {
       type: "object",
       properties: {},
       additionalProperties: false,
     },
   },
+  ...MCP_RESEARCH_TOOLS,
 ];
+export type McpResearchSources = {
+  stockDesk?: Pick<StockDeskSource, "desk">;
+  launchCards?: Pick<LaunchCardsSource, "card">;
+  claims?: ClaimSource;
+};
 const rpc = z
   .object({
     jsonrpc: z.literal("2.0"),
@@ -84,6 +98,7 @@ export async function publicMcpRoutes(
   limiter: OpenDataLimiter,
   cards: TokenCardSource,
   receipts?: ReceiptService,
+  sources: McpResearchSources = {},
 ) {
   const proof = new CardProofOfWork(env.PUBLIC_CARDS_HMAC_SECRET ?? "");
   const guard = reachGuard(env, limiter, () => env.PUBLIC_MCP_ENABLED);
@@ -92,6 +107,27 @@ export async function publicMcpRoutes(
     ...env.APP_ORIGIN_ALIAS_LIST,
   ]);
   const endpoint = "/v1/public/open-data/v1/mcp";
+  const enabled = (name: string) => {
+    if (name === "stock_desk")
+      return (
+        env.STOCK_DESK_ENABLED &&
+        env.RWA_VERIFY_ENABLED &&
+        env.EXIT_CHECK_ENABLED
+      );
+    if (name === "launch_card")
+      return (
+        env.LAUNCH_CARDS_ENABLED &&
+        env.PRIVATE_MODE_ENABLED &&
+        env.OPSIS_WORKSPACES_ENABLED
+      );
+    if (name === "claim_check")
+      return (
+        env.CLAIM_CHECK_ENABLED &&
+        env.PRIVATE_MODE_ENABLED &&
+        env.OPSIS_WORKSPACES_ENABLED
+      );
+    return true;
+  };
   app.get(
     `${endpoint}/keys`,
     { config: reachRouteConfig, onRequest: guard },
@@ -182,10 +218,11 @@ export async function publicMcpRoutes(
         id: string | number | null,
         code: number,
         message: string,
+        reason?: string,
       ) => ({
         jsonrpc: "2.0",
         id,
-        error: { code, message },
+        error: { code, message, ...(reason ? { data: { reason } } : {}) },
         disclaimer: ADVICE,
       });
       if (!parsed.success)
@@ -213,7 +250,9 @@ export async function publicMcpRoutes(
       if (method === "tools/list") {
         if (!empty.safeParse(params ?? {}).success)
           return error(id, -32602, "Invalid params");
-        return result({ tools: MCP_TOOLS });
+        return result({
+          tools: MCP_TOOLS.filter((tool) => enabled(tool.name)),
+        });
       }
       if (method !== "tools/call") return error(id, -32601, "Method not found");
       const call = z
@@ -224,23 +263,91 @@ export async function publicMcpRoutes(
       const { name, arguments: args = {} } = call.data;
       if (!MCP_TOOLS.some((tool) => tool.name === name))
         return error(id, -32602, "Unknown tool");
-      let output: Record<string, unknown>;
+      const researchTool = MCP_RESEARCH_TOOLS.some(
+        (tool) => tool.name === name,
+      );
+      const toolCode =
+        name === "launch_card" ? "LAUNCH_CARDS" : name.toUpperCase();
+      if (!enabled(name))
+        return error(
+          id,
+          -32000,
+          "Tool disabled / 工具未启用",
+          `${toolCode}_DISABLED`,
+        );
+      let output: object;
       try {
-        if (name === "token_card") {
-          const input = address.parse(args);
+        if (name === "token_card" || researchTool) {
+          const input =
+            name === "stock_desk"
+              ? { kind: "stock" as const, value: stockDeskInput.parse(args) }
+              : name === "claim_check"
+                ? {
+                    kind: "claim" as const,
+                    value: claimRequestSchema.parse(args),
+                  }
+                : { kind: "address" as const, value: address.parse(args) };
           if (
             !proof.verify(
               request.headers["x-opsis-pow-challenge"],
               request.headers["x-opsis-pow-solution"],
             )
           )
-            return reply
-              .code(428)
-              .send({
-                ...error(id, -32602, "Proof of work required"),
-                challenge: proof.issue(),
-              });
-          output = await cards.card(input.address);
+            return reply.code(428).send({
+              ...error(
+                id,
+                -32602,
+                "Proof of work required / 需要工作量证明",
+                "PROOF_REQUIRED",
+              ),
+              challenge: proof.issue(),
+            });
+          if (input.kind === "stock") {
+            const token = input.value.token.toLowerCase();
+            const asset = STOCK_DESK_ASSETS.find(
+              (asset) =>
+                asset.symbol.toLowerCase() === token ||
+                asset.address.toLowerCase() === token,
+            );
+            if (!asset)
+              return error(
+                id,
+                -32602,
+                "Stock Token is not reviewed / 股票代币未经审查",
+                "STOCK_TOKEN_NOT_REVIEWED",
+              );
+            if (!sources.stockDesk)
+              return error(
+                id,
+                -32000,
+                "Tool unavailable / 工具不可用",
+                "STOCK_DESK_UNAVAILABLE",
+              );
+            output = await sources.stockDesk.desk(asset.address);
+          } else if (input.kind === "claim") {
+            if (!sources.claims)
+              return error(
+                id,
+                -32000,
+                "Tool unavailable / 工具不可用",
+                "CLAIM_CHECK_UNAVAILABLE",
+              );
+            output = {
+              ...(await sources.claims.check(input.value)),
+              disclaimer: ADVICE,
+            };
+          } else if (name === "launch_card") {
+            if (!sources.launchCards)
+              return error(
+                id,
+                -32000,
+                "Tool unavailable / 工具不可用",
+                "LAUNCH_CARDS_UNAVAILABLE",
+              );
+            output = await sources.launchCards.card(input.value.address);
+          } else {
+            output = await cards.card(input.value.address);
+          }
         } else {
           if (name === "verify_receipt") {
             const input = receiptInput.parse(args);
@@ -262,7 +369,11 @@ export async function publicMcpRoutes(
             };
           }
         }
-        if (name === "token_card" && env.RECEIPTS_ENABLED && !output.receipt)
+        if (
+          name === "token_card" &&
+          env.RECEIPTS_ENABLED &&
+          !("receipt" in output && output.receipt)
+        )
           throw new AppError(
             "RECEIPTS_UNAVAILABLE",
             503,
@@ -274,7 +385,25 @@ export async function publicMcpRoutes(
         });
       } catch (caught) {
         if (caught instanceof z.ZodError)
-          return error(id, -32602, "Invalid tool arguments");
+          return error(
+            id,
+            -32602,
+            "Invalid tool arguments / 工具参数无效",
+            "INVALID_TOOL_ARGUMENTS",
+          );
+        if (researchTool)
+          return error(
+            id,
+            caught instanceof AppError &&
+              caught.statusCode < 500 &&
+              caught.statusCode !== 429
+              ? -32602
+              : -32000,
+            "Tool unavailable / 工具不可用",
+            caught instanceof AppError
+              ? caught.code
+              : `${toolCode}_UNAVAILABLE`,
+          );
         if (env.RECEIPTS_ENABLED)
           return error(id, -32603, "Tool or receipt unavailable");
         return result({

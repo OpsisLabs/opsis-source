@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { FundingLink, LinkedWalletGraph } from "@rh-chain/shared";
-import { explorerTxUrl } from "../trades/model";
+import { ExplorerLink } from "./ExplorerLink";
 import { EvidenceChart } from "../charts/EvidenceChart";
 import { linkedBubbleOption } from "./linked-wallets-chart";
 import { useCopy } from "./copy";
@@ -97,23 +97,18 @@ export function LinkedWalletObservation({ data }: { data: LinkedWalletGraph }) {
     rows.map((link, i) => (
       <li key={`${link.from}:${link.to}:${i}`}>
         <span>
-          {kind(link)}: {link.from} → {link.to}
+          {kind(link)}: {link.from}<ExplorerLink kind="address" value={link.from} /> → {link.to}<ExplorerLink kind="address" value={link.to} />
           {link.via && (
             <>
               {" "}
-              · {c("via", "经由")} {link.via}
+              · {c("via", "经由")} {link.via}<ExplorerLink kind="address" value={link.via} />
             </>
           )}
         </span>
         {link.transactionHashes.map((hash) => (
-          <a
-            key={hash}
-            href={explorerTxUrl(hash) ?? undefined}
-            target="_blank"
-            rel="noreferrer"
-          >
-            {c("Transaction", "交易")} {hash}
-          </a>
+          <span key={hash}>
+            {c("Transaction", "交易")} {hash}<ExplorerLink kind="tx" value={hash} />
+          </span>
         ))}
       </li>
     ));
@@ -198,7 +193,7 @@ export function LinkedWalletObservation({ data }: { data: LinkedWalletGraph }) {
           <tbody>
             {data.holders.map((h) => (
               <tr key={h.wallet}>
-                <td>{h.wallet}</td>
+                <td>{h.wallet}<ExplorerLink kind="address" value={h.wallet} /></td>
                 <td>
                   {data.groups.findIndex((g) => g.members.includes(h.wallet)) +
                     1}
@@ -236,7 +231,7 @@ export function LinkedWalletObservation({ data }: { data: LinkedWalletGraph }) {
                       : c("Linked by funding", "资金关联")}
                   <ul>
                     {g.members.map((m) => (
-                      <li key={m}>{m}</li>
+                      <li key={m}>{m}<ExplorerLink kind="address" value={m} /></li>
                     ))}
                   </ul>
                 </td>
@@ -273,7 +268,7 @@ export function LinkedWalletObservation({ data }: { data: LinkedWalletGraph }) {
         <ul>
           {data.excluded.map((h) => (
             <li key={h.wallet}>
-              {h.wallet} ·{" "}
+              {h.wallet}<ExplorerLink kind={h.reason === "token" ? "token" : "address"} value={h.wallet} /> ·{" "}
               {
                 {
                   pool: c("Pool", "流动池"),
@@ -293,7 +288,7 @@ export function LinkedWalletObservation({ data }: { data: LinkedWalletGraph }) {
         <ul>
           {data.hubs.map((h) => (
             <li key={h.wallet}>
-              {h.wallet} ·{" "}
+              {h.wallet}<ExplorerLink kind="address" value={h.wallet} /> ·{" "}
               {
                 {
                   registry: c("Reviewed registry", "已审阅注册表"),
@@ -315,7 +310,7 @@ export function LinkedWalletObservation({ data }: { data: LinkedWalletGraph }) {
         <ul>
           {data.notChecked.map((h) => (
             <li key={h.wallet}>
-              {h.wallet} · {reason(h.reason)}
+              {h.wallet}<ExplorerLink kind="address" value={h.wallet} /> · {reason(h.reason)}
             </li>
           ))}
         </ul>

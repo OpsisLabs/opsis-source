@@ -41,14 +41,16 @@ export function workspaceIdentity(path: "/research" | "/check", search: string):
   const id = publicIdentity(path === "/check" ? params.get("token") ?? params.get("entity") : params.get("entity"));
   return path === "/check" && id.length !== 42 ? "" : id;
 }
-export type CapabilityId = "research" | "tokenControls" | "exitCheck" | "watch" | "rwa" | "observedTrades" | "swapPreview" | "perpHandoff" | "savedCheckComparisons" | "receipts" | "publicCards" | "publicMcp" | "telegramBot" | "stockDesk" | "launchCards" | "linkedWallets" | "claimCheck" | "openDataSql" | "openDataDatasets" | "alerts";
+export type CapabilityId = "networkPulse" | "research" | "contractFacts" | "tokenControls" | "exitCheck" | "watch" | "rwa" | "observedTrades" | "swapPreview" | "perpHandoff" | "savedCheckComparisons" | "receipts" | "publicCards" | "publicMcp" | "telegramBot" | "stockDesk" | "launchCards" | "linkedWallets" | "claimCheck" | "openDataSql" | "openDataDatasets" | "alerts";
 export type CapabilityStatus = { id: CapabilityId; enabled: boolean; scope: string; origin: string; freshness: string; coverage: string; limits: string };
 export type CapabilityManifest = { version: 1; chain: { id: 4663; name: string }; build: string | null; capabilities: CapabilityStatus[] };
 export type Capabilities = {
   expiresAt: string;
   chainId: 4663;
   research: boolean;
+  networkPulse?: boolean;
   tokenControls?: boolean;
+  contractFacts?: boolean;
   exitCheck: boolean;
   watch: boolean;
   rwa: boolean;
@@ -73,7 +75,7 @@ export type Capabilities = {
 
 const requiredCapabilityIds: CapabilityId[] = ["research", "tokenControls", "exitCheck", "watch", "rwa", "observedTrades"];
 // Optional rows let a newer browser build work with an older server manifest.
-const optionalCapabilityIds: CapabilityId[] = ["swapPreview", "perpHandoff", "savedCheckComparisons", "receipts", "publicCards", "publicMcp", "telegramBot", "stockDesk", "launchCards", "linkedWallets", "claimCheck", "openDataSql", "openDataDatasets", "alerts"];
+const optionalCapabilityIds: CapabilityId[] = ["contractFacts", "networkPulse", "swapPreview", "perpHandoff", "savedCheckComparisons", "receipts", "publicCards", "publicMcp", "telegramBot", "stockDesk", "launchCards", "linkedWallets", "claimCheck", "openDataSql", "openDataDatasets", "alerts"];
 const capabilityIds: CapabilityId[] = [...requiredCapabilityIds, ...optionalCapabilityIds];
 function parseManifest(value: unknown): CapabilityManifest | undefined {
   if (value === undefined) return undefined; // Older preview fixtures expose the same server-derived booleans.
@@ -135,7 +137,7 @@ export async function unlockPreview(
       typeof data.tokenControls !== "boolean") ||
     (data.swapPreview !== undefined &&
       typeof data.swapPreview !== "boolean") ||
-    [data.publicCards, data.publicMcp, data.telegramBot, data.stockDesk, data.launchCards, data.linkedWallets, data.claimCheck, data.openDataSql, data.openDataDatasets, data.alerts].some((flag) => flag !== undefined && typeof flag !== "boolean") ||
+    [data.contractFacts, data.networkPulse, data.publicCards, data.publicMcp, data.telegramBot, data.stockDesk, data.launchCards, data.linkedWallets, data.claimCheck, data.openDataSql, data.openDataDatasets, data.alerts].some((flag) => flag !== undefined && typeof flag !== "boolean") ||
     (data.receipts !== undefined && typeof data.receipts !== "boolean") ||
     (data.perpHandoff !== undefined &&
       typeof data.perpHandoff !== "boolean") ||
@@ -153,8 +155,10 @@ export async function unlockPreview(
   }
   if (manifest) {
     const legacyFlags: Record<CapabilityId, boolean> = {
+      networkPulse: data.networkPulse ?? false,
       research: data.research,
       tokenControls: data.tokenControls ?? false,
+      contractFacts: data.contractFacts ?? false,
       exitCheck: data.exitCheck,
       watch: data.watch,
       rwa: data.rwa,
@@ -174,7 +178,7 @@ export async function unlockPreview(
       stockDesk: data.stockDesk ?? false,
       linkedWallets: data.linkedWallets ?? false,
     };
-    if (["perpHandoff", "savedCheckComparisons", "receipts", "publicCards", "publicMcp", "telegramBot", "stockDesk", "launchCards", "linkedWallets", "claimCheck", "openDataSql", "openDataDatasets", "alerts"].some(id => legacyFlags[id as CapabilityId] && !manifest.capabilities.some(entry => entry.id === id)) || manifest.capabilities.some((entry) => entry.enabled !== legacyFlags[entry.id])) throw new Error("Invalid preview response");
+    if (["contractFacts", "networkPulse", "perpHandoff", "savedCheckComparisons", "receipts", "publicCards", "publicMcp", "telegramBot", "stockDesk", "launchCards", "linkedWallets", "claimCheck", "openDataSql", "openDataDatasets", "alerts"].some(id => legacyFlags[id as CapabilityId] && !manifest.capabilities.some(entry => entry.id === id)) || manifest.capabilities.some((entry) => entry.enabled !== legacyFlags[entry.id])) throw new Error("Invalid preview response");
   }
   return {
     ...data,

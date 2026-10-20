@@ -4,6 +4,10 @@ import { createHmac, createHash, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
 import type { FastifyInstance } from "fastify";
 import type { Env } from "../config/env.js";
+import type { StockDeskSource } from "../stock-desk/service.js";
+import { STOCK_DESK_ASSETS } from "../stock-desk/service.js";
+import type { LaunchCardsSource } from "../launches/service.js";
+import { deskTelegramHtml, launchesTelegramHtml, telegramCopy, telegramHelp } from "./research.js";
 import type { TokenCardSource } from "../cards/service.js";
 import { ADVICE } from "../cards/service.js";
 import { cardSummary, cardTelegramHtml, escapeText, renderCardPng } from "../cards/render.js";
@@ -160,6 +164,10 @@ export async function telegramRoutes(
   bot?: BotApiClient,
   alerts?: AlertCommands,
   sharedDispatch?: TelegramBuckets,
+  researchSources: {
+    stockDesk?: Pick<StockDeskSource, "desk">;
+    launches?: Pick<LaunchCardsSource, "feed">;
+  } = {},
 ) {
   if (!env.TELEGRAM_BOT_ENABLED) return;
   const client =
@@ -203,14 +211,49 @@ export async function telegramRoutes(
         );
       const privacyCommand = /^\/privacy(?:@[A-Za-z][A-Za-z0-9_]{4,31})?(?:\s+(?:en|zh))?$/.test(message.text);
       const alertCommand = env.ALERTS_ENABLED && alerts?.accepts(message.text);
+      const deskEnabled = env.STOCK_DESK_ENABLED && env.RWA_VERIFY_ENABLED && env.EXIT_CHECK_ENABLED;
+      const launchesEnabled = env.LAUNCH_CARDS_ENABLED && env.PRIVATE_MODE_ENABLED && env.OPSIS_WORKSPACES_ENABLED;
+      const deskCommand = deskEnabled && /^\/desk(?:@[A-Za-z][A-Za-z0-9_]{4,31})?(?:\s+(\S+))?$/.exec(message.text);
+      const launchesCommand = launchesEnabled && /^\/launches(?:@[A-Za-z][A-Za-z0-9_]{4,31})?$/.test(message.text);
+      const helpCommand = /^\/help(?:@[A-Za-z][A-Za-z0-9_]{4,31})?$/.test(message.text);
       if (
-        (!match && !alertCommand && !privacyCommand) ||
+        (!match && !alertCommand && !privacyCommand && !deskCommand && !launchesCommand && !helpCommand) ||
         !buckets.take(message.chat.id, message.chat.type !== "private")
       )
         return { ok: true };
       if (!client)
         return reply.code(503).send({ error: "TELEGRAM_CLIENT_UNAVAILABLE" });
       try {
+        if (deskCommand || launchesCommand || helpCommand) {
+          let text: string;
+          if (helpCommand) {
+            text = telegramHelp({ desk: deskEnabled, launches: launchesEnabled, alerts: Boolean(env.ALERTS_ENABLED && alerts) });
+          } else if (deskCommand) {
+            const query = deskCommand[1];
+            const asset = query && STOCK_DESK_ASSETS.find((asset) => asset.symbol.toLowerCase() === query.toLowerCase() || asset.address.toLowerCase() === query.toLowerCase());
+            if (!query) text = escapeText(telegramCopy("usage"));
+            else if (!asset) text = escapeText(telegramCopy("unknownStock"));
+            else {
+              try {
+                if (!researchSources.stockDesk) throw new Error("STOCK_DESK_UNAVAILABLE");
+                text = deskTelegramHtml(await researchSources.stockDesk.desk(asset.address), env.APP_ORIGIN);
+              } catch {
+                text = escapeText(telegramCopy("unavailableDesk"));
+              }
+            }
+          } else {
+            try {
+              if (!researchSources.launches) throw new Error("LAUNCHES_UNAVAILABLE");
+              text = launchesTelegramHtml(await researchSources.launches.feed(), env.APP_ORIGIN);
+            } catch {
+              text = escapeText(telegramCopy("unavailableLaunches"));
+            }
+          }
+          if (text.length > 4096) text = escapeText(telegramCopy(deskCommand ? "unavailableDesk" : "unavailableLaunches"));
+          if (!dispatch.take(message.chat.id, message.chat.type !== "private")) return { ok: true };
+          await client.sendMessage({ chat_id: message.chat.id, text, parse_mode: "HTML", link_preview_options: { is_disabled: true } });
+          return { ok: true };
+        }
         if (privacyCommand) {
           if (!dispatch.take(message.chat.id, message.chat.type !== "private")) return { ok: true };
           const language = message.text.endsWith(" zh") ? "zh-CN" : message.text.endsWith(" en") ? "en" : undefined;

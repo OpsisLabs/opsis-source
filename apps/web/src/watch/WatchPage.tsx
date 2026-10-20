@@ -1,6 +1,7 @@
 import type { PortfolioSnapshot } from "@rh-chain/shared";
 import OneOffCheck, { TokenTable, WatchTimeline } from "./OneOffCheck";
 import { visibleTokenText } from "../opsis/explorer-facts";
+import { ExplorerLink } from "../opsis/ExplorerLink";
 import "./watch.css";
 import { workspaceLink } from "../opsis/model";
 import { useCopy } from "../opsis/copy";
@@ -35,7 +36,6 @@ const input = "watch-input";
 const panel = "watch-panel";
 type WatchSession = ReturnType<typeof useWatchVault>;
 const sample = "0x9c34fb7b54f05eba5d28af3ff18f8dd9d66f7292";
-const explorer = "https://robinhoodchain.blockscout.com";
 const short = (address: string) =>
   `${address.slice(0, 8)}…${address.slice(-6)}`;
 
@@ -472,7 +472,7 @@ function WatchDetail({
             </p>
             <h2 className="mt-2 break-words text-2xl">{item.label}</h2>
             <p className="mt-2 break-all font-mono text-xs text-[var(--soft)]">
-              {item.address}
+              {item.address}<ExplorerLink kind="address" value={item.address} />
             </p>
             <p className="mt-2 text-sm text-[var(--soft)]">
               {date(latest.anchor.fetchedAt)} ·{" "}
@@ -498,15 +498,6 @@ function WatchDetail({
             />
             {t(session.busy ? "watch.working" : "watch.refresh")}
           </button>
-          <a
-            className={button}
-            href={`${explorer}/address/${item.address}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            referrerPolicy="no-referrer"
-          >
-            {t("watch.addressLink")}
-          </a>
         </div>
       </div>
       {gaps.length > 0 && (
@@ -591,7 +582,7 @@ function WatchDetail({
                     <h4 className="break-words font-medium">{row.label}</h4>
                     {row.contract && (
                       <p className="mt-1 break-all font-mono text-[11px] text-[var(--soft)]">
-                        {row.contract}
+                        {row.contract}<ExplorerLink kind="token" value={row.contract} />
                       </p>
                     )}
                     {OPSIS_PRESENTATION && tradeCheckEnabled && row.contract && /^0x[0-9a-f]{40}$/i.test(row.contract) && <Link className="opsis-text-link" to={workspaceLink("/check", row.contract)}>{c("Check a new amount →", "核查新数量 →")}</Link>}
@@ -651,7 +642,7 @@ function WatchDetail({
                   )}
                 </p>
                 <p className="break-all font-mono text-xs text-[var(--soft)]">
-                  {tx.hash}
+                  {tx.hash}<ExplorerLink kind="tx" value={tx.hash} />
                 </p>
                 <p className="text-[var(--soft)]">
                   {t("watch.block", { block: tx.blockNumber })}
@@ -664,21 +655,11 @@ function WatchDetail({
                       {movement.quantity} {visibleTokenText(movement.symbol) || movement.kind}
                       {movement.contract && (
                         <span className="ml-2 font-mono text-xs text-[var(--soft)]">
-                          {short(movement.contract)}
+                          {short(movement.contract)}<ExplorerLink kind="token" value={movement.contract} />
                         </span>
                       )}
                     </p>
                   ))}
-                <a
-                  className="inline-flex min-h-11 items-center gap-2 text-[var(--accent)] underline"
-                  href={`${explorer}/tx/${tx.hash}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  referrerPolicy="no-referrer"
-                >
-                  {t("watch.txLink")}
-                  <ArrowRight size={14} aria-hidden />
-                </a>
               </article>
             ))}
           </section>
@@ -696,7 +677,7 @@ function WatchDetail({
               <li className="break-all" key={`${nft.contract}:${nft.tokenId}`}>
                 {nft.quantity} × {nft.name || nft.kind} #{nft.tokenId}
                 <span className="ml-3 font-mono text-xs text-[var(--soft)]">
-                  {nft.contract}
+                  {nft.contract}<ExplorerLink kind="token" value={nft.contract} />
                 </span>
               </li>
             ))}
@@ -940,7 +921,7 @@ function SavedWatch({ tradeCheckEnabled, pending, onSaved }: { tradeCheckEnabled
       ) : (
         session.phase === "unlocked" && <>
           {pending && <section className={panel}>
-            <p className="break-all">{pending.address}</p>
+            <p className="break-all">{pending.address}<ExplorerLink kind="address" value={pending.address} /></p>
             <p>{c("Save the snapshot you just checked. No additional public lookup is sent.", "保存刚刚核查的快照，不发送额外的公开查询。")}</p>
             <button className={primary} disabled={session.busy} onClick={() => void session.saveSnapshot(pending, onSaved)}>{c("Save checked snapshot", "保存已核查快照")}</button>
           </section>}

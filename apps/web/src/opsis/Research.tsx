@@ -17,6 +17,7 @@ import { researchFactCopy, researchNoteCopy, researchPrivacyCopy, researchSeveri
 import { KNOWN_ASSETS, resolveKnownAsset, type KnownAsset } from "./known-assets";
 import { DecodedActions, ResearchIdentity, ResearchTiles, ResearchEvidence, TokenFacts, WalletBalances, WalletTransactions } from "./ResearchFacts";
 import { useCopy } from "./copy";
+import { ExplorerLink } from "./ExplorerLink";
 import { publicIdentity, workspaceIdentity, researchInputMatchesChoice, workspaceLink, type Capabilities } from "./model";
 
 import { publicSession } from "./public-session";
@@ -27,6 +28,7 @@ import { receiptTransferObservations, transactionReceiptOutcome, transactionTime
 // Imported, not lazy: a panel revealed after its result moves the controls below
 // it, and a press already under way on them is released over another element.
 import ContractControls from "./ContractControls";
+import ContractFacts from "./ContractFacts";
 import EvidenceMap from "./EvidenceMap";
 import "./research.css";
 
@@ -186,7 +188,7 @@ export default function Research({
             spellCheck={false}
             placeholder="0x…"
           /></div>
-          {resolvedAsset && <p className="opsis-small opsis-resolved-asset" role="status">{c("Resolved", "已识别")}: {resolvedAsset.name} · {resolvedAsset.symbol} · {c("Token · chain 4663", "代币 · 链 4663")}<br /><code>{resolvedAsset.address}</code></p>}
+          {resolvedAsset && <p className="opsis-small opsis-resolved-asset" role="status">{c("Resolved", "已识别")}: {resolvedAsset.name} · {resolvedAsset.symbol} · {c("Token · chain 4663", "代币 · 链 4663")}<br /><code>{resolvedAsset.address}</code><ExplorerLink kind="token" value={resolvedAsset.address} /></p>}
           <div className="opsis-asset-examples" aria-label={c("Research examples", "研究示例")}>
             <span>{c("Examples", "示例")}:</span>
             {KNOWN_ASSETS.filter((asset) => ["WETH", "USDG", "AAPL", "NVDA"].includes(asset.symbol)).map((asset) => <button key={asset.symbol} type="button" disabled={busy} onClick={() => {
@@ -277,6 +279,7 @@ export default function Research({
               data-testid="opsis-research-result"
             >
               <ResearchIdentity entity={result.entity} checkedAt={result.answer.citations[0]?.fetchedAt} />
+              {capabilities.contractFacts === true && result.contractFacts && result.entity.chainId === 4663 && (result.entity.type === "token" || result.entity.type === "contract") && <ContractFacts facts={result.contractFacts} address={result.entity.value} />}
               {(result.entity.type === "token" || result.entity.type === "wallet") && <ResearchTiles facts={result.entity.facts} type={result.entity.type} />}
               {token && capabilities.exitCheck && import.meta.env.VITE_EXIT_CHECK_ENABLED === "true" ? (
                 <Link className="opsis-action research-next-step" to={workspaceLink("/check", token)}>{c("Check what comes out at your size →", "查看您的数量可换得多少 →")}</Link>
@@ -398,7 +401,7 @@ export default function Research({
                                 return (
                                   <div key={key}>
                                     <dt>{label}</dt>
-                                    <dd style={{ overflowWrap: "anywhere" }}>{display}</dd>
+                                    <dd style={{ overflowWrap: "anywhere" }}>{display}{(key === "from" || key === "to") && <ExplorerLink kind="address" value={value} />}</dd>
                                   </div>
                                 );
                               })}

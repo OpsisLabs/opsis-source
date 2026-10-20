@@ -3,6 +3,7 @@ import type { SourceCitation } from "../dashboard/types";
 import { safeHttpUrl } from "../dashboard/adapters";
 import type { DecodedAction, Leg, PrivateAnalysis, ResearchFacts } from "../private/api";
 import { useCopy } from "./copy";
+import { ExplorerLink, type ExplorerKind } from "./ExplorerLink";
 import {
   explorerCount, explorerNumber, hasHiddenCharacters, holderShares, isBurnAddress,
   latestTimestamp, lookalikeAsset, relativeTime, reviewedAsset,
@@ -10,12 +11,13 @@ import {
 } from "./explorer-facts";
 import { compactAmount, actionAmount, feePercent, formatExactAmount, orderActions, scaleRawAmount, transactionReceiptOutcome, transactionTimelineRows } from "./transactionTimeline";
 
-export function PublicAddress({ address }: { address: string }) {
+export function PublicAddress({ address, kind = "address" }: { address: string; kind?: ExplorerKind }) {
   const c = useCopy();
   const [copied, setCopied] = useState(false);
   const [failed, setFailed] = useState(false);
   return <span className="opsis-address-control">
     <span title={address}>{address.slice(0, 6)}…{address.slice(-4)}</span>
+    <ExplorerLink kind={kind} value={address} />
     <button type="button" title={address} aria-label={`${c("Copy address", "复制地址")} ${address}`} onClick={async () => {
       try {
         await navigator.clipboard.writeText(address);
@@ -56,8 +58,8 @@ function Action({ action }: { action: DecodedAction }) {
       <details><summary>{c("Exact amounts and contracts", "精确数量与合约")}</summary>
         <p>{c("Sold raw amount", "卖出原始数量")}: <code>{action.sold.rawAmount}</code></p>
         <p>{c("Bought raw amount", "买入原始数量")}: <code>{action.bought.rawAmount}</code></p>
-        <p>{action.sold.token.symbol ?? c("Sold token", "卖出代币")}: <code>{action.sold.token.address}</code></p>
-        <p>{action.bought.token.symbol ?? c("Bought token", "买入代币")}: <code>{action.bought.token.address}</code></p>
+        <p>{action.sold.token.symbol ?? c("Sold token", "卖出代币")}: <code>{action.sold.token.address}</code><ExplorerLink kind="token" value={action.sold.token.address} /></p>
+        <p>{action.bought.token.symbol ?? c("Bought token", "买入代币")}: <code>{action.bought.token.address}</code><ExplorerLink kind="token" value={action.bought.token.address} /></p>
       </details>
     </li>;
   }
@@ -69,7 +71,7 @@ function Action({ action }: { action: DecodedAction }) {
     </>}</p>
     <details><summary>{c("Exact amount and contract", "精确数量与合约")}</summary>
       <p>{c("Raw amount", "原始数量")}: <code>{action.rawAmount}</code></p>
-      <p>{c("Token contract", "代币合约")}: <code>{action.token.address}</code></p>
+      <p>{c("Token contract", "代币合约")}: <code>{action.token.address}</code><ExplorerLink kind="token" value={action.token.address} /></p>
     </details>
   </li>;
 }
@@ -198,7 +200,7 @@ function Balance({ balance }: { balance: NonNullable<ResearchFacts["tokenBalance
     <p>{typeof balance.tokenName === "string" ? visibleTokenText(balance.tokenName) : c("Unknown token", "未知代币")} · {typeof balance.tokenSymbol === "string" ? visibleTokenText(balance.tokenSymbol) : c("Symbol unknown", "符号未知")}
       {reviewed && <> · <span className="opsis-explorer-tag">{c("Reviewed asset", "已审核资产")}</span></>}</p>
     <strong>{formatExactAmount(balance.formattedValue) ?? c("Amount unknown", "数量未知")}</strong>
-    <p className="opsis-identity">{typeof balance.tokenAddress === "string" ? <PublicAddress address={balance.tokenAddress} /> : c("Contract unknown", "合约未知")}</p>
+    <p className="opsis-identity">{typeof balance.tokenAddress === "string" ? <PublicAddress kind="token" address={balance.tokenAddress} /> : c("Contract unknown", "合约未知")}</p>
     {lookalike && <p className="opsis-small">{c(`Uses the symbol ${lookalike.symbol}, but this is not the reviewed ${lookalike.symbol} contract.`, `使用符号 ${lookalike.symbol}，但这不是已审核的 ${lookalike.symbol} 合约。`)}</p>}
     {!lookalike && wellKnown && <p className="opsis-small">{c(`Uses the symbol ${wellKnown}; this contract is not on the Opsis reviewed asset list.`, `使用符号 ${wellKnown}；此合约不在 Opsis 的已审核资产列表中。`)}</p>}
     {hidden && <p className="opsis-small">{c("The name or symbol contains hidden characters, shown in brackets above.", "名称或符号含有隐藏字符，已在上方用方括号显示。")}</p>}
@@ -310,8 +312,8 @@ export function ResearchIdentity({ entity, checkedAt }: { entity: PrivateAnalysi
       {entity.type === "token" && name && name !== symbol && <span>{name}</span>}
       {entity.type === "wallet" && <span className="research-identity-short">{entity.value.slice(0, 8)}…{entity.value.slice(-4)}</span>}
     </div>
-    <p className="opsis-identity"><PublicAddress address={entity.value} /> · {c("Chain", "链")} {entity.chainId} · {entity.type === "token" ? c("Token", "代币") : entity.type === "wallet" ? c("Wallet", "钱包") : entity.type === "transaction" ? c("Transaction", "交易") : c("Contract", "合约")}</p>
-    <details className="research-exact-identity"><summary>{c("Exact identifier", "完整标识符")}</summary><code>{entity.value}</code></details>
+    <p className="opsis-identity"><PublicAddress kind={entity.type === "transaction" ? "tx" : entity.type === "token" ? "token" : "address"} address={entity.value} /> · {c("Chain", "链")} {entity.chainId} · {entity.type === "token" ? c("Token", "代币") : entity.type === "wallet" ? c("Wallet", "钱包") : entity.type === "transaction" ? c("Transaction", "交易") : c("Contract", "合约")}</p>
+    <details className="research-exact-identity"><summary>{c("Exact identifier", "完整标识符")}</summary><code>{entity.value}</code><ExplorerLink kind={entity.type === "transaction" ? "tx" : entity.type === "token" ? "token" : "address"} value={entity.value} /></details>
     {entity.type === "transaction" && <p className="opsis-identity">{outcome === "success" ? c("Success", "成功") : outcome === "failed" ? c("Failed", "失败") : outcome === "pending" ? c("Pending", "待处理") : c("Status unknown", "状态未知")} · {c("Block", "区块")} {block ?? c("Unknown", "未知")} · <ObservedTime value={facts.timestamp} /></p>}
     <p className="opsis-small" data-testid={entity.type !== "token" ? "explorer-read-time" : undefined}>{c("Read", "读取于")} <ObservedTime value={facts.explorerObservedAt ?? checkedAt} /> · {facts.explorerObservedAt ? "Blockscout" : c("Chain data", "链上数据")}</p>
     {entity.type === "token" && <TokenNameOrigin address={entity.value} />}

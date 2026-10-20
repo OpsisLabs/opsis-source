@@ -31,6 +31,9 @@ describe("approval manager evidence", () => {
     expect(html).toContain("approvals: 1 calls skipped as unclassified");
     expect(html).toContain(`href="https://robinhoodchain.blockscout.com/tx/${hash}"`);
     expect(html).toContain("2^255 raw base units");
+    expect(html).toContain(`href="https://robinhoodchain.blockscout.com/token/${approval.contract}"`);
+    expect(html).toContain(`href="https://robinhoodchain.blockscout.com/address/${approval.spender}"`);
+    expect(html).toContain(`href="https://robinhoodchain.blockscout.com/address/${snapshot.address}"`);
   });
   it("uses the exact contract balance when holdings contain it", () => {
     const html = render({ ...snapshot, tokens: [{ kind: "erc20", contract: approval.contract, symbol: "USDG", name: "Example token", decimals: 18, quantity: "1.5", rawBalance: "1500000000000000000", sourceIds: [] }] });
