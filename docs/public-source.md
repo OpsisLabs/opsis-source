@@ -176,9 +176,11 @@ without holding the App key: run the **Publish public source** workflow on `main
 public mirror with the identity guard above, runs the snapshot exporter and its
 `--check`, commits under the Opsis identity, and pushes with
 `scripts/push-public-as-bot.mjs`. The App key is read from the encrypted
-`OPSIS_BOT_PRIVATE_KEY` Actions secret into the public clone's `.git` with mode
-`0600` for the push only, and the Client ID from the `OPSIS_BOT_CLIENT_ID`
-variable. Runs are serialized, and the job summary shows the public commit URL.
+`OPSIS_BOT_PRIVATE_KEY` secret of the `public-publish` environment, which GitHub
+releases only to runs on `main`, into the public clone's `.git` with mode `0600`
+for the push only. The Client ID comes from the `OPSIS_BOT_CLIENT_ID` variable.
+Anyone who can push to `main` can still change the workflow there, so grant
+write access only to trusted maintainers and rotate the App key when one leaves. Runs are serialized, and the job summary shows the public commit URL.
 Railway deploys production from the public `main`, so verify the live site after
 a run. Publish from one place at a time; the snapshot exporter makes the public
 tip match the current private `main` exactly.

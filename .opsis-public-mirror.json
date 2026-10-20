@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "92bf01db08896ded254e3f39837b409916f73acc2418feef04f878fb415af265",
+  "sourceTreeDigest": "9d24a972f6eca4d4597bf9e6517915e992482953becbaa0fc9be29d23fb9e49d",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "69a711cc3e0a9b1c1b6a1e71e20d7c7f90c4275023eb909313daa3e974efcbed",
@@ -916,7 +916,7 @@
     "docs/assets/README.md": "5274ec6769c49343dd1cc117ebc285c4ea6580ea7e6f90cfe58cbfb39e370ed0",
     "docs/dependency-licenses.md": "8cee1b9b2e571bd379b7bf86f2ab4d78aa0367677d26e131556bb06a61debd8d",
     "docs/opsis/30-marketing.md": "10d6cf120fd6f5704ad7e4f7b6410705e2980fc3feb6908fa01a35777a24a0b9",
-    "docs/public-source.md": "23dae0bf73305a5d44026b0b09dce8f6d0500d93ae77ee416f73c86f6aaeb02b",
+    "docs/public-source.md": "03ee78e62f4e672ee78391104142e85a42fb77b59cabb20bbbca4e15fb8d40e5",
     "docs/release-train.md": "adc5043ca15d0375ab15aa2d9f26d79bc34ac956d4ab95c701605d93c32b0901",
     "e2e/biggest-trades.mock.spec.ts": "133fe72b500726d87339220e3ab6f1fcebb4d5df4280830f265ae717c316ce07",
     "e2e/card-prices.mock.spec.ts": "d6dbf01d27b4f8d9deef2910728d6ce4a700890c7717feadf167cff46d93e3f2",
