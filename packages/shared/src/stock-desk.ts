@@ -78,7 +78,9 @@ export type StockDeskIndex = {
   schemaVersion: 1;
   observedAt: string;
   expiresAt: string;
-  coverage: { addresses: string[]; complete: true; basis: string };
+  coverage: { addresses: string[]; complete: boolean; basis: string };
+  /** Tokens that could not be read after one retry; their absence is not a zero gap. */
+  unavailable?: Array<{ address: string; reason: string }>;
   entries: Array<{ href: string; desk: StockDeskResult }>;
   gaps: string[];
   multiplierEvents: string[];

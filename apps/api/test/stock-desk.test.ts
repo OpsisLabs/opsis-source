@@ -312,6 +312,40 @@ describe("Stock Token Desk", () => {
     await service.index();
     expect(f.reserve).toHaveBeenCalledTimes(2);
   });
+  it("lists a token that still fails after one retry as unavailable instead of failing the index", async () => {
+    const f = fixture();
+    const original = f.rwa.verify.getMockImplementation()!;
+    const calls = new Map<string, number>();
+    f.rwa.verify.mockImplementation(async (address: string, opts?: { desk?: boolean; rpcCalls?: ReceiptBody["rpcCalls"] }) => {
+      const n = (calls.get(address) ?? 0) + 1;
+      calls.set(address, n);
+      const index = STOCK_DESK_ASSETS.findIndex((a) => a.address.toLowerCase() === address.toLowerCase());
+      if (index === 0) throw Object.assign(new Error("PROVIDER_HTTP_429"), { retryable: true });
+      if (index === 1 && n === 1) throw Object.assign(new Error("PROVIDER_HTTP_429"), { retryable: true });
+      return original(address, opts);
+    });
+    const index = await f.service.index();
+    expect(index.entries).toHaveLength(9);
+    expect(index.coverage.complete).toBe(false);
+    expect(index.unavailable).toEqual([{ address: STOCK_DESK_ASSETS[0]!.address.toLowerCase(), reason: expect.any(String) }]);
+    expect(calls.get(STOCK_DESK_ASSETS[1]!.address.toLowerCase()) ?? calls.get(STOCK_DESK_ASSETS[1]!.address)).toBe(2);
+  });
+  it("prefers the on-chain Chainlink USDG/USD rate, anchored to the token read, for the gap", async () => {
+    const f = fixture();
+    const original = f.rwa.verify.getMockImplementation()!;
+    f.rwa.verify.mockImplementation(async (address: string, opts?: { desk?: boolean; rpcCalls?: ReceiptBody["rpcCalls"] }) => {
+      const result = await original(address, opts);
+      return { ...result, stock: { ...result.stock!, usdgUsd: { feed: "0x61b7e5650328764b076a108eff5fa7282a1b9ad2", value: "1.0000529", updatedAt: TIME, heartbeatSeconds: 86400, state: "current" as const } } };
+    });
+    const desk = await f.service.desk(STOCK_DESK_ASSETS[0]!.address);
+    expect(desk.gapBps.state).toBe("available");
+    if (desk.gapBps.state === "available") {
+      const conversion = desk.gapBps.evidence.find((e) => e.source.startsWith("chainlink:") && e.source.endsWith(":USDG/USD"));
+      expect(conversion).toMatchObject({ value: "1.0000529", unit: "USD per USDG" });
+      expect(conversion?.block).not.toBeNull();
+    }
+    expect(f.market.market).not.toHaveBeenCalledWith(expect.stringMatching(/^0x5fc5360d/i));
+  });
   it("reports stale feeds without treating off-hours as fresh", async () => {
     const f = fixture({ stale: true });
     const index = await f.service.index();

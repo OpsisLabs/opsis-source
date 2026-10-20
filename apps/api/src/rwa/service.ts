@@ -95,6 +95,8 @@ export type RwaVerification = {
     termsUrl: string | null;
     underlyingQuote: null | { bid: string; ask: string; currency: string; generatedAt: string; tradingHalted: boolean; state: "current" | "stale"; ageSeconds: number };
     oracle: null | { feed: string; value: string | null; updatedAt: string | null; heartbeatSeconds: number; multiplierEmbedded?: boolean | null; state: "current" | "paused" | "stale_or_market_closed" | "invalid" };
+    /** Desk mode only: Chainlink USDG / USD read in the same batch and block as the token feed. */
+    usdgUsd?: null | { feed: string; value: string | null; updatedAt: string | null; heartbeatSeconds: number; state: "current" | "paused" | "stale_or_market_closed" | "invalid" };
     corporateActions: Array<{ id: string; type: string; status: string; processDate: string | null; detail: string }>;
   };
   morpho?: {
@@ -189,6 +191,8 @@ export class RwaService implements RwaVerificationSource {
     const feed = feedResult.state === "match" ? feedResult.value : null;
     const calls: RpcCall[] = stockAbi.map((entry) => ({ id: `stock:${entry.name}`, to: address, data: encodeFunctionData({ abi: stockAbi, functionName: entry.name }) }));
     if (feed) feedAbi.forEach((entry) => calls.push({ id: `feed:${entry.name}`, to: feed.proxyAddress, data: encodeFunctionData({ abi: feedAbi, functionName: entry.name }) }));
+    const usdgFeed = desk && rddDocument.state === "available" ? parseUsdgFeed(rddBody) : null;
+    if (usdgFeed) feedAbi.forEach((entry) => calls.push({ id: `usdg:${entry.name}`, to: usdgFeed.proxyAddress, data: encodeFunctionData({ abi: feedAbi, functionName: entry.name }) }));
     const direct = await this.rpcBatch(calls, anchor.blockHex, run);
 
     const uid = decoded<Hex>(stockAbi, "uid", direct.get("stock:uid"));
@@ -225,6 +229,9 @@ export class RwaService implements RwaVerificationSource {
     const allCorporateActions = actionsSchemaValid ? parseActions(actionsBody, asset, address) : [];
     const corporateActions = allCorporateActions.slice(0, 20);
     const oracle = feed ? parseOracle(feed, direct, oraclePaused, this.dependencies.now()) : null;
+    const usdgUsd = usdgFeed
+      ? (({ multiplierEmbedded: _ignored, ...rest }) => rest)(parseOracle(usdgFeed, new Map([...direct].filter(([key]) => key.startsWith("usdg:")).map(([key, value]) => [key.replace("usdg:", "feed:"), value])), false, this.dependencies.now()))
+      : desk ? null : undefined;
     const checks: RwaCheck[] = [
       check("canonical", "Canonical address", identityMatches ? "confirmed" : "conflict", identityMatches
         ? "Exact chain-4663 deployment, onchain UID, symbol, and decimals agree."
@@ -296,6 +303,7 @@ export class RwaService implements RwaVerificationSource {
         termsUrl: safeTerms(terms),
         underlyingQuote: quote,
         oracle,
+        ...(usdgUsd !== undefined ? { usdgUsd } : {}),
         corporateActions
       },
       limitations: [
@@ -542,6 +550,13 @@ function findStockAsset(body: unknown, address: string): StockAsset | null {
   return null;
 }
 
+function parseUsdgFeed(body: unknown): Feed | null {
+  if (!Array.isArray(body)) return null;
+  const raw = body.map(asRecord).find((item) => item.name === "USDG / USD" && asRecord(item.docs).quoteAsset === "USD");
+  if (!raw || !lowerAddress(raw.proxyAddress) || typeof raw.heartbeat !== "number" || !Number.isInteger(raw.heartbeat) || raw.heartbeat <= 0 || typeof raw.decimals !== "number" || !Number.isInteger(raw.decimals)) return null;
+  return { proxyAddress: String(raw.proxyAddress).toLowerCase(), name: "USDG / USD", heartbeat: raw.heartbeat, decimals: raw.decimals, multiplierEmbedded: null };
+}
+
 function parseFeedDirectory(body: unknown, symbol: string): ParseResult<Feed> {
   if (!Array.isArray(body)) return { state: "malformed" };
   const raw = body.map(asRecord).find((item) => {
@@ -552,7 +567,14 @@ function parseFeedDirectory(body: unknown, symbol: string): ParseResult<Feed> {
   });
   if (!raw) return { state: "empty" };
   if (typeof raw.name !== "string" || !lowerAddress(raw.proxyAddress) || typeof raw.heartbeat !== "number" || !Number.isInteger(raw.heartbeat) || raw.heartbeat <= 0 || typeof raw.decimals !== "number" || !Number.isInteger(raw.decimals) || raw.decimals < 0 || raw.decimals > 255) return { state: "malformed" };
-  return { state: "match", value: { proxyAddress: String(raw.proxyAddress).toLowerCase(), name: raw.name, heartbeat: raw.heartbeat, decimals: raw.decimals, multiplierEmbedded: typeof raw.multiplierEmbedded === "boolean" ? raw.multiplierEmbedded : null } };
+  // Robinhood's per-token "primaryTokenizedPrice" feeds already include the token multiplier
+  // (verified in release 05); "RefPrice" feeds price one underlying share, so the multiplier applies.
+  const productType = asRecord(raw.docs).productTypeCode;
+  const multiplierEmbedded = typeof raw.multiplierEmbedded === "boolean" ? raw.multiplierEmbedded
+    : productType === "primaryTokenizedPrice" ? true
+    : productType === "RefPrice" ? false
+    : null;
+  return { state: "match", value: { proxyAddress: String(raw.proxyAddress).toLowerCase(), name: raw.name, heartbeat: raw.heartbeat, decimals: raw.decimals, multiplierEmbedded } };
 }
 
 type UnderlyingQuote = NonNullable<NonNullable<RwaVerification["stock"]>["underlyingQuote"]>;
@@ -587,7 +609,10 @@ function parseOracle(feed: Feed, results: Map<string, RpcResult>, paused: boolea
   const description = decoded<string>(feedAbi, "description", results.get("feed:description"));
   const decimals = decoded<number>(feedAbi, "decimals", results.get("feed:decimals"));
   const round = decoded<readonly [bigint, bigint, bigint, bigint, bigint]>(feedAbi, "latestRoundData", results.get("feed:latestRoundData"));
-  if (description !== feed.name || decimals !== feed.decimals || !round || round[1] <= 0n || round[3] <= 0n || round[4] < round[0] || Number(round[3]) * 1_000 > now.getTime() + 60_000) {
+  // Some Robinhood feeds describe themselves on chain as "RH<SYMBOL> / USD" while the directory says "Robinhood <SYMBOL> / USD".
+  const alias = /^Robinhood (\S+) \/ USD$/.exec(feed.name)?.[1];
+  const descriptionMatches = description === feed.name || (alias !== undefined && description === `RH${alias} / USD`);
+  if (!descriptionMatches || decimals !== feed.decimals || !round || round[1] <= 0n || round[3] <= 0n || round[4] < round[0] || Number(round[3]) * 1_000 > now.getTime() + 60_000) {
     return { feed: feed.proxyAddress, value: null, updatedAt: null, heartbeatSeconds: feed.heartbeat, multiplierEmbedded: feed.multiplierEmbedded, state: "invalid" };
   }
   const updatedAt = new Date(Number(round[3]) * 1_000);
@@ -679,5 +704,5 @@ function unixIso(value: bigint): string | null { const seconds = Number(value); 
 function parseProcessDate(value: unknown): string | null { const date = asRecord(value); if (![date.year, date.month, date.day].every((part) => Number.isInteger(part))) return null; const text = `${date.year}-${String(date.month).padStart(2, "0")}-${String(date.day).padStart(2, "0")}`; return Number.isNaN(Date.parse(`${text}T00:00:00Z`)) ? null : text; }
 function actionDetail(value: unknown): string { const details = asRecord(value); const entry = Object.values(details).map(asRecord).find((item) => Object.keys(item).length > 0); if (!entry) return "Robinhood did not supply structured details."; return Object.entries(entry).filter(([, v]) => ["string", "number", "boolean"].includes(typeof v)).slice(0, 4).map(([k, v]) => `${k}: ${String(v)}`).join(" · ") || "Robinhood supplied an unrecognized action detail."; }
 function oracleStatus(state: NonNullable<NonNullable<RwaVerification["stock"]>["oracle"]>["state"]): RwaCheck["status"] { return state === "current" ? "confirmed" : state === "invalid" ? "conflict" : "warning"; }
-function oracleDetail(oracle: NonNullable<NonNullable<RwaVerification["stock"]>["oracle"]>): string { if (oracle.state === "invalid") return "The feed response failed description, decimals, timestamp, or positive-value validation."; if (oracle.state === "paused") return "The issuer reports the oracle paused. The numeric value is not treated as current."; return `${oracle.value} USD per token, updated ${oracle.updatedAt}; state: ${oracle.state.replaceAll("_", " ")}. The multiplier is already included.`; }
+function oracleDetail(oracle: NonNullable<NonNullable<RwaVerification["stock"]>["oracle"]>): string { if (oracle.state === "invalid") return "The feed response failed description, decimals, timestamp, or positive-value validation."; if (oracle.state === "paused") return "The issuer reports the oracle paused. The numeric value is not treated as current."; return `${oracle.value} USD per ${oracle.multiplierEmbedded === false ? "underlying share" : "token"}, updated ${oracle.updatedAt}; state: ${oracle.state.replaceAll("_", " ")}.${oracle.multiplierEmbedded === true ? " The multiplier is already included." : oracle.multiplierEmbedded === false ? " The token multiplier applies on top." : ""}`; }
 function formatPercent(value: number): string { return `${(value * 100).toFixed(2)}%`; }

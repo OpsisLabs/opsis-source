@@ -80,6 +80,26 @@ describe("RWA evidence inspector", () => {
     expect(rpcCalls).toHaveLength(16);
   });
 
+  it("derives the multiplier basis from the directory product type", async () => {
+    const run = async (feedDocs?: Record<string, unknown>) => {
+      const { http, rpc } = stockFixtures({ feedDocs });
+      return (await new RwaService(testEnv(), { http, rpc, budget: budget(), now: () => NOW }).verify(STOCK, { desk: true })).stock?.oracle;
+    };
+    expect(await run({ productTypeCode: "primaryTokenizedPrice" })).toMatchObject({ state: "current", multiplierEmbedded: true });
+    expect(await run({ productTypeCode: "RefPrice" })).toMatchObject({ state: "current", multiplierEmbedded: false });
+    expect(await run({ productTypeCode: "ExRate" })).toMatchObject({ multiplierEmbedded: null });
+    expect(await run()).toMatchObject({ multiplierEmbedded: null });
+  });
+  it("accepts the on-chain RH<SYMBOL> feed description and still rejects other descriptions", async () => {
+    const run = async (feedDescription: string) => {
+      const { http, rpc } = stockFixtures({ feedDescription });
+      return (await new RwaService(testEnv(), { http, rpc, budget: budget(), now: () => NOW }).verify(STOCK)).stock?.oracle?.state;
+    };
+    expect(await run("RHAAPL / USD")).toBe("current");
+    expect(await run("Robinhood AAPL / USD")).toBe("current");
+    expect(await run("RHNVDA / USD")).toBe("invalid");
+    expect(await run("AAPL / USD")).toBe("invalid");
+  });
   it("surfaces UID conflicts and paused oracle values instead of trusting the ticker", async () => {
     const { http, rpc } = stockFixtures({ uid: `0x${"34".repeat(32)}`, paused: true });
     const result = await new RwaService(testEnv(), { http, rpc, budget: budget(), now: () => NOW }).verify(STOCK);
@@ -306,7 +326,7 @@ describe("RWA evidence inspector", () => {
 
 function budget(): RwaBudget { return { consume: vi.fn(async () => undefined) }; }
 
-function stockFixtures(options: { uid?: `0x${string}`; paused?: boolean; tokenPaused?: boolean; missingTokenPaused?: boolean; noFeed?: boolean; malformedFeed?: boolean; quoteEmpty?: boolean; malformedQuote?: boolean; optionalFailure?: boolean; malformedOptional?: boolean; actionCount?: number; reorg?: boolean; oracleUpdatedAt?: number; roundId?: bigint; answeredInRound?: bigint; quoteChainId?: number; quoteCurrency?: string; quoteGeneratedAt?: string; registryPending?: string; onchainPending?: bigint; effectiveAt?: bigint; missingScheduleEvidence?: boolean } = {}) {
+function stockFixtures(options: { feedDescription?: string; feedDocs?: Record<string, unknown>; uid?: `0x${string}`; paused?: boolean; tokenPaused?: boolean; missingTokenPaused?: boolean; noFeed?: boolean; malformedFeed?: boolean; quoteEmpty?: boolean; malformedQuote?: boolean; optionalFailure?: boolean; malformedOptional?: boolean; actionCount?: number; reorg?: boolean; oracleUpdatedAt?: number; roundId?: bigint; answeredInRound?: bigint; quoteChainId?: number; quoteCurrency?: string; quoteGeneratedAt?: string; registryPending?: string; onchainPending?: bigint; effectiveAt?: bigint; missingScheduleEvidence?: boolean } = {}) {
   const http: ProviderHttp = { requestJson: vi.fn(async (url) => {
     if (url.endsWith("/assets")) return { assets: [{
       id: UID, tokenSymbol: "AAPL", tokenName: "Apple • Robinhood Token", tokenDecimals: 18,
@@ -315,7 +335,7 @@ function stockFixtures(options: { uid?: `0x${string}`; paused?: boolean; tokenPa
     }] };
     if (url.includes("/prices/AAPL")) { if (options.optionalFailure) throw new ProviderRequestError("PROVIDER_HTTP_429", true); if (options.malformedOptional) return { quotes: "invalid" }; if (options.quoteEmpty) return { quotes: [] }; return { quotes: [{ tokenSymbol: "AAPL", deployments: [{ contractAddress: STOCK, chainId: options.quoteChainId ?? 4663 }], bid: options.malformedQuote ? null : "308.89", ask: "308.97", currency: options.quoteCurrency ?? "USD", generatedAt: options.quoteGeneratedAt ?? NOW.toISOString(), isTradingHalt: false }] }; }
     if (url.endsWith("/corporate-actions")) { if (options.optionalFailure) throw new ProviderRequestError("PROVIDER_TIMEOUT", true); if (options.malformedOptional) return { corpActions: "invalid" }; return { corpActions: Array.from({ length: options.actionCount ?? 1 }, (_, index) => ({ id: `${UID}:${index}`, type: "CORPORATE_ACTION_TYPE_CASH_DIVIDEND", status: "CORPORATE_ACTION_STATUS_IN_PROGRESS", processDate: { year: 2026, month: 8, day: 15 }, tokenSymbol: "AAPL", deployments: [{ contractAddress: STOCK, chainId: 4663 }], details: { cashDividend: { rate: "0.25" } } })) }; }
-    if (url.includes("feeds-robinhood-mainnet")) { if (options.optionalFailure) throw new ProviderRequestError("PROVIDER_CIRCUIT_OPEN", false); if (options.malformedOptional) return { feeds: [] }; return options.noFeed ? [] : [{ name: "Robinhood AAPL / USD", proxyAddress: options.malformedFeed ? "invalid" : FEED, heartbeat: 86400, decimals: 8 }]; }
+    if (url.includes("feeds-robinhood-mainnet")) { if (options.optionalFailure) throw new ProviderRequestError("PROVIDER_CIRCUIT_OPEN", false); if (options.malformedOptional) return { feeds: [] }; return options.noFeed ? [] : [{ name: "Robinhood AAPL / USD", proxyAddress: options.malformedFeed ? "invalid" : FEED, heartbeat: 86400, decimals: 8, ...(options.feedDocs ? { docs: options.feedDocs } : {}) }]; }
     throw new Error(`unexpected HTTP ${url}`);
   }) };
   const rpc = scriptedRpc((id) => {
@@ -330,7 +350,7 @@ function stockFixtures(options: { uid?: `0x${string}`; paused?: boolean; tokenPa
       "stock:oraclePaused": encoded(stockFunctions, "oraclePaused", options.paused ?? false),
       "stock:tokenPaused": options.missingTokenPaused ? undefined : encoded(stockFunctions, "tokenPaused", options.tokenPaused ?? false),
       "stock:terms": encoded(stockFunctions, "terms", "https://robinhood.com/stocktoken/rhj"),
-      "feed:description": encoded(feedFunctions, "description", "Robinhood AAPL / USD"),
+      "feed:description": encoded(feedFunctions, "description", options.feedDescription ?? "Robinhood AAPL / USD"),
       "feed:decimals": encoded(feedFunctions, "decimals", 8),
       "feed:latestRoundData": encoded(feedFunctions, "latestRoundData", [options.roundId ?? 1n, 30_810_000_000n, 0n, BigInt(options.oracleUpdatedAt ?? Math.floor(NOW.getTime() / 1000) - 3600), options.answeredInRound ?? 1n])
     };

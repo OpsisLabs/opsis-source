@@ -113,11 +113,31 @@ export class StockDeskService implements StockDeskSource {
   }
   private async scan(): Promise<StockDeskIndex> {
     const engines = await this.reserveScan();
-    const entries: StockDeskIndex["entries"] = [];
-    for (const asset of STOCK_DESK_ASSETS) {
-      const desk = await this.compute(asset.address, engines);
-      entries.push({ href: `/rwa?desk=${desk.address}`, desk });
-    }
+    // Three tokens at a time keeps a cold scan inside proxy timeouts; order is preserved.
+    // A token that still fails after one retry is listed as unavailable; budget errors stop the scan.
+    const slots: Array<StockDeskIndex["entries"][number] | undefined> = new Array(STOCK_DESK_ASSETS.length);
+    const unavailable: Array<{ address: string; reason: string }> = [];
+    let next = 0;
+    await Promise.all(Array.from({ length: Math.min(3, STOCK_DESK_ASSETS.length) }, async () => {
+      while (next < STOCK_DESK_ASSETS.length) {
+        const at = next++;
+        const address = STOCK_DESK_ASSETS[at]!.address;
+        for (let attempt = 0; ; attempt++) {
+          try {
+            const desk = await this.compute(address, engines);
+            slots[at] = { href: `/rwa?desk=${desk.address}`, desk };
+            break;
+          } catch (error) {
+            propagateBudget(error);
+            const retryable = (error as { retryable?: unknown }).retryable === true || (error instanceof AppError && error.statusCode >= 500);
+            if (attempt === 0 && retryable) { await new Promise((resolve) => setTimeout(resolve, 750)); continue; }
+            unavailable.push({ address: address.toLowerCase(), reason: reason(error) });
+            break;
+          }
+        }
+      }
+    }));
+    const entries = slots.filter((entry): entry is StockDeskIndex["entries"][number] => entry !== undefined);
     const absolute = (value: string) => {
       const raw = BigInt(value.replace(".", "").replace(/^\+/, ""));
       return raw < 0n ? -raw : raw;
@@ -149,11 +169,12 @@ export class StockDeskService implements StockDeskSource {
       expiresAt: new Date(this.now() + this.ttlSeconds * 1000).toISOString(),
       coverage: {
         addresses: STOCK_DESK_ASSETS.map((a) => a.address.toLowerCase()),
-        complete: true,
+        complete: unavailable.length === 0,
         basis:
           "Ten Stock Tokens in the reviewed 2026-09-02 sample; unknown facts remain explicit",
       },
       entries,
+      ...(unavailable.length ? { unavailable } : {}),
       gaps,
       multiplierEvents: entries
         .filter(
@@ -352,7 +373,23 @@ export class StockDeskService implements StockDeskSource {
         result.pool = await quoteAt("100");
         for (const depth of result.depth)
           depth.quote = await quoteAt(depth.notionalUsd);
-        if (result.pool.state === "available") {
+        const usdg = stock.usdgUsd;
+        if (result.pool.state === "available" && usdg?.state === "current" && usdg.value && usdg.updatedAt) {
+          // Chainlink USDG / USD, read in the same batch and block as the token feed.
+          const value = gap(result.pool.value.priceUsdG, price, usdg.value);
+          if (value !== null)
+            result.gapBps = available(value, [
+              ...result.pool.evidence,
+              {
+                block: rwa.anchor.blockNumber,
+                blockHash: rwa.anchor.blockHash,
+                time: usdg.updatedAt,
+                source: `chainlink:${usdg.feed}:USDG/USD`,
+                value: usdg.value,
+                unit: "USD per USDG",
+              },
+            ]);
+        } else if (result.pool.state === "available") {
           try {
             const usd = await engines.market.market(USDG);
             const age = this.now() - Date.parse(usd.observedAt);
