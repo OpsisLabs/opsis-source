@@ -38,6 +38,8 @@ COPY --from=build /app/apps/api/dist apps/api/dist
 # API ever imports a value from shared (today every import is type-only).
 # shared has no dependencies of its own, so it has no node_modules to copy.
 COPY --from=build /app/apps/api/prisma apps/api/prisma
+# Fonts for the token card image the Telegram bot sends.
+COPY --from=build /app/apps/api/assets apps/api/assets
 COPY --from=production-dependencies /prod/api/node_modules apps/api/node_modules
 USER app
 EXPOSE 4000

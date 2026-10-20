@@ -4,7 +4,7 @@ import type { FastifyInstance } from "fastify";
 import type { Env } from "../config/env.js";
 import type { TokenCardSource } from "../cards/service.js";
 import { ADVICE } from "../cards/service.js";
-import { cardLines, escapeText } from "../cards/render.js";
+import { cardSummary, cardTelegramHtml, escapeText, renderCardPng } from "../cards/render.js";
 import { reachRouteConfig } from "../open-data/card-guard.js";
 import { AppError } from "../http/errors.js";
 export interface BotApiClient {
@@ -13,6 +13,13 @@ export interface BotApiClient {
     text: string;
     parse_mode: "HTML";
     link_preview_options: { is_disabled: true };
+  }): Promise<void>;
+  /** Optional: the card as an image, as shown in the product video. */
+  sendPhoto?(input: {
+    chat_id: number;
+    photo: Uint8Array;
+    caption: string;
+    parse_mode: "HTML";
   }): Promise<void>;
 }
 /** Token-bearing URLs and upstream errors never cross this transport boundary. */
@@ -47,6 +54,22 @@ export class TelegramBotApi implements BotApiClient {
         `https://api.telegram.org/bot${this.token}/sendMessage`,
         input,
       );
+    } catch {
+      throw new Error("TELEGRAM_SEND_UNAVAILABLE");
+    }
+  }
+  async sendPhoto(input: Parameters<NonNullable<BotApiClient["sendPhoto"]>>[0]) {
+    try {
+      const form = new FormData();
+      form.set("chat_id", String(input.chat_id));
+      form.set("caption", input.caption);
+      form.set("parse_mode", input.parse_mode);
+      form.set("photo", new Blob([Uint8Array.from(input.photo)], { type: "image/png" }), "opsis-card.png");
+      const response = await fetch(
+        `https://api.telegram.org/bot${this.token}/sendPhoto`,
+        { method: "POST", body: form, signal: AbortSignal.timeout(15_000), redirect: "error" },
+      );
+      if (!response.ok) throw new Error("TELEGRAM_SEND_UNAVAILABLE");
     } catch {
       throw new Error("TELEGRAM_SEND_UNAVAILABLE");
     }
@@ -187,10 +210,25 @@ export async function telegramRoutes(
         if (!dispatch.take(message.chat.id, message.chat.type !== "private"))
           return { ok: true };
         const research = `${new URL(env.APP_ORIGIN).origin}/research?entity=${encodeURIComponent(card.address)}`;
-        const text = [
-          ...cardLines(card).map((line) => `<code>${escapeText(line)}</code>`),
-          `<a href="${escapeText(research)}">Opsis research</a>`,
-        ].join("\n");
+        if (client.sendPhoto) {
+          try {
+            const summary = cardSummary(card);
+            await client.sendPhoto({
+              chat_id: message.chat.id,
+              photo: renderCardPng(card),
+              caption: [
+                `<b>${escapeText(summary.symbol)}</b>${summary.name ? ` · ${escapeText(summary.name)}` : ""}`,
+                `<i>${escapeText(ADVICE)}</i>`,
+                `<a href="${escapeText(research)}">Research in Opsis ↗</a>`,
+              ].join("\n"),
+              parse_mode: "HTML",
+            });
+            return { ok: true };
+          } catch {
+            // Fall through to the text card; the reader still gets the same rows.
+          }
+        }
+        const text = cardTelegramHtml(card, research);
         if (text.length > 4096) return { ok: true };
         await client.sendMessage({
           chat_id: message.chat.id,

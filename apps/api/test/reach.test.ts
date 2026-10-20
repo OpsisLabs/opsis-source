@@ -1052,21 +1052,20 @@ describe("prompted Telegram cards", () => {
     ];
     const url = new URL(target);
     expect(url.origin).toBe("https://api.telegram.org");
-    expect(url.pathname).toMatch(/^\/bot\d+:[A-Za-z0-9_-]+\/sendMessage$/);
+    // The production client sends the card as a PNG photo with an HTML caption.
+    expect(url.pathname).toMatch(/^\/bot\d+:[A-Za-z0-9_-]+\/sendPhoto$/);
     expect(url.search).toBe("");
-    expect(init).toMatchObject({
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      redirect: "error",
-    });
+    expect(init).toMatchObject({ method: "POST", redirect: "error" });
     expect(init.signal).toBeInstanceOf(AbortSignal);
-    expect(timeout).toHaveBeenCalledWith(10_000);
-    expect(JSON.parse(String(init.body))).toMatchObject({
-      chat_id: 300,
-      parse_mode: "HTML",
-      link_preview_options: { is_disabled: true },
-    });
-    expect(JSON.parse(String(init.body)).text).toContain(ADVICE);
+    expect(timeout).toHaveBeenCalledWith(15_000);
+    const form = init.body as FormData;
+    expect(form.get("chat_id")).toBe("300");
+    expect(form.get("parse_mode")).toBe("HTML");
+    expect(String(form.get("caption"))).toContain(ADVICE);
+    expect(String(form.get("caption")).match(/href=/g)).toHaveLength(1);
+    const photo = form.get("photo") as Blob;
+    expect(photo.type).toBe("image/png");
+    expect([...new Uint8Array(await photo.slice(0, 4).arrayBuffer())]).toEqual([0x89, 0x50, 0x4e, 0x47]);
     expect(response.body).not.toContain(base.TELEGRAM_BOT_TOKEN);
   });
   it.each(["http", "network", "timeout", "redirect"])(
