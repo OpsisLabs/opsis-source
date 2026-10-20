@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "b07d4e0086bbe98d9b4d029751d88553ab16fae311f837dfc1897cfb5e9fa385",
+  "sourceTreeDigest": "baecc5ef90ebf7267f811eac443a32ab4e1adf1805070409a3b9bb96ba7be002",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "097f2a6d053a59da8dcdff90695121df3b9c84b794a5419c8677be4d26462e4d",
@@ -632,7 +632,7 @@
     "apps/web/src/opsis/utility-workspace.test.tsx": "1c4db0b1f981e1e4b5ab80408ffc2ac847f26896430370ccc40e362b923289a0",
     "apps/web/src/opsis/visual-model.test.ts": "edf382c5e03987cabd3d5383438cdf966bea203275fabd395a420a28f470ab64",
     "apps/web/src/opsis/visual-model.ts": "8390d4dd77475809dc6b219c1ccd3674622185e2de0ff3b4d76a38abc6bab518",
-    "apps/web/src/opsis/workspace-identity.css": "080387c707e87f96b52b85804a95d8071cef87ff3a27a26fba83a7f9741f9352",
+    "apps/web/src/opsis/workspace-identity.css": "fb8350247322bd16f7d1ff3cffe61542f32f019317b2c2998ac1b99f0027650e",
     "apps/web/src/package-boundary.test.ts": "975cda707cbdc5bc0896be8a9cabd294e7e4c64e76fa333f20a078f867e2f839",
     "apps/web/src/pages/Developers.tsx": "6d13b21841256ffacf5ec5a54f85408387aced5395a12debd8844b43505400cf",
     "apps/web/src/pages/Faq.tsx": "68e1303c81d8c91e29e4bff427514a1f62c505d474f6c01eea42bf23c8d68851",

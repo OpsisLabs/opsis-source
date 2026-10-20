@@ -184,3 +184,10 @@
 /* Reading utilities share the four groups without asserting tool availability. */
 .opsis.opsis-terminal .opsis-rail-label .opsis-rail-group-link { margin: 0; padding: 0; font: inherit; min-height: 32px; align-items: center; gap: 12px; }
 .opsis.opsis-terminal .opsis-rail-label .opsis-rail-group-link > svg { display: block; }
+
+/* Lazily loaded legacy studio styles also set the root's left padding. Production
+   chunk order can place them after this file, so the rail column wins on specificity. */
+.opsis.opsis-terminal.opsis-terminal { padding-left: var(--rail-width); }
+@media (max-width: 700px) {
+  .opsis.opsis-terminal.opsis-terminal { padding-left: 0; }
+}
