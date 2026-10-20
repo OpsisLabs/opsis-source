@@ -214,8 +214,11 @@ describe("launch fact fixture presentation", () => {
       "",
       "javascript:alert(1)",
       "https://user:password@example.test",
+      "mailto:support@opsis.example?subject=x",
+      "mailto:not-an-address",
     ])
       expect(correctionUrl(value)).toBeNull();
+    expect(correctionUrl("mailto:support@opsis.example")).toBe("mailto:support@opsis.example");
   });
   it("renders no feature or requests while off, including direct client calls", async () => {
     const fetcher = vi.fn();

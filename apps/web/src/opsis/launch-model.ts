@@ -48,6 +48,8 @@ export function correctionUrl(
   value = import.meta.env.VITE_CORRECTION_URL,
 ): string | null {
   if (!value) return null;
+  // A plain support mailbox is allowed; no subject, body or other mailto parameters.
+  if (/^mailto:[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value)) return value;
   try {
     const url = new URL(value);
     return url.protocol === "https:" && !url.username && !url.password
