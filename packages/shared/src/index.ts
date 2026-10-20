@@ -507,6 +507,7 @@ export const REVIEWED_ASSETS = {
 
 export type { TokenControls, ControlReading } from "./controls.js";
 export * from "./receipts.js";
+export type { SupplyFraction, FundingLink, LinkedHolder, LinkedGroup, LinkedWalletGraph } from "./linked-wallets.js";
 export * from "./open-data.js";
 
 export * from "./claims.js";

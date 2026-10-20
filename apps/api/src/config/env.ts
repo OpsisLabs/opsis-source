@@ -106,6 +106,14 @@ const envSchema = z.object({
   RECEIPTS_ENABLED: envBoolean.default(false),
   RECEIPT_SIGNING_KEY: z.string().optional(),
   RECEIPT_KEY_VALID_FROM: z.string().datetime().refine((value) => Number.isFinite(Date.parse(value)) && new Date(value).toISOString() === value, "Use a canonical UTC timestamp with milliseconds").default("2026-10-19T00:00:00.000Z"),
+  LINKED_WALLETS_ENABLED: envBoolean.default(false),
+  LINKED_WALLETS_MAX_EXPLORER_CALLS: z.coerce.number().int().min(1).max(500).default(40),
+  LINKED_WALLETS_MAX_RPC_CALLS: z.coerce.number().int().min(10).max(300).default(300),
+  LINKED_WALLETS_FUNDING_HOLDERS: z.coerce.number().int().min(1).max(40).default(20),
+  LINKED_WALLETS_WALLET_PAGE_CAP: z.coerce.number().int().min(1).max(30).default(4),
+  LINKED_WALLETS_DAILY_BUDGET: z.coerce.number().int().min(1).max(100_000).default(20_000),
+  LINKED_WALLETS_CACHE_SECONDS: z.coerce.number().int().min(1).max(3600).default(600),
+  RATE_LIMIT_LINKED_WALLETS_PER_HOUR: z.coerce.number().int().min(1).max(60).default(5),
   CLAIM_CHECK_ENABLED: envBoolean.default(false),
   CLAIM_CHECK_DAILY_RPC_UNIT_BUDGET: z.coerce.number().int().min(100).max(100_000).default(5_000),
   RATE_LIMIT_CLAIM_CHECK_PER_HOUR: z.coerce.number().int().min(1).max(60).default(10),
@@ -453,6 +461,7 @@ const envSchema = z.object({
     || env.STOCK_DESK_ENABLED
     || env.RWA_VERIFY_ENABLED
     || env.EXIT_CHECK_ENABLED
+    || env.LINKED_WALLETS_ENABLED
     || env.CLAIM_CHECK_ENABLED
     || env.LAUNCH_CARDS_ENABLED
     || env.OBSERVED_TRADES_ENABLED;

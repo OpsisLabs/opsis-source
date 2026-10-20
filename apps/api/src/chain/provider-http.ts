@@ -9,6 +9,7 @@ export type ProviderHttp = {
 
 export type ProviderHttpOptions = {
   explorerGate?: ExplorerGate;
+  explorerRetry429?: boolean;
   maxRetries: number;
   backoffMs: number;
   timeoutMs: number;
@@ -89,7 +90,7 @@ export class ProviderHttpClient implements ProviderHttp {
     if (!this.options.explorerGate) this.assertCircuitClosed();
     let lastError: ProviderRequestError | undefined;
     const rpcMethods = rpcMethodsFromBody(init.body);
-    const explorerRetryState = { retried429: false };
+    const explorerRetryState = { retried429: this.options.explorerRetry429 === false };
 
     for (let attempt = 0; attempt <= this.options.maxRetries; attempt += 1) {
       if (!this.options.explorerGate) this.consumeBudget();
@@ -170,9 +171,10 @@ export class ProviderHttpClient implements ProviderHttp {
   }
 }
 
-export function createProviderHttp(env: Env, providerName?: string, maxResponseBytes?: number, rpcWorkload?: RpcWorkload): ProviderHttpClient {
+export function createProviderHttp(env: Env, providerName?: string, maxResponseBytes?: number, rpcWorkload?: RpcWorkload, explorerRetry429 = true): ProviderHttpClient {
   return new ProviderHttpClient({
     explorerGate: providerName === "blockscout" ? getExplorerGate(env) : undefined,
+    explorerRetry429,
     maxRetries: env.PROVIDER_MAX_RETRIES,
     backoffMs: env.PROVIDER_BACKOFF_MS,
     timeoutMs: env.PROVIDER_TIMEOUT_MS,

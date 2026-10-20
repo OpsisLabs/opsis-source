@@ -217,6 +217,76 @@ export class LaunchCardsService implements LaunchCardsSource {
       this.pending.delete(minutes);
     }
   }
+  /** Release 50 composes the same bounded launch rules at its own anchor and budget. */
+  async fundingFacts(r: LaunchReader, anchor: Header, token: string) {
+    const scan = await this.creation(r, anchor, token);
+    const order: AdapterId[] = [
+      "pons",
+      "long",
+      "instant",
+      "launcher",
+      "v3",
+      "v4",
+    ];
+    const candidate = scan.rows.sort(
+      (a, b) =>
+        order.indexOf(a.launch.adapter) - order.indexOf(b.launch.adapter) ||
+        a.launch.created.blockNumber - b.launch.created.blockNumber,
+    )[0];
+    if (!candidate)
+      return {
+        transactions: [],
+        buys: [],
+        partial: true,
+        fundingHubs: [] as string[],
+      };
+    const resolved = await this.trading(r, anchor, candidate);
+    const fundingHubs = [
+      candidate.launch.curve,
+      candidate.launch.hook,
+      candidate.launch.pool,
+    ]
+      .filter((address): address is string => address !== null)
+      .map((address) => address.toLowerCase());
+    const buyers = await this.buyers(r, anchor, token, resolved);
+    if (buyers.state === "unknown")
+      return { transactions: [], buys: [], partial: true, fundingHubs };
+    const transactions = buyers.value.windows.flatMap((w) => w.transactions);
+    const buys: Array<{
+      wallet: string;
+      timestamp: number;
+      transactionHash: string;
+    }> = [];
+    for (const tag of buyers.value.windows
+      .flatMap((w) => w.tags)
+      .filter((t) => t.kind === "early buyer")) {
+      const tx = (await r.read("eth_getTransactionByHash", [
+        tag.transactionHash,
+      ])) as {
+        blockNumber: unknown;
+        blockHash: unknown;
+        from: unknown;
+        hash: unknown;
+      } | null;
+      if (!tx || tx.hash !== tag.transactionHash || tx.from !== tag.wallet)
+        throw unavailable();
+      const block = await r.block(quantity(tx.blockNumber));
+      if (tx.blockHash !== block.hash || block.number > anchor.number)
+        throw unavailable();
+      buys.push({
+        wallet: tag.wallet,
+        timestamp: block.seconds,
+        transactionHash: tag.transactionHash,
+      });
+    }
+    return {
+      transactions,
+      buys,
+      fundingHubs,
+      partial:
+        scan.partial || resolved.tradingPartial || buyers.state === "partial",
+    };
+  }
   async card(input: string): Promise<Record<string, unknown>> {
     this.enabled();
     if (!isAddress(input) || /^0x0{40}$/i.test(input))

@@ -1,3 +1,4 @@
+import LinkedWallets from "./LinkedWallets";
 import LaunchCard from "./LaunchCard";
 import { savedCheckComparisonsEnabled } from "./saved-checks";
 import { isWatchEnabled } from "../product/availability";
@@ -489,6 +490,7 @@ export default function Research({
           )}
         </div>
       </div>
+      {token && capabilities.linkedWallets === true && <LinkedWallets key={token.toLowerCase()} token={token} enabled={capabilities.linkedWallets} />}
       {capabilities.tokenControls &&
         /^0x[a-fA-F0-9]{40}$/.test(entity.trim()) && (
           <ContractControls

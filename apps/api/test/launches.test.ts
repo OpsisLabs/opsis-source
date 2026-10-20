@@ -2656,6 +2656,59 @@ describe("Pass F bounded and concurrent cards", () => {
   });
 });
 
+it.each([false, true])(
+  "composes release-50 funding facts at the caller anchor (archive fallback: %s)",
+  async (archive) => {
+    const f = fixture([
+      pons(),
+      transfer(buyer, 4800, 1),
+      transfer(other, 4800, 2),
+      transfer(signer, 4800, 3),
+    ]);
+    if (archive)
+      f.explorerHttp.requestJson.mockResolvedValue({ creation_tx_hash: null });
+    f.signers.set(hash(104800), signer);
+    const reader = new LaunchReader(f.config, f.budget, 480, f.now, f.rpc);
+    const anchor = await reader.anchor();
+    const facts = await f.service.fundingFacts(reader, anchor, token);
+    expect(facts.fundingHubs).toContain(curve);
+    expect(facts.transactions).toContainEqual({
+      signer,
+      transactionHash: hash(104800),
+      recipients: [buyer, other, signer],
+      deliveredRaw: "30",
+    });
+    expect(facts.buys).toContainEqual({
+      wallet: signer,
+      timestamp: seconds(4800),
+      transactionHash: hash(104800),
+    });
+    expect(
+      f.seen.some((call) => call.method === "eth_getTransactionReceipt"),
+    ).toBe(true);
+    expect(
+      f.seen
+        .filter((call) => call.method === "eth_getLogs")
+        .every((call) => {
+          const query = call.params[0] as {
+            fromBlock: string;
+            toBlock: string;
+          };
+          return (
+            Number(BigInt(query.toBlock)) - Number(BigInt(query.fromBlock)) <
+            2000
+          );
+        }),
+    ).toBe(true);
+    await reader.recheck(anchor);
+    expect(
+      f.seen.filter(
+        (call) =>
+          call.method === "eth_getBlockByNumber" && call.params[0] === "latest",
+      ),
+    ).toHaveLength(1);
+  },
+);
 describe("Claim Check anchored launch composition", () => {
   it("bypasses the public cache and collects anchored production-reader evidence without a nested receipt", async () => {
     const f = fixture([pons()], { LAUNCH_CARDS_CACHE_SECONDS: "60" });

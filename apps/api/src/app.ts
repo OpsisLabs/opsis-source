@@ -1,3 +1,6 @@
+import { linkedWalletsRoutes } from "./routes/linked-wallets.js";
+import { LinkedWalletsService, type LinkedWalletsSource } from "./linked-wallets/service.js";
+import { createLinkedWalletsBudget } from "./linked-wallets/budget.js";
 import { claimRoutes } from "./routes/claims.js";
 import { ClaimCheckService } from "./claims/service.js";
 import { EngineClaimSession } from "./claims/sources.js";
@@ -86,6 +89,7 @@ export async function buildApp(
     observedTrades?: ObservedTradesSource;
     openDataLimiter?: OpenDataLimiter;
     launchCards?: LaunchCardsSource;
+    linkedWallets?: LinkedWalletsSource;
     exitCheck?: ExitCheckSource;
     tokenCards?: TokenCardSource;
     telegramBot?: BotApiClient;
@@ -207,6 +211,7 @@ export async function buildApp(
   const claimLaunchBudget = createLaunchCardsBudget(env, redis);
   await claimRoutes(app, env, new ClaimCheckService(() => new EngineClaimSession(env, claimBudget, portfolioBudget, claimLaunchBudget, rpcSpend), receipts, env.RECEIPTS_ENABLED));
   await launchRoutes(app, env, dependencies?.launchCards ?? new LaunchCardsService(env, cache, { budget: claimLaunchBudget, rpcSpend, receipts }));
+  await linkedWalletsRoutes(app, env, dependencies?.linkedWallets ?? new LinkedWalletsService(env, cache, { budget: createLinkedWalletsBudget(env, redis), rpcSpend, receipts }));
   await openDataRoutes(app, env, redis, openDataLimiter, cards);
   await app.register(async (scope) => {
     reachResponseHeaders(scope);

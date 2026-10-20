@@ -1,0 +1,37 @@
+.linked-wallets {
+  min-width: 0;
+}
+.linked-wallets p,
+.linked-wallets li,
+.linked-wallets td,
+.linked-wallets th {
+  overflow-wrap: anywhere;
+}
+.linked-wallets .opsis-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  margin-block: 1rem;
+}
+.linked-wallets table {
+  width: 100%;
+  min-width: 36rem;
+}
+.linked-wallets td {
+  vertical-align: top;
+}
+.linked-wallets li a {
+  display: block;
+}
+.linked-wallets details {
+  margin-block: 1rem;
+}
+.linked-wallets details ul {
+  max-height: 24rem;
+  overflow-y: auto;
+}
+@media (prefers-reduced-motion: reduce) {
+  .linked-wallets * {
+    animation: none;
+    transition: none;
+  }
+}

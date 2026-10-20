@@ -11,6 +11,14 @@ export const statusDetails: Record<
     limits: [string, string];
   }
 > = {
+  linkedWallets: {
+    label: ["Wallets linked by funding", "资金关联钱包"],
+    scope: ["Top 100 explorer holders", "区块浏览器前 100 名持有人"],
+    origin: ["Explorer lists and anchored RPC reads on request", "按请求读取浏览器列表与锚定 RPC 数据"],
+    freshness: ["Original observation time; cached up to 60 minutes", "保留原始观察时间；缓存最长 60 分钟"],
+    coverage: ["First funding and launch-window links; bounded reads", "首次入金与开盘窗口关联；读取有上限"],
+    limits: ["Funding inferences only. Hubs excluded. Not investment advice.", "仅为资金关系推断。排除枢纽地址。非投资建议。"],
+  },
   claimCheck: {
     label: ["Claim Check", "声明核查"], scope: ["Published deterministic token claims", "已公布的确定性代币声明"],
     origin: ["On explicit request", "按明确请求"], freshness: ["Current and optional post-time blocks", "当前及可选的发布时区块"],
