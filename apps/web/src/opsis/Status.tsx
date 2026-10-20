@@ -31,6 +31,7 @@ const sources: Record<CapabilityId, [string, string]> = {
   receipts: ["Opsis signing key", "Opsis 签名密钥"],
   publicCards: ["Shared token card engines", "共享代币卡片引擎"],
   publicMcp: ["Shared token card engines", "共享代币卡片引擎"],
+  stockDesk: ["Chainlink, pool and issuer evidence", "Chainlink、流动池与发行方证据"],
   telegramBot: ["Shared token card engines", "共享代币卡片引擎"],
 };
 const destinations: Record<CapabilityId, string> = {
@@ -47,6 +48,7 @@ const destinations: Record<CapabilityId, string> = {
   publicCards: "/docs",
   publicMcp: "/docs",
   telegramBot: "/docs",
+  stockDesk: "/rwa",
 };
 const states: Record<Availability, [string, string]> = {
   available: ["Available", "可用"],

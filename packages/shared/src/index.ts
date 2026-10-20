@@ -507,3 +507,5 @@ export const REVIEWED_ASSETS = {
 
 export type { TokenControls, ControlReading } from "./controls.js";
 export * from "./receipts.js";
+
+export * from "./stock-desk.js";

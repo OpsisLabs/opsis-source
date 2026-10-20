@@ -32,6 +32,7 @@ type Props = {
   prepare: (event: FormEvent) => void;
   verifyButton: RefObject<HTMLButtonElement | null>;
   morphoDetails: ReactNode;
+  desk?: ReactNode;
   consent: ReactNode;
 };
 const statusKeys: Record<RwaCheck["status"], TranslationKey> = {
@@ -52,6 +53,7 @@ export default function RwaWorkspace({
   prepare,
   verifyButton,
   morphoDetails,
+  desk,
   consent,
 }: Props) {
   const c = useCopy();
@@ -136,6 +138,7 @@ export default function RwaWorkspace({
       )}
       <div className="rwa-ws-grid">
         <div className="rwa-ws-main">
+          {desk}
           <section className="rwa-ws-panel rwa-ws-intro">
             <header className="rwa-ws-title-row">
               <span className="rwa-ws-instrument-icon">
@@ -255,6 +258,7 @@ function EvidenceDock({
   result: RwaVerification | null;
   series: StockGapSeries | null;
   morphoDetails: ReactNode;
+  desk?: ReactNode;
 }) {
   const c = useCopy();
   const { locale } = useI18n();

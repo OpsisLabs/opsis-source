@@ -36,6 +36,8 @@ export type MarketSample = {
   concentration: Part<{
     top10Percent: number;
     holdersAnalyzed: number;
+    poolPercent?: number;
+    burnPercent?: number;
     source: string;
     observedAt: string;
   }>;

@@ -142,6 +142,7 @@ export class EngineCardSources implements CardSources {
               state: "available",
               value: {
                 top10Percent: percentage,
+                ...(typeof facts.liquidityPoolShare === "number" && typeof facts.burnedShare === "number" ? { poolPercent: facts.liquidityPoolShare, burnPercent: facts.burnedShare } : {}),
                 holdersAnalyzed: count,
                 source: "blockscout",
                 observedAt: holders!.fetchedAt,

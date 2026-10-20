@@ -11,6 +11,14 @@ export const statusDetails: Record<
     limits: [string, string];
   }
 > = {
+  stockDesk: {
+    label: ["Stock Token Desk", "股票代币数据台"],
+    scope: ["Desk facts and reviewed-sample index", "数据台事实与已审阅样本索引"],
+    origin: ["On explicit request", "按明确请求"],
+    freshness: ["Independent source times and anchors", "各来源独立时间与锚点"],
+    coverage: ["Ten reviewed Stock Tokens", "十种已审阅股票代币"],
+    limits: ["Data, not advice. USDG units are not dollars.", "数据，非建议。USDG 单位不等于美元。"],
+  },
   publicCards: {
     label: ["Public token cards", "公开代币卡片"],
     scope: ["Token cards as JSON and image embeds", "以 JSON 和图片嵌入提供的代币卡片"],

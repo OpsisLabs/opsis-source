@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+import { canonicalize, type ReceiptBody } from "@rh-chain/shared";
 import {
   decodeFunctionResult,
   encodeFunctionData,
@@ -77,7 +79,7 @@ export type RwaVerification = {
   address: string;
   headline: string;
   summary: string;
-  anchor: { chainId: 4663; blockNumber: number; blockHash: string; capturedAt: string; finality: "current_non_final" };
+  anchor: { chainId: 4663; blockNumber: number; blockHash: string; capturedAt: string; timestamp?: string; finality: "current_non_final" };
   checks: RwaCheck[];
   stock?: {
     uid: string;
@@ -92,7 +94,7 @@ export type RwaVerification = {
     tokenPaused: boolean | null;
     termsUrl: string | null;
     underlyingQuote: null | { bid: string; ask: string; currency: string; generatedAt: string; tradingHalted: boolean; state: "current" | "stale"; ageSeconds: number };
-    oracle: null | { feed: string; value: string | null; updatedAt: string | null; heartbeatSeconds: number; state: "current" | "paused" | "stale_or_market_closed" | "invalid" };
+    oracle: null | { feed: string; value: string | null; updatedAt: string | null; heartbeatSeconds: number; multiplierEmbedded?: boolean | null; state: "current" | "paused" | "stale_or_market_closed" | "invalid" };
     corporateActions: Array<{ id: string; type: string; status: string; processDate: string | null; detail: string }>;
   };
   morpho?: {
@@ -149,10 +151,10 @@ export class RwaService implements RwaVerificationSource {
     };
   }
 
-  async verify(input: string): Promise<RwaVerification> {
+  async verify(input: string, options?: { desk?: boolean; rpcCalls?: ReceiptBody["rpcCalls"] }): Promise<RwaVerification> {
     if (!isAddress(input, { strict: false })) throw new AppError("INVALID_RWA_CONTRACT", 400, "Provide one complete Robinhood Chain contract address");
     const address = input.toLowerCase();
-    const run = { rpcUnits: 0 };
+    const run: VerificationRun = { rpcUnits: 0, rpcCalls: options?.rpcCalls };
     const anchor = await this.captureAnchor(run);
     const code = await this.rpcSingle("eth_getCode", [address, anchor.blockHex], run);
     const assetsBody = await this.dependencies.http.requestJson(`${RHJ_API}/assets`, { redirect: "error" });
@@ -162,7 +164,8 @@ export class RwaService implements RwaVerificationSource {
     const asset = findStockAsset(assetsBody, address);
 
     let result: RwaVerification;
-    if (asset) result = await this.verifyStock(address, anchor, asset, run);
+    if (asset) result = await this.verifyStock(address, anchor, asset, run, options?.desk);
+    else if (options?.desk) result = this.unsupported(address, anchor, code);
     else {
       const morphoConfig = await this.lookupJson(`${MORPHO_API}/v0/vaults-v2/4663:${address}`);
       result = morphoConfig ? await this.verifyMorpho(address, anchor, morphoConfig, run) : this.unsupported(address, anchor, code);
@@ -171,10 +174,10 @@ export class RwaService implements RwaVerificationSource {
     return result;
   }
 
-  private async verifyStock(address: string, anchor: CapturedAnchor, asset: StockAsset, run: VerificationRun): Promise<RwaVerification> {
+  private async verifyStock(address: string, anchor: CapturedAnchor, asset: StockAsset, run: VerificationRun, desk = false): Promise<RwaVerification> {
     const fetchedAt = this.dependencies.now().toISOString();
     const [priceDocument, actionsDocument, rddDocument] = await Promise.all([
-      this.optionalDocument(`${RHJ_API}/prices/${encodeURIComponent(asset.symbol)}`, { redirect: "error" }),
+      desk ? Promise.resolve({ state: "unavailable" as const, code: "HOSTED_PRICE_EXCLUDED" }) : this.optionalDocument(`${RHJ_API}/prices/${encodeURIComponent(asset.symbol)}`, { redirect: "error" }),
       this.optionalDocument(`${RHJ_API}/corporate-actions`, { redirect: "error" }),
       this.optionalDocument(CHAINLINK_RDD, { redirect: "error" })
     ]);
@@ -457,7 +460,8 @@ export class RwaService implements RwaVerificationSource {
     const blockNumber = parseHexNumber(result.number);
     const blockHash = typeof result.hash === "string" && HASH_PATTERN.test(result.hash) ? result.hash.toLowerCase() : null;
     if (blockNumber === null || !blockHash) throw new AppError("RWA_PROVIDER_UNAVAILABLE", 503, "A current Robinhood Chain anchor could not be captured");
-    return { blockNumber, blockHex: `0x${blockNumber.toString(16)}`, blockHash, capturedAt: this.dependencies.now().toISOString() };
+    const timestamp = parseHexNumber(result.timestamp);
+    return { ...(timestamp !== null && timestamp <= 8_640_000_000_000 ? { timestamp: new Date(timestamp * 1000).toISOString() } : {}), blockNumber, blockHex: `0x${blockNumber.toString(16)}`, blockHash, capturedAt: this.dependencies.now().toISOString() };
   }
 
   private async recheckAnchor(anchor: CapturedAnchor, run: VerificationRun): Promise<void> {
@@ -469,6 +473,7 @@ export class RwaService implements RwaVerificationSource {
 
   private async rpcSingle(method: string, params: unknown[], run: VerificationRun): Promise<unknown> {
     await this.consumeRpc(1, run);
+    run.rpcCalls?.push({ method, paramsSha256: `0x${createHash("sha256").update(canonicalize(params)).digest("hex")}` });
     const response = asRecord(await this.dependencies.rpc.requestJson(this.rpcEndpoint.url, {
       method: "POST", redirect: "error", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: "rwa", method, params })
     }));
@@ -481,6 +486,7 @@ export class RwaService implements RwaVerificationSource {
     const body = calls.map((call) => call.method
       ? { jsonrpc: "2.0", id: call.id, method: call.method, params: call.params ?? [] }
       : { jsonrpc: "2.0", id: call.id, method: "eth_call", params: [{ to: call.to, data: call.data }, blockHex] });
+    for (const call of body) run.rpcCalls?.push({ method: call.method, paramsSha256: `0x${createHash("sha256").update(canonicalize(call.params)).digest("hex")}` });
     const response = await this.dependencies.rpc.requestJson(this.rpcEndpoint.url, {
       method: "POST", redirect: "error", headers: { "content-type": "application/json" }, body: JSON.stringify(body)
     });
@@ -510,10 +516,10 @@ export class RwaService implements RwaVerificationSource {
   }
 }
 
-type CapturedAnchor = { blockNumber: number; blockHex: string; blockHash: string; capturedAt: string };
-type VerificationRun = { rpcUnits: number };
+type CapturedAnchor = { timestamp?: string; blockNumber: number; blockHex: string; blockHash: string; capturedAt: string };
+type VerificationRun = { rpcUnits: number; rpcCalls?: ReceiptBody["rpcCalls"] };
 type StockAsset = { id: string; symbol: string; name: string; decimals: number; currentMultiplier: string; pendingMultiplier: string | null; status: string };
-type Feed = { proxyAddress: string; name: string; heartbeat: number; decimals: number };
+type Feed = { proxyAddress: string; name: string; heartbeat: number; decimals: number; multiplierEmbedded: boolean | null };
 
 function findStockAsset(body: unknown, address: string): StockAsset | null {
   const assets = asArray(asRecord(body).assets);
@@ -546,7 +552,7 @@ function parseFeedDirectory(body: unknown, symbol: string): ParseResult<Feed> {
   });
   if (!raw) return { state: "empty" };
   if (typeof raw.name !== "string" || !lowerAddress(raw.proxyAddress) || typeof raw.heartbeat !== "number" || !Number.isInteger(raw.heartbeat) || raw.heartbeat <= 0 || typeof raw.decimals !== "number" || !Number.isInteger(raw.decimals) || raw.decimals < 0 || raw.decimals > 255) return { state: "malformed" };
-  return { state: "match", value: { proxyAddress: String(raw.proxyAddress).toLowerCase(), name: raw.name, heartbeat: raw.heartbeat, decimals: raw.decimals } };
+  return { state: "match", value: { proxyAddress: String(raw.proxyAddress).toLowerCase(), name: raw.name, heartbeat: raw.heartbeat, decimals: raw.decimals, multiplierEmbedded: typeof raw.multiplierEmbedded === "boolean" ? raw.multiplierEmbedded : null } };
 }
 
 type UnderlyingQuote = NonNullable<NonNullable<RwaVerification["stock"]>["underlyingQuote"]>;
@@ -582,11 +588,11 @@ function parseOracle(feed: Feed, results: Map<string, RpcResult>, paused: boolea
   const decimals = decoded<number>(feedAbi, "decimals", results.get("feed:decimals"));
   const round = decoded<readonly [bigint, bigint, bigint, bigint, bigint]>(feedAbi, "latestRoundData", results.get("feed:latestRoundData"));
   if (description !== feed.name || decimals !== feed.decimals || !round || round[1] <= 0n || round[3] <= 0n || round[4] < round[0] || Number(round[3]) * 1_000 > now.getTime() + 60_000) {
-    return { feed: feed.proxyAddress, value: null, updatedAt: null, heartbeatSeconds: feed.heartbeat, state: "invalid" };
+    return { feed: feed.proxyAddress, value: null, updatedAt: null, heartbeatSeconds: feed.heartbeat, multiplierEmbedded: feed.multiplierEmbedded, state: "invalid" };
   }
   const updatedAt = new Date(Number(round[3]) * 1_000);
   const stale = now.getTime() - updatedAt.getTime() > feed.heartbeat * 1_000;
-  return { feed: feed.proxyAddress, value: formatUnits(round[1], decimals), updatedAt: updatedAt.toISOString(), heartbeatSeconds: feed.heartbeat, state: paused ? "paused" : stale ? "stale_or_market_closed" : "current" };
+  return { feed: feed.proxyAddress, value: formatUnits(round[1], decimals), updatedAt: updatedAt.toISOString(), heartbeatSeconds: feed.heartbeat, multiplierEmbedded: feed.multiplierEmbedded, state: paused ? "paused" : stale ? "stale_or_market_closed" : "current" };
 }
 
 type MorphoConfig = {
@@ -658,7 +664,7 @@ function publicRpcCitationOrigin(configuredUrl: string): string {
 }
 function check(id: string, label: string, status: RwaCheck["status"], detail: string, sourceIds: string[]): RwaCheck { return { id, label, status, detail, sourceIds }; }
 function privacy(providerDestinations: string[], disclosure: string): RwaVerification["privacy"] { return { serverStorage: "none", modelProvider: "none", providerDestinations, disclosure }; }
-function publicAnchor(anchor: CapturedAnchor): RwaVerification["anchor"] { return { chainId: 4663, blockNumber: anchor.blockNumber, blockHash: anchor.blockHash, capturedAt: anchor.capturedAt, finality: "current_non_final" }; }
+function publicAnchor(anchor: CapturedAnchor): RwaVerification["anchor"] { return { chainId: 4663, blockNumber: anchor.blockNumber, blockHash: anchor.blockHash, capturedAt: anchor.capturedAt, ...(anchor.timestamp ? { timestamp: anchor.timestamp } : {}), finality: "current_non_final" }; }
 function asRecord(value: unknown): Record<string, unknown> { return value !== null && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {}; }
 function asArray(value: unknown): unknown[] { return Array.isArray(value) ? value : []; }
 function documentBody(document: OptionalDocument): unknown | null { return document.state === "available" ? document.body : null; }

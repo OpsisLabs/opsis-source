@@ -116,6 +116,8 @@ const envSchema = z.object({
   WATCH_ENABLED: envBoolean.default(false),
   PORTFOLIO_DAILY_RPC_UNIT_BUDGET: z.coerce.number().int().min(100).max(100_000).default(5_000),
   PORTFOLIO_MAX_RPC_SUBCALLS: z.coerce.number().int().min(10).max(100).default(64),
+  STOCK_DESK_ENABLED: envBoolean.default(false),
+  STOCK_DESK_CACHE_SECONDS: z.coerce.number().int().min(1).max(1800).default(300),
   RWA_VERIFY_ENABLED: envBoolean.default(false),
   RWA_DAILY_RPC_UNIT_BUDGET: z.coerce.number().int().min(100).max(100_000).default(3_000),
   RWA_MAX_RPC_SUBCALLS: z.coerce.number().int().min(8).max(50).default(24),
@@ -417,6 +419,7 @@ const envSchema = z.object({
   const chainReadsEnabled = env.PRIVATE_MODE_ENABLED
     || env.PUBLIC_CARDS_ENABLED || env.PUBLIC_MCP_ENABLED || env.TELEGRAM_BOT_ENABLED
     || env.PORTFOLIO_MODE_ENABLED
+    || env.STOCK_DESK_ENABLED
     || env.RWA_VERIFY_ENABLED
     || env.EXIT_CHECK_ENABLED
     || env.OBSERVED_TRADES_ENABLED;

@@ -65,6 +65,21 @@ describe("RWA evidence inspector", () => {
     expect(result.privacy.serverStorage).toBe("none");
   });
 
+  it("desk mode skips hosted prices and preserves the feed multiplier flag and RPC evidence", async () => {
+    const { http, rpc } = stockFixtures();
+    const wrapped: ProviderHttp = { requestJson: async (url, init) => {
+      const body = await http.requestJson(url, init);
+      return url.includes("feeds-robinhood-mainnet") ? (body as object[]).map(row => ({ ...row, multiplierEmbedded: true })) : body;
+    } };
+    const rpcCalls: import("@rh-chain/shared").ReceiptBody["rpcCalls"] = [];
+    const result = await new RwaService(testEnv(), { http: wrapped, rpc, budget: budget(), now: () => NOW }).verify(STOCK, { desk: true, rpcCalls });
+    expect(result.stock?.underlyingQuote).toBeNull();
+    expect(result.stock?.oracle).toMatchObject({ value: "308.1", multiplierEmbedded: true });
+    expect((http.requestJson as ReturnType<typeof vi.fn>).mock.calls.some(([url]) => String(url).includes("/prices/"))).toBe(false);
+    expect(JSON.stringify(result)).not.toContain("rhj/prices/");
+    expect(rpcCalls).toHaveLength(16);
+  });
+
   it("surfaces UID conflicts and paused oracle values instead of trusting the ticker", async () => {
     const { http, rpc } = stockFixtures({ uid: `0x${"34".repeat(32)}`, paused: true });
     const result = await new RwaService(testEnv(), { http, rpc, budget: budget(), now: () => NOW }).verify(STOCK);

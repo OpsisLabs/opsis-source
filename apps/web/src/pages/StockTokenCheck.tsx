@@ -1,3 +1,4 @@
+import StockDesk from "../rwa/StockDesk";
 import { OPSIS_PRESENTATION } from "../opsis/presentation";
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { Link } from "react-router";
@@ -36,9 +37,9 @@ const ORACLE_STATE_KEYS: Record<RwaOracleState, TranslationKey> = {
   invalid: "rwa.oracle.state.invalid"
 };
 
-export default function StockTokenCheck() {
+export default function StockTokenCheck({ stockDesk = false }: { stockDesk?: boolean }) {
   const { t } = useI18n();
-  const [address, setAddress] = useState("");
+  const [address, setAddress] = useState(() => { const value = new URLSearchParams(window.location.search).get("desk") ?? ""; return isAddress(value, { strict: false }) ? value : ""; });
   const [confirming, setConfirming] = useState(false);
   const [confirmedAddress, setConfirmedAddress] = useState("");
   const [loading, setLoading] = useState(false);
@@ -90,6 +91,7 @@ export default function StockTokenCheck() {
   if (OPSIS_PRESENTATION) return <RwaWorkspace
     address={address} loading={loading} error={error} result={result}
     setAddress={(value) => { setAddress(value); setResult(null); setError(""); }} prepare={prepare} verifyButton={verifyButton}
+    desk={stockDesk && result ? <StockDesk key={result.address} address={result.address} onSelect={sample} /> : null}
     morphoDetails={result?.morpho ? <MorphoDetails morpho={result.morpho} /> : null}
     consent={confirming ? <ConsentDialog address={confirmedAddress} onCancel={cancelConsent} onConfirm={run} /> : null}
   />;
@@ -137,6 +139,7 @@ export default function StockTokenCheck() {
         {error && <div role="alert" className="mt-5 border border-[#e0738a]/40 bg-[#e0738a]/10 px-5 py-4 text-[12.5px] text-[#e9a1b2]">{error}</div>}
         {loading && <LoadingState />}
         {result && <EvidenceResult result={result} />}
+        {stockDesk && result && <StockDesk key={result.address} address={result.address} onSelect={sample} />}
         {!loading && !result && !error && <EmptyState />}
       </main>
 

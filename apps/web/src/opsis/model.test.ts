@@ -287,7 +287,7 @@ it("parses optional reach flags and rejects missing or mismatched manifest rows"
     original.mockResolvedValueOnce(new Response(JSON.stringify(body), { status: 200 }));
     return unlockPreview("", new AbortController().signal);
   };
-  for (const id of ["publicCards", "publicMcp", "telegramBot"] as const) {
+  for (const id of ["publicCards", "publicMcp", "telegramBot", "stockDesk"] as const) {
     expect((await parse(base))[id]).toBeUndefined();
     for (const enabled of [false, true]) {
       const capabilities = (["research", "tokenControls", "exitCheck", "watch", "rwa", "observedTrades"] as const).map((key) => ({ id: key, enabled: base[key], scope: "sample", origin: "sample", freshness: "sample", coverage: "partial", limits: "unknown" }));

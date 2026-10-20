@@ -1,3 +1,6 @@
+import { StockDeskService, STOCK_DESK_ASSETS } from "./stock-desk/service.js";
+import { reserveBudget } from "./stock-desk/budget.js";
+import { stockDeskRoutes } from "./routes/stock-desk.js";
 import { TokenCardService, type TokenCardSource } from "./cards/service.js";
 import { EngineCardSources } from "./cards/sources.js";
 import { publicMcpRoutes } from "./routes/public-mcp.js";
@@ -181,7 +184,8 @@ export async function buildApp(
   await receiptRoutes(app, env, receipts);
   const portfolioBudget = createPortfolioBudget(env, redis);
   const controls = new ControlsService(env, portfolioBudget, undefined, undefined, rpcSpend);
-  const exit = dependencies?.exitCheck ?? new ExitCheckService(env, cache, { budget: createExitCheckBudget(env, redis), rpcSpend });
+  const exitBudget = createExitCheckBudget(env, redis);
+  const exit = dependencies?.exitCheck ?? new ExitCheckService(env, cache, { budget: exitBudget, rpcSpend });
   const cards = dependencies?.tokenCards ?? new TokenCardService({ check: async (address, evidence) => {
     if (!env.TOKEN_CONTROLS_ENABLED) throw new AppError("CONTROLS_DISABLED", 503, "Controls unavailable");
     return controls.check(address, evidence);
@@ -203,11 +207,22 @@ export async function buildApp(
     env,
     dependencies?.portfolioSnapshot ?? new PortfolioService(env, { budget: createPortfolioBudget(env, redis), rpcSpend })
   );
-  await rwaRoutes(
-    app,
-    env,
-    dependencies?.rwaVerification ?? new RwaService(env, { budget: createRwaBudget(env, redis), rpcSpend })
-  );
+  const rwaBudget = createRwaBudget(env, redis);
+  const deskRwa = new RwaService(env, { budget: rwaBudget, rpcSpend });
+  await rwaRoutes(app, env, dependencies?.rwaVerification ?? deskRwa);
+  const deskExitBudget = exitBudget;
+  const deskEngines = { rwa: deskRwa, exit, market: new EngineCardSources(env, portfolioBudget, rpcSpend) };
+  await stockDeskRoutes(app, env, new StockDeskService(deskEngines, async () => {
+    const count = STOCK_DESK_ASSETS.length;
+    const rwaReservation = await reserveBudget(rwaBudget, count * env.RWA_MAX_RPC_SUBCALLS);
+    const exitReservation = await reserveBudget(deskExitBudget, count * 4 * env.EXIT_CHECK_MAX_RPC_SUBCALLS);
+    const explorerReservation = await reserveBudget(portfolioBudget, count * 12);
+    return {
+      rwa: new RwaService(env, { budget: rwaReservation, rpcSpend }),
+      exit: new ExitCheckService(env, cache, { budget: exitReservation, rpcSpend }),
+      market: new EngineCardSources(env, explorerReservation, rpcSpend),
+    };
+  }, env.STOCK_DESK_CACHE_SECONDS, receipts));
   await collectibleRoutes(
     app,
     env,

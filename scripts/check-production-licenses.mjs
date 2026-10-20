@@ -17,6 +17,10 @@ const approved = new Set([
 // exception package/version-specific so another Unlicense dependency is not
 // admitted without review.
 const reviewedUnlicense = new Set(["fast-sha256@1.3.0"]);
+// The API renders token card PNGs with resvg-js 2.6.2 (and its per-platform
+// binary). MPL-2.0 is file-level copyleft; Opsis uses the package unmodified,
+// so no Opsis source is covered. Keep it package/version-specific.
+const reviewedMpl = /^@resvg\/resvg-js(-[a-z0-9-]+)?@2\.6\.2$/;
 
 const inventory = JSON.parse(execFileSync("pnpm", ["licenses", "list", "--prod", "--json"], {
   encoding: "utf8",
@@ -25,7 +29,7 @@ const inventory = JSON.parse(execFileSync("pnpm", ["licenses", "list", "--prod",
 const licenses = Object.keys(inventory);
 const unapproved = Object.entries(inventory).flatMap(([license, entries]) =>
   entries
-    .filter((entry) => !approved.has(license) && !(license === "Unlicense" && reviewedUnlicense.has(`${entry.name}@${entry.version}`)))
+    .filter((entry) => !approved.has(license) && !(license === "Unlicense" && reviewedUnlicense.has(`${entry.name}@${entry.version}`)) && !(license === "MPL-2.0" && reviewedMpl.test(`${entry.name}@${entry.version}`)))
     .map((entry) => `${entry.name}@${entry.version} (${license})`)
 );
 if (unapproved.length) {
