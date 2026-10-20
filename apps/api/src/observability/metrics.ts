@@ -2,6 +2,8 @@ import type { FastifyInstance, FastifyRequest } from "fastify";
 import { collectDefaultMetrics, Counter, Gauge, Histogram, Registry } from "prom-client";
 
 type RuntimeMetrics = {
+  alerts: Counter<"event" | "reason">;
+  alertsLag: Gauge;
   explorerCredits: Gauge;
   explorerRefusals: Counter<"reason">;
   providerCalls: Counter<"provider" | "outcome" | "error_code">;
@@ -20,8 +22,8 @@ type RuntimeMetrics = {
   retentionLastSuccess: Gauge;
 };
 
-export type RpcWorkload = "research" | "observed-trades" | "exit-check" | "controls" | "launch-cards" | "rwa" | "portfolio" | "unattributed";
-const RPC_WORKLOADS = new Set<RpcWorkload>(["research", "observed-trades", "exit-check", "controls", "launch-cards", "rwa", "portfolio", "unattributed"]);
+export type RpcWorkload = "research" | "observed-trades" | "exit-check" | "controls" | "launch-cards" | "rwa" | "portfolio" | "alerts" | "unattributed";
+const RPC_WORKLOADS = new Set<RpcWorkload>(["research", "observed-trades", "exit-check", "controls", "launch-cards", "rwa", "portfolio", "alerts", "unattributed"]);
 
 let activeMetrics: RuntimeMetrics | undefined;
 
@@ -140,7 +142,11 @@ export async function installMetrics(app: FastifyInstance): Promise<void> {
     labelNames: ["reason"],
     registers: [registry]
   });
+  const alerts = new Counter({ name: "rh_chain_alerts_total", help: "Alert follower and delivery counters without recipient or address labels", labelNames: ["event", "reason"], registers: [registry] });
+  const alertsLag = new Gauge({ name: "rh_chain_alerts_lag_blocks", help: "Blocks behind the selected alert block tag", registers: [registry] });
   activeMetrics = {
+    alerts,
+    alertsLag,
     explorerCredits,
     explorerRefusals,
     providerCalls,
@@ -227,4 +233,9 @@ export function observeExplorerCredits(credits: number): void {
 
 export function observeExplorerRefusal(reason: "rate_limited" | "credits_exhausted"): void {
   activeMetrics?.explorerRefusals.inc({ reason });
+}
+
+export function observeAlert(event: "polls" | "lag" | "deliveries" | "duplicates" | "budgetStops" | "gaps" | "stop", value = 1, reason: "budget" | "capacity" | "lease" | "provider" | "none" = "none"): void {
+  if (event === "lag") activeMetrics?.alertsLag.set(value);
+  else activeMetrics?.alerts.inc({ event, reason }, value);
 }

@@ -1,6 +1,7 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import type { FastifyInstance } from "fastify";
 import type { Env } from "../config/env.js";
+import { describeAlertsStorage, type AlertsStorageStatus } from "../alerts/store.js";
 import { AppError } from "../http/errors.js";
 
 // Independent from account authentication. Only a hash is configured; keys are
@@ -33,7 +34,7 @@ export function authorizeOpsisPreview(
   return Math.min(expires, now + 3_600_000);
 }
 
-export async function opsisRoutes(app: FastifyInstance, env: Env) {
+export async function opsisRoutes(app: FastifyInstance, env: Env, alertsStatus?: () => AlertsStorageStatus | undefined) {
   app.post(
     "/v1/private/opsis/access",
     {
@@ -64,6 +65,7 @@ export async function opsisRoutes(app: FastifyInstance, env: Env) {
           { id: "stockDesk", enabled: env.STOCK_DESK_ENABLED && env.RWA_VERIFY_ENABLED && env.EXIT_CHECK_ENABLED, scope: "Stock Token Desk and reviewed-sample index", origin: "on explicit request", freshness: "independent source times and anchors", coverage: "ten reviewed Stock Tokens; unknown facts remain explicit", limits: "Data, not advice. USDG units are not dollars. Tool budgets apply." },
           { id: "publicCards", enabled: env.OPEN_DATA_API_ENABLED && env.PUBLIC_CARDS_ENABLED, scope: "Public token cards and SVG embeds", origin: "on explicit request", freshness: "independent source times and anchors", coverage: "partial; unknown remains unknown", limits: "Not investment advice. Provider and tool budgets apply." },
           { id: "publicMcp", enabled: env.OPEN_DATA_API_ENABLED && env.PUBLIC_MCP_ENABLED, scope: "Read-only MCP tools", origin: "on explicit request", freshness: "independent source times and anchors", coverage: "partial; unknown remains unknown", limits: "Not investment advice. Provider and tool budgets apply." },
+          { id: "alerts", enabled: env.ALERTS_ENABLED, scope: "Opt-in alerts in Telegram", origin: "bounded block follower", freshness: `selected ${env.ALERTS_BLOCK_TAG} block; polling and provider lag apply`, coverage: "four rule types; rules expire after 30 days", limits: `${alertsStatus?.()?.reason ? `Degraded: ${alertsStatus()!.reason}. New rules are unavailable.` : "Opt-in rules expire after 30 days."} Alerts can be lost if the Redis store resets; re-create them. ${describeAlertsStorage(alertsStatus?.())}. Not investment advice.` },
           { id: "telegramBot", enabled: env.TELEGRAM_BOT_ENABLED, scope: "Prompted Telegram token cards", origin: "on explicit request", freshness: "independent source times and anchors", coverage: "partial; unknown remains unknown", limits: "Not investment advice. Provider and tool budgets apply." },
           { id: "openDataSql", enabled: env.OPEN_DATA_SQL_ENABLED, scope: "Browser SQL over your own CSV files", origin: "user-picked device files", freshness: "user-supplied files", coverage: "up to four CSV files", limits: "50 MB each, 100 MB total; browser worker only; files and queries never leave this device." },
           { id: "openDataDatasets", enabled: env.OPEN_DATA_SQL_ENABLED && env.OPEN_DATA_DATASETS_ENABLED, scope: "Published Opsis datasets: next.", origin: "same-origin static files", freshness: "dataset generation time", coverage: "reviewed published files only", limits: "Separate dataset gate; rights review and self-hosted Parquet extension required." },
@@ -86,6 +88,7 @@ export async function opsisRoutes(app: FastifyInstance, env: Env) {
         publicCards: env.OPEN_DATA_API_ENABLED && env.PUBLIC_CARDS_ENABLED,
         publicMcp: env.OPEN_DATA_API_ENABLED && env.PUBLIC_MCP_ENABLED,
         telegramBot: env.TELEGRAM_BOT_ENABLED,
+        alerts: env.ALERTS_ENABLED,
         openDataSql: env.OPEN_DATA_SQL_ENABLED,
         openDataDatasets: env.OPEN_DATA_SQL_ENABLED && env.OPEN_DATA_DATASETS_ENABLED,
         launchCards: env.PRIVATE_MODE_ENABLED && env.LAUNCH_CARDS_ENABLED,

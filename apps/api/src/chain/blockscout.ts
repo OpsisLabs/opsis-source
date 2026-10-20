@@ -142,6 +142,16 @@ export class BlockscoutProvider implements ChainProvider {
     return docs.filter((doc): doc is SourceDocumentInput => doc !== undefined);
   }
 
+  async sourceVerification(address: string): Promise<"verified" | "unverified" | "unknown"> {
+    try {
+      const doc = await this.fetchDoc("contract", address, `/smart-contracts/${address}`);
+      const body = doc.responseJson as Record<string, unknown>;
+      if (body.is_verified === true || body.is_verified_via_eth_bytecode_db === true) return "verified";
+      if (body.is_verified === false && (body.is_verified_via_eth_bytecode_db === false || body.is_verified_via_eth_bytecode_db === undefined)) return "unverified";
+      return "unknown";
+    } catch { return "unknown"; }
+  }
+
   async getContract(address: string, options: ProviderQueryOptions = {}): Promise<SourceDocumentInput[]> {
     const contract = await this.fetchDoc("contract", address, `/smart-contracts/${address}`);
     const [addressDoc, transactions] = await Promise.all([

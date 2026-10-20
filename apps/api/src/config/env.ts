@@ -157,6 +157,12 @@ const envSchema = z.object({
   PUBLIC_CARDS_CACHE_SECONDS: z.coerce.number().int().min(15).max(300).default(60),
   PUBLIC_CARDS_HMAC_SECRET: optionalString,
   PUBLIC_MCP_ENABLED: envBoolean.default(false),
+  ALERTS_POLL_SECONDS: z.coerce.number().int().min(3).max(60).default(3),
+  ALERTS_ENABLED: envBoolean.default(false),
+  ALERTS_BLOCK_TAG: z.enum(["safe", "latest"]).default("safe"),
+  ALERTS_ENCRYPTION_KEY: optionalString,
+  ALERTS_INDEX_KEY: optionalString,
+  ALERTS_DAILY_CALL_BUDGET: z.coerce.number().int().min(1).max(100_000).default(10_000),
   TELEGRAM_BOT_ENABLED: envBoolean.default(false),
   TELEGRAM_BOT_TOKEN: optionalString,
   TELEGRAM_WEBHOOK_SECRET: optionalString,
@@ -217,6 +223,15 @@ const envSchema = z.object({
 }).superRefine((env, context) => {
   if ((env.PUBLIC_CARDS_ENABLED || env.PUBLIC_MCP_ENABLED) && (!env.PUBLIC_CARDS_HMAC_SECRET || Buffer.byteLength(env.PUBLIC_CARDS_HMAC_SECRET) < 32)) {
     context.addIssue({ code: z.ZodIssueCode.custom, path: ["PUBLIC_CARDS_HMAC_SECRET"], message: "Public cards and MCP require an HMAC secret of at least 32 bytes" });
+  }
+  if (env.ALERTS_ENABLED) {
+    if (!env.TELEGRAM_BOT_ENABLED) context.addIssue({ code: z.ZodIssueCode.custom, path: ["ALERTS_ENABLED"], message: "Alerts require the configured Telegram bot" });
+    for (const field of ["ALERTS_ENCRYPTION_KEY", "ALERTS_INDEX_KEY"] as const) {
+      if (!env[field] || Buffer.byteLength(env[field]!) < 32) context.addIssue({ code: z.ZodIssueCode.custom, path: [field], message: "Alerts require separate keys of at least 32 UTF-8 bytes" });
+    }
+    if (env.ALERTS_ENCRYPTION_KEY && env.ALERTS_ENCRYPTION_KEY === env.ALERTS_INDEX_KEY) context.addIssue({ code: z.ZodIssueCode.custom, path: ["ALERTS_INDEX_KEY"], message: "Alert encryption and index keys must differ" });
+    if (!env.REDIS_URL) context.addIssue({ code: z.ZodIssueCode.custom, path: ["ALERTS_ENABLED"], message: "Alerts require Redis" });
+    if (env.ROBINHOOD_CHAIN_ID !== 4663) context.addIssue({ code: z.ZodIssueCode.custom, path: ["ALERTS_ENABLED"], message: "Alerts support chain 4663 only" });
   }
   if (env.TELEGRAM_BOT_ENABLED) {
     if (!env.TELEGRAM_BOT_TOKEN || !/^\d{5,20}:[A-Za-z0-9_-]{30,128}$/.test(env.TELEGRAM_BOT_TOKEN)) context.addIssue({ code: z.ZodIssueCode.custom, path: ["TELEGRAM_BOT_TOKEN"], message: "Telegram requires a valid bot token" });

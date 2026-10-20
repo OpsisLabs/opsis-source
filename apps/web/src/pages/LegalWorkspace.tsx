@@ -89,11 +89,11 @@ export default function LegalWorkspace({
   const c = useCopy();
   const [selected, setSelected] = useState(() => {
     if (typeof window === "undefined") return "01";
-    return /^#legal-section-(0[1-9])$/.exec(window.location.hash)?.[1] ?? "01";
+    return /^#legal-section-(0[1-9]|alerts)$/.exec(window.location.hash)?.[1] ?? "01";
   });
   useEffect(() => {
     // Deep links from the document dock resolve after the lazy legal page mounts.
-    const match = /^#legal-section-(0[1-9])$/.exec(window.location.hash);
+    const match = /^#legal-section-(0[1-9]|alerts)$/.exec(window.location.hash);
     if (!match) return;
     // The shared route-ready effect focuses the page heading first. Resolve
     // the public section anchor after that effect has completed.

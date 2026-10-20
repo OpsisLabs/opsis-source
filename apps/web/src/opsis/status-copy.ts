@@ -11,6 +11,14 @@ export const statusDetails: Record<
     limits: [string, string];
   }
 > = {
+  alerts: {
+    label: ["Opt-in alerts in Telegram", "自愿启用的 Telegram 提醒"],
+    scope: ["Telegram rules with 30-day expiry", "30 天到期的 Telegram 规则"],
+    origin: ["Bounded block follower", "有限区块跟踪"],
+    freshness: ["Selected block tag; provider and polling lag apply", "所选区块标签；受数据源和轮询延迟影响"],
+    coverage: ["Transfers, approvals, pool swaps and multiplier changes", "转账、授权、流动池兑换及乘数变动"],
+    limits: ["Opt-in Redis storage. Alerts can be lost if the store resets; re-create them. Not investment advice.", "自愿启用后存储于 Redis。存储重置可能导致提醒丢失；可重新创建。非投资建议。"],
+  },
   openDataSql: {
     label: ["Browser SQL", "浏览器 SQL"],
     scope: ["SQL over your own CSV files", "对自己的 CSV 文件运行 SQL"],

@@ -27,7 +27,7 @@ const CHAINLINK_RDD = "https://reference-data-directory.vercel.app/feeds-robinho
 const MORPHO_API = "https://api.morpho.org";
 const HASH_PATTERN = /^0x[0-9a-fA-F]{64}$/;
 
-const stockAbi = [
+export const stockAbi = [
   { type: "function", name: "uid", stateMutability: "view", inputs: [], outputs: [{ type: "bytes32" }] },
   { type: "function", name: "name", stateMutability: "view", inputs: [], outputs: [{ type: "string" }] },
   { type: "function", name: "symbol", stateMutability: "view", inputs: [], outputs: [{ type: "string" }] },
@@ -550,7 +550,7 @@ export async function stockPairUsdPrice(address: string, document: (url: string)
   return { ...price, decimals: asset.decimals, symbol: asset.symbol, source: `${price.source}; per-token price, multiplier already included` };
 }
 
-function findStockAsset(body: unknown, address: string): StockAsset | null {
+export function findStockAsset(body: unknown, address: string): StockAsset | null {
   const assets = asArray(asRecord(body).assets);
   for (const raw of assets) {
     const item = asRecord(raw);

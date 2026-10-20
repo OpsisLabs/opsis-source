@@ -8,6 +8,16 @@ export type PublicationSection = {
 
 export const docs: PublicationSection[] = [
   {
+    id: "alerts",
+    title: ["Opt-in alerts in Telegram", "自愿启用的 Telegram 提醒"],
+    paragraphs: [
+      ["When enabled on this deployment, alerts are managed only through Telegram. Use /privacy for the storage and deletion policy, /privacy en for English or /privacy zh for Chinese. There is no web rule-management screen.", "此部署启用提醒后，只能通过 Telegram 管理。使用 /privacy 查看存储与删除政策，/privacy en 查看英文，/privacy zh 查看中文。网页不提供规则管理界面。"],
+      ["/alert transfer <token> <address> <amount> watches ERC-20 transfers above an integer threshold in raw token units. /alert approval <address> watches positive approvals when explorer source verification is unknown or not reported. /alert swap <pool> <amount> watches canonical Uniswap v3 swaps above the token0 raw-unit threshold. /alert multiplier <stock-token> watches a change in the observed scheduled multiplier; the first read sets a baseline.", "/alert transfer <token> <address> <amount> 关注超过整数阈值的 ERC-20 转账，单位为代币原始单位。/alert approval <address> 关注浏览器源码验证未知或未报告时的正数授权。/alert swap <pool> <amount> 关注超过 token0 原始单位阈值的规范 Uniswap v3 兑换。/alert multiplier <stock-token> 关注观测到的计划乘数变动；首次读取建立基线。"],
+      ["Use full public addresses and integer amounts. /alerts lists up to three active rules per chat, including groups. Rules expire after 30 days. Alerts can be lost if the Redis store resets; you can re-create them. /alerts stop <id> deletes one rule and its log; /alerts stop all and /alerts delete-my-data delete all alert data for this chat.", "使用完整公开地址与整数数量。/alerts 列出每个聊天（包括群聊）最多三条有效规则。规则在 30 天后到期。Redis 存储重置可能导致提醒丢失；你可以重新创建。/alerts stop <id> 删除一条规则及其日志；/alerts stop all 和 /alerts delete-my-data 删除此聊天的全部提醒数据。"],
+      ['Factual notices use a "safe" block about 5–15 minutes behind the chain head, not a safety verdict. Delivery can be late or missed. A gap notice names a range that was not checked. Not investment advice. See Privacy for Redis storage and hosting-provider disk snapshots.', '事实通知使用落后链头约 5–15 分钟的“safe”区块，不代表安全结论。发送可能延迟或遗漏。缺口通知列明未核查的范围。不构成投资建议。Redis 存储与托管提供商磁盘快照详见隐私页。'],
+    ],
+  },
+  {
     id: "start",
     title: ["Start with a question", "从一个问题开始"],
     paragraphs: [

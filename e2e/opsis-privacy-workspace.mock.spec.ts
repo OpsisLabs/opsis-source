@@ -38,7 +38,8 @@ test.describe("opsis privacy reading workspace", () => {
     await expect(page.locator(".legal-ws-providers")).toContainText(
       "Public data sources",
     );
-    await expect(page.locator(".legal-ws-sections > section")).toHaveCount(9);
+    // Ten sections since opt-in alerts added their own storage section (D42 follow-up of the invariant-4 exception).
+    await expect(page.locator(".legal-ws-sections > section")).toHaveCount(10);
     const index = await page.locator(".legal-ws-index").boundingBox();
     const reading = await page.locator(".legal-ws-reading").boundingBox();
     const dock = await page.locator(".legal-ws-dock").boundingBox();
@@ -50,7 +51,7 @@ test.describe("opsis privacy reading workspace", () => {
       page.locator(".legal-ws-flow [role=img]"),
     ).toHaveAccessibleName(/Vault stays on this device/);
     await expect(page.locator("#legal-section-02")).toContainText(
-      "We do not save your question, result, or an account link on our servers.",
+      "For ordinary lookups, we do not save your question, result, or an account link on our servers. Opt-in Telegram alerts store the rule and delivery details described below.",
     );
     await expect(page.locator(".legal-ws-dock")).toContainText("OCTOBER 2026");
     await expect(page.locator(".legal-ws-dock")).not.toContainText(
@@ -130,7 +131,7 @@ test.describe("opsis privacy reading workspace", () => {
       "加密的本地保险库",
     );
     await expect(page.locator("#legal-section-02")).toContainText(
-      "我们不会在服务器上保存你的问题、结果或账户关联。",
+      "普通查询不会在服务器上保存你的问题、结果或账户关联。自愿启用的 Telegram 提醒会存储下文说明的规则与发送详情。",
     );
     await expect(page.locator(".legal-ws-dock")).toContainText("2026 年 10 月");
   });

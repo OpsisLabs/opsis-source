@@ -1,3 +1,4 @@
+import { ALERTS_PRIVACY } from "@rh-chain/shared";
 import { Link } from "react-router";
 import { isCollectibleCatalogEnabled } from "../product/availability";
 import { contactAddresses } from "../product/contact";
@@ -207,6 +208,10 @@ export function PrivacyPage() {
           </span>{" "}
           {t("legal.privacy.s02.technical.body")}
         </p>
+      </Section>
+
+      <Section n="alerts" title={locale === "en" ? "Opt-in alerts in Telegram" : "自愿启用的 Telegram 提醒"}>
+        {ALERTS_PRIVACY[locale === "zh-CN" ? "zh-CN" : "en"].map((text) => <p key={text}>{text}</p>)}
       </Section>
 
       <Section n="03" title={t("legal.privacy.s03.title")}>

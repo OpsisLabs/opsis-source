@@ -510,3 +510,4 @@ export * from "./receipts.js";
 export * from "./open-data.js";
 
 export * from "./stock-desk.js";
+export { ALERTS_PRIVACY } from "./alerts-privacy.js";

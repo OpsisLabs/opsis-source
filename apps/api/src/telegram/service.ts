@@ -1,3 +1,5 @@
+import { ALERTS_PRIVACY } from "@rh-chain/shared";
+import type { AlertCommands } from "../alerts/telegram.js";
 import { createHmac, createHash, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
 import type { FastifyInstance } from "fastify";
@@ -130,7 +132,7 @@ const update = z
   .object({
     message: z
       .object({
-        text: z.string().max(100),
+        text: z.string().max(512),
         chat: z
           .object({
             id: z.number().int().safe(),
@@ -156,7 +158,10 @@ export async function telegramRoutes(
   env: Env,
   cards: TokenCardSource,
   bot?: BotApiClient,
+  alerts?: AlertCommands,
+  sharedDispatch?: TelegramBuckets,
 ) {
+  if (!env.TELEGRAM_BOT_ENABLED) return;
   const client =
     bot ??
     (env.TELEGRAM_BOT_ENABLED
@@ -196,15 +201,31 @@ export async function telegramRoutes(
         /^\/opsis(?:@[A-Za-z][A-Za-z0-9_]{4,31})? (0x[0-9a-fA-F]{40})$/.exec(
           message.text,
         );
+      const privacyCommand = /^\/privacy(?:@[A-Za-z][A-Za-z0-9_]{4,31})?(?:\s+(?:en|zh))?$/.test(message.text);
+      const alertCommand = env.ALERTS_ENABLED && alerts?.accepts(message.text);
       if (
-        !match ||
+        (!match && !alertCommand && !privacyCommand) ||
         !buckets.take(message.chat.id, message.chat.type !== "private")
       )
         return { ok: true };
       if (!client)
         return reply.code(503).send({ error: "TELEGRAM_CLIENT_UNAVAILABLE" });
       try {
-        const card = await cards.card(match[1]!);
+        if (privacyCommand) {
+          if (!dispatch.take(message.chat.id, message.chat.type !== "private")) return { ok: true };
+          const language = message.text.endsWith(" zh") ? "zh-CN" : message.text.endsWith(" en") ? "en" : undefined;
+          const response = language ? ALERTS_PRIVACY[language].join("\n\n") : [...ALERTS_PRIVACY.en, ...ALERTS_PRIVACY["zh-CN"]].join("\n\n");
+          await client.sendMessage({ chat_id: message.chat.id, text: escapeText(response), parse_mode: "HTML", link_preview_options: { is_disabled: true } });
+          return { ok: true };
+        }
+        if (alertCommand && alerts) {
+          // Reserve before mutations so a throttled response cannot hide a create/delete.
+          if (!dispatch.take(message.chat.id, message.chat.type !== "private")) return { ok: true };
+          const response = await alerts.execute(message.text, message.chat.id, message.chat.type !== "private");
+          await client.sendMessage({ chat_id: message.chat.id, text: `<code>${escapeText(response)}</code>`, parse_mode: "HTML", link_preview_options: { is_disabled: true } });
+          return { ok: true };
+        }
+        const card = await cards.card(match![1]!);
         // Reserve once more at dispatch: variable card latency cannot create a burst.
         // Separate dispatch buckets avoid charging the same bucket twice.
         if (!dispatch.take(message.chat.id, message.chat.type !== "private"))
@@ -244,5 +265,5 @@ export async function telegramRoutes(
       }
     },
   );
-  const dispatch = new TelegramBuckets(env.TELEGRAM_WEBHOOK_SECRET ?? "");
+  const dispatch = sharedDispatch ?? new TelegramBuckets(env.TELEGRAM_WEBHOOK_SECRET ?? "");
 }

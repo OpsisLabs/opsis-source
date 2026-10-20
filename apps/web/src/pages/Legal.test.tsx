@@ -1,3 +1,4 @@
+import { ALERTS_PRIVACY } from "@rh-chain/shared";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as localeCookie from "../i18n/locale";
@@ -38,7 +39,7 @@ describe.each(["en", "zh-CN"] as const)(
         expect(html).not.toMatch(/<(?:header|main|img)\b/);
         expect(html).toContain('class="legal-ws-index"');
         expect(html).not.toMatch(/<h1\b/);
-        expect(html.match(/<section id="legal-section-/g)).toHaveLength(9);
+        expect(html.match(/<section id="legal-section-/g)).toHaveLength(Page === PrivacyPage ? 10 : 9);
         expect(html).not.toContain('role="group"');
         expect(html).not.toContain("CHAIN");
         expect(html).not.toContain("github.com");
@@ -62,6 +63,17 @@ describe.each(["en", "zh-CN"] as const)(
         expect(document).toContain('id="legal-section-09"');
       },
     );
+    it("publishes the full opt-in Telegram privacy wording in this language", () => {
+      const html = renderToStaticMarkup(<I18nProvider><PrivacyPage /></I18nProvider>);
+      for (const paragraph of ALERTS_PRIVACY[locale]) {
+        const escaped = renderToStaticMarkup(<span>{paragraph}</span>).slice(6, -7);
+        expect(html).toContain(escaped);
+      }
+      expect(html).toContain("Redis");
+      expect(html).toContain("/alerts delete-my-data");
+      expect(html).toContain(locale === "en" ? "disk snapshots" : "磁盘快照");
+      expect(html).toContain(locale === "en" ? "re-create" : "重新创建");
+    });
     it("publishes a neutral pending contact statement", () => {
       vi.spyOn(localeCookie, "readLocaleCookie").mockReturnValue(locale);
       const html = renderToStaticMarkup(

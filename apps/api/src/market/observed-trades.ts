@@ -1151,6 +1151,13 @@ export function validateLogSet(observations: RawObservation[]): void {
   }
 }
 
+export function decodeObservedSwap(data: Hex, topics: [Hex, ...Hex[]]) {
+  const decoded = decodeEventLog({ abi: swapAbi, eventName: "Swap", data, topics });
+  const args = decoded.args;
+  if (args.amount0 === 0n || args.amount1 === 0n || (args.amount0 > 0n) === (args.amount1 > 0n)) throw new Error("INVALID_SWAP_AMOUNTS");
+  return args;
+}
+
 function decodeObservation(
   raw: unknown,
   pool: string,
@@ -1198,18 +1205,7 @@ function decodeObservation(
     amount1: bigint;
   };
   try {
-    const decoded = decodeEventLog({
-      abi: swapAbi,
-      eventName: "Swap",
-      data: log.data as Hex,
-      topics: topics as [Hex, ...Hex[]],
-    });
-    const rawArgs = decoded.args as unknown as {
-      sender: string;
-      recipient: string;
-      amount0: bigint;
-      amount1: bigint;
-    };
+    const rawArgs = decodeObservedSwap(log.data as Hex, topics as [Hex, ...Hex[]]);
     args = {
       sender: rawArgs.sender,
       recipient: rawArgs.recipient,

@@ -8,7 +8,8 @@ import { TokenCardService, type TokenCardSource } from "./cards/service.js";
 import { EngineCardSources } from "./cards/sources.js";
 import { publicMcpRoutes } from "./routes/public-mcp.js";
 import { reachResponseHeaders } from "./routes/public-cards.js";
-import { telegramRoutes, type BotApiClient } from "./telegram/service.js";
+import { createAlertsRuntime } from "./alerts/runtime.js";
+import { telegramRoutes, TelegramBotApi, TelegramBuckets, type BotApiClient } from "./telegram/service.js";
 import { createOpenDataLimiter } from "./open-data/limiter.js";
 import { AppError } from "./http/errors.js";
 import { configuredReceiptService } from "./receipts/service.js";
@@ -183,7 +184,6 @@ export async function buildApp(
   }
   if (env.ENABLE_METRICS) await installMetrics(app);
   await healthRoutes(app, env, prisma, redis);
-  await opsisRoutes(app, env);
   const receipts = configuredReceiptService(env);
   await receiptRoutes(app, env, receipts);
   const portfolioBudget = createPortfolioBudget(env, redis);
@@ -205,7 +205,17 @@ export async function buildApp(
     reachResponseHeaders(scope);
     await publicMcpRoutes(scope, env, openDataLimiter, cards, receipts);
   });
-  await telegramRoutes(app, env, cards, dependencies?.telegramBot);
+  const telegramBot = dependencies?.telegramBot ?? (env.TELEGRAM_BOT_ENABLED ? new TelegramBotApi(env.TELEGRAM_BOT_TOKEN!) : undefined);
+  const telegramDispatch = new TelegramBuckets(env.TELEGRAM_WEBHOOK_SECRET ?? "");
+  const alerts = createAlertsRuntime(env, redis, rpcSpend, telegramBot, telegramDispatch);
+  if (alerts) await alerts.initialize(message => app.log.warn(message));
+  await opsisRoutes(app, env, () => alerts?.status);
+  await telegramRoutes(app, env, cards, telegramBot, alerts?.commands, telegramDispatch);
+  if (alerts) {
+    // Tests construct and start followers explicitly with fakes.
+    if (env.NODE_ENV !== "test") app.addHook("onReady", async () => { alerts.follower.start(); });
+    app.addHook("preClose", async () => { await alerts.follower.stop(); });
+  }
   await privateRoutes(app, env, prisma, cache, dependencies?.privateAnalysis, rpcSpend);
   await portfolioRoutes(
     app,
