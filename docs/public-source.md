@@ -168,6 +168,21 @@ push, including failures. It creates no commits and does not change commit names
 The App has no private-source access, polling job, webhook service or Actions
 permission. Public verification needs no App private key or write token.
 
+### Publishing from GitHub Actions
+
+Maintainers with write access to the private development repository can publish
+without holding the App key: run the **Publish public source** workflow on `main`
+(Actions tab, "Run workflow", with a plain public commit message). It clones the
+public mirror with the identity guard above, runs the snapshot exporter and its
+`--check`, commits under the Opsis identity, and pushes with
+`scripts/push-public-as-bot.mjs`. The App key is read from the encrypted
+`OPSIS_BOT_PRIVATE_KEY` Actions secret into the public clone's `.git` with mode
+`0600` for the push only, and the Client ID from the `OPSIS_BOT_CLIENT_ID`
+variable. Runs are serialized, and the job summary shows the public commit URL.
+Railway deploys production from the public `main`, so verify the live site after
+a run. Publish from one place at a time; the snapshot exporter makes the public
+tip match the current private `main` exactly.
+
 References: [GitHub Activity](https://docs.github.com/en/repositories/viewing-activity-and-data-for-your-repository/using-the-activity-view-to-see-changes-to-a-repository),
 [Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions),
 [GitHub App registration](https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app),
