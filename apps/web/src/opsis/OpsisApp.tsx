@@ -35,6 +35,7 @@ import { initialTheme, persistTheme, savedTheme } from "./theme";
 import { clearPublicSession } from "./public-session";
 const LaunchRadar = lazy(chunks.LaunchRadar.load);
 const Lab = lazy(chunks.Lab.load);
+const ClaimCheck = lazy(chunks.ClaimCheck.load);
 const ReceiptVerify = lazy(chunks.ReceiptVerify.load);
 import "./opsis.css";
 import "./legacy-theme.css";
@@ -482,6 +483,7 @@ export default function OpsisApp() {
                       path="/check/perp-scenario"
                       element={<PerpScenario capabilities={access} />}
                     />
+                    <Route path="/research/claims" element={access.claimCheck === true ? <ToolWorkspace><ClaimCheck capabilities={access} previewKey={key} /></ToolWorkspace> : <Unavailable />} />
                     <Route path="/research/launches" element={access.launchCards === true ? <ToolWorkspace><LaunchRadar enabled /></ToolWorkspace> : <Unavailable />} />
                     <Route path="/verify" element={access.receipts === true ? <ToolWorkspace><ReceiptVerify capabilities={access} /></ToolWorkspace> : <Unavailable />} />
                     <Route path="/lab" element={<Lab capabilities={access} />} />

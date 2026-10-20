@@ -55,6 +55,7 @@ export const chunks = {
   Guide: chunk("/guide", () => importPage("/src/opsis/Guide.tsx", () => import("./Guide"))),
   Community: chunk("/community", () => importPage("/src/opsis/Community.tsx", () => import("./Community"))),
   PerpScenario: chunk("/check/perp-scenario", () => importPage("/src/opsis/PerpScenario.tsx", () => import("./PerpScenario"))),
+  ClaimCheck: chunk("/research/claims", () => importPage("/src/opsis/ClaimCheck.tsx", () => import("./ClaimCheck"))),
   ReceiptVerify: chunk("/verify", () => importPage("/src/opsis/ReceiptVerify.tsx", () => import("./ReceiptVerify"))),
 };
 export function prefetchRoute(path: string) {

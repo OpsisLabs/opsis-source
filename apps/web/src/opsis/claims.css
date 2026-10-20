@@ -1,0 +1,41 @@
+.claim-ws {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+.claim-ws fieldset {
+  display: grid;
+  gap: 20px;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.claim-ws textarea {
+  min-height: 9rem;
+  resize: vertical;
+}
+.claim-ws :is(li, article) {
+  padding-block: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.claim-ws :is(code, dd, q) {
+  overflow-wrap: anywhere;
+}
+.claim-ws dd {
+  margin-inline-start: 0;
+}
+.claim-ws dl > div {
+  padding-block: 6px;
+}
+.claim-ws button {
+  margin-block: 12px;
+  margin-inline-end: 12px;
+}
+.claim-ws label {
+  display: block;
+  margin-block: 12px;
+}
+.claim-ws input[type="checkbox"] {
+  margin-inline-end: 8px;
+}

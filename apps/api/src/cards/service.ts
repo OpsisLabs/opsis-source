@@ -33,6 +33,7 @@ export type MarketSample = {
   source: string;
   observedAt: string;
   priceUsd: string | null;
+  explorerClaims?: { share: { numerator: string; denominator: string } | null; verified: boolean | null; verifiedObservedAt?: string; observedAt: string };
   concentration: Part<{
     top10Percent: number;
     holdersAnalyzed: number;

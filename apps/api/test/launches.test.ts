@@ -2655,3 +2655,87 @@ describe("Pass F bounded and concurrent cards", () => {
     });
   });
 });
+
+describe("Claim Check anchored launch composition", () => {
+  it("bypasses the public cache and collects anchored production-reader evidence without a nested receipt", async () => {
+    const f = fixture([pons()], { LAUNCH_CARDS_CACHE_SECONDS: "60" });
+    const cached = await f.service.card(token);
+    const before = f.seen.length;
+    // Composition remains usable when the standalone launch route is off.
+    f.config.LAUNCH_CARDS_ENABLED = false;
+    f.config.RECEIPTS_ENABLED = true;
+    const evidence = { rpcCalls: [], sources: [] };
+    const at = { number: 5000, hash: hash(5001), seconds: seconds(5000) };
+    const card = await f.service.cardAt(token, at, evidence);
+    expect(card.anchor).toMatchObject({
+      blockNumber: 5000,
+      blockHash: at.hash,
+    });
+    expect(cached.anchor).toMatchObject({ blockNumber: 5100 });
+    expect(card.launch).toMatchObject({ value: { adapter: "pons", deployer } });
+    expect(card.coverage).toMatchObject({
+      discovery: { method: "creation-receipt" },
+    });
+    expect(card).not.toHaveProperty("receipt");
+    const reads = f.seen.slice(before);
+    expect(evidence.rpcCalls).toHaveLength(reads.length);
+    expect(evidence.sources).toHaveLength(
+      reads.length + (card.coverage as { documentReads: number }).documentReads,
+    );
+    expect(reads.some((c) => c.params[0] === "latest")).toBe(false);
+    expect(reads.at(-1)).toEqual({
+      method: "eth_getBlockByNumber",
+      params: [hex(5000), false],
+    });
+    expect(
+      reads
+        .filter((c) => c.method === "eth_getLogs")
+        .every((c) => {
+          const range = c.params[0] as { fromBlock: string; toBlock: string };
+          return (
+            Number(BigInt(range.toBlock)) <= at.number &&
+            Number(BigInt(range.toBlock)) - Number(BigInt(range.fromBlock)) <
+              2000
+          );
+        }),
+    ).toBe(true);
+    const secondEvidence = { rpcCalls: [], sources: [] };
+    await f.service.cardAt(token, at, secondEvidence);
+    expect(secondEvidence.rpcCalls.length).toBeGreaterThan(0);
+    expect(evidence.rpcCalls).toHaveLength(reads.length);
+    f.config.LAUNCH_CARDS_ENABLED = true;
+    f.config.RECEIPTS_ENABLED = false;
+    expect(await f.service.card(token)).toMatchObject({
+      anchor: cached.anchor,
+    });
+  });
+
+  it.each([false, true])(
+    "refuses a changed supplied anchor (during composition: %s)",
+    async (during) => {
+      const f = fixture([pons()]);
+      const original = f.rpc.requestJson.getMockImplementation()!;
+      if (during) {
+        f.rpc.requestJson.mockImplementation(async (url, init) => {
+          const call = JSON.parse(String(init?.body));
+          if (call.method === "eth_getTransactionReceipt") f.change();
+          return original(url, init);
+        });
+      } else f.change();
+      await expect(
+        f.service.cardAt(
+          token,
+          {
+            number: 5100,
+            hash: hash(5101),
+            seconds: seconds(5100),
+          },
+          { rpcCalls: [], sources: [] },
+        ),
+      ).rejects.toMatchObject({
+        code: "LAUNCH_CARDS_UNAVAILABLE",
+        details: { reason: during ? "ANCHOR_CHANGED" : "HEADER_MISMATCH" },
+      });
+    },
+  );
+});

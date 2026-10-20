@@ -2,6 +2,7 @@ import { isWatchEnabled } from "../product/availability";
 import type { Capabilities } from "./model";
 
 export const routeNames: Record<string, readonly [string, string]> = {
+  "/research/claims": ["Claim Check", "声明核查"],
   "/research/launches": ["Launch Radar", "发行雷达"],
   "/research": ["Research", "研究"],
   "/research/details": ["Detailed research", "详细研究"],
@@ -48,7 +49,7 @@ export function tradeToolPaths(capabilities: Capabilities, flags = toolFlags): s
   ];
 }
 export function researchToolPaths(capabilities: Capabilities, flags = toolFlags): string[] {
-  return ["/research", ...(capabilities.launchCards === true ? ["/research/launches"] : []), ...(capabilities.rwa ? ["/rwa"] : []),
+  return ["/research", ...(capabilities.launchCards === true ? ["/research/launches"] : []), ...(capabilities.claimCheck === true ? ["/research/claims"] : []), ...(capabilities.rwa ? ["/rwa"] : []),
     ...(capabilities.observedTrades && flags.trades ? ["/biggest-trades"] : []),
     ...(flags.world ? ["/research/events"] : [])];
 }
@@ -81,6 +82,7 @@ const groups: ToolGroup[] = [
     name: ["Look up", "查询"],
     heading: ["Start with the facts.", "从事实开始。"],
     tools: [
+      { path: "/research/claims", name: routeNames["/research/claims"], purpose: ["Compare token claims with dated evidence", "按区块证据核查代币声明"], icon: "research" },
       { path: "/research/launches", name: routeNames["/research/launches"], purpose: ["Recent launch events and their coverage", "近期发行事件及覆盖范围"], icon: "research" },
       {
         path: "/research",
@@ -175,7 +177,7 @@ export function toolGroups(
 ): ToolGroup[] {
   const available = new Set([
     ...researchToolPaths(capabilities, flags).filter(
-      (path) => path !== "/research" || capabilities.research,
+      (path) => (path !== "/research" || capabilities.research) && (path !== "/research/claims" || capabilities.claimCheck === true),
     ),
     ...tradeToolPaths(capabilities, flags).filter(
       (path) =>

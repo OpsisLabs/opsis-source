@@ -105,6 +105,9 @@ const envSchema = z.object({
   RECEIPTS_ENABLED: envBoolean.default(false),
   RECEIPT_SIGNING_KEY: z.string().optional(),
   RECEIPT_KEY_VALID_FROM: z.string().datetime().refine((value) => Number.isFinite(Date.parse(value)) && new Date(value).toISOString() === value, "Use a canonical UTC timestamp with milliseconds").default("2026-10-19T00:00:00.000Z"),
+  CLAIM_CHECK_ENABLED: envBoolean.default(false),
+  CLAIM_CHECK_DAILY_RPC_UNIT_BUDGET: z.coerce.number().int().min(100).max(100_000).default(5_000),
+  RATE_LIMIT_CLAIM_CHECK_PER_HOUR: z.coerce.number().int().min(1).max(60).default(10),
   LAUNCH_CARDS_ENABLED: envBoolean.default(false),
   // The sell test stays off until eth_simulateV1 results are verified on the production provider.
   LAUNCH_SELL_TEST_ENABLED: envBoolean.default(false),
@@ -449,6 +452,7 @@ const envSchema = z.object({
     || env.STOCK_DESK_ENABLED
     || env.RWA_VERIFY_ENABLED
     || env.EXIT_CHECK_ENABLED
+    || env.CLAIM_CHECK_ENABLED
     || env.LAUNCH_CARDS_ENABLED
     || env.OBSERVED_TRADES_ENABLED;
   if (chainReadsEnabled && env.ROBINHOOD_RPC_PROVIDER !== "drpc") {

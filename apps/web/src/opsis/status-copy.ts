@@ -11,6 +11,12 @@ export const statusDetails: Record<
     limits: [string, string];
   }
 > = {
+  claimCheck: {
+    label: ["Claim Check", "声明核查"], scope: ["Published deterministic token claims", "已公布的确定性代币声明"],
+    origin: ["On explicit request", "按明确请求"], freshness: ["Current and optional post-time blocks", "当前及可选的发布时区块"],
+    coverage: ["Published types; missing evidence stays unknown", "已公布类型；缺失证据保持未知"],
+    limits: ["Address confirmation required. Explorer evidence is current-only. No AI or link fetching.", "须确认地址。浏览器数据仅限当前。无 AI 或链接抓取。"],
+  },
   alerts: {
     label: ["Opt-in alerts in Telegram", "自愿启用的 Telegram 提醒"],
     scope: ["Telegram rules with 30-day expiry", "30 天到期的 Telegram 规则"],

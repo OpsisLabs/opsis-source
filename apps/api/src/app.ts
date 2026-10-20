@@ -1,3 +1,7 @@
+import { claimRoutes } from "./routes/claims.js";
+import { ClaimCheckService } from "./claims/service.js";
+import { EngineClaimSession } from "./claims/sources.js";
+import { createClaimCheckBudget } from "./claims/budget.js";
 import { launchRoutes } from "./routes/launches.js";
 import { LaunchCardsService, type LaunchCardsSource } from "./launches/service.js";
 import { createLaunchCardsBudget } from "./launches/budget.js";
@@ -199,7 +203,10 @@ export async function buildApp(
   } }, new EngineCardSources(env, portfolioBudget, rpcSpend), cache, env.PUBLIC_CARDS_CACHE_SECONDS, receipts);
   const openDataLimiter = dependencies?.openDataLimiter ?? createOpenDataLimiter(env, redis);
   await controlsRoutes(app, env, controls, receipts);
-  await launchRoutes(app, env, dependencies?.launchCards ?? new LaunchCardsService(env, cache, { budget: createLaunchCardsBudget(env, redis), rpcSpend, receipts }));
+  const claimBudget = createClaimCheckBudget(env, redis);
+  const claimLaunchBudget = createLaunchCardsBudget(env, redis);
+  await claimRoutes(app, env, new ClaimCheckService(() => new EngineClaimSession(env, claimBudget, portfolioBudget, claimLaunchBudget, rpcSpend), receipts, env.RECEIPTS_ENABLED));
+  await launchRoutes(app, env, dependencies?.launchCards ?? new LaunchCardsService(env, cache, { budget: claimLaunchBudget, rpcSpend, receipts }));
   await openDataRoutes(app, env, redis, openDataLimiter, cards);
   await app.register(async (scope) => {
     reachResponseHeaders(scope);

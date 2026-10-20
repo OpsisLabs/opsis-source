@@ -509,5 +509,6 @@ export type { TokenControls, ControlReading } from "./controls.js";
 export * from "./receipts.js";
 export * from "./open-data.js";
 
+export * from "./claims.js";
 export * from "./stock-desk.js";
 export { ALERTS_PRIVACY } from "./alerts-privacy.js";

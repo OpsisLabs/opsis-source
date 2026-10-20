@@ -1,3 +1,5 @@
+import { canonicalBytes, sha256 } from "@rh-chain/shared";
+import type { ControlsEvidence } from "../controls/service.js";
 import type { Env } from "../config/env.js";
 import type { PortfolioBudget } from "../portfolio/budget.js";
 import type { ProviderHttp } from "../chain/provider-http.js";
@@ -94,7 +96,7 @@ export class EngineCardSources implements CardSources {
       anchor,
     };
   }
-  async market(address: string): Promise<MarketSample> {
+  async market(address: string, evidence?: ControlsEvidence): Promise<MarketSample> {
     // The existing summary makes at most six document reads. Share the daily
     // portfolio ledger in addition to the explorer's rate/credit gate.
     await this.budget.consume(6);
@@ -102,6 +104,10 @@ export class EngineCardSources implements CardSources {
       detail: "summary",
       limit: 10,
     });
+    if (evidence) for (const doc of docs) {
+      const url = new URL(doc.requestUrl!);
+      evidence.sources.push({ id: `explorer-${evidence.sources.length}`, provider: "blockscout", url: url.origin, fetchedAt: doc.fetchedAt, responseSha256: await sha256(canonicalBytes(doc.responseJson)) });
+    }
     const facts = normalizeEntity(4663, "token", address, docs).facts;
     const profile = docs.find(
       (doc) =>
@@ -125,7 +131,18 @@ export class EngineCardSources implements CardSources {
       /^\d+$/.test(supply) &&
       BigInt(supply) > 0n &&
       raw!.items!.every((row) => BigInt(row.value as string) <= BigInt(supply));
+    const rows = valid ? [...raw!.items!].sort((a,b) => BigInt(a.value as string) > BigInt(b.value as string) ? -1 : BigInt(a.value as string) < BigInt(b.value as string) ? 1 : 0).slice(0, 10) : undefined;
+    const sum = valid && rows ? rows.reduce((n, row) => n + BigInt(row.value as string), 0n) : null;
+    const complete = !!rows?.length && (rows.length === 10 || (holders?.responseJson as { next_page_params?: unknown })?.next_page_params === null);
+    const verificationDoc = docs.find(doc => doc.requestUrl?.includes("/smart-contracts/"));
+    const verification = verificationDoc?.responseJson as { is_verified?: unknown } | undefined;
     return {
+      explorerClaims: {
+        share: complete && sum !== null && sum <= BigInt(supply as string) ? { numerator: String(sum), denominator: supply as string } : null,
+        verified: typeof verification?.is_verified === "boolean" ? verification.is_verified : null,
+        ...(verificationDoc ? { verifiedObservedAt: verificationDoc.fetchedAt } : {}),
+        observedAt: holders?.fetchedAt ?? profile?.fetchedAt ?? new Date().toISOString(),
+      },
       source: "blockscout",
       observedAt: profile?.fetchedAt ?? new Date().toISOString(),
       priceUsd:

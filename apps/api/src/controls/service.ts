@@ -133,7 +133,7 @@ export class ControlsService implements ControlsSource {
       timestamp === null ||
       typeof block.hash !== "string" ||
       !HASH.test(block.hash) ||
-      Math.abs(start - timestamp * 1000) > 60_000
+      (!anchor && Math.abs(start - timestamp * 1000) > 60_000)
     )
       throw unavailable();
     const code = await read("eth_getCode", [contract, block.number]);

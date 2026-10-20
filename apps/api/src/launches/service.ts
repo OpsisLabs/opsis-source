@@ -26,7 +26,7 @@ import { ethUsdFeed, readChainlinkUsd, usdgUsdFeed } from "../rwa/chainlink.js";
 import { stockPairUsdPrice } from "../rwa/service.js";
 import type { RpcSpendBudget } from "../chain/robinhood-rpc.js";
 import { JsonCache } from "../cache/service.js";
-import { ControlsService } from "../controls/service.js";
+import { ControlsService, type ControlsEvidence } from "../controls/service.js";
 import type { ReceiptService } from "../receipts/service.js";
 import { AppError } from "../http/errors.js";
 import { createLaunchCardsBudget, type LaunchCardsBudget } from "./budget.js";
@@ -249,7 +249,22 @@ export class LaunchCardsService implements LaunchCardsSource {
       this.pendingCards.delete(token);
     }
   }
-  private async buildCard(token: string): Promise<Record<string, unknown>> {
+  // Claim Check composes a fresh observation at its own anchor, without using
+  // the public card cache or issuing a second, nested receipt.
+  async cardAt(
+    input: string,
+    at: Header,
+    evidence: ControlsEvidence,
+  ): Promise<Record<string, unknown>> {
+    if (!isAddress(input) || /^0x0{40}$/i.test(input))
+      throw new AppError("INVALID_TOKEN", 400, "Enter a nonzero token address");
+    return this.buildCard(input.toLowerCase(), at, evidence);
+  }
+  private async buildCard(
+    token: string,
+    at?: Header,
+    evidence?: ControlsEvidence,
+  ): Promise<Record<string, unknown>> {
     const r = this.reader(),
       start = this.now();
     r.deadline = start + 20_000;
@@ -260,7 +275,9 @@ export class LaunchCardsService implements LaunchCardsSource {
     r.simulationLimit = 12;
     let anchor: Header;
     try {
-      anchor = await r.anchor();
+      anchor = at ?? (await r.anchor());
+      if (at && (await r.block(at.number)).hash !== at.hash)
+        throw unavailable("HEADER_MISMATCH");
     } catch (error) {
       if (error instanceof TimeLimit) throw unavailable("ANCHOR_UNAVAILABLE");
       throw error;
@@ -516,6 +533,11 @@ export class LaunchCardsService implements LaunchCardsSource {
       },
       disclaimer: "Not investment advice",
     };
+    if (evidence) {
+      evidence.rpcCalls.push(...r.evidence.rpcCalls);
+      evidence.sources.push(...r.evidence.sources);
+      return result;
+    }
     if (!this.env.RECEIPTS_ENABLED) return result;
     if (!this.options.receipts || r.evidence.rpcCalls.length !== r.calls)
       throw new AppError(

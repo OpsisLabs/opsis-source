@@ -28,6 +28,7 @@ export function capabilityRows(capabilities: Capabilities): CapabilityStatus[] {
     "perpHandoff",
     "swapPreview",
     "savedCheckComparisons",
+    "claimCheck",
     "openDataSql",
     "openDataDatasets",
     "launchCards",

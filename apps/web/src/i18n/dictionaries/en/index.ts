@@ -1,3 +1,4 @@
+import { claims } from "./claims";
 import { openDataSql } from "./open-data-sql";
 import { receipts } from "./receipts";
 import { common } from "./common";
@@ -44,6 +45,7 @@ export const en = {
   ...roadmap,
   ...cloud,
   ...cards,
+  ...claims,
   ...watch,
   ...feed,
   ...overlap,
