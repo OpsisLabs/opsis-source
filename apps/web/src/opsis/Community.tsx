@@ -280,6 +280,7 @@ export default function Community() {
             <label>
               <span className="sr-only">{c("Export format", "导出格式")}</span>
               <select
+                aria-label={c("Export format", "导出格式")}
                 value={format}
                 onChange={(event) => setFormat(event.target.value)}
               >

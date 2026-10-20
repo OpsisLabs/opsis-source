@@ -12,7 +12,6 @@ import {
 import { researchRefusal, researchRefusalCopy, type ResearchRefusal } from "./research-refusal";
 import { ResearchHistory, researchIdentityKey } from "./research-history";
 import { researchFactCopy, researchNoteCopy, researchPrivacyCopy, researchSeverityCopy } from "./research-copy";
-import ResearchIntro from "./ResearchIntro";
 import { KNOWN_ASSETS, resolveKnownAsset, type KnownAsset } from "./known-assets";
 import { DecodedActions, ResearchIdentity, ResearchTiles, ResearchEvidence, TokenFacts, WalletBalances, WalletTransactions } from "./ResearchFacts";
 import { useCopy } from "./copy";
@@ -268,15 +267,6 @@ export default function Research({
                 {c("No findings are implied by this failure.", "此次失败不代表任何分析结论。")}
               </p>
             </section>
-          )}
-          {!result && !busy && !error && (
-            <ResearchIntro
-              task={task}
-              onSelect={(next) => {
-                clear();
-                setTask(next);
-              }}
-            />
           )}
           {busy && <BusyStatus />}
           {result && (

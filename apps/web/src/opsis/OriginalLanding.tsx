@@ -55,6 +55,9 @@ export default function OriginalLanding({
       inert={location.pathname !== "/"}
       aria-hidden={location.pathname !== "/"}
     />
+    {filmDocument?.getElementById("public-contract-hero") && createPortal(
+      <ContractAddress compact />, filmDocument.getElementById("public-contract-hero")!,
+    )}
     {filmDocument?.getElementById("public-contract") && createPortal(
       <ContractAddress />, filmDocument.getElementById("public-contract")!,
     )}

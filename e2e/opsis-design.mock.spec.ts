@@ -297,8 +297,7 @@ test.describe("Opsis visual workspaces", () => {
       });
     });
     await page.goto("/research");
-    await page.getByRole("button", { name: "Sources", exact: true }).click();
-    await expect(page.locator("#research-task")).toHaveValue("evidence");
+    await page.locator("#research-task").selectOption("evidence");
     expect(calls).toBe(0);
     await page.locator("#research-entity").fill(id);
     await page

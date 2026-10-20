@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router";
 import { useCopy } from "../copy";
 import type { Capabilities } from "../model";
 import ToolNavigation from "../ToolNavigation";
+import ContractAddress from "../publications/ContractAddress";
 import PublicSearch from "./PublicSearch";
 import { closeToolMenu, openToolMenu } from "./menu";
 import { useScrollRegionKeys } from "./scroll-keys";
@@ -47,6 +48,7 @@ export default function WorkspaceShell({
           {(capabilities?.research || publications) && !stockLookup && (
             <PublicSearch />
           )}
+          <ContractAddress compact />
           {!stockLookup && (
             <span className="opsis-chain">Robinhood Chain · 4663</span>
           )}
@@ -146,6 +148,7 @@ export default function WorkspaceShell({
           )}
         </div>
         <p className="opsis-menu-context">Robinhood Chain · 4663 · {stage}</p>
+        <ContractAddress compact />
         {(capabilities?.research || publications) && (
           <PublicSearch menu onNavigate={close} />
         )}
