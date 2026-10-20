@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "fb9cab8b2ac890a178fbf9768bc919b5ac0099721c3bf6e7426d572ba264fc2a",
+  "sourceTreeDigest": "06f178ccf119eb7647ac617389fd3049d57f54a63a7e6466745ac82266f4a189",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "84b181c07944ca1e7f74b99ce1f58a3d5b9c9f23fb05e9615005fcf27a055805",
@@ -1020,7 +1020,7 @@
     "e2e/opsis-qa-keep-explore.mock.spec.ts": "2e789090fce577dc730c9db894142dc971fe458e359f40f2b2fcdbab2b14e4ef",
     "e2e/opsis-qa-research.mock.spec.ts": "0902b779a084edc07eaa37f48885ed3c1d42e7a77d38298c6397a3e1ecdd67bc",
     "e2e/opsis-qa-trade.mock.spec.ts": "8ec0c07b7788baf1b425a1aa55e2aa79ae2af076ab74ca81f5a012bf22174785",
-    "e2e/opsis-qa-world.mock.spec.ts": "6eec290a5f99779c9add1a6516c70f2eaa1d98968cc4d83e266e53036ef3c81f",
+    "e2e/opsis-qa-world.mock.spec.ts": "1dbd079b51beed128f469d4ca5d7450a14464d6ca04828a7378288a4a6f6ed5c",
     "e2e/opsis-quant.mock.spec.ts": "d7d1d747555cca11ff1bb64438509aff38b3c50b9d84779243f6389d008efbf5",
     "e2e/opsis-rail.mock.spec.ts": "1387b20036c8ebab7e83620ad0f40564dbaa42ddb1e12504a93119285cd995bf",
     "e2e/opsis-recovery.mock.spec.ts": "5341e06574afbfa560b3651161549ef729bd269f409e1ad511e6ae1b99b0ac95",
@@ -1046,7 +1046,7 @@
     "e2e/situation-room.mock.spec.ts": "9002b960a0ad455a388f46e25cd276ec9e38d0ded082431218f64e91b85542db",
     "e2e/stress-test.mock.spec.ts": "1789779f88aee713fcfc2ce3ac85d71cbb8188b8777a8a74cf0507b617e45dd9",
     "e2e/support/origin.ts": "ca6f98ac33b26b8c540ce812d8acbccf944c6cd1d94f4ff9911f51402e293fb8",
-    "e2e/swap-preview.mock.spec.ts": "16cb5d2b226c4d5d554119f1cbbe98a52378b07962e94dbf740bbafa4436cee0",
+    "e2e/swap-preview.mock.spec.ts": "8d536d1ee9e6bc8807445e1594bbc26b0fa12c031fd47af3a2613ecabfe50932",
     "e2e/vault.mock.spec.ts": "4b3dabe5da74ea4dae0117ccf3766fb2e5f8221341065c0dfc74cfec819c3f3e",
     "e2e/wallet-ai.live.spec.ts": "0b74831125b671378e36c1fad76be23f98a9f4beec3c08250df2451ca107727e",
     "e2e/wallet-ai.mock.spec.ts": "ac8d8a39fda4200138c99f03ea09207df8c24376e88ff4d0514832983da7a68f",
