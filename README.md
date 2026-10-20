@@ -21,6 +21,15 @@
 
 # See what the chart misses.
 
+> **Opsis (OPSIS) contract address, Robinhood Chain (4663):**
+>
+> ```text
+> 0x75cb4182Db44f816d80e946F0b84dBC29e5cf58A
+> ```
+>
+> Check the address and chain together before you trade. This is the contract
+> identity only, not a claim about utility, governance, revenue or price.
+
 **Opsis is a research and trading-intelligence hub for Robinhood Chain.**
 Paste a token, wallet, or transaction. Inspect the evidence behind it, explore
 what an exit at your size looks like, revisit saved observations, and run

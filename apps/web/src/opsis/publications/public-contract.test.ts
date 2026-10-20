@@ -5,6 +5,7 @@ import {
   copyContract,
   parsePublicContract,
   publicContract,
+  publishedContract,
 } from "./public-contract";
 
 // Synthetic identity for validation and clipboard tests; no deployed contract.
@@ -16,8 +17,10 @@ const empty = { address: "", chain: "" };
 afterEach(() => vi.unstubAllEnvs());
 
 describe("public contract field", () => {
-  it("defaults to an empty identity and cannot copy a placeholder", async () => {
-    expect(publicContract).toEqual(empty);
+  it("shows the published Opsis contract and cannot copy a placeholder", async () => {
+    expect(publicContract).toEqual(publishedContract);
+    expect(publishedContract.address).toBe(getAddress(publishedContract.address));
+    expect(copyableContract(publicContract)).toBe(true);
     const writeText = vi.fn();
     for (const contract of [
       empty,

@@ -1,7 +1,7 @@
 import { isAddress } from "viem";
 
 export type PublicContract = Readonly<{ address: string; chain: string }>;
-/** Intentionally empty. Publishing an identity and chain needs founder review. */
+/** Returned for any invalid pair, so a bad setting never shows a wrong address. */
 const unpublishedContract: PublicContract = { address: "", chain: "" };
 const allowedChains: Readonly<Record<string, string>> = {
   "4663": "Robinhood Chain · 4663",
@@ -27,10 +27,19 @@ export function parsePublicContract(
   return { address, chain: allowedChains[chain] };
 }
 
-export const publicContract = parsePublicContract(
-  import.meta.env.VITE_PUBLIC_CONTRACT_ADDRESS,
-  import.meta.env.VITE_PUBLIC_CONTRACT_CHAIN,
-);
+/** The founder-published Opsis (OPSIS) token on Robinhood Chain (D33). */
+export const publishedContract: PublicContract = {
+  address: "0x75cb4182Db44f816d80e946F0b84dBC29e5cf58A",
+  chain: "Robinhood Chain · 4663",
+};
+
+const settingAddress = import.meta.env.VITE_PUBLIC_CONTRACT_ADDRESS;
+const settingChain = import.meta.env.VITE_PUBLIC_CONTRACT_CHAIN;
+/** Build settings may replace the published pair; an invalid pair still fails closed. */
+export const publicContract =
+  settingAddress || settingChain
+    ? parsePublicContract(settingAddress, settingChain)
+    : parsePublicContract(publishedContract.address, publishedContract.chain);
 
 export function copyableContract(contract: PublicContract): boolean {
   return parsePublicContract(contract.address, contract.chain).address !== "";

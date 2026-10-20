@@ -26,16 +26,16 @@ test.describe("opsis public documentation", () => {
         );
         await expect(
           page.getByLabel("CA · Contract address", { exact: true }),
-        ).toHaveValue("");
+        ).toHaveValue("0x75cb4182Db44f816d80e946F0b84dBC29e5cf58A");
         await expect(
-          page.getByRole("button", { name: "Copy CA" }),
-        ).toBeDisabled();
+          page.getByRole("button", { name: "Copy CA" }).first(),
+        ).toBeEnabled();
         await expect(page).toHaveTitle(
           path === "/docs" ? "Opsis · Documentation" : "Opsis · Whitepaper",
         );
         await expect(page.locator(".publication-contract")).toBeInViewport();
         await expect(
-          page.getByText("No contract address published yet", { exact: true }),
+          page.getByText("Check the address and chain together.", { exact: true }),
         ).toBeVisible();
         await expect(page.locator(".publication-flow")).toBeVisible();
         if (width > 700) {

@@ -276,8 +276,8 @@ export const whitepaper: PublicationSection[] = [
         "Opsis 不持有私钥，不签名或广播交易。外部工具负责执行，需要进行自己的最新核查、资格判断，并产生由用户承担的费用。本地永续情景不会下单。应用内永续交易仍属计划，当前不可用。",
       ],
       [
-        "This paper makes no token utility, access, governance, revenue or price claim. The empty CA field publishes no contract identity. Opsis provides information and research tools, not personalized investment advice.",
-        "本白皮书不作代币用途、准入、治理、收入或价格声明。空白 CA 栏不公布任何合约身份。Opsis 提供信息与研究工具，不提供个性化投资建议。",
+        "This paper makes no token utility, access, governance, revenue or price claim. The CA field shows the Opsis token's contract address on Robinhood Chain so you can check it exactly. Opsis provides information and research tools, not personalized investment advice.",
+        "本白皮书不作代币用途、准入、治理、收入或价格声明。CA 栏显示 Opsis 代币在 Robinhood Chain 上的合约地址，便于您准确核对。Opsis 提供信息与研究工具，不提供个性化投资建议。",
       ],
     ],
   },

@@ -555,6 +555,118 @@
       ],
       "outcome": "Compare two explicitly saved Research or Trade Check observations privately",
       "shipGate": "Default-off client and server capability gates protect encrypted local comparisons. New saves retain bounded typed evidence; legacy reports remain readable without parsing prose into facts. Token, chain, time, source, units, quote size, pool and coverage mismatches never become market changes. Missing evidence remains unknown; exact integer arithmetic preserves quote units. English/Chinese, keyboard/mobile Chromium and WebKit, backup/restore, lock and network-privacy tests pass with the full gate. No automatic lookup, background monitoring, new provider, paid path, public claim, deployment or publication."
+    },
+    {
+      "order": 47,
+      "id": "46-v2-receipts",
+      "branch": "codex/46-v2-receipts",
+      "tagPrefix": "rc/46-v2-receipts/",
+      "status": "queued",
+      "dependencies": [
+        "44-tool-ui-package"
+      ],
+      "outcome": "Prepare signed, timestamped receipts for every check, with an offline verifier",
+      "shipGate": "RFC 8785 canonical receipts with the stated fields are signed by an injected test key and verified by the open-source CLI; a tampered field, wrong key or missing timestamp proof fails. OpenTimestamps submission and upgrade run against fixtures only. Receipt download and the verify page are default-off on frontend and backend. No production key, live calendar call, public claim or enabled route. The receipts decision, key custody and OpenTimestamps admission remain activation gates."
+    },
+    {
+      "order": 48,
+      "id": "47-v2-reach",
+      "branch": "codex/47-v2-reach",
+      "tagPrefix": "rc/47-v2-reach/",
+      "status": "queued",
+      "dependencies": [
+        "46-v2-receipts"
+      ],
+      "outcome": "Prepare a Telegram card bot, embeddable token cards and a read-only REST and MCP API",
+      "shipGate": "Bot, embed and API handlers return receipted, read-only cards from existing engines, with limits by IP /64, proof-of-work on heavy calls, no stored chat history and no calldata. Fixture tests cover refusals, unknown states and abuse limits. Every surface defaults off; no bot token, public endpoint, provider change or public claim. The surfaces decision, Telegram terms and written provider permission for public API use remain activation gates."
+    },
+    {
+      "order": 49,
+      "id": "48-v2-launch-cards",
+      "branch": "codex/48-v2-launch-cards",
+      "tagPrefix": "rc/48-v2-launch-cards/",
+      "status": "queued",
+      "dependencies": [
+        "44-tool-ui-package",
+        "46-v2-receipts"
+      ],
+      "outcome": "Prepare launch cards and a recent-launches feed for supported launchpads",
+      "shipGate": "Verified factory adapters derive T0, early and same-transaction buyers, deployer history, LP status and permissions from bounded fixture reads; tags follow published, versioned rules on a wallet's own outbound actions only; the sell test reports a simulated cost or a refusal and labels its block. Feed and cards default off. No reads beyond existing budgets, public claim or badge. Counsel review of tag wording, factory verification and simulation support remain activation gates."
+    },
+    {
+      "order": 50,
+      "id": "49-v2-claim-check",
+      "branch": "codex/49-v2-claim-check",
+      "tagPrefix": "rc/49-v2-claim-check/",
+      "status": "queued",
+      "dependencies": [
+        "48-v2-launch-cards"
+      ],
+      "outcome": "Prepare rule-based Claim Check for published claim types",
+      "shipGate": "Each claim type has a published definition and a deterministic checker returning agrees, differs or can't check at the latest safe block and at a post-time block; address confirmation cannot be skipped; unknown claims show can't check. Default off; no AI, link fetching or public claim. Counsel review of definitions and wording remains an activation gate."
+    },
+    {
+      "order": 51,
+      "id": "50-v2-linked-wallets",
+      "branch": "codex/50-v2-linked-wallets",
+      "tagPrefix": "rc/50-v2-linked-wallets/",
+      "status": "queued",
+      "dependencies": [
+        "48-v2-launch-cards"
+      ],
+      "outcome": "Prepare linked-wallet groups for a token's top holders",
+      "shipGate": "First-funding and launch-window same-signer edges group the top 100 holders within a per-graph explorer credit cap; hubs never merge; capped holders show not checked; each group shows its edges and share of supply. Synthetic fixtures (exchange funding, routers, bridges, bundlers, curve payouts) show no hub merge. Default off; no warehouse, identity attribution or public claim. Counsel review of wording remains an activation gate."
+    },
+    {
+      "order": 52,
+      "id": "51-v2-stock-desk",
+      "branch": "codex/51-v2-stock-desk",
+      "tagPrefix": "rc/51-v2-stock-desk/",
+      "status": "queued",
+      "dependencies": [
+        "40-history-preparation",
+        "44-tool-ui-package",
+        "46-v2-receipts"
+      ],
+      "outcome": "Prepare the Stock Token Desk and a receipted weekly chain report",
+      "shipGate": "Pool-to-reference gaps, multiplier schedule, corporate actions, feed status, canonical check and depth at size come from existing engines and fixtures; multiplierEmbedded feeds are never multiplied twice; on-chain Chainlink is the reference price. The weekly report reproduces from fixtures. Default off; no stored Robinhood data, new provider or public claim. Robinhood's terms answer and captured-history admission remain activation gates."
+    },
+    {
+      "order": 53,
+      "id": "52-v2-alerts",
+      "branch": "codex/52-v2-alerts",
+      "tagPrefix": "rc/52-v2-alerts/",
+      "status": "queued",
+      "dependencies": [
+        "47-v2-reach"
+      ],
+      "outcome": "Prepare opt-in alert rules delivered by Telegram or web push",
+      "shipGate": "A follower matches fixture safe-block logs to stored rules with dedupe, cooldowns and 30-day expiry; only the rule and delivery address are stored; web push uses VAPID keys separate from the Vault key. Reorg, duplicate and latency fixtures pass. Default off, with no running worker, bot token or stored rule. The alerts decision amending invariant 4, the privacy copy and a measured dRPC budget remain activation gates."
+    },
+    {
+      "order": 54,
+      "id": "53-v2-perp-desk",
+      "branch": "codex/53-v2-perp-desk",
+      "tagPrefix": "rc/53-v2-perp-desk/",
+      "status": "queued",
+      "dependencies": [
+        "44-tool-ui-package"
+      ],
+      "outcome": "Prepare a perp market-data desk that feeds the perp cost scenario",
+      "shipGate": "Venue adapters normalise funding, open interest, mark, index and basis from recorded fixtures with raw-response hashes; live funding enters the scenario only as an overridable input. Default off; no venue call, link-out beyond the reviewed directory, recommendation or execution. Per-venue provider tests and the perp data decision remain activation gates."
+    },
+    {
+      "order": 55,
+      "id": "54-v2-open-data",
+      "branch": "codex/54-v2-open-data",
+      "tagPrefix": "rc/54-v2-open-data/",
+      "status": "queued",
+      "dependencies": [
+        "40-history-preparation",
+        "46-v2-receipts"
+      ],
+      "outcome": "Prepare in-browser SQL over published Parquet datasets",
+      "shipGate": "DuckDB runs in a browser worker over fixture Parquet files with exported, replayable run manifests; queries never leave the device; dataset files carry source, range and content commitments. Default off; no published dataset or public claim. Rights to republish captured data and release 40's capture admission remain activation gates."
     }
   ]
 }
