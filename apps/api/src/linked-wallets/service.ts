@@ -102,9 +102,20 @@ export class LinkedWalletsService implements LinkedWalletsSource {
     if (cached && Date.parse(cached.expiresAt) > this.now())
       return { ...cached, servedFrom: "cache" };
     const result = await this.compute(token);
-    if (result.state === "finished")
-      await this.cache.set(key, result, this.env.LINKED_WALLETS_CACHE_SECONDS);
-    return result;
+    // Live graphs are normally partial (only the top holders get funding checks) and cost the
+    // same explorer credits, so partial results are cached too. A graph without a holder list
+    // (an explorer failure) is cached only briefly so a transient outage clears quickly.
+    const window = this.env.LINKED_WALLETS_CACHE_SECONDS;
+    const ttl = result.holders.length === 0 ? Math.min(60, window) : window;
+    const stored =
+      ttl === window
+        ? result
+        : {
+            ...result,
+            expiresAt: new Date(Date.parse(result.observedAt) + ttl * 1000).toISOString(),
+          };
+    await this.cache.set(key, stored, ttl);
+    return stored;
   }
   private async compute(token: string): Promise<LinkedWalletGraph> {
     const start = this.now();

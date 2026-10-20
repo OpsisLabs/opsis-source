@@ -542,12 +542,28 @@ describe("synthetic linked-wallet ground truth", () => {
     expect(cached.observedAt).toBe(first.observedAt);
     expect(f.rpc.requestJson).toHaveBeenCalledTimes(calls);
   });
-  it("does not cache partial observations", async () => {
+  it("caches partial observations for the cache window, marked as cached", async () => {
     const f = fixture({ launchError: true });
-    expect((await f.service.graph(token)).state).toBe("partial");
+    const first = await f.service.graph(token);
+    expect(first.state).toBe("partial");
+    expect(first.servedFrom).toBe("fresh");
     const n = f.rpc.requestJson.mock.calls.length;
-    await f.service.graph(token);
-    expect(f.rpc.requestJson.mock.calls.length).toBeGreaterThan(n);
+    const second = await f.service.graph(token);
+    expect(second.servedFrom).toBe("cache");
+    expect(second.state).toBe("partial");
+    expect(second.observedAt).toBe(first.observedAt);
+    expect(f.rpc.requestJson.mock.calls.length).toBe(n);
+  });
+  it("caches a graph without a holder list for only 60 seconds", async () => {
+    let clock = now;
+    const f = fixture({ wallets: [], clock: () => clock });
+    const first = await f.service.graph(token);
+    expect(first.holders).toHaveLength(0);
+    expect(Date.parse(first.expiresAt) - Date.parse(first.observedAt)).toBe(60_000);
+    clock = now + 30_000;
+    expect((await f.service.graph(token)).servedFrom).toBe("cache");
+    clock = now + 61_000;
+    expect((await f.service.graph(token)).servedFrom).toBe("fresh");
   });
   it("separates token, burn and labelled pool addresses from grouping", async () => {
     const burn = addr(0);

@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "062c07612bfdce1fd5471158769dc51d49068ed148e4609687304392e56d5273",
+  "sourceTreeDigest": "7c1cb0671c513403fbc6f6d26345a57b2cccaac680da2d164dbcd494f8da3814",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "84b181c07944ca1e7f74b99ce1f58a3d5b9c9f23fb05e9615005fcf27a055805",
@@ -117,7 +117,7 @@
     "apps/api/src/linked-wallets/funding-logs.ts": "f02146fe2f3e8b8fdbeaf34b3e839ca816753f0134639959728514d3b334103d",
     "apps/api/src/linked-wallets/grouping.ts": "a7206b9c56dbc4fb9c51a99d14f261b94002b57e8ae0d1af065fe0199f26b8a2",
     "apps/api/src/linked-wallets/registry.ts": "f15e0e11703d13a6d0e6dc10b0e7cf71e084735c805145b1c7acd960008ab01d",
-    "apps/api/src/linked-wallets/service.ts": "64165b0c8fcc0b37ad579df1057e2f733526f3eba574e979a7125e3c07699fd9",
+    "apps/api/src/linked-wallets/service.ts": "8ba7b742e257b1550ef088724faf2f1c2f5a049901bdb0cdd3b16d264a0e5577",
     "apps/api/src/market/benchmarks.ts": "270e0f7e5db9714de9d9e7e9814707524b38649d9d5d023f937826e262111fab",
     "apps/api/src/market/budget.ts": "fba166cd18efaa1fed648c09b04583b87e2344be9bf0b0904f95f5510b0d07bf",
     "apps/api/src/market/merchants.ts": "1e06223b723b49079eb6f53264ffcd47eda9ff029a781dc6623e8112c3bcaba1",
@@ -256,7 +256,7 @@
     "apps/api/test/launch-pair-pricing.test.ts": "06c59b3649fbd804a00645adf1134768929e3655b20d9064ea4d508c6e1ac284",
     "apps/api/test/launch-sell-test.test.ts": "57dcba6b7fd4f8099ad9cc1f751b450501507442e24a1305a8e046b969e763e2",
     "apps/api/test/launches.test.ts": "307e1b10b6c45d6d71e86c925109f8020e68adc3d4b7e3d7863ffade950da545",
-    "apps/api/test/linked-wallets.test.ts": "c2394570f26c08d6879c9e90ebf690636a7bd99d0309600a222414429838c152",
+    "apps/api/test/linked-wallets.test.ts": "6d32781c3dd35ce8f6a00760ecd7472114bae505a6041869f25c2e817f13ec0e",
     "apps/api/test/market.test.ts": "dba6066fc9981754618166b8c7181b10f80933012770e3024a1117d80a9bc2b9",
     "apps/api/test/metrics.test.ts": "fd7d8a582c33355ba2304d568b8b03a18e6b9a90a4f934edc55ba5951659c55f",
     "apps/api/test/normalize.test.ts": "45dab3a024191d0d1b445da50c181e774d65df0747ee8b4ce836657eed293322",
