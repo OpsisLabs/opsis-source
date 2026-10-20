@@ -152,6 +152,8 @@ test.describe("opsis preview", () => {
       path: "test-results/opsis-check.png",
       fullPage: true,
     });
+    // The redesigned dock keeps the comparison behind a disclosure.
+    await page.getByText("Compare observed pools", { exact: true }).click();
     await expect(
       page.getByRole("region", { name: "Observed pool comparison" }),
     ).toBeVisible();

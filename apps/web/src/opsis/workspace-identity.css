@@ -198,7 +198,7 @@
 /* The legacy `.opsis input:not(...)` block rule out-ranks this one on specificity. */
 .opsis.opsis-terminal .opsis-ca-compact input { display: inline-block !important; flex: none; width: 16ch !important; max-width: 16ch; margin: 0 !important; padding: 0 8px !important; font-family: "IBM Plex Mono", Plex, monospace; text-overflow: ellipsis; }
 .opsis.opsis-terminal .opsis-ca-compact button { display: inline-flex; flex: none; width: auto; align-items: center; gap: 5px; padding: 0 9px; }
-.opsis.opsis-terminal .opsis-ca-compact .opsis-ca-tag { display: inline-flex; align-items: center; padding: 0 7px; color: var(--brand); border-color: var(--brand); font-weight: 600; letter-spacing: .06em; }
+.opsis.opsis-terminal .opsis-ca-compact .opsis-ca-tag { display: inline-flex; align-items: center; padding: 0 7px; color: var(--surface-ink, currentColor); border-color: var(--brand); font-weight: 600; letter-spacing: .06em; }
 .opsis.opsis-terminal .opsis-tool-menu .opsis-ca-compact { display: flex; margin: 0 0 14px; }
 .opsis.opsis-terminal .opsis-tool-menu .opsis-ca-compact { gap: 6px; align-items: center; color: inherit; }
 .opsis.opsis-terminal .opsis-tool-menu .opsis-ca-compact input { flex: 1; width: auto !important; max-width: none; min-width: 0; }

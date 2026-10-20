@@ -53,13 +53,13 @@ export default function ContractAddress({
         <button
           type="button"
           disabled={!configured || busy}
-          aria-label={c("Copy CA", "复制地址")}
+          aria-label={c("Copy contract address", "复制合约地址")}
           onClick={copy}
         >
           <Copy size={14} aria-hidden="true" />
           {result === "copied" ? c("Copied", "已复制") : c("Copy", "复制")}
         </button>
-        <span id={`${id}-status`} role="status" className="opsis-ca-sr">
+        <span id={`${id}-status`} aria-live="polite" className="opsis-ca-sr">
           {!configured
             ? c("No contract address published yet", "尚未公布合约地址")
             : result === "copied"

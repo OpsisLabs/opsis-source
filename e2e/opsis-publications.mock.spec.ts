@@ -170,7 +170,7 @@ test.describe("opsis public documentation", () => {
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("白皮书");
   });
 
-  test("landing links leave the film and its CA field stays empty", async ({
+  test("landing links leave the film and its CA field shows the published contract", async ({
     page,
   }) => {
     await mockPublicOpsisAccess(page, [{}]);
@@ -178,8 +178,13 @@ test.describe("opsis public documentation", () => {
     const film = page.frameLocator(".opsis-original-film");
     await expect(
       film.getByLabel("CA · Contract address", { exact: true }),
-    ).toHaveValue("");
-    await expect(film.getByRole("button", { name: "Copy CA" })).toBeDisabled();
+    ).toHaveValue("0x75cb4182Db44f816d80e946F0b84dBC29e5cf58A");
+    await expect(
+      film.getByRole("button", { name: "Copy CA", exact: true }),
+    ).toBeEnabled();
+    await expect(
+      film.getByRole("button", { name: "Copy contract address", exact: true }),
+    ).toBeEnabled();
     await film
       .getByRole("navigation", { name: "About OPSIS" })
       .getByRole("link", { name: "Docs", exact: true })

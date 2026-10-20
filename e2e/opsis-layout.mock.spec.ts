@@ -280,7 +280,12 @@ test.describe("Opsis compact layout", () => {
     ).toBeVisible();
     await expect(page.locator("main")).toHaveCount(1);
     await expect(page.getByRole("button", { name: /中文/ })).toHaveCount(1);
-    await expect(page.locator('a[href*="github.com"]')).toHaveCount(0);
+    // The only GitHub link is the public source link in the footer, opened without referrer.
+    const github = page.locator('a[href*="github.com"]');
+    await expect(github).toHaveCount(1);
+    await expect(github).toHaveAttribute("href", "https://github.com/OpsisLabs/opsis-source");
+    await expect(github).toHaveAttribute("rel", "noopener noreferrer");
+    await expect(page.locator(".opsis-footer").locator('a[href*="github.com"]')).toHaveCount(1);
     await expect(
       page.locator("article header, article main, article img"),
     ).toHaveCount(0);
