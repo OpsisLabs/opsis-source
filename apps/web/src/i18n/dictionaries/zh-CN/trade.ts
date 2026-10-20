@@ -32,6 +32,8 @@ export const trade: Record<string, string> = {
   "trade.swap.reverseDirection": "反转代币方向",
   "trade.swap.youReceive": "你收到",
   "trade.swap.calculatedLive": "实时计算",
+  "trade.swap.youReceiveEstimate": "你收到 · 估算",
+  "trade.swap.youReceiveExpired": "你收到 · 已过期估算",
   "trade.swap.fetchingRoute": "正在获取实时报价…",
   "trade.swap.getPreview": "获取实时预览",
   "trade.swap.noWalletNote": "不会请求或共享钱包。只有在你选择继续后，官方 Uniswap 应用才会处理钱包上下文。",

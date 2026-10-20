@@ -230,6 +230,8 @@ export default function SwapPreview() {
   const input = direction === "WETH_TO_USDG" ? SWAP_TOKENS.WETH : SWAP_TOKENS.USDG;
   const output = direction === "WETH_TO_USDG" ? SWAP_TOKENS.USDG : SWAP_TOKENS.WETH;
   const directUrl = useMemo(() => officialUniswapUrl(direction, amount), [direction, amount]);
+  // Once the quote's freshness window passes, the receive box is labelled expired, like the quote card.
+  const receiveStale = quote ? elapsedMs >= quote.freshForMs : false;
   const amountValid = /^(?:0|[1-9]\d*)(?:\.\d+)?$/.test(amount) && Number(amount) > 0 && (amount.split(".")[1]?.length ?? 0) <= input.decimals;
 
   useEffect(() => {
@@ -339,14 +341,7 @@ export default function SwapPreview() {
               </button>
             </div>
 
-            <div className="flex items-center gap-3 border border-[#383838] bg-[#202020] p-4">
-              <TokenMark symbol={output.symbol} />
-              <div className="flex-1">
-                <p className="font-mono-d text-[10px] text-[#635d5a]">{t("trade.swap.youReceive")}</p>
-                <p className="mt-1 font-mono-d text-[19px] text-[#9a938a]">{t("trade.swap.calculatedLive")}</p>
-              </div>
-              <span className="font-mono-d text-[12px] text-[#9a938a]">{output.symbol}</span>
-            </div>
+            <ReceiveBox symbol={output.symbol} amount={quote?.output.amount ?? null} stale={receiveStale} />
 
             <button type="submit" disabled={!amountValid || loading} className="clip-btn mt-5 flex w-full items-center justify-center gap-2 bg-[#fa6c34] py-4 font-mono-d text-[11px] font-semibold tracking-[0.14em] text-[#1d1d1d] transition-colors hover:bg-[#ff7038] disabled:cursor-not-allowed disabled:opacity-40">
               {loading ? <><RefreshCw size={14} className="animate-spin" /> {t("trade.swap.fetchingRoute")}</> : <><Zap size={14} /> {t("trade.swap.getPreview")}</>}
@@ -398,6 +393,21 @@ export default function SwapPreview() {
           </div>
         </div>
       </main>
+    </div>
+  );
+}
+
+/** The "You receive" field: the quoted estimate after a quote, the placeholder before one or after any edit. */
+export function ReceiveBox({ symbol, amount, stale }: { symbol: "WETH" | "USDG"; amount: string | null; stale: boolean }) {
+  const { t } = useI18n();
+  return (
+    <div className="flex items-center gap-3 border border-[#383838] bg-[#202020] p-4">
+      <TokenMark symbol={symbol} />
+      <div className="flex-1">
+        <p className="font-mono-d text-[10px] text-[#635d5a]">{amount === null ? t("trade.swap.youReceive") : t(stale ? "trade.swap.youReceiveExpired" : "trade.swap.youReceiveEstimate")}</p>
+        <p data-testid="swap-receive-amount" className={`mt-1 font-mono-d text-[19px] ${amount !== null && !stale ? "text-[#e9e0d1]" : "text-[#9a938a]"}`}>{amount ?? t("trade.swap.calculatedLive")}</p>
+      </div>
+      <span className="font-mono-d text-[12px] text-[#9a938a]">{symbol}</span>
     </div>
   );
 }

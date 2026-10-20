@@ -32,6 +32,8 @@ export const trade = {
   "trade.swap.reverseDirection": "Reverse token direction",
   "trade.swap.youReceive": "YOU RECEIVE",
   "trade.swap.calculatedLive": "Calculated live",
+  "trade.swap.youReceiveEstimate": "YOU RECEIVE · ESTIMATE",
+  "trade.swap.youReceiveExpired": "YOU RECEIVE · EXPIRED ESTIMATE",
   "trade.swap.fetchingRoute": "FETCHING LIVE QUOTE…",
   "trade.swap.getPreview": "GET LIVE PREVIEW",
   "trade.swap.noWalletNote": "No wallet is requested or shared. The official Uniswap app handles wallet context only after you choose to continue.",
