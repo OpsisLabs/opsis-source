@@ -22,6 +22,7 @@ export const routeNames: Record<string, readonly [string, string]> = {
   "/community": ["Community", "社区"],
   "/privacy": ["Privacy", "隐私"],
   "/terms": ["Terms", "条款"],
+  "/verify": ["Verify a receipt", "验证收据"],
 };
 export function routeName(path: string, locale: string): string {
   return (routeNames[path] ?? ["Not found", "未找到"])[locale === "zh-CN" ? 1 : 0];
