@@ -4,6 +4,8 @@ import {
   mockPublicOpsisAccess,
   openOpsisMenu,
 } from "./opsis-test-helpers";
+import { readFile } from "node:fs/promises";
+import archive from "../apps/web/src/situation/news.json";
 import { trades } from "../apps/web/src/i18n/dictionaries/en/trades";
 
 const enabled =
@@ -81,7 +83,7 @@ async function openWorld(page: Page) {
   });
 }
 
-test("World editions translate on switch and reload, keeping source headlines original", async ({
+test("World editions translate stories on switch and reload, preserving original evidence", async ({
   page,
 }) => {
   test.skip(!worldEnabled);
@@ -106,8 +108,13 @@ test("World editions translate on switch and reload, keeping source headlines or
   await page.locator("#edition-archive").click();
   await expect(page.locator("#brief")).toHaveText("形势简报");
   await expect(page.locator(".sr-event").first()).toContainText(
-    "Revised Clarity Act draft lands ahead of Senate vote",
+    "参议院投票前公布修订版《Clarity 法案》草案",
   );
+  for (const event of archive.events) {
+    const card = page.locator(`#event-${event.id}`);
+    await expect(card.locator("h2")).toContainText(/[\u3400-\u9fff]/);
+    await expect(card.locator("p")).toContainText(/[\u3400-\u9fff]/);
+  }
   await page.locator("#ai-insight").click();
   await expect(page.locator(".sr-insight")).toContainText(
     "修订草案不能证明立法一定通过",
@@ -121,17 +128,45 @@ test("World editions translate on switch and reload, keeping source headlines or
   await page.keyboard.press("Escape");
   await page.locator("#investigate").click();
   await expect(page.getByRole("dialog")).toContainText("未经独立核实");
+  await expect(page.getByRole("dialog")).toContainText(
+    "参议院仍需 60 票才能推进审议",
+  );
+  await page.getByText("查看归档英文原文", { exact: true }).click();
+  await expect(page.locator(".sr-original-report")).toContainText(
+    archive.events[0].title,
+  );
+  await expect(page.locator(".sr-original-report")).toContainText(
+    archive.events[0].detail,
+  );
   await expect(
     page.getByRole("dialog").getByRole("link", { name: "阅读原始来源" }),
   ).toBeVisible();
   await page.keyboard.press("Escape");
   await page.locator("#brief").click();
   await expect(page.getByRole("dialog")).toContainText("全部 7 篇报道");
+  await expect(page.locator(".sr-brief-item").first()).toContainText(
+    "参议院仍需 60 票",
+  );
+  const download = page.waitForEvent("download");
+  await page.locator("#download-brief").click();
+  const file = await (await download).path();
+  expect(file).not.toBeNull();
+  const brief = await readFile(file!, "utf8");
+  expect(brief).toContain("中文译文；原始报道为英文");
+  expect(brief).toContain("参议院仍需 60 票");
+  expect(brief).toContain(archive.events[0].url);
+  expect(brief).toContain(archive.capturedAt);
   await page.keyboard.press("Escape");
   await page.locator("#method").click();
   await expect(page.getByRole("dialog")).toContainText("缺失样本保留为空缺");
   await page.keyboard.press("Escape");
   await language(page, false);
+  await expect(page.locator(".sr-event").first()).toContainText(
+    archive.events[0].title,
+  );
+  await expect(page.locator(".sr-event").first()).toContainText(
+    archive.events[0].summary,
+  );
   await page.locator("#method").click();
   await expect(page.getByRole("dialog")).toContainText(
     "Missing samples remain gaps",

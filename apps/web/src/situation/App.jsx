@@ -226,6 +226,9 @@ export default function App() {
     };
   }, [data, edition]);
   useEffect(() => {
+    globe.current?.setLocale(locale);
+  }, [data, edition, locale]);
+  useEffect(() => {
     if (!sweep || !data) return;
     const id = setInterval(
       () =>
@@ -424,10 +427,11 @@ export default function App() {
       c("Market capture: ", "市场采集：") +
       data.market.capturedAt +
       "\n\n" +
+      c("", "中文译文；原始报道为英文。\n\n") +
       list
         .map(
           (v) =>
-            `## ${v.title}\n${c("Published", "发布于")}: ${v.time}\n${v.summary}\n\n${contextTitle} ${c("(prepared for this capture)", "（为此次采集预先准备）")}: ${localize(v.insight)}\n${c("Source", "来源")}: ${v.url}\n\n`,
+            `## ${localize(v.title)}\n${c("Published", "发布于")}: ${v.time}\n${localize(v.summary)}\n\n${contextTitle} ${c("(prepared for this capture)", "（为此次采集预先准备）")}: ${localize(v.insight)}\n${c("Source", "来源")}: ${v.url}\n\n`,
         )
         .join("") +
       "\n" +
@@ -723,7 +727,7 @@ export default function App() {
                 <small className="sr-edition">
                   {c(
                     "10 September 2026 edition · captured data · English source coverage",
-                    "2026 年 9 月 10 日版 · 采集数据 · 英文来源覆盖",
+                    "2026 年 9 月 10 日版 · 采集数据 · 英文来源的中文译文",
                   )}
                 </small>
               </div>
@@ -806,7 +810,7 @@ export default function App() {
                   <div className="sr-location" key={e.id}>
                     <MapPin size={14} />
                     <div>
-                      <strong>{e.location}</strong>
+                      <strong>{localize(e.location)}</strong>
                       <span>
                         {localize(e.category)} · {e.time.slice(11, 19)} UTC
                       </span>
@@ -849,7 +853,7 @@ export default function App() {
                       <p className="sr-overline">
                         {c("PRICE AROUND PUBLICATION", "发布前后的价格")}
                       </p>
-                      <strong>{e.title}</strong>
+                      <strong>{localize(e.title)}</strong>
                     </div>
                     <div className="sr-windows">
                       {[15, 30, 60].map((n) => (
@@ -984,14 +988,14 @@ export default function App() {
                     <img
                       className="sr-insight-photo"
                       src={e.image}
-                      alt={e.imageAlt}
+                      alt={localize(e.imageAlt)}
                       onError={photoFailed}
                     />
                     <div className="sr-insight-content">
                       <p className="sr-overline">
                         {localize(e.category)} / {e.time.slice(11, 16)} UTC
                       </p>
-                      <h2>{e.title}</h2>
+                      <h2>{localize(e.title)}</h2>
                       <div className="sr-insight-tabs">
                         {["Context", "Price action", "Watch next"].map((t) => (
                           <button
@@ -1089,7 +1093,7 @@ export default function App() {
                         <div className="sr-event-photo">
                           <img
                             src={ev.image}
-                            alt={ev.imageAlt}
+                            alt={localize(ev.imageAlt)}
                             onError={photoFailed}
                           />
                           <b>{String(ev.index + 1).padStart(2, "0")}</b>
@@ -1099,8 +1103,8 @@ export default function App() {
                             <span>{localize(ev.category)}</span>
                             <time>{ev.time.slice(11, 16)} UTC</time>
                           </div>
-                          <h2>{ev.title}</h2>
-                          <p>{ev.summary}</p>
+                          <h2>{localize(ev.title)}</h2>
+                          <p>{localize(ev.summary)}</p>
                           <footer>
                             <span>{ev.source}</span>
                             <ArrowUpRight size={13} />
@@ -1278,15 +1282,24 @@ export default function App() {
                 <img
                   className="sr-dialog-hero"
                   src={e.image}
-                  alt={e.imageAlt}
+                  alt={localize(e.imageAlt)}
                   onError={photoFailed}
                 />
                 <div className="sr-dialog-body">
                   <p className="sr-overline">
                     {localize(e.category)} / {e.time.slice(11, 19)} UTC
                   </p>
-                  <h2>{e.title}</h2>
-                  <p>{e.detail}</p>
+                  <h2>{localize(e.title)}</h2>
+                  <p>{localize(e.detail)}</p>
+                  {locale === "zh-CN" && (
+                    <details className="sr-original-report">
+                      <summary>查看归档英文原文</summary>
+                      <div lang="en">
+                        <h3>{e.title}</h3>
+                        <p>{e.detail}</p>
+                      </div>
+                    </details>
+                  )}
                   <div className="sr-evidence">
                     <CheckCircle size={18} />
                     <div>
@@ -1366,8 +1379,8 @@ export default function App() {
                   <article className="sr-brief-item" key={ev.id}>
                     <time>{ev.time.slice(11, 16)}</time>
                     <div>
-                      <h3>{ev.title}</h3>
-                      <p>{ev.summary}</p>
+                      <h3>{localize(ev.title)}</h3>
+                      <p>{localize(ev.summary)}</p>
                       <a href={ev.url} target="_blank" rel="noreferrer">
                         {ev.source} <ArrowUpRight size={11} />
                       </a>
@@ -1419,7 +1432,7 @@ export default function App() {
                     rel="noreferrer"
                     href={ev.url}
                   >
-                    {ev.title}
+                    {localize(ev.title)}
                     <ArrowUpRight size={15} />
                   </a>
                 ))}

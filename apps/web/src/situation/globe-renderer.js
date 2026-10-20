@@ -1,3 +1,4 @@
+import { situationText } from "./copy.js";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 export function createGlobe(el, events, onSelect) {
@@ -91,7 +92,7 @@ export function createGlobe(el, events, onSelect) {
     button.setAttribute("aria-label", "Show " + e.title);
     button.onclick = () => onSelect(i);
     el.append(button);
-    return { v, button, ring, dot };
+    return { v, button, label, ring, dot };
   });
   // Coordinates locate publishers/meeting venues only; curves are not transfer routes.
   for (let i = 0; i < events.length - 1; i++) {
@@ -178,6 +179,16 @@ export function createGlobe(el, events, onSelect) {
   }
   animate(0);
   return {
+    setLocale(locale) {
+      labels.forEach((marker, i) => {
+        marker.label.textContent = situationText(events[i].location, locale);
+        marker.button.setAttribute(
+          "aria-label",
+          (locale === "zh-CN" ? "显示：" : "Show ") +
+            situationText(events[i].title, locale),
+        );
+      });
+    },
     select(i) {
       selected = i;
       controls.autoRotate = false;

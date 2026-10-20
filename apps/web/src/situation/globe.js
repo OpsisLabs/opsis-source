@@ -32,6 +32,9 @@ export function createGlobe(el, events, onSelect, onError) {
       el.replaceChildren(notice);
     });
   return {
+    setLocale(locale) {
+      call("setLocale", locale);
+    },
     select(index) {
       rotating = false;
       call("select", index);

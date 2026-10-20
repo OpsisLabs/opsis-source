@@ -13,6 +13,11 @@ it("translates captured Opsis explanations and annotations without changing the 
       source.whyItMatters,
     ]),
     ...news.events.flatMap((event) => [
+      event.title,
+      event.summary,
+      event.detail,
+      event.location,
+      event.imageAlt,
       event.category,
       event.insight,
       event.watch,
@@ -34,7 +39,6 @@ it("translates captured Opsis explanations and annotations without changing the 
     expect(situationText(text, "en")).toBe(text);
   }
   for (const event of news.events) {
-    expect(situationText(event.title, "zh-CN")).toBe(event.title);
     expect(situationText(event.source, "zh-CN")).toBe(event.source);
     expect(situationText(event.sourceExcerpt, "zh-CN")).toBe(
       event.sourceExcerpt,

@@ -1,5 +1,55 @@
-// Translations of Opsis explanations; publisher headlines and evidence stay original.
+// Display translations; the dated capture and original source evidence stay intact.
 const zh = {
+  "Revised Clarity Act draft lands ahead of Senate vote":
+    "参议院投票前公布修订版《Clarity 法案》草案",
+  "Republicans circulate a new draft; the Senate still needs 60 votes to move ahead.":
+    "共和党人传阅新草案；参议院仍需 60 票才能推进审议。",
+  "SEC proposal targets duplicate offchain records":
+    "SEC 提案拟减少重复的链下记录",
+  "Today’s analysis examines a transfer-agent proposal issued last week.":
+    "当日分析探讨了前一周发布的过户代理规则提案。",
+  "CoinDesk’s September 10 report explains how a proposal issued the prior week could reduce duplicate shareholder recordkeeping. The marker here is the article publication, not the original proposal announcement.":
+    "CoinDesk 9 月 10 日的报道解释了前一周发布的提案如何可能减少重复的股东记录。本页标记的是文章发布时间，而非提案最初公布时间。",
+  "OKX expands pre-IPO exposure in Europe": "OKX 在欧洲扩大上市前估值敞口产品",
+  "CoinDesk reports European pre-IPO exposure alongside tokenized stocks and ETFs.":
+    "CoinDesk 报道，欧洲市场的上市前估值敞口产品与代币化股票和 ETF 一同提供。",
+  "ESMA questions prediction-market access in Europe":
+    "ESMA 质疑预测市场在欧洲的准入情况",
+  "The regulator flags several possible legal frameworks for event contracts.":
+    "监管机构指出，事件合约可能适用多种法律框架。",
+  "Polymarket appoints its first finance chief":
+    "Polymarket 任命首位首席财务官",
+  "Warren Jenson joins as the platform develops its US exchange and global business.":
+    "Warren Jenson 加盟之际，该平台正在发展其美国交易所与全球业务。",
+  "Monument delays retail tokenized deposits":
+    "Monument 推迟推出零售代币化存款",
+  "The bank now targets November after adding a custodian to meet UK requirements.":
+    "该银行为满足英国要求引入托管机构后，将目标推出时间调整至 11 月。",
+  "ECB raises key rates by 25 basis points": "欧洲央行将关键利率上调 25 个基点",
+  "The deposit rate moves to 2.50%, effective September 16, as the ECB addresses persistent inflation.":
+    "欧洲央行为应对持续通胀，将存款利率调至 2.50%，自 9 月 16 日起生效。",
+  "The Governing Council raised all three key rates by 25 basis points. Its new baseline projects 3.0% headline inflation for 2026. The meeting took place in Berlin.":
+    "管理委员会将三项关键利率均上调 25 个基点。其新的基准预测为 2026 年总体通胀率 3.0%。会议在柏林举行。",
+  "Washington, US": "美国华盛顿",
+  Europe: "欧洲",
+  "Paris, France": "法国巴黎",
+  "New York, US": "美国纽约",
+  "London, UK": "英国伦敦",
+  "Berlin, Germany": "德国柏林",
+  "Publisher photograph accompanying Revised Clarity Act draft lands ahead of Senate vote":
+    "出版方为参议院投票前公布修订版《Clarity 法案》草案的报道配发的照片",
+  "SEC Chairman Paul Atkins speaking at a lectern":
+    "SEC 主席 Paul Atkins 在讲台前发言",
+  "Publisher photograph accompanying OKX expands pre-IPO exposure in Europe":
+    "出版方为 OKX 在欧洲扩大上市前估值敞口产品的报道配发的照片",
+  "Publisher photograph accompanying ESMA questions prediction-market access in Europe":
+    "出版方为 ESMA 质疑预测市场在欧洲准入情况的报道配发的照片",
+  "Publisher photograph accompanying Polymarket appoints its first finance chief":
+    "出版方为 Polymarket 任命首位首席财务官的报道配发的照片",
+  "Publisher photograph accompanying Monument delays retail tokenized deposits":
+    "出版方为 Monument 推迟推出零售代币化存款的报道配发的照片",
+  "Governing Council members at the ECB meeting in Berlin on September 10, 2026":
+    "管理委员会成员出席 2026 年 9 月 10 日在柏林举行的欧洲央行会议",
   "Compare subsequent inflation releases and official ECB guidance. A rate change can affect broad risk appetite without explaining every token move.":
     "比较后续通胀数据与欧洲央行官方指引。利率变化可能影响整体风险偏好，但不能解释每个代币的变动。",
   "single venue": "单一交易场所",

@@ -4,6 +4,7 @@ import { createGlobe } from "./globe";
 const { mount, renderer } = vi.hoisted(() => {
   const renderer = {
     select: vi.fn(),
+    setLocale: vi.fn(),
     reset: vi.fn(),
     toggle: vi.fn(),
     dispose: vi.fn(),
@@ -24,10 +25,14 @@ describe("deferred globe", () => {
     const select = vi.fn();
     const globe = createGlobe(el, [], select);
     expect(mount).not.toHaveBeenCalled();
+    globe.setLocale("zh-CN");
     globe.reset();
     globe.select(2);
     await vi.dynamicImportSettled();
     expect(mount).toHaveBeenCalledWith(el, [], select);
+    expect(renderer.setLocale).toHaveBeenCalledWith("zh-CN");
+    globe.setLocale("en");
+    expect(renderer.setLocale).toHaveBeenLastCalledWith("en");
     expect(renderer.reset).toHaveBeenCalledOnce();
     expect(renderer.select).toHaveBeenCalledWith(2);
     globe.dispose();
