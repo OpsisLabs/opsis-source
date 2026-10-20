@@ -39,6 +39,7 @@ export class ControlsService implements ControlsSource {
     rpc?: ProviderHttp,
     private readonly now: () => number = Date.now,
     rpcSpend?: RpcSpendBudget,
+    private readonly anchoredRead?: (method: string, params: unknown[], optional?: boolean) => Promise<unknown>,
   ) {
     this.rpcEndpoint = robinhoodRpcEndpoint(env);
     this.rpc =
@@ -57,10 +58,10 @@ export class ControlsService implements ControlsSource {
         },
       });
   }
-  async checkAt(input: string, anchor: { blockNumber: number; blockHash: string }, evidence?: ControlsEvidence): Promise<TokenControls> {
+  async checkAt(input: string, anchor: { blockNumber: number; blockHash: string; timestamp?: string }, evidence?: ControlsEvidence): Promise<TokenControls> {
     return this.check(input, evidence, anchor);
   }
-  async check(input: string, evidence?: ControlsEvidence, anchor?: { blockNumber: number; blockHash: string }): Promise<TokenControls> {
+  async check(input: string, evidence?: ControlsEvidence, anchor?: { blockNumber: number; blockHash: string; timestamp?: string }): Promise<TokenControls> {
     if (!ADDRESS.test(input) || /^0x0{40}$/i.test(input))
       throw new AppError(
         "INVALID_CONTRACT",
@@ -70,14 +71,16 @@ export class ControlsService implements ControlsSource {
     const contract = input.toLowerCase();
     // Ten fixed public-RPC reads total, reserved before provider work, shared
     // with the existing portfolio daily ledger (no additional daily allowance).
-    await this.budget.consume(10);
+    if (!this.anchoredRead) await this.budget.consume(10);
     let calls = 0;
     const read = async (
       method: string,
       params: unknown[],
       optional = false,
     ): Promise<unknown> => {
-      if (++calls > 10) throw unavailable();
+      const id = ++calls;
+      if (id > 10) throw unavailable();
+      if (this.anchoredRead) return this.anchoredRead(method, params, optional);
       let payload: unknown;
       try {
         payload = await this.rpc.requestJson(
@@ -85,7 +88,7 @@ export class ControlsService implements ControlsSource {
           {
             method: "POST",
             headers: { "content-type": "application/json" },
-            body: JSON.stringify({ jsonrpc: "2.0", id: calls, method, params }),
+            body: JSON.stringify({ jsonrpc: "2.0", id, method, params }),
           },
         );
       } catch {
@@ -95,7 +98,7 @@ export class ControlsService implements ControlsSource {
         const endpoint = new URL(this.rpcEndpoint.url);
         if (endpoint.username || endpoint.password || endpoint.search || endpoint.hash || endpoint.protocol !== "https:") throw unavailable();
         evidence.rpcCalls.push({ method, paramsSha256: await sha256(canonicalBytes(params)) });
-        evidence.sources.push({ id: `rpc-${calls}`, provider: this.rpcEndpoint.id, url: endpoint.origin, fetchedAt: new Date(this.now()).toISOString(), responseSha256: await sha256(canonicalBytes(payload)) });
+        evidence.sources.push({ id: `rpc-${id}`, provider: this.rpcEndpoint.id, url: endpoint.origin, fetchedAt: new Date(this.now()).toISOString(), responseSha256: await sha256(canonicalBytes(payload)) });
       }
       if (!payload || typeof payload !== "object" || Array.isArray(payload))
         throw unavailable();
@@ -104,7 +107,7 @@ export class ControlsService implements ControlsSource {
         error?: { code?: unknown };
         result?: unknown;
       };
-      if (response.id !== calls) throw unavailable();
+      if (response.id !== id) throw unavailable();
       if (response.error) {
         // Only an explicit EVM revert is a per-field unknown. HTTP/rate-limit,
         // generic RPC/server and budget errors fail the entire observation.
@@ -113,9 +116,9 @@ export class ControlsService implements ControlsSource {
       }
       return response.result;
     };
-    if ((await read("eth_chainId", [])) !== "0x1237") throw unavailable();
+    if (!this.anchoredRead && (await read("eth_chainId", [])) !== "0x1237") throw unavailable();
     const start = this.now();
-    const rawBlock = await read("eth_getBlockByNumber", [anchor ? `0x${anchor.blockNumber.toString(16)}` : "latest", false]);
+    const rawBlock = this.anchoredRead && anchor ? { number: `0x${anchor.blockNumber.toString(16)}`, hash: anchor.blockHash, timestamp: `0x${Math.floor(Date.parse(anchor.timestamp!) / 1000).toString(16)}` } : await read("eth_getBlockByNumber", [anchor ? `0x${anchor.blockNumber.toString(16)}` : "latest", false]);
     if (!rawBlock || typeof rawBlock !== "object") throw unavailable();
     const block = rawBlock as {
       number?: unknown;
@@ -145,33 +148,16 @@ export class ControlsService implements ControlsSource {
       beacon: unknown,
     };
     if (hasCode) {
-      readings.owner = decodeReading(
-        await read(
-          "eth_call",
-          [{ to: contract, data: "0x8da5cb5b" }, block.number],
-          true,
-        ),
-        false,
-      );
-      readings.paused = decodeReading(
-        await read(
-          "eth_call",
-          [{ to: contract, data: "0x5c975abb" }, block.number],
-          true,
-        ),
-        true,
-      );
-      for (const key of ["implementation", "admin", "beacon"] as const)
-        readings[key] = decodeReading(
-          await read("eth_getStorageAt", [
-            contract,
-            controlSlot(key),
-            block.number,
-          ]),
-          false,
-        );
+      const ownerRead = () => read("eth_call", [{ to: contract, data: "0x8da5cb5b" }, block.number], true);
+      const pausedRead = () => read("eth_call", [{ to: contract, data: "0x5c975abb" }, block.number], true);
+      const [owner, paused] = this.anchoredRead ? await Promise.all([ownerRead(), pausedRead()]) : [await ownerRead(), await pausedRead()];
+      readings.owner = decodeReading(owner, false); readings.paused = decodeReading(paused, true);
+      const keys = ["implementation", "admin", "beacon"] as const;
+      const storage = async (key: typeof keys[number]) => { readings[key] = decodeReading(await read("eth_getStorageAt", [contract, controlSlot(key), block.number]), false); };
+      if (this.anchoredRead) await Promise.all(keys.map(storage));
+      else for (const key of keys) await storage(key);
     }
-    const endBlock = (await read("eth_getBlockByNumber", [
+    const endBlock = this.anchoredRead ? { hash: anchor?.blockHash } : (await read("eth_getBlockByNumber", [
       block.number,
       false,
     ])) as { hash?: unknown } | null;

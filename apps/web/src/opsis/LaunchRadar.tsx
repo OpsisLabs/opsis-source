@@ -65,7 +65,10 @@ export function LaunchFeedView({ feed }: { feed: LaunchFeed }) {
           <tbody>
             {sortLaunches(feed.entries, sort).map((row, i) => (
               <tr key={`${row.token}-${i}`}>
-                <td>{row.created.timestamp}</td>
+                <td>
+                  {row.created.timestamp ??
+                    `${c("Time unknown", "时间未知")} · ${c("Block", "区块")} ${row.created.blockNumber}`}
+                </td>
                 <td>
                   <Link
                     to={`/research?entity=${encodeURIComponent(row.token)}`}

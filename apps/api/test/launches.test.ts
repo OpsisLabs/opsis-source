@@ -3,13 +3,22 @@ import rateLimit from "@fastify/rate-limit";
 import { describe, expect, it, vi } from "vitest";
 import {
   encodeAbiParameters,
+  decodeFunctionData,
+  encodeFunctionResult,
+  decodeAbiParameters,
+  parseAbiParameters,
   encodeEventTopics,
   keccak256,
   recoverAddress,
   type Hex,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { canonicalize, verifyReceipt } from "@rh-chain/shared";
+import {
+  canonicalize,
+  verifyReceipt,
+  sha256,
+  canonicalBytes,
+} from "@rh-chain/shared";
 import {
   events,
   registry,
@@ -23,14 +32,23 @@ import {
 } from "../src/launches/registry.js";
 import { buyerFacts, rules, type Transfer } from "../src/launches/facts.js";
 import { LaunchCardsService } from "../src/launches/service.js";
+import { ethUsdFeed, chainlinkAbi } from "../src/rwa/chainlink.js";
 import { keyParameters } from "../src/launches/sell-test.js";
-import { LaunchReader, hex } from "../src/launches/reader.js";
+import { firstBlock, poolIdFor, stateView } from "../src/launches/state.js";
+import { REVIEWED_ASSETS } from "@rh-chain/shared";
+import {
+  LaunchReader,
+  hex,
+  aggregateAbi,
+  multicall3,
+  ReadCap,
+} from "../src/launches/reader.js";
 import { createLaunchCardsBudget } from "../src/launches/budget.js";
 import { launchRoutes } from "../src/routes/launches.js";
 import { installOpsisPreviewGuard, opsisRoutes } from "../src/routes/opsis.js";
 import { loadEnv } from "../src/config/env.js";
 import { JsonCache } from "../src/cache/service.js";
-import { installErrorHandler } from "../src/http/errors.js";
+import { AppError, installErrorHandler } from "../src/http/errors.js";
 import { ReceiptService } from "../src/receipts/service.js";
 import {
   RobinhoodRpcHttp,
@@ -137,6 +155,28 @@ const initialize = (hook = related.ponsHook, n = 4830) =>
     n,
     0,
   );
+const ponsKey = (asset = token) => ({
+  currency0: addr(0) as Hex,
+  currency1: asset as Hex,
+  fee: 0,
+  tickSpacing: 200,
+  hooks: related.ponsHook,
+});
+const ponsLaunch = (asset = token, n = 4800) =>
+  log(
+    "pons",
+    { ...decode(pons(), "pons"), token: asset, pairToken: addr(0) },
+    n,
+  );
+const ponsInitialize = (asset = token, n = 4830, hook = related.ponsHook) => {
+  const key = { ...ponsKey(asset), hooks: hook as Hex };
+  return log(
+    "v4",
+    { ...key, id: poolIdFor(key), sqrtPriceX96: 1n << 96n, tick: 0 },
+    n,
+    1,
+  );
+};
 const transfer = (
   to: string,
   n: number,
@@ -144,8 +184,18 @@ const transfer = (
   from = curve,
   value = 10n,
 ) => log("transfer", { from, to, value }, n, index);
-function fixture(logs: ChainLog[] = [pons()], extra = {}, anchor = 5100) {
-  const config = env(extra),
+let fixtureNumber = 0;
+function fixture(
+  logs: ChainLog[] = [pons()],
+  extra = {},
+  anchor = 5100,
+  logLimit = 2_000,
+) {
+  const config = env({
+      LAUNCH_CARDS_CACHE_SECONDS: "0",
+      ROBINHOOD_PUBLIC_RPC_URL: `https://rpc.fixture-${++fixtureNumber}.example`,
+      ...extra,
+    }),
     budget = { consume: vi.fn(async () => {}) };
   const seen: { method: string; params: unknown[] }[] = [];
   const signers = new Map<string, string>(),
@@ -154,7 +204,8 @@ function fixture(logs: ChainLog[] = [pons()], extra = {}, anchor = 5100) {
   const rpc = {
     requestJson: vi.fn(async (_url: string, init?: RequestInit) => {
       const { id, method, params } = JSON.parse(String(init?.body));
-      seen.push({ method, params });
+      if (!(init?.headers as Record<string, string>)?.["x-fixture-inner"])
+        seen.push({ method, params });
       let result: unknown;
       if (method === "eth_chainId") result = "0x1237";
       else if (method === "eth_getBlockByNumber") {
@@ -164,11 +215,38 @@ function fixture(logs: ChainLog[] = [pons()], extra = {}, anchor = 5100) {
           hash: changed && n === anchor ? hash(99999) : hash(n + 1),
           timestamp: hex(seconds(n)),
         };
+      } else if (method === "eth_getTransactionReceipt") {
+        const entries = logs.filter((log) => log.transactionHash === params[0]);
+        result = entries.length
+          ? {
+              transactionHash: params[0],
+              blockNumber: entries[0]!.blockNumber,
+              blockHash: entries[0]!.blockHash,
+              logs: entries,
+            }
+          : null;
       } else if (method === "eth_getLogs") {
         const f = params[0];
+        if (
+          Number(BigInt(f.toBlock)) - Number(BigInt(f.fromBlock)) + 1 >
+          logLimit
+        )
+          return {
+            id,
+            error:
+              logLimit === 100_000
+                ? {
+                    code: 22,
+                    message:
+                      "eth_getLogs range over 100000 blocks is not supported on robinhood, request a narrower fromBlock/toBlock range",
+                  }
+                : { code: -32602, message: "exceed block range" },
+          };
         result = logs.filter(
           (l) =>
-            l.address.toLowerCase() === f.address.toLowerCase() &&
+            (Array.isArray(f.address) ? f.address : [f.address]).some(
+              (a: string) => l.address.toLowerCase() === a.toLowerCase(),
+            ) &&
             Number(BigInt(l.blockNumber)) >= Number(BigInt(f.fromBlock)) &&
             Number(BigInt(l.blockNumber)) <= Number(BigInt(f.toBlock)) &&
             f.topics.every(
@@ -189,12 +267,163 @@ function fixture(logs: ChainLog[] = [pons()], extra = {}, anchor = 5100) {
         };
       } else if (method === "eth_getTransactionCount")
         result = hex(nonces.get(params[0]) ?? 1);
-      else if (method === "eth_getCode") result = "0x1234";
-      else if (method === "eth_call")
-        result = hash(params[0].data === "0x18160ddd" ? 1000 : 10);
-      else if (method === "eth_getStorageAt") result = addressTopic(addr(9));
+      else if (method === "eth_getCode") {
+        const n = Number(BigInt(params[1]));
+        const found = logs
+          .filter((log) =>
+            [
+              topic("pons"),
+              topic("long"),
+              topic("launcher"),
+              topic("instant"),
+              topic("v3"),
+            ].includes(log.topics[0]),
+          )
+          .find((log) => {
+            const id = Object.keys(registry).find(
+              (id) => registry[id as AdapterId].address === log.address,
+            );
+            if (!id) return false;
+            const a = decode(log, id as AdapterId);
+            return [a.token, a.asset, a.pool].some(
+              (v) => String(v).toLowerCase() === params[0],
+            );
+          });
+        result =
+          found && n < Number(BigInt(found.blockNumber)) ? "0x" : "0x1234";
+      } else if (method === "eth_call") {
+        if (params[0].to.toLowerCase() === multicall3.toLowerCase()) {
+          const entries = decodeFunctionData({
+            abi: aggregateAbi,
+            data: params[0].data,
+          }).args[0];
+          const results = [];
+          for (const entry of entries) {
+            const response = (await rpc.requestJson(_url, {
+              headers: { "x-fixture-inner": "1" },
+              body: JSON.stringify({
+                id,
+                method: "eth_call",
+                params: [
+                  { to: entry.target.toLowerCase(), data: entry.callData },
+                  params[1],
+                ],
+              }),
+            })) as any;
+            results.push({
+              success: !response.error,
+              returnData: response.result ?? "0x",
+            });
+          }
+          result = encodeFunctionResult({
+            abi: aggregateAbi,
+            functionName: "aggregate3",
+            result: results,
+          });
+        } else if (
+          params[0].data === "0x1a686502" ||
+          (params[0].to === stateView &&
+            params[0].data.startsWith("0xfa6793d5"))
+        ) {
+          const id =
+            params[0].to === stateView ? `0x${params[0].data.slice(10)}` : null;
+          const add = logs.find(
+            (log) =>
+              (id
+                ? log.topics[0] === topic("v4Liquidity") && log.topics[1] === id
+                : log.address === params[0].to &&
+                  log.topics[0] === topic("v3Mint")) &&
+              BigInt(
+                String(
+                  decode(log, id ? "v4Liquidity" : "v3Mint")[
+                    id ? "liquidityDelta" : "amount"
+                  ],
+                ),
+              ) > 0n,
+          );
+          result = hash(
+            add && Number(BigInt(add.blockNumber)) <= Number(BigInt(params[1]))
+              ? 1
+              : 0,
+          );
+        } else if (params[0].to === stateView) {
+          const id = `0x${params[0].data.slice(10)}`;
+          const init = logs.find(
+            (log) => log.topics[0] === topic("v4") && log.topics[1] === id,
+          );
+          const exists =
+            init &&
+            Number(BigInt(init.blockNumber)) <= Number(BigInt(params[1]));
+          result = encodeAbiParameters(
+            parseAbiParameters("uint160, int24, uint24, uint24"),
+            [exists ? 1n << 96n : 0n, 0, 0, 0],
+          );
+        } else if (params[0].to === registry.v3.address) {
+          const [a, b, fee] = decodeAbiParameters(
+            parseAbiParameters("address, address, uint24"),
+            `0x${params[0].data.slice(10)}`,
+          );
+          const init = logs.find(
+            (log) =>
+              log.topics[0] === topic("v3") &&
+              (() => {
+                const v = decode(log, "v3");
+                return (
+                  [v.token0, v.token1]
+                    .map(String)
+                    .map((v) => v.toLowerCase())
+                    .includes(a.toLowerCase()) &&
+                  [v.token0, v.token1]
+                    .map(String)
+                    .map((v) => v.toLowerCase())
+                    .includes(b.toLowerCase()) &&
+                  Number(v.fee) === fee
+                );
+              })(),
+          );
+          result = addressTopic(
+            init ? String(decode(init, "v3").pool) : addr(0),
+          );
+        } else result = hash(params[0].data === "0x18160ddd" ? 1000 : 10);
+      } else if (method === "eth_getStorageAt") result = addressTopic(addr(9));
       else throw new Error(`Unexpected method ${method}`);
       return { jsonrpc: "2.0", id, result };
+    }),
+  };
+  const explorerHttp = {
+    requestJson: vi.fn(async (url: string) => {
+      const path = new URL(url).pathname;
+      if (path.endsWith("/transactions"))
+        return {
+          items: logs
+            .filter((log) =>
+              [topic("pons"), topic("long")].includes(log.topics[0]),
+            )
+            .map((log) => ({
+              hash: log.transactionHash,
+              from: { hash: deployer },
+              to: { hash: log.address },
+              raw_input: "0x",
+            })),
+          next_page_params: null,
+        };
+      const address = path.split("/").at(-1);
+      const found = logs.find((log) => {
+        const id = Object.keys(registry).find(
+          (id) => registry[id as AdapterId].address === log.address,
+        );
+        if (!id) return false;
+        const a = decode(log, id as AdapterId);
+        return [
+          a.token,
+          a.asset,
+          a.token0,
+          a.token1,
+          a.currency0,
+          a.currency1,
+        ].some((v) => String(v).toLowerCase() === address);
+      });
+      return { creation_tx_hash: found?.transactionHash ?? null };
     }),
   };
   const now = () => seconds(anchor) * 1000;
@@ -203,10 +432,12 @@ function fixture(logs: ChainLog[] = [pons()], extra = {}, anchor = 5100) {
     budget,
     rpc,
     now,
+    explorerHttp,
     stockHttp: { requestJson: vi.fn(async () => ({ assets: [] })) },
   });
   return {
     service,
+    explorerHttp,
     config,
     rpc,
     budget,
@@ -501,28 +732,28 @@ describe("bounded launch cards", () => {
             10_000_000,
         ),
     ).toBe(true);
-    expect(card.coverage.rpcCalls).toBe(f.rpc.requestJson.mock.calls.length);
+    expect(card.coverage.rpcCalls).toBe(f.seen.length);
     expect(card.disclaimer).toBe("Not investment advice");
   });
-  it("shows Pons graduation and Initialize in separate transactions and ignores hookless copies", async () => {
+  it("shows Pons state-located graduation and ignores hookless copies", async () => {
     const graduation = log(
       "graduation",
       { token, positionId: 55n, tokenAmount: 50n, pairTokenAmount: 10n },
-      4820,
+      4830,
       0,
       registry.pons.address,
     );
     const f = fixture([
-      pons(),
+      ponsLaunch(),
       graduation,
-      initialize(addr(0), 4825),
-      initialize(),
+      ponsInitialize(token, 4825, addr(0)),
+      ponsInitialize(),
     ]);
     const card = (await f.service.card(token)) as any;
     expect(card.launch.value.t0.blockNumber).toBe(4800);
     expect(card.lpStatus.value.graduation.value).toMatchObject({
       positionId: "55",
-      point: { blockNumber: 4820 },
+      point: { blockNumber: 4830 },
     });
     expect(card.lpStatus.value.initialize.value.blockNumber).toBe(4830);
     expect(card.lpStatus.value.poolTradingStart.value.blockNumber).toBe(4830);
@@ -530,7 +761,7 @@ describe("bounded launch cards", () => {
     expect(card.buyers.value.windows).toHaveLength(2);
   });
   it.each(["v3", "v4"])(
-    "uses first positive liquidity add for direct %s T0",
+    "keeps direct %s observations separate from registry launch facts",
     async (id) => {
       const created =
         id === "v3"
@@ -555,7 +786,7 @@ describe("bounded launch cards", () => {
                 amount0: 10n,
                 amount1: 10n,
               },
-              4850,
+              4800,
               1,
               curve,
             )
@@ -569,21 +800,27 @@ describe("bounded launch cards", () => {
                 liquidityDelta: 1n,
                 salt: hash(0),
               },
-              4850,
+              4800,
               1,
               registry.v4.address,
             );
       const card = (await fixture([created, liquidity]).service.card(
         token,
       )) as any;
-      expect(card.launch.value.t0.blockNumber).toBe(4850);
+      expect(card.launch).toMatchObject({
+        state: "unknown",
+        reason: "Launch not found in the supported registry",
+      });
+      expect(
+        card.directPools.value.pools.every((p: any) => p.t0 === null),
+      ).toBe(true);
     },
   );
   it("keeps direct T0 unknown without positive liquidity", async () => {
     const card = (await fixture([initialize(addr(0), 4800)]).service.card(
       token,
     )) as any;
-    expect(card.launch.value.t0).toBeNull();
+    expect(card.launch.state).toBe("unknown");
     expect(card.buyers.state).toBe("unknown");
   });
   it.each([addr(0), "0x000000000000000000000000000000000000dead", deployer])(
@@ -639,14 +876,19 @@ describe("bounded launch cards", () => {
     expect(card.deployerHistory.value.launches[0].token).toBe(addr(20));
     expect(card.deployerHistory.value.liquidityHistory.state).toBe("unknown");
     expect(
+      f.explorerHttp.requestJson.mock.calls.some(([url]) =>
+        url.includes(`/addresses/${deployer}/transactions`),
+      ),
+    ).toBe(true);
+    expect(
       f.seen.some(
         (c: any) =>
           c.method === "eth_getLogs" &&
           c.params[0].topics[3] === addressTopic(deployer),
       ),
-    ).toBe(true);
+    ).toBe(false);
   });
-  it("marks capped discovery and history partial without assuming block timing", async () => {
+  it("reports unknown graduation independently of receipt discovery", async () => {
     const created = log(
       "pons",
       {
@@ -665,8 +907,11 @@ describe("bounded launch cards", () => {
       100000,
     ).service.card(token)) as any;
     expect(card.launch.state).toBe("partial");
-    expect(card.deployerHistory.state).toBe("partial");
-    expect(card.launch.coverage.adapters.pons.fromBlock).toBeGreaterThan(0);
+    expect(card.deployerHistory.state).toBe("available");
+    expect(card.launch.coverage.method).toBe("creation-receipt");
+    expect(card.launch.value.unknownReasons.graduation).toBe(
+      "GRADUATION_UNKNOWN",
+    );
   });
   it("refuses a changed final anchor", async () => {
     const f = fixture();
@@ -677,7 +922,7 @@ describe("bounded launch cards", () => {
       if (
         method === "eth_getBlockByNumber" &&
         params[0] === hex(5100) &&
-        ++anchors >= 3
+        ++anchors >= 1
       )
         f.change();
       return original(url, init);
@@ -708,13 +953,21 @@ describe("bounded launch cards", () => {
     const service = new LaunchCardsService(
       { ...f.config, RECEIPTS_ENABLED: true },
       f.cache,
-      { rpc: f.rpc, budget: f.budget, now: f.now, receipts },
+      {
+        rpc: f.rpc,
+        budget: f.budget,
+        now: f.now,
+        receipts,
+        explorerHttp: f.explorerHttp,
+      },
     );
     const card = (await service.card(token)) as any;
     expect(card.receipt.rpcCalls).toHaveLength(f.seen.length);
-    expect(card.receipt.sources).toHaveLength(f.seen.length);
+    expect(card.receipt.sources).toHaveLength(
+      f.seen.length + f.explorerHttp.requestJson.mock.calls.length,
+    );
     expect(new Set(card.receipt.sources.map((s: any) => s.id)).size).toBe(
-      f.seen.length,
+      f.seen.length + f.explorerHttp.requestJson.mock.calls.length,
     );
     expect(card.receipt.rpcCalls.at(-1).method).toBe("eth_getBlockByNumber");
     expect(
@@ -754,7 +1007,7 @@ describe("recent feed, cache and guards", () => {
       await f.service.feed();
       expect(f.seen.length).toBeGreaterThan(count);
       const next = f.seen.length;
-      await f.service.feed(120);
+      await f.service.feed(60);
       expect(f.seen.length).toBeGreaterThan(next);
     } finally {
       vi.useRealTimers();
@@ -762,7 +1015,7 @@ describe("recent feed, cache and guards", () => {
   });
   it("feed scan cap produces explicit per-adapter partial coverage", async () => {
     const f = fixture([], { LAUNCH_CARDS_FEED_MAX_RPC_SUBCALLS: "40" }, 100000);
-    const result = (await f.service.feed(120)) as any;
+    const result = (await f.service.feed(60)) as any;
     expect(result.coverage.state).toBe("partial");
     expect(result.coverage.rpcCalls).toBeLessThanOrEqual(40);
   });
@@ -898,24 +1151,24 @@ describe("recent feed, cache and guards", () => {
 });
 
 describe("launch failure states and bounded detail", () => {
-  it("caps nonce lookups at 32 and labels retained early-buyer facts partial", async () => {
+  it("caps transaction joins and marks retained buyer facts partial", async () => {
     const f = fixture([
       pons(),
       ...Array.from({ length: 33 }, (_, i) => transfer(buyer, 4800 + i, 1)),
     ]);
     const card = (await f.service.card(token)) as any;
     expect(card.buyers.state).toBe("partial");
-    expect(card.buyers.coverage.nonceReads).toBe(32);
+    expect(card.buyers.coverage.nonceReads).toBe(25);
     expect(
       card.buyers.value.windows[0].tags.filter(
         (t: any) => t.kind === "early buyer",
       ),
-    ).toHaveLength(33);
+    ).toHaveLength(25);
     expect(
       card.buyers.value.windows[0].tags.filter(
         (t: any) => t.kind === "new wallet",
       ),
-    ).toHaveLength(32);
+    ).toHaveLength(25);
   });
   it("API multi-buy tags the signer and reports recipient balances without tagging recipients", async () => {
     const f = fixture([
@@ -1083,7 +1336,7 @@ it("always includes the launchCards manifest row while off", async () => {
   await app.close();
 });
 
-describe("pass C indexed log discovery", () => {
+describe("receipt and bounded direct-pool discovery", () => {
   const long = (asset = token, numeraire = pair, n = 4800) =>
     log(
       "long",
@@ -1120,8 +1373,8 @@ describe("pass C indexed log discovery", () => {
       });
     if (id === "v4") return initialize(addr(0), 4800);
     return log("v3", {
-      token0: side ? pair : token,
-      token1: side ? token : pair,
+      token0: token,
+      token1: pair,
       fee: 3000,
       tickSpacing: 60,
       pool: curve,
@@ -1137,135 +1390,277 @@ describe("pass C indexed log discovery", () => {
     ["v4", 0],
     ["v4", 1],
   ] as const)(
-    "finds an older %s launch on indexed side %s in one wide window",
+    "finds an older %s launch on currency side %s without wide logs",
     async (id, side) => {
-      const selected = id === "v4" && side ? pair : token;
+      const selected = (id === "v4" || id === "v3") && side ? pair : token;
       const f = fixture([created(id, side)], {}, 129800);
       const card = (await f.service.card(selected)) as any;
-      expect(card.launch.value).toMatchObject({
-        adapter: id,
-        token: selected,
-        created: { blockNumber: 4800 },
-      });
+      if (["v3", "v4"].includes(id))
+        expect(card.launch).toMatchObject({
+          state: "unknown",
+          reason: "Launch not found in the supported registry",
+        });
+      else
+        expect(card.launch.value).toMatchObject({
+          adapter: id,
+          token: selected,
+          created: { blockNumber: 4800 },
+        });
       const calls = f.seen
         .filter((c) => c.method === "eth_getLogs")
         .map((c) => c.params[0] as any);
-      const index =
-        id === "long" || id === "instant"
-          ? 2
-          : (id === "v3" || id === "v4") && side
-            ? id === "v4"
-              ? 3
-              : 2
-            : id === "v4"
-              ? 2
-              : 1;
       expect(
-        calls.some(
-          (c) =>
-            c.address === registry[id].address &&
-            c.topics[index] === addressTopic(selected) &&
-            Number(BigInt(c.fromBlock)) === registry[id].deploymentBlock &&
-            Number(BigInt(c.toBlock)) === 129800,
+        calls.every(
+          (c) => Number(BigInt(c.toBlock)) - Number(BigInt(c.fromBlock)) < 2000,
         ),
       ).toBe(true);
-      expect(card.coverage.rpcCalls).toBe(f.rpc.requestJson.mock.calls.length);
+      expect(f.seen.some((c) => c.method === "eth_getTransactionReceipt")).toBe(
+        true,
+      );
+      if (!["v3", "v4"].includes(id))
+        expect(calls.some((c) => c.topics[0] === topic(id))).toBe(false);
+      expect(card.coverage.rpcCalls).toBe(f.seen.length);
       expect(card.coverage.rpcCalls).toBeLessThanOrEqual(
         f.config.LAUNCH_CARDS_MAX_RPC_SUBCALLS,
       );
     },
   );
-  it("walks contiguous wide windows back to the registry bound", async () => {
-    const f = fixture(
-      [log("launcher", { token })],
-      { LAUNCH_LOG_WINDOW_BLOCKS: "100000" },
-      229800,
+  it.each(["pons", "long", "launcher", "instant"] as const)(
+    "discovers %s from its creation receipt on the dRPC-capped mock",
+    async (id) => {
+      const f = fixture([created(id)], {}, 129800, 100_000);
+      const card = (await f.service.card(token)) as any;
+      expect(card.launch.value.adapter).toBe(id);
+      expect(card.coverage.discovery.method).toBe("creation-receipt");
+      expect(f.seen.some((c) => c.method === "eth_getTransactionReceipt")).toBe(
+        true,
+      );
+      expect(
+        f.seen
+          .filter((c) => c.method === "eth_getLogs")
+          .every((c) => {
+            const q = c.params[0] as any;
+            return (
+              Number(BigInt(q.toBlock)) - Number(BigInt(q.fromBlock)) + 1 <=
+              100_000
+            );
+          }),
+      ).toBe(true);
+    },
+  );
+  it("does not search direct-pool creation or first liquidity", async () => {
+    const createdPool = created("v3");
+    const mint = log(
+      "v3Mint",
+      {
+        sender: buyer,
+        owner: buyer,
+        tickLower: -60,
+        tickUpper: 60,
+        amount: 1n,
+        amount0: 1n,
+        amount1: 1n,
+      },
+      4820,
+      0,
+      curve,
     );
+    const f = fixture([createdPool, mint], {}, 5100, 100_000);
     const card = (await f.service.card(token)) as any;
-    expect(card.launch.value.adapter).toBe("launcher");
-    const ranges = f.seen
-      .filter(
-        (c: any) =>
-          c.method === "eth_getLogs" &&
-          c.params[0].address === registry.launcher.address,
-      )
-      .map((c: any) => [
-        Number(BigInt(c.params[0].fromBlock)),
-        Number(BigInt(c.params[0].toBlock)),
-      ]);
-    expect(ranges).toEqual([
-      [129801, 229800],
-      [29801, 129800],
-      [0, 29800],
-    ]);
-    expect(card.launch.coverage.adapters.launcher.state).toBe("available");
-  });
-  it("resolves an older graduated Pons pool while excluding a newer hookless copy", async () => {
-    const f = fixture(
-      [
-        pons(),
-        log(
-          "graduation",
-          { token, positionId: 55n, tokenAmount: 50n, pairTokenAmount: 10n },
-          125000,
-          0,
-          registry.pons.address,
-        ),
-        initialize(related.ponsHook, 125010),
-        initialize(addr(0), 125800),
-      ],
-      {},
-      129800,
-    );
-    const card = (await f.service.card(token)) as any;
-    expect(card.launch.value).toMatchObject({
-      poolGraduated: true,
-      poolId: poolId(),
-      poolKey: { hooks: related.ponsHook },
-    });
-    expect(card.lpStatus.value.poolTradingStart.value.blockNumber).toBe(125010);
-    const ranges = f.seen.filter(
-      (c: any) =>
-        c.method === "eth_getLogs" &&
-        c.params[0].topics[0] === topic("graduation"),
-    );
-    expect(ranges[0].params[0]).toMatchObject({
-      topics: [topic("graduation"), addressTopic(token)],
-      toBlock: hex(129800),
+    expect(card.launch).toMatchObject({
+      state: "unknown",
+      reason: "Launch not found in the supported registry",
     });
     expect(
-      Number(BigInt((ranges[0].params[0] as any).toBlock)) -
-        Number(BigInt((ranges[0].params[0] as any).fromBlock)),
-    ).toBeGreaterThan(120000);
+      f.seen.some(
+        (c) =>
+          c.method === "eth_getLogs" &&
+          (c.params[0] as any).topics[0] === topic("v3Mint"),
+      ),
+    ).toBe(false);
+    expect(f.seen.filter((c) => c.method === "eth_getCode")).toHaveLength(1); // token controls only
   });
-  it("uses wide Pons deployer history and keeps non-indexed Long history partial", async () => {
-    const f = fixture(
-      [
-        log("pons", decode(pons(), "pons"), 125000),
-        log("pons", { ...decode(pons(), "pons"), token: other }),
-      ],
-      {},
-      129800,
+  it.each([false, true])(
+    "falls back to archive code search (explorer unavailable: %s), caches creation without expiry",
+    async (unavailable) => {
+      const f = fixture([pons()], {}, 129800);
+      if (unavailable)
+        f.explorerHttp.requestJson.mockRejectedValue(
+          new Error("offline fixture"),
+        );
+      else
+        f.explorerHttp.requestJson.mockResolvedValue({
+          creation_tx_hash: null,
+        } as any);
+      const originalRpc = f.rpc.requestJson.getMockImplementation()!;
+      f.rpc.requestJson.mockImplementation(async (url, init) => {
+        const call = JSON.parse(String(init?.body));
+        if (
+          call.method === "eth_getLogs" &&
+          call.params[0].fromBlock !== call.params[0].toBlock
+        )
+          return { id: call.id, result: [] };
+        return originalRpc(url, init);
+      });
+      const first = (await f.service.card(token)) as any;
+      expect(first.launch.value.created.blockNumber).toBe(4800);
+      const codeReads = f.seen.filter(
+        (c) => c.method === "eth_getCode" && c.params[0] === token,
+      );
+      expect(codeReads.length).toBeLessThanOrEqual(42); // upper-bound observation plus <=40 search reads and controls
+      const discoveryLogs = f.seen.filter(
+        (c) =>
+          c.method === "eth_getLogs" &&
+          Object.values(registry).some(
+            (v) => v.address === (c.params[0] as any).address,
+          ),
+      );
+      expect(
+        discoveryLogs.every(
+          (c) =>
+            (c.params[0] as any).fromBlock === hex(4800) &&
+            (c.params[0] as any).toBlock === hex(4800),
+        ),
+      ).toBe(true);
+      const count = f.seen.length;
+      await f.service.card(token);
+      expect(
+        f.seen
+          .slice(count)
+          .filter((c) => c.method === "eth_getCode" && c.params[0] === token),
+      ).toHaveLength(1); // controls only
+    },
+  );
+  it("locates the supplied Pons graduation at block 93,020,309 using the exact v4 key", async () => {
+    const asset = "0x985b409bf89848611645f784f047e8408d1ae9b5",
+      block = 93020309;
+    const graduated = log(
+      "graduation",
+      { token: asset, positionId: 55n, tokenAmount: 50n, pairTokenAmount: 10n },
+      block,
+      0,
+      registry.pons.address,
     );
+    const init = ponsInitialize(asset, block);
+    const copy = ponsInitialize(asset, block + 800, addr(0));
+    const f = fixture(
+      [ponsLaunch(asset, block - 125000), graduated, init, copy],
+      { LAUNCH_SELL_TEST_ENABLED: "false" },
+      block + 1000,
+    );
+    const card = (await f.service.card(asset)) as any;
+    expect(card.launch.value).toMatchObject({
+      poolGraduated: true,
+      poolKey: ponsKey(asset),
+      poolId: poolIdFor(ponsKey(asset)),
+    });
+    expect(card.lpStatus.value.graduation.value.point.blockNumber).toBe(block);
+    expect(card.lpStatus.value.poolTradingStart.value.blockNumber).toBe(block);
+    expect(
+      f.seen.filter(
+        (c) => c.method === "eth_call" && (c.params[0] as any).to === stateView,
+      ).length,
+    ).toBeLessThanOrEqual(41);
+    expect(
+      f.seen
+        .filter(
+          (c) =>
+            c.method === "eth_getLogs" &&
+            [topic("graduation"), topic("v4")].includes(
+              (c.params[0] as any).topics[0],
+            ),
+        )
+        .map((c) => [
+          (c.params[0] as any).fromBlock,
+          (c.params[0] as any).toBlock,
+        ]),
+    ).toEqual([[hex(block), hex(block)]]);
+  });
+  it.each([2_000, 100_000])(
+    "uses one creation-block query under a %i-block provider cap without explorer",
+    async (limit) => {
+      const f = fixture(
+        [pons()],
+        {},
+        limit === 2_000 ? 14_800 : 1_004_800,
+        limit,
+      );
+      f.explorerHttp.requestJson.mockRejectedValue(
+        new Error("Explorer fixture unavailable"),
+      );
+      const card = (await f.service.card(token)) as any;
+      expect(card.launch.value.token).toBe(token);
+      expect(card.coverage.discovery).toMatchObject({
+        method: "archive-creation-block",
+      });
+      const discovery = f.seen.filter(
+        (c) =>
+          c.method === "eth_getLogs" &&
+          Array.isArray((c.params[0] as any).address),
+      );
+      expect(discovery).toHaveLength(1);
+      expect(discovery[0]!.params[0]).toMatchObject({
+        fromBlock: hex(4800),
+        toBlock: hex(4800),
+      });
+      expect(
+        card.coverage.rpcCalls + card.coverage.documentReads,
+      ).toBeLessThanOrEqual(f.config.LAUNCH_CARDS_MAX_RPC_SUBCALLS);
+    },
+  );
+  it("retains partial discovery and final-anchor headroom on budget exhaustion", async () => {
+    const f = fixture(
+      [pons()],
+      { LAUNCH_CARDS_MAX_RPC_SUBCALLS: "40" },
+      1_004_800,
+    );
+    f.explorerHttp.requestJson.mockRejectedValue(
+      new Error("Explorer fixture unavailable"),
+    );
+    const original = f.rpc.requestJson.getMockImplementation()!;
+    f.rpc.requestJson.mockImplementation(async (url, init) => {
+      const call = JSON.parse(String(init?.body));
+      if (call.method === "eth_getLogs")
+        return { id: call.id, error: { code: 22, message: "range refused" } };
+      return original(url, init);
+    });
+    const card = (await f.service.card(token)) as any;
+    expect(card.launch.state).toBe("unknown");
+    expect(card.coverage.discovery.reason).toBe("PROVIDER_RANGE_LIMIT");
+    expect(
+      card.coverage.rpcCalls + card.coverage.documentReads,
+    ).toBeLessThanOrEqual(40);
+    expect(f.seen.at(-1)).toMatchObject({
+      method: "eth_getBlockByNumber",
+      params: [hex(1_004_800), false],
+    });
+  });
+  it("caps explorer history pages and marks retained confirmed launches partial", async () => {
+    const f = fixture([
+      pons(),
+      log("pons", { ...decode(pons(), "pons"), token: other }, 4700),
+    ]);
+    const original = f.explorerHttp.requestJson.getMockImplementation()!;
+    let pages = 0;
+    f.explorerHttp.requestJson.mockImplementation(async (url) => {
+      const doc = await original(url);
+      if (url.includes("/transactions"))
+        return { ...doc, next_page_params: { index: ++pages } };
+      return doc;
+    });
     const card = (await f.service.card(token)) as any;
     expect(card.deployerHistory).toMatchObject({
-      state: "available",
+      state: "partial",
       value: { count: 1, launches: [{ token: other }] },
+      coverage: { pages: 4, confirmed: 2 },
     });
     expect(
       f.seen.some(
         (c: any) =>
           c.method === "eth_getLogs" &&
-          c.params[0].topics[3] === addressTopic(deployer) &&
-          c.params[0].fromBlock === "0x0" &&
-          c.params[0].toBlock === hex(129800),
+          c.params[0].topics[3] === addressTopic(deployer),
       ),
-    ).toBe(true);
-    const l = (await fixture([long(), initialize(curve, 4800)]).service.card(
-      token,
-    )) as any;
-    expect(l.deployerHistory.state).toBe("partial");
-    expect(l.deployerHistory.coverage.indexedDeployer).toBe(false);
+    ).toBe(false);
   });
   it("filters Initialize by the sorted pair and matches Long's hook and transaction", async () => {
     const wrongTx = initialize(curve, 4800);
@@ -1294,18 +1689,17 @@ describe("pass C indexed log discovery", () => {
     ).toBe(true);
     expect(
       f.seen.some(
-        (c: any) =>
-          c.method === "eth_getLogs" &&
-          c.params[0].topics.length === 4 &&
-          JSON.stringify(c.params[0].topics) ===
-            JSON.stringify([
-              topic("v4"),
-              null,
-              addressTopic(token),
-              addressTopic(pair),
-            ]),
+        (c) =>
+          c.method === "eth_getTransactionReceipt" &&
+          c.params[0] === valid.transactionHash,
       ),
     ).toBe(true);
+    expect(
+      f.seen.some(
+        (c: any) =>
+          c.method === "eth_getLogs" && c.params[0].topics[0] === topic("v4"),
+      ),
+    ).toBe(false);
   });
   it("resolves the supplied Long TTWO Doppler dynamic-fee key without treating poolOrHook as the pool hook", async () => {
     const asset = "0xbf7f8f15229d685e3092652ae04ee387133f1e18",
@@ -1346,16 +1740,17 @@ describe("pass C indexed log discovery", () => {
     copy.topics[1] = keccak256(
       encodeAbiParameters(keyParameters, [{ ...key, fee: 3000 }]),
     );
-    await expect(
-      fixture([created, init, copy]).service.card(asset),
-    ).rejects.toMatchObject({ code: "LAUNCH_CARDS_UNAVAILABLE" });
+    expect(
+      ((await fixture([created, init, copy]).service.card(asset)) as any)
+        .launch,
+    ).toMatchObject({ state: "partial", reason: "AMBIGUOUS_POOL" });
     const invalid = { ...init, topics: [...init.topics] as [Hex, ...Hex[]] };
     invalid.topics[1] = keccak256(
       encodeAbiParameters(keyParameters, [{ ...key, fee: 0 }]),
     );
-    await expect(
-      fixture([created, invalid]).service.card(asset),
-    ).rejects.toMatchObject({ code: "LAUNCH_CARDS_UNAVAILABLE" });
+    expect(
+      ((await fixture([created, invalid]).service.card(asset)) as any).launch,
+    ).toMatchObject({ state: "partial", reason: "POOL_KEY_MISMATCH" });
   });
   it("does not resolve Long from a different hook or currency pair", async () => {
     const wrongPair = log(
@@ -1380,9 +1775,20 @@ describe("pass C indexed log discovery", () => {
     async (id) => {
       const init = initialize(id === "long" ? curve : related.ponsHook, 4800);
       init.topics[1] = hash(99);
-      await expect(
-        fixture([id === "long" ? long() : pons(), init]).service.card(token),
-      ).rejects.toMatchObject({ code: "LAUNCH_CARDS_UNAVAILABLE" });
+      init.logIndex = "0x2";
+      const promise = fixture([
+        id === "long" ? long() : pons(),
+        init,
+      ]).service.card(token);
+      if (id === "pons")
+        expect(((await promise) as any).lpStatus.value.graduation.state).toBe(
+          "unknown",
+        );
+      else
+        expect(((await promise) as any).launch).toMatchObject({
+          state: "partial",
+          reason: "POOL_KEY_MISMATCH",
+        });
     },
   );
   it("leaves Pons graduation unresolved when only a hookless copy exists", async () => {
@@ -1416,7 +1822,7 @@ describe("pass C indexed log discovery", () => {
     const card = (await f.service.card(token)) as any;
     expect(card.supplyByTag).toMatchObject({
       state: "unknown",
-      reason: "A source read failed in this section (LAUNCH_CARDS_UNAVAILABLE)",
+      reason: "totalSupply unavailable or zero",
     });
     expect(card.buyers.state).toBe("available");
     expect(card.deployerHistory.state).toBe("available");
@@ -1425,140 +1831,172 @@ describe("pass C indexed log discovery", () => {
       method: "eth_getBlockByNumber",
       params: [hex(5100), false],
     });
-    expect(card.coverage.rpcCalls).toBe(f.rpc.requestJson.mock.calls.length);
+    expect(card.coverage.rpcCalls).toBe(f.seen.length);
   });
 });
 
-describe("pass C adaptive log windows", () => {
+describe("pass E learned provider windows", () => {
   function rangeFixture(
-    error: { code: number; message?: string },
-    limit = 0,
+    limit = 2_000,
     config = {},
-    anchor = 5100,
+    error = { code: -32602, message: "exceed block range" },
   ) {
-    const f = fixture([], config, anchor);
-    const original = f.rpc.requestJson.getMockImplementation()!;
-    const spans: [number, number][] = [];
-    f.rpc.requestJson.mockImplementation(async (url, init) => {
+    const f = fixture([], config);
+    const spans: number[] = [];
+    f.rpc.requestJson.mockImplementation(async (_url, init) => {
       const call = JSON.parse(String(init?.body));
-      if (call.method === "eth_getLogs") {
-        const q = call.params[0],
-          from = Number(BigInt(q.fromBlock)),
-          to = Number(BigInt(q.toBlock));
-        spans.push([from, to]);
-        if (to - from + 1 > limit) return { id: call.id, error };
-      }
-      return original(url, init);
+      const q = call.params[0];
+      if (call.method !== "eth_getLogs")
+        throw new Error("Unexpected fixture read");
+      const span = Number(BigInt(q.toBlock)) - Number(BigInt(q.fromBlock)) + 1;
+      spans.push(span);
+      return span > limit
+        ? { id: call.id, error }
+        : { id: call.id, result: [] };
     });
     const r = new LaunchReader(f.config, f.budget, 480, f.now, f.rpc);
     return { f, r, spans };
   }
   const filter = [topic("pons"), addressTopic(token)];
   it.each([
-    { code: -32602, message: "query spans too many blocks" },
-    { code: -32005, message: "too many blocks" },
-    { code: -32000, message: "block range exceeds provider allowance" },
-    { code: -32000, message: "log query limit exceeded" },
+    [
+      100_000,
+      22,
+      "eth_getLogs range over 100000 blocks is not supported on robinhood, request a narrower fromBlock/toBlock range",
+    ],
+    [
+      10_000_000,
+      -32602,
+      "query spans 20000000 blocks; only 10000000 are allowed",
+    ],
   ])(
-    "halves on a range error $code / $message, without skipping blocks",
-    async (error) => {
-      const { f, r, spans } = rangeFixture(error, 250000);
-      const scan = await r.range(
+    "learns the explicit %i-block limit at once",
+    async (limit, code, message) => {
+      const { f, r, spans } = rangeFixture(
+        Number(limit),
+        { LAUNCH_LOG_WINDOW_BLOCKS: "100000" },
+        { code: Number(code), message: String(message) },
+      );
+      await expect(
+        r.logs(registry.pons.address, filter, 0, Number(limit) * 2 - 1),
+      ).rejects.toMatchObject({
+        details: { reason: "PROVIDER_RANGE_LIMIT" },
+        limit,
+      });
+      // The next request, including a new reader for the provider, already knows the ceiling.
+      const next = new LaunchReader(f.config, f.budget, 480, f.now, f.rpc);
+      const page = await next.logWindow(
         registry.pons.address,
         filter,
         0,
-        999999,
-        8,
-        true,
-        true,
+        Number(limit) * 2 - 1,
+        100_000,
+        { remaining: 5 },
       );
+      expect(page?.windowBlocks).toBe(Math.min(Number(limit), 100_000));
       expect(spans).toEqual([
-        [0, 999999],
-        [500000, 999999],
-        [750000, 999999],
-        [500000, 749999],
-        [250000, 499999],
-        [0, 249999],
+        Number(limit) * 2,
+        Math.min(Number(limit), 100_000),
       ]);
-      expect(scan.partial).toBe(false);
-      expect(scan.coverage).toMatchObject({
-        fromBlock: 0,
-        toBlock: 999999,
-        chunks: 6,
-      });
-      expect(r.calls).toBe(6);
-      expect(f.budget.consume).toHaveBeenCalledTimes(6);
-      expect(r.evidence.rpcCalls).toHaveLength(6);
-      expect(r.evidence.sources).toHaveLength(6);
     },
   );
-  it("reaches the 2,000-block floor, then stops on another refusal", async () => {
-    const { r, spans } = rangeFixture({ code: -32602 });
-    await expect(
-      r.range(registry.pons.address, filter, 0, 999999, 20, true, true),
-    ).rejects.toMatchObject({
-      code: "LAUNCH_LOG_RANGE_UNAVAILABLE",
-      statusCode: 503,
-    });
-    expect(spans.map(([from, to]) => to - from + 1)).toEqual([
-      1000000, 500000, 250000, 125000, 62500, 31250, 15625, 7812, 3906, 2000,
-    ]);
-    expect(r.calls).toBe(10);
-  });
-  it("succeeds at the floor and keeps subsequent pages at 2,000 blocks", async () => {
-    const { r, spans } = rangeFixture({ code: -32005 }, 2000, {
-      LAUNCH_LOG_WINDOW_BLOCKS: "8000",
-    });
+  it("halves unknown limits without gaps and retains the learned window across readers", async () => {
+    const { f, r, spans } = rangeFixture();
     const scan = await r.range(
       registry.pons.address,
       filter,
       0,
       7999,
-      6,
+      12,
       true,
       true,
     );
-    expect(spans.map(([from, to]) => to - from + 1)).toEqual([
-      8000, 4000, 2000, 2000, 2000, 2000,
-    ]);
-    expect(scan.partial).toBe(false);
+    expect(spans).toEqual([8000, 4000, 2000, 2000, 2000, 2000]);
+    expect(scan).toMatchObject({
+      partial: false,
+      coverage: { fromBlock: 0, toBlock: 7999, chunks: 6 },
+    });
+    expect(r.calls).toBe(6);
+    expect(f.budget.consume).toHaveBeenCalledTimes(6);
+    const next = new LaunchReader(f.config, f.budget, 480, f.now, f.rpc);
+    expect(next.windowBlocks).toBe(2000);
   });
-  it("counts failed attempts toward the total range-call cap, with no claimed coverage", async () => {
-    const { r, spans } = rangeFixture({ code: -32602 });
+  it("range refusals at a single block become partial with a reason", async () => {
+    const { r } = rangeFixture(0);
     const scan = await r.range(
       registry.pons.address,
       filter,
       0,
-      999999,
-      3,
+      2,
+      10,
       true,
       true,
     );
-    expect(spans).toHaveLength(3);
-    expect(scan.partial).toBe(true);
-    expect(scan.coverage).toMatchObject({
-      chunks: 3,
-      fromBlock: 1000000,
-      toBlock: 999999,
-      logCount: 0,
-    });
-  });
-  it("shares the discovery call cap across adapters and adaptive retries", async () => {
-    const { f } = rangeFixture({ code: -32602 }, 2000, {}, 129800);
-    const card = (await f.service.card(token)) as any;
-    expect(card.launch.state).toBe("unknown");
-    expect(card.coverage.discovery).toMatchObject({
+    expect(scan).toMatchObject({
       partial: true,
-      logCalls: 90,
+      coverage: { reason: "PROVIDER_RANGE_LIMIT", logCount: 0 },
     });
-    expect(
-      f.rpc.requestJson.mock.calls.filter(
-        ([, init]) => JSON.parse(String(init?.body)).method === "eth_getLogs",
-      ),
-    ).toHaveLength(90);
   });
-  it("preserves request headroom for later sections and final anchor checks", async () => {
-    const { r, spans } = rangeFixture({ code: -32602 }, 2000);
+  it.each([429, -32000])(
+    "retries transient %i errors without shrinking the window",
+    async (code) => {
+      {
+        const { f, r, spans } = rangeFixture(
+          0,
+          {},
+          {
+            code,
+            message:
+              code === 429
+                ? "rate limit: too many requests"
+                : "request timed out",
+          },
+        );
+        const promise = r.range(
+          registry.pons.address,
+          filter,
+          0,
+          49_999,
+          3,
+          true,
+          true,
+        );
+        expect(await promise).toMatchObject({
+          partial: true,
+          coverage: { reason: `PROVIDER_ERROR:${code}`, chunks: 3 },
+        });
+        expect(spans).toEqual([50_000, 50_000, 50_000]);
+        expect(r.windowBlocks).toBe(100_000);
+        const next = new LaunchReader(f.config, f.budget, 480, f.now, f.rpc);
+        expect(next.windowBlocks).toBe(100_000);
+      }
+    },
+  );
+  it("retries transport timeouts and keeps the window", async () => {
+    {
+      const { f, r } = rangeFixture();
+      f.rpc.requestJson.mockRejectedValue({
+        code: "PROVIDER_TIMEOUT",
+        retryable: true,
+      });
+      const promise = r.range(
+        registry.pons.address,
+        filter,
+        0,
+        49_999,
+        3,
+        true,
+        true,
+      );
+      expect(await promise).toMatchObject({
+        partial: true,
+        coverage: { reason: "PROVIDER_ERROR:PROVIDER_TIMEOUT", chunks: 3 },
+      });
+      expect(r.windowBlocks).toBe(100_000);
+    }
+  });
+  it("counts refusals and retries against log and request budgets", async () => {
+    const { f, r, spans } = rangeFixture(0);
     r.calls = r.maxCalls - 14;
     const scan = await r.range(
       registry.pons.address,
@@ -1570,27 +2008,650 @@ describe("pass C adaptive log windows", () => {
       true,
     );
     expect(spans).toHaveLength(2);
-    expect(scan.partial).toBe(true);
-    expect(r.calls).toBe(r.maxCalls - 12);
-  });
-  it("does not retry unrelated provider errors", async () => {
-    const { r, spans } = rangeFixture({
-      code: -32000,
-      message: "Synthetic source failure",
+    expect(scan).toMatchObject({
+      partial: true,
+      coverage: { chunks: 2, logCount: 0 },
     });
-    await expect(
-      r.range(registry.pons.address, filter, 0, 999999, 20, true, true),
-    ).rejects.toMatchObject({ code: "LAUNCH_CARDS_UNAVAILABLE" });
-    expect(spans).toHaveLength(1);
+    expect(r.calls).toBe(r.maxCalls - 12);
+    expect(f.budget.consume).toHaveBeenCalledTimes(2);
   });
-  it("validates the configured window and retains the default-off switch", () => {
+  it("validates the configured window and retains both default-off switches", () => {
     const defaults = loadEnv({ NODE_ENV: "test" });
     expect(defaults.LAUNCH_CARDS_ENABLED).toBe(false);
-    expect(defaults.LAUNCH_LOG_WINDOW_BLOCKS).toBe(1000000);
+    expect(defaults.LAUNCH_SELL_TEST_ENABLED).toBe(false);
+    expect(defaults.LAUNCH_LOG_WINDOW_BLOCKS).toBe(100_000);
+    expect(defaults.LAUNCH_CARDS_CACHE_SECONDS).toBe(60);
     expect(
-      env({ LAUNCH_LOG_WINDOW_BLOCKS: "10000000" }).LAUNCH_LOG_WINDOW_BLOCKS,
-    ).toBe(10000000);
-    for (const value of ["1999", "10000001", "2000.5", "invalid"])
+      env({ LAUNCH_CARDS_CACHE_SECONDS: "0" }).LAUNCH_CARDS_CACHE_SECONDS,
+    ).toBe(0);
+    expect(
+      env({ LAUNCH_CARDS_CACHE_SECONDS: "600" }).LAUNCH_CARDS_CACHE_SECONDS,
+    ).toBe(600);
+    expect(() => env({ LAUNCH_CARDS_CACHE_SECONDS: "601" })).toThrow();
+    expect(
+      env({ LAUNCH_LOG_WINDOW_BLOCKS: "100000" }).LAUNCH_LOG_WINDOW_BLOCKS,
+    ).toBe(100_000);
+    for (const value of ["499", "100001", "2000.5", "invalid"])
       expect(() => env({ LAUNCH_LOG_WINDOW_BLOCKS: value })).toThrow();
+  });
+});
+
+describe("pass E feed coverage and refusal reasons", () => {
+  it.each([2_000, 100_000])(
+    "chunks the feed under a %i-block cap and reuses the learned window",
+    async (limit) => {
+      const f = fixture([pons(), initialize(addr(0), 4800)], {}, 10_000, limit);
+      const first = (await f.service.feed(60)) as any;
+      expect(first.entries).toHaveLength(1);
+      expect(first.entries[0].adapter).toBe("pons");
+      expect(first.coverage.windowBlocks).toBeLessThanOrEqual(limit);
+      const before = f.seen.length;
+      await f.service.feed(10);
+      const queries = f.seen
+        .slice(before)
+        .filter((c) => c.method === "eth_getLogs")
+        .map((c) => c.params[0] as any);
+      expect(
+        queries.every(
+          (q) =>
+            Number(BigInt(q.toBlock)) - Number(BigInt(q.fromBlock)) + 1 <=
+            limit,
+        ),
+      ).toBe(true);
+      expect(
+        queries.every((q) =>
+          [
+            topic("pons"),
+            topic("long"),
+            topic("launcher"),
+            topic("instant"),
+          ].includes(q.topics[0]),
+        ),
+      ).toBe(true);
+    },
+  );
+  it("normally uses one log call per factory in the default ten-minute feed", async () => {
+    const f = fixture([pons()], {}, 10_000, 100_000);
+    const feed = (await f.service.feed()) as any;
+    expect(feed.minutes).toBe(10);
+    expect(feed.coverage.logCalls).toBe(4);
+    expect(feed.coverage.windowBlocks).toBe(100_000);
+  });
+  it("lists events whose unique header cap is exhausted, with a block and unknown time", async () => {
+    const logs = Array.from({ length: 45 }, (_, i) =>
+      log(
+        "pons",
+        { ...decode(pons(), "pons"), token: addr(i + 100) },
+        4800 + i,
+      ),
+    );
+    const f = fixture(logs, {}, 5100, 100_000);
+    const feed = (await f.service.feed()) as any;
+    expect(feed.entries).toHaveLength(45);
+    const unknown = feed.entries.filter(
+      (entry: any) => entry.created.timestamp === null,
+    );
+    expect(unknown.length).toBeGreaterThan(0);
+    expect(
+      unknown.every(
+        (entry: any) =>
+          Number.isInteger(entry.created.blockNumber) && entry.t0 === null,
+      ),
+    ).toBe(true);
+    expect(feed.coverage).toMatchObject({ state: "partial", eventHeaders: 32 });
+    const eventReads = f.seen.filter(
+      (c) =>
+        c.method === "eth_getBlockByNumber" &&
+        logs.some((log) => log.blockNumber === c.params[0]),
+    );
+    const counts = new Map<string, number>();
+    for (const read of eventReads)
+      counts.set(
+        String(read.params[0]),
+        (counts.get(String(read.params[0])) ?? 0) + 1,
+      );
+    expect([...counts.values()].every((count) => count === 1)).toBe(true);
+  });
+  it("reports range failures as per-adapter partial feed coverage", async () => {
+    const f = fixture([], {}, 5100);
+    const original = f.rpc.requestJson.getMockImplementation()!;
+    f.rpc.requestJson.mockImplementation(async (url, init) => {
+      const call = JSON.parse(String(init?.body));
+      return call.method === "eth_getLogs"
+        ? { id: call.id, error: { code: 22, message: "range refused" } }
+        : original(url, init);
+    });
+    const feed = (await f.service.feed()) as any;
+    expect(feed.coverage.state).toBe("partial");
+    expect(
+      Object.values(feed.coverage.adapters).every(
+        (a: any) => a.reason === "PROVIDER_RANGE_LIMIT",
+      ),
+    ).toBe(true);
+    expect(feed.coverage.rpcCalls).toBeLessThanOrEqual(
+      f.config.LAUNCH_CARDS_FEED_MAX_RPC_SUBCALLS,
+    );
+  });
+  it("a token outside registry factories is an unknown fact, not a 503", async () => {
+    const card = (await fixture([]).service.card(token)) as any;
+    expect(card.launch).toMatchObject({
+      state: "unknown",
+      reason: "Launch not found in the supported registry",
+    });
+  });
+  it.each([
+    "ANCHOR_CHANGED",
+    "HEADER_MISMATCH",
+    "PROVIDER_ERROR:22",
+    "EXPLORER_UNAVAILABLE",
+    "BUDGET_EXHAUSTED",
+    "CREATION_NOT_FOUND",
+  ])("returns and logs only the %s reason on a 503", async (reason) => {
+    const app = Fastify();
+    installErrorHandler(app);
+    const warn = vi.spyOn(app.log, "warn");
+    const source = {
+      feed: vi.fn(async () => {
+        throw new AppError(
+          "LAUNCH_CARDS_UNAVAILABLE",
+          503,
+          "Launch facts unavailable",
+          { reason },
+        );
+      }),
+      card: vi.fn(async () => {
+        throw new AppError(
+          "LAUNCH_CARDS_UNAVAILABLE",
+          503,
+          "Launch facts unavailable",
+          { reason },
+        );
+      }),
+    };
+    await launchRoutes(app, env(), source);
+    for (const url of [
+      "/v1/private/opsis/launches",
+      `/v1/private/opsis/launches/${token}`,
+    ]) {
+      const response = await app.inject({ method: "GET", url });
+      expect(response.statusCode).toBe(503);
+      expect(response.json().error.details).toEqual({ reason });
+    }
+    expect(warn).toHaveBeenCalledWith({ reason }, "Launch facts refused");
+    await app.close();
+  });
+});
+
+describe("Pass F bounded and concurrent cards", () => {
+  const delay = () => new Promise<void>((resolve) => setTimeout(resolve, 100));
+  function slow(f: ReturnType<typeof fixture>) {
+    const original = f.rpc.requestJson.getMockImplementation()!;
+    f.rpc.requestJson.mockImplementation(async (url, init) => {
+      if (!(init?.headers as Record<string, string>)?.["x-fixture-inner"])
+        await delay();
+      return original(url, init);
+    });
+  }
+  it.each([false, true])(
+    "returns a non-registry card within 40 reads and 5 s (explorer unavailable %s)",
+    async (offline) => {
+      {
+        const f = fixture([], {}, 93_188_492, 100_000);
+        slow(f);
+        if (offline)
+          f.explorerHttp.requestJson.mockRejectedValue(
+            new Error("unavailable"),
+          );
+        const service = new LaunchCardsService(f.config, f.cache, {
+          rpc: f.rpc,
+          budget: f.budget,
+          explorerHttp: f.explorerHttp,
+          now: f.now,
+        });
+        const start = Date.now();
+        const promise = service.card(token);
+        const card = (await promise) as any;
+        expect(card.launch).toMatchObject({
+          state: "unknown",
+          reason: "Launch not found in the supported registry",
+        });
+        expect(card.coverage.rpcCalls).toBeLessThanOrEqual(40);
+        expect(Date.now() - start).toBeLessThanOrEqual(5_000);
+        expect(f.seen.filter((c) => c.method === "eth_getCode")).toHaveLength(
+          29,
+        ); // 28 creation observations plus controls
+        expect(f.seen.filter((c) => c.method === "eth_getLogs")).toHaveLength(
+          1,
+        );
+
+        expect(card.directPools.state).toBe("partial");
+        expect(card.permissions.value.anchor.blockHash).toBe(
+          card.anchor.blockHash,
+        );
+      }
+    },
+    15_000,
+  );
+  it("completes a registry card within the latency, read and unit ceilings", async () => {
+    {
+      const block = 93_020_309;
+      const graduated = log(
+        "graduation",
+        { token, positionId: 55n, tokenAmount: 50n, pairTokenAmount: 10n },
+        block,
+        0,
+        registry.pons.address,
+      );
+      const f = fixture(
+        [
+          ponsLaunch(token, block - 125_000),
+          graduated,
+          ponsInitialize(token, block),
+        ],
+        { LAUNCH_SELL_TEST_ENABLED: "false" },
+        block + 1_000,
+        100_000,
+      );
+      slow(f);
+      const service = new LaunchCardsService(f.config, f.cache, {
+        rpc: f.rpc,
+        budget: f.budget,
+        explorerHttp: f.explorerHttp,
+        now: f.now,
+      });
+      const start = Date.now();
+      const promise = service.card(token);
+      const card = (await promise) as any;
+
+      expect(card.launch.value.poolGraduated).toBe(true);
+      expect(card.coverage.rpcCalls).toBeLessThanOrEqual(150);
+      expect(card.coverage.budgetUnits).toBeLessThanOrEqual(390);
+      expect(Date.now() - start).toBeLessThanOrEqual(10_000);
+      expect(
+        f.seen.filter((c) => c.method === "eth_simulateV1").length,
+      ).toBeLessThanOrEqual(12);
+    }
+  }, 15_000);
+  it("runs a full native registry sell test within 390 units with 100 ms dRPC latency", async () => {
+    const block = 93_020_309;
+    const graduated = log(
+      "graduation",
+      { token, positionId: 55n, tokenAmount: 50n, pairTokenAmount: 10n },
+      block,
+      0,
+      registry.pons.address,
+    );
+    const f = fixture(
+      [
+        ponsLaunch(token, block - 125_000),
+        graduated,
+        ponsInitialize(token, block),
+      ],
+      {},
+      block + 1_000,
+      100_000,
+    );
+    const original = f.rpc.requestJson.getMockImplementation()!;
+    let actual = 0,
+      simulations = 0;
+    f.rpc.requestJson.mockImplementation(async (url, init) => {
+      const { id, method, params } = JSON.parse(String(init?.body));
+      if (!(init?.headers as Record<string, string>)?.["x-fixture-inner"]) {
+        actual++;
+        await delay();
+      }
+      if (method === "eth_call" && params[0].to === ethUsdFeed.proxyAddress) {
+        const name = decodeFunctionData({
+          abi: chainlinkAbi,
+          data: params[0].data,
+        }).functionName;
+        return {
+          id,
+          result: encodeFunctionResult({
+            abi: chainlinkAbi,
+            functionName: name,
+            result: {
+              description: "ETH / USD",
+              decimals: 8,
+              latestRoundData: [
+                1n,
+                2000_00000000n,
+                0n,
+                BigInt(seconds(block + 1000)),
+                1n,
+              ],
+            }[name] as never,
+          }),
+        };
+      }
+      if (["eth_getTransactionCount", "eth_getBalance"].includes(method))
+        return { id, result: "0x0" };
+      if (method === "eth_getCode" && params[0] !== token)
+        return { id, result: "0x" };
+      if (method === "eth_call" && params[0].data.startsWith("0x70a08231"))
+        return { id, result: hash(0) };
+      if (method === "eth_simulateV1") {
+        simulations++;
+        const blocks = params[0].blockStateCalls;
+        const first = blocks[0].calls,
+          actor = first[0].from;
+        const spent = BigInt(first.find((call: any) => call.value)?.value ?? 0);
+        const initial = BigInt(blocks[0].stateOverrides[actor].balance),
+          residual = initial - spent;
+        const make = (n = 0n) => ({
+          status: "0x1",
+          returnData: `0x${n.toString(16).padStart(64, "0")}`,
+          logs: [],
+        });
+        const buy = first.map(() => make());
+        buy[0] = make(initial);
+        buy[buy.length - 2] = make(100n);
+        buy[buy.length - 1] = make(residual);
+        const result = [{ calls: buy }];
+        if (blocks[1]) {
+          const sell = blocks[1].calls.map(() => make());
+          sell[0] = make(residual);
+          sell[sell.length - 2] = make(residual + (spent * 99n) / 100n);
+          result.push({ calls: sell });
+        }
+        return { id, result };
+      }
+      return original(url, init);
+    });
+    const service = new LaunchCardsService(f.config, f.cache, {
+      rpc: f.rpc,
+      budget: f.budget,
+      explorerHttp: f.explorerHttp,
+      now: f.now,
+    });
+    const start = Date.now(),
+      card = (await service.card(token)) as any;
+    expect(card.launch.value.poolGraduated).toBe(true);
+    expect(simulations).toBeGreaterThan(0);
+    expect(simulations).toBeLessThanOrEqual(12);
+
+    expect(actual - simulations).toBeLessThanOrEqual(150);
+    expect(card.coverage.rpcCalls).toBe(actual);
+    expect(card.coverage.budgetUnits).toBeLessThanOrEqual(390);
+    expect(
+      f.budget.consume.mock.calls.reduce(
+        (sum, args) => sum + Number(args[0]),
+        0,
+      ),
+    ).toBe(card.coverage.budgetUnits);
+    expect(
+      card.sellTest.results.some((row: any) => row.state === "available"),
+    ).toBe(true);
+    expect(
+      card.sellTest.results.filter((row: any) =>
+        String(row.reason ?? "").includes("budget"),
+      ),
+    ).toEqual([]);
+    expect(Date.now() - start).toBeLessThanOrEqual(10_000);
+  }, 15_000);
+  it("retries explorer 5xx once then falls through without another explorer section", async () => {
+    {
+      const f = fixture([pons()], {}, 93_188_492, 100_000);
+      f.explorerHttp.requestJson.mockImplementation(async () => {
+        await delay();
+        throw Object.assign(new Error("upstream"), {
+          code: "PROVIDER_HTTP_500",
+        });
+      });
+      const service = new LaunchCardsService(f.config, f.cache, {
+        rpc: f.rpc,
+        budget: f.budget,
+        explorerHttp: f.explorerHttp,
+        now: f.now,
+      });
+      const start = Date.now();
+      const promise = service.card(token);
+      const card = (await promise) as any;
+      expect(card.launch.value.token).toBe(token);
+      expect(card.coverage.discovery.explorerReason).toBe(
+        "EXPLORER_UNAVAILABLE",
+      );
+      expect(f.explorerHttp.requestJson).toHaveBeenCalledTimes(2);
+      expect(Date.now() - start).toBeLessThanOrEqual(3_000);
+    }
+  }, 15_000);
+  it("bounds a nonresponding explorer and still completes a non-registry card in 5 s", async () => {
+    const f = fixture([], {}, 93_188_492, 100_000);
+    slow(f);
+    f.explorerHttp.requestJson.mockImplementation(() => new Promise(() => {}));
+    const service = new LaunchCardsService(f.config, f.cache, {
+      rpc: f.rpc,
+      budget: f.budget,
+      explorerHttp: f.explorerHttp,
+      now: f.now,
+    });
+    const start = Date.now(),
+      card = (await service.card(token)) as any;
+    expect(card.launch).toMatchObject({
+      state: "unknown",
+      reason: "Launch not found in the supported registry",
+    });
+    expect(card.coverage.rpcCalls).toBeLessThanOrEqual(40);
+    expect(f.explorerHttp.requestJson).toHaveBeenCalledTimes(1);
+    expect(Date.now() - start).toBeLessThanOrEqual(5_000);
+  }, 10_000);
+  it("shares an in-flight block header", async () => {
+    vi.useFakeTimers();
+    try {
+      const f = fixture();
+      slow(f);
+      const r = new LaunchReader(f.config, f.budget, 40, f.now, f.rpc);
+      const promise = Promise.all([
+        r.block(4800),
+        r.block(4800),
+        r.block(4800),
+      ]);
+      await vi.runAllTimersAsync();
+      const headers = await promise;
+      expect(headers[0]).toEqual(headers[2]);
+      expect(f.seen).toHaveLength(1);
+      expect(r.calls).toBe(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+  it("reserves before asynchronous budgets and never overshoots a mid-flight call cap", async () => {
+    vi.useFakeTimers();
+    try {
+      const f = fixture();
+      slow(f);
+      const budget = {
+        consume: vi.fn(async () => {
+          await delay();
+        }),
+      };
+      const r = new LaunchReader(f.config, budget, 40, f.now, f.rpc);
+      const promise = Promise.allSettled(
+        Array.from({ length: 80 }, () =>
+          r.read("eth_getCode", [token, hex(5100)]),
+        ),
+      );
+      await vi.runAllTimersAsync();
+      const results = await promise;
+      expect(results.filter((r) => r.status === "fulfilled")).toHaveLength(39);
+      expect(
+        results.filter(
+          (r) => r.status === "rejected" && r.reason instanceof ReadCap,
+        ),
+      ).toHaveLength(41);
+      expect(budget.consume).toHaveBeenCalledTimes(39);
+      expect(r.calls).toBe(39);
+      const final = r.recheck({
+        number: 5100,
+        hash: hash(5101),
+        seconds: seconds(5100),
+      });
+      await vi.runAllTimersAsync();
+      await final;
+      expect(r.calls).toBe(40);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+  it("batches same-anchor calls, retains allowFailure and hashes the actual Multicall params", async () => {
+    const f = fixture();
+    const original = f.rpc.requestJson.getMockImplementation()!;
+    f.rpc.requestJson.mockImplementation(async (url, init) => {
+      const call = JSON.parse(String(init?.body));
+      if (call.method === "eth_call" && call.params[0].data === "0x5c975abb")
+        return { id: call.id, error: { code: 3 } };
+      return original(url, init);
+    });
+    const r = new LaunchReader(f.config, f.budget, 40, f.now, f.rpc);
+    const values = await Promise.all([
+      r.read("eth_call", [{ to: token, data: "0x18160ddd" }, hex(5100)], true),
+      r.read("eth_call", [{ to: token, data: "0x5c975abb" }, hex(5100)], true),
+    ]);
+    expect(values).toEqual([hash(1000), null]);
+    expect(f.seen).toHaveLength(1);
+    const call = f.seen[0]!;
+    const entries = decodeFunctionData({
+      abi: aggregateAbi,
+      data: (call.params[0] as any).data,
+    }).args[0];
+    expect(entries.every((e) => e.allowFailure)).toBe(true);
+    expect(r.evidence.rpcCalls).toEqual([
+      {
+        method: "eth_call",
+        paramsSha256: await sha256(canonicalBytes(call.params)),
+      },
+    ]);
+  });
+  it("marks the first 25 distinct buyers partial and bounds nonce work", async () => {
+    const recipients = Array.from({ length: 30 }, (_, i) => addr(100 + i));
+    const f = fixture([
+      pons(),
+      ...recipients.map((to, i) => transfer(to, 4800 + i, 1)),
+    ]);
+    recipients.forEach((to, i) => f.signers.set(hash(104800 + i), to));
+    const card = (await f.service.card(token)) as any;
+    expect(card.buyers.state).toBe("partial");
+    expect(card.buyers.coverage.buyerCap).toBe(25);
+    expect(card.buyers.coverage.distinctBuyers).toBe(25);
+    expect(
+      card.buyers.value.windows[0].tags.filter(
+        (tag: any) => tag.kind === "early buyer",
+      ),
+    ).toHaveLength(25);
+    expect(card.buyers.coverage.nonceReads).toBe(25);
+  });
+  it("returns 200 with TIME_LIMIT for a slow section and still rechecks the anchor", async () => {
+    const f = fixture([pons(), transfer(buyer, 4850, 1)]);
+    let now = f.now();
+    const original = f.rpc.requestJson.getMockImplementation()!;
+    f.rpc.requestJson.mockImplementation(async (url, init) => {
+      const call = JSON.parse(String(init?.body));
+      if (call.method === "eth_getTransactionByHash") {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        now += 20_001;
+      }
+      return original(url, init);
+    });
+    const service = new LaunchCardsService(f.config, f.cache, {
+      rpc: f.rpc,
+      budget: f.budget,
+      explorerHttp: f.explorerHttp,
+      now: () => now,
+    });
+    const result = (await service.card(token)) as any;
+    expect(result.buyers).toMatchObject({
+      state: "unknown",
+      reason: "TIME_LIMIT",
+    });
+    expect(result.permissions.state).toBe("partial");
+    expect(f.seen.at(-1)).toMatchObject({
+      method: "eth_getBlockByNumber",
+      params: [hex(5100), false],
+    });
+  });
+  it("cuts off a section that never responds at 20 s, then returns its final anchor check", async () => {
+    vi.useFakeTimers();
+    try {
+      const f = fixture([pons(), transfer(buyer, 4850, 1)]);
+      vi.setSystemTime(f.now());
+      const original = f.rpc.requestJson.getMockImplementation()!;
+      let started!: () => void;
+      const ready = new Promise<void>((resolve) => {
+        started = resolve;
+      });
+      f.rpc.requestJson.mockImplementation(async (url, init) => {
+        const call = JSON.parse(String(init?.body));
+        if (call.method === "eth_getTransactionByHash") {
+          started();
+          return new Promise(() => {});
+        }
+        return original(url, init);
+      });
+      const service = new LaunchCardsService(f.config, f.cache, {
+        rpc: f.rpc,
+        budget: f.budget,
+        explorerHttp: f.explorerHttp,
+        now: Date.now,
+      });
+      const promise = service.card(token);
+      await ready;
+      await vi.advanceTimersByTimeAsync(20_001);
+      const card = (await promise) as any;
+      expect(card.buyers).toMatchObject({
+        state: "unknown",
+        reason: "TIME_LIMIT",
+      });
+      expect(f.seen.at(-1)).toMatchObject({
+        method: "eth_getBlockByNumber",
+        params: [hex(5100), false],
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+  it("caches completed cards and collapses concurrent identical requests without changing their age", async () => {
+    {
+      const f = fixture([], { LAUNCH_CARDS_CACHE_SECONDS: "60" });
+      slow(f);
+      let ageNow = f.now();
+      const service = new LaunchCardsService(f.config, f.cache, {
+        rpc: f.rpc,
+        budget: f.budget,
+        explorerHttp: f.explorerHttp,
+        now: () => ageNow,
+      });
+      const promises = Promise.all([
+        service.card(token),
+        service.card(token.toUpperCase().replace("0X", "0x")),
+      ]);
+      const [a, b] = await promises;
+      expect(a).toEqual(b);
+      const count = f.seen.length;
+      ageNow += 5_000;
+      const cached = await service.card(token);
+      expect(f.seen).toHaveLength(count);
+      expect(cached.anchor).toEqual(a!.anchor);
+      expect(cached.observedAt).toBe(a!.observedAt);
+      expect(Number(cached.ageSeconds)).toBeGreaterThanOrEqual(5);
+    }
+  }, 15_000);
+  it("does not cache 503 cards or retain their failed single-flight promise", async () => {
+    const f = fixture([], { LAUNCH_CARDS_CACHE_SECONDS: "60" });
+    const original = f.rpc.requestJson.getMockImplementation()!;
+    let fail = true;
+    f.rpc.requestJson.mockImplementation(async (url, init) => {
+      const call = JSON.parse(String(init?.body));
+      if (fail && call.method === "eth_chainId")
+        return { id: call.id, error: { code: -32000 } };
+      return original(url, init);
+    });
+    await expect(f.service.card(token)).rejects.toMatchObject({
+      statusCode: 503,
+    });
+    fail = false;
+    expect((await f.service.card(token)).launch).toMatchObject({
+      state: "unknown",
+      reason: "Launch not found in the supported registry",
+    });
   });
 });

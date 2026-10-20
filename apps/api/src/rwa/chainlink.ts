@@ -59,9 +59,7 @@ export async function readChainlinkUsd(
         block,
       ])) as Hex,
     });
-  const description = await call("description"),
-    decimals = await call("decimals"),
-    round = await call("latestRoundData");
+  const [description, decimals, round] = await Promise.all([call("description"), call("decimals"), call("latestRoundData")]);
   if (
     description !== feed.name ||
     decimals !== feed.decimals ||

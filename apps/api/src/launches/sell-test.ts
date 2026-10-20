@@ -15,7 +15,13 @@ import { parseExitAmount } from "../exit-check/math.js";
 import { AppError } from "../http/errors.js";
 import { events, type Launch } from "./registry.js";
 import { decodeEventLog } from "viem";
-import { LaunchReader, ReadCap, hex, type Header } from "./reader.js";
+import {
+  LaunchReader,
+  ReadCap,
+  TimeLimit,
+  hex,
+  type Header,
+} from "./reader.js";
 
 // Supplied official-deployment review, 20 October 2026; no live verification here.
 export const sellContracts = {
@@ -175,11 +181,15 @@ export type Price = {
   maxAgeSeconds?: number;
 };
 const unavailableReason = (e: unknown) =>
-  e instanceof ReadCap
-    ? "Launch-card RPC subcall budget reached"
-    : e instanceof AppError
-      ? e.code
-      : "Simulation response unavailable or malformed";
+  e instanceof TimeLimit
+    ? "TIME_LIMIT"
+    : e instanceof ReadCap
+      ? "Launch-card RPC subcall budget reached"
+      : e instanceof AppError
+        ? String(
+            (e.details as { reason?: string } | undefined)?.reason ?? e.code,
+          )
+        : "Simulation response unavailable or malformed";
 const uint = (data: unknown): bigint => {
   if (typeof data !== "string" || !/^0x[0-9a-f]{64}$/i.test(data))
     throw new Error("Invalid balance result");
@@ -272,7 +282,7 @@ export async function runSellTest(
       "Synthetic account, empty hook data and overridden funding; simulation does not execute a transaction.",
       "Round-trip cost includes pool fees, price movement and token effects; native gas costs are separate and are not included. Simulated gas price and base fee are zero.",
       "Token logs are self-reported. Time overrides test this anchored state, not future market conditions.",
-      "USD conversion has its own source time; on-chain feeds use the stated anchor, while the WETH market source is fetched separately.",
+      "USD conversion has its own source time; on-chain feeds use the stated anchor, all conversions on this card use its stated anchor.",
     ],
   };
   let conversion: Price | undefined;
@@ -323,12 +333,14 @@ export async function runSellTest(
       "Pool key does not match the observed pool ID and currencies",
     );
   if (!key && launch.fee === undefined) return refuse("v3 fee is unknown");
+  let pricing = true;
   let price: Price, actor: Address, slot: Hex | undefined;
   try {
     const resolvedPrice = await priceSource(pair);
     if (!resolvedPrice) return refuse("Unsupported pair token");
     price = resolvedPrice;
     conversion = price;
+    pricing = false;
     if (
       !Number.isFinite(Date.parse(price.observedAt)) ||
       r.now() - Date.parse(price.observedAt) >
@@ -344,24 +356,25 @@ export async function runSellTest(
       return refuse("Pair USD conversion unavailable or stale");
     actor = `0x${randomBytes(20).toString("hex")}`;
     const block = hex(anchor.number);
-    if (
-      (await r.read("eth_getTransactionCount", [actor, block])) !== "0x0" ||
-      (await r.read("eth_getCode", [actor, block])) !== "0x" ||
-      (await r.read("eth_getBalance", [actor, block])) !== "0x0"
-    )
+    const [nonce, code, nativeBalance] = await Promise.all([
+      r.read("eth_getTransactionCount", [actor, block]),
+      r.read("eth_getCode", [actor, block]),
+      r.read("eth_getBalance", [actor, block]),
+    ]);
+    if (nonce !== "0x0" || code !== "0x" || nativeBalance !== "0x0")
       return refuse("Synthetic account is not unused at the anchor");
     const balanceData = encodeFunctionData({
       abi: erc20,
       functionName: "balanceOf",
       args: [actor],
     });
-    for (const asset of native ? [token] : [pair, token])
-      if (
-        uint(
-          await r.read("eth_call", [{ to: asset, data: balanceData }, block]),
-        ) !== 0n
-      )
-        return refuse("Synthetic account already holds tokens at the anchor");
+    const balances = await Promise.all(
+      (native ? [token] : [pair, token]).map((asset) =>
+        r.read("eth_call", [{ to: asset, data: balanceData }, block]),
+      ),
+    );
+    if (balances.some((balance) => uint(balance) !== 0n))
+      return refuse("Synthetic account already holds tokens at the anchor");
     if (!native && pair !== weth) {
       // Verify storage through the same simulation path used by the swaps.
       // Every candidate starts afresh at the anchor; never infer a layout.
@@ -409,7 +422,17 @@ export async function runSellTest(
       if (!slot) return refuse("pair-token funding unsupported");
     }
   } catch (e) {
-    return refuse(unavailableReason(e));
+    return refuse(
+      pricing &&
+        e instanceof Error &&
+        !(
+          e instanceof AppError ||
+          e instanceof ReadCap ||
+          e instanceof TimeLimit
+        )
+        ? `Pair USD price unavailable: ${e.message}`
+        : unavailableReason(e),
+    );
   }
   const results: SellResult[] = [];
   let terminal: string | undefined;

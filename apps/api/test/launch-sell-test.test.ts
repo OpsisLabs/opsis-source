@@ -3,6 +3,7 @@ import {
   decodeAbiParameters,
   decodeFunctionData,
   encodeAbiParameters,
+  encodeFunctionResult,
   encodeEventTopics,
   keccak256,
   parseAbiParameters,
@@ -23,9 +24,10 @@ import {
   ratio,
   type PoolKey,
 } from "../src/launches/sell-test.js";
-import { LaunchReader } from "../src/launches/reader.js";
+import { LaunchReader, aggregateAbi, multicall3 } from "../src/launches/reader.js";
 import { loadEnv } from "../src/config/env.js";
 import { AppError } from "../src/http/errors.js";
+import { stockPairUsdPrice } from "../src/rwa/service.js";
 import { events, type Launch } from "../src/launches/registry.js";
 import {
   jsonRpcUnits,
@@ -119,7 +121,10 @@ function fixture(mode: Mode = "normal", denied = false, usdSlot?: number) {
       result = "0x0";
     else if (method === "eth_getCode") result = "0x";
     else if (method === "eth_call") {
-      result = word(0n);
+      if (params[0].to.toLowerCase() === multicall3.toLowerCase()) {
+        const calls = decodeFunctionData({ abi: aggregateAbi, data: params[0].data }).args[0];
+        result = encodeFunctionResult({ abi: aggregateAbi, functionName: "aggregate3", result: calls.map(() => ({ success: true, returnData: word(0n) })) });
+      } else result = word(0n);
     } else if (method === "eth_simulateV1") {
       if (mode === "unsupported")
         return { id, error: { code: -32601, message: "Method not supported" } };
@@ -255,9 +260,21 @@ function fixture(mode: Mode = "normal", denied = false, usdSlot?: number) {
 describe("anchored launch sell simulations", () => {
   it("refuses with its own reason when the deployment has not enabled the sell test", async () => {
     const f = fixture();
-    const result = await runSellTest(f.reader, anchor, launch(), f.price, "Sell test not enabled on this deployment");
+    const result = await runSellTest(
+      f.reader,
+      anchor,
+      launch(),
+      f.price,
+      "Sell test not enabled on this deployment",
+    );
     expect(result.results).toHaveLength(9);
-    expect(result.results.every((r) => r.state === "unavailable" && r.reason === "Sell test not enabled on this deployment")).toBe(true);
+    expect(
+      result.results.every(
+        (r) =>
+          r.state === "unavailable" &&
+          r.reason === "Sell test not enabled on this deployment",
+      ),
+    ).toBe(true);
     expect(f.requestJson).not.toHaveBeenCalled();
     expect(f.price).not.toHaveBeenCalled();
   });
@@ -380,7 +397,7 @@ describe("anchored launch sell simulations", () => {
       r.results.every(
         (row) =>
           row.state === "unavailable" &&
-          row.reason === "SIMULATION_METHOD_UNSUPPORTED",
+          row.reason === "PROVIDER_ERROR:METHOD_UNSUPPORTED",
       ),
     ).toBe(true);
     expect(f.seen.filter((c) => c.method === "eth_simulateV1")).toHaveLength(1);
@@ -751,4 +768,61 @@ describe("v4 periphery calldata", () => {
   );
   it("refuses uint128 overflow", () =>
     expect(() => encodeV4Swap(key, token, 2n ** 128n, 999n)).toThrow());
+});
+
+it("names the missing TTWO Chainlink source for the supplied Long pair before any simulation", async () => {
+  const stock = "0x5e81213613b6b86eab4c6c50d718d34359459786";
+  const asset = "0xbf7f8f15229d685e3092652ae04ee387133f1e18";
+  const f = fixture();
+  const document = async (url: string) =>
+    url.endsWith("/assets")
+      ? {
+          assets: [
+            {
+              id: `0x${"ab".repeat(32)}`,
+              tokenSymbol: "TTWO",
+              tokenName: "Sample Stock Token",
+              tokenDecimals: 18,
+              currentMultiplier: "1",
+              pendingMultiplier: "",
+              deployments: [{ contractAddress: stock, chainId: 4663 }],
+            },
+          ],
+        }
+      : [];
+  const key: PoolKey = {
+    currency0: stock,
+    currency1: asset,
+    fee: 8388608,
+    tickSpacing: 8,
+    hooks: "0x4e3468951d49f2eea976ed0d6e75ffcb44a9a544",
+  };
+  const result = await runSellTest(
+    f.reader,
+    anchor,
+    launch({
+      adapter: "long",
+      token: asset,
+      pairToken: stock,
+      poolId: keccak256(encodeAbiParameters(keyParameters, [key])),
+      poolKey: key,
+    }),
+    (pair) =>
+      stockPairUsdPrice(
+        pair,
+        document,
+        f.reader.read.bind(f.reader),
+        "0x3039",
+        anchor.seconds,
+      ),
+  );
+  expect(result.results).toHaveLength(9);
+  expect(
+    result.results.every((row) =>
+      row.reason?.includes(
+        "No USD price source for the pair token (TTWO has no Chainlink feed)",
+      ),
+    ),
+  ).toBe(true);
+  expect(f.seen.some((call) => call.method === "eth_simulateV1")).toBe(false);
 });

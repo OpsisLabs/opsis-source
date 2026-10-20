@@ -1,7 +1,21 @@
 import { REVIEWED_ASSETS } from "@rh-chain/shared";
 import { runSellTest, keyParameters, nativeCurrency } from "./sell-test.js";
-import { encodeAbiParameters, keccak256 } from "viem";
-import { EngineCardSources } from "../cards/sources.js";
+import {
+  encodeFunctionData,
+  decodeFunctionResult,
+  parseAbi,
+  encodeAbiParameters,
+  keccak256,
+} from "viem";
+import { BlockscoutProvider } from "../chain/blockscout.js";
+import {
+  firstBlock,
+  hasCode,
+  initialized,
+  poolIdFor,
+  liquid,
+} from "./state.js";
+import { EXIT_CHECK_FEE_TIERS } from "../exit-check/constants.js";
 import type { Json, TokenControls } from "@rh-chain/shared";
 import type { Env } from "../config/env.js";
 import {
@@ -12,7 +26,7 @@ import { ethUsdFeed, readChainlinkUsd, usdgUsdFeed } from "../rwa/chainlink.js";
 import { stockPairUsdPrice } from "../rwa/service.js";
 import type { RpcSpendBudget } from "../chain/robinhood-rpc.js";
 import { JsonCache } from "../cache/service.js";
-import { ControlsService, type ControlsEvidence } from "../controls/service.js";
+import { ControlsService } from "../controls/service.js";
 import type { ReceiptService } from "../receipts/service.js";
 import { AppError } from "../http/errors.js";
 import { createLaunchCardsBudget, type LaunchCardsBudget } from "./budget.js";
@@ -25,12 +39,10 @@ import {
   type Transfer,
 } from "./facts.js";
 import {
-  adapters,
   registry,
   registryVersion,
   reviewDate,
   related,
-  longHistoryDeploymentBlock,
   decodeLaunch,
   decode as decodeRaw,
   addressTopic,
@@ -42,7 +54,13 @@ import {
 } from "./registry.js";
 import {
   LaunchReader,
+  TimeLimit,
+  mapSix,
+  within,
   ReadCap,
+  LogRangeError,
+  providerReason,
+  isHash,
   unavailable,
   quantity,
   hex,
@@ -55,13 +73,14 @@ export const caps = {
   transferChunks: 12,
   distributionChunks: 24,
   historyChunks: 20,
-  transactions: 64,
-  nonces: 32,
+  buyers: 25,
+  transactions: 25,
+  nonces: 25,
   balances: 100,
   feedLogCalls: 90,
   feedEntries: 200,
 } as const;
-type Scan = { launch: Launch; log: ChainLog };
+type Scan = { launch: Launch; log: ChainLog; receipt?: ChainLog[] };
 type Discovery = {
   rows: Scan[];
   coverage: Record<string, unknown>;
@@ -75,6 +94,7 @@ type Options = {
   budget?: LaunchCardsBudget;
   rpc?: ProviderHttp;
   stockHttp?: ProviderHttp;
+  explorerHttp?: ProviderHttp;
   rpcSpend?: RpcSpendBudget;
   now?: () => number;
   receipts?: ReceiptService;
@@ -84,6 +104,12 @@ export class LaunchCardsService implements LaunchCardsSource {
     number,
     Promise<Record<string, unknown>>
   >();
+  private readonly pendingCards = new Map<
+    string,
+    Promise<Record<string, unknown>>
+  >();
+  private readonly creationBlocks = new Map<string, number>();
+  private readonly explorer: BlockscoutProvider;
   private readonly budget: LaunchCardsBudget;
   private readonly now: () => number;
   constructor(
@@ -91,6 +117,14 @@ export class LaunchCardsService implements LaunchCardsSource {
     private readonly cache: JsonCache,
     private readonly options: Options = {},
   ) {
+    this.explorer = new BlockscoutProvider(
+      env,
+      options.explorerHttp ??
+        createProviderHttp(
+          { ...env, PROVIDER_MAX_RETRIES: 0, PROVIDER_TIMEOUT_MS: 1_200 },
+          "blockscout",
+        ),
+    );
     this.budget = options.budget ?? createLaunchCardsBudget(env);
     this.now = options.now ?? Date.now;
   }
@@ -114,13 +148,13 @@ export class LaunchCardsService implements LaunchCardsSource {
       this.options.rpcSpend,
     );
   }
-  async feed(minutes = 30): Promise<Record<string, unknown>> {
+  async feed(minutes = 10): Promise<Record<string, unknown>> {
     this.enabled();
-    if (!Number.isInteger(minutes) || minutes < 1 || minutes > 120)
+    if (!Number.isInteger(minutes) || minutes < 1 || minutes > 60)
       throw new AppError(
         "INVALID_WINDOW",
         400,
-        "Use a window from 1 to 120 minutes",
+        "Use a window from 1 to 60 minutes",
       );
     const existing = this.pending.get(minutes);
     if (existing) return existing;
@@ -133,15 +167,9 @@ export class LaunchCardsService implements LaunchCardsSource {
         anchor = await r.anchor();
       const from = await r.lowerBound(anchor.seconds - minutes * 60, anchor);
       const scan = await this.discover(r, anchor, from);
-      const entries: Launch[] = [];
-      for (const row of scan.rows.slice(0, caps.feedEntries)) {
-        try {
-          entries.push((await this.trading(r, anchor, row)).launch);
-        } catch (error) {
-          if (!(error instanceof ReadCap)) throw error;
-          entries.push(row.launch);
-        }
-      }
+      const entries = scan.rows
+        .slice(0, caps.feedEntries)
+        .map((row) => row.launch);
       await r.recheck(anchor);
       this.duration(start);
       const result = {
@@ -150,7 +178,11 @@ export class LaunchCardsService implements LaunchCardsSource {
         minutes,
         entries: entries.sort(newest).map((entry) => ({
           ...entry,
-          partial: scan.partial,
+          created: {
+            ...entry.created,
+            timestamp: entry.created.timestamp || null,
+          },
+          partial: scan.partial || !entry.created.timestamp,
           t0State: entry.t0 ? "available" : "unknown",
         })),
         coverage: {
@@ -189,11 +221,70 @@ export class LaunchCardsService implements LaunchCardsSource {
     this.enabled();
     if (!isAddress(input) || /^0x0{40}$/i.test(input))
       throw new AppError("INVALID_TOKEN", 400, "Enter a nonzero token address");
-    const token = input.toLowerCase(),
-      r = this.reader(),
-      start = this.now(),
+    const token = input.toLowerCase();
+    const age = (card: Record<string, unknown>) => ({
+      ...card,
+      ageSeconds: Math.max(
+        0,
+        Math.floor((this.now() - Date.parse(String(card.observedAt))) / 1000),
+      ),
+    });
+    const pending = this.pendingCards.get(token);
+    if (pending) return age(await pending);
+    const key = `launch-card:f:${registryVersion}:${this.env.ROBINHOOD_RPC_PROVIDER}:${this.env.ROBINHOOD_PUBLIC_RPC_URL}:${token}:${this.env.LAUNCH_LOG_WINDOW_BLOCKS}:${this.env.LAUNCH_CARDS_MAX_RPC_SUBCALLS}:${this.env.LAUNCH_SELL_TEST_ENABLED}:${this.env.RECEIPTS_ENABLED}:${this.env.LAUNCH_CARDS_CACHE_SECONDS}`;
+    const promise = (async () => {
+      if (this.env.LAUNCH_CARDS_CACHE_SECONDS > 0) {
+        const cached = await this.cache.get<Record<string, unknown>>(key);
+        if (cached) return cached;
+      }
+      const result = await this.buildCard(token);
+      if (this.env.LAUNCH_CARDS_CACHE_SECONDS > 0)
+        await this.cache.set(key, result, this.env.LAUNCH_CARDS_CACHE_SECONDS);
+      return result;
+    })();
+    this.pendingCards.set(token, promise);
+    try {
+      return age(await promise);
+    } finally {
+      this.pendingCards.delete(token);
+    }
+  }
+  private async buildCard(token: string): Promise<Record<string, unknown>> {
+    const r = this.reader(),
+      start = this.now();
+    r.deadline = start + 20_000;
+    r.ceiling = start + 30_000;
+    // The registry read cap (150) plus a full sell test (12 simulations at 20 units each).
+    r.unitLimit = 150 + 12 * 20;
+    r.nonSimulationLimit = 40;
+    r.simulationLimit = 12;
+    let anchor: Header;
+    try {
       anchor = await r.anchor();
-    const discovered = await this.discover(r, anchor, 0, token);
+    } catch (error) {
+      if (error instanceof TimeLimit) throw unavailable("ANCHOR_UNAVAILABLE");
+      throw error;
+    }
+    let discovered: Discovery;
+    try {
+      discovered = await this.creation(r, anchor, token);
+    } catch (error) {
+      if (
+        !(
+          error instanceof AppError ||
+          error instanceof ReadCap ||
+          error instanceof TimeLimit
+        ) ||
+        providerReason(error) === "HEADER_MISMATCH"
+      )
+        throw error;
+      discovered = {
+        rows: [],
+        partial: true,
+        coverage: { partial: true, reason: providerReason(error) },
+      };
+    }
+    if (discovered.rows.length) r.nonSimulationLimit = 150;
     // Prefer protocol launch events over direct pool duplicates. Multiple launches
     // remain visible; no token is identified from its symbol or a pool hook alone.
     const order: AdapterId[] = [
@@ -210,7 +301,9 @@ export class LaunchCardsService implements LaunchCardsSource {
         a.launch.created.blockNumber - b.launch.created.blockNumber,
     );
     let launch: Fact<Launch> = unknown(
-        "No matching event in the bounded registry scan",
+        discovered.partial
+          ? String(discovered.coverage.reason ?? "Creation evidence incomplete")
+          : "Launch not found in the supported registry",
       ),
       resolved: Awaited<ReturnType<LaunchCardsService["trading"]>> | undefined;
     if (candidates[0]) {
@@ -222,72 +315,87 @@ export class LaunchCardsService implements LaunchCardsSource {
           discovered.partial || resolved.tradingPartial,
         );
       } catch (error) {
-        if (!(error instanceof ReadCap)) throw error;
+        if (
+          providerReason(error) === "HEADER_MISMATCH" ||
+          !(
+            error instanceof AppError ||
+            error instanceof ReadCap ||
+            error instanceof TimeLimit
+          )
+        )
+          throw error;
         launch = known(
           candidates[0].launch,
           discovered.coverage,
           true,
-          "Trading-start read cap reached",
+          providerReason(error),
         );
       }
     }
     const section = async <T>(fn: () => Promise<Fact<T>>): Promise<Fact<T>> => {
-      if (r.calls >= r.maxCalls - 12)
-        return unknown("RPC subcall cap reached before this section");
+      if (this.now() >= r.deadline) return unknown("TIME_LIMIT");
       try {
-        return await fn();
+        const value = await within(fn(), r.deadline - this.now());
+        return this.now() >= r.deadline ? unknown("TIME_LIMIT") : value;
       } catch (error) {
+        if (error instanceof TimeLimit) return unknown("TIME_LIMIT");
+        if (providerReason(error) === "HEADER_MISMATCH") throw error;
         if (error instanceof ReadCap)
           return unknown("RPC subcall cap reached in this section");
         // A failed read degrades only this section; the anchor re-check after
         // all sections still refuses the whole card if the block changed.
         if (error instanceof AppError && error.statusCode >= 500)
           return unknown(
-            `A source read failed in this section (${error.code})`,
+            `A source read failed in this section (${String((error.details as { reason?: string })?.reason ?? error.code)})`,
           );
         throw error;
       }
     };
-    const buyers = resolved
-      ? await section(() => this.buyers(r, anchor, token, resolved!))
-      : unknown("Trading start or liquidity source is unknown");
-    const supply = await section(() => this.supply(r, anchor, token, buyers));
-    const history = resolved
-      ? await section(() => this.history(r, anchor, resolved!.launch))
-      : unknown("Launch is unknown");
-    const distributions = resolved
-      ? await section(() =>
-          this.distributions(r, anchor, token, resolved!.launch),
+    const buyersPromise = resolved
+      ? section(() => this.buyers(r, anchor, token, resolved!))
+      : Promise.resolve(
+          unknown("Trading start or liquidity source is unknown"),
+        );
+    const supplyPromise = buyersPromise.then((buyers) =>
+      section(() => this.supply(r, anchor, token, buyers)),
+    );
+    const historyPromise = resolved
+      ? section(() => this.history(r, anchor, resolved!.launch))
+      : Promise.resolve(unknown("Launch is unknown"));
+    const distributionsPromise = resolved
+      ? section(() => this.distributions(r, anchor, token, resolved!.launch))
+      : Promise.resolve(unknown("Deployer or launch time is unknown"));
+    const lpPromise = resolved
+      ? section(() => this.lp(r, anchor, resolved!))
+      : Promise.resolve(unknown("Launch is unknown"));
+    const directPromise = !resolved
+      ? section(async () =>
+          known(
+            await this.directPools(r, anchor, token, []),
+            {
+              anchor: anchorJson(anchor),
+              limits:
+                "Reviewed pairs and hookless keys only; creation and first liquidity were not searched",
+            },
+            true,
+          ),
         )
-      : unknown("Deployer or launch time is unknown");
-    const lp = resolved
-      ? await section(() => this.lp(r, anchor, resolved!))
-      : unknown("Launch is unknown");
-    const permissions = await section(
+      : Promise.resolve(unknown("Launch pool shown in launch facts"));
+    const permissionsPromise = section(
       async (): Promise<Fact<TokenControls>> => {
-        // Reserve the controls service's fixed upper bound inside this card cap.
-        if (r.calls + 11 > r.maxCalls) throw new ReadCap();
-        const evidence: ControlsEvidence = { rpcCalls: [], sources: [] };
         const controls = new ControlsService(
           this.env,
           this.budget,
           r.rpc,
           this.now,
           this.options.rpcSpend,
+          r.read.bind(r),
         );
-        const value = await controls.checkAt(
-          token,
-          { blockNumber: anchor.number, blockHash: anchor.hash },
-          evidence,
-        );
-        r.calls += evidence.rpcCalls.length;
-        r.evidence.rpcCalls.push(...evidence.rpcCalls);
-        r.evidence.sources.push(
-          ...evidence.sources.map((source) => ({
-            ...source,
-            id: `controls-${source.id}`,
-          })),
-        );
+        const value = await controls.checkAt(token, {
+          blockNumber: anchor.number,
+          blockHash: anchor.hash,
+          timestamp: new Date(anchor.seconds * 1000).toISOString(),
+        });
         return known(
           value,
           {
@@ -299,69 +407,88 @@ export class LaunchCardsService implements LaunchCardsSource {
         );
       },
     );
-    const sellTest = await runSellTest(
-      r,
-      anchor,
-      resolved?.launch,
-      async (pair) => {
-        const read = r.read.bind(r);
-        if (pair === REVIEWED_ASSETS.USDG.address.toLowerCase())
+    const sellTestPromise = within(
+      runSellTest(
+        r,
+        anchor,
+        resolved?.launch,
+        async (pair) => {
+          const read = r.read.bind(r);
+          if (pair === REVIEWED_ASSETS.USDG.address.toLowerCase())
+            return {
+              ...(await readChainlinkUsd(
+                read,
+                hex(anchor.number),
+                anchor.seconds,
+                usdgUsdFeed,
+              )),
+              decimals: REVIEWED_ASSETS.USDG.decimals,
+              symbol: "USDG",
+            };
+          if (
+            pair !== nativeCurrency &&
+            pair !== REVIEWED_ASSETS.WETH.address.toLowerCase()
+          ) {
+            const http =
+              this.options.stockHttp ??
+              createProviderHttp(
+                { ...this.env, PROVIDER_MAX_RETRIES: 0 },
+                "rwa-public-source",
+              );
+            return stockPairUsdPrice(
+              pair,
+              (url) => r.document(http, url),
+              read,
+              hex(anchor.number),
+              anchor.seconds,
+            );
+          }
           return {
             ...(await readChainlinkUsd(
               read,
               hex(anchor.number),
               anchor.seconds,
-              usdgUsdFeed,
+              ethUsdFeed,
             )),
-            decimals: REVIEWED_ASSETS.USDG.decimals,
-            symbol: "USDG",
-          };
-        if (
-          pair !== nativeCurrency &&
-          pair !== REVIEWED_ASSETS.WETH.address.toLowerCase()
-        ) {
-          const http =
-            this.options.stockHttp ??
-            createProviderHttp(
-              { ...this.env, PROVIDER_MAX_RETRIES: 0 },
-              "rwa-public-source",
-            );
-          return stockPairUsdPrice(
-            pair,
-            (url) => r.document(http, url),
-            read,
-            hex(anchor.number),
-            anchor.seconds,
-          );
-        }
-        // Chainlink ETH / USD at the card's anchor first; the explorer price is the fallback.
-        try {
-          return {
-            ...(await readChainlinkUsd(read, hex(anchor.number), anchor.seconds, ethUsdFeed)),
             decimals: REVIEWED_ASSETS.WETH.decimals,
             symbol: pair === nativeCurrency ? "ETH" : "WETH",
           };
-        } catch (error) {
-          if (error instanceof ReadCap) throw error;
-        }
-        const market = await new EngineCardSources(
-          this.env,
-          this.budget,
-          this.options.rpcSpend,
-          this.options.rpc,
-        ).market(REVIEWED_ASSETS.WETH.address);
-        return {
-          priceUsd: market.priceUsd ?? "",
-          decimals: REVIEWED_ASSETS.WETH.decimals,
-          symbol: pair === nativeCurrency ? "ETH" : "WETH",
-          source: `${market.source} WETH / USD`,
-          observedAt: market.observedAt,
-        };
-      },
-      this.env.LAUNCH_SELL_TEST_ENABLED ? undefined : "Sell test not enabled on this deployment",
-    );
+        },
+        this.env.LAUNCH_SELL_TEST_ENABLED
+          ? undefined
+          : "Sell test not enabled on this deployment",
+      ),
+      r.deadline - this.now(),
+    ).catch((error) => {
+      if (!(error instanceof TimeLimit)) throw error;
+      return runSellTest(
+        r,
+        anchor,
+        resolved?.launch,
+        async () => null,
+        "TIME_LIMIT",
+      );
+    });
+    const [
+      buyers,
+      supply,
+      history,
+      distributions,
+      lp,
+      permissions,
+      sellTest,
+      directPools,
+    ] = await Promise.all([
+      buyersPromise,
+      supplyPromise,
+      historyPromise,
+      distributionsPromise,
+      lpPromise,
+      permissionsPromise,
+      sellTestPromise,
+      directPromise,
+    ]);
     await r.recheck(anchor);
-    this.duration(start);
     const result = {
       chainId: 4663,
       token,
@@ -378,8 +505,10 @@ export class LaunchCardsService implements LaunchCardsSource {
       lpStatus: lp,
       permissions,
       sellTest,
+      directPools,
       coverage: {
         rpcCalls: r.calls,
+        budgetUnits: r.budgetUnits,
         documentReads: r.documentCalls,
         discovery: discovered.coverage,
         source: r.evidence.sources[0]?.provider ?? "unknown",
@@ -393,6 +522,7 @@ export class LaunchCardsService implements LaunchCardsSource {
         "RECEIPTS_UNAVAILABLE",
         503,
         "Receipt evidence unavailable",
+        { reason: "RECEIPT_UNAVAILABLE" },
       );
     try {
       const receipt = await this.options.receipts.issue({
@@ -410,133 +540,338 @@ export class LaunchCardsService implements LaunchCardsSource {
       });
       return { ...result, receipt };
     } catch {
-      throw new AppError("RECEIPTS_UNAVAILABLE", 503, "Receipt unavailable");
+      throw new AppError("RECEIPTS_UNAVAILABLE", 503, "Receipt unavailable", {
+        reason: "RECEIPT_UNAVAILABLE",
+      });
     }
   }
   private duration(start: number) {
-    if (this.now() < start || this.now() - start >= 30_000) throw unavailable();
+    if (this.now() < start || this.now() - start >= 30_000)
+      throw new TimeLimit();
+  }
+  private async creation(
+    r: LaunchReader,
+    anchor: Header,
+    token: string,
+  ): Promise<Discovery> {
+    let receipt: ChainLog[] | undefined;
+    let explorerReason: string | undefined;
+    let doc: { creation_tx_hash?: unknown } | undefined;
+    try {
+      doc = (await r.explorer(() =>
+        this.explorer.getAddress(token),
+      )) as typeof doc;
+    } catch (error) {
+      if (error instanceof ReadCap) throw error;
+      explorerReason = "EXPLORER_UNAVAILABLE";
+    }
+    if (isHash(doc?.creation_tx_hash)) {
+      try {
+        receipt = await r.receipt(doc.creation_tx_hash, anchor);
+      } catch (error) {
+        if (providerReason(error) === "HEADER_MISMATCH") throw error;
+        explorerReason = providerReason(error);
+      }
+    }
+    const usedReceipt = Boolean(receipt);
+    if (!receipt) {
+      let block = this.creationBlocks.get(token);
+      if (block === undefined) {
+        if (!(await hasCode(r, token, anchor.number)))
+          return {
+            rows: [],
+            partial: false,
+            coverage: { reason: "CREATION_NOT_FOUND" },
+          };
+        block = await firstBlock(0, anchor.number, (n) => hasCode(r, token, n));
+        this.creationBlocks.set(token, block);
+      }
+      if (block > anchor.number) throw unavailable("CREATION_NOT_FOUND");
+      const ids = ["pons", "long", "launcher", "instant", "v4"] as const;
+      const logs = await r.logs(
+        ids.map((id) => registry[id].address),
+        [ids.map((id) => topic(id))],
+        block,
+        block,
+      );
+      receipt = logs;
+      // Receipts retain same-transaction pool evidence (including v3) without another range scan.
+      for (const hash of [
+        ...new Set(
+          (await this.fromReceipt(r, logs, token)).map(
+            (row) => row.log.transactionHash,
+          ),
+        ),
+      ]) {
+        const confirmed = await r.receipt(hash, anchor);
+        receipt = receipt
+          .filter((log) => log.transactionHash !== hash)
+          .concat(confirmed);
+      }
+    }
+    const rows = await this.fromReceipt(r, receipt, token);
+    return {
+      rows,
+      partial: false,
+      coverage: {
+        method: usedReceipt ? "creation-receipt" : "archive-creation-block",
+        registryLaunchFound: rows.length > 0,
+        ...(!rows.length
+          ? { registryReason: "Launch not found in the supported registry" }
+          : {}),
+        ...(explorerReason ? { explorerReason } : {}),
+      },
+    };
+  }
+  private async fromReceipt(
+    r: LaunchReader,
+    receipt: ChainLog[],
+    token?: string,
+  ): Promise<Scan[]> {
+    const rows: Scan[] = [];
+    for (const log of receipt) {
+      for (const id of ["pons", "long", "launcher", "instant"] as const) {
+        if (
+          (log.address.toLowerCase() !== registry[id].address &&
+            !(
+              id === "long" && log.address.toLowerCase() === related.longHistory
+            )) ||
+          log.topics[0]?.toLowerCase() !== topic(id)
+        )
+          continue;
+        const launch = decodeLaunch(id, log, await r.point(log));
+        if (!token || launch.token === token)
+          rows.push({ launch, log, receipt });
+      }
+    }
+    return rows;
+  }
+  private async directPools(
+    r: LaunchReader,
+    anchor: Header,
+    token: string,
+    _receipt: ChainLog[],
+  ) {
+    const pairs = [
+      nativeCurrency,
+      REVIEWED_ASSETS.WETH.address.toLowerCase(),
+      REVIEWED_ASSETS.USDG.address.toLowerCase(),
+    ].filter((pair) => pair !== token);
+    const factoryAbi = parseAbi([
+      "function getPool(address tokenA, address tokenB, uint24 fee) view returns (address)",
+    ]);
+    const slotAbi = parseAbi([
+      "function getSlot0(bytes32 poolId) view returns (uint160,int24,uint24,uint24)",
+    ]);
+    const lookups = pairs.flatMap((pair) =>
+      pair === nativeCurrency
+        ? []
+        : EXIT_CHECK_FEE_TIERS.map((fee) => ({
+            pair,
+            fee,
+            to: registry.v3.address,
+            data: encodeFunctionData({
+              abi: factoryAbi,
+              functionName: "getPool",
+              args: [token as `0x${string}`, pair as `0x${string}`, fee],
+            }),
+          })),
+    );
+    const keys = pairs.flatMap((pair) =>
+      [
+        [100, 1],
+        [500, 10],
+        [3000, 60],
+        [10000, 200],
+        [2500, 25],
+      ].map(([fee, tickSpacing]) => {
+        const currencies = [token, pair].sort();
+        const key = {
+          currency0: currencies[0] as `0x${string}`,
+          currency1: currencies[1] as `0x${string}`,
+          fee: fee!,
+          tickSpacing: tickSpacing!,
+          hooks: nativeCurrency as `0x${string}`,
+        };
+        const poolId = poolIdFor(key);
+        return {
+          pair,
+          key,
+          poolId,
+          to: "0xf3334192d15450cdd385c8b70e03f9a6bd9e673b",
+          data: encodeFunctionData({
+            abi: slotAbi,
+            functionName: "getSlot0",
+            args: [poolId],
+          }),
+        };
+      }),
+    );
+    const values = await r.multicall([...lookups, ...keys], hex(anchor.number));
+    const pools: Record<string, unknown>[] = [];
+    lookups.forEach((lookup, i) => {
+      try {
+        const pool = decodeFunctionResult({
+          abi: factoryAbi,
+          functionName: "getPool",
+          data: values[i] as `0x${string}`,
+        }).toLowerCase();
+        if (!/^0x0{40}$/.test(pool))
+          pools.push({
+            protocol: "v3",
+            pool,
+            pairToken: lookup.pair,
+            fee: lookup.fee,
+            t0: null,
+          });
+      } catch {
+        /* An allowFailure entry stays unknown. */
+      }
+    });
+    keys.forEach((lookup, i) => {
+      try {
+        const slot = decodeFunctionResult({
+          abi: slotAbi,
+          functionName: "getSlot0",
+          data: values[lookups.length + i] as `0x${string}`,
+        });
+        if (slot[0] > 0n)
+          pools.push({
+            protocol: "v4",
+            poolId: lookup.poolId,
+            poolKey: lookup.key,
+            pairToken: lookup.pair,
+            t0: null,
+          });
+      } catch {
+        /* An allowFailure entry stays unknown. */
+      }
+    });
+    return {
+      pools,
+      checked: values.length,
+      unavailable: values.filter((v) => v === null).length,
+    };
   }
   private async discover(
     r: LaunchReader,
     anchor: Header,
     from: number,
-    token?: string,
   ): Promise<Discovery> {
     const rows: Scan[] = [],
       ranges: Record<string, unknown> = {};
-    const scans = adapters.flatMap((id) => {
-      const filters: unknown[][] = token
-        ? id === "pons" || id === "launcher"
-          ? [[topic(id), addressTopic(token)]]
-          : id === "long" || id === "instant"
-            ? [[topic(id), null, addressTopic(token)]]
-            : id === "v4"
-              ? [
-                  [topic(id), null, addressTopic(token)],
-                  [topic(id), null, null, addressTopic(token)],
-                ]
-              : [
-                  [topic(id), addressTopic(token)],
-                  [topic(id), null, addressTopic(token)],
-                ]
-        : [[topic(id)]];
-      return filters.map((topics) => ({
+    const scans = (["pons", "long", "launcher", "instant"] as const).map(
+      (id) => ({
         id,
-        topics,
         cursor: anchor.number,
-        from: Math.max(from, registry[id].deploymentBlock),
-        windowBlocks: token ? r.logWindowBlocks : 2_000,
-      }));
-    });
+        failed: false,
+        reason: undefined as string | undefined,
+      }),
+    );
     const budget = { remaining: caps.feedLogCalls as number };
     let partial = false;
-    const reserve = token ? 100 : 14;
-    // Round-robin over indexed sides keeps every adapter represented. Failed
-    // range attempts share the total log-call cap; a successful page alone
-    // advances its cursor. Each token side has independent, explicit coverage.
-    for (
-      let round = 0;
-      round < (token ? caps.discoveryChunksPerAdapter : 100);
-      round++
-    ) {
+    const eventBlocks = new Set<number>();
+    for (let round = 0; round < 100; round++) {
       for (const scan of scans) {
-        if (scan.cursor < scan.from) continue;
-        const page = await r.logWindow(
-          registry[scan.id].address,
-          scan.topics,
-          scan.from,
-          scan.cursor,
-          scan.windowBlocks,
-          budget,
-          true,
-          reserve,
-        );
+        if (scan.cursor < from || scan.failed) continue;
+        let page;
+        try {
+          page = await r.logWindow(
+            registry[scan.id].address,
+            [topic(scan.id)],
+            from,
+            scan.cursor,
+            r.logWindowBlocks,
+            budget,
+            true,
+            14,
+          );
+        } catch (error) {
+          if (
+            !(error instanceof AppError || error instanceof ReadCap) ||
+            providerReason(error) === "HEADER_MISMATCH"
+          )
+            throw error;
+          scan.failed = true;
+          scan.reason = providerReason(error);
+          partial = true;
+          continue;
+        }
         if (!page) continue;
-        scan.windowBlocks = page.windowBlocks;
         scan.cursor = page.from - 1;
         for (const log of [...page.logs].reverse()) {
-          if (
-            rows.length >= caps.feedEntries ||
-            r.calls >= r.maxCalls - reserve
-          ) {
+          if (rows.length >= caps.feedEntries) {
             partial = true;
             break;
           }
-          const point = await r.point(log);
-          let launch: Launch;
-          try {
-            launch = decodeLaunch(scan.id, log, point, token);
-          } catch {
-            throw unavailable();
-          }
+          const block = quantity(log.blockNumber);
+          let point: Point = {
+            blockNumber: block,
+            blockHash: log.blockHash,
+            transactionHash: log.transactionHash,
+            logIndex: quantity(log.logIndex),
+            timestamp: "",
+          };
           if (
-            !rows.some(
-              (row) =>
-                row.launch.factory === launch.factory &&
-                row.log.transactionHash === log.transactionHash &&
-                row.log.logIndex === log.logIndex,
-            )
-          )
-            rows.push({ launch, log });
+            r.headers.has(block) ||
+            (!eventBlocks.has(block) &&
+              eventBlocks.size < 32 &&
+              r.calls + r.documentCalls < r.maxCalls - 14)
+          ) {
+            eventBlocks.add(block);
+            try {
+              point = await r.point(log);
+            } catch (error) {
+              if (
+                error instanceof AppError &&
+                (error.details as { reason?: string })?.reason ===
+                  "HEADER_MISMATCH"
+              )
+                throw error;
+              partial = true;
+            }
+          }
+          const launch = decodeLaunch(scan.id, log, point);
+          if (!point.timestamp) {
+            launch.t0 = null;
+            launch.unknownReasons.t0 = "Time unknown; event block is listed";
+            partial = true;
+          }
+          rows.push({ launch, log });
         }
       }
       if (
-        scans.every((s) => s.cursor < s.from) ||
+        scans.every((s) => s.cursor < from || s.failed) ||
         budget.remaining === 0 ||
-        r.calls >= r.maxCalls - reserve
+        r.calls + r.documentCalls >= r.maxCalls - 14 ||
+        rows.length >= caps.feedEntries
       )
         break;
     }
-    for (const id of adapters) {
-      const sides = scans.filter((s) => s.id === id);
-      const incomplete = sides.some((s) => s.cursor >= s.from);
-      ranges[id] = {
-        state: incomplete || partial ? "partial" : "available",
-        fromBlock: Math.max(...sides.map((s) => s.cursor + 1)),
+    for (const scan of scans) {
+      const incomplete = scan.failed || scan.cursor >= from;
+      partial ||= incomplete;
+      ranges[scan.id] = {
+        state: incomplete ? "partial" : "available",
+        fromBlock: scan.cursor + 1,
         toBlock: anchor.number,
-        requestedFromBlock: Math.max(from, registry[id].deploymentBlock),
-        factory: registry[id].address,
-        filters: sides.map((s) => ({
-          topics: s.topics,
-          fromBlock: s.cursor + 1,
-          toBlock: anchor.number,
-        })),
+        requestedFromBlock: from,
+        ...(incomplete ? { reason: scan.reason ?? "BUDGET_EXHAUSTED" } : {}),
       };
     }
-    partial ||= scans.some((s) => s.cursor >= s.from);
     return {
       rows,
+      partial,
       coverage: {
         adapters: ranges,
         requestedFromBlock: from,
         toBlock: anchor.number,
         partial,
         logCalls: caps.feedLogCalls - budget.remaining,
-        windowBlocks: token ? r.logWindowBlocks : 2_000,
-        earlierFactories:
-          "Long earlier factory is history-only; Pons V1 inactive",
+        windowBlocks: r.windowBlocks,
+        eventHeaderCap: 32,
+        eventHeaders: eventBlocks.size,
       },
-      partial,
     };
   }
   private async trading(r: LaunchReader, anchor: Header, row: Scan) {
@@ -552,47 +887,100 @@ export class LaunchCardsService implements LaunchCardsSource {
       source: string | null = launch.curve ?? launch.pool;
     if (launch.adapter === "instant") source = registry.v4.address;
     if (launch.adapter === "long" || launch.adapter === "pons") {
+      let logs: ChainLog[] = [];
       if (launch.adapter === "pons") {
-        const scan = await r.range(
-          launch.factory,
-          [topic("graduation"), addressTopic(launch.token)],
-          launch.created.blockNumber,
-          anchor.number,
-          4,
-          true,
-          true,
-        );
-        tradingCoverage.graduation = scan.coverage;
-        tradingPartial ||= scan.partial;
-        if (scan.logs[0])
-          graduation = {
-            point: await r.point(scan.logs[0]),
-            positionId: String(decode(scan.logs[0], "graduation").positionId),
+        try {
+          if (launch.pairToken !== nativeCurrency)
+            throw unavailable("GRADUATION_UNKNOWN");
+          const key = {
+            currency0: nativeCurrency as `0x${string}`,
+            currency1: launch.token as `0x${string}`,
+            fee: 0,
+            tickSpacing: 200,
+            hooks: related.ponsHook,
           };
+          const id = poolIdFor(key);
+          if (await initialized(r, id, anchor.number)) {
+            const block = await firstBlock(
+              launch.created.blockNumber,
+              anchor.number,
+              (n) => initialized(r, id, n),
+            );
+            const graduates = await r.logs(
+              launch.factory,
+              [topic("graduation"), addressTopic(launch.token)],
+              block,
+              block,
+            );
+            if (graduates.length !== 1) throw unavailable("GRADUATION_UNKNOWN");
+            const graduationReceipt = await r.receipt(
+              graduates[0]!.transactionHash,
+              anchor,
+            );
+            graduation = {
+              point: await r.point(graduates[0]!),
+              positionId: String(
+                decode(graduates[0]!, "graduation").positionId,
+              ),
+            };
+            logs = graduationReceipt.filter(
+              (log) =>
+                log.address.toLowerCase() === registry.v4.address &&
+                log.topics[0] === topic("v4") &&
+                log.topics[1] === id,
+            );
+            if (logs.length !== 1) throw unavailable("GRADUATION_UNKNOWN");
+            const a = decode(logs[0]!, "v4");
+            if (
+              String(a.id).toLowerCase() !== id ||
+              String(a.currency0).toLowerCase() !== key.currency0 ||
+              String(a.currency1).toLowerCase() !== key.currency1 ||
+              Number(a.fee) !== key.fee ||
+              Number(a.tickSpacing) !== key.tickSpacing ||
+              String(a.hooks).toLowerCase() !== key.hooks
+            )
+              throw unavailable("GRADUATION_UNKNOWN");
+            tradingCoverage.graduation = {
+              method: "state-view-binary-search",
+              blockNumber: block,
+            };
+          } else {
+            tradingPartial = true;
+            launch.unknownReasons.graduation =
+              "Graduation unknown for the reviewed PoolKey";
+          }
+        } catch (error) {
+          if (!(error instanceof AppError || error instanceof ReadCap))
+            throw error;
+          graduation = null;
+          logs = [];
+          tradingPartial = true;
+          launch.unknownReasons.graduation =
+            error instanceof ReadCap
+              ? "BUDGET_EXHAUSTED"
+              : String(
+                  (error.details as { reason?: string })?.reason ??
+                    "GRADUATION_UNKNOWN",
+                );
+        }
+      } else {
+        const receipt =
+          row.receipt ?? (await r.receipt(row.log.transactionHash, anchor));
+        logs = receipt.filter(
+          (log) =>
+            log.address.toLowerCase() === registry.v4.address &&
+            log.topics[0] === topic("v4"),
+        );
+        tradingCoverage.initialize = {
+          method: "creation-receipt",
+          blockNumber: launch.created.blockNumber,
+        };
       }
-      if (!launch.pairToken) throw unavailable();
-      const currencies = [launch.token, launch.pairToken].sort();
-      const scan = await r.range(
-        registry.v4.address,
-        [
-          topic("v4"),
-          null,
-          addressTopic(currencies[0]!),
-          addressTopic(currencies[1]!),
-        ],
-        launch.created.blockNumber,
-        launch.adapter === "long" ? launch.created.blockNumber : anchor.number,
-        4,
-        true,
-        true,
-      );
-      tradingCoverage.initialize = scan.coverage;
-      tradingPartial ||= scan.partial;
       const expectedHooks =
         launch.adapter === "pons"
           ? [related.ponsHook]
           : [related.longPoolHook, launch.hook];
-      for (const log of scan.logs) {
+      for (const log of logs) {
         const a = decode(log, "v4"),
           hook = String(a.hooks).toLowerCase();
         if (
@@ -629,8 +1017,8 @@ export class LaunchCardsService implements LaunchCardsSource {
             encodeAbiParameters(keyParameters, [poolKey]),
           ).toLowerCase() !== String(a.id).toLowerCase()
         )
-          throw unavailable();
-        if (poolInitialize) throw unavailable(); // Ambiguous Initialize evidence.
+          throw unavailable("POOL_KEY_MISMATCH");
+        if (poolInitialize) throw unavailable("AMBIGUOUS_POOL"); // Ambiguous Initialize evidence.
         launch.poolKey = poolKey;
         launch.poolId = String(a.id).toLowerCase();
         launch.hook = hook;
@@ -642,14 +1030,13 @@ export class LaunchCardsService implements LaunchCardsSource {
       if (launch.adapter === "long" && !source) {
         // A Long poolOrHook can also be a v3 pool. Factory evidence, not an
         // arbitrary contract address, establishes the liquidity source.
-        const scan3 = await r.range(
-          registry.v3.address,
-          [topic("v3")],
-          launch.created.blockNumber,
-          launch.created.blockNumber,
-          1,
-        );
-        for (const log of scan3.logs) {
+        const receipt =
+          row.receipt ?? (await r.receipt(row.log.transactionHash, anchor));
+        for (const log of receipt.filter(
+          (log) =>
+            log.address.toLowerCase() === registry.v3.address &&
+            log.topics[0] === topic("v3"),
+        )) {
           const a = decode(log, "v3");
           if (
             String(a.pool).toLowerCase() === launch.hook &&
@@ -670,17 +1057,48 @@ export class LaunchCardsService implements LaunchCardsSource {
     }
     if (launch.adapter === "v3" || launch.adapter === "v4") {
       const v3 = launch.adapter === "v3";
+      const present = (n: number) =>
+        liquid(
+          r,
+          launch.pool ?? registry.v4.address,
+          v3 ? null : launch.poolId,
+          n,
+        );
+      if (!(await present(anchor.number))) {
+        launch.unknownReasons.t0 =
+          "First liquidity unknown from historical pool state";
+        tradingPartial = true;
+        return {
+          launch,
+          graduation,
+          poolStart,
+          poolInitialize,
+          source,
+          tradingCoverage,
+          tradingPartial,
+        };
+      }
+      const block = await firstBlock(
+        launch.created.blockNumber,
+        anchor.number,
+        present,
+      );
       const scan = await r.range(
         v3 ? launch.pool! : registry.v4.address,
         v3 ? [topic("v3Mint")] : [topic("v4Liquidity"), launch.poolId],
-        launch.created.blockNumber,
-        anchor.number,
-        4,
+        block,
+        block,
+        1,
       );
-      tradingCoverage.firstLiquidity = scan.coverage;
+      tradingCoverage.firstLiquidity = {
+        ...scan.coverage,
+        method: "historical-liquidity-state",
+        limits:
+          "Historical liquidity can return to zero; this is the first observed state transition, not exhaustive pool history",
+      };
       tradingPartial ||= scan.partial;
-      // Forward scan from creation establishes the first positive add even if
-      // later history is capped. No add found in a partial scan stays unknown.
+      // Historical state locates a candidate transition. Confirm a positive add
+      // in that single block; missing evidence leaves trading start unknown.
       for (const log of scan.logs) {
         const a = decode(log, v3 ? "v3Mint" : "v4Liquidity");
         if (BigInt(String(v3 ? a.amount : a.liquidityDelta)) > 0n) {
@@ -711,10 +1129,11 @@ export class LaunchCardsService implements LaunchCardsSource {
     t0: Point,
     seconds: number,
     chunks: number,
+    buyerSet?: Set<string>,
   ) {
     const start = Date.parse(t0.timestamp) / 1000,
       end = start + seconds;
-    const after = await r.lowerBound(end + 1, anchor);
+    const after = await r.lowerBound(end + 1, anchor, t0.blockNumber);
     const scan = await r.range(
       token,
       [topic("transfer"), addressTopic(sender)],
@@ -724,14 +1143,33 @@ export class LaunchCardsService implements LaunchCardsSource {
     );
     const rows: Transfer[] = [];
     let metadataCapped = false;
+    const selected: ChainLog[] = [];
+    let buyerCapped = false;
     for (const log of scan.logs) {
-      if (r.calls >= r.maxCalls - 14) {
+      const a = decode(log, "transfer"),
+        recipient = String(a.to).toLowerCase();
+      if (
+        buyerSet &&
+        BigInt(String(a.value)) > 0n &&
+        !/^0x0{40}$/.test(recipient)
+      ) {
+        if (!buyerSet.has(recipient) && buyerSet.size >= caps.buyers) {
+          buyerCapped = true;
+          break;
+        }
+        buyerSet.add(recipient);
+        if (buyerSet.size >= caps.buyers) buyerCapped = true;
+      }
+      selected.push(log);
+    }
+    await mapSix(selected, async (log) => {
+      if (r.calls >= r.maxCalls - 2) {
         metadataCapped = true;
-        break;
+        return;
       }
       const p = await r.point(log),
         timestamp = Date.parse(p.timestamp) / 1000;
-      if (timestamp < start || timestamp > end) continue;
+      if (timestamp < start || timestamp > end) return;
       const a = decode(log, "transfer");
       rows.push({
         from: String(a.from).toLowerCase(),
@@ -741,12 +1179,31 @@ export class LaunchCardsService implements LaunchCardsSource {
         blockNumber: p.blockNumber,
         timestamp,
       });
-    }
+    });
+    // Concurrent metadata fetches must not change event order.
+    const order = new Map(
+      selected.map((log, i) => [
+        `${log.transactionHash}:${String(decode(log, "transfer").to).toLowerCase()}`,
+        i,
+      ]),
+    );
+    rows.sort(
+      (a, b) =>
+        (order.get(`${a.transactionHash}:${a.to}`) ?? 0) -
+        (order.get(`${b.transactionHash}:${b.to}`) ?? 0),
+    );
     return {
       rows,
       coverage: {
         ...scan.coverage,
         metadataCapped,
+        ...(buyerSet
+          ? {
+              buyerCap: caps.buyers,
+              buyerCapped,
+              distinctBuyers: buyerSet.size,
+            }
+          : {}),
         decodedLogs: rows.length,
         fromTimestamp: t0.timestamp,
         toTimestamp: new Date(
@@ -755,7 +1212,8 @@ export class LaunchCardsService implements LaunchCardsSource {
         requestedEndTimestamp: new Date(end * 1000).toISOString(),
         ongoing: anchor.seconds < end,
       },
-      partial: scan.partial || metadataCapped || anchor.seconds < end,
+      partial:
+        scan.partial || metadataCapped || buyerCapped || anchor.seconds < end,
     };
   }
   private async buyers(
@@ -771,6 +1229,7 @@ export class LaunchCardsService implements LaunchCardsSource {
       windows.push({ point: resolved.poolStart, source: registry.v4.address });
     const groups = [],
       coverage = [];
+    const distinctBuyers = new Set<string>();
     let transactionReads = 0,
       nonceReads = 0,
       partial = false;
@@ -783,64 +1242,45 @@ export class LaunchCardsService implements LaunchCardsSource {
         window.point,
         10,
         caps.transferChunks,
+        distinctBuyers,
       );
       const signers = new Map<string, string>(),
         nonces = new Map<string, number>();
-      for (const hash of [
-        ...new Set(scan.rows.map((t) => t.transactionHash)),
-      ]) {
-        if (
-          transactionReads >= caps.transactions ||
-          r.calls >= r.maxCalls - 15
-        ) {
-          partial = true;
-          break;
-        }
-        const tx = (await r.read("eth_getTransactionByHash", [hash])) as {
-          hash?: unknown;
-          from?: unknown;
-          blockNumber?: unknown;
-          blockHash?: unknown;
-        } | null;
-        transactionReads++;
-        const transfer = scan.rows.find((t) => t.transactionHash === hash)!;
-        if (
-          !tx ||
-          typeof tx.hash !== "string" ||
-          tx.hash.toLowerCase() !== hash ||
-          !isAddress(tx.from) ||
-          quantity(tx.blockNumber) !== transfer.blockNumber ||
-          tx.blockHash !== (await r.block(transfer.blockNumber)).hash
-        )
-          throw unavailable();
-        signers.set(hash, tx.from.toLowerCase());
-        if (
-          scan.rows.some(
-            (t) =>
-              t.transactionHash === hash &&
-              t.to === tx.from!.toString().toLowerCase(),
-          )
-        ) {
+      const hashes = [
+        ...new Set(
+          scan.rows
+            .filter((t) => t.value > 0n && !/^0x0{40}$/.test(t.to))
+            .map((t) => t.transactionHash),
+        ),
+      ];
+      if (hashes.length > caps.transactions - transactionReads) partial = true;
+      await mapSix(
+        hashes.slice(0, Math.max(0, caps.transactions - transactionReads)),
+        async (hash) => {
+          transactionReads++;
+          const transfer = scan.rows.find((t) => t.transactionHash === hash)!;
+          const tx = await r.signer(hash, transfer.blockNumber);
+          signers.set(hash, tx);
           if (
-            nonceReads >= caps.nonces ||
-            r.calls >= r.maxCalls - 15 ||
-            transfer.blockNumber === 0
+            scan.rows.some((t) => t.transactionHash === hash && t.to === tx)
           ) {
-            partial = true;
-            continue;
+            if (nonceReads >= caps.nonces || transfer.blockNumber === 0) {
+              partial = true;
+              return;
+            }
+            nonceReads++;
+            nonces.set(
+              hash,
+              quantity(
+                await r.read("eth_getTransactionCount", [
+                  tx,
+                  hex(transfer.blockNumber - 1),
+                ]),
+              ),
+            );
           }
-          nonces.set(
-            hash,
-            quantity(
-              await r.read("eth_getTransactionCount", [
-                tx.from.toLowerCase(),
-                hex(transfer.blockNumber - 1),
-              ]),
-            ),
-          );
-          nonceReads++;
-        }
-      }
+        },
+      );
       groups.push({
         t0: window.point,
         liquiditySource: window.source,
@@ -861,6 +1301,8 @@ export class LaunchCardsService implements LaunchCardsSource {
         windows: coverage,
         transactionReads,
         nonceReads,
+        buyerCap: caps.buyers,
+        distinctBuyers: distinctBuyers.size,
         rules,
         limit:
           "Transfers from the verified liquidity source only; PoolManager transfers are not uniquely attributable to a pool.",
@@ -890,9 +1332,6 @@ export class LaunchCardsService implements LaunchCardsSource {
     buyers: Awaited<ReturnType<LaunchCardsService["buyers"]>>,
   ) {
     if (buyers.state === "unknown") return unknown("Buyer tags are unknown");
-    const total = await this.uint(r, token, "0x18160ddd", anchor);
-    if (total === null || total === 0n)
-      return unknown("totalSupply unavailable or zero");
     const tags = buyers.value.windows.flatMap((w) => w.tags);
     const multiTransactions = buyers.value.windows.flatMap(
       (w) => w.transactions,
@@ -904,16 +1343,20 @@ export class LaunchCardsService implements LaunchCardsSource {
       ]),
     ];
     const balances = new Map<string, bigint>();
-    for (const wallet of wallets.slice(0, caps.balances)) {
-      if (r.calls >= r.maxCalls - 12) break;
-      const balance = await this.uint(
-        r,
-        token,
-        `0x70a08231${wallet.slice(2).padStart(64, "0")}`,
-        anchor,
-      );
-      if (balance !== null) balances.set(wallet, balance);
-    }
+    const [total] = await Promise.all([
+      this.uint(r, token, "0x18160ddd", anchor),
+      mapSix(wallets.slice(0, caps.balances), async (wallet) => {
+        const balance = await this.uint(
+          r,
+          token,
+          `0x70a08231${wallet.slice(2).padStart(64, "0")}`,
+          anchor,
+        );
+        if (balance !== null) balances.set(wallet, balance);
+      }),
+    ]);
+    if (total === null || total === 0n)
+      return unknown("totalSupply unavailable or zero");
     const byTag = ["early buyer", "same-tx multi-buy", "new wallet"].map(
       (kind) => {
         const members = [
@@ -998,53 +1441,102 @@ export class LaunchCardsService implements LaunchCardsSource {
     );
   }
   private async history(r: LaunchReader, anchor: Header, launch: Launch) {
-    if (!launch.deployer || !["pons", "long"].includes(launch.adapter))
+    if (!launch.deployer)
       return unknown("Factory event does not identify a deployer or launcher");
-    const factories =
-      launch.adapter === "long"
-        ? [launch.factory, related.longHistory]
-        : [launch.factory];
-    const tokens: { token: string; launchTime: string; factory: string }[] = [],
-      coverage = [];
-    let partial = launch.adapter === "long";
-    for (const factory of [...new Set(factories)]) {
-      const topics =
-        launch.adapter === "pons"
-          ? [topic("pons"), null, null, addressTopic(launch.deployer)]
-          : [topic("long")];
-      const scan = await r.range(
-        factory,
-        topics,
-        factory === related.longHistory
-          ? longHistoryDeploymentBlock
-          : registry[launch.adapter].deploymentBlock,
-        anchor.number,
-        Math.floor(caps.historyChunks / factories.length),
-        true,
-        launch.adapter === "pons",
-      );
-      for (const log of scan.logs) {
-        if (r.calls >= r.maxCalls - 14) {
+    const tokens: { token: string; launchTime: string; factory: string }[] = [];
+    const seen = new Set<string>(),
+      cursors = new Set<string>();
+    let cursor: Record<string, unknown> | undefined,
+      pages = 0,
+      confirmed = 0,
+      partial = false;
+    try {
+      for (; pages < 4;) {
+        const doc = (await r.explorer(() =>
+          this.explorer.getAddressTransactionPage(launch.deployer!, cursor),
+        )) as {
+          items?: Record<string, unknown>[];
+          next_page_params?: Record<string, unknown> | null;
+        };
+        pages++;
+        if (!Array.isArray(doc.items) || doc.items.length > 50)
+          throw unavailable("EXPLORER_UNAVAILABLE");
+        await mapSix(doc.items, async (tx) => {
+          const address = (v: unknown) =>
+            typeof v === "string"
+              ? v.toLowerCase()
+              : String(
+                  (v as { hash?: unknown } | null)?.hash ?? "",
+                ).toLowerCase();
+          if (address(tx.from) !== launch.deployer) return;
+          const to = address(tx.to);
+          const factories: string[] = [
+            registry.pons.address,
+            registry.long.address,
+            related.longHistory,
+            registry.launcher.address,
+            registry.instant.address,
+          ];
+          if (!factories.includes(to) && !tx.created_contract) return;
+          if (!isHash(tx.hash) || seen.has(tx.hash)) return;
+          seen.add(tx.hash);
+          if (
+            confirmed >= caps.historyChunks ||
+            r.calls + r.documentCalls >= r.maxCalls - 14
+          ) {
+            partial = true;
+            return;
+          }
+          confirmed++;
+          const receipt = await r.receipt(tx.hash, anchor);
+          for (const earlier of await this.fromReceipt(r, receipt)) {
+            const point = earlier.launch.created;
+            if (
+              earlier.launch.deployer !== launch.deployer ||
+              earlier.launch.token === launch.token ||
+              point.blockNumber > launch.created.blockNumber ||
+              (point.blockNumber === launch.created.blockNumber &&
+                point.logIndex >= launch.created.logIndex)
+            )
+              continue;
+            if (!tokens.some((t) => t.token === earlier.launch.token))
+              tokens.push({
+                token: earlier.launch.token,
+                launchTime: point.timestamp,
+                factory: earlier.launch.factory,
+              });
+          }
+        });
+        if (partial || !doc.next_page_params) break;
+        const key = JSON.stringify(doc.next_page_params);
+        if (cursors.has(key)) {
           partial = true;
           break;
         }
-        const point = await r.point(log);
-        const earlier = decodeLaunch(launch.adapter, log, point);
-        if (
-          earlier.deployer === launch.deployer &&
-          earlier.token !== launch.token &&
-          (point.blockNumber < launch.created.blockNumber ||
-            (point.blockNumber === launch.created.blockNumber &&
-              point.logIndex < launch.created.logIndex))
-        )
-          tokens.push({
-            token: earlier.token,
-            launchTime: point.timestamp,
-            factory,
-          });
+        cursors.add(key);
+        cursor = doc.next_page_params;
+        if (pages === 4) partial = true;
       }
-      coverage.push(scan.coverage);
-      partial ||= scan.partial;
+    } catch (error) {
+      partial = true;
+      return known(
+        {
+          count: tokens.length,
+          launches: tokens,
+          liquidityHistory: unknown(
+            "Liquidity history is unknown in this version",
+          ),
+        },
+        {
+          pages,
+          confirmed,
+          reason:
+            error instanceof AppError || error instanceof ReadCap
+              ? providerReason(error)
+              : "EXPLORER_UNAVAILABLE",
+        },
+        true,
+      );
     }
     return known(
       {
@@ -1055,9 +1547,12 @@ export class LaunchCardsService implements LaunchCardsSource {
         ),
       },
       {
-        ranges: coverage,
-        indexedDeployer: launch.adapter === "pons",
-        cap: caps.historyChunks,
+        method: "explorer-transactions-and-receipts",
+        pages,
+        confirmed,
+        pageCap: 4,
+        receiptCap: caps.historyChunks,
+        ...(partial ? { reason: "BUDGET_EXHAUSTED" } : {}),
       },
       partial,
     );
@@ -1127,7 +1622,10 @@ export class LaunchCardsService implements LaunchCardsSource {
         {
           graduation: resolved.graduation
             ? known(resolved.graduation)
-            : unknown("No graduation found in the bounded scan"),
+            : unknown(
+                launch.unknownReasons.graduation ??
+                  "Graduation unknown for the reviewed PoolKey",
+              ),
           initialize: resolved.poolInitialize
             ? known(resolved.poolInitialize)
             : unknown("Matching Initialize not established"),

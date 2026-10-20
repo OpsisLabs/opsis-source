@@ -1,11 +1,11 @@
-import type { FastifyInstance } from "fastify";
+import type { FastifyBaseLogger, FastifyInstance } from "fastify";
 import { z } from "zod";
 import type { Env } from "../config/env.js";
 import { rateLimitKey } from "../http/authenticate.js";
 import { AppError } from "../http/errors.js";
 import type { LaunchCardsSource } from "../launches/service.js";
 const query = z
-  .object({ minutes: z.coerce.number().int().min(1).max(120).default(30) })
+  .object({ minutes: z.coerce.number().int().min(1).max(60).default(10) })
   .strict();
 const params = z
   .object({ token: z.string().regex(/^0x[0-9a-fA-F]{40}$/) })
@@ -28,6 +28,23 @@ export async function launchRoutes(
     config: { rateLimit: false as const },
     ...(limit ? { onRequest: limit } : {}),
   };
+  const observed = async (
+    read: () => Promise<unknown>,
+    log: FastifyBaseLogger,
+  ) => {
+    try {
+      return await read();
+    } catch (error) {
+      if (error instanceof AppError && error.statusCode === 503) {
+        const reason =
+          (error.details as { reason?: string } | undefined)?.reason ??
+          "PROVIDER_ERROR:UNKNOWN";
+        log.warn({ reason }, "Launch facts refused");
+        throw new AppError(error.code, 503, error.message, { reason });
+      }
+      throw error;
+    }
+  };
   const enabled = () => {
     if (
       !env.LAUNCH_CARDS_ENABLED ||
@@ -39,7 +56,8 @@ export async function launchRoutes(
   app.get("/v1/private/opsis/launches", options, async (request, reply) => {
     reply.header("cache-control", "private, no-store");
     enabled();
-    return source.feed(query.parse(request.query).minutes);
+    const minutes = query.parse(request.query).minutes;
+    return observed(() => source.feed(minutes), request.log);
   });
   app.get(
     "/v1/private/opsis/launches/:token",
@@ -48,7 +66,8 @@ export async function launchRoutes(
       reply.header("cache-control", "private, no-store");
       enabled();
       z.object({}).strict().parse(request.query);
-      return source.card(params.parse(request.params).token);
+      const token = params.parse(request.params).token;
+      return observed(() => source.card(token), request.log);
     },
   );
 }

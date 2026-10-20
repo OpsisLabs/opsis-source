@@ -294,6 +294,13 @@ export function LaunchCardView({ card }: { card: LaunchCardData }) {
         {c("Anchor block", "锚定区块")} {card.anchor.blockNumber} ·{" "}
         {card.anchor.timestamp}
       </p>
+      {card.observedAt && (
+        <p>
+          {c("Observed", "观测时间")}: {card.observedAt} ·{" "}
+          {c("Age at retrieval", "获取时的数据年龄")}: {card.ageSeconds ?? 0}{" "}
+          {c("seconds", "秒")}
+        </p>
+      )}
       <p className="launch-address">{card.anchor.blockHash}</p>
       <section className="launch-fact">
         <h3>{c("Launchpad and trading start", "发行平台与交易开始")}</h3>
@@ -404,6 +411,12 @@ export function LaunchCardView({ card }: { card: LaunchCardData }) {
         />
         <Section title={c("LP facts", "流动性头寸事实")} fact={card.lpStatus} />
         <Section title={c("Permissions", "权限")} fact={card.permissions} />
+        {card.directPools && (
+          <Section
+            title={c("Direct pools at the anchor", "锚定区块的直接池")}
+            fact={card.directPools}
+          />
+        )}
       </div>
       <section className="launch-fact">
         <h3>{c("Sell test", "卖出测试")}</h3>

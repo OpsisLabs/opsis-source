@@ -9,13 +9,16 @@ export type LaunchEntry = {
   token: string;
   launchpad: string;
   deployer: string | null;
-  created: { timestamp: string };
+  created: { timestamp: string | null; blockNumber?: number };
   t0: { timestamp: string } | null;
   unknownReasons: Record<string, string>;
   partial?: boolean;
   [key: string]: unknown;
 };
 export type LaunchCardData = {
+  observedAt?: string;
+  ageSeconds?: number;
+  directPools?: LaunchFact;
   token: string;
   anchor: { blockNumber: number; blockHash: string; timestamp: string };
   launch: LaunchFact;
@@ -86,7 +89,9 @@ export function sortLaunches(
   sort: "time" | "launchpad" | "deployer",
 ): LaunchEntry[] {
   const newest = (a: LaunchEntry, b: LaunchEntry) =>
-    b.created.timestamp.localeCompare(a.created.timestamp) ||
+    (b.created.blockNumber !== undefined && a.created.blockNumber !== undefined
+      ? b.created.blockNumber - a.created.blockNumber
+      : (b.created.timestamp ?? "").localeCompare(a.created.timestamp ?? "")) ||
     a.token.localeCompare(b.token);
   return [...entries].sort((a, b) =>
     sort === "time"
@@ -155,7 +160,7 @@ function validLaunchResponse(value: unknown, token?: string): boolean {
   return (
     Number.isInteger(feed.minutes) &&
     feed.minutes >= 1 &&
-    feed.minutes <= 120 &&
+    feed.minutes <= 60 &&
     !!feed.coverage &&
     ["available", "partial"].includes(feed.coverage.state) &&
     Array.isArray(feed.entries) &&
@@ -165,8 +170,11 @@ function validLaunchResponse(value: unknown, token?: string): boolean {
         entry &&
         /^0x[0-9a-f]{40}$/i.test(entry.token) &&
         typeof entry.launchpad === "string" &&
-        typeof entry.created?.timestamp === "string" &&
-        Number.isFinite(Date.parse(entry.created.timestamp)) &&
+        ((typeof entry.created?.timestamp === "string" &&
+          Number.isFinite(Date.parse(entry.created.timestamp))) ||
+          (entry.created?.timestamp === null &&
+            Number.isSafeInteger(entry.created.blockNumber) &&
+            Number(entry.created.blockNumber) >= 0)) &&
         !!entry.unknownReasons &&
         typeof entry.unknownReasons === "object",
     )

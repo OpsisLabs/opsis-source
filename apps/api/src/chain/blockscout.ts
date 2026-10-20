@@ -11,6 +11,19 @@ export class BlockscoutProvider implements ChainProvider {
 
   constructor(private readonly env: Env, private readonly http: ProviderHttp = createProviderHttp(env, "blockscout")) {}
 
+  async getAddress(address: string): Promise<SourceDocumentInput> {
+    return this.fetchDoc("contract", address, `/addresses/${address}`);
+  }
+
+  async getAddressTransactionPage(address: string, cursor?: Record<string, unknown>): Promise<SourceDocumentInput> {
+    const path = `/addresses/${address}/transactions`;
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(cursor ?? {})) {
+      if (["string", "number", "boolean"].includes(typeof value)) query.set(key, String(value));
+    }
+    return this.fetchDoc("wallet", address, `${path}${query.size ? `?${query}` : ""}`);
+  }
+
   async getTransaction(hash: string, options: ProviderQueryOptions = {}): Promise<SourceDocumentInput[]> {
     const transaction = await this.fetchDoc("transaction", hash, `/transactions/${hash}`);
     // The private first answer must fit inside one provider timeout. Core

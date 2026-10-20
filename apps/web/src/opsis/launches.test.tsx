@@ -279,6 +279,36 @@ describe("launch fact fixture presentation", () => {
       expect(html).not.toMatch(/top picks|score/i);
     },
   );
+  it.each([false, true])(
+    "retains unknown-time feed entries and their block in Chinese=%s",
+    async (chinese) => {
+      language.chinese = chinese;
+      const unknownTime: LaunchFeed = {
+        ...feed,
+        minutes: 10,
+        entries: [
+          {
+            ...feed.entries[0]!,
+            created: { timestamp: null, blockNumber: 12340 },
+            t0: null,
+          },
+        ],
+      };
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(async () => new Response(JSON.stringify(unknownTime))),
+      );
+      expect(await readLaunches(true)).toEqual(unknownTime);
+      const html = renderToStaticMarkup(
+        <MemoryRouter>
+          <LaunchFeedView feed={unknownTime} />
+        </MemoryRouter>,
+      );
+      expect(html).toContain(chinese ? "时间未知" : "Time unknown");
+      expect(html).toContain("12340");
+      expect(html).toContain(token);
+    },
+  );
   it("sorts by event time, launchpad or deployer without mutating feed order", () => {
     expect(sortLaunches(feed.entries, "time").map((row) => row.token)).toEqual([
       token,

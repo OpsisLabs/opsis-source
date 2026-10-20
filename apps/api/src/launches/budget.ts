@@ -33,6 +33,7 @@ export function createLaunchCardsBudget(
           "LAUNCH_CARDS_BUDGET_UNAVAILABLE",
           503,
           "The daily launch-facts budget guard is unavailable",
+          { reason: "BUDGET_EXHAUSTED" },
         );
       },
     };
@@ -68,6 +69,7 @@ class RedisLaunchCardsBudget implements LaunchCardsBudget {
           "LAUNCH_CARDS_DAILY_BUDGET_EXCEEDED",
           503,
           "Today's launch-facts read budget has been reached",
+          { reason: "BUDGET_EXHAUSTED" },
         );
       if (!Number.isFinite(consumed))
         throw new Error("invalid Redis budget result");
@@ -77,6 +79,7 @@ class RedisLaunchCardsBudget implements LaunchCardsBudget {
         "LAUNCH_CARDS_BUDGET_UNAVAILABLE",
         503,
         "The daily launch-facts budget guard is unavailable",
+        { reason: "BUDGET_EXHAUSTED" },
       );
     }
   }
@@ -101,6 +104,7 @@ class MemoryLaunchCardsBudget implements LaunchCardsBudget {
         "LAUNCH_CARDS_DAILY_BUDGET_EXCEEDED",
         503,
         "Today's launch-facts read budget has been reached",
+        { reason: "BUDGET_EXHAUSTED" },
       );
     this.consumed += units;
   }
@@ -112,6 +116,7 @@ function assertUnits(units: number, limit: number): void {
       "LAUNCH_CARDS_RPC_LIMIT_EXCEEDED",
       503,
       "The check exceeded its RPC subcall limit",
+      { reason: "BUDGET_EXHAUSTED" },
     );
   }
 }

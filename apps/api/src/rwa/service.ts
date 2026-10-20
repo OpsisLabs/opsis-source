@@ -538,12 +538,13 @@ export async function stockPairUsdPrice(address: string, document: (url: string)
   const asset = findStockAsset(body, address.toLowerCase());
   if (!asset) return null;
   const feed = parseFeedDirectory(await document(CHAINLINK_RDD), asset.symbol);
-  if (feed.state !== "match") throw new Error("Stock per-token feed unavailable");
+  if (feed.state !== "match") throw new Error(`No USD price source for the pair token (${asset.symbol} has no Chainlink feed)`);
   const call = async (functionName: "uid" | "symbol" | "decimals" | "oraclePaused") => decodeFunctionResult({
     abi: stockAbi, functionName,
     data: await read("eth_call", [{ to: address, data: encodeFunctionData({ abi: stockAbi, functionName }) }, block]) as Hex,
   });
-  if (String(await call("uid")).toLowerCase() !== asset.id.toLowerCase() || await call("symbol") !== asset.symbol || await call("decimals") !== asset.decimals || await call("oraclePaused") !== false) throw new Error("Stock pair identity or oracle unavailable");
+  const [uid, symbol, decimals, paused] = await Promise.all([call("uid"), call("symbol"), call("decimals"), call("oraclePaused")]);
+  if (String(uid).toLowerCase() !== asset.id.toLowerCase() || symbol !== asset.symbol || decimals !== asset.decimals || paused !== false) throw new Error("Stock pair identity or oracle unavailable");
   const price = await readChainlinkUsd(read, block, seconds, feed.value);
   // primaryTokenizedPrice feeds are USD per raw token, with the UI multiplier
   // already embedded. Never multiply by uiMultiplier or an underlying quote.
