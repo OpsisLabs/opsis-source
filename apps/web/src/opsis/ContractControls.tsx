@@ -1,12 +1,22 @@
 import { useEffect, useRef, useState } from "react";
-import type { TokenControls } from "@rh-chain/shared";
+import { validateReceipt, type Receipt, type TokenControls } from "@rh-chain/shared";
+import { Link } from "react-router";
 import { privateApi } from "../dashboard/http";
 import { useCopy } from "./copy";
 import { validControls } from "./controls-model";
+import { ReceiptDownload } from "./ReceiptDownload";
 
-export default function ContractControls({ contract }: { contract: string }) {
+export default function ContractControls({
+  contract,
+  receipts = false,
+}: {
+  contract: string;
+  /** Ask for a signed receipt alongside the observation when the server offers one. */
+  receipts?: boolean;
+}) {
   const c = useCopy();
   const [data, setData] = useState<TokenControls | null>(null);
+  const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
   const [now, setNow] = useState(Date.now);
@@ -24,16 +34,38 @@ export default function ContractControls({ contract }: { contract: string }) {
     setBusy(true);
     setError(false);
     setData(null);
+    setReceipt(null);
     try {
-      const result = await privateApi<unknown>(
-        "/v1/private/opsis/controls",
-        { contract },
-        abort.signal,
-      );
+      let result: unknown;
+      let signed: Receipt | null = null;
+      try {
+        result = await privateApi<unknown>(
+          receipts
+            ? "/v1/private/opsis/controls?receipt=1"
+            : "/v1/private/opsis/controls",
+          { contract },
+          abort.signal,
+        );
+        if (receipts) {
+          const { receipt: raw, ...rest } = result as Record<string, unknown>;
+          signed = validateReceipt(raw);
+          result = rest;
+        }
+      } catch (reason) {
+        // A missing or invalid receipt never hides the observation itself.
+        if (!receipts || abort.signal.aborted) throw reason;
+        signed = null;
+        result = await privateApi<unknown>(
+          "/v1/private/opsis/controls",
+          { contract },
+          abort.signal,
+        );
+      }
       if (!validControls(result, contract))
         throw new Error("Invalid observation");
       if (!abort.signal.aborted) {
         setData(result);
+        setReceipt(signed);
         setNow(Date.now());
       }
     } catch {
@@ -146,6 +178,18 @@ export default function ContractControls({ contract }: { contract: string }) {
             {c("current, not final", "当前，未最终确认")}
           </p>
           <p className="opsis-identity">{data.anchor.blockHash}</p>
+          {receipt && (
+            <div className="opsis-receipt-actions" data-testid="opsis-controls-receipt">
+              <p className="opsis-small">
+                {c(
+                  "Signed receipt: what Opsis read and computed at this block, from which sources, signed with Opsis's published key. It proves the computation, not that a conclusion is right.",
+                  "签名收据：Opsis 在此区块读取和计算的内容及其来源，并以 Opsis 公布的密钥签名。它证明计算过程，而不证明结论正确。",
+                )}
+              </p>
+              <ReceiptDownload receipt={receipt} />{" "}
+              <Link to="/verify">{c("Verify a receipt →", "验证收据 →")}</Link>
+            </div>
+          )}
           <p>
             {c(
               "Getters may misrepresent behavior. These observations do not prove sellability, absence of privileges, or token safety.",

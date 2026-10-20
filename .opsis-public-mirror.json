@@ -1,6 +1,6 @@
 {
   "format": "opsis.public-source.v1",
-  "sourceTreeDigest": "073f2e763628fc6544df3bdd00322f46ff86d0b2263624db293a3a28ea7fc9f0",
+  "sourceTreeDigest": "a5fc6c847f73c40462767abaff958ec6cb709343480d4de526d282535f0be3a0",
   "files": {
     ".dockerignore": "d4528d0caab863245b4b7d42a4fc3d7080277ff349a667a81c637ec77f89b2da",
     ".env.example": "097f2a6d053a59da8dcdff90695121df3b9c84b794a5419c8677be4d26462e4d",
@@ -486,7 +486,7 @@
     "apps/web/src/opsis/community-workspace-model.ts": "3b6954375dba12ad0ab4629a2aa7699ad4b3bf22d294fee1207de6343455f4e6",
     "apps/web/src/opsis/community.test.ts": "6b2c445af72dc19f2c929b085b33a6eac2ebe786cdc8399f85e99eee7679ffb1",
     "apps/web/src/opsis/Community.tsx": "bdf538e946f2178365c128a842548a1ab6b54b1954d599bf2fae1ac4c6e3cfd8",
-    "apps/web/src/opsis/ContractControls.tsx": "50284eea48915783a056bed825f1b4d8ff0d5e3b43f6e2d84fbc06fd2c2382ec",
+    "apps/web/src/opsis/ContractControls.tsx": "89cf50adf2a56df3813dc09c9e8fb6349b91ce9d674d8fe7cf00d7aef774d3ec",
     "apps/web/src/opsis/controls-model.test.ts": "53a6979f8fd410e119e96403bcdbe543387b7817af71b3b631027477537b6343",
     "apps/web/src/opsis/controls-model.ts": "f3ee461dead07395a5045c91bcc5341d9f40e1b8139c27b8bfe42cd5b6b061b2",
     "apps/web/src/opsis/copy-layout.test.tsx": "78de9474f19cfce894b7d6ebf96bdaca97c0038a913fe5e57e56e85705d5ed0a",
@@ -582,7 +582,7 @@
     "apps/web/src/opsis/research-refusal.test.ts": "27fde3c29941189a2508784da9bcb3a555226c22cabb0b12c07e6783e85d7bcb",
     "apps/web/src/opsis/research-refusal.ts": "13ef2c4313e99c7e680f41c11b0ab81f0c8f13577bf71071e03dd25cdfba78f8",
     "apps/web/src/opsis/research.css": "0a8dee431367a919c12cef35241d253c09dbb0606df1a1143d8ea3f24bdc6c64",
-    "apps/web/src/opsis/Research.tsx": "0b76255b799c0841c777bcd0e08d24e13cce077e57535a0d38c2cc8f0767fa51",
+    "apps/web/src/opsis/Research.tsx": "75f8f23b8a49e928e7c470eadeb5a05224f223cd92e2364f8af4168f172cee3d",
     "apps/web/src/opsis/ResearchFacts.test.tsx": "b717e75ab6a2f4babef565c39bb2f095dee3f9b3f1f738503f1b5e16075f38c0",
     "apps/web/src/opsis/ResearchFacts.tsx": "c80c40305b2fb558d1a24fec77134dd99214d8078cc557f37609b3be4a9936f8",
     "apps/web/src/opsis/result-panels.test.tsx": "45807a4cbbcc215ce6febc53e46030b4646bf14de578aec562f312f4aad68318",

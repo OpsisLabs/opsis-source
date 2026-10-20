@@ -492,6 +492,7 @@ export default function Research({
           <ContractControls
             key={entity.trim().toLowerCase()}
             contract={entity.trim()}
+            receipts={capabilities.receipts === true}
           />
         )}
       <details className="opsis-panel">
