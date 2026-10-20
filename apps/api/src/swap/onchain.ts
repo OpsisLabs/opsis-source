@@ -8,7 +8,7 @@ import { factoryAbi, poolAbi, quoterAbi } from "../exit-check/service.js";
 import { feeAmountRaw, isBoundarySqrtPrice, priceImpactBps, spotAmountOutRaw } from "../exit-check/math.js";
 import { chainlinkAbi, ethUsdFeed, readChainlinkUsd } from "../rwa/chainlink.js";
 import { SWAP_PREVIEW_FRESHNESS_MS, tokensForDirection } from "./constants.js";
-import { parseSwapAmount, swapSlippagePercent, SwapQuoteProviderError, type SwapPreviewRequest, type SwapQuoteSource } from "./service.js";
+import { parseSwapAmount, swapSlippagePercent, SwapQuoteProviderError, type SwapFeeTierResult, type SwapPreviewRequest, type SwapQuoteSource } from "./service.js";
 
 type Read = { method: string; params: unknown[] };
 type Result = { id: string; result?: unknown; error?: unknown };
@@ -117,13 +117,27 @@ export class OnchainQuoteSource implements SwapQuoteSource {
         ...feedCalls,
       ]);
       let best: { pool: (typeof pools)[number]; amountOut: bigint; sqrtPrice: bigint; gas: bigint } | undefined;
+      const tierResults = new Map<number, SwapFeeTierResult>();
       pools.forEach((pool, index) => {
+        const base = { feeTier: pool.fee, poolAddress: pool.address.toLowerCase(),
+          lpFeeAmount: formatUnits(feeAmountRaw(amountIn, pool.fee), input.decimals) };
+        const refuse = (reason: Extract<SwapFeeTierResult, { status: "quote_refused" }>["reason"]) =>
+          tierResults.set(pool.fee, { ...base, status: "quote_refused", reason });
+        const slotResult = results[index * 2]!, quoteResult = results[index * 2 + 1]!;
+        if (slotResult.error !== undefined || quoteResult.error !== undefined) { refuse("read_failed"); return; }
         try {
-          const slot = decodeFunctionResult({ abi: poolAbi, functionName: "slot0", data: required(results[index * 2]!) as Hex });
-          const quote = decodeFunctionResult({ abi: quoterAbi, functionName: "quoteExactInputSingle", data: required(results[index * 2 + 1]!) as Hex });
-          if (!slot[6] || isBoundarySqrtPrice(slot[0]) || isBoundarySqrtPrice(quote[1]) || quote[0] <= 0n || quote[3] <= 0n) return;
+          const slot = decodeFunctionResult({ abi: poolAbi, functionName: "slot0", data: required(slotResult) as Hex });
+          const quote = decodeFunctionResult({ abi: quoterAbi, functionName: "quoteExactInputSingle", data: required(quoteResult) as Hex });
+          if (!slot[6]) { refuse("pool_locked"); return; }
+          if (isBoundarySqrtPrice(slot[0]) || isBoundarySqrtPrice(quote[1])) { refuse("price_boundary"); return; }
+          if (quote[0] <= 0n) { refuse("zero_output"); return; }
+          if (quote[3] <= 0n) { refuse("invalid_gas_estimate"); return; }
+          const impact = priceImpactBps({ spotAmountOut: spotAmountOutRaw({ amountInRaw: amountIn, sqrtPriceX96: slot[0],
+            zeroForOne: input.address.toLowerCase() < output.address.toLowerCase() }), quotedAmountOut: quote[0] });
+          tierResults.set(pool.fee, { ...base, status: "quoted", outputAmount: formatUnits(quote[0], output.decimals),
+            priceImpactPercent: impact === null ? null : Number(impact) / 100, highestOutput: false });
           if (!best || quote[0] > best.amountOut) best = { pool, amountOut: quote[0], sqrtPrice: slot[0], gas: quote[3] };
-        } catch { /* A failed or boundary quote is excluded; never inferred. */ }
+        } catch { refuse("invalid_response"); }
       });
       if (!best) throw new SwapQuoteProviderError("no_route");
       // Reuse the feed's identity, round and age validation over the results
@@ -155,6 +169,11 @@ export class OnchainQuoteSource implements SwapQuoteSource {
         onchain: {
           blockNumber: Number(block), blockHash: anchor.hash, capturedAtMs, poolAddress: best.pool.address.toLowerCase(),
           feeTier: best.pool.fee, lpFeeAmount: formatUnits(feeAmountRaw(amountIn, best.pool.fee), input.decimals),
+          feeTiers: EXIT_CHECK_FEE_TIERS.map((feeTier): SwapFeeTierResult => {
+            const result = tierResults.get(feeTier);
+            return result?.status === "quoted" ? { ...result, highestOutput: feeTier === best!.pool.fee }
+              : result ?? { feeTier, status: "no_pool", reason: "pool_not_found" };
+          }),
           gasEstimate: best.gas.toString(), gasPriceWei: gasPrice.toString(), ethUsd: feed.priceUsd,
           ethUsdObservedAt: feed.observedAt, nativeSide, rpcProvider: robinhoodRpcEndpoint(this.env).id,
           networkFeeEth: formatEther(gasWei),

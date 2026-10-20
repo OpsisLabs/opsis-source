@@ -13,22 +13,22 @@ import { useI18n } from "../i18n";
 import { lookup } from "../i18n/translate";
 import type { Capabilities } from "./model";
 import { addressConfirmed, initialClaim, requestClaims } from "./claims-model";
-import { ReceiptDownload } from "./ReceiptDownload";
+import { ReceiptActions } from "./ReceiptActions";
 import "./utility-workspace.css";
 import "./claims.css";
 export default function ClaimCheck({
   capabilities,
   previewKey = "",
 }: {
-  capabilities: Pick<Capabilities, "claimCheck">;
+  capabilities: Pick<Capabilities, "claimCheck" | "receipts">;
   previewKey?: string;
 }) {
   return capabilities.claimCheck === true ? (
-    <EnabledClaims previewKey={previewKey} />
+    <EnabledClaims previewKey={previewKey} receipts={capabilities.receipts === true} />
   ) : null;
 }
-function EnabledClaims({ previewKey }: { previewKey: string }) {
-  const { t, locale } = useI18n();
+function EnabledClaims({ previewKey, receipts }: { previewKey: string; receipts: boolean }) {
+  const { t } = useI18n();
   const [text, setText] = useState("");
   const [candidates, setCandidates] = useState<
     Array<{
@@ -83,71 +83,6 @@ function EnabledClaims({ previewKey }: { previewKey: string }) {
       if (!controller.signal.aborted) setBusy(false);
     }
   };
-  const detail = (value: string) => {
-    const key = `claims.detail.${value}`;
-    return lookup(locale, key) ?? value;
-  };
-  const observation = (o: ClaimObservation, historical: boolean) => (
-    <section className="utility-ws-panel claim-results">
-      <h2>{t(historical ? "claims.post" : "claims.current")}</h2>
-      {o.block ? (
-        <p>
-          <strong>{o.block.number}</strong> · <time>{o.block.timestamp}</time>
-          <br />
-          <code>{o.block.hash}</code>
-        </p>
-      ) : (
-        <p>{t("claims.unknownBlock")}</p>
-      )}
-      {o.results.map((r, i) => (
-        <article key={i}>
-          <h3>
-            {locale === "en"
-              ? r.wording
-              : `区块 ${o.block?.number ?? "—"} 的链上数据：${t(`claims.${r.status}`)}`}
-          </h3>
-          <p>
-            {t(`claims.${r.claim.type}`)}
-            {"comparison" in r.claim && (
-              <>
-                {" "}
-                · {t(`claims.${r.claim.comparison}`)} {r.claim.percent}%
-              </>
-            )}
-            {"expected" in r.claim && (
-              <> · {t(r.claim.expected ? "claims.yes" : "claims.no")}</>
-            )}
-            {r.claim.type === "launchpad" && (
-              <>
-                {" "}
-                ·{" "}
-                {r.claim.launchpad === "launcher"
-                  ? t("claims.launcher")
-                  : r.claim.launchpad}
-              </>
-            )}
-          </p>
-          <p>
-            <strong>{t("claims.definition")}: </strong>
-            {t(`claims.definition.${r.claim.type}`)}
-          </p>
-          {r.reason && (
-            <p>
-              {t("claims.reason")}: {detail(r.reason)}
-            </p>
-          )}
-          <dl aria-label={t("claims.evidence")}>
-            {Object.entries(r.evidence).map(([k, v]) => (
-              <div key={k}>
-                <dt>{lookup(locale, `claims.evidenceKey.${k}`) ?? k}</dt>
-                <dd>{detail(v)}</dd>
-              </div>
-            ))}
-          </dl>
-        </article>
-      ))}
-    </section>
-  );
   return (
     <div className="utility-ws claim-ws">
       <header className="utility-ws-panel">
@@ -370,14 +305,84 @@ function EnabledClaims({ previewKey }: { previewKey: string }) {
       <div aria-live="polite">
         {busy && <p>{t("claims.busy")}</p>}
         {error && <p role="alert">{t("claims.error")}</p>}
-        {result && (
-          <>
-            {observation(result.current, false)}
-            {result.post && observation(result.post, true)}
-            {result.receipt && <ReceiptDownload receipt={result.receipt} />}
-          </>
-        )}
+        {result && <ClaimResults result={result} receipts={receipts} />}
       </div>
     </div>
+  );
+}
+
+export function ClaimResults({ result, receipts = false }: { result: ClaimResponse; receipts?: boolean }) {
+  const { t, locale } = useI18n();
+  const detail = (value: string) => {
+    const key = `claims.detail.${value}`;
+    return lookup(locale, key) ?? value;
+  };
+  const observation = (o: ClaimObservation, historical: boolean) => (
+    <section className="utility-ws-panel claim-results">
+      <h2>{t(historical ? "claims.post" : "claims.current")}</h2>
+      {o.block ? (
+        <p>
+          <strong>{o.block.number}</strong> · <time>{o.block.timestamp}</time>
+          <br />
+          <code>{o.block.hash}</code>
+        </p>
+      ) : (
+        <p>{t("claims.unknownBlock")}</p>
+      )}
+      {o.results.map((r, i) => (
+        <article key={i}>
+          <h3>
+            {locale === "en"
+              ? r.wording
+              : `区块 ${o.block?.number ?? "—"} 的链上数据：${t(`claims.${r.status}`)}`}
+          </h3>
+          <p>
+            {t(`claims.${r.claim.type}`)}
+            {"comparison" in r.claim && (
+              <>
+                {" "}
+                · {t(`claims.${r.claim.comparison}`)} {r.claim.percent}%
+              </>
+            )}
+            {"expected" in r.claim && (
+              <> · {t(r.claim.expected ? "claims.yes" : "claims.no")}</>
+            )}
+            {r.claim.type === "launchpad" && (
+              <>
+                {" "}
+                ·{" "}
+                {r.claim.launchpad === "launcher"
+                  ? t("claims.launcher")
+                  : r.claim.launchpad}
+              </>
+            )}
+          </p>
+          <p>
+            <strong>{t("claims.definition")}: </strong>
+            {t(`claims.definition.${r.claim.type}`)}
+          </p>
+          {r.reason && (
+            <p>
+              {t("claims.reason")}: {detail(r.reason)}
+            </p>
+          )}
+          <dl aria-label={t("claims.evidence")}>
+            {Object.entries(r.evidence).map(([k, v]) => (
+              <div key={k}>
+                <dt>{lookup(locale, `claims.evidenceKey.${k}`) ?? k}</dt>
+                <dd>{detail(v)}</dd>
+              </div>
+            ))}
+          </dl>
+        </article>
+      ))}
+    </section>
+  );
+  return (
+    <>
+      {observation(result.current, false)}
+      {result.post && observation(result.post, true)}
+      {receipts && <ReceiptActions receipt={result.receipt} />}
+    </>
   );
 }

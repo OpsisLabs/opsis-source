@@ -15,12 +15,27 @@ import {
 } from "./constants.js";
 
 const rawAmount = z.string().regex(/^\d{1,78}$/);
+const feeTierSchema = z.union([z.literal(100), z.literal(500), z.literal(3000), z.literal(10000)]);
+const decimalAmount = z.string().max(120).regex(/^(?:0|[1-9]\d*)(?:\.\d+)?$/);
+const poolAddress = z.string().regex(/^0x[0-9a-fA-F]{40}$/).refine((value) => !/^0x0{40}$/i.test(value));
+const feeTierResultSchema = z.discriminatedUnion("status", [
+  z.object({ feeTier: feeTierSchema, status: z.literal("no_pool"), reason: z.literal("pool_not_found") }),
+  z.object({ feeTier: feeTierSchema, poolAddress, lpFeeAmount: decimalAmount, status: z.literal("quote_refused"),
+    reason: z.enum(["read_failed", "invalid_response", "pool_locked", "price_boundary", "zero_output", "invalid_gas_estimate"]) }),
+  z.object({ feeTier: feeTierSchema, poolAddress, lpFeeAmount: decimalAmount, status: z.literal("quoted"),
+    outputAmount: decimalAmount.refine((value) => /[1-9]/.test(value)),
+    priceImpactPercent: z.number().finite().min(0).max(100).nullable(), highestOutput: z.boolean() }),
+]);
+export type SwapFeeTierResult = z.infer<typeof feeTierResultSchema>;
+
 const onchainSchema = z.object({
   blockNumber: z.number().int().nonnegative().safe(),
   blockHash: z.string().regex(/^0x[0-9a-fA-F]{64}$/),
   capturedAtMs: z.number().int().nonnegative().safe(),
   poolAddress: z.string().regex(/^0x[0-9a-fA-F]{40}$/),
-  feeTier: z.union([z.literal(100), z.literal(500), z.literal(3000), z.literal(10000)]),
+  feeTier: feeTierSchema,
+  feeTiers: z.array(feeTierResultSchema).min(1).max(4)
+    .refine((rows) => new Set(rows.map((row) => row.feeTier)).size === rows.length).optional(),
   lpFeeAmount: z.string().regex(/^\d+(?:\.\d+)?$/),
   gasEstimate: rawAmount, gasPriceWei: rawAmount,
   networkFeeEth: z.string().regex(/^\d+(?:\.\d+)?$/),

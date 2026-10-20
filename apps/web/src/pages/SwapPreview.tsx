@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { ApiError } from "../dashboard/http";
 import { OnchainQuoteDetails } from "../swap/OnchainQuoteDetails";
+import { FeeTierComparison } from "../swap/FeeTierComparison";
 import { useI18n } from "../i18n";
 import {
   SWAP_TOKENS,
@@ -142,6 +143,8 @@ export function QuotePanel({ quote, elapsedMs }: { quote: SwapQuote; elapsedMs: 
           <Metric label={quote.onchain ? t("trade.onchain.networkLabel") : t("trade.quote.estimatedRouteCost")} value={gas} note={quote.onchain ? t("trade.onchain.userPays") : quote.estimatedGas.paidBy === "filler_or_user" ? t("trade.quote.uniswapXCost") : t("trade.quote.routeEstimate")} />
         </div>
       </div>
+
+      <FeeTierComparison quote={quote} />
 
       <div className="grid min-w-0 gap-4 2xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
         <section className="clip-panel min-w-0 border border-[#383838] bg-[#242424] p-5 sm:p-6">

@@ -7,13 +7,16 @@ import type {
 } from "@rh-chain/shared";
 import { privateApi } from "../dashboard/http";
 import { useI18n, type TranslationKey } from "../i18n";
+import { ReceiptActions } from "../opsis/ReceiptActions";
 
 export default function StockDesk({
   address,
   onSelect,
+  receipts = false,
 }: {
   address: string;
   onSelect(address: string): void;
+  receipts?: boolean;
 }) {
   const { t } = useI18n();
   const [desk, setDesk] = useState<StockDeskResult | null>(null);
@@ -64,7 +67,7 @@ export default function StockDesk({
       </div>
       {pending && <p role="status">{t("desk.loading")}</p>}
       {error && <p role="alert">{t("desk.error")}</p>}
-      {desk && <DeskFacts desk={desk} />}
+      {desk && <DeskFacts desk={desk} receipts={receipts} />}
       {index && (
         <div>
           <h3>{t("desk.index")}</h3>
@@ -150,9 +153,11 @@ function roundDecimal(value: string, places: number): string {
 export function DeskFacts({
   desk,
   compact = false,
+  receipts = false,
 }: {
   desk: StockDeskResult;
   compact?: boolean;
+  receipts?: boolean;
 }) {
   const { t } = useI18n();
   const fact = <T,>(value: DeskFact<T>, format: (v: T) => string) =>
@@ -276,15 +281,7 @@ export function DeskFacts({
           <p>{t("desk.history")}</p>
           <p>{t("desk.calendar")}</p>
           <p>{t("desk.limits")}</p>
-          <p>{t(desk.receipt ? "desk.receipted" : "desk.noReceipt")}</p>
-          {desk.receipt && (
-            <details>
-              <summary>{t("desk.receipt")}</summary>
-              <pre className="overflow-x-auto">
-                {JSON.stringify(desk.receipt, null, 2)}
-              </pre>
-            </details>
-          )}
+          {receipts && <ReceiptActions receipt={desk.receipt} />}
         </>
       )}
     </div>

@@ -59,6 +59,10 @@ for (const chinese of [false, true]) {
       expect(html).toContain(chinese ? "1 个中的 1 个" : "1 of 1");
       expect(html).toContain(chinese ? "保存到加密观察列表" : "Save to encrypted watchlist");
       expect(html).toContain(chinese ? "在此设备上加密" : "Encrypted on this device");
+      expect(html).toContain(chinese ? "导出快照" : "Export snapshot");
+      expect(html).toContain(chinese ? "导出 CSV" : "Export CSV");
+      expect(html).toContain(chinese ? "导出 JSON" : "Export JSON");
+      expect(html).toContain(chinese ? "在您的浏览器中导出。不会上传任何内容。" : "Exported in your browser. Nothing is uploaded.");
       expect(html).toContain(chinese ? "复制地址" : "Copy address");
       expect(html).toContain(chinese ? "原生资产" : "Native");
       expect(html).not.toContain("<img");

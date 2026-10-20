@@ -1,13 +1,14 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router";
 import { afterEach, expect, it, vi } from "vitest";
-import type { StockDeskResult } from "@rh-chain/shared";
+import type { Receipt, StockDeskResult } from "@rh-chain/shared";
 import I18nProvider from "../i18n/I18nProvider";
 import * as localeCookie from "../i18n/locale";
 import StockDesk, { DeskFacts } from "./StockDesk";
 import RwaWorkspace from "./RwaWorkspace";
 import { createRef } from "react";
 import { rwaWorkspaceFixture } from "./test-fixtures";
+import { receiptFixture } from "../opsis/receipt-test-fixtures";
 const unknown = { state: "unknown" as const, reason: "FIXTURE_UNAVAILABLE" };
 const desk: StockDeskResult = {
   schemaVersion: 1,
@@ -43,6 +44,28 @@ function render(node: React.ReactNode, locale: "en" | "zh-CN" = "en") {
   );
 }
 afterEach(() => vi.restoreAllMocks());
+it.each(["en", "zh-CN"] as const)("offers a validated desk receipt and verifier link in %s", async (locale) => {
+  const { receipt } = await receiptFixture("stock-desk");
+  const fetcher = vi.spyOn(globalThis, "fetch");
+  const html = render(<DeskFacts desk={{ ...desk, receipt }} receipts />, locale);
+  expect(html).toContain(locale === "en" ? "Download receipt" : "下载凭据");
+  expect(html).toContain('href="/verify"');
+  expect(html).toContain(locale === "en" ? "Verify a receipt →" : "验证收据 →");
+  expect(html).toContain(locale === "en" ? "It proves the computation, not that a conclusion is right." : "它证明计算过程，而不证明结论正确。");
+  expect(fetcher).not.toHaveBeenCalled();
+});
+it("hides absent or malformed receipts and disabled capability without losing desk facts", async () => {
+  const { receipt } = await receiptFixture("stock-desk");
+  const invalid = { ...receipt, signature: { ...receipt.signature, value: "0x1234" } } as Receipt;
+  for (const [value, receipts] of [[undefined, true], [invalid, true], [receipt, false], [receipt, undefined]] as const) {
+    const html = render(<DeskFacts desk={{ ...desk, receipt: value }} receipts={receipts} />);
+    expect(html).toContain("FIXTURE_UNAVAILABLE");
+    expect(html).not.toContain("Download receipt");
+    expect(html).not.toContain('href="/verify"');
+    expect(html).not.toContain("Signed receipt:");
+    expect(html).not.toContain('role="alert"');
+  }
+});
 it("offers explicit desk/index requests and the mandatory line without fetching during render", () => {
   const fetch = vi.spyOn(globalThis, "fetch");
   const html = render(<StockDesk address={desk.address} onSelect={() => {}} />);

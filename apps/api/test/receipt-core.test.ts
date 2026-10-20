@@ -3,9 +3,9 @@ import { canonicalize, canonicalBytes, sha256, concat, fromHex, receiptBody, rec
 import { keccak256, recoverAddress } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 const crypto = { keccak256, recoverAddress };
-export async function fixture() {
+export async function fixture(tool = "tokenControls") {
   const account = privateKeyToAccount(`0x${"11".repeat(32)}`);
-  const body = { version: "opsis-receipt/1" as const, tool: "tokenControls", inputs: { amount: "1000000000000000001" }, chainId: 4663,
+  const body = { version: "opsis-receipt/1" as const, tool, inputs: { amount: "1000000000000000001" }, chainId: 4663,
     block: { number: "32", hash: `0x${"aa".repeat(32)}` as const, timestamp: "2026-10-19T00:00:00.000Z" }, rpcCalls: [], sources: [], outputs: { state: "unknown" }, codeSha: "a".repeat(40), labelsetVersion: "none", issuedAt: "2026-10-19T00:00:01.000Z" };
   const receipt: Receipt = { ...body, signature: { kind: "secp256k1", keyId: account.address, value: await account.sign({ hash: receiptDigest(body, crypto) }) } };
   const keys = [{ address: account.address, validFrom: "2026-10-19T00:00:00.000Z", validTo: null as string | null }];
@@ -41,6 +41,13 @@ describe("RFC 8785 canonical JSON vectors", () => {
   });
 });
 describe("receipt schema, signing and key authorization", () => {
+  it.each(["stock-desk", "claimCheck"])("accepts the %s tool id in the shared schema and signed receipts", async (tool) => {
+    const { receipt, keys } = await fixture(tool);
+    expect(validateReceipt(receipt).tool).toBe(tool);
+    expect((await verifyReceipt(canonicalize(receipt), keys, crypto)).valid).toBe(true);
+    receipt.tool = "tokenControls";
+    expect((await verifyReceipt(canonicalize(receipt), keys, crypto)).signature).toBe(false);
+  });
   it("uses the exact domain prefix and excludes both envelopes", async () => {
     const { receipt, keys } = await fixture();
     expect(receiptDigest(receiptBody(receipt), crypto)).toBe(keccak256(concat(new TextEncoder().encode("OPSIS-RECEIPT-V1\n"), canonicalBytes(receiptBody(receipt)))));

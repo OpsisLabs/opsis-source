@@ -197,13 +197,14 @@ test("trade simulator compares quantities, keeps balances private and invalidate
 
 type QuoteOptions = {
   source?: "onchain" | "uniswap-api";
+  compareTiers?: boolean;
   stale?: boolean;
   warning?: boolean;
   reverse?: boolean;
   freshForMs?: number;
 };
 
-function quoteFixture({ source = "onchain", stale = false, warning = false, reverse = false, freshForMs = 30_000 }: QuoteOptions = {}): SwapQuote {
+function quoteFixture({ source = "onchain", compareTiers = false, stale = false, warning = false, reverse = false, freshForMs = 30_000 }: QuoteOptions = {}): SwapQuote {
   const now = Date.now();
   const quotedAt = stale ? now - 65_000 : now - (30_000 - freshForMs);
   const onchain = source === "onchain";
@@ -246,6 +247,14 @@ function quoteFixture({ source = "onchain", stale = false, warning = false, reve
       lpFeeAmount: reverse ? "0.0125" : "0.000005", gasEstimate: "100000", gasPriceWei: "1000000000",
       networkFeeEth: "0.0001", ethUsd: "2000", ethUsdObservedAt: new Date(quotedAt - 5000).toISOString(),
       nativeSide: null, rpcProvider: "drpc" as const,
+      feeTiers: compareTiers ? [
+        { feeTier: 100, poolAddress: "0x3333333333333333333333333333333333333333", lpFeeAmount: reverse ? "0.0025" : "0.000001", status: "quoted",
+          outputAmount: reverse ? "0.0069" : "36.4", priceImpactPercent: 0.18, highestOutput: false },
+        { feeTier: 500, poolAddress: "0x1111111111111111111111111111111111111111", lpFeeAmount: reverse ? "0.0125" : "0.000005", status: "quoted",
+          outputAmount: output.amount, priceImpactPercent: 0.04, highestOutput: true },
+        { feeTier: 3000, poolAddress: "0x2222222222222222222222222222222222222222", lpFeeAmount: reverse ? "0.075" : "0.00003", status: "quote_refused", reason: "price_boundary" },
+        { feeTier: 10000, status: "no_pool", reason: "pool_not_found" },
+      ] : undefined,
     } } : {}),
     disclosures: onchain ? [
       "Single-pool estimate. Uniswap's app may route differently and show a different price.",
@@ -285,6 +294,52 @@ async function mockQuote(page: Page, options: QuoteOptions & { fail?: boolean; w
     await route.fulfill({ json: quoteFixture(options) });
   });
   return () => calls;
+}
+
+for (const locale of ["en", "zh-CN"] as const) {
+  test(`fee-tier estimates show a table and phone cards with refusal reasons (${locale})`, async ({ page }) => {
+    const chinese = locale === "zh-CN";
+    await page.setViewportSize({ width: 1280, height: 900 });
+    const calls = await mockQuote(page, { compareTiers: true });
+    await openPreview(page, "/swap");
+    if (chinese) await page.getByRole("button", { name: "Switch language to 简体中文" }).filter({ visible: true }).first().click();
+    await page.getByRole("button", { name: chinese ? "获取实时预览" : "GET LIVE PREVIEW", exact: true }).click();
+    const comparison = page.getByRole("region", { name: chinese ? "比较费率档位" : "Compare fee tiers", exact: true });
+    await expect(comparison).toBeVisible();
+    await expect(comparison.getByText(chinese ? "所有档位均使用报价区块 4660 估算。仅包含 Uniswap v3 标准费率档位。" : "All tier estimates use quote block 4660. Standard Uniswap v3 tiers only.", { exact: true })).toBeVisible();
+    const table = comparison.getByRole("table");
+    await expect(table.getByRole("row")).toHaveCount(5);
+    await expect(table.getByText(chinese ? "最高估算输出" : "Highest estimated output", { exact: true })).toHaveCount(1);
+    await expect(table.getByText("36.4 USDG", { exact: true })).toBeVisible();
+    await expect(table.getByText("0.18%", { exact: true })).toBeVisible();
+    await expect(table.getByText("0.000005 WETH", { exact: true })).toBeVisible();
+    await expect(table.getByText(chinese ? "无资金池" : "No pool", { exact: true })).toBeVisible();
+    await expect(table.getByText(chinese ? "报价被拒绝" : "Quote refused", { exact: true })).toBeVisible();
+    await expect(table.getByText(chinese ? "资金池或报价触及价格边界；是否消耗全部输入未知。" : "The pool or quote reached a price boundary; full input consumption is unknown.", { exact: true })).toBeVisible();
+    const link = table.getByRole("link", { name: /0x1111111111111111111111111111111111111111/ });
+    await expect(link).toHaveAttribute("href", "https://robinhoodchain.blockscout.com/address/0x1111111111111111111111111111111111111111");
+    await expect(link).toHaveAttribute("rel", "noopener noreferrer");
+    await link.focus();
+    await expect(link).toBeFocused();
+    for (const width of [600, 599, 390, 320]) {
+      await page.setViewportSize({ width, height: 900 });
+      const cards = comparison.locator(".swap-fee-tiers-cards");
+      if (width >= 600) {
+        await expect(table).toBeVisible();
+        await expect(cards).toBeHidden();
+      } else {
+        await expect(comparison.locator("table")).toBeHidden();
+        await expect(cards.getByRole("article")).toHaveCount(4);
+        await expect(cards.getByText(chinese ? "最高估算输出" : "Highest estimated output", { exact: true })).toHaveCount(1);
+        await expect(cards.getByText(chinese ? "无资金池" : "No pool", { exact: true })).toBeVisible();
+        await expect(cards.getByText(chinese ? "报价被拒绝" : "Quote refused", { exact: true })).toBeVisible();
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+    }
+    expect(calls()).toBe(1);
+    await page.locator("#swap-amount").fill("0.02");
+    await expect(comparison).toHaveCount(0);
+  });
 }
 
 for (const source of ["onchain", "uniswap-api"] as const) {

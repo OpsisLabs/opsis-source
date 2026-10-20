@@ -7,7 +7,7 @@ import { spawnSync } from "node:child_process";
 import { canonicalize } from "../packages/shared/dist/receipts.js";
 import { receiptFixture } from "./receipt-fixture.mjs";
 async function run(change = () => {}, options = {}) {
-  const { receipt, keys } = await receiptFixture(); change(receipt, keys);
+  const { receipt, keys } = await receiptFixture(options.tool); change(receipt, keys);
   const dir = await mkdtemp(join(tmpdir(), "receipt-test-"));
   try {
     await writeFile(join(dir, "receipt.json"), options.raw ?? canonicalize(receipt));
@@ -25,3 +25,14 @@ test("noncanonical file", async () => assert.equal((await run(() => {}, { raw: J
 test("missing trust list fails closed", async () => assert.equal((await run(() => {}, { noKeys: true })).status, 1));
 test("attested remains explicitly unverified", async () => { const r = await run((r) => { r.timestamp.status = "attested"; r.timestamp.otsProofBase64 = "AQID"; }); assert.equal(r.status, 0); assert.match(r.stdout, /Bitcoin attestation not verified in this version/); });
 test("usage exits 2", () => { for (const args of [[], ["--help"], ["receipt.json", "--bad", "keys.json"]]) assert.equal(spawnSync(process.execPath, ["scripts/opsis-verify.mjs", ...args]).status, 2); });
+
+for (const tool of ["stock-desk", "claimCheck"]) {
+  test(`verifies ${tool} fixture without changing the signing format`, async () => {
+    const r = await run(() => {}, { tool });
+    assert.equal(r.status, 0, r.stderr);
+    assert.equal(JSON.parse(r.stdout).valid, true);
+  });
+  test(`rejects a tampered ${tool} receipt`, async () => {
+    assert.equal((await run((r) => { r.tool = "tokenControls"; }, { tool })).status, 1);
+  });
+}

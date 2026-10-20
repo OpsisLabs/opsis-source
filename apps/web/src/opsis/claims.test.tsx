@@ -1,12 +1,17 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
+import { MemoryRouter } from "react-router";
 import {
   extractClaims,
   stripPostIdentifiers,
   type Claim,
+  type ClaimResponse,
+  type Receipt,
 } from "@rh-chain/shared";
 import I18nProvider from "../i18n/I18nProvider";
-import ClaimCheck from "./ClaimCheck";
+import ClaimCheck, { ClaimResults } from "./ClaimCheck";
+import { receiptFixture } from "./receipt-test-fixtures";
+import * as localeCookie from "../i18n/locale";
 import { addressConfirmed, claimInput, requestClaims } from "./claims-model";
 import { unlockPreview } from "./model";
 import { routeTitle, toolGroups } from "./shell-model";
@@ -15,7 +20,41 @@ import { statusDetails } from "./status-copy";
 import { en } from "../i18n/dictionaries/en";
 import { zhCN } from "../i18n/dictionaries/zh-CN";
 const address = `0x${"1".repeat(40)}`;
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks(); });
+describe("claim result receipts", () => {
+  const result: ClaimResponse = {
+    chainId: 4663,
+    address,
+    current: { block: null, results: [{ claim: { type: "ownership", expected: true }, definition: "ownership-v1", status: "can't check", wording: "Fixture observation unavailable", evidence: {}, reason: "FIXTURE_UNAVAILABLE" }] },
+  };
+  const render = (receipt: Receipt | undefined, receipts?: boolean) => renderToStaticMarkup(
+    <I18nProvider><MemoryRouter><ClaimResults result={{ ...result, receipt }} receipts={receipts} /></MemoryRouter></I18nProvider>,
+  );
+  it.each(["en", "zh-CN"] as const)("offers a validated claim receipt and verifier link in %s", async (locale) => {
+    vi.spyOn(localeCookie, "readLocaleCookie").mockReturnValue(locale);
+    const { receipt } = await receiptFixture("claimCheck");
+    const fetcher = vi.fn(); vi.stubGlobal("fetch", fetcher);
+    const html = render(receipt, true);
+    expect(html).toContain(locale === "en" ? "Download receipt" : "下载凭据");
+    expect(html).toContain('href="/verify"');
+    expect(html).toContain(locale === "en" ? "Verify a receipt →" : "验证收据 →");
+    expect(html).toContain(locale === "en" ? "It proves the computation, not that a conclusion is right." : "它证明计算过程，而不证明结论正确。");
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+  it("hides absent or malformed receipts and disabled capability without losing claim results", async () => {
+    const { receipt } = await receiptFixture("claimCheck");
+    const invalid = { ...receipt, signature: { ...receipt.signature, value: "0x1234" } } as Receipt;
+    for (const [value, receipts] of [[undefined, true], [invalid, true], [receipt, false], [receipt, undefined]] as const) {
+      const html = render(value, receipts);
+      expect(html).toContain("Fixture observation unavailable");
+      expect(html).toContain("FIXTURE_UNAVAILABLE");
+      expect(html).not.toContain("Download receipt");
+      expect(html).not.toContain('href="/verify"');
+      expect(html).not.toContain("Signed receipt:");
+      expect(html).not.toContain('role="alert"');
+    }
+  });
+});
 describe("deterministic browser extraction", () => {
   it.each([
     ["LP burned", { type: "lpBurned", expected: true }],

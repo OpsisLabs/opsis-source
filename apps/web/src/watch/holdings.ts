@@ -36,6 +36,17 @@ export type WatchTimelineEntry = {
   approvals: PortfolioApproval[];
 };
 
+export function watchActivitySummary(entry: WatchTimelineEntry, c: (en: string, zh: string) => string) {
+  if (entry.transaction?.status === "failed") return c("Failed transaction", "交易失败");
+  if (entry.approvals.length || /approve|setApproval/i.test(entry.transaction?.method ?? "")) return c("Approval activity", "授权活动");
+  if (entry.movements.length) return c("Observed transfer", "已观察转账");
+  if (!entry.transaction) return c("Observed activity", "已观察活动");
+  return entry.transaction.direction === "out" ? c("Sent", "已发送")
+    : entry.transaction.direction === "in" ? c("Received", "已收到")
+      : entry.transaction.direction === "self" ? c("Self transfer", "自身转账")
+        : c("Mixed activity", "混合活动");
+}
+
 /** Group evidence by transaction; block order remains authoritative when dates are missing. */
 export function watchTimeline(snapshot: PortfolioSnapshot): WatchTimelineEntry[] {
   const entries = new Map<string, WatchTimelineEntry>();

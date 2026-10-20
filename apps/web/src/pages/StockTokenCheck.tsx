@@ -37,7 +37,7 @@ const ORACLE_STATE_KEYS: Record<RwaOracleState, TranslationKey> = {
   invalid: "rwa.oracle.state.invalid"
 };
 
-export default function StockTokenCheck({ stockDesk = false }: { stockDesk?: boolean }) {
+export default function StockTokenCheck({ stockDesk = false, receipts = false }: { stockDesk?: boolean; receipts?: boolean }) {
   const { t } = useI18n();
   const [address, setAddress] = useState(() => { const value = new URLSearchParams(window.location.search).get("desk") ?? ""; return isAddress(value, { strict: false }) ? value : ""; });
   const [confirming, setConfirming] = useState(false);
@@ -91,7 +91,7 @@ export default function StockTokenCheck({ stockDesk = false }: { stockDesk?: boo
   if (OPSIS_PRESENTATION) return <RwaWorkspace
     address={address} loading={loading} error={error} result={result}
     setAddress={(value) => { setAddress(value); setResult(null); setError(""); }} prepare={prepare} verifyButton={verifyButton}
-    desk={stockDesk && result ? <StockDesk key={result.address} address={result.address} onSelect={sample} /> : null}
+    desk={stockDesk && result ? <StockDesk key={result.address} address={result.address} onSelect={sample} receipts={receipts} /> : null}
     morphoDetails={result?.morpho ? <MorphoDetails morpho={result.morpho} /> : null}
     consent={confirming ? <ConsentDialog address={confirmedAddress} onCancel={cancelConsent} onConfirm={run} /> : null}
   />;
@@ -139,7 +139,7 @@ export default function StockTokenCheck({ stockDesk = false }: { stockDesk?: boo
         {error && <div role="alert" className="mt-5 border border-[#e0738a]/40 bg-[#e0738a]/10 px-5 py-4 text-[12.5px] text-[#e9a1b2]">{error}</div>}
         {loading && <LoadingState />}
         {result && <EvidenceResult result={result} />}
-        {stockDesk && result && <StockDesk key={result.address} address={result.address} onSelect={sample} />}
+        {stockDesk && result && <StockDesk key={result.address} address={result.address} onSelect={sample} receipts={receipts} />}
         {!loading && !result && !error && <EmptyState />}
       </main>
 

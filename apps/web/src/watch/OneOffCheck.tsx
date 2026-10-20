@@ -10,7 +10,8 @@ import { compactAmount } from "../opsis/transactionTimeline";
 import { visibleTokenText } from "../opsis/explorer-facts";
 import { useI18n } from "../i18n";
 import { checkPublicWallet } from "./one-off";
-import { orderTokens, tokenFlags, watchTimeline } from "./holdings";
+import { orderTokens, tokenFlags, watchActivitySummary, watchTimeline } from "./holdings";
+import { SnapshotExport } from "./SnapshotExport";
 import "./watch.css";
 
 function CopyAddress({ address }: { address: string }) {
@@ -210,16 +211,7 @@ export function WatchTimeline({ snapshot }: { snapshot: PortfolioSnapshot }) {
         {entries.map((entry) => (
           <li key={entry.hash}>
             <p>
-              {entry.transaction?.status === "failed"
-                ? c("Failed transaction", "交易失败")
-                : entry.approvals.length ||
-                    /approve|setApproval/i.test(entry.transaction?.method ?? "")
-                  ? c("Approval activity", "授权活动")
-                  : entry.movements.length
-                    ? c("Observed transfer", "已观察转账")
-                    : entry.transaction
-                      ? direction(entry.transaction.direction)
-                      : c("Observed activity", "已观察活动")}
+              {watchActivitySummary(entry, c)}
             </p>
             {entry.transaction?.status !== "failed" && (
               <>
@@ -413,6 +405,7 @@ export function WalletSnapshot({
         </dl>
       </section>
       <p className="watch-small">{t("watch.blockNote")}</p>
+      <SnapshotExport snapshot={snapshot} />
       {partial && (
         <p className="watch-notice" role="note">
           {t("watch.partialBody")}

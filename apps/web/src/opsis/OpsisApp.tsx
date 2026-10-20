@@ -504,7 +504,7 @@ export default function OpsisApp() {
                       element={
                         access.rwa ? (
                           <ToolWorkspace>
-                            <Rwa stockDesk={access.stockDesk === true} />
+                            <Rwa stockDesk={access.stockDesk === true} receipts={access.receipts === true} />
                           </ToolWorkspace>
                         ) : (
                           <Unavailable />

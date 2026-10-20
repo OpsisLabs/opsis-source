@@ -49,6 +49,30 @@ describe("Swap preview browser contract", () => {
     const respond = () => vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify(value), { status: 200 })));
     respond();
     await expect(getSwapQuote({ direction: "WETH_TO_USDG", amount: "0.01" })).resolves.toMatchObject({ onchain: { feeTier: 500 } });
+    const rows: NonNullable<SwapQuote["onchain"]>["feeTiers"] = [
+      { feeTier: 100, status: "no_pool", reason: "pool_not_found" },
+      { feeTier: 500, poolAddress: value.onchain.poolAddress, lpFeeAmount: value.onchain.lpFeeAmount, status: "quoted",
+        outputAmount: value.output.amount, priceImpactPercent: value.priceImpactPercent, highestOutput: true },
+      { feeTier: 3000, poolAddress: `0x${"22".repeat(20)}`, lpFeeAmount: "0.00003", status: "quote_refused", reason: "price_boundary" },
+      { feeTier: 10000, status: "no_pool", reason: "pool_not_found" },
+    ];
+    value.onchain.feeTiers = rows;
+    respond();
+    await expect(getSwapQuote({ direction: "WETH_TO_USDG", amount: "0.01" })).resolves.toMatchObject({ onchain: { feeTiers: rows } });
+    const invalidRows: unknown[] = [
+      [...rows, rows[0]], [rows[0], rows[0]], [],
+      [{ feeTier: 200, status: "no_pool", reason: "pool_not_found" }],
+      [{ ...rows[1], highestOutput: false }], [{ ...rows[1], outputAmount: "NaN" }],
+      [{ ...rows[1], poolAddress: "invalid-pool" }], [{ ...rows[1], priceImpactPercent: 101 }],
+      [rows[1], { ...rows[2], reason: "unrecognized" }],
+      [rows[1], { ...rows[1], feeTier: 100, outputAmount: "9999999999999999.99999999999999", highestOutput: false }],
+    ];
+    for (const invalid of invalidRows) {
+      value.onchain.feeTiers = invalid as typeof rows;
+      respond();
+      await expect(getSwapQuote({ direction: "WETH_TO_USDG", amount: "0.01" })).rejects.toThrow(/invalid live quote/);
+    }
+    delete value.onchain.feeTiers;
     value.onchain.poolAddress = "invalid-pool";
     respond();
     await expect(getSwapQuote({ direction: "WETH_TO_USDG", amount: "0.01" })).rejects.toThrow(/invalid live quote/);

@@ -24,4 +24,6 @@ export const receipts = {
   "receipts.block": "区块",
   "receipts.sources": "所列来源",
   "receipts.download": "下载凭据",
+  "receipts.computation": "签名收据：Opsis 在此区块读取和计算的内容及其来源，并以 Opsis 公布的密钥签名。它证明计算过程，而不证明结论正确。",
+  "receipts.verifyLink": "验证收据 →",
 } as const;

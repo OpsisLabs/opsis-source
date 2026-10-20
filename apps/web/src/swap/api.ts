@@ -4,10 +4,20 @@ import { translateCurrent } from "../i18n/translate";
 
 export type SwapDirection = "WETH_TO_USDG" | "USDG_TO_WETH";
 
+type SwapFeeTier = 100 | 500 | 3000 | 10000;
+export type SwapFeeTierResult = { feeTier: SwapFeeTier } & (
+  { status: "no_pool"; reason: "pool_not_found" } |
+  { poolAddress: string; lpFeeAmount: string } & (
+    { status: "quote_refused"; reason: "read_failed" | "invalid_response" | "pool_locked" | "price_boundary" | "zero_output" | "invalid_gas_estimate" } |
+    { status: "quoted"; outputAmount: string; priceImpactPercent: number | null; highestOutput: boolean }
+  )
+);
+
 export type SwapQuote = {
   onchain?: {
     blockNumber: number; blockHash: string; capturedAtMs: number;
-    poolAddress: string; feeTier: 100 | 500 | 3000 | 10000; lpFeeAmount: string;
+    poolAddress: string; feeTier: SwapFeeTier; lpFeeAmount: string;
+    feeTiers?: SwapFeeTierResult[];
     gasEstimate: string; gasPriceWei: string; networkFeeEth: string;
     ethUsd: string; ethUsdObservedAt: string;
     nativeSide: "input" | "output" | null; rpcProvider: "drpc" | "robinhood-public-rpc";
@@ -176,7 +186,30 @@ function validOnchain(value: SwapQuote): boolean {
     [null, "input", "output"].includes(quote.nativeSide) && ["drpc", "robinhood-public-rpc"].includes(quote.rpcProvider) &&
     value.route.routing === "CLASSIC" && value.route.protocols.join(",") === "V3" &&
     value.route.label === `Uniswap v3 · single pool (fee ${quote.feeTier / 10000}%)` &&
-    value.simulation.status === "warning" && value.output.minimumSource === "derived_tolerance";
+    value.simulation.status === "warning" && value.output.minimumSource === "derived_tolerance" && validFeeTiers(value);
+}
+
+function validFeeTiers(value: SwapQuote): boolean {
+  const evidence = value.onchain!, rows = evidence.feeTiers;
+  if (rows === undefined) return true;
+  if (!Array.isArray(rows) || !rows.length || rows.length > 4 ||
+      new Set(rows.map((row) => row?.feeTier)).size !== rows.length) return false;
+  if (!rows.every((row) => {
+    if (!row || ![100, 500, 3000, 10000].includes(row.feeTier)) return false;
+    if (row.status === "no_pool") return row.reason === "pool_not_found";
+    if (!/^0x[0-9a-fA-F]{40}$/.test(row.poolAddress) || /^0x0{40}$/i.test(row.poolAddress) ||
+        typeof row.lpFeeAmount !== "string" || !optionalNonnegativeDecimal(row.lpFeeAmount)) return false;
+    if (row.status === "quote_refused") return ["read_failed", "invalid_response", "pool_locked", "price_boundary", "zero_output", "invalid_gas_estimate"].includes(row.reason);
+    return row.status === "quoted" && positiveDecimal(row.outputAmount) &&
+      (row.priceImpactPercent === null || finiteNumber(row.priceImpactPercent, 0, 100)) &&
+      typeof row.highestOutput === "boolean" && compareDecimals(row.outputAmount, value.output.amount) <= 0;
+  })) return false;
+  const highest = rows.filter((row) => row.status === "quoted" && row.highestOutput);
+  const selected = highest[0];
+  return highest.length === 1 && selected?.status === "quoted" && selected.feeTier === evidence.feeTier &&
+    selected.poolAddress.toLowerCase() === evidence.poolAddress.toLowerCase() &&
+    compareDecimals(selected.outputAmount, value.output.amount) === 0 && selected.lpFeeAmount === evidence.lpFeeAmount &&
+    selected.priceImpactPercent === value.priceImpactPercent;
 }
 
 function safeUrl(value: unknown): URL | null {

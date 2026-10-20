@@ -24,4 +24,6 @@ export const receipts = {
   "receipts.block": "Block",
   "receipts.sources": "Listed sources",
   "receipts.download": "Download receipt",
+  "receipts.computation": "Signed receipt: what Opsis read and computed at this block, from which sources, signed with Opsis's published key. It proves the computation, not that a conclusion is right.",
+  "receipts.verifyLink": "Verify a receipt →",
 } as const;

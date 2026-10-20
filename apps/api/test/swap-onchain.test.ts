@@ -24,7 +24,8 @@ const Q96 = 1n << 96n;
 const request = { direction: "WETH_TO_USDG" as const, amount: "0.01" };
 const env = (extra: Record<string, string> = {}) => loadEnv({ NODE_ENV: "test", LOG_LEVEL: "silent", UNISWAP_QUOTE_ENABLED: "true", ...extra });
 type RpcCall = { id: string; method: string; params: unknown[] };
-type Options = { missing?: boolean; boundary?: number[]; failedQuote?: number[]; reorg?: boolean; staleFeed?: boolean; staleBlock?: boolean; failedDiscovery?: boolean; malformedBatch?: boolean; chain?: string };
+type Options = { missing?: boolean; boundary?: number[]; failedQuote?: number[]; reorg?: boolean; staleFeed?: boolean; staleBlock?: boolean; failedDiscovery?: boolean; malformedBatch?: boolean; chain?: string;
+  allPools?: boolean; tied?: boolean; locked?: number[]; failedSlot?: number[]; malformedQuote?: number[]; zeroOutput?: number[]; zeroGas?: number[] };
 function rpcFixture(options: Options = {}) {
   const calls: RpcCall[] = [];
   const pool = (fee: number) => `0x${fee.toString(16).padStart(40, "0")}` as Hex;
@@ -41,14 +42,15 @@ function rpcFixture(options: Options = {}) {
       if (options.failedDiscovery) throw new Error("fixture revert");
       const decoded = decodeFunctionData({ abi: factoryAbi, data });
       const fee = decoded.args[2];
-      return encodeFunctionResult({ abi: factoryAbi, functionName: "getPool", result: options.missing || fee === 10000 ? `0x${"0".repeat(40)}` : pool(fee) });
+      return encodeFunctionResult({ abi: factoryAbi, functionName: "getPool", result: options.missing || (fee === 10000 && !options.allPools) ? `0x${"0".repeat(40)}` : pool(fee) });
     }
     if (to.toLowerCase() === UNISWAP_QUOTER_V2) {
       const decoded = decodeFunctionData({ abi: quoterAbi, data });
       const { amountIn, fee } = decoded.args[0];
       if (options.failedQuote?.includes(fee)) throw new Error("fixture revert");
-      return encodeFunctionResult({ abi: quoterAbi, functionName: "quoteExactInputSingle", result: [amountIn * BigInt(fee === 500 ? 90 : fee === 100 ? 88 : 85) / 100n,
-        options.boundary?.includes(fee) ? MIN_SQRT_RATIO + 1n : Q96, 1, 100000n] });
+      if (options.malformedQuote?.includes(fee)) return "0x";
+      return encodeFunctionResult({ abi: quoterAbi, functionName: "quoteExactInputSingle", result: [options.zeroOutput?.includes(fee) ? 0n : amountIn * BigInt(options.tied || fee === 500 ? 90 : fee === 100 ? 88 : 85) / 100n,
+        options.boundary?.includes(fee) ? MIN_SQRT_RATIO + 1n : Q96, 1, options.zeroGas?.includes(fee) ? 0n : 100000n] });
     }
     if (to.toLowerCase() === ethUsdFeed.proxyAddress) {
       const decoded = decodeFunctionData({ abi: chainlinkAbi, data });
@@ -56,7 +58,9 @@ function rpcFixture(options: Options = {}) {
       if (decoded.functionName === "decimals") return encodeFunctionResult({ abi: chainlinkAbi, functionName: "decimals", result: 8 });
       return encodeFunctionResult({ abi: chainlinkAbi, functionName: "latestRoundData", result: [1n, 2000n * 100000000n, seconds, seconds - (options.staleFeed ? 86401n : 5n), 1n] });
     }
-    return encodeFunctionResult({ abi: poolAbi, functionName: "slot0", result: [Q96, 0, 0, 1, 1, 0, true] });
+    const fee = Number(BigInt(to));
+    if (options.failedSlot?.includes(fee)) throw new Error("fixture revert");
+    return encodeFunctionResult({ abi: poolAbi, functionName: "slot0", result: [Q96, 0, 0, 1, 1, 0, !options.locked?.includes(fee)] });
   };
   const requestJson = vi.fn(async (_url: string, init?: RequestInit): Promise<unknown> => {
     const reads = JSON.parse(String(init?.body)) as RpcCall[];
@@ -90,6 +94,13 @@ describe("official on-chain swap quotes", () => {
     expect(result.onchain).toMatchObject({ blockNumber: 4660, poolAddress: fixture.pool(500), feeTier: 500, lpFeeAmount: "0.000005" });
     expect(result.output).toMatchObject({ amount: "9000000000", minimumReceived: "8955000000", minimumSource: "derived_tolerance" });
     expect(result.priceImpactPercent).toBe(10);
+    expect(result.onchain?.feeTiers).toEqual([
+      { feeTier: 100, poolAddress: fixture.pool(100), lpFeeAmount: "0.000001", status: "quoted", outputAmount: "8800000000", priceImpactPercent: 12, highestOutput: false },
+      { feeTier: 500, poolAddress: fixture.pool(500), lpFeeAmount: "0.000005", status: "quoted", outputAmount: "9000000000", priceImpactPercent: 10, highestOutput: true },
+      { feeTier: 3000, poolAddress: fixture.pool(3000), lpFeeAmount: "0.00003", status: "quoted", outputAmount: "8500000000", priceImpactPercent: 15, highestOutput: false },
+      { feeTier: 10000, status: "no_pool", reason: "pool_not_found" },
+    ]);
+    expect(fixture.calls).toHaveLength(17);
     expect(fixture.calls.filter((call) => call.method === "eth_call" && (call.params[0] as { to: string }).to === UNISWAP_QUOTER_V2)).toHaveLength(3);
     expect(budget.consume.mock.calls.reduce((sum, [units]) => sum + Number(units), 0)).toBe(fixture.calls.length);
     expect(result.simulation.status).toBe("warning");
@@ -148,6 +159,43 @@ describe("official on-chain swap quotes", () => {
   it("excludes a better boundary result and selects the next successful pool", async () => {
     const { result } = await quote({ boundary: [500] });
     expect(result.onchain?.feeTier).toBe(100);
+  });
+  it("returns all four standard tiers without adding reads and keeps first-tier tie selection", async () => {
+    const { result, fixture } = await quote({ allPools: true, tied: true });
+    expect(result.onchain?.feeTiers?.map((row) => row.feeTier)).toEqual([100, 500, 3000, 10000]);
+    expect(result.onchain?.feeTier).toBe(100);
+    expect(result.onchain?.feeTiers?.filter((row) => row.status === "quoted" && row.highestOutput)).toHaveLength(1);
+    expect(fixture.calls).toHaveLength(19);
+    expect(fixture.rpc.requestJson).toHaveBeenCalledTimes(4);
+  });
+  it.each([
+    [{ failedQuote: [500] }, "read_failed"],
+    [{ failedSlot: [500] }, "read_failed"],
+    [{ malformedQuote: [500] }, "invalid_response"],
+    [{ locked: [500] }, "pool_locked"],
+    [{ boundary: [500] }, "price_boundary"],
+    [{ zeroOutput: [500] }, "zero_output"],
+    [{ zeroGas: [500] }, "invalid_gas_estimate"],
+  ] as const)("retains a refused tier with its reason for %o", async (options, reason) => {
+    const { result, fixture } = await quote(options);
+    expect(result.onchain?.feeTiers?.find((row) => row.feeTier === 500)).toEqual({
+      feeTier: 500, status: "quote_refused", reason, poolAddress: fixture.pool(500), lpFeeAmount: "0.000005",
+    });
+    expect(result.onchain?.feeTiers?.find((row) => row.feeTier === 10000)).toEqual({ feeTier: 10000, status: "no_pool", reason: "pool_not_found" });
+    expect(result.onchain?.feeTier).toBe(100);
+    expect(fixture.calls).toHaveLength(17);
+  });
+  it("bounds optional tier evidence to unique standard tiers", async () => {
+    const fixture = rpcFixture();
+    const source = new OnchainQuoteSource(env(), { rpc: fixture.rpc, now: () => time });
+    const raw = await source.requestQuote(request) as { onchain: { feeTiers?: unknown[] } };
+    const rows = raw.onchain.feeTiers!;
+    for (const invalid of [[...rows, rows[0]], [rows[0], rows[0]], [{ feeTier: 200, status: "no_pool", reason: "pool_not_found" }]]) {
+      raw.onchain.feeTiers = invalid;
+      expect(() => normalizeQuote(raw, request, time)).toThrow("malformed_response");
+    }
+    delete raw.onchain.feeTiers;
+    expect(normalizeQuote(raw, request, time).onchain?.feeTiers).toBeUndefined();
   });
   it.each([
     [{ missing: true }, "no_route"],
