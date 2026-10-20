@@ -76,3 +76,31 @@ pnpm release:advance 02-privacy-foundation
 `release:advance` refuses to skip an item, refuses a dirty tree and requires the prior merged RC tag. It creates the immediate next branch if absent, or activates its existing local preparation branch only if that branch already includes current main. Commit the manifest update normally. It never auto-merges, resets or rebases a prepared branch.
 
 Queued branches can be prepared together; activation and production publication remain sequential. This policy change does not itself authorize a deployment, paid hosting, or public publication.
+
+## Maintaining a private preparation backlog
+
+Register each approved update once in `release-train.json`, then prepare its branch
+from the clean active branch with `pnpm release:prepare <release-id>`. Use a separate
+Git worktree for each update so unfinished changes and test artifacts do not mix.
+Branch privacy comes from the repository's visibility, not its name: verify the
+destination is private before an authorized push. Never push preparation branches
+to the public source repository or include them in a public export.
+
+Keep implementation, focused tests and its release evidence on that update's
+branch. The evidence records the base revision, scope, dependencies, gate result
+and remaining activation conditions. A passing preparation gate does not advance
+the release or authorize deployment. Avoid speculative branches for every idea;
+register an update when implementation is authorized. Keep shared foundations
+small and earlier in the train, and record a dependency instead of merging one
+unfinished feature into another. Before activation, integrate current main and
+run the full gate again on the resulting candidate.
+
+Under D27, queued private preparation may reuse a completed passing browser run
+when all relevant UI/shared source, fixtures, browser tests, dependency lockfiles,
+configuration, flags and toolchain match exactly. Record the input comparison and
+the browser-tested source revision in each release record. Run each branch's own
+production dependency audit, lint, type checks, complete unit/policy tests and
+build. Call this preparation verification with reused browser evidence, not a
+separate full-gate pass. Unknown dependencies, changed inputs, failed or incomplete
+evidence require the browser suites to run. Before staging or shipping, run the
+unchanged full `pnpm release:gate` on the integrated candidate.

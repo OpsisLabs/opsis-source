@@ -75,3 +75,11 @@ it.each(["en", "zh-CN"])(
     expect(html).toMatch(/tabindex="0" role="region" aria-label="[^"]+"/);
   },
 );
+
+it("makes observed points keyboard inspectable without inventing unavailable points", () => {
+  const html = renderToStaticMarkup(<ExitSizeCurve result={quote()} outputSymbol="WETH" />);
+  expect(html).toMatch(/<circle[^>]+tabindex="0"[^>]+role="button"[^>]+aria-label="1.5 → 0.0000005 WETH"/);
+  expect(html).not.toMatch(/<circle[^>]+aria-label="3 →/);
+  expect(html).toContain('aria-label="Curve view"');
+  expect(html).toContain('class="opsis-curve-table"');
+});

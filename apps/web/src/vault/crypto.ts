@@ -1,3 +1,4 @@
+import { parseSavedCheck } from "./saved-check";
 import { normalizeSavedIdentifiers } from "./compatibility";
 import {
   VAULT_FORMAT,
@@ -501,6 +502,11 @@ export function validateConversation(value: unknown): asserts value is VaultConv
       if (turn.opsis !== undefined && (!isRecord(turn.opsis)
         || !["research", "check"].includes(String(turn.opsis.workspace))
         || typeof turn.opsis.token !== "boolean" || turn.opsis.chainId !== 4663)) return true;
+      if (turn.comparison !== undefined) {
+        const check = parseSavedCheck(turn.comparison);
+        if (!check || check.identifier !== String(turn.entity).toLowerCase() || !isRecord(turn.opsis)
+          || check.kind !== turn.opsis.workspace || turn.opsis.token !== true || check.chainId !== turn.opsis.chainId) return true;
+      }
       return turn.sources.some((source: unknown) => {
         if (!isRecord(source) || !text(source.label, 1000) || !date(source.fetchedAt)) return true;
         if (source.url === null) return false;

@@ -456,3 +456,48 @@
     grid-row: auto;
   }
 }
+
+/* D29 analytical surface: compact identity, generous observations, evidence dock. */
+.opsis .research-workspace .opsis-heading h1 { font-size: clamp(26px, 2.5vw, 34px); letter-spacing: -.035em; }
+.opsis .research-workspace :is(.research-card, .research-tile, .research-input-band, .opsis-research-intro, .research-evidence, .research-drill-down, .research-limitations) { border-radius: var(--ui-radius, 8px); }
+.opsis form.research-input-band { gap: 12px 20px; padding: 18px 20px; }
+.opsis .research-input-band label { font: 13px/1.4 Opsis, sans-serif; }
+.opsis .research-input-band :is(input, select) { border-radius: 6px; padding: 10px 12px; }
+.opsis .research-identity { padding: 18px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--ui-radius, 8px); }
+.opsis .research-identity-title h2 { font-size: clamp(26px, 3vw, 38px); letter-spacing: -.035em; }
+.opsis .research-identity-title > span { font-size: 17px; }
+.opsis .research-result:has(> .research-next-step) > .research-identity { min-height: 116px; padding-right: min(36%, 370px); }
+.opsis a.research-next-step { right: 18px; top: 23px; font-size: 12px; }
+.opsis .research-tiles { gap: 12px; }
+.opsis .research-tile { padding: 16px 18px; }
+.opsis .research-tile dt { text-transform: none; font: 12px/1.5 Opsis, sans-serif; }
+.opsis .research-tile dd { font-size: clamp(21px, 2.1vw, 29px); letter-spacing: -.025em; }
+.opsis .research-card h3 { font-size: 21px; letter-spacing: -.025em; font-weight: 500; }
+.opsis .research-card { padding: 20px; }
+.opsis .research-holders { padding-bottom: 16px; }
+.opsis .research-holder-list { margin: 24px 0; }
+.opsis .research-holder-list li { min-height: 33px; gap: 10px; }
+.opsis .research-bar-track { height: 16px; border-radius: 2px; overflow: hidden; }
+.opsis .research-evidence { position: sticky; top: 20px; padding: 18px; border: 1px solid var(--line); background: var(--panel); }
+.opsis .research-evidence > summary { font-size: 18px; letter-spacing: -.02em; }
+.opsis .research-evidence-groups section { padding: 14px 0; }
+.opsis .research-table th { background: var(--panel-hover); }
+.opsis .research-drill-down, .opsis .research-limitations { padding: 16px 20px; background: var(--panel); border: 1px solid var(--line); margin-top: 12px; }
+.opsis .research-workspace summary { cursor: pointer; }
+.opsis .opsis-research-intro { min-height: 310px; padding: 24px; }
+.opsis .opsis-research-intro h2 { font-size: 25px; font-weight: 400; letter-spacing: -.025em; }
+.opsis .opsis-research-intro .opsis-research-diagram { max-width: 520px; margin: 20px auto; }
+@media (max-width: 900px) {
+  .opsis .research-evidence { position: static; }
+  .opsis .research-result:has(> .research-next-step) > .research-identity { padding-right: 18px; min-height: 0; }
+  .opsis a.research-next-step { margin-top: 0; }
+}
+@media (max-width: 600px) {
+  .opsis form.research-input-band, .opsis .research-card, .opsis .research-identity, .opsis .research-evidence { padding: 14px; }
+  .opsis .research-holder-list li { gap: 5px; }
+  .opsis .research-identity-title h2 { font-size: 27px; }
+  .opsis .research-drill-down, .opsis .research-limitations { padding: 14px; }
+}
+@media (max-width: 400px) {
+  .opsis .research-input-band .opsis-form-row { grid-template-columns: minmax(0, 1fr); }
+}

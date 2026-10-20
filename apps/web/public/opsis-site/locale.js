@@ -1,6 +1,7 @@
 // The host owns the locale. Both languages stay bundled; no request or URL is needed.
 let locale='en';
 const translations=new Map([
+ ['Docs','文档'],['Whitepaper','白皮书'],['Docs ↗','文档 ↗'],['Whitepaper ↗','白皮书 ↗'],
  ['Get quant-level insight into Robinhood Chain with Opsis. Compare tokens, explore trading activity, and try out portfolio scenarios.','通过 Opsis 深入了解 Robinhood Chain。比较代币、探索交易活动，并尝试投资组合情景。'],
  ['Opsis — Robinhood Chain, made clearer.','Opsis — 更清晰地了解 Robinhood Chain。'],
  ['Skip to tools','跳转到工具'],['Opsis home','Opsis 首页'],['Open navigation','打开导航'],['Close navigation','关闭导航'],['Main navigation','主导航'],

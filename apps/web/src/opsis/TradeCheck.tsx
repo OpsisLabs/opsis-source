@@ -1,3 +1,4 @@
+import { savedCheckComparisonsEnabled } from "./saved-checks";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import {
@@ -164,8 +165,8 @@ export default function TradeCheck({
     }
   }
   const report = useMemo(
-    () => (result ? tradeReport(result, output) : null),
-    [result, output],
+    () => (result ? tradeReport(result, output, savedCheckComparisonsEnabled(capabilities)) : null),
+    [result, output, capabilities],
   );
   const invalidAmount =
     error?.status === 400 && error.code === "EXIT_CHECK_INVALID_AMOUNT";
@@ -194,7 +195,7 @@ export default function TradeCheck({
   return (
     <div className="opsis-check-page">
       <header className="opsis-heading opsis-check-heading">
-        <h1>{c("What comes out at this size?", "这个数量能换出多少？")}</h1>
+        <h1>{c("Trade Check", "交易核查")}</h1>
         <p>
           {c("Estimate the output. See the costs.", "估算输出，查看成本。")}
         </p>
@@ -209,7 +210,8 @@ export default function TradeCheck({
             if (valid) void run();
           }}
         >
-          <h2 className="opsis-kicker">{c("YOUR CHECK", "您的核查")}</h2>
+          <h2 className="sr-only">{c("YOUR CHECK", "您的核查")}</h2>
+          <div className="opsis-check-asset-field">
           <label htmlFor="check-token">
             {c(
               "Reviewed symbol or token contract · chain 4663",
@@ -270,6 +272,7 @@ export default function TradeCheck({
                 {asset.symbol}
               </button>
             ))}
+          </div>
           </div>
           <div className="opsis-form-row">
             <div>
@@ -459,7 +462,7 @@ export default function TradeCheck({
                       "估算，并非可执行报价。",
                     )}
                   </p>
-                  <details className="opsis-check-pools" open>
+                  <details className="opsis-check-pools">
                     <summary>
                       {c("Compare observed pools", "比较已观察资金池")}
                     </summary>

@@ -1,3 +1,4 @@
+import { savedCheckComparisonsEnabled } from "./saved-checks";
 import { isWatchEnabled } from "../product/availability";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
@@ -134,8 +135,8 @@ export default function Research({
     }
   }
   const report = useMemo(
-    () => (result ? researchReport(result) : null),
-    [result],
+    () => (result ? researchReport(result, savedCheckComparisonsEnabled(capabilities)) : null),
+    [result, capabilities],
   );
   const follow =
     result?.entity.type === "wallet"

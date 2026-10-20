@@ -1,0 +1,135 @@
+.saved-check-comparison {
+  border-top: 1px solid var(--line);
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  min-width: 0;
+}
+.saved-check-comparison select {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  max-width: 100%;
+  margin: 0.5rem 0 1rem;
+}
+.saved-check-contexts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.saved-check-contexts dd {
+  margin: 0 0 0.5rem;
+  overflow-wrap: anywhere;
+}
+.saved-check-contexts dt {
+  font-weight: 600;
+}
+.saved-check-table {
+  max-width: 100%;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+.saved-check-table:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+.saved-check-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.saved-check-table th,
+.saved-check-table td {
+  padding: 0.6rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+  .saved-check-contexts {
+    grid-template-columns: 1fr;
+  }
+  .saved-check-table table {
+    min-width: 34rem;
+  }
+}
+
+.opsis .saved-check-comparison {
+  margin-top: 24px;
+  padding-top: 24px;
+}
+.opsis .saved-check-comparison > h3 {
+  font-size: 24px;
+  margin-bottom: 12px;
+}
+.opsis .saved-check-comparison > p {
+  color: var(--soft);
+  font-size: 13px;
+  line-height: 1.7;
+  margin-bottom: 18px;
+}
+.opsis .saved-check-comparison > label {
+  display: block;
+  margin-top: 20px;
+  font-size: 13px;
+}
+.opsis .saved-check-contexts {
+  gap: 12px;
+}
+.opsis .saved-check-contexts > div {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--ui-radius, 8px);
+  background: var(--panel-hover);
+  padding: 16px;
+}
+.opsis .saved-check-contexts h4 {
+  font-size: 16px;
+  margin: 0 0 18px;
+}
+.opsis .saved-check-contexts dt {
+  font:
+    400 10px/1.5 OpsisMono,
+    monospace;
+  color: var(--soft);
+  margin-top: 12px;
+}
+.opsis .saved-check-contexts dd {
+  margin: 5px 0 0;
+  font:
+    11px/1.7 OpsisMono,
+    monospace;
+}
+.opsis .saved-check-table {
+  border: 1px solid var(--line);
+  border-radius: var(--ui-radius, 8px);
+}
+.opsis .saved-check-table :is(th, td) {
+  padding: 14px 12px;
+  font-size: 12px;
+  font-weight: 400;
+}
+.opsis .saved-check-table thead {
+  background: var(--panel-hover);
+}
+.opsis .saved-check-table td {
+  font:
+    11px/1.8 OpsisMono,
+    monospace;
+}
+.opsis .saved-check-table tr[data-state="changed"] td:last-child {
+  color: var(--accent);
+  background: var(--panel-hover);
+}
+.opsis .saved-check-table tr[data-state="unknown"] td:last-child {
+  color: var(--soft);
+}
+.opsis .saved-check-comparison [role="status"] {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-hover);
+  padding: 18px;
+  margin-top: 16px;
+  font-size: 13px;
+  line-height: 1.7;
+}

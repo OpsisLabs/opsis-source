@@ -17,6 +17,7 @@ import {
 import { safeHttpUrl } from "../dashboard/adapters";
 import StockGap from "./StockGap";
 import "./quant/quant.css";
+import "./lab-workspace.css";
 
 const QuantWorkbench = lazy(() => import("./quant/QuantWorkbench"));
 const StockGapSeriesPanel = lazy(() => import("./StockGapSeriesPanel"));
@@ -35,6 +36,7 @@ export default function Lab() {
     next.set("view", view);
     return next;
   });
+  const [researchTool, setResearchTool] = useState<"quant" | "stock" | "funding" | "basis">("quant");
   const [token, setToken] = useState("all");
   const [minimum, setMinimum] = useState(10000);
   const [selection, setSelection] = useState("");
@@ -134,20 +136,25 @@ export default function Lab() {
       )}
       {mode === "research" ? (
         <Suspense fallback={<p role="status">{c("Loading Quant research…", "正在加载量化研究…")}</p>}>
-          <QuantWorkbench />
-          <details className="opsis-lab-methods">
-            <summary>
-              {c("Stock-token reference gap", "股票代币参考价差")}
-            </summary>
-            <StockGap />
-            <StockGapSeriesPanel />
+          <nav className="opsis-lab-subviews" aria-label={c("Research tools", "研究工具")}>
+            {([
+              ["quant", c("Dataset & experiments", "数据集与实验")],
+              ["stock", c("Stock reference gap", "股票参考价差")],
+              ["funding", c("Funding records", "资金费率记录")],
+              ["basis", c("Mark / index basis", "标记价 / 指数价基差")],
+            ] as const).map(([id, label]) => <button key={id} type="button" aria-pressed={researchTool === id} onClick={() => setResearchTool(id)}>{label}</button>)}
+          </nav>
+          <div hidden={researchTool !== "quant"}><QuantWorkbench /></div>
+          <details open={researchTool === "stock"} className="opsis-lab-methods opsis-lab-research-pane">
+            <summary onClick={(event) => { event.preventDefault(); setResearchTool(researchTool === "stock" ? "quant" : "stock"); }}>{c("Stock-token reference gap", "股票代币参考价差")}</summary>
+            <StockGap /><StockGapSeriesPanel />
           </details>
-          <details className="opsis-lab-methods">
-            <summary>{c("Funding record analysis", "资金费率记录分析")}</summary>
+          <details open={researchTool === "funding"} className="opsis-lab-methods opsis-lab-research-pane">
+            <summary onClick={(event) => { event.preventDefault(); setResearchTool(researchTool === "funding" ? "quant" : "funding"); }}>{c("Funding record analysis", "资金费率记录分析")}</summary>
             <FundingWorkbench />
           </details>
-          <details className="opsis-lab-methods">
-            <summary>{c("Mark / index basis dataset", "标记价 / 指数价基差数据集")}</summary>
+          <details open={researchTool === "basis"} className="opsis-lab-methods opsis-lab-research-pane">
+            <summary onClick={(event) => { event.preventDefault(); setResearchTool(researchTool === "basis" ? "quant" : "basis"); }}>{c("Mark / index basis dataset", "标记价 / 指数价基差数据集")}</summary>
             <BasisWorkbench />
           </details>
         </Suspense>
@@ -175,10 +182,10 @@ export default function Lab() {
                 <h2>
                   {mode === "atlas"
                     ? c(
-                        "Where activity meets liquidity.",
-                        "活动与流动性的交汇。",
+                        "Captured pool atlas",
+                        "历史资金池图谱",
                       )
-                    : c("Shape the scenario.", "调整情景。")}
+                    : c("Portfolio shock surface", "投资组合冲击曲面")}
                 </h2>
                 <span>
                   {mode === "atlas"
@@ -386,7 +393,7 @@ export default function Lab() {
             </aside>
           </div>
           {mode === "atlas" ? (
-            <section className="opsis-lab-data">
+            <section className="opsis-lab-data" id="lab-observations">
               <div className="opsis-section-label">
                 <span>03 / {c("INSPECT THE CAPTURE", "检查历史数据")}</span>
                 <span>
@@ -440,7 +447,7 @@ export default function Lab() {
               </div>
             </section>
           ) : mode === "surface" ? (
-            <section className="opsis-lab-data">
+            <section className="opsis-lab-data" id="lab-observations">
               <div className="opsis-section-label">
                 03 / {c("THE SELECTED SCENARIO", "所选情景")}
               </div>

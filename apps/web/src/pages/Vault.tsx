@@ -1,3 +1,4 @@
+import { useCopy } from "../opsis/copy";
 import { OPSIS_PRESENTATION } from "../opsis/presentation";
 import {
   useCallback,
@@ -2000,28 +2001,179 @@ function AssetGrid({
   onDelete: (id: string) => Promise<void>;
 }) {
   const { t } = useI18n();
+  const c = useCopy();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const selected = assets.find((asset) => asset.id === selectedId);
+  const filtered = assets.filter((asset) =>
+    `${asset.name} ${asset.identifier} ${asset.notes}`
+      .toLocaleLowerCase()
+      .includes(query.toLocaleLowerCase()),
+  );
   if (!assets.length) {
     return (
       <div className="workspace-empty mt-5">
-        <PackagePlus size={26} className="text-[#fa6c34]" />
-        <h2 className="text-[18px] text-[#e9e0d1]">{t("vault.grid.emptyTitle")}</h2>
+        <PackagePlus size={26} aria-hidden />
+        <h2>{t("vault.grid.emptyTitle")}</h2>
         <p>{t("vault.grid.emptyBody")}</p>
       </div>
     );
   }
+  if (!OPSIS_PRESENTATION)
+    return (
+      <section className="vault-asset-grid mt-6" data-testid="vault-assets">
+        {assets.map((asset) => (
+          <AssetCard
+            key={asset.id}
+            asset={asset}
+            onEdit={() => onEdit(asset)}
+            onDelete={() => onDelete(asset.id)}
+          />
+        ))}
+      </section>
+    );
   return (
-    <section
-      className="vault-asset-grid mt-6"
-      data-testid="vault-assets"
-    >
-      {assets.map((asset) => (
-        <AssetCard
-          key={asset.id}
-          asset={asset}
-          onEdit={() => onEdit(asset)}
-          onDelete={() => onDelete(asset.id)}
-        />
-      ))}
+    <section className="saved-holdings-browser" data-testid="vault-assets">
+      <div className="saved-holdings-main">
+        <header>
+          <h2>
+            {c("My holdings", "我的持仓")} <span>({assets.length})</span>
+          </h2>
+          <label>
+            <span className="sr-only">{c("Search holdings", "搜索持仓")}</span>
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder={c("Search holdings or notes…", "搜索持仓或笔记…")}
+            />
+          </label>
+        </header>
+        <div
+          className="saved-holdings-table"
+          role="region"
+          aria-label={c("Saved holdings", "已保存持仓")}
+          tabIndex={0}
+        >
+          <table>
+            <caption>
+              {c(
+                "Manual records · quantities and unit prices as entered. No live valuation.",
+                "手动记录 · 显示输入的数量与单价。不提供实时估值。",
+              )}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">{c("Asset", "资产")}</th>
+                <th scope="col">{c("Quantity / lot", "数量／批次")}</th>
+                <th scope="col">{c("Entered unit price", "输入单价")}</th>
+                <th scope="col">{c("Acquired", "取得时间")}</th>
+                <th scope="col">{c("Details", "详情")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((asset) => (
+                <tr
+                  key={asset.id}
+                  data-selected={selectedId === asset.id || undefined}
+                >
+                  <th scope="row">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedId(asset.id)}
+                      aria-pressed={selectedId === asset.id}
+                    >
+                      {asset.name}
+                      <small>
+                        {asset.identifier ||
+                          t(ASSET_TYPE_FALLBACK_KEYS[asset.assetType])}
+                      </small>
+                    </button>
+                  </th>
+                  <td>
+                    {asset.lots.length
+                      ? asset.lots.map((lot) => (
+                          <div key={lot.id}>{lot.quantity}</div>
+                        ))
+                      : "—"}
+                  </td>
+                  <td>
+                    {asset.lots.length
+                      ? asset.lots.map((lot) => (
+                          <div key={lot.id}>
+                            {lot.unitPrice || "—"} {lot.currency}
+                          </div>
+                        ))
+                      : "—"}
+                  </td>
+                  <td>
+                    {asset.lots.length
+                      ? asset.lots.map((lot) => (
+                          <div key={lot.id}>{lot.acquiredAt || "—"}</div>
+                        ))
+                      : "—"}
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      className="watch-button"
+                      aria-label={c(
+                        `Open details for ${asset.name}`,
+                        `打开 ${asset.name} 详情`,
+                      )}
+                      onClick={() => setSelectedId(asset.id)}
+                    >
+                      ↗
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {!filtered.length && (
+          <p role="status" className="watch-notice">
+            {c("No holdings match this search.", "没有与搜索匹配的持仓。")}
+          </p>
+        )}
+      </div>
+      <aside
+        className="saved-holding-dock"
+        aria-label={c("Holding details", "持仓详情")}
+      >
+        {selected ? (
+          <>
+            <header>
+              <h2>{c("Holding details", "持仓详情")}</h2>
+              <button
+                type="button"
+                className="watch-button"
+                onClick={() => setSelectedId(null)}
+                aria-label={c("Close holding details", "关闭持仓详情")}
+              >
+                ×
+              </button>
+            </header>
+            <AssetCard
+              key={selected.id}
+              asset={selected}
+              onEdit={() => onEdit(selected)}
+              onDelete={() => onDelete(selected.id)}
+            />
+          </>
+        ) : (
+          <div className="saved-holding-empty">
+            <FileKey2 size={30} aria-hidden />
+            <h2>{c("Your holding, in detail", "持仓详情")}</h2>
+            <p>
+              {c(
+                "Choose a record to read its notes, lots and saved references, or edit it.",
+                "选择记录以阅读笔记、批次和已保存参考，或进行编辑。",
+              )}
+            </p>
+          </div>
+        )}
+      </aside>
     </section>
   );
 }

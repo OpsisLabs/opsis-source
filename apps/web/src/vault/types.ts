@@ -52,6 +52,8 @@ export interface VaultWatch {
 }
 
 export interface VaultConversationTurn {
+  /** Typed evidence for local comparisons, encrypted with the rest of the report. */
+  comparison?: import("./saved-check").SavedCheck;
   /** Optional routing context; encrypted with the report, never contains quantities. */
   opsis?: { workspace: "research" | "check"; token: boolean; chainId: 4663 };
   question: string;

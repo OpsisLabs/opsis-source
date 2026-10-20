@@ -85,6 +85,13 @@ export function RouteReady() {
       return;
     }
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    const surface = document.getElementById("opsis-content");
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      surface?.animate?.(
+        [{ opacity: 0.55 }, { opacity: 1 }],
+        { duration: 180, easing: "cubic-bezier(.2,.7,.2,1)" },
+      );
+    }
     const heading = document.querySelector<HTMLElement>("#opsis-content h1");
     if (heading) {
       heading.tabIndex = -1;

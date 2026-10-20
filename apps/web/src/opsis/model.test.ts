@@ -227,3 +227,42 @@ it("keeps the optional perp hand-off off when absent and validates its flag and 
     }
   }
 });
+
+it("keeps the optional saved-check comparison off when absent and validates its flag and manifest parity", async () => {
+  type Body = { savedCheckComparisons?: unknown; manifest?: { capabilities: Array<Record<string, unknown>> }; [key: string]: unknown };
+  const body = async () => await response(Date.now() + 60_000).json() as Body;
+  const row = (enabled: boolean) => ({ id: "savedCheckComparisons", enabled, scope: "local comparison", origin: "encrypted browser records", freshness: "historical", coverage: "matching typed evidence", limits: "no automatic lookup" });
+  const parse = async (fixture: Body) => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify(fixture))));
+    return unlockPreview("", new AbortController().signal);
+  };
+  expect((await parse(await body())).savedCheckComparisons).toBeUndefined();
+  const enabled = await body();
+  enabled.savedCheckComparisons = true;
+  enabled.manifest!.capabilities.push(row(true));
+  expect((await parse(enabled)).savedCheckComparisons).toBe(true);
+  const off = await body();
+  off.manifest!.capabilities.push(row(false));
+  expect((await parse(off)).savedCheckComparisons ?? false).toBe(false);
+  const missingRow = await body();
+  missingRow.savedCheckComparisons = false;
+  expect((await parse(missingRow)).savedCheckComparisons).toBe(false);
+
+  for (const [flag, manifestFlag] of [[true, false], [false, true], [undefined, true]] as const) {
+    const mismatch = await body();
+    mismatch.savedCheckComparisons = flag;
+    mismatch.manifest!.capabilities.push(row(manifestFlag));
+    await expect(parse(mismatch)).rejects.toThrow("Invalid preview response");
+  }
+  const missingEnabledRow = await body();
+  missingEnabledRow.savedCheckComparisons = true;
+  await expect(parse(missingEnabledRow)).rejects.toThrow("Invalid preview response");
+  for (const invalid of [null, "", "true", 0, 1, {}, []]) {
+    for (const hasManifest of [true, false]) {
+      const malformed = await body();
+      malformed.savedCheckComparisons = invalid;
+      if (!hasManifest) delete malformed.manifest;
+      await expect(parse(malformed)).rejects.toThrow("Invalid preview response");
+    }
+  }
+});

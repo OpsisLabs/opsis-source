@@ -13,7 +13,7 @@ const settings = {
 };
 
 describe("public build files", () => {
-  it("indexes the eleven public pages when indexing is switched on", () => {
+  it("indexes the thirteen public pages when indexing is switched on", () => {
       const files = generateSiteFiles(settings);
       expect(files["robots.txt"]).toBe(
         "User-agent: *\nAllow: /\nSitemap: https://opsis.example/sitemap.xml\n",
@@ -31,10 +31,10 @@ describe("public build files", () => {
   });
 
   it("keeps the sitemap paths tied to registered Opsis routes and names", () => {
-    const app = readFileSync(
-      new URL("../src/opsis/OpsisApp.tsx", import.meta.url),
-      "utf8",
-    );
+    // Informational publications live outside the provider-dependent tool shell.
+    const app = ["../src/opsis/OpsisApp.tsx", "../src/App.tsx"].map((file) =>
+      readFileSync(new URL(file, import.meta.url), "utf8"),
+    ).join("\n");
     const model = readFileSync(
       new URL("../src/opsis/shell-model.ts", import.meta.url),
       "utf8",
@@ -45,8 +45,8 @@ describe("public build files", () => {
     const namedRoutes = new Set(
       [...model.matchAll(/^\s*"([^"\n]+)": \[/gm)].map((match) => match[1]),
     );
-    expect(PUBLIC_PAGE_PATHS).toHaveLength(11);
-    expect(new Set(PUBLIC_PAGE_PATHS).size).toBe(11);
+    expect(PUBLIC_PAGE_PATHS).toHaveLength(13);
+    expect(new Set(PUBLIC_PAGE_PATHS).size).toBe(13);
     for (const path of PUBLIC_PAGE_PATHS) {
       expect(routes.has(path), path).toBe(true);
       if (path !== "/") expect(namedRoutes.has(path), path).toBe(true);

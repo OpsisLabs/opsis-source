@@ -2,6 +2,17 @@ import type { ReactNode } from "react";
 import { useLocation } from "react-router";
 import { useCopy } from "./copy";
 const pages: Record<string, [string, string, string, string, string]> = {
+  "/research/events": [
+    "RESEARCH / EVENTS",
+    "World & markets",
+    "世界与市场",
+    "Explore captured market observations beside dated reports and their sources.",
+    "对照注明日期的报道及其来源，查看采集的市场观测数据。",
+  ],
+  "/status": ["", "Data status", "数据状态", "Source capabilities and evidence coverage across Opsis tools.", "Opsis 工具的数据源功能与证据覆盖范围。"],
+  "/community": ["", "Community", "社区", "Share feedback in a private draft and see what has shipped.", "在私密草稿中分享反馈，查看已发布的更新。"],
+  "/privacy": ["", "Privacy", "隐私", "How information flows, what stays on your device and the choices you control.", "了解信息流向、保留在设备上的内容，以及由您控制的选择。"],
+  "/terms": ["", "Terms", "条款", "How to use Opsis tools and data.", "如何使用 Opsis 工具与数据。"],
   "/watch": [
     "03 / WATCH",
     "What changed in this wallet?",
@@ -18,8 +29,8 @@ const pages: Record<string, [string, string, string, string, string]> = {
   ],
   "/rwa": [
     "RESEARCH / ASSET PROOF",
-    "Look behind the token.",
-    "查看代币背后的证据。",
+    "Stock-token check",
+    "股票代币核查",
     "Inspect the identity, backing and redemption evidence behind a claim.",
     "检查声明背后的身份、支持资产和赎回证据。",
   ],
@@ -39,22 +50,22 @@ const pages: Record<string, [string, string, string, string, string]> = {
   ],
   "/stress-test": [
     "TRADE CHECK / PORTFOLIO",
-    "Move the assumptions.",
-    "调整假设。",
-    "Change the allocation or price shock and see how the hypothetical portfolio responds.",
-    "调整资产分配或价格冲击，查看假设投资组合如何变化。",
+    "Portfolio shocks",
+    "投资组合冲击",
+    "Test a market move on a hypothetical portfolio. Local arithmetic, not a forecast.",
+    "在假设投资组合上测试市场变动。本地算术，不是预测。",
   ],
   "/biggest-trades": [
     "RESEARCH / OBSERVED SWAPS",
-    "See the activity in context.",
-    "理解活动的背景。",
+    "Big trades",
+    "大额交易",
     "Compare observed swaps in a bounded sample, with exact transactions and source coverage.",
     "比较有限样本中的已观察兑换，查看确切交易及来源覆盖范围。",
   ],
   "/research/details": [
     "RESEARCH / DEEP DIVE",
-    "Follow the public trail.",
-    "追踪公开线索。",
+    "Detailed research",
+    "详细研究",
     "Inspect an exact public identity, ask a question and follow its sources.",
     "检查确切的公开标识，提出问题并追溯来源。",
   ],
@@ -68,7 +79,8 @@ export default function ToolWorkspace({ children }: { children: ReactNode }) {
       className={`opsis-tool-workspace ${page ? "opsis-tool-workspace-native" : ""}`}
       data-tool={pathname.slice(1)}
     >
-      {page && (
+      {page &&
+        !["/research/events", "/research/details", "/rwa"].includes(pathname) && (
         <header className="opsis-studio-heading">
           <div>
             <h1>{c(page[1], page[2])}</h1>

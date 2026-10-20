@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { useCopy } from "../copy";
 import type { Capabilities } from "../model";
 import ToolNavigation from "../ToolNavigation";
@@ -15,6 +15,7 @@ export default function WorkspaceShell({
   onTheme,
   onLocale,
   onLock,
+  publications = false,
 }: {
   capabilities: Capabilities | null;
   theme: "light" | "dark";
@@ -23,8 +24,11 @@ export default function WorkspaceShell({
   onTheme: () => void;
   onLocale: () => void;
   onLock?: () => void;
+  publications?: boolean;
 }) {
   const c = useCopy();
+  const { pathname } = useLocation();
+  const stockLookup = pathname === "/rwa" && capabilities?.rwa;
   const dialog = useRef<HTMLDialogElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
@@ -40,9 +44,13 @@ export default function WorkspaceShell({
           Opsis
         </Link>
         <div className="opsis-topbar-tools">
-          {capabilities?.research && <PublicSearch />}
-          <span className="opsis-chain">Robinhood Chain · 4663</span>
-          <span className="opsis-stage">{stage}</span>
+          {(capabilities?.research || publications) && !stockLookup && (
+            <PublicSearch />
+          )}
+          {!stockLookup && (
+            <span className="opsis-chain">Robinhood Chain · 4663</span>
+          )}
+          {!stockLookup && <span className="opsis-stage">{stage}</span>}
           <div className="opsis-desktop-controls">
             <button
               aria-pressed={theme === "dark"}
@@ -138,18 +146,24 @@ export default function WorkspaceShell({
           )}
         </div>
         <p className="opsis-menu-context">Robinhood Chain · 4663 · {stage}</p>
-        {capabilities?.research && <PublicSearch menu onNavigate={close} />}
-        {capabilities && open && (
+        {(capabilities?.research || publications) && (
+          <PublicSearch menu onNavigate={close} />
+        )}
+        {(capabilities || publications) && open && (
           <ToolNavigation
             capabilities={capabilities}
+            publications={publications}
             mobile
             onNavigate={close}
           />
         )}
       </dialog>
-      {capabilities && (
+      {(capabilities || publications) && (
         <aside className="opsis-desktop-rail">
-          <ToolNavigation capabilities={capabilities} />
+          <ToolNavigation
+            capabilities={capabilities}
+            publications={publications}
+          />
         </aside>
       )}
     </>

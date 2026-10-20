@@ -1,0 +1,4528 @@
+{
+  "schemaVersion": 1,
+  "instrument": {
+    "chainId": 4663,
+    "address": "0x1111111111111111111111111111111111111111",
+    "symbol": "SAMPLE-STOCK"
+  },
+  "quoteCurrency": "USD",
+  "referenceQuoteCurrency": "USD",
+  "referenceType": "oracle",
+  "sourceName": "Synthetic paired-series fixture \u00b7 not market data",
+  "observedAt": "2026-09-02T12:30:00Z",
+  "observations": [
+    {
+      "timestamp": "2026-08-03T14:00:00Z",
+      "dexPrice": "125.562500",
+      "referencePrice": "125.000000",
+      "oracleObservedAt": "2026-08-03T13:58:00Z",
+      "session": "unknown",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-03T15:30:00Z",
+      "dexPrice": "126.889159",
+      "referencePrice": "125.069163",
+      "oracleObservedAt": "2026-08-03T15:21:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-03T17:00:00Z",
+      "dexPrice": "127.424320",
+      "referencePrice": "125.137916",
+      "oracleObservedAt": "2026-08-03T16:44:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-03T18:30:00Z",
+      "dexPrice": "126.864073",
+      "referencePrice": "125.205854",
+      "oracleObservedAt": "2026-08-03T18:07:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-03T20:00:00Z",
+      "dexPrice": "125.492762",
+      "referencePrice": "125.272574",
+      "oracleObservedAt": "2026-08-03T19:30:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-03T21:30:00Z",
+      "dexPrice": "124.030151",
+      "referencePrice": "125.337682",
+      "oracleObservedAt": "2026-08-03T21:22:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-03T23:00:00Z",
+      "dexPrice": "123.236907",
+      "referencePrice": "125.400794",
+      "oracleObservedAt": "2026-08-03T22:45:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T00:30:00Z",
+      "dexPrice": "123.500899",
+      "referencePrice": "125.461534",
+      "oracleObservedAt": "2026-08-04T00:08:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:00:00Z",
+      "dexPrice": "124.635798",
+      "referencePrice": "125.519545",
+      "oracleObservedAt": "2026-08-04T01:31:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T03:30:00Z",
+      "dexPrice": "126.001248",
+      "referencePrice": "125.574484",
+      "oracleObservedAt": "2026-08-04T03:23:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T05:00:00Z",
+      "dexPrice": "126.871299",
+      "referencePrice": "125.626025",
+      "oracleObservedAt": "2026-08-04T04:46:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T06:30:00Z",
+      "dexPrice": "126.839465",
+      "referencePrice": "125.673863",
+      "oracleObservedAt": "2026-08-04T06:09:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T08:00:00Z",
+      "dexPrice": "126.032530",
+      "referencePrice": "125.717716",
+      "oracleObservedAt": "2026-08-04T07:32:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T09:30:00Z",
+      "dexPrice": "125.018168",
+      "referencePrice": "125.757324",
+      "oracleObservedAt": "2026-08-04T09:24:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T11:00:00Z",
+      "dexPrice": "124.466852",
+      "referencePrice": "125.792453",
+      "oracleObservedAt": "2026-08-04T10:47:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T12:30:00Z",
+      "dexPrice": "124.765481",
+      "referencePrice": "125.822895",
+      "oracleObservedAt": "2026-08-04T12:10:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T14:00:00Z",
+      "dexPrice": "128.210048",
+      "referencePrice": "126.038471",
+      "oracleObservedAt": "2026-08-04T13:33:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T15:30:00Z",
+      "dexPrice": "129.525246",
+      "referencePrice": "126.059029",
+      "oracleObservedAt": "2026-08-04T15:25:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T17:00:00Z",
+      "dexPrice": "130.454782",
+      "referencePrice": "126.074447",
+      "oracleObservedAt": "2026-08-04T16:48:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T18:30:00Z",
+      "dexPrice": "130.493567",
+      "referencePrice": "126.084634",
+      "oracleObservedAt": "2026-08-04T18:11:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T20:00:00Z",
+      "dexPrice": "129.613031",
+      "referencePrice": "126.089530",
+      "oracleObservedAt": "2026-08-04T19:34:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T21:30:00Z",
+      "dexPrice": "128.264565",
+      "referencePrice": "126.089105",
+      "oracleObservedAt": "2026-08-04T21:26:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T23:00:00Z",
+      "dexPrice": "127.119772",
+      "referencePrice": "126.083364",
+      "oracleObservedAt": "2026-08-04T22:49:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-05T00:30:00Z",
+      "dexPrice": "126.701972",
+      "referencePrice": "126.072339",
+      "oracleObservedAt": "2026-08-05T00:12:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-05T02:00:00Z",
+      "dexPrice": "127.117510",
+      "referencePrice": "126.056095",
+      "oracleObservedAt": "2026-08-05T01:35:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-05T03:30:00Z",
+      "dexPrice": "128.030022",
+      "referencePrice": "126.034729",
+      "oracleObservedAt": "2026-08-05T03:27:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-05T05:00:00Z",
+      "dexPrice": "128.877937",
+      "referencePrice": "126.008368",
+      "oracleObservedAt": "2026-08-05T04:50:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-05T06:30:00Z",
+      "dexPrice": "129.199741",
+      "referencePrice": "125.977166",
+      "oracleObservedAt": "2026-08-05T06:13:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-05T08:00:00Z",
+      "dexPrice": "128.879275",
+      "referencePrice": "125.941309",
+      "oracleObservedAt": "2026-08-05T07:36:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-05T09:30:00Z",
+      "dexPrice": "128.179920",
+      "referencePrice": "125.901008",
+      "oracleObservedAt": "2026-08-05T09:28:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-05T11:00:00Z",
+      "dexPrice": "127.563653",
+      "referencePrice": "125.856502",
+      "oracleObservedAt": "2026-08-05T10:51:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-05T12:30:00Z",
+      "dexPrice": "127.412207",
+      "referencePrice": "125.808055",
+      "oracleObservedAt": "2026-08-05T12:14:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-05T14:00:00Z",
+      "dexPrice": "129.714189",
+      "referencePrice": "125.945952",
+      "oracleObservedAt": "2026-08-05T13:37:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-05T15:30:00Z",
+      "dexPrice": "130.513352",
+      "referencePrice": "125.890502",
+      "oracleObservedAt": "2026-08-05T15:00:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-05T17:00:00Z",
+      "dexPrice": "131.296667",
+      "referencePrice": "125.832032",
+      "oracleObservedAt": "2026-08-05T16:52:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-05T18:30:00Z",
+      "dexPrice": "131.623757",
+      "referencePrice": "125.770889",
+      "oracleObservedAt": "2026-08-05T18:15:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-05T20:00:00Z",
+      "dexPrice": "131.308796",
+      "referencePrice": "125.707435",
+      "oracleObservedAt": "2026-08-05T19:38:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-05T21:30:00Z",
+      "dexPrice": "130.500401",
+      "referencePrice": "125.642044",
+      "oracleObservedAt": "2026-08-05T21:01:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-05T23:00:00Z",
+      "dexPrice": "129.573496",
+      "referencePrice": "125.575103",
+      "oracleObservedAt": "2026-08-05T22:53:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-06T00:30:00Z",
+      "dexPrice": "128.910699",
+      "referencePrice": "125.507008",
+      "oracleObservedAt": "2026-08-06T00:16:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-06T02:00:00Z",
+      "dexPrice": "128.705493",
+      "referencePrice": "125.438162",
+      "oracleObservedAt": "2026-08-06T01:39:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-06T03:30:00Z",
+      "dexPrice": "128.893449",
+      "referencePrice": "125.368972",
+      "oracleObservedAt": "2026-08-06T03:02:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-06T05:00:00Z",
+      "dexPrice": "129.233496",
+      "referencePrice": "125.299847",
+      "oracleObservedAt": "2026-08-06T04:54:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-06T06:30:00Z",
+      "dexPrice": "129.472942",
+      "referencePrice": "125.231197",
+      "oracleObservedAt": "2026-08-06T06:17:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-06T08:00:00Z",
+      "dexPrice": "129.490011",
+      "referencePrice": "125.163426",
+      "oracleObservedAt": "2026-08-06T07:40:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-06T09:30:00Z",
+      "dexPrice": "129.334804",
+      "referencePrice": "125.096936",
+      "oracleObservedAt": "2026-08-06T09:03:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-06T11:00:00Z",
+      "dexPrice": "129.160675",
+      "referencePrice": "125.032121",
+      "oracleObservedAt": "2026-08-06T10:55:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-06T12:30:00Z",
+      "dexPrice": "129.105385",
+      "referencePrice": "124.969363",
+      "oracleObservedAt": "2026-08-06T12:18:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-06T14:00:00Z",
+      "dexPrice": "130.229035",
+      "referencePrice": "125.099033",
+      "oracleObservedAt": "2026-08-06T13:41:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-06T15:30:00Z",
+      "dexPrice": "130.487098",
+      "referencePrice": "125.041489",
+      "oracleObservedAt": "2026-08-06T15:04:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-06T17:00:00Z",
+      "dexPrice": "130.787413",
+      "referencePrice": "124.987070",
+      "oracleObservedAt": "2026-08-06T16:56:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-06T18:30:00Z",
+      "dexPrice": "130.963884",
+      "referencePrice": "124.936100",
+      "oracleObservedAt": "2026-08-06T18:19:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-06T20:00:00Z",
+      "dexPrice": "130.940071",
+      "referencePrice": "124.888878",
+      "oracleObservedAt": "2026-08-06T19:42:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-06T21:30:00Z",
+      "dexPrice": "130.749795",
+      "referencePrice": "124.845684",
+      "oracleObservedAt": "2026-08-06T21:05:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-06T23:00:00Z",
+      "dexPrice": "130.484417",
+      "referencePrice": "124.806775",
+      "oracleObservedAt": "2026-08-06T22:57:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-07T00:30:00Z",
+      "dexPrice": "130.216259",
+      "referencePrice": "124.772379",
+      "oracleObservedAt": "2026-08-07T00:20:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-07T02:00:00Z",
+      "dexPrice": "129.958146",
+      "referencePrice": "124.742700",
+      "oracleObservedAt": "2026-08-07T01:43:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-07T03:30:00Z",
+      "dexPrice": "129.685908",
+      "referencePrice": "124.717915",
+      "oracleObservedAt": "2026-08-07T03:06:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-07T05:00:00Z",
+      "dexPrice": "129.399580",
+      "referencePrice": "124.698169",
+      "oracleObservedAt": "2026-08-07T04:58:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-07T06:30:00Z",
+      "dexPrice": "129.167428",
+      "referencePrice": "124.683579",
+      "oracleObservedAt": "2026-08-07T06:21:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-07T08:00:00Z",
+      "dexPrice": "129.108093",
+      "referencePrice": "124.674231",
+      "oracleObservedAt": "2026-08-07T07:44:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-07T09:30:00Z",
+      "dexPrice": "129.312964",
+      "referencePrice": "124.670181",
+      "oracleObservedAt": "2026-08-07T09:07:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-07T11:00:00Z",
+      "dexPrice": "129.760444",
+      "referencePrice": "124.671454",
+      "oracleObservedAt": "2026-08-07T10:30:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-07T12:30:00Z",
+      "dexPrice": "130.289438",
+      "referencePrice": "124.678040",
+      "oracleObservedAt": "2026-08-07T12:22:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-07T14:00:00Z",
+      "dexPrice": "130.712974",
+      "referencePrice": "124.879901",
+      "oracleObservedAt": "2026-08-07T13:45:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-07T15:30:00Z",
+      "dexPrice": "130.842583",
+      "referencePrice": "124.896968",
+      "oracleObservedAt": "2026-08-07T15:08:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-07T17:00:00Z",
+      "dexPrice": "130.724565",
+      "referencePrice": "124.919139",
+      "oracleObservedAt": "2026-08-07T16:31:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-07T18:30:00Z",
+      "dexPrice": "130.467246",
+      "referencePrice": "124.946283",
+      "oracleObservedAt": "2026-08-07T18:23:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-07T20:00:00Z",
+      "dexPrice": "130.282473",
+      "referencePrice": "124.978239",
+      "oracleObservedAt": "2026-08-07T19:46:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-07T21:30:00Z",
+      "dexPrice": "130.355705",
+      "referencePrice": "125.014819",
+      "oracleObservedAt": "2026-08-07T21:09:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-07T23:00:00Z",
+      "dexPrice": "130.711988",
+      "referencePrice": "125.055807",
+      "oracleObservedAt": "2026-08-07T22:32:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T00:30:00Z",
+      "dexPrice": "131.169207",
+      "referencePrice": "125.100958",
+      "oracleObservedAt": "2026-08-08T00:24:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T02:00:00Z",
+      "dexPrice": "131.424004",
+      "referencePrice": "125.150008",
+      "oracleObservedAt": "2026-08-08T01:47:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T03:30:00Z",
+      "dexPrice": "131.233427",
+      "referencePrice": "125.202665",
+      "oracleObservedAt": "2026-08-08T03:10:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T05:00:00Z",
+      "dexPrice": "130.587333",
+      "referencePrice": "125.258619",
+      "oracleObservedAt": "2026-08-08T04:33:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T06:30:00Z",
+      "dexPrice": "129.758944",
+      "referencePrice": "125.317538",
+      "oracleObservedAt": "2026-08-08T06:25:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:00Z",
+      "dexPrice": "129.185102",
+      "referencePrice": "125.379073",
+      "oracleObservedAt": "2026-08-08T07:48:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T09:30:00Z",
+      "dexPrice": "129.229615",
+      "referencePrice": "125.442862",
+      "oracleObservedAt": "2026-08-08T09:11:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T11:00:00Z",
+      "dexPrice": "129.961886",
+      "referencePrice": "125.508526",
+      "oracleObservedAt": "2026-08-08T10:34:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T12:30:00Z",
+      "dexPrice": "131.086955",
+      "referencePrice": "125.575677",
+      "oracleObservedAt": "2026-08-08T12:26:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T14:00:00Z",
+      "dexPrice": "131.292957",
+      "referencePrice": "125.833919",
+      "oracleObservedAt": "2026-08-08T13:49:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T15:30:00Z",
+      "dexPrice": "131.772551",
+      "referencePrice": "125.902847",
+      "oracleObservedAt": "2026-08-08T15:12:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T17:00:00Z",
+      "dexPrice": "131.586683",
+      "referencePrice": "125.972054",
+      "oracleObservedAt": "2026-08-08T16:35:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T18:30:00Z",
+      "dexPrice": "130.915793",
+      "referencePrice": "126.041131",
+      "oracleObservedAt": "2026-08-08T18:27:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T20:00:00Z",
+      "dexPrice": "130.226070",
+      "referencePrice": "126.109668",
+      "oracleObservedAt": "2026-08-08T19:50:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T21:30:00Z",
+      "dexPrice": "130.006830",
+      "referencePrice": "126.177261",
+      "oracleObservedAt": "2026-08-08T21:13:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T23:00:00Z",
+      "dexPrice": "130.477403",
+      "referencePrice": "126.243511",
+      "oracleObservedAt": "2026-08-08T22:36:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-09T00:30:00Z",
+      "dexPrice": "131.436818",
+      "referencePrice": "126.308024",
+      "oracleObservedAt": "2026-08-09T00:28:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-09T02:00:00Z",
+      "dexPrice": "132.355381",
+      "referencePrice": "126.370420",
+      "oracleObservedAt": "2026-08-09T01:51:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-09T03:30:00Z",
+      "dexPrice": "132.669048",
+      "referencePrice": "126.430329",
+      "oracleObservedAt": "2026-08-09T03:14:00Z",
+      "session": "unknown",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-09T05:00:00Z",
+      "dexPrice": "132.114419",
+      "referencePrice": "126.487398",
+      "oracleObservedAt": "2026-08-09T04:37:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-09T06:30:00Z",
+      "dexPrice": "130.908764",
+      "referencePrice": "126.541288",
+      "oracleObservedAt": "2026-08-09T06:00:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-09T08:00:00Z",
+      "dexPrice": "129.660267",
+      "referencePrice": "126.591681",
+      "oracleObservedAt": "2026-08-09T07:52:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-09T09:30:00Z",
+      "dexPrice": "129.046336",
+      "referencePrice": "126.638279",
+      "oracleObservedAt": "2026-08-09T09:15:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-09T11:00:00Z",
+      "dexPrice": "129.435334",
+      "referencePrice": "126.680807",
+      "oracleObservedAt": "2026-08-09T10:38:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-09T12:30:00Z",
+      "dexPrice": "130.667719",
+      "referencePrice": "126.719012",
+      "oracleObservedAt": "2026-08-09T12:01:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-09T14:00:00Z",
+      "dexPrice": "130.837877",
+      "referencePrice": "126.942670",
+      "oracleObservedAt": "2026-08-09T13:53:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-09T15:30:00Z",
+      "dexPrice": "131.869871",
+      "referencePrice": "126.971580",
+      "oracleObservedAt": "2026-08-09T15:16:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-09T17:00:00Z",
+      "dexPrice": "132.014807",
+      "referencePrice": "126.995572",
+      "oracleObservedAt": "2026-08-09T16:39:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-09T18:30:00Z",
+      "dexPrice": "131.265120",
+      "referencePrice": "127.014503",
+      "oracleObservedAt": "2026-08-09T18:02:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-09T20:00:00Z",
+      "dexPrice": "130.115280",
+      "referencePrice": "127.028263",
+      "oracleObservedAt": "2026-08-09T19:54:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-09T21:30:00Z",
+      "dexPrice": "129.282659",
+      "referencePrice": "127.036770",
+      "oracleObservedAt": "2026-08-09T21:17:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-09T23:00:00Z",
+      "dexPrice": "129.295091",
+      "referencePrice": "127.039972",
+      "oracleObservedAt": "2026-08-09T22:40:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-10T00:30:00Z",
+      "dexPrice": "130.179885",
+      "referencePrice": "127.037852",
+      "oracleObservedAt": "2026-08-10T00:03:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-10T02:00:00Z",
+      "dexPrice": "131.435805",
+      "referencePrice": "127.030422",
+      "oracleObservedAt": "2026-08-10T01:55:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-10T03:30:00Z",
+      "dexPrice": "132.310148",
+      "referencePrice": "127.017726",
+      "oracleObservedAt": "2026-08-10T03:18:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-10T05:00:00Z",
+      "dexPrice": "132.227669",
+      "referencePrice": "126.999839",
+      "oracleObservedAt": "2026-08-10T04:41:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-10T06:30:00Z",
+      "dexPrice": "131.128037",
+      "referencePrice": "126.976866",
+      "oracleObservedAt": "2026-08-10T06:04:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-10T08:00:00Z",
+      "dexPrice": "129.517076",
+      "referencePrice": "126.948944",
+      "oracleObservedAt": "2026-08-10T07:56:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-10T09:30:00Z",
+      "dexPrice": "128.198154",
+      "referencePrice": "126.916238",
+      "oracleObservedAt": "2026-08-10T09:19:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-10T11:00:00Z",
+      "dexPrice": "127.832245",
+      "referencePrice": "126.878941",
+      "oracleObservedAt": "2026-08-10T10:42:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-10T12:30:00Z",
+      "dexPrice": "128.573870",
+      "referencePrice": "126.837273",
+      "oracleObservedAt": "2026-08-10T12:05:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-10T14:00:00Z",
+      "dexPrice": "128.643240",
+      "referencePrice": "126.981482",
+      "oracleObservedAt": "2026-08-10T13:57:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-10T15:30:00Z",
+      "dexPrice": "130.032978",
+      "referencePrice": "126.931838",
+      "oracleObservedAt": "2026-08-10T15:20:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-10T17:00:00Z",
+      "dexPrice": "130.700985",
+      "referencePrice": "126.878634",
+      "oracleObservedAt": "2026-08-10T16:43:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-10T18:30:00Z",
+      "dexPrice": "130.327664",
+      "referencePrice": "126.822185",
+      "oracleObservedAt": "2026-08-10T18:06:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-11T06:30:00Z",
+      "dexPrice": "129.853057",
+      "referencePrice": "126.296923",
+      "oracleObservedAt": "2026-08-11T06:08:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-11T08:00:00Z",
+      "dexPrice": "128.485165",
+      "referencePrice": "126.227905",
+      "oracleObservedAt": "2026-08-11T07:31:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-11T09:30:00Z",
+      "dexPrice": "126.952810",
+      "referencePrice": "126.159491",
+      "oracleObservedAt": "2026-08-11T09:23:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-11T11:00:00Z",
+      "dexPrice": "125.989235",
+      "referencePrice": "126.092085",
+      "oracleObservedAt": "2026-08-11T10:46:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-11T12:30:00Z",
+      "dexPrice": "126.013208",
+      "referencePrice": "126.026086",
+      "oracleObservedAt": "2026-08-11T12:09:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-11T14:00:00Z",
+      "dexPrice": "127.272189",
+      "referencePrice": "126.151885",
+      "oracleObservedAt": "2026-08-11T13:32:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-11T15:30:00Z",
+      "dexPrice": "128.519313",
+      "referencePrice": "126.089861",
+      "oracleObservedAt": "2026-08-11T15:24:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-11T17:00:00Z",
+      "dexPrice": "129.486896",
+      "referencePrice": "126.030381",
+      "oracleObservedAt": "2026-08-11T16:47:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-11T18:30:00Z",
+      "dexPrice": "129.653078",
+      "referencePrice": "125.973797",
+      "oracleObservedAt": "2026-08-11T18:10:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-11T20:00:00Z",
+      "dexPrice": "128.974023",
+      "referencePrice": "125.920443",
+      "oracleObservedAt": "2026-08-11T19:33:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-11T21:30:00Z",
+      "dexPrice": "127.879408",
+      "referencePrice": "125.870634",
+      "oracleObservedAt": "2026-08-11T21:25:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-11T23:00:00Z",
+      "dexPrice": "127.004758",
+      "referencePrice": "125.824667",
+      "oracleObservedAt": "2026-08-11T22:48:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-12T00:30:00Z",
+      "dexPrice": "126.821654",
+      "referencePrice": "125.782812",
+      "oracleObservedAt": "2026-08-12T00:11:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-12T02:00:00Z",
+      "dexPrice": "127.377443",
+      "referencePrice": "125.745316",
+      "oracleObservedAt": "2026-08-12T01:34:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-12T03:30:00Z",
+      "dexPrice": "128.285441",
+      "referencePrice": "125.712403",
+      "oracleObservedAt": "2026-08-12T03:26:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-12T05:00:00Z",
+      "dexPrice": "128.959596",
+      "referencePrice": "125.684265",
+      "oracleObservedAt": "2026-08-12T04:49:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-12T06:30:00Z",
+      "dexPrice": "128.950701",
+      "referencePrice": "125.661071",
+      "oracleObservedAt": "2026-08-12T06:12:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-12T08:00:00Z",
+      "dexPrice": "128.191326",
+      "referencePrice": "125.642956",
+      "oracleObservedAt": "2026-08-12T07:35:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-12T09:30:00Z",
+      "dexPrice": "127.017892",
+      "referencePrice": "125.630028",
+      "oracleObservedAt": "2026-08-12T09:27:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-12T11:00:00Z",
+      "dexPrice": "125.970271",
+      "referencePrice": "125.622364",
+      "oracleObservedAt": "2026-08-12T10:50:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-12T12:30:00Z",
+      "dexPrice": "125.493421",
+      "referencePrice": "125.620009",
+      "oracleObservedAt": "2026-08-12T12:13:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-12T14:00:00Z",
+      "dexPrice": "131.408019",
+      "referencePrice": "125.812976",
+      "oracleObservedAt": "2026-08-12T13:36:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "announced",
+        "description": "Synthetic distribution notice"
+      }
+    },
+    {
+      "timestamp": "2026-08-12T15:30:00Z",
+      "dexPrice": "131.949391",
+      "referencePrice": "125.821249",
+      "oracleObservedAt": "2026-08-12T15:28:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-12T17:00:00Z",
+      "dexPrice": "132.608975",
+      "referencePrice": "125.834778",
+      "oracleObservedAt": "2026-08-12T16:51:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-12T18:30:00Z",
+      "dexPrice": "132.921774",
+      "referencePrice": "125.853483",
+      "oracleObservedAt": "2026-08-12T18:14:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-12T20:00:00Z",
+      "dexPrice": "132.677331",
+      "referencePrice": "125.877254",
+      "oracleObservedAt": "2026-08-12T19:37:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-12T21:30:00Z",
+      "dexPrice": "132.002642",
+      "referencePrice": "125.905950",
+      "oracleObservedAt": "2026-08-12T21:00:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-12T23:00:00Z",
+      "dexPrice": "131.249786",
+      "referencePrice": "125.939401",
+      "oracleObservedAt": "2026-08-12T22:52:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-13T00:30:00Z",
+      "dexPrice": "130.769763",
+      "referencePrice": "125.977410",
+      "oracleObservedAt": "2026-08-13T00:15:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-13T02:00:00Z",
+      "dexPrice": "130.711102",
+      "referencePrice": "126.019752",
+      "oracleObservedAt": "2026-08-13T01:38:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-13T03:30:00Z",
+      "dexPrice": "130.954756",
+      "referencePrice": "126.066176",
+      "oracleObservedAt": "2026-08-13T03:01:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-13T05:00:00Z",
+      "dexPrice": "131.208186",
+      "referencePrice": "126.116407",
+      "oracleObservedAt": "2026-08-13T04:53:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-13T06:30:00Z",
+      "dexPrice": "131.187994",
+      "referencePrice": "126.170149",
+      "oracleObservedAt": "2026-08-13T06:16:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-13T08:00:00Z",
+      "dexPrice": "130.776975",
+      "referencePrice": "126.227084",
+      "oracleObservedAt": "2026-08-13T07:39:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-13T09:30:00Z",
+      "dexPrice": "130.068954",
+      "referencePrice": "126.286875",
+      "oracleObservedAt": "2026-08-13T09:02:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-13T11:00:00Z",
+      "dexPrice": "129.290339",
+      "referencePrice": "126.349169",
+      "oracleObservedAt": "2026-08-13T10:54:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-13T12:30:00Z",
+      "dexPrice": "128.660972",
+      "referencePrice": "126.413597",
+      "oracleObservedAt": "2026-08-13T12:17:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-13T14:00:00Z",
+      "dexPrice": "127.176486",
+      "referencePrice": "126.669777",
+      "oracleObservedAt": "2026-08-13T13:40:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-13T15:30:00Z",
+      "dexPrice": "127.322878",
+      "referencePrice": "126.737319",
+      "oracleObservedAt": "2026-08-13T15:03:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-13T17:00:00Z",
+      "dexPrice": "127.657665",
+      "referencePrice": "126.805824",
+      "oracleObservedAt": "2026-08-13T16:55:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-13T18:30:00Z",
+      "dexPrice": "127.995419",
+      "referencePrice": "126.874885",
+      "oracleObservedAt": "2026-08-13T18:18:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-13T20:00:00Z",
+      "dexPrice": "128.229492",
+      "referencePrice": "126.944095",
+      "oracleObservedAt": "2026-08-13T19:41:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-13T21:30:00Z",
+      "dexPrice": "128.364980",
+      "referencePrice": "127.013044",
+      "oracleObservedAt": "2026-08-13T21:04:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-13T23:00:00Z",
+      "dexPrice": "128.470068",
+      "referencePrice": "127.081324",
+      "oracleObservedAt": "2026-08-13T22:56:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-14T00:30:00Z",
+      "dexPrice": "128.594755",
+      "referencePrice": "127.148533",
+      "oracleObservedAt": "2026-08-14T00:19:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-14T02:00:00Z",
+      "dexPrice": "128.721871",
+      "referencePrice": "127.214271",
+      "oracleObservedAt": "2026-08-14T01:42:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-14T03:30:00Z",
+      "dexPrice": "128.784545",
+      "referencePrice": "127.278150",
+      "oracleObservedAt": "2026-08-14T03:05:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-14T05:00:00Z",
+      "dexPrice": "128.731101",
+      "referencePrice": "127.339793",
+      "oracleObservedAt": "2026-08-14T04:57:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-14T06:30:00Z",
+      "dexPrice": "128.581731",
+      "referencePrice": "127.398835",
+      "oracleObservedAt": "2026-08-14T06:20:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-14T08:00:00Z",
+      "dexPrice": "128.427122",
+      "referencePrice": "127.454927",
+      "oracleObservedAt": "2026-08-14T07:43:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-14T09:30:00Z",
+      "dexPrice": "128.363576",
+      "referencePrice": "127.507737",
+      "oracleObservedAt": "2026-08-14T09:06:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-14T11:00:00Z",
+      "dexPrice": "128.410118",
+      "referencePrice": "127.556953",
+      "oracleObservedAt": "2026-08-14T10:58:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-14T12:30:00Z",
+      "dexPrice": "128.473179",
+      "referencePrice": "127.602283",
+      "oracleObservedAt": "2026-08-14T12:21:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-14T14:00:00Z",
+      "dexPrice": "127.747940",
+      "referencePrice": "127.833459",
+      "oracleObservedAt": "2026-08-14T13:44:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-14T15:30:00Z",
+      "dexPrice": "127.565324",
+      "referencePrice": "127.870239",
+      "oracleObservedAt": "2026-08-14T15:07:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-14T17:00:00Z",
+      "dexPrice": "127.262703",
+      "referencePrice": "127.902404",
+      "oracleObservedAt": "2026-08-14T16:30:00Z",
+      "session": "unknown",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-14T18:30:00Z",
+      "dexPrice": "126.962368",
+      "referencePrice": "127.929765",
+      "oracleObservedAt": "2026-08-14T18:22:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-14T20:00:00Z",
+      "dexPrice": "126.864696",
+      "referencePrice": "127.952158",
+      "oracleObservedAt": "2026-08-14T19:45:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-14T21:30:00Z",
+      "dexPrice": "127.128118",
+      "referencePrice": "127.969453",
+      "oracleObservedAt": "2026-08-14T21:08:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-14T23:00:00Z",
+      "dexPrice": "127.745020",
+      "referencePrice": "127.981547",
+      "oracleObservedAt": "2026-08-14T22:31:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-15T00:30:00Z",
+      "dexPrice": "128.500942",
+      "referencePrice": "127.988367",
+      "oracleObservedAt": "2026-08-15T00:23:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-15T02:00:00Z",
+      "dexPrice": "129.061306",
+      "referencePrice": "127.989875",
+      "oracleObservedAt": "2026-08-15T01:46:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-15T03:30:00Z",
+      "dexPrice": "129.150469",
+      "referencePrice": "127.986060",
+      "oracleObservedAt": "2026-08-15T03:09:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-15T05:00:00Z",
+      "dexPrice": "128.721582",
+      "referencePrice": "127.976946",
+      "oracleObservedAt": "2026-08-15T04:32:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-15T06:30:00Z",
+      "dexPrice": "128.008078",
+      "referencePrice": "127.962586",
+      "oracleObservedAt": "2026-08-15T06:24:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-15T08:00:00Z",
+      "dexPrice": "127.409978",
+      "referencePrice": "127.943066",
+      "oracleObservedAt": "2026-08-15T07:47:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-15T09:30:00Z",
+      "dexPrice": "127.267469",
+      "referencePrice": "127.918500",
+      "oracleObservedAt": "2026-08-15T09:10:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-15T11:00:00Z",
+      "dexPrice": "127.650332",
+      "referencePrice": "127.889035",
+      "oracleObservedAt": "2026-08-15T10:33:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-15T12:30:00Z",
+      "dexPrice": "128.294500",
+      "referencePrice": "127.854844",
+      "oracleObservedAt": "2026-08-15T12:25:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-15T14:00:00Z",
+      "dexPrice": "128.272706",
+      "referencePrice": "128.006129",
+      "oracleObservedAt": "2026-08-15T13:48:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-15T15:30:00Z",
+      "dexPrice": "128.206225",
+      "referencePrice": "127.963120",
+      "oracleObservedAt": "2026-08-15T15:11:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-15T17:00:00Z",
+      "dexPrice": "127.556089",
+      "referencePrice": "127.916070",
+      "oracleObservedAt": "2026-08-15T16:34:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-15T18:30:00Z",
+      "dexPrice": "126.557300",
+      "referencePrice": "127.865259",
+      "oracleObservedAt": "2026-08-15T18:26:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-15T20:00:00Z",
+      "dexPrice": "125.698989",
+      "referencePrice": "127.810986",
+      "oracleObservedAt": "2026-08-15T19:49:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-15T21:30:00Z",
+      "dexPrice": "125.461044",
+      "referencePrice": "127.753573",
+      "oracleObservedAt": "2026-08-15T21:12:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-15T23:00:00Z",
+      "dexPrice": "126.030238",
+      "referencePrice": "127.693360",
+      "oracleObservedAt": "2026-08-15T22:35:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-16T00:30:00Z",
+      "dexPrice": "127.164137",
+      "referencePrice": "127.630701",
+      "oracleObservedAt": "2026-08-16T00:27:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-16T02:00:00Z",
+      "dexPrice": "128.294861",
+      "referencePrice": "127.565968",
+      "oracleObservedAt": "2026-08-16T01:50:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-16T03:30:00Z",
+      "dexPrice": "128.828217",
+      "referencePrice": "127.499545",
+      "oracleObservedAt": "2026-08-16T03:13:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-16T05:00:00Z",
+      "dexPrice": "128.475218",
+      "referencePrice": "127.431822",
+      "oracleObservedAt": "2026-08-16T04:36:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-16T06:30:00Z",
+      "dexPrice": "127.424665",
+      "referencePrice": "127.363202",
+      "oracleObservedAt": "2026-08-16T06:28:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-16T08:00:00Z",
+      "dexPrice": "126.248875",
+      "referencePrice": "127.294089",
+      "oracleObservedAt": "2026-08-16T07:51:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-16T09:30:00Z",
+      "dexPrice": "125.585830",
+      "referencePrice": "127.224894",
+      "oracleObservedAt": "2026-08-16T09:14:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-16T11:00:00Z",
+      "dexPrice": "125.773495",
+      "referencePrice": "127.156024",
+      "oracleObservedAt": "2026-08-16T10:37:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-16T12:30:00Z",
+      "dexPrice": "126.646901",
+      "referencePrice": "127.087887",
+      "oracleObservedAt": "2026-08-16T12:00:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-16T14:00:00Z",
+      "dexPrice": "126.575011",
+      "referencePrice": "127.210887",
+      "oracleObservedAt": "2026-08-16T13:52:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-16T15:30:00Z",
+      "dexPrice": "127.058387",
+      "referencePrice": "127.145419",
+      "oracleObservedAt": "2026-08-16T15:15:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-16T17:00:00Z",
+      "dexPrice": "126.675849",
+      "referencePrice": "127.081871",
+      "oracleObservedAt": "2026-08-16T16:38:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-16T18:30:00Z",
+      "dexPrice": "125.499979",
+      "referencePrice": "127.020618",
+      "oracleObservedAt": "2026-08-16T18:01:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-16T20:00:00Z",
+      "dexPrice": "124.080133",
+      "referencePrice": "126.962023",
+      "oracleObservedAt": "2026-08-16T19:53:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-16T21:30:00Z",
+      "dexPrice": "123.151816",
+      "referencePrice": "126.906432",
+      "oracleObservedAt": "2026-08-16T21:16:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-16T23:00:00Z",
+      "dexPrice": "123.226694",
+      "referencePrice": "126.854175",
+      "oracleObservedAt": "2026-08-16T22:39:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-17T00:30:00Z",
+      "dexPrice": "124.295004",
+      "referencePrice": "126.805559",
+      "oracleObservedAt": "2026-08-17T00:02:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-17T02:00:00Z",
+      "dexPrice": "125.813979",
+      "referencePrice": "126.760873",
+      "oracleObservedAt": "2026-08-17T01:54:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-17T03:30:00Z",
+      "dexPrice": "126.996090",
+      "referencePrice": "126.720381",
+      "oracleObservedAt": "2026-08-17T03:17:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-17T05:00:00Z",
+      "dexPrice": "127.239551",
+      "referencePrice": "126.684323",
+      "oracleObservedAt": "2026-08-17T04:40:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-17T06:30:00Z",
+      "dexPrice": "126.459460",
+      "referencePrice": "126.652911",
+      "oracleObservedAt": "2026-08-17T06:03:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-17T08:00:00Z",
+      "dexPrice": "125.131088",
+      "referencePrice": "126.626332",
+      "oracleObservedAt": "2026-08-17T07:55:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-17T09:30:00Z",
+      "dexPrice": "124.018661",
+      "referencePrice": "126.604742",
+      "oracleObservedAt": "2026-08-17T09:18:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-17T11:00:00Z",
+      "dexPrice": "123.741752",
+      "referencePrice": "126.588270",
+      "oracleObservedAt": "2026-08-17T10:41:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-17T12:30:00Z",
+      "dexPrice": "124.424801",
+      "referencePrice": "126.577012",
+      "oracleObservedAt": "2026-08-17T12:04:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-17T14:00:00Z",
+      "dexPrice": "123.872246",
+      "referencePrice": "126.761036",
+      "oracleObservedAt": "2026-08-17T13:56:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-17T15:30:00Z",
+      "dexPrice": "124.929414",
+      "referencePrice": "126.760377",
+      "oracleObservedAt": "2026-08-17T15:19:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-17T17:00:00Z",
+      "dexPrice": "125.204857",
+      "referencePrice": "126.765038",
+      "oracleObservedAt": "2026-08-17T16:42:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-17T18:30:00Z",
+      "dexPrice": "124.458918",
+      "referencePrice": "126.774992",
+      "oracleObservedAt": "2026-08-17T18:05:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-17T20:00:00Z",
+      "dexPrice": "123.037448",
+      "referencePrice": "126.790180",
+      "oracleObservedAt": "2026-08-17T19:57:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-17T21:30:00Z",
+      "dexPrice": "121.687823",
+      "referencePrice": "126.810513",
+      "oracleObservedAt": "2026-08-17T21:20:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-17T23:00:00Z",
+      "dexPrice": "121.146368",
+      "referencePrice": "126.835869",
+      "oracleObservedAt": "2026-08-17T22:43:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-18T00:30:00Z",
+      "dexPrice": "121.729604",
+      "referencePrice": "126.866100",
+      "oracleObservedAt": "2026-08-18T00:06:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-18T02:00:00Z",
+      "dexPrice": "123.159245",
+      "referencePrice": "126.901026",
+      "oracleObservedAt": "2026-08-18T01:58:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-18T03:30:00Z",
+      "dexPrice": "124.717916",
+      "referencePrice": "126.940441",
+      "oracleObservedAt": "2026-08-18T03:21:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-18T05:00:00Z",
+      "dexPrice": "125.645565",
+      "referencePrice": "126.984111",
+      "oracleObservedAt": "2026-08-18T04:44:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-18T06:30:00Z",
+      "dexPrice": "125.552139",
+      "referencePrice": "127.031779",
+      "oracleObservedAt": "2026-08-18T06:07:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-18T08:00:00Z",
+      "dexPrice": "124.616138",
+      "referencePrice": "127.083163",
+      "oracleObservedAt": "2026-08-18T07:30:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-18T09:30:00Z",
+      "dexPrice": "123.462903",
+      "referencePrice": "127.137957",
+      "oracleObservedAt": "2026-08-18T09:22:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-18T11:00:00Z",
+      "dexPrice": "122.798519",
+      "referencePrice": "127.195840",
+      "oracleObservedAt": "2026-08-18T10:45:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-18T12:30:00Z",
+      "dexPrice": "123.010820",
+      "referencePrice": "127.256467",
+      "oracleObservedAt": "2026-08-18T12:08:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-18T14:00:00Z",
+      "dexPrice": "121.599503",
+      "referencePrice": "127.509481",
+      "oracleObservedAt": "2026-08-18T13:31:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-18T15:30:00Z",
+      "dexPrice": "122.802935",
+      "referencePrice": "127.574509",
+      "oracleObservedAt": "2026-08-18T15:23:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-18T17:00:00Z",
+      "dexPrice": "123.592122",
+      "referencePrice": "127.641167",
+      "oracleObservedAt": "2026-08-18T16:46:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-18T18:30:00Z",
+      "dexPrice": "123.494042",
+      "referencePrice": "127.709059",
+      "oracleObservedAt": "2026-08-18T18:09:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-18T20:00:00Z",
+      "dexPrice": "122.540762",
+      "referencePrice": "127.777785",
+      "oracleObservedAt": "2026-08-18T19:32:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-18T21:30:00Z",
+      "dexPrice": "121.247011",
+      "referencePrice": "127.846938",
+      "oracleObservedAt": "2026-08-18T21:24:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-18T23:00:00Z",
+      "dexPrice": "120.318588",
+      "referencePrice": "127.916109",
+      "oracleObservedAt": "2026-08-18T22:47:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-19T00:30:00Z",
+      "dexPrice": "120.262123",
+      "referencePrice": "127.984889",
+      "oracleObservedAt": "2026-08-19T00:10:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-19T02:00:00Z",
+      "dexPrice": "121.116546",
+      "referencePrice": "128.052872",
+      "oracleObservedAt": "2026-08-19T01:33:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-19T03:30:00Z",
+      "dexPrice": "122.450657",
+      "referencePrice": "128.119654",
+      "oracleObservedAt": "2026-08-19T03:25:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-19T05:00:00Z",
+      "dexPrice": "123.616910",
+      "referencePrice": "128.184842",
+      "oracleObservedAt": "2026-08-19T04:48:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-19T06:30:00Z",
+      "dexPrice": "124.109019",
+      "referencePrice": "128.248050",
+      "oracleObservedAt": "2026-08-19T06:11:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-19T08:00:00Z",
+      "dexPrice": "123.820483",
+      "referencePrice": "128.308903",
+      "oracleObservedAt": "2026-08-19T07:34:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-19T09:30:00Z",
+      "dexPrice": "123.067077",
+      "referencePrice": "128.367042",
+      "oracleObservedAt": "2026-08-19T09:26:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-19T11:00:00Z",
+      "dexPrice": "122.375925",
+      "referencePrice": "128.422123",
+      "oracleObservedAt": "2026-08-19T10:49:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-19T12:30:00Z",
+      "dexPrice": "122.174191",
+      "referencePrice": "128.473821",
+      "oracleObservedAt": "2026-08-19T12:12:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-19T14:00:00Z",
+      "dexPrice": "119.932866",
+      "referencePrice": "128.711829",
+      "oracleObservedAt": "2026-08-19T13:35:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "effective",
+        "description": "Synthetic dividend adjustment"
+      }
+    },
+    {
+      "timestamp": "2026-08-19T15:30:00Z",
+      "dexPrice": "120.721704",
+      "referencePrice": "128.755864",
+      "oracleObservedAt": "2026-08-19T15:27:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-19T17:00:00Z",
+      "dexPrice": "121.469112",
+      "referencePrice": "128.795665",
+      "oracleObservedAt": "2026-08-19T16:50:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-19T18:30:00Z",
+      "dexPrice": "121.719768",
+      "referencePrice": "128.830997",
+      "oracleObservedAt": "2026-08-19T18:13:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-19T20:00:00Z",
+      "dexPrice": "121.311943",
+      "referencePrice": "128.861651",
+      "oracleObservedAt": "2026-08-19T19:36:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-19T21:30:00Z",
+      "dexPrice": "120.453549",
+      "referencePrice": "128.887445",
+      "oracleObservedAt": "2026-08-19T21:28:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-19T23:00:00Z",
+      "dexPrice": "119.587894",
+      "referencePrice": "128.908227",
+      "oracleObservedAt": "2026-08-19T22:51:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-20T00:30:00Z",
+      "dexPrice": "119.139693",
+      "referencePrice": "128.923875",
+      "oracleObservedAt": "2026-08-20T00:14:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-20T02:00:00Z",
+      "dexPrice": "119.292111",
+      "referencePrice": "128.934295",
+      "oracleObservedAt": "2026-08-20T01:37:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-20T03:30:00Z",
+      "dexPrice": "119.915442",
+      "referencePrice": "128.939425",
+      "oracleObservedAt": "2026-08-20T03:00:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-20T05:00:00Z",
+      "dexPrice": "120.671720",
+      "referencePrice": "128.939237",
+      "oracleObservedAt": "2026-08-20T04:52:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-20T06:30:00Z",
+      "dexPrice": "121.218014",
+      "referencePrice": "128.933730",
+      "oracleObservedAt": "2026-08-20T06:15:00Z",
+      "session": "unknown",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-20T08:00:00Z",
+      "dexPrice": "121.383574",
+      "referencePrice": "128.922937",
+      "oracleObservedAt": "2026-08-20T07:38:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-20T09:30:00Z",
+      "dexPrice": "121.225277",
+      "referencePrice": "128.906923",
+      "oracleObservedAt": "2026-08-20T09:01:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-20T11:00:00Z",
+      "dexPrice": "120.947505",
+      "referencePrice": "128.885781",
+      "oracleObservedAt": "2026-08-20T10:53:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-20T12:30:00Z",
+      "dexPrice": "120.753266",
+      "referencePrice": "128.859637",
+      "oracleObservedAt": "2026-08-20T12:16:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T14:00:00Z",
+      "dexPrice": "116.933890",
+      "referencePrice": "128.274217",
+      "oracleObservedAt": "2026-08-21T13:43:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T15:30:00Z",
+      "dexPrice": "116.803426",
+      "referencePrice": "128.206399",
+      "oracleObservedAt": "2026-08-21T15:06:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T17:00:00Z",
+      "dexPrice": "116.449136",
+      "referencePrice": "128.139845",
+      "oracleObservedAt": "2026-08-21T16:58:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T18:30:00Z",
+      "dexPrice": "115.973260",
+      "referencePrice": "128.074947",
+      "oracleObservedAt": "2026-08-21T18:21:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T20:00:00Z",
+      "dexPrice": "115.567524",
+      "referencePrice": "128.012090",
+      "oracleObservedAt": "2026-08-21T19:44:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T21:30:00Z",
+      "dexPrice": "115.405138",
+      "referencePrice": "127.951645",
+      "oracleObservedAt": "2026-08-21T21:07:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T23:00:00Z",
+      "dexPrice": "115.523373",
+      "referencePrice": "127.893970",
+      "oracleObservedAt": "2026-08-21T22:30:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-22T00:30:00Z",
+      "dexPrice": "115.778726",
+      "referencePrice": "127.839407",
+      "oracleObservedAt": "2026-08-22T00:22:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-22T02:00:00Z",
+      "dexPrice": "115.918268",
+      "referencePrice": "127.788277",
+      "oracleObservedAt": "2026-08-22T01:45:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-22T03:30:00Z",
+      "dexPrice": "115.736889",
+      "referencePrice": "127.740883",
+      "oracleObservedAt": "2026-08-22T03:08:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-22T05:00:00Z",
+      "dexPrice": "115.227389",
+      "referencePrice": "127.697506",
+      "oracleObservedAt": "2026-08-22T04:31:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-22T06:30:00Z",
+      "dexPrice": "114.622317",
+      "referencePrice": "127.658402",
+      "oracleObservedAt": "2026-08-22T06:23:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-22T08:00:00Z",
+      "dexPrice": "114.284419",
+      "referencePrice": "127.623802",
+      "oracleObservedAt": "2026-08-22T07:46:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-22T09:30:00Z",
+      "dexPrice": "114.495588",
+      "referencePrice": "127.593911",
+      "oracleObservedAt": "2026-08-22T09:09:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-22T11:00:00Z",
+      "dexPrice": "115.265439",
+      "referencePrice": "127.568905",
+      "oracleObservedAt": "2026-08-22T10:32:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-22T12:30:00Z",
+      "dexPrice": "116.282250",
+      "referencePrice": "127.548934",
+      "oracleObservedAt": "2026-08-22T12:24:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-22T14:00:00Z",
+      "dexPrice": "116.502364",
+      "referencePrice": "127.724114",
+      "oracleObservedAt": "2026-08-22T13:47:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-22T15:30:00Z",
+      "dexPrice": "116.698911",
+      "referencePrice": "127.714533",
+      "oracleObservedAt": "2026-08-22T15:10:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-22T17:00:00Z",
+      "dexPrice": "116.231613",
+      "referencePrice": "127.710248",
+      "oracleObservedAt": "2026-08-22T16:33:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-22T18:30:00Z",
+      "dexPrice": "115.317140",
+      "referencePrice": "127.711285",
+      "oracleObservedAt": "2026-08-22T18:25:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-22T20:00:00Z",
+      "dexPrice": "114.426050",
+      "referencePrice": "127.717637",
+      "oracleObservedAt": "2026-08-22T19:48:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-22T21:30:00Z",
+      "dexPrice": "114.029285",
+      "referencePrice": "127.729266",
+      "oracleObservedAt": "2026-08-22T21:11:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-22T23:00:00Z",
+      "dexPrice": "114.326386",
+      "referencePrice": "127.746105",
+      "oracleObservedAt": "2026-08-22T22:34:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-23T00:30:00Z",
+      "dexPrice": "115.116291",
+      "referencePrice": "127.768052",
+      "oracleObservedAt": "2026-08-23T00:26:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-23T02:00:00Z",
+      "dexPrice": "115.897602",
+      "referencePrice": "127.794979",
+      "oracleObservedAt": "2026-08-23T01:49:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-23T03:30:00Z",
+      "dexPrice": "116.153504",
+      "referencePrice": "127.826727",
+      "oracleObservedAt": "2026-08-23T03:12:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-23T05:00:00Z",
+      "dexPrice": "115.663287",
+      "referencePrice": "127.863107",
+      "oracleObservedAt": "2026-08-23T04:35:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-23T06:30:00Z",
+      "dexPrice": "114.656707",
+      "referencePrice": "127.903904",
+      "oracleObservedAt": "2026-08-23T06:27:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-23T08:00:00Z",
+      "dexPrice": "113.710028",
+      "referencePrice": "127.948877",
+      "oracleObservedAt": "2026-08-23T07:50:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-23T09:30:00Z",
+      "dexPrice": "113.429888",
+      "referencePrice": "127.997760",
+      "oracleObservedAt": "2026-08-23T09:13:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-23T11:00:00Z",
+      "dexPrice": "114.098973",
+      "referencePrice": "128.050265",
+      "oracleObservedAt": "2026-08-23T10:36:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-23T12:30:00Z",
+      "dexPrice": "115.488928",
+      "referencePrice": "128.106079",
+      "oracleObservedAt": "2026-08-23T12:28:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-23T14:00:00Z",
+      "dexPrice": "117.525323",
+      "referencePrice": "128.354874",
+      "oracleObservedAt": "2026-08-23T13:51:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-23T15:30:00Z",
+      "dexPrice": "118.439531",
+      "referencePrice": "128.416301",
+      "oracleObservedAt": "2026-08-23T15:14:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-23T17:00:00Z",
+      "dexPrice": "118.397964",
+      "referencePrice": "128.479998",
+      "oracleObservedAt": "2026-08-23T16:37:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-23T18:30:00Z",
+      "dexPrice": "117.458262",
+      "referencePrice": "128.545588",
+      "oracleObservedAt": "2026-08-23T18:00:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-23T20:00:00Z",
+      "dexPrice": "116.161355",
+      "referencePrice": "128.612682",
+      "oracleObservedAt": "2026-08-23T19:52:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-23T21:30:00Z",
+      "dexPrice": "115.238275",
+      "referencePrice": "128.680883",
+      "oracleObservedAt": "2026-08-23T21:15:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-23T23:00:00Z",
+      "dexPrice": "115.201917",
+      "referencePrice": "128.749790",
+      "oracleObservedAt": "2026-08-23T22:38:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-24T00:30:00Z",
+      "dexPrice": "116.054845",
+      "referencePrice": "128.818993",
+      "oracleObservedAt": "2026-08-24T00:01:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-24T02:00:00Z",
+      "dexPrice": "117.283844",
+      "referencePrice": "128.888084",
+      "oracleObservedAt": "2026-08-24T01:53:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-24T03:30:00Z",
+      "dexPrice": "118.150826",
+      "referencePrice": "128.956654",
+      "oracleObservedAt": "2026-08-24T03:16:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-24T05:00:00Z",
+      "dexPrice": "118.119004",
+      "referencePrice": "129.024297",
+      "oracleObservedAt": "2026-08-24T04:39:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-24T06:30:00Z",
+      "dexPrice": "117.171655",
+      "referencePrice": "129.090614",
+      "oracleObservedAt": "2026-08-24T06:02:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-24T08:00:00Z",
+      "dexPrice": "115.837711",
+      "referencePrice": "129.155213",
+      "oracleObservedAt": "2026-08-24T07:54:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-24T09:30:00Z",
+      "dexPrice": "114.903567",
+      "referencePrice": "129.217710",
+      "oracleObservedAt": "2026-08-24T09:17:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-24T11:00:00Z",
+      "dexPrice": "114.970354",
+      "referencePrice": "129.277737",
+      "oracleObservedAt": "2026-08-24T10:40:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-24T12:30:00Z",
+      "dexPrice": "116.107002",
+      "referencePrice": "129.334938",
+      "oracleObservedAt": "2026-08-24T12:03:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-24T14:00:00Z",
+      "dexPrice": "119.279679",
+      "referencePrice": "129.578976",
+      "oracleObservedAt": "2026-08-24T13:55:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-24T15:30:00Z",
+      "dexPrice": "120.784492",
+      "referencePrice": "129.629531",
+      "oracleObservedAt": "2026-08-24T15:18:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-25T02:00:00Z",
+      "dexPrice": "119.033015",
+      "referencePrice": "129.863775",
+      "oracleObservedAt": "2026-08-25T01:57:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-25T03:30:00Z",
+      "dexPrice": "120.184674",
+      "referencePrice": "129.877765",
+      "oracleObservedAt": "2026-08-25T03:20:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-25T05:00:00Z",
+      "dexPrice": "120.661564",
+      "referencePrice": "129.886505",
+      "oracleObservedAt": "2026-08-25T04:43:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-25T06:30:00Z",
+      "dexPrice": "120.140859",
+      "referencePrice": "129.889943",
+      "oracleObservedAt": "2026-08-25T06:06:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-25T08:00:00Z",
+      "dexPrice": "118.879705",
+      "referencePrice": "129.888059",
+      "oracleObservedAt": "2026-08-25T07:58:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-25T09:30:00Z",
+      "dexPrice": "117.568665",
+      "referencePrice": "129.880863",
+      "oracleObservedAt": "2026-08-25T09:21:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-25T11:00:00Z",
+      "dexPrice": "116.941491",
+      "referencePrice": "129.868398",
+      "oracleObservedAt": "2026-08-25T10:44:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-25T12:30:00Z",
+      "dexPrice": "117.364568",
+      "referencePrice": "129.850738",
+      "oracleObservedAt": "2026-08-25T12:07:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-25T14:00:00Z",
+      "dexPrice": "120.602671",
+      "referencePrice": "130.017988",
+      "oracleObservedAt": "2026-08-25T13:30:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-25T15:30:00Z",
+      "dexPrice": "122.156987",
+      "referencePrice": "129.990282",
+      "oracleObservedAt": "2026-08-25T15:22:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-25T17:00:00Z",
+      "dexPrice": "123.249847",
+      "referencePrice": "129.957783",
+      "oracleObservedAt": "2026-08-25T16:45:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-25T18:30:00Z",
+      "dexPrice": "123.357940",
+      "referencePrice": "129.920684",
+      "oracleObservedAt": "2026-08-25T18:08:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-25T20:00:00Z",
+      "dexPrice": "122.494572",
+      "referencePrice": "129.879205",
+      "oracleObservedAt": "2026-08-25T19:31:00Z",
+      "session": "unknown",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-25T21:30:00Z",
+      "dexPrice": "121.177639",
+      "referencePrice": "129.833591",
+      "oracleObservedAt": "2026-08-25T21:23:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-25T23:00:00Z",
+      "dexPrice": "120.121862",
+      "referencePrice": "129.784111",
+      "oracleObservedAt": "2026-08-25T22:46:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T00:30:00Z",
+      "dexPrice": "119.836795",
+      "referencePrice": "129.731058",
+      "oracleObservedAt": "2026-08-26T00:09:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T02:00:00Z",
+      "dexPrice": "120.358250",
+      "referencePrice": "129.674746",
+      "oracleObservedAt": "2026-08-26T01:32:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T03:30:00Z",
+      "dexPrice": "121.257151",
+      "referencePrice": "129.615508",
+      "oracleObservedAt": "2026-08-26T03:24:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T05:00:00Z",
+      "dexPrice": "121.908228",
+      "referencePrice": "129.553694",
+      "oracleObservedAt": "2026-08-26T04:47:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T06:30:00Z",
+      "dexPrice": "121.855832",
+      "referencePrice": "129.489670",
+      "oracleObservedAt": "2026-08-26T06:10:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T08:00:00Z",
+      "dexPrice": "121.067017",
+      "referencePrice": "129.423815",
+      "oracleObservedAt": "2026-08-26T07:33:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T09:30:00Z",
+      "dexPrice": "119.935352",
+      "referencePrice": "129.356518",
+      "oracleObservedAt": "2026-08-26T09:25:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T11:00:00Z",
+      "dexPrice": "119.045729",
+      "referencePrice": "129.288177",
+      "oracleObservedAt": "2026-08-26T10:48:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T12:30:00Z",
+      "dexPrice": "118.843995",
+      "referencePrice": "129.219196",
+      "oracleObservedAt": "2026-08-26T12:11:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T14:00:00Z",
+      "dexPrice": "121.327917",
+      "referencePrice": "129.339983",
+      "oracleObservedAt": "2026-08-26T13:34:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T15:30:00Z",
+      "dexPrice": "122.402526",
+      "referencePrice": "129.270948",
+      "oracleObservedAt": "2026-08-26T15:26:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T17:00:00Z",
+      "dexPrice": "123.473517",
+      "referencePrice": "129.202498",
+      "oracleObservedAt": "2026-08-26T16:49:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T18:30:00Z",
+      "dexPrice": "124.017908",
+      "referencePrice": "129.135039",
+      "oracleObservedAt": "2026-08-26T18:12:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T20:00:00Z",
+      "dexPrice": "123.828000",
+      "referencePrice": "129.068970",
+      "oracleObservedAt": "2026-08-26T19:35:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T21:30:00Z",
+      "dexPrice": "123.089884",
+      "referencePrice": "129.004681",
+      "oracleObservedAt": "2026-08-26T21:27:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T23:00:00Z",
+      "dexPrice": "122.241892",
+      "referencePrice": "128.942553",
+      "oracleObservedAt": "2026-08-26T22:50:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-27T00:30:00Z",
+      "dexPrice": "121.710008",
+      "referencePrice": "128.882953",
+      "oracleObservedAt": "2026-08-27T00:13:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-27T02:00:00Z",
+      "dexPrice": "121.678138",
+      "referencePrice": "128.826233",
+      "oracleObservedAt": "2026-08-27T01:36:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-27T03:30:00Z",
+      "dexPrice": "122.017844",
+      "referencePrice": "128.772730",
+      "oracleObservedAt": "2026-08-27T03:28:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-27T05:00:00Z",
+      "dexPrice": "122.400888",
+      "referencePrice": "128.722758",
+      "oracleObservedAt": "2026-08-27T04:51:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-27T06:30:00Z",
+      "dexPrice": "122.512074",
+      "referencePrice": "128.676615",
+      "oracleObservedAt": "2026-08-27T06:14:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-27T08:00:00Z",
+      "dexPrice": "122.230925",
+      "referencePrice": "128.634572",
+      "oracleObservedAt": "2026-08-27T07:37:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-27T09:30:00Z",
+      "dexPrice": "121.682016",
+      "referencePrice": "128.596879",
+      "oracleObservedAt": "2026-08-27T09:00:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-27T11:00:00Z",
+      "dexPrice": "121.140081",
+      "referencePrice": "128.563759",
+      "oracleObservedAt": "2026-08-27T10:52:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-27T12:30:00Z",
+      "dexPrice": "120.861493",
+      "referencePrice": "128.535406",
+      "oracleObservedAt": "2026-08-27T12:15:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-27T14:00:00Z",
+      "dexPrice": "122.413712",
+      "referencePrice": "128.701990",
+      "oracleObservedAt": "2026-08-27T13:38:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "effective",
+        "description": "Synthetic split adjustment"
+      }
+    },
+    {
+      "timestamp": "2026-08-27T15:30:00Z",
+      "dexPrice": "122.864156",
+      "referencePrice": "128.683648",
+      "oracleObservedAt": "2026-08-27T15:01:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-27T17:00:00Z",
+      "dexPrice": "123.485243",
+      "referencePrice": "128.670489",
+      "oracleObservedAt": "2026-08-27T16:53:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-27T18:30:00Z",
+      "dexPrice": "124.005502",
+      "referencePrice": "128.662591",
+      "oracleObservedAt": "2026-08-27T18:16:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-27T20:00:00Z",
+      "dexPrice": "124.263922",
+      "referencePrice": "128.660000",
+      "oracleObservedAt": "2026-08-27T19:39:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-27T21:30:00Z",
+      "dexPrice": "124.264039",
+      "referencePrice": "128.662733",
+      "oracleObservedAt": "2026-08-27T21:02:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-27T23:00:00Z",
+      "dexPrice": "124.123490",
+      "referencePrice": "128.670772",
+      "oracleObservedAt": "2026-08-27T22:54:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-28T00:30:00Z",
+      "dexPrice": "123.969606",
+      "referencePrice": "128.684070",
+      "oracleObservedAt": "2026-08-28T00:17:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-28T02:00:00Z",
+      "dexPrice": "123.857650",
+      "referencePrice": "128.702548",
+      "oracleObservedAt": "2026-08-28T01:40:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-28T03:30:00Z",
+      "dexPrice": "123.761607",
+      "referencePrice": "128.726098",
+      "oracleObservedAt": "2026-08-28T03:03:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-28T05:00:00Z",
+      "dexPrice": "123.630579",
+      "referencePrice": "128.754579",
+      "oracleObservedAt": "2026-08-28T04:55:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-28T06:30:00Z",
+      "dexPrice": "123.457564",
+      "referencePrice": "128.787824",
+      "oracleObservedAt": "2026-08-28T06:18:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-28T08:00:00Z",
+      "dexPrice": "123.302881",
+      "referencePrice": "128.825636",
+      "oracleObservedAt": "2026-08-28T07:41:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-28T09:30:00Z",
+      "dexPrice": "123.252684",
+      "referencePrice": "128.867791",
+      "oracleObservedAt": "2026-08-28T09:04:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-28T11:00:00Z",
+      "dexPrice": "123.345179",
+      "referencePrice": "128.914040",
+      "oracleObservedAt": "2026-08-28T10:56:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-28T12:30:00Z",
+      "dexPrice": "123.525111",
+      "referencePrice": "128.964109",
+      "oracleObservedAt": "2026-08-28T12:19:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-28T14:00:00Z",
+      "dexPrice": "124.462887",
+      "referencePrice": "129.207703",
+      "oracleObservedAt": "2026-08-28T13:42:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-28T15:30:00Z",
+      "dexPrice": "124.550922",
+      "referencePrice": "129.264503",
+      "oracleObservedAt": "2026-08-28T15:05:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-28T17:00:00Z",
+      "dexPrice": "124.588229",
+      "referencePrice": "129.324176",
+      "oracleObservedAt": "2026-08-28T16:57:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-28T18:30:00Z",
+      "dexPrice": "124.622722",
+      "referencePrice": "129.386366",
+      "oracleObservedAt": "2026-08-28T18:20:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-28T20:00:00Z",
+      "dexPrice": "124.772088",
+      "referencePrice": "129.450707",
+      "oracleObservedAt": "2026-08-28T19:43:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-28T21:30:00Z",
+      "dexPrice": "125.136126",
+      "referencePrice": "129.516819",
+      "oracleObservedAt": "2026-08-28T21:06:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-28T23:00:00Z",
+      "dexPrice": "125.695744",
+      "referencePrice": "129.584309",
+      "oracleObservedAt": "2026-08-28T22:58:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-29T00:30:00Z",
+      "dexPrice": "126.275253",
+      "referencePrice": "129.652779",
+      "oracleObservedAt": "2026-08-29T00:21:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-29T02:00:00Z",
+      "dexPrice": "126.611210",
+      "referencePrice": "129.721825",
+      "oracleObservedAt": "2026-08-29T01:44:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-29T03:30:00Z",
+      "dexPrice": "126.501673",
+      "referencePrice": "129.791037",
+      "oracleObservedAt": "2026-08-29T03:07:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-29T05:00:00Z",
+      "dexPrice": "125.948683",
+      "referencePrice": "129.860006",
+      "oracleObservedAt": "2026-08-29T04:30:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-29T06:30:00Z",
+      "dexPrice": "125.197150",
+      "referencePrice": "129.928324",
+      "oracleObservedAt": "2026-08-29T06:22:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-29T08:00:00Z",
+      "dexPrice": "124.627701",
+      "referencePrice": "129.995588",
+      "oracleObservedAt": "2026-08-29T07:45:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-29T09:30:00Z",
+      "dexPrice": "124.550592",
+      "referencePrice": "130.061400",
+      "oracleObservedAt": "2026-08-29T09:08:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-29T11:00:00Z",
+      "dexPrice": "125.017424",
+      "referencePrice": "130.125370",
+      "oracleObservedAt": "2026-08-29T10:31:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-29T12:30:00Z",
+      "dexPrice": "125.769898",
+      "referencePrice": "130.187119",
+      "oracleObservedAt": "2026-08-29T12:23:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-29T14:00:00Z",
+      "dexPrice": "126.520157",
+      "referencePrice": "130.436284",
+      "oracleObservedAt": "2026-08-29T13:46:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-29T15:30:00Z",
+      "dexPrice": "126.690840",
+      "referencePrice": "130.492513",
+      "oracleObservedAt": "2026-08-29T15:09:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-29T17:00:00Z",
+      "dexPrice": "126.365747",
+      "referencePrice": "130.545475",
+      "oracleObservedAt": "2026-08-29T16:32:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-29T18:30:00Z",
+      "dexPrice": "125.752356",
+      "referencePrice": "130.594856",
+      "oracleObservedAt": "2026-08-29T18:24:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-29T20:00:00Z",
+      "dexPrice": "125.279707",
+      "referencePrice": "130.640364",
+      "oracleObservedAt": "2026-08-29T19:47:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-29T21:30:00Z",
+      "dexPrice": "125.353623",
+      "referencePrice": "130.681729",
+      "oracleObservedAt": "2026-08-29T21:10:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-29T23:00:00Z",
+      "dexPrice": "126.099646",
+      "referencePrice": "130.718708",
+      "oracleObservedAt": "2026-08-29T22:33:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-30T00:30:00Z",
+      "dexPrice": "127.250170",
+      "referencePrice": "130.751082",
+      "oracleObservedAt": "2026-08-30T00:25:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-30T02:00:00Z",
+      "dexPrice": "128.257755",
+      "referencePrice": "130.778658",
+      "oracleObservedAt": "2026-08-30T01:48:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-30T03:30:00Z",
+      "dexPrice": "128.586159",
+      "referencePrice": "130.801275",
+      "oracleObservedAt": "2026-08-30T03:11:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-30T05:00:00Z",
+      "dexPrice": "128.019858",
+      "referencePrice": "130.818798",
+      "oracleObservedAt": "2026-08-30T04:34:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-30T06:30:00Z",
+      "dexPrice": "126.810306",
+      "referencePrice": "130.831123",
+      "oracleObservedAt": "2026-08-30T06:26:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-30T08:00:00Z",
+      "dexPrice": "125.562149",
+      "referencePrice": "130.838178",
+      "oracleObservedAt": "2026-08-30T07:49:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-30T09:30:00Z",
+      "dexPrice": "124.910431",
+      "referencePrice": "130.839921",
+      "oracleObservedAt": "2026-08-30T09:12:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-30T11:00:00Z",
+      "dexPrice": "125.165630",
+      "referencePrice": "130.836341",
+      "oracleObservedAt": "2026-08-30T10:35:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-30T12:30:00Z",
+      "dexPrice": "126.131053",
+      "referencePrice": "130.827461",
+      "oracleObservedAt": "2026-08-30T12:27:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-30T14:00:00Z",
+      "dexPrice": "126.956685",
+      "referencePrice": "131.003331",
+      "oracleObservedAt": "2026-08-30T13:50:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-30T15:30:00Z",
+      "dexPrice": "127.557230",
+      "referencePrice": "130.984037",
+      "oracleObservedAt": "2026-08-30T15:13:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-30T17:00:00Z",
+      "dexPrice": "127.333774",
+      "referencePrice": "130.959692",
+      "oracleObservedAt": "2026-08-30T16:36:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-30T18:30:00Z",
+      "dexPrice": "126.377668",
+      "referencePrice": "130.930439",
+      "oracleObservedAt": "2026-08-30T18:28:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-30T20:00:00Z",
+      "dexPrice": "125.233086",
+      "referencePrice": "130.896453",
+      "oracleObservedAt": "2026-08-30T19:51:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-30T21:30:00Z",
+      "dexPrice": "124.596299",
+      "referencePrice": "130.857934",
+      "oracleObservedAt": "2026-08-30T21:14:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-30T23:00:00Z",
+      "dexPrice": "124.912536",
+      "referencePrice": "130.815109",
+      "oracleObservedAt": "2026-08-30T22:37:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-31T00:30:00Z",
+      "dexPrice": "126.101171",
+      "referencePrice": "130.768233",
+      "oracleObservedAt": "2026-08-31T00:00:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-31T02:00:00Z",
+      "dexPrice": "127.573529",
+      "referencePrice": "130.717582",
+      "oracleObservedAt": "2026-08-31T01:52:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-31T03:30:00Z",
+      "dexPrice": "128.543236",
+      "referencePrice": "130.663456",
+      "oracleObservedAt": "2026-08-31T03:15:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-31T05:00:00Z",
+      "dexPrice": "128.460089",
+      "referencePrice": "130.606174",
+      "oracleObservedAt": "2026-08-31T04:38:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-31T06:30:00Z",
+      "dexPrice": "127.322747",
+      "referencePrice": "130.546077",
+      "oracleObservedAt": "2026-08-31T06:01:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-31T08:00:00Z",
+      "dexPrice": "125.689493",
+      "referencePrice": "130.483519",
+      "oracleObservedAt": "2026-08-31T07:53:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-31T09:30:00Z",
+      "dexPrice": "124.375538",
+      "referencePrice": "130.418870",
+      "oracleObservedAt": "2026-08-31T09:16:00Z",
+      "session": "unknown",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-31T11:00:00Z",
+      "dexPrice": "124.004160",
+      "referencePrice": "130.352513",
+      "oracleObservedAt": "2026-08-31T10:39:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-31T12:30:00Z",
+      "dexPrice": "124.664285",
+      "referencePrice": "130.284839",
+      "oracleObservedAt": "2026-08-31T12:02:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-31T14:00:00Z",
+      "dexPrice": "125.593426",
+      "referencePrice": "130.406250",
+      "oracleObservedAt": "2026-08-31T13:54:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-31T15:30:00Z",
+      "dexPrice": "126.645962",
+      "referencePrice": "130.337151",
+      "oracleObservedAt": "2026-08-31T15:17:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-31T17:00:00Z",
+      "dexPrice": "126.915046",
+      "referencePrice": "130.267950",
+      "oracleObservedAt": "2026-08-31T16:40:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-31T18:30:00Z",
+      "dexPrice": "126.190879",
+      "referencePrice": "130.199057",
+      "oracleObservedAt": "2026-08-31T18:03:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-31T20:00:00Z",
+      "dexPrice": "124.853216",
+      "referencePrice": "130.130880",
+      "oracleObservedAt": "2026-08-31T19:55:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-31T21:30:00Z",
+      "dexPrice": "123.658045",
+      "referencePrice": "130.063821",
+      "oracleObservedAt": "2026-08-31T21:18:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-08-31T23:00:00Z",
+      "dexPrice": "123.307261",
+      "referencePrice": "129.998277",
+      "oracleObservedAt": "2026-08-31T22:41:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-09-01T00:30:00Z",
+      "dexPrice": "124.045377",
+      "referencePrice": "129.934636",
+      "oracleObservedAt": "2026-09-01T00:04:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-09-01T02:00:00Z",
+      "dexPrice": "125.512438",
+      "referencePrice": "129.873274",
+      "oracleObservedAt": "2026-09-01T01:56:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-09-01T03:30:00Z",
+      "dexPrice": "126.936873",
+      "referencePrice": "129.814554",
+      "oracleObservedAt": "2026-09-01T03:19:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-09-01T05:00:00Z",
+      "dexPrice": "127.559271",
+      "referencePrice": "129.758823",
+      "oracleObservedAt": "2026-09-01T04:42:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-09-01T06:30:00Z",
+      "dexPrice": "127.048116",
+      "referencePrice": "129.706411",
+      "oracleObservedAt": "2026-09-01T06:05:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-09-01T08:00:00Z",
+      "dexPrice": "125.674875",
+      "referencePrice": "129.657628",
+      "oracleObservedAt": "2026-09-01T07:57:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-09-01T09:30:00Z",
+      "dexPrice": "124.153783",
+      "referencePrice": "129.612763",
+      "oracleObservedAt": "2026-09-01T09:20:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-09-01T11:00:00Z",
+      "dexPrice": "123.241318",
+      "referencePrice": "129.572080",
+      "oracleObservedAt": "2026-09-01T10:43:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-09-01T12:30:00Z",
+      "dexPrice": "123.323549",
+      "referencePrice": "129.535821",
+      "oracleObservedAt": "2026-09-01T12:06:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-09-01T14:00:00Z",
+      "dexPrice": "124.251065",
+      "referencePrice": "129.694200",
+      "oracleObservedAt": "2026-09-01T13:58:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-09-01T15:30:00Z",
+      "dexPrice": "125.430135",
+      "referencePrice": "129.667403",
+      "oracleObservedAt": "2026-09-01T15:21:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-09-01T17:00:00Z",
+      "dexPrice": "126.193949",
+      "referencePrice": "129.645590",
+      "oracleObservedAt": "2026-09-01T16:44:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-09-01T18:30:00Z",
+      "dexPrice": "126.075966",
+      "referencePrice": "129.628889",
+      "oracleObservedAt": "2026-09-01T18:07:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-09-01T20:00:00Z",
+      "dexPrice": "125.142374",
+      "referencePrice": "129.617399",
+      "oracleObservedAt": "2026-09-01T19:30:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-09-01T21:30:00Z",
+      "dexPrice": "123.942936",
+      "referencePrice": "129.611188",
+      "oracleObservedAt": "2026-09-01T21:22:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-09-01T23:00:00Z",
+      "dexPrice": "123.189725",
+      "referencePrice": "129.610293",
+      "oracleObservedAt": "2026-09-01T22:45:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-09-02T00:30:00Z",
+      "dexPrice": "123.351408",
+      "referencePrice": "129.614719",
+      "oracleObservedAt": "2026-09-02T00:08:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-09-02T02:00:00Z",
+      "dexPrice": "124.393054",
+      "referencePrice": "129.624440",
+      "oracleObservedAt": "2026-09-02T01:31:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-09-02T03:30:00Z",
+      "dexPrice": "125.802886",
+      "referencePrice": "129.639399",
+      "oracleObservedAt": "2026-09-02T03:23:00Z",
+      "session": "open",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-09-02T05:00:00Z",
+      "dexPrice": "126.881978",
+      "referencePrice": "129.659506",
+      "oracleObservedAt": "2026-09-02T04:46:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-09-02T06:30:00Z",
+      "dexPrice": "127.126683",
+      "referencePrice": "129.684644",
+      "oracleObservedAt": "2026-09-02T06:09:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-09-02T08:00:00Z",
+      "dexPrice": "126.488419",
+      "referencePrice": "129.714662",
+      "oracleObservedAt": "2026-09-02T07:32:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-09-02T09:30:00Z",
+      "dexPrice": "125.373081",
+      "referencePrice": "129.749385",
+      "oracleObservedAt": "2026-09-02T09:24:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-09-02T11:00:00Z",
+      "dexPrice": "124.393863",
+      "referencePrice": "129.788606",
+      "oracleObservedAt": "2026-09-02T10:47:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    },
+    {
+      "timestamp": "2026-09-02T12:30:00Z",
+      "dexPrice": "124.027846",
+      "referencePrice": "129.832094",
+      "oracleObservedAt": "2026-09-02T12:10:00Z",
+      "session": "closed",
+      "corporateAction": {
+        "state": "none_reported"
+      }
+    }
+  ]
+}

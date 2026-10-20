@@ -4,35 +4,7 @@ import { contactAddresses } from "../product/contact";
 import { useI18n } from "../i18n";
 import LanguageSwitcher from "../i18n/LanguageSwitcher";
 import { OPSIS_PRESENTATION } from "../opsis/presentation";
-
-function OpsisShell({
-  tag,
-  title,
-  updated,
-  children,
-}: {
-  tag: string;
-  title: string;
-  updated: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <article className="opsis-legal mx-auto max-w-[860px] [overflow-wrap:anywhere]">
-      <div className="mb-10 flex items-center gap-3 border-y border-[#2e2e2e] py-3">
-        <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-[#e9e0d1]" />
-        <span className="font-mono-d text-[12px] text-[#9a938a]">{tag}</span>
-        <span className="hatch h-3 flex-1 opacity-60" />
-        <span className="font-mono-d text-[11px] text-[#635d5a]">
-          {updated}
-        </span>
-      </div>
-      <h1 className="text-[40px] font-medium leading-[1.05] tracking-[-0.03em] md:text-[52px]">
-        {title}
-      </h1>
-      <div className="mt-12 space-y-12">{children}</div>
-    </article>
-  );
-}
+import LegalWorkspace from "./LegalWorkspace";
 
 function LogoMark({ className = "w-7 h-7" }: { className?: string }) {
   return <img src="/logo.svg" alt="Opsis" className={className} />;
@@ -109,13 +81,14 @@ function LegacyShell({
 
 /** Opsis renders legal content inside its shell; the legacy build keeps its own chrome. */
 function Shell(props: {
+  kind: "privacy" | "terms";
   tag: string;
   title: string;
   updated: string;
   children: React.ReactNode;
 }) {
   return OPSIS_PRESENTATION ? (
-    <OpsisShell {...props} />
+    <LegalWorkspace {...props} />
   ) : (
     <LegacyShell {...props} />
   );
@@ -131,7 +104,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section>
+    <section id={OPSIS_PRESENTATION ? `legal-section-${n}` : undefined} tabIndex={OPSIS_PRESENTATION ? -1 : undefined}>
       <h2 className="flex items-baseline gap-4 text-[20px] font-medium tracking-[-0.01em] text-[#f0e8da]">
         <span className="font-mono-d text-[12px] text-[#635d5a]">{n}</span>
         {title}
@@ -154,6 +127,7 @@ export function PrivacyPage() {
   }
   return (
     <Shell
+      kind="privacy"
       tag={t("legal.chrome.tag")}
       title={t("legal.privacy.title")}
       updated={t("legal.privacy.updated")}
@@ -298,6 +272,7 @@ export function TermsPage() {
   const { t } = useI18n();
   return (
     <Shell
+      kind="terms"
       tag={t("legal.chrome.tag")}
       title={t("legal.terms.title")}
       updated={t("legal.terms.updated")}

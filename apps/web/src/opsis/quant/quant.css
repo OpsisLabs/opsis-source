@@ -43,3 +43,64 @@
 .opsis-native-lab .opsis-token-comparison .opsis-identity { overflow-wrap: break-word; }
 .opsis-native-lab .opsis-lab-data td:nth-child(n+2),
 .opsis-native-lab .opsis-token-comparison td:nth-child(n+2) { white-space: nowrap; }
+
+/* D29: a large local-data canvas, with the experiment controls docked beside it. */
+.opsis .opsis-native-lab .opsis-quant-workbench { display: grid; gap: 12px; }
+.opsis .opsis-native-lab .opsis-quant-workbench > .opsis-section-label { margin: 0; padding: 12px 4px; }
+.opsis .opsis-native-lab .opsis-quant-steps { margin: 0; gap: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); font: 400 10px/1.5 OpsisMono,monospace; letter-spacing: 0; }
+.opsis .opsis-native-lab .opsis-quant-steps span { padding: 12px 18px; border-right: 1px solid var(--line); }
+.opsis .opsis-native-lab .opsis-quant-grid { grid-template-columns: minmax(0,1fr) minmax(260px,300px); gap: 12px; align-items: start; }
+.opsis .opsis-native-lab .opsis-quant-workbench .opsis-panel { margin: 0; padding: 22px; min-width: 0; }
+.opsis .opsis-native-lab .opsis-quant-workbench h2 { margin: 0 0 12px; font-size: 19px; letter-spacing: -.025em; }
+.opsis .opsis-native-lab .opsis-quant-workbench h3 { font-size: 15px; letter-spacing: -.015em; }
+.opsis .opsis-native-lab .opsis-quant-workbench p { color: var(--soft); font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+.opsis .opsis-native-lab .opsis-quant-workbench label { font-size: 11px; gap: 7px; }
+.opsis .opsis-native-lab .opsis-quant-workbench button { border-radius: 5px; font-weight: 500; font-size: 12px; }
+.opsis .opsis-native-lab .opsis-quant-experiment-panel { position: sticky; top: 16px; }
+.opsis .opsis-native-lab .opsis-quant-experiment-panel > label { margin: 18px 0; }
+.opsis .opsis-native-lab .opsis-quant-experiment-panel > button { width: 100%; margin-right: 0; }
+.opsis .opsis-native-lab .opsis-quant-fields { padding-top: 14px; border-top: 1px solid var(--line); }
+.opsis .opsis-native-lab .opsis-quant-fields label:nth-child(2) { grid-column: 1 / -1; grid-row: 3; }
+.opsis .opsis-native-lab .opsis-quant-dataset-card { padding: 14px; margin-top: 16px; background: color-mix(in srgb,var(--accent) 4%,var(--panel)); border: 1px solid var(--line); border-radius: 5px; }
+.opsis .opsis-native-lab .opsis-quant-dataset-card p { margin: 6px 0; font: 400 10px/1.7 OpsisMono,monospace; }
+.opsis .opsis-native-lab .opsis-dataset-preview { margin: 20px 0 12px; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.opsis .opsis-native-lab .opsis-dataset-preview-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.opsis .opsis-native-lab .opsis-dataset-preview-heading h3 { margin: 0; font-size: 14px; }
+.opsis .opsis-native-lab .opsis-dataset-preview-heading span { color: var(--soft); font: 400 10px OpsisMono,monospace; }
+.opsis .opsis-native-lab .opsis-dataset-preview-chart { width: 100%; height: 300px; }
+.opsis .opsis-native-lab .opsis-dataset-preview-empty { display: flex; align-items: center; justify-content: center; flex-direction: column; min-height: 260px; padding: 24px; text-align: center; background-image: linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px); background-size: 48px 48px; }
+.opsis .opsis-native-lab .opsis-dataset-preview-empty > span { font-size: 32px; color: var(--accent); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 16px; }
+.opsis .opsis-native-lab .opsis-dataset-preview-empty p { color: var(--ink); font-size: 15px; background: var(--panel); padding: 4px 8px; margin-bottom: 6px; }
+.opsis .opsis-native-lab .opsis-dataset-preview-empty small { max-width: 330px; font-size: 11px; line-height: 1.7; color: var(--soft); background: var(--panel); padding: 4px 8px; }
+.opsis .opsis-native-lab .opsis-dataset-preview details { padding: 12px 16px; border-top: 1px solid var(--line); font-size: 11px; }
+.opsis .opsis-native-lab .opsis-dataset-preview .opsis-table-scroll { max-height: 300px; overflow: auto; }
+.opsis .opsis-native-lab .opsis-quant-observed-panel { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+.opsis .opsis-native-lab .opsis-quant-observed-panel > :is(h2,p) { grid-column: 1/-1; margin: 0; }
+.opsis .opsis-native-lab .opsis-quant-observed-panel > section { min-width: 0; border: 1px solid var(--line); border-radius: 6px; padding: 16px; }
+.opsis .opsis-native-lab .opsis-quant-observed-panel .opsis-table-scroll { max-height: 270px; overflow: auto; }
+.opsis .opsis-native-lab .opsis-quant-metrics { border: 1px solid var(--line); border-radius: 6px; gap: 0; padding: 16px 0; }
+.opsis .opsis-native-lab .opsis-quant-metrics div { border: 0; border-right: 1px solid var(--line); padding: 4px 18px; }
+.opsis .opsis-native-lab .opsis-quant-metrics div:last-child { border: 0; }
+.opsis .opsis-native-lab .opsis-quant-metrics strong { margin-top: 10px; font: 400 22px OpsisMono,monospace; }
+.opsis .opsis-native-lab .opsis-quant-simulation-chart { width: 100%; height: 430px; }
+.opsis .opsis-native-lab .opsis-quant-result-panel .opsis-quant-fan-scroll { max-height: 330px; overflow: auto; }
+.opsis .opsis-native-lab .opsis-quant-correlation { border: 1px solid var(--line); border-radius: 6px; padding: 20px; }
+.opsis .opsis-native-lab .opsis-quant-correlation h3 { margin-top: 0; }
+@media (max-width: 1050px) {
+  .opsis .opsis-native-lab .opsis-quant-observed-panel { grid-template-columns: minmax(0,1fr); }
+}
+@media (max-width: 760px) {
+  .opsis .opsis-native-lab .opsis-quant-grid { grid-template-columns: minmax(0,1fr); }
+  .opsis .opsis-native-lab .opsis-quant-experiment-panel { position: static; }
+  .opsis .opsis-native-lab .opsis-quant-workbench .opsis-panel { padding: 16px; }
+  .opsis .opsis-native-lab .opsis-quant-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px 0; }
+  .opsis .opsis-native-lab .opsis-quant-metrics strong { font-size: 18px; }
+  .opsis .opsis-native-lab .opsis-quant-simulation-chart { height: 320px; }
+  .opsis .opsis-native-lab .opsis-quant-steps span { padding: 10px; }
+}
+.opsis .opsis-native-lab .opsis-quant-has-run .opsis-quant-dataset-panel { grid-column: 1 / -1; order: 3; }
+.opsis .opsis-native-lab .opsis-quant-has-run .opsis-quant-result-panel { grid-column: 1; order: 1; }
+.opsis .opsis-native-lab .opsis-quant-has-run .opsis-quant-experiment-panel { grid-column: 2; order: 2; }
+@media (max-width: 760px) {
+  .opsis .opsis-native-lab .opsis-quant-has-run :is(.opsis-quant-dataset-panel,.opsis-quant-result-panel,.opsis-quant-experiment-panel) { grid-column: 1; }
+}

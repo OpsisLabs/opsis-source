@@ -1,0 +1,946 @@
+/* D29: private draft and operational registry, isolated from legacy form styles. */
+@import "./utility-shell.css";
+.opsis.opsis-terminal .opsis-content .utility-ws {
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+  color: var(--ink);
+  font:
+    400 14px/1.5 Opsis,
+    sans-serif;
+}
+.opsis.opsis-terminal .opsis-content .utility-ws :is(h2, h3, p, dl, ol) {
+  margin: 0;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .utility-ws
+  :is(h2, h3, strong, button, label, summary) {
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.opsis.opsis-terminal .opsis-content .utility-ws h2 {
+  font-size: 20px;
+  line-height: 1.4;
+}
+.opsis.opsis-terminal .opsis-content .utility-ws h3 {
+  font-size: 15px;
+  line-height: 1.45;
+}
+.opsis.opsis-terminal .opsis-content .utility-ws-panel {
+  min-width: 0;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--ink) 2%, transparent);
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .utility-ws
+  :is(input, select, textarea):not([type="checkbox"]) {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: auto;
+  min-height: 38px;
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--ink);
+  font:
+    400 14px/1.5 Opsis,
+    sans-serif;
+  box-shadow: none;
+}
+.opsis.opsis-terminal .opsis-content .utility-ws textarea {
+  resize: vertical;
+}
+.opsis.opsis-terminal .opsis-content .utility-ws input::placeholder {
+  color: var(--soft);
+  opacity: 1;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .utility-ws
+  :is(button, a, input, select, textarea, summary):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.opsis.opsis-terminal .opsis-content .utility-ws label {
+  margin: 0;
+}
+.opsis.opsis-terminal .opsis-content .utility-ws .utility-ws-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--accent);
+  font:
+    400 14px/1.5 Opsis,
+    sans-serif;
+}
+.opsis.opsis-terminal .opsis-content .utility-ws .utility-ws-secondary:hover {
+  background: var(--panel-hover);
+  border-color: var(--accent);
+}
+.opsis.opsis-terminal .opsis-content .utility-ws .opsis-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.opsis.opsis-terminal .opsis-content .utility-ws button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.opsis.opsis-terminal .opsis-content .utility-ws .utility-ws-mono {
+  font:
+    400 12px/1.6 OpsisMono,
+    monospace;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.opsis.opsis-terminal .opsis-content .utility-ws .utility-ws-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.opsis.opsis-terminal .opsis-content .utility-ws .utility-ws-toolbar h2 {
+  margin-right: auto;
+  color: var(--accent);
+  font-size: 14px;
+}
+.opsis.opsis-terminal .opsis-content .utility-ws .utility-ws-search {
+  display: flex;
+  flex: 1 1 180px;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--soft);
+  background: var(--panel);
+}
+.opsis.opsis-terminal .opsis-content .utility-ws .utility-ws-search svg {
+  flex: none;
+}
+.opsis.opsis-terminal .opsis-content .utility-ws .utility-ws-search input {
+  flex: 1;
+  width: 0;
+  min-height: 36px;
+  margin: 0;
+  padding: 6px 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.opsis.opsis-terminal .opsis-content .utility-ws .utility-ws-sub {
+  display: block;
+  margin-top: 3px;
+  color: var(--soft);
+  font-size: 11px;
+}
+.opsis.opsis-terminal .opsis-content .utility-ws .utility-ws-icon {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 34px;
+  height: 36px;
+  border-radius: 6px;
+  background: var(--panel-hover);
+  color: var(--accent);
+}
+.opsis.opsis-terminal .opsis-content .utility-ws .utility-ws-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: var(--panel-hover);
+  color: var(--accent);
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .utility-ws
+  .utility-ws-state[data-state="not-enabled"] {
+  color: var(--soft);
+  background: var(--ground);
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .utility-ws
+  .utility-ws-state[data-state="stale"] {
+  color: var(--surface-negative);
+  background: color-mix(in srgb, var(--surface-negative) 8%, var(--panel));
+}
+.opsis.opsis-terminal .opsis-content .utility-ws .utility-ws-facts {
+  font-size: 13px;
+}
+.opsis.opsis-terminal .opsis-content .utility-ws .utility-ws-facts > div {
+  display: grid;
+  grid-template-columns: 100px minmax(0, 1fr);
+  gap: 12px;
+  padding: 8px 0;
+}
+.opsis.opsis-terminal .opsis-content .utility-ws .utility-ws-facts dt {
+  color: var(--soft);
+  font: inherit;
+}
+.opsis.opsis-terminal .opsis-content .utility-ws .utility-ws-facts dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.opsis.opsis-terminal .opsis-content .utility-ws .utility-ws-empty {
+  padding: 20px 0;
+  color: var(--soft);
+  font-size: 13px;
+}
+.opsis.opsis-terminal .opsis-content .utility-ws .utility-ws-empty > svg {
+  box-sizing: content-box;
+  margin-bottom: 12px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--soft);
+}
+.opsis.opsis-terminal .opsis-content .utility-ws .utility-ws-preview {
+  margin-top: 16px;
+  text-align: right;
+  color: var(--soft);
+  font-size: 11px;
+}
+.opsis.opsis-terminal .opsis-content .utility-ws .utility-ws-notice {
+  margin-top: 12px;
+  color: var(--soft);
+  font-size: 12px;
+}
+/* Form and dated two-column timeline. */
+.opsis.opsis-terminal .opsis-content .community-ws {
+  position: relative;
+}
+.opsis.opsis-terminal .opsis-content .community-ws .community-ws-searchbar {
+  position: absolute;
+  right: 0;
+  top: -70px;
+  width: 255px;
+}
+.opsis.opsis-terminal .opsis-content .community-ws-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch;
+}
+.opsis.opsis-terminal .opsis-content .community-ws .community-ws-form {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .community-ws
+  :is(.community-ws-form, .community-ws-changelog)
+  > header {
+  margin-bottom: 24px;
+}
+.opsis.opsis-terminal .opsis-content .community-ws header p {
+  margin-top: 4px;
+  color: var(--soft);
+  font-size: 14px;
+}
+.opsis.opsis-terminal .opsis-content .community-ws .community-ws-field {
+  display: grid;
+  grid-template-columns: 108px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  margin: 0 0 16px;
+}
+.opsis.opsis-terminal .opsis-content .community-ws .community-ws-field label {
+  padding-top: 8px;
+  color: var(--ink);
+  font:
+    400 14px/1.5 Opsis,
+    sans-serif;
+}
+.opsis.opsis-terminal .opsis-content .community-ws .community-ws-topic select {
+  max-width: 240px;
+}
+.opsis.opsis-terminal .opsis-content .community-ws .community-ws-count {
+  display: block;
+  margin-top: 3px;
+  text-align: right;
+  color: var(--soft);
+  font:
+    11px/1.5 OpsisMono,
+    monospace;
+}
+.opsis.opsis-terminal .opsis-content .community-ws .community-ws-optional {
+  margin: 16px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .community-ws
+  .community-ws-optional
+  summary {
+  padding: 8px 0;
+  color: var(--accent);
+  font-size: 12px;
+}
+.opsis.opsis-terminal .opsis-content .community-ws .community-ws-check {
+  display: flex;
+  align-items: start;
+  gap: 8px;
+  margin-top: 8px;
+  color: var(--soft);
+  font-size: 12px;
+}
+.opsis.opsis-terminal .opsis-content .community-ws .community-ws-check input {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  accent-color: var(--accent);
+}
+.opsis.opsis-terminal .opsis-content .community-ws .community-ws-preview {
+  margin-top: 12px;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .community-ws
+  .community-ws-preview
+  > .utility-ws-toolbar {
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.opsis.opsis-terminal .opsis-content .community-ws .community-ws-preview-paper {
+  min-height: 180px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: linear-gradient(135deg, var(--panel-hover), var(--panel));
+  overflow-wrap: anywhere;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .community-ws
+  .community-ws-preview-paper
+  h3 {
+  margin-top: 8px;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .community-ws
+  .community-ws-preview-paper
+  p {
+  margin-top: 6px;
+  font-size: 14px;
+  white-space: pre-wrap;
+}
+.opsis.opsis-terminal .opsis-content .community-ws .community-ws-consent {
+  color: var(--soft);
+  font-size: 12px;
+}
+.opsis.opsis-terminal .opsis-content .community-ws .community-ws-export {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 24px;
+}
+.opsis.opsis-terminal .opsis-content .community-ws .community-ws-export label {
+  margin-left: auto;
+}
+.opsis.opsis-terminal .opsis-content .community-ws .community-ws-help {
+  margin-top: 12px;
+  color: var(--soft);
+  font-size: 11px;
+  line-height: 1.6;
+}
+.opsis.opsis-terminal .opsis-content .community-ws .community-ws-message {
+  margin-top: 12px;
+  color: var(--accent);
+  font-size: 13px;
+}
+.opsis.opsis-terminal .opsis-content .community-ws .community-ws-changelog {
+  position: relative;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .community-ws-changelog
+  > .utility-ws-toolbar {
+  position: absolute;
+  right: 24px;
+  top: 24px;
+}
+.opsis.opsis-terminal .opsis-content .community-ws-changelog > header {
+  padding-right: 110px;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .community-ws-changelog
+  > .utility-ws-toolbar
+  select {
+  font-size: 12px;
+}
+.opsis.opsis-terminal .opsis-content .community-ws .community-ws-timeline {
+  list-style: none;
+  margin: 28px 0 0;
+  padding: 0;
+}
+.opsis.opsis-terminal .opsis-content .community-ws-timeline > li {
+  position: relative;
+  margin: 0 0 0 4px;
+  padding: 0 0 24px 22px;
+  border-left: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line));
+}
+.opsis.opsis-terminal .opsis-content .community-ws-timeline > li:last-child {
+  border-left-color: transparent;
+  padding-bottom: 16px;
+}
+.opsis.opsis-terminal .opsis-content .community-ws-timeline > li::before {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: -6px;
+  width: 11px;
+  height: 11px;
+  border: 2px solid var(--panel);
+  border-radius: 50%;
+  background: var(--accent);
+}
+.opsis.opsis-terminal .opsis-content .community-ws-timeline article {
+  display: grid;
+  grid-template-columns: 86px minmax(0, 1fr);
+  gap: 8px 12px;
+}
+.opsis.opsis-terminal .opsis-content .community-ws .community-ws-entry-meta {
+  display: contents;
+}
+.opsis.opsis-terminal .opsis-content .community-ws-entry-meta time {
+  grid-column: 1;
+  grid-row: 1/3;
+  color: var(--soft);
+  font:
+    12px/1.6 Opsis,
+    sans-serif;
+  padding-top: 2px;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .community-ws-entry-meta
+  .utility-ws-state {
+  grid-column: 2;
+  justify-self: start;
+  font-size: 11px;
+  padding: 2px 8px;
+}
+.opsis.opsis-terminal .opsis-content .community-ws .community-ws-entry-body {
+  grid-column: 2;
+  min-width: 0;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .community-ws
+  .community-ws-entry-body
+  > p {
+  margin-top: 4px;
+  color: var(--soft);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.opsis.opsis-terminal .opsis-content .community-ws-timeline :is(h3, p, dd) {
+  overflow-wrap: anywhere;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .community-ws
+  .community-ws-timeline
+  details {
+  margin: 8px 0 0;
+  padding: 0;
+  border: 0;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .community-ws
+  .community-ws-timeline
+  summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  min-height: 24px;
+  margin: 0;
+  padding: 0;
+  color: var(--accent);
+  font-size: 12px;
+  list-style: none;
+  cursor: pointer;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .community-ws-timeline
+  summary::-webkit-details-marker {
+  display: none;
+}
+.opsis.opsis-terminal .opsis-content .community-ws-timeline details > p {
+  margin-top: 8px;
+  font-size: 13px;
+}
+/* Status table and evidence dock: no synthetic health observations. */
+.opsis.opsis-terminal .opsis-content .status-ws .utility-ws-context {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: var(--soft);
+  font-size: 11px;
+}
+.opsis.opsis-terminal .opsis-content .status-ws-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(310px, 1fr);
+  gap: 12px;
+  align-items: stretch;
+}
+.opsis.opsis-terminal .opsis-content .status-ws .status-ws-registry {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 12px 0;
+}
+.opsis.opsis-terminal .opsis-content .status-ws-registry > .utility-ws-toolbar {
+  padding: 0 4px 16px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 16px;
+}
+.opsis.opsis-terminal .opsis-content .status-ws-registry .utility-ws-search {
+  flex: 0 1 220px;
+  margin-left: auto;
+}
+.opsis.opsis-terminal .opsis-content .status-ws .status-ws-table {
+  width: 100%;
+  min-width: 0;
+  table-layout: fixed;
+  border-collapse: collapse;
+  margin: 0;
+  font:
+    400 13px/1.5 Opsis,
+    sans-serif;
+}
+.opsis.opsis-terminal .opsis-content .status-ws .status-ws-table :is(th, td) {
+  padding: 10px 8px;
+  min-width: 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: middle;
+  overflow-wrap: anywhere;
+}
+.opsis.opsis-terminal .opsis-content .status-ws-table thead th {
+  color: var(--ink);
+  background: var(--ground);
+  font-size: 12px;
+  font-weight: 400;
+}
+.opsis.opsis-terminal .opsis-content .status-ws-table thead th:nth-child(1) {
+  width: 25%;
+}
+.opsis.opsis-terminal .opsis-content .status-ws-table thead th:nth-child(2) {
+  width: 23%;
+}
+.opsis.opsis-terminal .opsis-content .status-ws-table thead th:nth-child(3) {
+  width: 18%;
+}
+.opsis.opsis-terminal .opsis-content .status-ws-table thead th:nth-child(4) {
+  width: 13%;
+}
+.opsis.opsis-terminal .opsis-content .status-ws-table thead th:nth-child(5) {
+  width: 21%;
+}
+.opsis.opsis-terminal .opsis-content .status-ws-table tbody th {
+  background: transparent;
+}
+.opsis.opsis-terminal .opsis-content .status-ws-table tbody td {
+  color: var(--soft);
+}
+.opsis.opsis-terminal .opsis-content .status-ws-table tr[data-selected] {
+  background: var(--panel-hover);
+  box-shadow: inset 2px 0 var(--accent);
+}
+.opsis.opsis-terminal .opsis-content .status-ws-table button {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  gap: 8px;
+  width: 100%;
+  min-height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+}
+.opsis.opsis-terminal .opsis-content .status-ws-table .utility-ws-icon {
+  width: 30px;
+  height: 34px;
+}
+.opsis.opsis-terminal .opsis-content .status-ws .status-ws-date {
+  font:
+    11px/1.5 OpsisMono,
+    monospace;
+}
+.opsis.opsis-terminal .opsis-content .status-ws .status-ws-registry-footer {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+  padding: 32px 4px 18px;
+  color: var(--soft);
+  font-size: 12px;
+}
+.opsis.opsis-terminal .opsis-content .status-ws .utility-ws-legend {
+  margin: 0;
+  padding: 0 4px;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+.opsis.opsis-terminal .opsis-content .status-ws .utility-ws-legend summary {
+  padding: 12px 0;
+  color: var(--accent);
+  font-size: 12px;
+}
+.opsis.opsis-terminal .opsis-content .utility-ws-legend dl > div {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  gap: 12px;
+  padding: 6px 0;
+  font-size: 12px;
+}
+.opsis.opsis-terminal .opsis-content .utility-ws-legend dd {
+  margin: 0;
+  color: var(--soft);
+}
+.opsis.opsis-terminal .opsis-content .status-ws .utility-ws-dock-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .status-ws
+  .utility-ws-dock-head
+  .utility-ws-icon {
+  width: 44px;
+  height: 44px;
+}
+.opsis.opsis-terminal .opsis-content .status-ws .utility-ws-dock-head p {
+  margin-top: 3px;
+  color: var(--soft);
+  font-size: 13px;
+}
+.opsis.opsis-terminal .opsis-content .status-ws .status-ws-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  padding: 12px;
+  border-radius: 6px;
+  background: var(--panel-hover);
+  color: var(--accent);
+  font-size: 13px;
+}
+.opsis.opsis-terminal .opsis-content .status-ws .utility-ws-dock-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.opsis.opsis-terminal .opsis-content .status-ws .utility-ws-dock-section p {
+  margin-top: 8px;
+  color: var(--soft);
+  font-size: 13px;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .status-ws
+  .utility-ws-dock-section
+  .opsis-action {
+  margin-top: 16px;
+  width: 100%;
+}
+.opsis.opsis-terminal .opsis-content .status-ws .status-ws-timeline {
+  margin: 16px 0 0 5px;
+  padding: 0 0 0 16px;
+  border-left: 1px solid var(--line);
+  list-style: none;
+}
+.opsis.opsis-terminal .opsis-content .status-ws-timeline li {
+  position: relative;
+}
+.opsis.opsis-terminal .opsis-content .status-ws-timeline li::before {
+  content: "";
+  position: absolute;
+  left: -20px;
+  top: 6px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.opsis.opsis-terminal .opsis-content .status-ws-timeline time {
+  color: var(--soft);
+  font:
+    12px OpsisMono,
+    monospace;
+}
+.opsis.opsis-terminal .opsis-content .status-ws .utility-ws-manifest {
+  margin: 16px 0 0;
+  padding: 0;
+  border: 0;
+}
+.opsis.opsis-terminal .opsis-content .status-ws .utility-ws-manifest summary {
+  color: var(--accent);
+  font-size: 12px;
+  padding: 10px 0;
+}
+@media (max-width: 1150px) and (min-width: 701px) {
+  .opsis.opsis-terminal .opsis-content .community-ws-layout {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  }
+  .opsis.opsis-terminal .opsis-content .community-ws-timeline article {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .opsis.opsis-terminal .opsis-content .community-ws-entry-meta time {
+    grid-row: auto;
+  }
+  .opsis.opsis-terminal
+    .opsis-content
+    .community-ws-entry-meta
+    .utility-ws-state {
+    grid-column: 1;
+  }
+  .opsis.opsis-terminal .opsis-content .community-ws .community-ws-entry-body {
+    grid-column: 1;
+  }
+  .opsis.opsis-terminal .opsis-content .community-ws-changelog > header {
+    padding-right: 0;
+  }
+  .opsis.opsis-terminal
+    .opsis-content
+    .community-ws-changelog
+    > .utility-ws-toolbar {
+    position: static;
+  }
+  .opsis.opsis-terminal .opsis-content .status-ws-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 700px) {
+  .opsis.opsis-terminal
+    .opsis-content
+    :is(.community-ws-layout, .status-ws-layout) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .opsis.opsis-terminal .opsis-content .utility-ws-panel {
+    padding: 16px;
+  }
+  .opsis.opsis-terminal .opsis-content .community-ws .community-ws-searchbar {
+    position: static;
+    width: auto;
+    margin-bottom: 12px;
+  }
+  .opsis.opsis-terminal .opsis-content .community-ws .community-ws-field {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+  .opsis.opsis-terminal .opsis-content .community-ws .community-ws-field label {
+    padding: 0;
+  }
+  .opsis.opsis-terminal
+    .opsis-content
+    .community-ws
+    .community-ws-topic
+    select {
+    max-width: none;
+  }
+  .opsis.opsis-terminal .opsis-content .community-ws-changelog > header {
+    padding-right: 0;
+  }
+  .opsis.opsis-terminal
+    .opsis-content
+    .community-ws-changelog
+    > .utility-ws-toolbar {
+    position: static;
+  }
+  .opsis.opsis-terminal .opsis-content .community-ws-timeline article {
+    grid-template-columns: 70px minmax(0, 1fr);
+    gap: 8px;
+  }
+  .opsis.opsis-terminal
+    .opsis-content
+    .community-ws
+    .community-ws-export
+    label {
+    margin-left: 0;
+  }
+  .opsis.opsis-terminal .opsis-content .status-ws .status-ws-registry {
+    padding: 12px;
+  }
+  .opsis.opsis-terminal .opsis-content .status-ws-registry .utility-ws-search {
+    flex: 1 1 180px;
+  }
+  .opsis.opsis-terminal .opsis-content .status-ws-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .opsis.opsis-terminal
+    .opsis-content
+    .status-ws
+    .status-ws-table
+    :is(tbody, tr, th, td) {
+    display: block;
+  }
+  .opsis.opsis-terminal .opsis-content .status-ws .status-ws-table tbody tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    padding: 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  .opsis.opsis-terminal
+    .opsis-content
+    .status-ws
+    .status-ws-table
+    tbody
+    :is(th, td) {
+    width: auto;
+    padding: 0;
+    border: 0;
+  }
+  .opsis.opsis-terminal .opsis-content .status-ws .status-ws-table tbody th {
+    grid-column: 1/-1;
+  }
+  .opsis.opsis-terminal .opsis-content .status-ws-table td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 4px;
+    color: var(--soft);
+    font-size: 11px;
+  }
+}
+/* Keep compact controls clear of the inherited engine input selector. */
+.opsis.opsis-terminal
+  .opsis-content
+  .utility-ws
+  .utility-ws-search
+  input[type="search"] {
+  margin: 0;
+  padding: 6px 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.opsis.opsis-terminal .opsis-content .community-ws-changelog > header {
+  padding-right: 0;
+}
+.opsis.opsis-terminal .opsis-content .community-ws-changelog > header h2 {
+  padding-right: 110px;
+}
+.opsis.opsis-terminal .opsis-content .community-ws-timeline article {
+  row-gap: 4px;
+}
+.opsis.opsis-terminal .opsis-content .community-ws-timeline > li {
+  padding-bottom: 18px;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .community-ws
+  .community-ws-entry-body
+  > p {
+  line-height: 1.45;
+}
+.opsis.opsis-terminal .opsis-content .status-ws .status-ws-cost {
+  padding: 12px 0;
+  border-radius: 0;
+}
+.opsis.opsis-terminal .opsis-content .status-ws .status-ws-cost summary {
+  padding: 0;
+  min-height: 24px;
+  color: var(--accent);
+  font-size: 13px;
+}
+@media (max-width: 1150px) {
+  .opsis.opsis-terminal .opsis-content .community-ws-changelog > header h2 {
+    padding-right: 0;
+  }
+}
+.opsis.opsis-terminal .opsis-content .community-ws .community-ws-export {
+  margin-top: 20px;
+  padding-top: 0;
+}
+.opsis.opsis-terminal .opsis-content .community-ws .community-ws-preview-paper {
+  min-height: 160px;
+}
+.opsis.opsis-terminal .opsis-content .community-ws .community-ws-entry-body h3 {
+  font-size: 14px;
+  line-height: 1.4;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .community-ws
+  .community-ws-entry-body
+  > p {
+  font-size: 13px;
+}
+.opsis.opsis-terminal .opsis-content .community-ws-timeline > li {
+  padding-bottom: 14px;
+}
+.opsis.opsis-terminal .opsis-content .status-ws .utility-ws-context {
+  margin-top: 14px;
+  margin-bottom: 0;
+}
+/* Match the legacy field exclusions so these scoped rules win the cascade. */
+.opsis.opsis-terminal
+  .opsis-content
+  .utility-ws
+  :is(input, select, textarea):not([type="checkbox"]):not([type="radio"]):not(
+    [type="range"]
+  ) {
+  border-radius: 6px;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .utility-ws
+  .utility-ws-search
+  input[type="search"]:not([type="checkbox"]):not([type="radio"]):not(
+    [type="range"]
+  ) {
+  border: 0;
+  box-shadow: none;
+}

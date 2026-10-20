@@ -313,6 +313,7 @@ test.describe("Opsis Trade Check QA regressions", () => {
           await expect(page.getByTestId("opsis-quote")).toContainText(
             "0.0005 AAPL",
           );
+          await page.getByRole("button", { name: chinese ? "表格" : "Table", exact: true }).click();
           const region = page.getByRole("region", {
             name: chinese
               ? "按输入数量显示观察到的输出"

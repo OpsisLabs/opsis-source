@@ -194,3 +194,27 @@ it("round-trips optional Opsis routing context in ciphertext and rejects unsuppo
     expect(() => validateConversation({ ...report, turns: [{ ...report.turns[0], opsis: invalid }] })).toThrow();
   }
 });
+
+it("encrypts, restores and validates typed comparison evidence while retaining older reports", async () => {
+  await deleteLocalVault();
+  const { captureTradeCheck } = await import("../opsis/saved-checks");
+  const { fixture: quoteFixture } = await import("../opsis/test-fixtures");
+  const vault = await createLocalVault(passphrase);
+  const report = fixture();
+  report.turns[0].opsis = { workspace: "check", token: true, chainId: 4663 };
+  report.turns[0].comparison = captureTradeCheck(quoteFixture() as import("../exit-check/api").ExitCheckQuote, "WETH")!;
+  const meta = await saveVaultConversation(vault, report);
+  const backup = await exportVault({ ...vault, meta });
+  for (const value of ["inputRaw", "1500000", "comparison", "PRIVATE-ANSWER-CANARY"]) expect(JSON.stringify(backup)).not.toContain(value);
+  await deleteLocalVault();
+  const restored = await importVaultBackup(parseBackup(backup), passphrase, null);
+  expect(restored.conversations).toEqual([report]);
+  const check = report.turns[0].comparison;
+  for (const comparison of [{ ...check, version: 2 }, { ...check, identifier: `0x${"9".repeat(40)}` }, { ...check, notes: "private" }]) {
+    expect(() => validateConversation({ ...report, turns: [{ ...report.turns[0], comparison }] })).toThrow();
+  }
+  for (const opsis of [undefined, { workspace: "research", token: true, chainId: 4663 }, { workspace: "check", token: false, chainId: 4663 }]) {
+    expect(() => validateConversation({ ...report, turns: [{ ...report.turns[0], opsis }] })).toThrow();
+  }
+  expect(() => validateConversation(fixture())).not.toThrow();
+});

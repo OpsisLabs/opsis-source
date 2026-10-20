@@ -1,0 +1,75 @@
+/* Scope utility composition to these four pages; keep the front door unchanged. */
+.opsis.opsis-terminal
+  .opsis-content:has(:is(.utility-ws, .legal-ws-page))
+  .opsis-studio-heading {
+  border: 0;
+  padding: 0;
+  margin-bottom: 20px;
+  min-height: 56px;
+}
+.opsis.opsis-terminal .opsis-content:has(.community-ws) .opsis-studio-heading {
+  padding-right: 280px;
+}
+.opsis.opsis-terminal:has(:is(.utility-ws, .legal-ws-page))
+  .opsis-desktop-rail
+  .opsis-tool-rail
+  section {
+  padding: 10px 0;
+}
+.opsis.opsis-terminal:has(:is(.utility-ws, .legal-ws-page))
+  .opsis-desktop-rail
+  .opsis-rail-label {
+  margin: 6px 8px;
+  font-size: 14px;
+}
+.opsis.opsis-terminal:has(:is(.utility-ws, .legal-ws-page))
+  .opsis-desktop-rail
+  .opsis-rail-label
+  a {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 6px 0;
+  margin: 0;
+  color: white;
+  font: inherit;
+}
+.opsis.opsis-terminal:has(:is(.utility-ws, .legal-ws-page))
+  .opsis-desktop-rail
+  .opsis-rail-label
+  a
+  > svg {
+  display: block;
+  width: 22px;
+  height: 22px;
+}
+.opsis.opsis-terminal:has(:is(.utility-ws, .legal-ws-page))
+  .opsis-desktop-rail
+  .opsis-tool-rail
+  section
+  > a {
+  display: none;
+}
+.opsis.opsis-terminal:has(:is(.utility-ws, .legal-ws-page))
+  .opsis-desktop-rail
+  .opsis-rail-utilities
+  a {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 14px;
+  min-height: 46px;
+}
+.opsis.opsis-terminal:has(:is(.utility-ws, .legal-ws-page))
+  .opsis-desktop-rail
+  .opsis-rail-overview {
+  font-size: 14px;
+  padding-block: 18px;
+}
+@media (max-width: 700px) {
+  .opsis.opsis-terminal
+    .opsis-content:has(.community-ws)
+    .opsis-studio-heading {
+    padding-right: 0;
+  }
+}

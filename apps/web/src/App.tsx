@@ -8,6 +8,7 @@ import RouteMetadata from "./RouteMetadata";
 import { isOpenDataApiEnabled } from "./product/availability";
 import { useI18n } from "./i18n";
 
+const PublicPages = lazy(() => importPage("/src/opsis/publications/PublicPages.tsx", () => import("./opsis/publications/PublicPages")));
 const OpsisApp = lazy(() => importPage("/src/opsis/OpsisApp.tsx", () => import("./opsis/OpsisApp")));
 const Roadmap = lazy(() => importPage("/src/pages/Roadmap.tsx", () => import("./pages/Roadmap")));
 const SwapPreview = lazy(() => importPage("/src/pages/SwapPreview.tsx", () => import("./pages/SwapPreview")));
@@ -90,7 +91,13 @@ function DeferredPage({ children }: { children: ReactNode }) {
 }
 
 export default function App() {
-  if (import.meta.env.VITE_OPSIS_WORKSPACES_ENABLED === "true") return <DeferredPage><OpsisApp /></DeferredPage>;
+  if (import.meta.env.VITE_OPSIS_WORKSPACES_ENABLED === "true") return (
+    <Routes>
+      <Route path="/docs" element={<DeferredPage><PublicPages /></DeferredPage>} />
+      <Route path="/whitepaper" element={<DeferredPage><PublicPages /></DeferredPage>} />
+      <Route path="*" element={<DeferredPage><OpsisApp /></DeferredPage>} />
+    </Routes>
+  );
   return (
     <>
       <RouteMetadata />

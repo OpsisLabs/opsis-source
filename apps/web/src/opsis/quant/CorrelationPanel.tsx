@@ -1,3 +1,4 @@
+import { observeQuantChart } from "./chart-presentation";
 import { useEffect, useRef, useState } from "react";
 import { echarts } from "./echarts";
 import type { ObservedCorrelationMatrix, PriceDataset } from "@rh-chain/quant";
@@ -60,8 +61,9 @@ export default function CorrelationPanel({ datasets }: { datasets: readonly Pric
       if (typeof params.dataIndex === "number") setSelected({ row: Math.floor(params.dataIndex / n), col: params.dataIndex % n });
     });
     const resize = () => chart.resize();
+    const stopPresentation = observeQuantChart(chart);
     window.addEventListener("resize", resize);
-    return () => { window.removeEventListener("resize", resize); chart.dispose(); };
+    return () => { stopPresentation(); window.removeEventListener("resize", resize); chart.dispose(); };
   }, [result, c]);
 
   const start = () => {

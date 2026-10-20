@@ -182,10 +182,13 @@ test.describe("Opsis compact layout", () => {
             ),
           ).toBeLessThanOrEqual(0);
           await openOpsisMenu(page);
+          // Stock-token check puts its own contract lookup where the top-bar search sits.
           const search =
             width <= 700
               ? page.locator("#menu-entity")
-              : page.locator("#nav-entity");
+              : path === "/rwa"
+                ? page.locator("#rwa-workspace-address")
+                : page.locator("#nav-entity");
           await expect(search).toBeVisible();
           await fullyInViewport(search, { width, height: 812 });
           expect(
@@ -273,7 +276,7 @@ test.describe("Opsis compact layout", () => {
   }) => {
     await page.goto("/privacy");
     await expect(
-      page.getByRole("heading", { name: "Privacy Policy" }),
+      page.getByRole("heading", { name: "Privacy", exact: true }),
     ).toBeVisible();
     await expect(page.locator("main")).toHaveCount(1);
     await expect(page.getByRole("button", { name: /中文/ })).toHaveCount(1);

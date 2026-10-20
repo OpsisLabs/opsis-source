@@ -89,7 +89,7 @@ test("opsis preview exit curve sends explicit opt-in and supports point selectio
   expect(calls).toBe(0);
   await page.getByRole("button", { name: "Run a check", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "Exit size curve", exact: true }),
+    page.getByRole("heading", { name: "Output by trade size", exact: true }),
   ).toBeVisible();
   await expect(page.getByText(/selected 0\.3% fee pool/)).toBeVisible();
   await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
@@ -99,6 +99,8 @@ test("opsis preview exit curve sends explicit opt-in and supports point selectio
   await expect(receipt).toContainText("Gas not included");
   await expect(receipt).toContainText("Estimate, not an executable quote.");
   await expect(receipt.locator(".opsis-curve")).toHaveCount(0);
+  await page.getByRole("button", { name: "Table", exact: true }).click();
+  await expect(page.locator(".opsis-check-curve table")).toBeVisible();
   await expect(page.locator(".opsis-check-curve table")).toContainText(
     "0.0000009 WETH",
   );
@@ -113,7 +115,10 @@ test("opsis preview exit curve sends explicit opt-in and supports point selectio
     outputToken: "WETH",
     curve: true,
   });
-  await page.getByRole("button", { name: "3", exact: true }).click();
+  await page.getByRole("button", { name: "Chart", exact: true }).click();
+  const quotedPoint = page.getByRole("button", { name: "3 → 0.0000009 WETH", exact: true });
+  await quotedPoint.focus();
+  await quotedPoint.press("Enter");
   await expect(page.getByText(/Selected point: 3 →/)).toBeVisible();
   await page.setViewportSize({ width: 320, height: 800 });
   expect(
@@ -122,6 +127,6 @@ test("opsis preview exit curve sends explicit opt-in and supports point selectio
   await page.getByRole("button", { name: "Run a check", exact: true }).click();
   await expect(page.getByRole("alert")).toContainText("Quote unavailable");
   await expect(
-    page.getByRole("heading", { name: "Exit size curve", exact: true }),
+    page.getByRole("heading", { name: "Output by trade size", exact: true }),
   ).toHaveCount(0);
 });

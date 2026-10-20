@@ -85,3 +85,17 @@
     8px OpsisMono,
     monospace;
 }
+
+.opsis-curve-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.opsis-curve-toolbar h3 { font-size: 20px; letter-spacing: -.025em; }
+.opsis-curve-view { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; flex-shrink: 0; }
+.opsis-curve-view button { min-height: 36px; padding: 6px 12px; border: 0; background: var(--panel); color: var(--soft); font: 12px Opsis, sans-serif; }
+.opsis-curve-view button[aria-pressed="true"] { color: var(--accent); background: var(--panel-hover); }
+.opsis-curve-plot { aspect-ratio: 300 / 160; margin: 24px 0 12px; }
+.opsis-curve-point { cursor: pointer; stroke-width: 1.5px; }
+.opsis-curve-point:focus-visible { outline: none; stroke-width: 3px; stroke: var(--ink); }
+.opsis-curve-point-button { border-radius: 6px; font-size: 11px; }
+.opsis-curve-table[hidden] { display: none; }
+@media (max-width: 420px) {
+  .opsis-curve-toolbar { align-items: start; flex-direction: column; }
+}

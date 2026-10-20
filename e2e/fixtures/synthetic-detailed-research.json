@@ -1,0 +1,343 @@
+{
+  "entity": {
+    "chainId": 4663,
+    "type": "token",
+    "value": "0x0000000000000000000000000000000000000032",
+    "facts": {
+      "synthetic": true,
+      "address": "0x0000000000000000000000000000000000000032",
+      "symbol": "DEMO",
+      "name": "Synthetic research token",
+      "type": "ERC-20",
+      "decimals": 18,
+      "totalSupply": "1000000000000000000000000",
+      "holderCoverage": "top_holders",
+      "activityCoverage": "indexed_window",
+      "sourceCoverage": "explorer_metadata",
+      "explorerObservedAt": "2026-10-18T14:20:00Z",
+      "blockNumber": 1256008,
+      "verified": true,
+      "proxy": false,
+      "top10WalletShare": 50.4,
+      "burnedShare": 14,
+      "liquidityPoolShare": 4.5,
+      "holdersAnalyzed": 12,
+      "topHolders": [
+        {
+          "address": "0x000000000000000000000000000000000000dEaD",
+          "share": 14,
+          "isBurn": true
+        },
+        {
+          "address": "0x0000000000000000000000000000000000000065",
+          "share": 13.1,
+          "isContract": false
+        },
+        {
+          "address": "0x0000000000000000000000000000000000000066",
+          "share": 9.6,
+          "isContract": false
+        },
+        {
+          "address": "0x0000000000000000000000000000000000000067",
+          "share": 7.25,
+          "isContract": false
+        },
+        {
+          "address": "0x0000000000000000000000000000000000000068",
+          "share": 5.4,
+          "isContract": false
+        },
+        {
+          "address": "0x00000000000000000000000000000000000000c8",
+          "share": 4.5,
+          "isPool": true
+        },
+        {
+          "address": "0x0000000000000000000000000000000000000069",
+          "share": 4.1,
+          "isContract": false
+        },
+        {
+          "address": "0x000000000000000000000000000000000000006a",
+          "share": 3.2,
+          "isContract": false
+        },
+        {
+          "address": "0x000000000000000000000000000000000000006b",
+          "share": 2.6,
+          "isContract": true
+        },
+        {
+          "address": "0x000000000000000000000000000000000000006c",
+          "share": 2.1,
+          "isContract": false
+        }
+      ],
+      "recentTransfers": [
+        {
+          "from": "0x0000000000000000000000000000000000000065",
+          "to": "0x00000000000000000000000000000000000000c9",
+          "tokenSymbol": "DEMO",
+          "rawValue": "3051092649036413974024",
+          "formattedValue": "3051.092649036413974024",
+          "timestamp": "2026-10-18T14:10:00Z"
+        },
+        {
+          "from": "0x0000000000000000000000000000000000000066",
+          "to": "0x00000000000000000000000000000000000000ca",
+          "tokenSymbol": "DEMO",
+          "rawValue": "3051092649036413974024",
+          "formattedValue": "3051.092649036413974024",
+          "timestamp": "2026-10-18T14:11:00Z"
+        },
+        {
+          "from": "0x0000000000000000000000000000000000000067",
+          "to": "0x00000000000000000000000000000000000000cb",
+          "tokenSymbol": "DEMO",
+          "rawValue": "3051092649036413974024",
+          "formattedValue": "3051.092649036413974024",
+          "timestamp": "2026-10-18T14:12:00Z"
+        },
+        {
+          "from": "0x0000000000000000000000000000000000000068",
+          "to": "0x00000000000000000000000000000000000000cc",
+          "tokenSymbol": "DEMO",
+          "rawValue": "3051092649036413974024",
+          "formattedValue": "3051.092649036413974024",
+          "timestamp": "2026-10-18T14:13:00Z"
+        },
+        {
+          "from": "0x0000000000000000000000000000000000000069",
+          "to": "0x00000000000000000000000000000000000000cd",
+          "tokenSymbol": "DEMO",
+          "rawValue": "3051092649036413974024",
+          "formattedValue": "3051.092649036413974024",
+          "timestamp": "2026-10-18T14:14:00Z"
+        },
+        {
+          "from": "0x000000000000000000000000000000000000006a",
+          "to": "0x00000000000000000000000000000000000000ce",
+          "tokenSymbol": "DEMO",
+          "rawValue": "3051092649036413974024",
+          "formattedValue": "3051.092649036413974024",
+          "timestamp": "2026-10-18T14:15:00Z"
+        },
+        {
+          "from": "0x000000000000000000000000000000000000006b",
+          "to": "0x00000000000000000000000000000000000000cf",
+          "tokenSymbol": "DEMO",
+          "rawValue": "3051092649036413974024",
+          "formattedValue": "3051.092649036413974024",
+          "timestamp": "2026-10-18T14:16:00Z"
+        },
+        {
+          "from": "0x000000000000000000000000000000000000006c",
+          "to": "0x00000000000000000000000000000000000000d0",
+          "tokenSymbol": "DEMO",
+          "rawValue": "3051092649036413974024",
+          "formattedValue": "3051.092649036413974024",
+          "timestamp": "2026-10-18T14:17:00Z"
+        }
+      ]
+    }
+  },
+  "answer": {
+    "answer": "Synthetic evidence for layout tests only.",
+    "facts": {
+      "synthetic": true,
+      "address": "0x0000000000000000000000000000000000000032",
+      "symbol": "DEMO",
+      "name": "Synthetic research token",
+      "type": "ERC-20",
+      "decimals": 18,
+      "totalSupply": "1000000000000000000000000",
+      "holderCoverage": "top_holders",
+      "activityCoverage": "indexed_window",
+      "sourceCoverage": "explorer_metadata",
+      "explorerObservedAt": "2026-10-18T14:20:00Z",
+      "blockNumber": 1256008,
+      "verified": true,
+      "proxy": false,
+      "top10WalletShare": 50.4,
+      "burnedShare": 14,
+      "liquidityPoolShare": 4.5,
+      "holdersAnalyzed": 12,
+      "topHolders": [
+        {
+          "address": "0x000000000000000000000000000000000000dEaD",
+          "share": 14,
+          "isBurn": true
+        },
+        {
+          "address": "0x0000000000000000000000000000000000000065",
+          "share": 13.1,
+          "isContract": false
+        },
+        {
+          "address": "0x0000000000000000000000000000000000000066",
+          "share": 9.6,
+          "isContract": false
+        },
+        {
+          "address": "0x0000000000000000000000000000000000000067",
+          "share": 7.25,
+          "isContract": false
+        },
+        {
+          "address": "0x0000000000000000000000000000000000000068",
+          "share": 5.4,
+          "isContract": false
+        },
+        {
+          "address": "0x00000000000000000000000000000000000000c8",
+          "share": 4.5,
+          "isPool": true
+        },
+        {
+          "address": "0x0000000000000000000000000000000000000069",
+          "share": 4.1,
+          "isContract": false
+        },
+        {
+          "address": "0x000000000000000000000000000000000000006a",
+          "share": 3.2,
+          "isContract": false
+        },
+        {
+          "address": "0x000000000000000000000000000000000000006b",
+          "share": 2.6,
+          "isContract": true
+        },
+        {
+          "address": "0x000000000000000000000000000000000000006c",
+          "share": 2.1,
+          "isContract": false
+        }
+      ],
+      "recentTransfers": [
+        {
+          "from": "0x0000000000000000000000000000000000000065",
+          "to": "0x00000000000000000000000000000000000000c9",
+          "tokenSymbol": "DEMO",
+          "rawValue": "3051092649036413974024",
+          "formattedValue": "3051.092649036413974024",
+          "timestamp": "2026-10-18T14:10:00Z"
+        },
+        {
+          "from": "0x0000000000000000000000000000000000000066",
+          "to": "0x00000000000000000000000000000000000000ca",
+          "tokenSymbol": "DEMO",
+          "rawValue": "3051092649036413974024",
+          "formattedValue": "3051.092649036413974024",
+          "timestamp": "2026-10-18T14:11:00Z"
+        },
+        {
+          "from": "0x0000000000000000000000000000000000000067",
+          "to": "0x00000000000000000000000000000000000000cb",
+          "tokenSymbol": "DEMO",
+          "rawValue": "3051092649036413974024",
+          "formattedValue": "3051.092649036413974024",
+          "timestamp": "2026-10-18T14:12:00Z"
+        },
+        {
+          "from": "0x0000000000000000000000000000000000000068",
+          "to": "0x00000000000000000000000000000000000000cc",
+          "tokenSymbol": "DEMO",
+          "rawValue": "3051092649036413974024",
+          "formattedValue": "3051.092649036413974024",
+          "timestamp": "2026-10-18T14:13:00Z"
+        },
+        {
+          "from": "0x0000000000000000000000000000000000000069",
+          "to": "0x00000000000000000000000000000000000000cd",
+          "tokenSymbol": "DEMO",
+          "rawValue": "3051092649036413974024",
+          "formattedValue": "3051.092649036413974024",
+          "timestamp": "2026-10-18T14:14:00Z"
+        },
+        {
+          "from": "0x000000000000000000000000000000000000006a",
+          "to": "0x00000000000000000000000000000000000000ce",
+          "tokenSymbol": "DEMO",
+          "rawValue": "3051092649036413974024",
+          "formattedValue": "3051.092649036413974024",
+          "timestamp": "2026-10-18T14:15:00Z"
+        },
+        {
+          "from": "0x000000000000000000000000000000000000006b",
+          "to": "0x00000000000000000000000000000000000000cf",
+          "tokenSymbol": "DEMO",
+          "rawValue": "3051092649036413974024",
+          "formattedValue": "3051.092649036413974024",
+          "timestamp": "2026-10-18T14:16:00Z"
+        },
+        {
+          "from": "0x000000000000000000000000000000000000006c",
+          "to": "0x00000000000000000000000000000000000000d0",
+          "tokenSymbol": "DEMO",
+          "rawValue": "3051092649036413974024",
+          "formattedValue": "3051.092649036413974024",
+          "timestamp": "2026-10-18T14:17:00Z"
+        }
+      ]
+    },
+    "citations": [
+      {
+        "id": "synthetic-holders",
+        "provider": "blockscout",
+        "label": "Synthetic holder response",
+        "url": "https://example.com/synthetic-holder-source",
+        "fetchedAt": "2026-10-18T14:20:00Z",
+        "fieldsUsed": [
+          "topHolders",
+          "top10WalletShare",
+          "totalSupply",
+          "blockNumber"
+        ],
+        "description": "Synthetic holder response \u00b7 illustrative"
+      },
+      {
+        "id": "synthetic-contract",
+        "provider": "blockscout",
+        "label": "Synthetic contract response",
+        "url": "https://example.com/synthetic-contract-source",
+        "fetchedAt": "2026-10-18T14:20:00Z",
+        "fieldsUsed": [
+          "symbol",
+          "decimals",
+          "verified"
+        ],
+        "description": "Synthetic contract response \u00b7 illustrative"
+      }
+    ],
+    "confirmedFacts": [
+      {
+        "fact": "Synthetic holder shares are a bounded sample.",
+        "sourceIds": [
+          "synthetic-holders"
+        ]
+      },
+      {
+        "fact": "Pools and burn addresses are reported separately.",
+        "sourceIds": [
+          "synthetic-holders"
+        ]
+      },
+      {
+        "fact": "No holder history or exact holder balances are supplied.",
+        "sourceIds": [
+          "synthetic-holders"
+        ]
+      }
+    ],
+    "riskNotes": [],
+    "followUps": []
+  },
+  "privacy": {
+    "providerDestinations": [
+      "blockscout"
+    ],
+    "disclosure": "Synthetic fixture. Only a public identifier is used for this read."
+  }
+}

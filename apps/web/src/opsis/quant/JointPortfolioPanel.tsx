@@ -1,3 +1,4 @@
+import { observeQuantChart } from "./chart-presentation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { LineSeriesOption } from "echarts/charts";
 import { echarts } from "./echarts";
@@ -55,8 +56,9 @@ export default function JointPortfolioPanel({ first, spec, singleInstrumentOnly 
       series: [...bands, { name: c("Median", "中位数"), type: "line", data: run.bootstrap.path.map((point) => point.median), itemStyle: { color: "#123f67" }, lineStyle: { color: "#123f67", width: 3 }, symbol: "none", z: 10 }],
     });
     const resize = () => chart.resize();
+    const stopPresentation = observeQuantChart(chart);
     window.addEventListener("resize", resize);
-    return () => { window.removeEventListener("resize", resize); chart.dispose(); };
+    return () => { stopPresentation(); window.removeEventListener("resize", resize); chart.dispose(); };
   }, [run, c]);
 
   const resetResult = useCallback(() => {

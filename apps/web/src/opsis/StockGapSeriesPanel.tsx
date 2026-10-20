@@ -1,3 +1,4 @@
+import { observeQuantChart } from "./quant/chart-presentation";
 import { useEffect, useRef, useState } from "react";
 import { init, use as registerECharts } from "echarts/core";
 import { ScatterChart } from "echarts/charts";
@@ -6,32 +7,17 @@ import { CanvasRenderer } from "echarts/renderers";
 
 registerECharts([ScatterChart, GridComponent, TooltipComponent, CanvasRenderer]);
 import type { StockGapSeries } from "./stock-gap-series";
+import { useStockGapImport } from "./useStockGapImport";
 import { useCopy } from "./copy";
-
-type SeriesMessage = {
-  id: number;
-  type: "result" | "error";
-  result?: StockGapSeries;
-  error?: string;
-};
 
 const sessionColor = { open: "#1000ff", closed: "#c45b4f", unknown: "#777187" } as const;
 
 export default function StockGapSeriesPanel() {
   const c = useCopy();
-  const [series, setSeries] = useState<StockGapSeries | null>(null);
+  const { series, busy, error, load, cancel } = useStockGapImport();
   const [selected, setSelected] = useState<number | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const generation = useRef(0);
-  const workerRef = useRef<Worker | null>(null);
   const gapChartRef = useRef<HTMLDivElement>(null);
   const ageChartRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => () => {
-    generation.current += 1;
-    workerRef.current?.terminate();
-  }, []);
 
   useEffect(() => {
     if (!series || !gapChartRef.current) return;
@@ -61,8 +47,9 @@ export default function StockGapSeriesPanel() {
       if (typeof params.dataIndex === "number") setSelected(params.dataIndex);
     });
     const resize = () => chart.resize();
+    const stopPresentation = observeQuantChart(chart);
     window.addEventListener("resize", resize);
-    return () => { window.removeEventListener("resize", resize); chart.dispose(); };
+    return () => { stopPresentation(); window.removeEventListener("resize", resize); chart.dispose(); };
   }, [series, c]);
 
   useEffect(() => {
@@ -81,61 +68,11 @@ export default function StockGapSeriesPanel() {
       series: [{ type: "scatter", data: series.observations.map((point) => [point.timestamp, point.oracleAgeMinutes]), itemStyle: { color: "#7670bd" }, symbolSize: 7 }],
     });
     const resize = () => chart.resize();
+    const stopPresentation = observeQuantChart(chart);
     window.addEventListener("resize", resize);
-    return () => { window.removeEventListener("resize", resize); chart.dispose(); };
+    return () => { stopPresentation(); window.removeEventListener("resize", resize); chart.dispose(); };
   }, [series, c]);
 
-  const load = async (file: File | undefined) => {
-    const id = ++generation.current;
-    workerRef.current?.terminate();
-    workerRef.current = null;
-    setSeries(null);
-    setSelected(null);
-    setError("");
-    if (!file) { setBusy(false); return; }
-    if (file.size > 512_000) {
-      setBusy(false);
-      setError(c("The JSON file exceeds the 512 KB local limit.", "JSON 文件超过 512 KB 本地限制。"));
-      return;
-    }
-    setBusy(true);
-    try {
-      const rawJson = await file.text();
-      if (generation.current !== id) return;
-      const worker = new Worker(new URL("./stock-gap-series.worker.ts", import.meta.url), { type: "module" });
-      workerRef.current = worker;
-      worker.onmessage = (event: MessageEvent<SeriesMessage>) => {
-        if (event.data.id !== id || generation.current !== id) return;
-        worker.terminate();
-        workerRef.current = null;
-        setBusy(false);
-        if (event.data.type === "result" && event.data.result) setSeries(event.data.result);
-        else setError(event.data.error || c("The series could not be validated.", "无法验证该序列。"));
-      };
-      worker.onerror = () => {
-        if (generation.current !== id) return;
-        worker.terminate();
-        workerRef.current = null;
-        setBusy(false);
-        setError(c("The local calculation failed.", "本地计算失败。"));
-      };
-      worker.postMessage({ id, rawJson });
-    } catch (cause) {
-      if (generation.current !== id) return;
-      setBusy(false);
-      setError(cause instanceof Error ? cause.message : c("The file could not be read.", "无法读取文件。"));
-    }
-  };
-
-  const cancel = () => {
-    generation.current += 1;
-    workerRef.current?.terminate();
-    workerRef.current = null;
-    setBusy(false);
-    setSeries(null);
-    setSelected(null);
-    setError(c("Local import cancelled.", "已取消本地导入。"));
-  };
   const point = selected === null ? null : series?.observations[selected];
   const warningText = (warning: string) => {
     switch (warning) {
@@ -158,9 +95,9 @@ export default function StockGapSeriesPanel() {
     <h3 id="opsis-stock-series-title">{c("How did the gap change by session?", "价差如何随交易时段变化？")}</h3>
     <p>{c("Import paired, dated prices for one stock token. The calculation runs locally; source, session and corporate-action labels are user supplied and unverified. Each point is observed from the file; no missing interval is filled.", "导入同一股票代币按日期配对的价格。计算在本地完成；来源、时段及公司行动标签由用户提供且未经验证。每个点均来自文件中的观察值；不会填补缺失时段。")}</p>
     <label>{c("Paired stock-token gap JSON", "股票代币配对价差 JSON")}
-      <input type="file" accept=".json,application/json" onChange={(event) => { void load(event.currentTarget.files?.[0]); event.currentTarget.value = ""; }} />
+      <input type="file" accept=".json,application/json" onChange={(event) => { setSelected(null); void load(event.currentTarget.files?.[0]); event.currentTarget.value = ""; }} />
     </label>
-    {busy && <p role="status">{c("Calculating locally…", "正在本地计算…")} <button type="button" onClick={cancel}>{c("Cancel import", "取消导入")}</button></p>}
+    {busy && <p role="status">{c("Calculating locally…", "正在本地计算…")} <button type="button" onClick={() => { setSelected(null); cancel(); }}>{c("Cancel import", "取消导入")}</button></p>}
     {error && <p role="alert" className="opsis-error">{error}</p>}
     <details><summary>{c("JSON format and required fields", "JSON 格式及必填字段")}</summary>
       <p>{c("schemaVersion 1; instrument {chainId, address, symbol}; quoteCurrency and matching referenceQuoteCurrency (USD or USDG); referenceType underlying or oracle; sourceName; observedAt; observations of timestamp, dexPrice, referencePrice, session. Underlying rows require multiplier. Oracle rows require oracleObservedAt and no multiplier. Optional corporateAction has state none_reported, announced, effective or unknown; announced/effective require a description. USDG is not assumed to equal USD.", "schemaVersion 为 1；instrument 包含 chainId、address、symbol；quoteCurrency 和一致的 referenceQuoteCurrency（USD 或 USDG）；referenceType 为 underlying 或 oracle；sourceName；observedAt；observations 包含 timestamp、dexPrice、referencePrice、session。标的价格行须有 multiplier；预言机行须有 oracleObservedAt，且不可有 multiplier。可选 corporateAction 的 state 为 none_reported、announced、effective 或 unknown；公布或生效须填写 description。USDG 不被视为 USD。")}</p>

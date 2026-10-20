@@ -56,11 +56,11 @@ test.describe("Opsis visual workspaces", () => {
       await expect(page.locator("#opsis-content h1").first()).toBeVisible();
       await expect(page.locator("#opsis-content")).toHaveCSS(
         "background-color",
-        "rgb(238, 240, 255)",
+        "rgb(243, 245, 253)",
       );
       await expect(page.locator(".opsis-topbar")).toHaveCSS(
         "background-color",
-        "rgb(16, 0, 255)",
+        (await page.viewportSize())!.width <= 700 ? "rgb(6, 74, 242)" : "rgb(243, 245, 253)",
       );
       for (const width of [1440, 390, 320]) {
         await page.setViewportSize({ width, height: 1000 });
@@ -79,11 +79,11 @@ test.describe("Opsis visual workspaces", () => {
       // The dark surface keeps the electric-blue navigation.
       await expect(page.locator(".opsis-topbar")).toHaveCSS(
         "background-color",
-        "rgb(16, 0, 255)",
+        "rgb(6, 74, 242)",
       );
       await expect(page.locator("#opsis-content")).toHaveCSS(
         "background-color",
-        "rgb(18, 16, 45)",
+        "rgb(16, 24, 43)",
       );
       await openOpsisMenu(page);
       await page

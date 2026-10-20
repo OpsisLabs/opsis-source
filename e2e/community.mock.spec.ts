@@ -24,7 +24,7 @@ async function unlock(page: Page) {
     await page.getByLabel("Preview access key").fill(key);
     await page.getByRole("button", { name: "Open preview", exact: true }).click();
   }
-  await expect(page.getByRole("heading", { name: "Help shape what ships." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Community" })).toBeVisible();
 }
 
 test.describe("Opsis Community local intake", () => {
@@ -37,31 +37,33 @@ test.describe("Opsis Community local intake", () => {
       if (request.method() === "POST" && !request.url().includes("/v1/private/opsis/access")) postCount++;
     });
     await unlock(page);
-    await page.getByLabel("The task or question").fill("Compare two saved wallet checks");
-    await page.getByLabel("What stopped you?").fill("The missing activity state was hard to understand");
+    await page.getByLabel("Summary").fill("Compare two saved wallet checks");
+    await page.getByLabel("Details (optional)").fill("The missing activity state was hard to understand");
+    await page.getByText("Contact & credit (optional)", { exact: true }).click();
     await page.getByLabel("Contact (optional)").fill("reader@example.com");
     await page.getByRole("button", { name: "Save local draft" }).click();
     await expect(page.getByRole("status")).toContainText("Saved for this session");
     expect(postCount).toBe(0);
     expect(await page.evaluate(() => JSON.stringify(localStorage) + JSON.stringify(sessionStorage) + document.cookie)).not.toContain("reader@example.com");
     await page.getByLabel("Contact (optional)").fill("updated@example.com");
-    await expect(page.getByRole("button", { name: "Export JSON" })).toBeDisabled();
+    await expect(page.getByRole("button", { name: "Export draft" })).toBeDisabled();
     await page.getByRole("button", { name: "Save local draft" }).click();
+    await page.getByLabel("Export format").selectOption("json");
     const download = page.waitForEvent("download");
-    await page.getByRole("button", { name: "Export JSON" }).click();
+    await page.getByRole("button", { name: "Export draft" }).click();
     expect((await download).suggestedFilename()).toBe("opsis-suggestion.json");
     expect(postCount).toBe(0);
     await page.reload();
-    await expect(page.getByRole("heading", { name: "Help shape what ships." })).toBeVisible();
-    await expect(page.getByLabel("The task or question")).toHaveValue("");
-    await expect(page.getByRole("button", { name: "Export JSON" })).toBeDisabled();
+    await expect(page.getByRole("heading", { name: "Community" })).toBeVisible();
+    await expect(page.getByLabel("Summary")).toHaveValue("");
+    await expect(page.getByRole("button", { name: "Export draft" })).toBeDisabled();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   });
 
   test("switches the local Community surface to Chinese", async ({ page }) => {
     await unlock(page);
     await page.getByRole("button", { name: "中文" }).click();
-    await expect(page.getByRole("heading", { name: "一起决定接下来做什么。" })).toBeVisible();
-    await expect(page.getByText("基于证据的更新日志。", { exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "社区" })).toBeVisible();
+    await expect(page.getByText("产品更新日志", { exact: true })).toBeVisible();
   });
 });

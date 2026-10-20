@@ -32,6 +32,7 @@ import { createGlobe } from "./globe.js";
 import { chartTheme, observeChartTheme } from "./chart-theme.js";
 import { drawChart } from "./chart.js";
 import { eventSeries, eventTime, signed } from "./analysis.js";
+import WorldWorkspace from "./WorldWorkspace.jsx";
 import {
   evaluateEthMarketSnapshot,
   formatDuration,
@@ -202,7 +203,13 @@ export default function App() {
     selectRef.current = select;
   });
   useEffect(() => {
-    if (!data || edition !== "archive" || !globeEl.current) return;
+    if (
+      OPSIS_PRESENTATION ||
+      !data ||
+      edition !== "archive" ||
+      !globeEl.current
+    )
+      return;
     try {
       globe.current = createGlobe(
         globeEl.current,
@@ -448,6 +455,41 @@ export default function App() {
     URL.revokeObjectURL(u);
     notify(c("Situation brief saved", "形势简报已保存"));
   };
+  if (OPSIS_PRESENTATION)
+    return (
+      <WorldWorkspace
+        data={data}
+        edition={edition}
+        setEdition={setEdition}
+        events={events}
+        visible={visible}
+        selected={selected}
+        select={select}
+        filter={filter}
+        setFilter={setFilter}
+        minutes={minutes}
+        setMinutes={setMinutes}
+        series={series}
+        enabled={enabled}
+        setEnabled={setEnabled}
+        ethBrief={ethBrief}
+        ethGlobal={ethGlobal}
+        ethCandles={ethCandles}
+        ethPrice={ethPrice}
+        ethDailyChange={ethDailyChange}
+        ethHeadline={ethHeadline}
+        ethBriefTime={ethBriefTime}
+        ethStatusLabel={ethStatusLabel}
+        ethSnapshotAge={ethSnapshotAge}
+        ethUnavailableReason={ethUnavailableReason}
+        saved={saved}
+        setSaved={setSaved}
+        download={download}
+        toast={toast}
+        newsUrl={newsUrl}
+        marketUrl={marketUrl}
+      />
+    );
   return (
     <div className="situation-surface" lang={locale}>
       <main className={"situation-room " + (wide ? "focus-room" : "")}>

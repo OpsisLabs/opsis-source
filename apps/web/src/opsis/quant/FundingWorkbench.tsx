@@ -1,3 +1,4 @@
+import { observeQuantChart } from "./chart-presentation";
 import { useEffect, useRef, useState } from "react";
 import { echarts } from "./echarts";
 import { useCopy } from "../copy";
@@ -33,8 +34,9 @@ export default function FundingWorkbench() {
       series: [{ name: c("Cumulative realized net funding", "已实现累计净资金费"), type: "line", step: "end", showSymbol: true, data: analysis.chartData.map((point) => [point.timestamp, point.value]) }],
     });
     const resize = () => chart.resize();
+    const stopPresentation = observeQuantChart(chart);
     window.addEventListener("resize", resize);
-    return () => { window.removeEventListener("resize", resize); chart.dispose(); };
+    return () => { stopPresentation(); window.removeEventListener("resize", resize); chart.dispose(); };
   }, [analysis, c]);
   const copyError = c(error, error === "File exceeds the 1 MB local import limit." ? "文件超过 1 MB 本地导入限制。" : "无法读取该文件，请检查必填字段、单位和记录顺序。");
   const loadExample = () => {

@@ -1,0 +1,10 @@
+.opsis-ca{max-width:36rem;min-width:0;font:400 14px/1.5 "Space Grotesk",Space,sans-serif;color:inherit}
+.opsis-ca label{display:block;margin-bottom:.6rem;font-weight:500}
+.opsis-ca-control{display:flex;gap:.5rem;min-width:0}
+.opsis-ca input{min-width:0;flex:1;width:100%;padding:.7rem .6rem;background:transparent;border:1px solid currentColor;border-radius:6px;color:inherit;font:400 13px/1.4 "IBM Plex Mono",Plex,monospace;text-overflow:ellipsis}
+.opsis-ca input::placeholder{color:inherit;opacity:.7}
+.opsis-ca button{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;flex:none;padding:.6rem .7rem;border:1px solid currentColor;border-radius:6px;background:transparent;color:inherit;font:inherit;cursor:pointer}
+.opsis-ca button:disabled{opacity:.6;cursor:default}
+.opsis-ca :focus-visible{outline:2px solid currentColor;outline-offset:3px}
+.opsis-ca p{margin:.5rem 0 0;font-size:13px;line-height:1.5;overflow-wrap:anywhere}
+.opsis-ca-chain{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.25rem .75rem}

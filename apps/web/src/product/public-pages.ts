@@ -7,6 +7,8 @@ export const PUBLIC_PAGE_PATHS = [
   "/watch",
   "/lab",
   "/guide",
+  "/docs",
+  "/whitepaper",
   "/community",
   "/status",
   "/privacy",

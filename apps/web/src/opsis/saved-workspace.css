@@ -1,0 +1,304 @@
+/* Saved uses the same encrypted stores; this layer only arranges their views. */
+.opsis .saved-workspace .opsis-saved-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  border: 1px solid var(--line);
+  border-radius: var(--ui-radius, 8px);
+  background: var(--panel);
+  padding: 0 18px;
+}
+.opsis .saved-workspace .opsis-saved-tabs a {
+  min-height: 56px;
+  padding: 17px 16px;
+  border: 0;
+  border-radius: 0;
+  font:
+    400 14px/1.5 Opsis,
+    sans-serif;
+}
+.opsis .saved-workspace .opsis-saved-tabs a[aria-current="page"] {
+  background: transparent;
+  color: var(--accent);
+}
+.opsis .saved-vault-panel {
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+.opsis .saved-report-grid {
+  grid-template-columns: minmax(240px, 0.65fr) minmax(0, 1.7fr);
+  gap: 14px;
+}
+.opsis .saved-report-grid > aside,
+.opsis .saved-report-detail {
+  border-radius: var(--ui-radius, 8px);
+}
+.opsis .saved-report-grid > aside {
+  padding: 20px 16px;
+}
+.opsis .saved-report-list h2 {
+  font-size: 21px;
+}
+.opsis .saved-report-select {
+  grid-template-columns: minmax(0, 1fr);
+  padding: 16px 12px;
+  border-radius: var(--ui-radius, 8px);
+}
+.opsis .saved-report-date {
+  grid-column: 1;
+  grid-row: auto;
+}
+.opsis .saved-report-name {
+  font-size: 15px;
+}
+.opsis .saved-report-delete {
+  padding: 12px 0;
+}
+.opsis .saved-report-controls {
+  display: grid;
+  gap: 12px;
+}
+.opsis .saved-report-controls .watch-input {
+  margin: 0;
+}
+.opsis .saved-report-filters {
+  display: flex;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.opsis .saved-report-filters button {
+  flex: 1;
+  min-height: 40px;
+  padding: 7px;
+  color: var(--soft);
+  font-size: 12px;
+}
+.opsis .saved-report-filters button + button {
+  border-left: 1px solid var(--line);
+}
+.opsis .saved-report-filters button[aria-pressed="true"] {
+  color: var(--accent);
+  background: var(--panel-hover);
+}
+.opsis .saved-selected-header {
+  padding: 14px 0 20px;
+  border-bottom: 1px solid var(--line);
+}
+.opsis .saved-selected-header h2 {
+  margin: 0 0 8px;
+  font-size: 29px;
+  font-weight: 400;
+  letter-spacing: -0.04em;
+}
+.opsis .saved-report-reading {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(200px, 1fr);
+  gap: 20px;
+}
+.opsis .saved-report-body {
+  min-width: 0;
+}
+.opsis .saved-evidence-dock {
+  padding: 20px 0 0 20px;
+  border-left: 1px solid var(--line);
+  min-width: 0;
+}
+.opsis .saved-evidence-dock h3 {
+  font-size: 18px;
+}
+.opsis .saved-evidence-dock dl {
+  margin: 0 0 16px;
+}
+.opsis .saved-evidence-dock dl > div {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+}
+.opsis .saved-evidence-dock dt {
+  margin-bottom: 6px;
+  color: var(--soft);
+}
+.opsis .saved-evidence-dock dd {
+  margin: 0;
+  font:
+    11px/1.7 OpsisMono,
+    monospace;
+  overflow-wrap: anywhere;
+}
+.opsis .saved-report-empty {
+  padding: 36px 10px;
+  min-height: 240px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.opsis .saved-report-empty::before {
+  content: "↗";
+  color: var(--accent);
+  font-size: 36px;
+  margin-bottom: 20px;
+}
+.opsis .saved-holdings-browser {
+  display: grid;
+  grid-template-columns: minmax(0, 1.9fr) minmax(260px, 1fr);
+  gap: 14px;
+  margin-top: 24px;
+  min-width: 0;
+}
+.opsis .saved-holdings-main,
+.opsis .saved-holding-dock {
+  min-width: 0;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--ui-radius, 8px);
+}
+.opsis .saved-holdings-browser header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 18px;
+  border-bottom: 1px solid var(--line);
+}
+.opsis .saved-holdings-browser h2 {
+  margin: 0;
+  font:
+    400 19px/1.4 Opsis,
+    sans-serif;
+  letter-spacing: -0.03em;
+}
+.opsis .saved-holdings-browser input {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px 12px;
+  color: var(--ink);
+  background: var(--panel);
+  font-size: 13px;
+}
+.opsis .saved-holdings-browser header label {
+  flex: 0 1 240px;
+  min-width: 0;
+}
+.opsis .saved-holdings-table {
+  max-width: 100%;
+  overflow: auto;
+  padding: 0 14px 18px;
+}
+.opsis .saved-holdings-table table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 580px;
+  text-align: left;
+}
+.opsis .saved-holdings-table caption {
+  caption-side: bottom;
+  padding: 16px 4px 0;
+  text-align: left;
+  font:
+    11px/1.7 OpsisMono,
+    monospace;
+  color: var(--soft);
+}
+.opsis .saved-holdings-table :is(th, td) {
+  padding: 18px 10px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+  font-weight: 400;
+  vertical-align: top;
+}
+.opsis .saved-holdings-table thead th {
+  color: var(--soft);
+  font-size: 11px;
+}
+.opsis .saved-holdings-table tbody :is(td, small) {
+  font:
+    11px/1.8 OpsisMono,
+    monospace;
+}
+.opsis .saved-holdings-table th button {
+  text-align: left;
+  font-size: 14px;
+  width: 100%;
+  color: var(--ink);
+}
+.opsis .saved-holdings-table small {
+  display: block;
+  color: var(--soft);
+  max-width: 160px;
+  overflow-wrap: anywhere;
+}
+.opsis .saved-holdings-table tr[data-selected] {
+  background: var(--panel-hover);
+}
+.opsis .saved-holding-empty {
+  padding: 38px 24px;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+}
+.opsis .saved-holding-empty svg {
+  color: var(--accent);
+}
+.opsis .saved-holding-empty p {
+  color: var(--soft);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.opsis .saved-holding-dock .vault-asset-card {
+  border: 0;
+  border-radius: 0;
+}
+.opsis .saved-holding-dock .vault-asset-placeholder {
+  height: 96px;
+  flex-direction: row;
+}
+.opsis .saved-holding-dock .vault-asset-photo {
+  height: 180px;
+}
+.opsis .saved-holdings-table:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -3px;
+}
+@media (max-width: 1250px) {
+  .opsis .saved-report-reading {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .opsis .saved-evidence-dock {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    padding: 20px 0 0;
+  }
+}
+@media (max-width: 1000px) {
+  .opsis .saved-holdings-browser {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .opsis .saved-holding-empty {
+    min-height: 180px;
+  }
+}
+@media (max-width: 760px) {
+  .opsis .saved-report-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .opsis .saved-workspace .opsis-saved-tabs {
+    padding-inline: 8px;
+  }
+  .opsis .saved-workspace .opsis-saved-tabs a {
+    padding-inline: 8px;
+    font-size: 12px;
+  }
+  .opsis .saved-selected-header h2 {
+    font-size: 24px;
+  }
+  .opsis .saved-holdings-browser header {
+    padding: 14px;
+  }
+}

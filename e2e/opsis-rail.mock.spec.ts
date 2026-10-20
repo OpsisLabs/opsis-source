@@ -60,7 +60,7 @@ test("opsis preview rail reaches enabled tools and marks the active tool", async
       await expect(link).toHaveAttribute("aria-current", "page");
     }
   }
-  await rail.getByRole("link", { name: "Overview", exact: true }).click();
+  await rail.getByRole("link", { name: "Find your tool", exact: true }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
     "What do you want to find out?",
   );
@@ -160,13 +160,13 @@ test("opsis preview rail colour runs the full page length, also in a full-page c
       await page.setViewportSize({ width, height: 800 });
       const result = await sample(theme);
       expect(result.height).toBeGreaterThan(result.viewport * 3);
-      expect(result.railMiddle, label).toEqual([16, 0, 255]);
-      expect(result.railBottom, label).toEqual([16, 0, 255]);
-      expect(result.edgeBottom, label).toEqual([209, 206, 255]);
-      expect(result.contentBottom, label).not.toEqual([16, 0, 255]);
+      expect(result.railMiddle, label).toEqual([6, 74, 242]);
+      expect(result.railBottom, label).toEqual([6, 74, 242]);
+      expect(result.edgeBottom, label).toEqual([213, 226, 255]);
+      expect(result.contentBottom, label).not.toEqual([6, 74, 242]);
     }
   }
   await page.setViewportSize({ width: 375, height: 812 });
   const phone = await sample("light");
-  expect(phone.railBottom).not.toEqual([16, 0, 255]);
+  expect(phone.railBottom).not.toEqual([6, 74, 242]);
 });

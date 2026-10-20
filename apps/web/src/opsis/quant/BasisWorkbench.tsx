@@ -1,3 +1,4 @@
+import { observeQuantChart } from "./chart-presentation";
 import { useEffect, useRef, useState } from "react";
 import { echarts } from "./echarts";
 import { useCopy } from "../copy";
@@ -30,8 +31,9 @@ export default function BasisWorkbench() {
     const chart = echarts.init(chartRef.current);
     chart.setOption({ useUTC: true, animation: false, aria: { enabled: true, decal: { show: true } }, tooltip: { trigger: "axis" }, xAxis: { type: "time", name: c("UTC observation time", "UTC 观察时间") }, yAxis: { type: "value", name: c("Signed basis (bps)", "有符号基差（基点）") }, series: [{ name: c("Signed mark/index basis", "有符号标记价/指数价基差"), type: "line", showSymbol: true, data: analysis.chartData.map((point) => [point.timestamp, point.value]) }] });
     const resize = () => chart.resize();
+    const stopPresentation = observeQuantChart(chart);
     window.addEventListener("resize", resize);
-    return () => { window.removeEventListener("resize", resize); chart.dispose(); };
+    return () => { stopPresentation(); window.removeEventListener("resize", resize); chart.dispose(); };
   }, [analysis, c]);
   const clear = () => { generation.current++; setAnalysis(null); setError(""); setSynthetic(false); setFileRevision((n) => n + 1); };
   const loadExample = () => {

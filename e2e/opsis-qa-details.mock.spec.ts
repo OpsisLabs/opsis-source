@@ -35,7 +35,8 @@ async function openDetails(page: Page, chinese: boolean, theme: "light" | "dark"
   const payload = transaction ? transactionPayload : tokenPayload;
   await page.route("**/v1/private/analyze", (route) => route.fulfill({ json: payload }));
   await page.goto(`/research/details?entity=${payload.entity.value}`);
-  await page.getByRole("button", { name: chinese ? "私密解读" : "EXPLAIN PRIVATELY", exact: true }).click();
+  await page.getByRole("button", { name: chinese ? "私密解读" : "Explain privately", exact: true }).click();
+  await page.locator(".details-ws-full-answer > summary").click();
   const result = page.getByTestId("answer-card");
   await expect(result).toBeVisible();
   await expect(page.locator(".opsis").first()).toHaveAttribute("data-theme", theme);
@@ -146,8 +147,8 @@ test.describe("opsis preview detailed research QA fixes", () => {
     await page.route("**/v1/private/analyze", (route) => route.fulfill({ json: tokenPayload }));
     await page.goto(`/research/details?entity=${weth}`);
     await page.getByRole("textbox", { name: "Public chain identifier" }).fill(tokenPayload.entity.value);
-    await page.getByRole("button", { name: "EXPLAIN PRIVATELY", exact: true }).click();
-    await expect(page.getByTestId("answer-card")).toBeVisible();
+    await page.getByRole("button", { name: "Explain privately", exact: true }).click();
+    await expect(page.locator(".details-ws-main-value output")).toBeVisible();
     await expect(page).toHaveURL(new RegExp(`/research/details\\?entity=${tokenPayload.entity.value}$`, "i"));
     await page.reload();
     await expect(page.getByRole("textbox", { name: "Public chain identifier" })).toHaveValue(new RegExp(tokenPayload.entity.value, "i"));

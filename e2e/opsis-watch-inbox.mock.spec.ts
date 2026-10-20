@@ -24,7 +24,9 @@ test("opsis preview Watch conditions and review state persist encrypted across r
     return r.fulfill({ json: watchFixture(block++) });
   });
   await page.goto("/watch");
-  await page.getByRole("button", { name: "Open encrypted watchlist", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Open encrypted watchlist", exact: true })
+    .click();
   await page.getByLabel("Vault passphrase", { exact: true }).fill(passphrase);
   await page.getByLabel("Confirm passphrase", { exact: true }).fill(passphrase);
   await page
@@ -57,32 +59,32 @@ test("opsis preview Watch conditions and review state persist encrypted across r
   await detail.getByRole("button", { name: "Refresh public data" }).click();
   await expect(page.getByRole("status")).toContainText("New check saved");
   await page.getByRole("button", { name: "Inbox", exact: true }).click();
-  const conditionRow = page
-    .getByRole("row")
-    .filter({ hasText: "Saved condition met" });
-  await expect(conditionRow).toBeVisible();
-  await page.setViewportSize({ width: 320, height: 800 });
   const conditionCard = page
-    .locator("article")
+    .locator(".watch-inbox-row")
     .filter({ hasText: "Saved condition met" });
   await expect(conditionCard).toBeVisible();
-  await expect(conditionCard).toContainText("Changed");
-  await expect(conditionCard).toContainText("Saved Watch snapshots");
-  await expect(conditionCard).toContainText("Anchor");
+  await page.setViewportSize({ width: 320, height: 800 });
+  await conditionCard.getByRole("button").click();
+  const finding = page.getByRole("complementary", { name: "Selected finding" });
+  await expect(finding).toContainText("Changed");
+  await expect(finding).toContainText("Saved Watch snapshots");
+  await expect(finding).toContainText("Anchor");
   await expect(
-    conditionCard.getByRole("link", { name: "Fresh trade check →" }),
+    finding.getByRole("link", { name: "Fresh trade check →" }),
   ).toHaveAttribute("href", `/check?token=${WATCH_TEST_TOKEN}`);
   expect(
     await page.locator("html").evaluate((el) => el.scrollWidth - innerWidth),
   ).toBeLessThanOrEqual(1);
-  await conditionCard
+  await finding
     .getByRole("button", { name: "Acknowledge", exact: true })
     .click();
   await expect(conditionCard).toHaveCount(0);
   await page.getByRole("button", { name: "Lock watchlist" }).click();
   await page.reload();
   await expect(page.getByText(label, { exact: true })).toHaveCount(0);
-  await page.getByRole("button", { name: "Open encrypted watchlist", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Open encrypted watchlist", exact: true })
+    .click();
   await page.getByLabel("Vault passphrase", { exact: true }).fill(passphrase);
   await page.getByRole("button", { name: "Unlock watchlist" }).click();
   await page.getByRole("button", { name: /Show reviewed \/ snoozed/ }).click();
@@ -94,7 +96,8 @@ test("opsis preview Watch conditions and review state persist encrypted across r
   await expect(
     page.getByRole("button", { name: "Remove", exact: true }),
   ).toBeVisible();
-  await conditionCard.getByRole("button", { name: "Snooze 1 day" }).click();
+  await conditionCard.getByRole("button").click();
+  await finding.getByRole("button", { name: "Snooze 1 day" }).click();
   await expect(conditionCard).toHaveCount(0);
   await page
     .getByRole("button", { name: "Restore", exact: true })
@@ -103,7 +106,7 @@ test("opsis preview Watch conditions and review state persist encrypted across r
   await expect(conditionCard).toBeVisible();
   await page.getByRole("button", { name: "中文", exact: true }).click();
   await expect(
-    page.locator("article").filter({ hasText: "已达到保存条件" }),
+    page.locator(".watch-inbox-row").filter({ hasText: "已达到保存条件" }),
   ).toBeVisible();
   expect(block).toBe(102);
   expect(requests.join("\n")).not.toContain(label);

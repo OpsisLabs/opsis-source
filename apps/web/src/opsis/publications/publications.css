@@ -1,0 +1,581 @@
+/* Reading-page composition follows the approved Privacy concept. */
+.opsis.opsis-terminal .opsis-content .publication-layout {
+  display: grid;
+  grid-template-columns: 176px minmax(0, 1fr) 280px;
+  gap: 8px;
+  align-items: start;
+  color: var(--ink);
+  font:
+    400 16px/1.6 Opsis,
+    sans-serif;
+}
+.opsis.opsis-terminal .opsis-content .publication-layout :is(p, h1, h2, h3) {
+  margin: 0;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  :is(.publication-index, .publication-reading, .publication-dock) {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: 0 2px 8px #12234b03;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  :is(.publication-index, .publication-dock) {
+  position: sticky;
+  top: 80px;
+  min-height: calc(100dvh - 104px);
+  max-height: calc(100dvh - 96px);
+  overflow-y: auto;
+}
+.opsis.opsis-terminal .opsis-content .publication-index {
+  padding: 18px 12px;
+  font-size: 14px;
+}
+.opsis.opsis-terminal .opsis-content .publication-index details {
+  border: 0;
+}
+.opsis.opsis-terminal .opsis-content .publication-index summary {
+  font-size: 16px;
+  font-weight: 500;
+  list-style: none;
+  padding: 0 8px 16px;
+  cursor: pointer;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .publication-index
+  summary::-webkit-details-marker {
+  display: none;
+}
+.opsis.opsis-terminal .opsis-content .publication-index nav {
+  display: grid;
+  gap: 4px;
+}
+.opsis.opsis-terminal .opsis-content .publication-index nav a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  min-height: 36px;
+  border-left: 2px solid transparent;
+  border-radius: 0 4px 4px 0;
+  text-decoration: none;
+  line-height: 1.5;
+}
+.opsis.opsis-terminal .opsis-content .publication-index nav a:hover {
+  color: var(--accent);
+  background: var(--ground);
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .publication-index
+  nav
+  a[aria-current="location"] {
+  color: var(--accent);
+  background: var(--panel-hover);
+  border-left-color: var(--accent);
+}
+.opsis.opsis-terminal .opsis-content .publication-index .publication-switch {
+  border-top: 1px solid var(--line);
+  margin-top: 24px;
+  padding-top: 14px;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .publication-switch
+  a[aria-current="page"] {
+  color: var(--accent);
+}
+.opsis.opsis-terminal .opsis-content .publication-return {
+  display: block;
+  padding: 12px;
+  color: var(--accent);
+  font-size: 13px;
+}
+.opsis.opsis-terminal .opsis-content .publication-reading {
+  padding: 24px 28px;
+}
+.opsis.opsis-terminal .opsis-content .publication-hero h1 {
+  font:
+    400 28px/1.3 Opsis,
+    sans-serif;
+  letter-spacing: -0.035em;
+  margin: 0 0 8px;
+}
+.opsis.opsis-terminal .opsis-content .publication-intro {
+  font-size: 16px;
+  line-height: 1.6;
+}
+.opsis.opsis-terminal .opsis-content .publication-flow {
+  padding: 16px;
+  margin: 22px 0;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+}
+.opsis.opsis-terminal .opsis-content .publication-flow h2 {
+  font-size: 17px;
+}
+.opsis.opsis-terminal .opsis-content .publication-flow > p {
+  margin-top: 3px;
+  color: var(--soft);
+  font-size: 13px;
+}
+.opsis.opsis-terminal .opsis-content .publication-flow-nodes {
+  display: grid;
+  grid-template-columns: 1fr 0.9fr 1fr 1.05fr;
+  align-items: stretch;
+  gap: 8px;
+  margin-top: 16px;
+}
+.opsis.opsis-terminal .opsis-content .publication-flow-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 12px 8px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--panel-hover) 65%, var(--panel));
+}
+.opsis.opsis-terminal .opsis-content .publication-flow-node h3 {
+  font:
+    500 12px/1.4 Opsis,
+    sans-serif;
+  letter-spacing: 0;
+}
+.opsis.opsis-terminal .opsis-content .publication-flow-node > svg {
+  width: 38px;
+  height: 38px;
+  margin: 8px 0;
+  stroke-width: 1.3;
+  color: var(--accent);
+}
+.opsis.opsis-terminal .opsis-content .publication-flow-node p {
+  font-size: 12px;
+  color: var(--soft);
+}
+.opsis.opsis-terminal .opsis-content .publication-flow-vault {
+  border: 1px solid
+    color-mix(in srgb, var(--surface-positive) 30%, var(--panel));
+  background: color-mix(in srgb, var(--surface-positive) 5%, var(--panel));
+}
+.opsis.opsis-terminal .opsis-content .publication-flow-vault > svg {
+  color: var(--ink);
+}
+.opsis.opsis-terminal .opsis-content .publication-flow-vault small {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--soft);
+}
+.opsis.opsis-terminal .opsis-content .publication-flow-arrow {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  text-align: center;
+  color: var(--accent);
+  font-size: 11px;
+  line-height: 1.4;
+}
+.opsis.opsis-terminal .opsis-content .publication-flow-arrow small {
+  color: var(--soft);
+  font-size: 10px;
+}
+.opsis.opsis-terminal .opsis-content .publication-flow-line {
+  display: flex;
+  align-items: center;
+  height: 12px;
+}
+.opsis.opsis-terminal .opsis-content .publication-flow-line::before {
+  content: "";
+  flex: 1;
+  border-top: 1px solid var(--accent);
+}
+.opsis.opsis-terminal .opsis-content .publication-flow-line svg {
+  margin-left: -6px;
+}
+.opsis.opsis-terminal .opsis-content .publication-section {
+  padding: 24px 0;
+  border-top: 1px solid var(--line);
+  scroll-margin-top: 88px;
+}
+.opsis.opsis-terminal .opsis-content .publication-section h2 {
+  font-size: 18px;
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+.opsis.opsis-terminal .opsis-content .publication-section-body > p + p {
+  margin-top: 14px;
+}
+.opsis.opsis-terminal .opsis-content .publication-notes {
+  margin-top: 18px;
+  display: grid;
+  gap: 14px;
+}
+.opsis.opsis-terminal .opsis-content .publication-notes section {
+  border-left: 2px solid var(--line);
+  padding-left: 16px;
+}
+.opsis.opsis-terminal .opsis-content .publication-notes h3 {
+  margin-bottom: 4px;
+  font-size: 15px;
+}
+.opsis.opsis-terminal .opsis-content .publication-notes p {
+  font-size: 14px;
+  color: var(--soft);
+}
+.opsis.opsis-terminal .opsis-content .publication-notes a {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--accent);
+  font-size: 13px;
+}
+.opsis.opsis-terminal .opsis-content .publication-dock {
+  padding: 20px;
+}
+.opsis.opsis-terminal .opsis-content .publication-dock h2 {
+  font-size: 18px;
+  letter-spacing: -0.02em;
+}
+.opsis.opsis-terminal .opsis-content .publication-contract {
+  scroll-margin-top: 88px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+.opsis.opsis-terminal .opsis-content .publication-contract > h2 {
+  margin-bottom: 16px;
+}
+.opsis.opsis-terminal .opsis-content .publication-glance-title {
+  padding: 20px 0 16px;
+  border-bottom: 1px solid var(--line);
+}
+.opsis.opsis-terminal .opsis-content .publication-glance-item {
+  display: flex;
+  gap: 14px;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--line);
+}
+.opsis.opsis-terminal .opsis-content .publication-glance-item > span {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 48px;
+  flex: 0 0 44px;
+  background: linear-gradient(135deg, var(--panel), var(--panel-hover));
+  border-radius: 6px;
+  color: var(--accent);
+}
+.opsis.opsis-terminal .opsis-content .publication-glance-item svg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 1.5;
+}
+.opsis.opsis-terminal .opsis-content .publication-glance-item h3 {
+  font-size: 15px;
+  letter-spacing: -0.02em;
+  line-height: 1.5;
+  margin: 2px 0 4px;
+}
+.opsis.opsis-terminal .opsis-content .publication-glance-item p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--soft);
+}
+.opsis.opsis-terminal .opsis-content .publication-glance-item a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--accent);
+  margin-top: 8px;
+}
+.opsis.opsis-terminal .opsis-content .publication-glance-item a svg {
+  width: 13px;
+  height: 13px;
+}
+.opsis.opsis-terminal .opsis-content .publication-meta {
+  padding-top: 20px;
+  font-size: 12px;
+  color: var(--soft);
+}
+.opsis.opsis-terminal .opsis-content .publication-reading-footer {
+  font-size: 13px;
+  color: var(--soft);
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.opsis.opsis-terminal .opsis-content .publication-reading-footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-top: 16px;
+}
+.opsis.opsis-terminal .opsis-content .publication-reading-footer a {
+  color: var(--accent);
+}
+.opsis.opsis-terminal .opsis-content .publication-preview {
+  color: var(--soft);
+  text-align: right;
+  font-size: 11px;
+  margin-top: 12px;
+}
+.opsis.opsis-terminal .opsis-content .opsis-ca {
+  max-width: none;
+  font-family: Opsis, sans-serif;
+}
+.opsis.opsis-terminal .opsis-content .opsis-ca label {
+  font-size: 12px;
+  color: var(--soft);
+  font-weight: 400;
+}
+.opsis.opsis-terminal .opsis-content .opsis-ca input {
+  font:
+    13px/1.5 OpsisMono,
+    monospace;
+  border-color: var(--line);
+  background: var(--ground);
+}
+.opsis.opsis-terminal .opsis-content .opsis-ca button {
+  background: var(--panel-hover);
+  border-color: var(--line);
+  color: var(--accent);
+  font-size: 12px;
+}
+.opsis.opsis-terminal .opsis-content .opsis-ca button:disabled {
+  opacity: 1;
+  color: var(--soft);
+  background: var(--ground);
+}
+.opsis.opsis-terminal .opsis-content .opsis-ca p {
+  font-size: 12px;
+  color: var(--soft);
+}
+.opsis.opsis-terminal .opsis-content .opsis-ca .opsis-ca-chain {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 8px;
+  margin: 12px 0 6px;
+}
+.opsis.opsis-terminal .opsis-content .opsis-ca [role="status"] {
+  color: var(--ink);
+}
+@media (max-width: 1200px) and (min-width: 1051px) {
+  .opsis.opsis-terminal .opsis-content .publication-layout {
+    grid-template-columns: 148px minmax(0, 1fr) 248px;
+  }
+  .opsis.opsis-terminal .opsis-content .publication-reading {
+    padding: 22px;
+  }
+  .opsis.opsis-terminal .opsis-content .publication-dock {
+    padding: 16px;
+  }
+  .opsis.opsis-terminal .opsis-content .publication-flow-nodes {
+    grid-template-columns: 1fr 0.8fr 1fr;
+  }
+  .opsis.opsis-terminal .opsis-content .publication-flow-vault {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 8px;
+    gap: 8px;
+  }
+  .opsis.opsis-terminal .opsis-content .publication-flow-vault > svg {
+    width: 24px;
+    height: 24px;
+    margin: 0;
+  }
+}
+@media (max-width: 1050px) {
+  .opsis.opsis-terminal .opsis-content .publication-layout {
+    grid-template-columns: 160px minmax(0, 1fr);
+  }
+  .opsis.opsis-terminal .opsis-content .publication-dock {
+    grid-column: 2;
+    position: static;
+    min-height: 0;
+  }
+}
+@media (max-width: 700px) {
+  .opsis.opsis-terminal .opsis-content .publication-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .opsis.opsis-terminal
+    .opsis-content
+    :is(.publication-index, .publication-dock) {
+    position: static;
+    min-height: 0;
+    max-height: none;
+    overflow: visible;
+    width: 100%;
+  }
+  .opsis.opsis-terminal .opsis-content .publication-index {
+    padding: 12px 14px;
+  }
+  .opsis.opsis-terminal .opsis-content .publication-index summary {
+    pointer-events: auto;
+    cursor: pointer;
+    padding: 4px;
+  }
+  .opsis.opsis-terminal .opsis-content .publication-index summary::after {
+    content: "⌄";
+    float: right;
+    color: var(--soft);
+  }
+  .opsis.opsis-terminal
+    .opsis-content
+    .publication-index
+    details:not([open])
+    summary::after {
+    content: "+";
+  }
+  .opsis.opsis-terminal .opsis-content .publication-index nav {
+    margin-top: 8px;
+  }
+  .opsis.opsis-terminal .opsis-content .publication-index nav a {
+    min-height: 44px;
+  }
+  .opsis.opsis-terminal .opsis-content .publication-index .publication-switch {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    padding-top: 8px;
+  }
+  .opsis.opsis-terminal .opsis-content .publication-return {
+    padding: 8px;
+  }
+  .opsis.opsis-terminal .opsis-content .publication-reading {
+    padding: 20px 18px;
+    width: 100%;
+  }
+  .opsis.opsis-terminal .opsis-content .publication-flow {
+    padding: 12px;
+  }
+  .opsis.opsis-terminal .opsis-content .publication-flow-nodes {
+    grid-template-columns: 1fr 0.85fr 1fr;
+    gap: 4px;
+  }
+  .opsis.opsis-terminal .opsis-content .publication-flow-vault {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 10px;
+    gap: 8px;
+  }
+  .opsis.opsis-terminal .opsis-content .publication-flow-vault > svg {
+    width: 24px;
+    height: 24px;
+    margin: 0;
+  }
+  .opsis.opsis-terminal .opsis-content .publication-flow-node {
+    padding-inline: 4px;
+  }
+  .opsis.opsis-terminal .opsis-content .publication-dock {
+    display: contents;
+  }
+  .opsis.opsis-terminal .opsis-content .publication-contract {
+    order: -1;
+    width: 100%;
+    padding: 18px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel);
+  }
+  .opsis.opsis-terminal
+    .opsis-content
+    .publication-dock
+    > :not(.publication-contract) {
+    order: 1;
+    width: 100%;
+    background: var(--panel);
+    padding: 16px 18px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+  }
+
+  .opsis.opsis-terminal .opsis-content .publication-index {
+    order: -2;
+  }
+  .opsis.opsis-terminal .opsis-content .publication-glance-title {
+    padding: 16px 0 10px;
+  }
+  .opsis.opsis-terminal .opsis-content .publication-glance-item {
+    padding: 14px 0;
+  }
+  .opsis.opsis-terminal .opsis-content .publication-meta {
+    padding-top: 14px;
+  }
+}
+@media print {
+  .opsis.opsis-terminal {
+    padding: 0;
+    background: white;
+  }
+  .opsis.opsis-terminal
+    :is(.opsis-topbar, .opsis-desktop-rail, .opsis-tool-menu) {
+    display: none;
+  }
+  .opsis.opsis-terminal .opsis-content .publication-layout {
+    display: block;
+    color: black;
+  }
+  .opsis.opsis-terminal
+    .opsis-content
+    :is(.publication-index, .publication-dock, .publication-preview) {
+    display: none;
+  }
+  .opsis.opsis-terminal .opsis-content .publication-reading {
+    border: 0;
+    padding: 0;
+    background: white;
+  }
+}
+
+.opsis.opsis-terminal.opsis-publication .opsis-topbar-tools {
+  justify-content: flex-start;
+}
+.opsis.opsis-terminal.opsis-publication .opsis-topbar .opsis-search {
+  flex: 1;
+  max-width: 600px;
+}
+.opsis.opsis-terminal.opsis-publication .opsis-topbar .opsis-chain {
+  margin-left: auto;
+}
+.opsis.opsis-terminal .opsis-content .opsis-ca-control {
+  align-items: stretch;
+}
+.opsis.opsis-terminal .opsis-content .opsis-ca-control :is(input, button) {
+  height: 42px;
+  min-height: 42px;
+  padding-block: 8px;
+  border-radius: 6px;
+}
+.opsis.opsis-terminal .opsis-content .opsis-ca-control input {
+  width: 0;
+  flex: 1 1 0;
+}
+.opsis.opsis-terminal .opsis-content .opsis-ca-control input {
+  margin: 0;
+  font-size: 14px;
+}
+.opsis.opsis-terminal .opsis-content .opsis-ca label {
+  font:
+    400 14px/1.5 Opsis,
+    sans-serif;
+}
+.opsis.opsis-terminal.opsis-publication .opsis-topbar .opsis-search input {
+  font:
+    400 14px/1.5 Opsis,
+    sans-serif;
+}
+.opsis.opsis-terminal .opsis-content .publication-index details {
+  margin: 0;
+  padding: 0;
+}

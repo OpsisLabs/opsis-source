@@ -1,3 +1,5 @@
+import DatasetPreview from "./DatasetPreview";
+import { observeQuantChart } from "./chart-presentation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { LineSeriesOption } from "echarts/charts";
 import { echarts } from "./echarts";
@@ -119,9 +121,10 @@ export default function QuantWorkbench() {
       }],
     });
     const resize = () => chart.resize();
+    const stopPresentation = observeQuantChart(chart);
     window.addEventListener("resize", resize);
     return () => {
-      window.removeEventListener("resize", resize);
+      stopPresentation(); window.removeEventListener("resize", resize);
       chart.dispose();
     };
   }, [run, c]);
@@ -172,8 +175,9 @@ export default function QuantWorkbench() {
       series: [{ type: "bar", name: c("Observed daily returns", "观察到的每日收益"), data: histogram.counts, itemStyle: { color: "#1261a0" } }],
     });
     const resize = () => chart.resize();
+    const stopPresentation = observeQuantChart(chart);
     window.addEventListener("resize", resize);
-    return () => { window.removeEventListener("resize", resize); chart.dispose(); };
+    return () => { stopPresentation(); window.removeEventListener("resize", resize); chart.dispose(); };
   }, [histogram, c]);
   useEffect(() => {
     if (!drawdownRef.current || !drawdown) return;
@@ -190,8 +194,9 @@ export default function QuantWorkbench() {
         symbol: "none", connectNulls: false }],
     });
     const resize = () => chart.resize();
+    const stopPresentation = observeQuantChart(chart);
     window.addEventListener("resize", resize);
-    return () => { window.removeEventListener("resize", resize); chart.dispose(); };
+    return () => { stopPresentation(); window.removeEventListener("resize", resize); chart.dispose(); };
   }, [drawdown, c]);
 
   const clearRun = () => {
@@ -340,8 +345,8 @@ export default function QuantWorkbench() {
         <span>04 {c("Results", "结果")}</span>
         <span>05 {c("Compare / Export", "比较 / 导出")}</span>
       </div>
-      <div className="opsis-quant-grid">
-        <div className="opsis-panel">
+      <div className={`opsis-quant-grid${run ? " opsis-quant-has-run" : ""}`}>
+        <div className="opsis-panel opsis-quant-dataset-panel">
           <h2>{c("1. Define the dataset", "1. 定义数据集")}</h2>
           <p>
             {c(
@@ -360,6 +365,7 @@ export default function QuantWorkbench() {
               }}
             />
           </label>
+          <DatasetPreview dataset={dataset} />
           <div className="opsis-quant-fields">
             <label>
               {c("Chain ID", "链 ID")}
@@ -422,7 +428,119 @@ export default function QuantWorkbench() {
             </p>
           )}
         </div>
-        <div className="opsis-panel">
+        {run && (
+<div className="opsis-panel opsis-quant-result-panel">
+            <h2>{c("4. Results", "4. 结果")}</h2>
+            <p>
+              {run.dataset.synthetic
+                ? c(
+                    "SYNTHETIC EXAMPLE / NOT MARKET HISTORY",
+                    "合成示例／非市场历史",
+                  )
+                : c(
+                    "USER IMPORT / PROVENANCE NOT VERIFIED",
+                    "用户导入／来源未经验证",
+                  )}
+            </p>
+            <p>
+              {c(
+                "Normalized wealth: 1 = initial value (100%). Simulated steps are not dated observations or forecasts.",
+                "归一化财富：1 = 初始价值（100%）。模拟步骤不是带日期的观察或预测。",
+              )}
+            </p>
+            {run.manifest.researchMode && (
+              <p role="note">
+                {c(
+                  "SHORT-WINDOW RESEARCH: below the default history standard; cannot establish stable tail behavior.",
+                  "短窗口研究：低于默认历史标准；无法确定稳定的尾部行为。",
+                )}
+              </p>
+            )}
+            {run.stats.warnings.length > 0 && (
+              <p role="note">
+                {c(
+                  "Tail sample count is below 20; tail interpretation is unstable.",
+                  "尾部样本数少于 20；尾部解释不稳定。",
+                )}
+              </p>
+            )}
+            <p>
+              {run.dataset.instrument.symbol} · {run.datasetHash.slice(0, 16)}…
+              · {run.manifest.model}
+              {run.manifest.blockLength === undefined ? "" : ` (${run.manifest.blockLength}d)`} · seed {run.manifest.seed}
+            </p>
+            <div className="opsis-quant-metrics">
+              <div>
+                <span>{c("Total return", "总收益")}</span>
+                <strong>{(run.stats.totalReturn * 100).toFixed(2)}%</strong>
+              </div>
+              <div>
+                <span>{c("Annualized volatility", "年化波动率")}</span>
+                <strong>
+                  {(run.stats.volatilityAnnualized * 100).toFixed(2)}%
+                </strong>
+              </div>
+              <div>
+                <span>{c("Max drawdown", "最大回撤")}</span>
+                <strong>{(run.stats.maxDrawdown * 100).toFixed(2)}%</strong>
+              </div>
+              <div>
+                <span>{c("Tail count", "尾部数量")}</span>
+                <strong>{run.stats.tailCount}</strong>
+              </div>
+            </div>
+            <div
+              ref={chartRef}
+              className="opsis-quant-simulation-chart"
+              role="img"
+              aria-label={c(
+                "Pointwise simulation fan chart with 50%, 80%, and 95% bands and median; values are listed in the table below",
+                "逐点模拟扇形图，显示 50%、80%、95% 区间和中位数；数值见下方表格",
+              )}
+            />
+            <div className="opsis-table-scroll opsis-quant-fan-scroll" tabIndex={0} role="region" aria-label={c("Simulation fan values", "模拟扇形数值")}>
+              <table className="opsis-quant-fan-table">
+                <caption>
+                  {c(
+                    "Every simulation step; normalized wealth ratios rounded to four decimals (full precision in export)",
+                    "每个模拟步骤；标准化财富比率保留四位小数（导出为完整精度）",
+                  )}
+                </caption>
+                <thead>
+                  <tr>
+                    <th>{c("Step", "步骤")}</th>
+                    <th>{c("50% low", "50% 下界")}</th>
+                    <th>{c("50% high", "50% 上界")}</th>
+                    <th>{c("80% low", "80% 下界")}</th>
+                    <th>{c("80% high", "80% 上界")}</th>
+                    <th>{c("95% low", "95% 下界")}</th>
+                    <th>{c("95% high", "95% 上界")}</th>
+                    <th>{c("Median", "中位数")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {run.bootstrap.path.map((point) => (
+                      <tr key={point.date}>
+                        <td>{point.date}</td>
+                        {([0.5, 0.8, 0.95] as const).flatMap((confidence) => {
+                          const band = point.bands.find((entry) => entry.confidence === confidence)!;
+                          return [<td key={`${confidence}-low`}>{band.low.toFixed(4)}</td>,
+                            <td key={`${confidence}-high`}>{band.high.toFixed(4)}</td>];
+                        })}
+                        <td>{point.median.toFixed(4)}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+            <ul>
+              {run.manifest.assumptions.map((assumption) => (
+                <li key={assumption}>{assumption}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <div className="opsis-panel opsis-quant-experiment-panel">
           <h2>{c("2. Set the experiment", "2. 设置实验")}</h2>
           <p>
             {c(
@@ -490,7 +608,7 @@ export default function QuantWorkbench() {
         </div>
       </div>
       {observed && (
-        <div className="opsis-panel">
+        <div className="opsis-panel opsis-quant-observed-panel">
           <h2>{c("Observed daily risk", "观察到的每日风险")}</h2>
           {observed.stats ? (
             <p>
@@ -541,117 +659,7 @@ export default function QuantWorkbench() {
       {dataset && <JointPortfolioPanel key={datasetRevision} first={dataset} spec={jointSpec} singleInstrumentOnly={model === "gbm_parametric_comparison"} />}
       {run && (
         <>
-          <div className="opsis-panel">
-            <h2>{c("4. Results", "4. 结果")}</h2>
-            <p>
-              {run.dataset.synthetic
-                ? c(
-                    "SYNTHETIC EXAMPLE / NOT MARKET HISTORY",
-                    "合成示例／非市场历史",
-                  )
-                : c(
-                    "USER IMPORT / PROVENANCE NOT VERIFIED",
-                    "用户导入／来源未经验证",
-                  )}
-            </p>
-            <p>
-              {c(
-                "Normalized wealth: 1 = initial value (100%). Simulated steps are not dated observations or forecasts.",
-                "归一化财富：1 = 初始价值（100%）。模拟步骤不是带日期的观察或预测。",
-              )}
-            </p>
-            {run.manifest.researchMode && (
-              <p role="note">
-                {c(
-                  "SHORT-WINDOW RESEARCH: below the default history standard; cannot establish stable tail behavior.",
-                  "短窗口研究：低于默认历史标准；无法确定稳定的尾部行为。",
-                )}
-              </p>
-            )}
-            {run.stats.warnings.length > 0 && (
-              <p role="note">
-                {c(
-                  "Tail sample count is below 20; tail interpretation is unstable.",
-                  "尾部样本数少于 20；尾部解释不稳定。",
-                )}
-              </p>
-            )}
-            <p>
-              {run.dataset.instrument.symbol} · {run.datasetHash.slice(0, 16)}…
-              · {run.manifest.model}
-              {run.manifest.blockLength === undefined ? "" : ` (${run.manifest.blockLength}d)`} · seed {run.manifest.seed}
-            </p>
-            <div className="opsis-quant-metrics">
-              <div>
-                <span>{c("Total return", "总收益")}</span>
-                <strong>{(run.stats.totalReturn * 100).toFixed(2)}%</strong>
-              </div>
-              <div>
-                <span>{c("Annualized volatility", "年化波动率")}</span>
-                <strong>
-                  {(run.stats.volatilityAnnualized * 100).toFixed(2)}%
-                </strong>
-              </div>
-              <div>
-                <span>{c("Max drawdown", "最大回撤")}</span>
-                <strong>{(run.stats.maxDrawdown * 100).toFixed(2)}%</strong>
-              </div>
-              <div>
-                <span>{c("Tail count", "尾部数量")}</span>
-                <strong>{run.stats.tailCount}</strong>
-              </div>
-            </div>
-            <div
-              ref={chartRef}
-              style={{ height: 280, width: "100%" }}
-              role="img"
-              aria-label={c(
-                "Pointwise simulation fan chart with 50%, 80%, and 95% bands and median; values are listed in the table below",
-                "逐点模拟扇形图，显示 50%、80%、95% 区间和中位数；数值见下方表格",
-              )}
-            />
-            <div className="opsis-table-scroll opsis-quant-fan-scroll" tabIndex={0} role="region" aria-label={c("Simulation fan values", "模拟扇形数值")}>
-              <table className="opsis-quant-fan-table">
-                <caption>
-                  {c(
-                    "Every simulation step; normalized wealth ratios rounded to four decimals (full precision in export)",
-                    "每个模拟步骤；标准化财富比率保留四位小数（导出为完整精度）",
-                  )}
-                </caption>
-                <thead>
-                  <tr>
-                    <th>{c("Step", "步骤")}</th>
-                    <th>{c("50% low", "50% 下界")}</th>
-                    <th>{c("50% high", "50% 上界")}</th>
-                    <th>{c("80% low", "80% 下界")}</th>
-                    <th>{c("80% high", "80% 上界")}</th>
-                    <th>{c("95% low", "95% 下界")}</th>
-                    <th>{c("95% high", "95% 上界")}</th>
-                    <th>{c("Median", "中位数")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {run.bootstrap.path.map((point) => (
-                      <tr key={point.date}>
-                        <td>{point.date}</td>
-                        {([0.5, 0.8, 0.95] as const).flatMap((confidence) => {
-                          const band = point.bands.find((entry) => entry.confidence === confidence)!;
-                          return [<td key={`${confidence}-low`}>{band.low.toFixed(4)}</td>,
-                            <td key={`${confidence}-high`}>{band.high.toFixed(4)}</td>];
-                        })}
-                        <td>{point.median.toFixed(4)}</td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-            <ul>
-              {run.manifest.assumptions.map((assumption) => (
-                <li key={assumption}>{assumption}</li>
-              ))}
-            </ul>
-          </div>
-          <div className="opsis-panel">
+          <div className="opsis-panel opsis-quant-export-panel">
             <h2>{c("5. Compare or export", "5. 比较或导出")}</h2>
             {history.length > 1 && (
               <div className="opsis-table-scroll" tabIndex={0} role="region" aria-label={c("Run comparison", "运行比较")}>

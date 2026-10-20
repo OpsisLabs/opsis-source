@@ -53,6 +53,7 @@ export async function opsisRoutes(app: FastifyInstance, env: Env) {
         chain: { id: 4663, name: "Robinhood Chain" },
         build: env.BUILD_SHA ?? env.RAILWAY_GIT_COMMIT_SHA ?? null,
         capabilities: [
+          ...(env.SAVED_CHECK_COMPARISONS_ENABLED ? [{ id: "savedCheckComparisons", enabled: true, scope: "Local saved token Research and Trade Check comparisons", origin: "encrypted browser records", freshness: "historical observation times", coverage: "matching typed evidence only", limits: "No automatic lookup; different inputs or missing coverage are not market changes." }] : []),
           { id: "research", enabled: env.PRIVATE_MODE_ENABLED, scope: "Robinhood Chain public-identifier research", origin: "live on request", freshness: "checked per request", coverage: "bounded by upstream source coverage", limits: "Provider health and complete coverage are unknown until each lookup." },
           { id: "tokenControls", enabled: env.PRIVATE_MODE_ENABLED && env.TOKEN_CONTROLS_ENABLED, scope: "Robinhood Chain standard contract controls", origin: "live RPC on request", freshness: "block-anchored per request", coverage: "owner, pause responses and three proxy slots only", limits: "Mint privileges, custom roles, transfer taxes and concentration are not inferred; optional explorer enrichment may be unavailable." },
           { id: "exitCheck", enabled: env.EXIT_CHECK_ENABLED, scope: "Robinhood Chain official Uniswap V3 standard fee tiers", origin: "live RPC on request", freshness: "block-anchored per quote", coverage: "bounded factory pools and configured RPC quota", limits: "Does not prove transferability, sellability or execution; V4 and other venues are excluded." },
@@ -74,6 +75,7 @@ export async function opsisRoutes(app: FastifyInstance, env: Env) {
         observedTrades: env.OBSERVED_TRADES_ENABLED,
         swapPreview,
         perpHandoff: env.PERP_HANDOFF_ENABLED,
+        savedCheckComparisons: env.SAVED_CHECK_COMPARISONS_ENABLED,
         perpExecution: false,
         manifest,
       };

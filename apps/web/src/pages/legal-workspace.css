@@ -1,0 +1,623 @@
+/* D29 utility reading workspaces. The legacy legal document keeps its own chrome. */
+.opsis.opsis-terminal .opsis-content .legal-ws-page {
+  color: var(--ink);
+  font:
+    400 14px/1.6 Opsis,
+    sans-serif;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-grid {
+  display: grid;
+  grid-template-columns: 184px minmax(0, 1fr) 280px;
+  gap: 12px;
+  align-items: start;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-page :is(h2, h3, strong) {
+  font-weight: 500;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .legal-ws-page
+  :is(a, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-page a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-page a:hover {
+  text-decoration: underline;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  :is(.legal-ws-index, .legal-ws-reading, .legal-ws-dock-panel) {
+  min-width: 0;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--ui-radius, 8px);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--ink) 3%, transparent);
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-index {
+  position: sticky;
+  top: 84px;
+  padding: 18px 10px;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-index h2 {
+  margin: 0 10px 14px;
+  font-size: 15px;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-index ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-index li {
+  margin: 0;
+  padding: 0;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-index a {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  min-height: 44px;
+  padding: 10px 9px;
+  border-left: 2px solid transparent;
+  border-radius: 0 5px 5px 0;
+  color: var(--soft);
+  font-size: 13px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-index a > span {
+  color: var(--soft);
+  font:
+    11px OpsisMono,
+    monospace;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-index a[aria-current] {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--panel-hover);
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-reading {
+  padding: 24px;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-sections > section {
+  margin: 0;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--line);
+  scroll-margin-top: 88px;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-sections > section:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-sections > section > h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0 0 12px;
+  color: var(--ink);
+  font:
+    500 18px/1.4 Opsis,
+    sans-serif;
+  letter-spacing: -0.015em;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-sections h2 > span {
+  color: var(--soft);
+  font:
+    12px OpsisMono,
+    monospace;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-sections > section > div {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--soft);
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-sections p {
+  max-width: 75ch;
+  margin: 0 0 16px;
+  color: var(--soft);
+  font:
+    400 16px/1.7 Opsis,
+    sans-serif;
+  overflow-wrap: anywhere;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-sections p:last-child {
+  margin-bottom: 0;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-sections p > span {
+  color: var(--ink);
+  font-weight: 500;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-flow {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-flow > h2 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-flow > p {
+  margin: 0;
+  color: var(--soft);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-flow-path {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(90px, 0.7fr) minmax(0, 1fr);
+  gap: 10px;
+  margin-top: 16px;
+  align-items: center;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-flow-path :is(h3, p) {
+  margin: 6px 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  :is(.legal-ws-browser, .legal-ws-providers) {
+  min-width: 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 10px;
+  border-radius: 6px;
+  background: var(--panel-hover);
+  text-align: center;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  :is(.legal-ws-browser, .legal-ws-providers)
+  > svg {
+  color: var(--accent);
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-local {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 8px;
+  padding: 10px 7px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--panel);
+  font-size: 12px;
+  line-height: 1.45;
+  text-align: left;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-local svg {
+  flex: none;
+  color: var(--accent);
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-flow-path small {
+  color: var(--soft);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-browser > small {
+  margin-top: 8px;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-providers p {
+  color: var(--soft);
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-request {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--accent);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-boundary {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line));
+  border-radius: 7px;
+  background: var(--panel-hover);
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-boundary > svg {
+  flex: none;
+  color: var(--accent);
+  margin-top: 2px;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-boundary h2 {
+  margin: 0 0 8px;
+  font-size: 17px;
+  line-height: 1.5;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-boundary a {
+  font-size: 13px;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-dock {
+  display: grid;
+  min-width: 0;
+  gap: 12px;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-dock-panel {
+  padding: 20px;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-dock-panel > h2 {
+  margin: 0 0 16px;
+  font-size: 17px;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-dock-panel > p {
+  color: var(--soft);
+  margin: 0 0 12px;
+  font-size: 13px;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-concept {
+  display: flex;
+  gap: 14px;
+  padding: 20px 0;
+  border-top: 1px solid var(--line);
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-concept > svg {
+  flex: none;
+  box-sizing: content-box;
+  padding: 10px;
+  background: var(--panel-hover);
+  border-radius: 6px;
+  color: var(--accent);
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-concept h3 {
+  margin: 0 0 5px;
+  font-size: 15px;
+  line-height: 1.45;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-concept p {
+  margin: 0;
+  color: var(--soft);
+  font-size: 13px;
+  line-height: 1.65;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-dock-panel .legal-ws-updated {
+  margin: 2px 0 0;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  color: var(--soft);
+  font:
+    11px/1.7 OpsisMono,
+    monospace;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-dock dl {
+  margin: 0;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-dock dl > div {
+  display: grid;
+  grid-template-columns: minmax(72px, 0.8fr) minmax(0, 1.2fr);
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-dock dt {
+  color: var(--soft);
+  font-size: 13px;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-dock dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-resource {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-footer {
+  margin: 14px 0 0;
+  color: var(--soft);
+  font-size: 11px;
+  text-align: right;
+}
+@media (max-width: 1280px) {
+  .opsis.opsis-terminal .opsis-content .legal-ws-grid {
+    grid-template-columns: 170px minmax(0, 1fr);
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-dock {
+    grid-column: 2;
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-privacy .legal-ws-dock-panel {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .opsis.opsis-terminal
+    .opsis-content
+    .legal-ws-privacy
+    .legal-ws-dock-panel
+    > :is(h2, .legal-ws-updated) {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-concept {
+    display: block;
+    padding-top: 14px;
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-concept > svg {
+    margin-bottom: 10px;
+  }
+}
+@media (max-width: 900px) {
+  .opsis.opsis-terminal .opsis-content .legal-ws-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-index {
+    position: static;
+    padding: 16px;
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-index h2 {
+    margin: 0 0 10px;
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-index ol {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-dock {
+    grid-column: auto;
+  }
+}
+@media (max-width: 600px) {
+  .opsis.opsis-terminal .opsis-content .legal-ws-reading {
+    padding: 16px;
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-index ol {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-index a {
+    padding-inline: 6px;
+    font-size: 12px;
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-flow {
+    padding: 14px;
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-flow-path {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-request > svg {
+    transform: rotate(90deg);
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-request {
+    gap: 0;
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-privacy .legal-ws-dock-panel {
+    display: block;
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-concept {
+    display: flex;
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-boundary {
+    gap: 12px;
+    padding: 14px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .opsis.opsis-terminal .opsis-content .legal-ws-page * {
+    scroll-behavior: auto;
+  }
+}
+/* Approved reading composition: a joined index/reading surface and full-height dock. */
+.opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-grid {
+  grid-template-columns: 180px minmax(0, 1fr) 280px;
+  gap: 0;
+  align-items: stretch;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-index {
+  top: 84px;
+  padding: 20px 16px;
+  border-radius: 8px 0 0 8px;
+  box-shadow: none;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-index h2 {
+  margin: 0 6px 16px;
+  font-size: 16px;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-index a {
+  gap: 0;
+  padding: 9px 8px;
+  font-size: 13px;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-index a > span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-reading {
+  height: calc(100dvh - 184px);
+  min-height: 600px;
+  padding: 24px 28px;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+  border-left: 0;
+  border-radius: 0 8px 8px 0;
+  overscroll-behavior: contain;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-dock {
+  margin-left: 12px;
+  grid-column: auto;
+  align-content: start;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-privacy .legal-ws-dock {
+  align-content: stretch;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-privacy .legal-ws-dock-panel {
+  display: block;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-concept {
+  display: flex;
+  gap: 16px;
+  padding: 24px 0;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-concept p {
+  font-size: 14px;
+  line-height: 1.65;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-concept > svg {
+  padding: 12px;
+  margin: 0;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .legal-ws-page
+  .legal-ws-sections
+  > section {
+  padding: 18px 0;
+  scroll-margin-top: 16px;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .legal-ws-page
+  .legal-ws-sections
+  h2
+  > span {
+  display: none;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-sections p {
+  line-height: 1.65;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-flow {
+  padding: 16px;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-flow-path {
+  grid-template-columns:
+    minmax(0, 1fr) minmax(70px, 0.9fr) minmax(0, 1fr)
+    minmax(0, 1fr);
+  gap: 10px;
+  align-items: stretch;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .legal-ws-page
+  :is(.legal-ws-browser, .legal-ws-providers, .legal-ws-local) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-width: 0;
+  padding: 12px 8px;
+  margin: 0;
+  border: 0;
+  border-radius: 6px;
+  background: var(--panel-hover);
+  text-align: center;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-local {
+  border: 1px solid color-mix(in srgb, var(--surface-positive) 40%, var(--line));
+  background: color-mix(in srgb, var(--surface-positive) 5%, var(--panel));
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .legal-ws-page
+  .legal-ws-flow-path
+  :is(h3, p) {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-flow-path h3 {
+  color: var(--ink);
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-flow-path p {
+  color: var(--soft);
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-request {
+  justify-content: center;
+  font-size: 10px;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-request > svg {
+  width: 100%;
+  height: 24px;
+}
+.opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-flow-path small {
+  font-size: 10px;
+}
+@media (max-width: 1200px) and (min-width: 901px) {
+  .opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-grid {
+    grid-template-columns: 150px minmax(0, 1fr) 230px;
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-reading {
+    padding: 20px;
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-flow-path {
+    grid-template-columns: minmax(0, 1fr) 60px minmax(0, 1fr);
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-local {
+    grid-column: 1/-1;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    text-align: left;
+    gap: 6px 12px;
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-local svg {
+    grid-row: 1/4;
+    grid-column: 1;
+  }
+}
+@media (max-width: 900px) {
+  .opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-index {
+    border-radius: 8px;
+    position: static;
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-reading {
+    min-height: 0;
+    height: auto;
+    max-height: none;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: visible;
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-dock {
+    margin: 0;
+  }
+}
+@media (max-width: 600px) {
+  .opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-reading {
+    padding: 16px;
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-flow-path {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .opsis.opsis-terminal
+    .opsis-content
+    .legal-ws-page
+    .legal-ws-flow-path
+    :is(h3, p) {
+    font-size: 13px;
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-request > svg {
+    width: 30px;
+    height: 30px;
+  }
+  .opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-local {
+    margin-top: 8px;
+    border-style: dashed;
+  }
+}
+@media (min-width: 901px) {
+  .opsis.opsis-terminal .opsis-content .legal-ws-page .legal-ws-reading {
+    height: calc(100dvh - 218px);
+  }
+}

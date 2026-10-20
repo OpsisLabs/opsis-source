@@ -1,0 +1,164 @@
+import type { CapabilityId } from "./model";
+
+export const statusDetails: Record<
+  CapabilityId,
+  {
+    label: [string, string];
+    scope: [string, string];
+    origin: [string, string];
+    freshness: [string, string];
+    coverage: [string, string];
+    limits: [string, string];
+  }
+> = {
+  savedCheckComparisons: {
+    label: ["Saved-check comparisons", "已保存核查对比"],
+    scope: [
+      "Local saved token Research and Trade Check comparisons",
+      "本地已保存的代币研究和交易核查对比",
+    ],
+    origin: ["Encrypted browser records", "浏览器加密记录"],
+    freshness: ["Historical observation times", "历史观测时间"],
+    coverage: ["Matching typed evidence only", "仅限相匹配的结构化证据"],
+    limits: [
+      "No automatic lookup; different inputs or missing coverage are not market changes.",
+      "不自动查询；输入不同或覆盖缺失不代表市场变化。",
+    ],
+  },
+  research: {
+    label: ["Research", "研究"],
+    scope: [
+      "Robinhood Chain public-identifier research",
+      "Robinhood Chain 公开标识符研究",
+    ],
+    origin: ["Live on request", "按请求实时查询"],
+    freshness: ["Checked per request", "每次请求时检查"],
+    coverage: [
+      "Bounded by upstream source coverage",
+      "受上游数据源覆盖范围限制",
+    ],
+    limits: [
+      "Provider health and complete coverage are unknown until each lookup.",
+      "每次查询前，提供商运行状况和完整覆盖情况均未知。",
+    ],
+  },
+  tokenControls: {
+    label: ["Standard contract controls", "标准合约控制"],
+    scope: [
+      "Robinhood Chain standard contract controls",
+      "Robinhood Chain 标准合约控制",
+    ],
+    origin: ["Live RPC on request", "按请求实时 RPC 查询"],
+    freshness: ["Block-anchored per request", "每次请求锚定区块"],
+    coverage: [
+      "Owner, pause responses and three proxy slots only",
+      "仅包括所有者、暂停响应和三个代理槽位",
+    ],
+    limits: [
+      "Mint privileges, custom roles, transfer taxes and concentration are not inferred.",
+      "不会推断铸造权限、自定义角色、转账税或持仓集中度。",
+    ],
+  },
+  exitCheck: {
+    label: ["Trade Check", "交易核查"],
+    scope: [
+      "Robinhood Chain official Uniswap V3 standard fee tiers",
+      "Robinhood Chain 官方 Uniswap V3 标准费率层",
+    ],
+    origin: ["Live RPC on request", "按请求实时 RPC 查询"],
+    freshness: ["Block-anchored per quote", "每份报价锚定区块"],
+    coverage: [
+      "Bounded pools and configured RPC quota",
+      "受限流动池及配置的 RPC 配额",
+    ],
+    limits: [
+      "Does not prove transferability, sellability or execution.",
+      "不证明资产可转移、可出售或可成交。",
+    ],
+  },
+  watch: {
+    label: ["Watch snapshots", "观察快照"],
+    scope: [
+      "Robinhood Chain user-triggered wallet snapshots",
+      "Robinhood Chain 用户触发的钱包快照",
+    ],
+    origin: ["Captured on user request", "按用户请求捕获"],
+    freshness: [
+      "Snapshot timestamp; no background monitoring",
+      "显示快照时间；不在后台监控",
+    ],
+    coverage: [
+      "Supported assets and upstream discovery coverage",
+      "受支持资产和上游发现覆盖范围",
+    ],
+    limits: [
+      "Not continuous monitoring; missing upstream data stays unknown.",
+      "不提供持续监控；缺失的上游数据保持为未知。",
+    ],
+  },
+  rwa: {
+    label: ["Stock-token check", "股票代币核查"],
+    scope: [
+      "Existing source-backed stock-token checks",
+      "现有有来源依据的股票代币核查",
+    ],
+    origin: ["Live on request", "按请求实时查询"],
+    freshness: ["Checked per request", "每次请求时检查"],
+    coverage: [
+      "Bounded to supported sources and configured RPC quota",
+      "受支持数据源及配置的 RPC 配额限制",
+    ],
+    limits: [
+      "Not an appraisal, eligibility decision or proof of tradability.",
+      "不是估值、资格决定或可交易性证明。",
+    ],
+  },
+  perpHandoff: {
+    label: ["Perp venue directory", "永续合约场所目录"],
+    scope: [
+      "Reviewed directory of perpetual-futures venues by stated region; no orders and no eligibility verification",
+      "按自述居住地区提供经查阅的永续合约场所目录；无订单或资格核验",
+    ],
+    origin: [
+      "Static review, checked 2026-10-12",
+      "静态查阅，核查日期 2026-10-12",
+    ],
+    freshness: ["Re-review due within 120 days", "120 天内需再次查阅"],
+    coverage: ["United States and Canada only", "仅限美国和加拿大"],
+    limits: [
+      "Each venue's own pages govern; Opsis verifies no identity or eligibility",
+      "以各场所自己的页面为准；Opsis 不核验身份或资格",
+    ],
+  },
+  swapPreview: {
+    label: ["Swap preview", "兑换预览"],
+    scope: [
+      "Robinhood Chain WETH/USDG quote preview through the Uniswap Trade API",
+      "通过 Uniswap Trade API 预览 Robinhood Chain WETH/USDG 报价",
+    ],
+    origin: ["Live quote on request", "按请求实时报价"],
+    freshness: [
+      "Short-lived quote; Uniswap requotes before any trade",
+      "短时有效报价；任何交易前由 Uniswap 重新报价",
+    ],
+    coverage: ["WETH and USDG only", "仅限 WETH 和 USDG"],
+    limits: [
+      "A preview, not an execution; Opsis never signs or broadcasts.",
+      "仅为预览，不会执行；Opsis 从不签名或广播交易。",
+    ],
+  },
+  observedTrades: {
+    label: ["Big trades", "大额交易"],
+    scope: [
+      "Robinhood Chain decoded Uniswap V3 Swap logs",
+      "Robinhood Chain 解码的 Uniswap V3 Swap 日志",
+    ],
+    origin: ["Live scan on request", "按请求实时扫描"],
+    freshness: ["Anchored to captured block window", "锚定已捕获的区块范围"],
+    coverage: ["Configured block and log caps", "受配置的区块和日志上限限制"],
+    limits: [
+      "Observed swaps only; gaps and partial windows remain explicit; transfers are not trades.",
+      "仅表示观察到的兑换；缺口和不完整范围会明确显示；转账不代表交易。",
+    ],
+  },
+};

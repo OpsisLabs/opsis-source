@@ -18,6 +18,7 @@ export default function SpatialPlot({
   const drag = useRef<{ x: number; y: number; moved: boolean } | null>(null);
   const hit = useRef<{ x: number; y: number; point: Point3D }[]>([]);
   const [camera, setCamera] = useState({ yaw: -0.55, pitch: 0.4, zoom: 1 });
+  const [projection, setProjection] = useState<"3d" | "2d">("3d");
   const [hover, setHover] = useState<string | null>(null);
   useEffect(() => {
     const el = canvas.current;
@@ -31,8 +32,13 @@ export default function SpatialPlot({
       el.height = box.height * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, box.width, box.height);
+      const styles = getComputedStyle(el);
+      const ink = styles.getPropertyValue("--soft").trim() || "#596781";
+      const line = styles.getPropertyValue("--line").trim() || "#dce3f2";
+      const accent = styles.getPropertyValue("--accent").trim() || "#064af2";
       const scale = Math.min(box.width / 4.2, box.height / 3.4) * camera.zoom;
       const project = (x: number, y: number, z: number) => {
+        if (projection === "2d") return { x: box.width / 2 + x * scale, y: box.height * 0.5 - y * scale, depth: z };
         const rx = x * Math.cos(camera.yaw) - z * Math.sin(camera.yaw),
           rz = x * Math.sin(camera.yaw) + z * Math.cos(camera.yaw);
         return {
@@ -43,27 +49,39 @@ export default function SpatialPlot({
           depth: y * Math.sin(camera.pitch) + rz * Math.cos(camera.pitch),
         };
       };
-      ctx.strokeStyle = "#ffffff24";
+      ctx.strokeStyle = line;
       ctx.lineWidth = 1;
       for (let n = -1; n <= 1.01; n += 0.2) {
         const a = project(n, -0.85, -1),
           b = project(n, -0.85, 1),
           e = project(-1, -0.85, n),
           f = project(1, -0.85, n);
+        if (projection === "2d") {
+          const left = project(-1, n, 0), right = project(1, n, 0);
+          const top = project(n, 1, 0), bottom = project(n, -1, 0);
+          ctx.beginPath(); ctx.moveTo(left.x, left.y); ctx.lineTo(right.x, right.y);
+          ctx.moveTo(top.x, top.y); ctx.lineTo(bottom.x, bottom.y); ctx.stroke();
+          continue;
+        }
         ctx.beginPath();
         ctx.moveTo(a.x, a.y);
         ctx.lineTo(b.x, b.y);
         ctx.moveTo(e.x, e.y);
         ctx.lineTo(f.x, f.y);
+        const wallLeft = project(-1, n, -1), wallRight = project(1, n, -1);
+        const wallTop = project(n, 1, -1);
+        ctx.moveTo(wallLeft.x, wallLeft.y); ctx.lineTo(wallRight.x, wallRight.y);
+        ctx.moveTo(a.x, a.y); ctx.lineTo(wallTop.x, wallTop.y);
         ctx.stroke();
       }
-      ctx.fillStyle = "#ffffffb5";
-      ctx.font = "10px OpsisMono, monospace";
+      ctx.fillStyle = ink;
+      ctx.font = "12px OpsisMono, monospace";
       for (const [label, x, y, z] of [
-        [surface ? "CORE SHOCK" : "VOLUME", 1.15, -0.85, -1],
-        [surface ? "OTHER SHOCK" : "LIQUIDITY", -1, -0.85, 1.15],
-        [surface ? "P/L" : "24H CHANGE", -1, 1.12, -1],
+        [surface ? c("CORE SHOCK", "核心冲击") : c("VOLUME", "交易量"), 1.15, -0.85, -1],
+        [surface ? c("OTHER SHOCK", "其他冲击") : c("LIQUIDITY", "流动性"), -1, -0.85, 1.15],
+        [surface ? c("P/L", "盈亏") : c("24H CHANGE", "24 小时变化"), -1, 1.12, -1],
       ] as const) {
+        if (projection === "2d" && z === 1.15) continue;
         const p = project(x, y, z);
         ctx.fillText(label, p.x - 28, p.y);
       }
@@ -72,14 +90,14 @@ export default function SpatialPlot({
         .sort((a, b) => a.depth - b.depth);
       for (const p of hit.current) {
         const active = p.point.id === selected;
-        ctx.fillStyle = p.point.color;
+        ctx.fillStyle = active || surface ? accent : p.point.color;
         ctx.globalAlpha = surface ? 0.68 : 0.85;
         ctx.beginPath();
         ctx.arc(p.x, p.y, active ? 7 : surface ? 1.65 : 3.1, 0, Math.PI * 2);
         ctx.fill();
         if (active) {
           ctx.globalAlpha = 1;
-          ctx.strokeStyle = "#fff";
+          ctx.strokeStyle = accent;
           ctx.lineWidth = 1.5;
           ctx.beginPath();
           ctx.arc(p.x, p.y, 12, 0, Math.PI * 2);
@@ -91,8 +109,11 @@ export default function SpatialPlot({
     draw();
     const obs = new ResizeObserver(draw);
     obs.observe(el);
-    return () => obs.disconnect();
-  }, [points, camera, selected, surface]);
+    const theme = el.closest("[data-theme]");
+    const themeObserver = new MutationObserver(draw);
+    if (theme) themeObserver.observe(theme, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => { obs.disconnect(); themeObserver.disconnect(); };
+  }, [points, camera, selected, surface, projection, c]);
   const inspect = (x: number, y: number) => {
     const el = canvas.current;
     if (!el) return;
@@ -111,10 +132,15 @@ export default function SpatialPlot({
   return (
     <div className="opsis-spatial">
       <div className="opsis-spatial-toolbar">
+        <div role="group" aria-label={c("Plot projection", "图表投影")}>
+          <button type="button" aria-pressed={projection === "3d"} onClick={() => setProjection("3d")}>3D</button>
+          <button type="button" aria-pressed={projection === "2d"} onClick={() => setProjection("2d")}>2D</button>
+        </div>
         <span>
-          {c("DRAG TO ROTATE / + − TO ZOOM", "拖动旋转 / 加减缩放")}
+          {projection === "3d" ? c("DRAG TO ROTATE / + − TO ZOOM", "拖动旋转 / 加减缩放") : c("X / Y PROJECTION · + − TO ZOOM", "X / Y 投影 · 加减缩放")}
         </span>
         <div>
+          <a href="#lab-observations">{c("Table", "表格")}</a>
           <button
             type="button"
             aria-label={c("Zoom out", "缩小")}
@@ -146,10 +172,12 @@ export default function SpatialPlot({
         tabIndex={0}
         role="img"
         aria-label={c(
-          surface
+          projection === "2d"
+            ? "Interactive X/Y projection. Plus and minus zoom. Select a point or use the equivalent table and inspector for exact values."
+            : surface
             ? "Interactive portfolio shock surface. Arrow keys rotate; plus and minus zoom. Exact selected scenario is shown beside the plot."
             : "Interactive captured pool map. Arrow keys rotate; plus and minus zoom. Select a pool in the table for its exact values.",
-          "交互三维图。方向键旋转，加减键缩放。精确数据见旁边面板和表格。",
+          projection === "2d" ? "交互 X/Y 投影。加减键缩放。选择点或使用表格与详情面板查看精确数据。" : "交互三维图。方向键旋转，加减键缩放。精确数据见旁边面板和表格。",
         )}
         onKeyDown={(e) => {
           if (
@@ -206,7 +234,7 @@ export default function SpatialPlot({
         }}
         onPointerMove={(e) => {
           const d = drag.current;
-          if (d) {
+          if (d && projection === "3d") {
             const dx = e.clientX - d.x,
               dy = e.clientY - d.y;
             if (Math.abs(dx) + Math.abs(dy) > 2) d.moved = true;

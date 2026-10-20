@@ -1,3 +1,5 @@
+import { createPortal } from "react-dom";
+import ContractAddress from "./publications/ContractAddress";
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { useI18n } from "../i18n";
@@ -42,6 +44,7 @@ export default function OriginalLanding({
 
   if (!visited) return null;
   return (
+    <>
     <iframe
       ref={frame}
       onLoad={() => setFilmDocument(frame.current?.contentDocument ?? null)}
@@ -52,5 +55,9 @@ export default function OriginalLanding({
       inert={location.pathname !== "/"}
       aria-hidden={location.pathname !== "/"}
     />
+    {filmDocument?.getElementById("public-contract") && createPortal(
+      <ContractAddress />, filmDocument.getElementById("public-contract")!,
+    )}
+    </>
   );
 }

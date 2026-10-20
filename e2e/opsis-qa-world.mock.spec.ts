@@ -280,7 +280,7 @@ test("World fallback stays readable in Chinese when WebGL fails", async ({
   await expect(page.getByRole("dialog")).toContainText("缺失样本保留为空缺");
 });
 
-test("Stock-token verification and consent actions have AA contrast for both examples", async ({
+test("Stock-token verification and consent actions have AA contrast for entered contracts", async ({
   page,
 }) => {
   test.skip(!enabled);
@@ -294,10 +294,8 @@ test("Stock-token verification and consent actions have AA contrast for both exa
     if (chinese) await language(page, true);
     for (const mode of ["dark", "light"] as const) {
       await theme(page, mode);
-      for (const sample of ["AAPL", "STEAKHOUSE"]) {
-        await page
-          .getByRole("button", { name: new RegExp(sample, "i") })
-          .click();
+      for (const contract of [`0x${"11".repeat(20)}`, `0x${"22".repeat(20)}`]) {
+        await page.locator(".rwa-ws-lookup input").fill(contract);
         await expect(submit).toBeEnabled();
         expect(await contrast(submit)).toBeGreaterThanOrEqual(4.5);
         await submit.click();

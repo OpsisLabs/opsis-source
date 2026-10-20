@@ -13,6 +13,7 @@ export default function ExitSizeCurve({
 }) {
   const c = useCopy();
   const [selected, setSelected] = useState(0);
+  const [view, setView] = useState<"chart" | "table">("chart");
   if (!result.curve) return null;
   const selectedPoolText =
     result.curve.scope.strategy === "selected_pool"
@@ -41,7 +42,13 @@ export default function ExitSizeCurve({
   }));
   return (
     <section className="opsis-curve" aria-labelledby="exit-size-curve-title">
-      <h3 id="exit-size-curve-title">{c("Exit size curve", "退出数量曲线")}</h3>
+      <div className="opsis-curve-toolbar">
+        <h3 id="exit-size-curve-title">{c("Output by trade size", "按交易数量显示输出")}</h3>
+        <div className="opsis-curve-view" role="group" aria-label={c("Curve view", "曲线视图")}>
+          <button type="button" aria-pressed={view === "chart"} onClick={() => setView("chart")}>{c("Chart", "图表")}</button>
+          <button type="button" aria-pressed={view === "table"} onClick={() => setView("table")}>{c("Table", "表格")}</button>
+        </div>
+      </div>
       <p className="opsis-small">
         {c(
           "Observed points only. Actual output by input size.",
@@ -58,10 +65,11 @@ export default function ExitSizeCurve({
             : "输入数量没有可用池报价。曲线点保持不可用。",
         )}
       </p>
+      <div hidden={view !== "chart"}>
       <svg
         className="opsis-curve-plot"
         viewBox="0 0 300 125"
-        role="img"
+        role="group"
         aria-label={c(
           "Actual output by input size, quoted points only",
           "按输入数量显示实际输出，仅显示报价点",
@@ -75,6 +83,10 @@ export default function ExitSizeCurve({
         <text x="250" y="123" className="opsis-curve-axis">
           {c("input size", "输入数量")}
         </text>
+        {usable.length > 0 && [0.25, 0.5, 0.75, 1].map((fraction) => <g key={fraction}>
+          <line x1="10" y1={110 - fraction * 90} x2="290" y2={110 - fraction * 90} strokeDasharray="2 3" />
+          <text x="14" y={107 - fraction * 90}>{Number((maxOutput * fraction).toPrecision(4))}</text>
+        </g>)}
         {pointCoordinates.map(({ point, x, y }) => (
           <circle
             key={point.rawAmount}
@@ -82,6 +94,16 @@ export default function ExitSizeCurve({
             cy={y}
             r={selected === result.curve!.points.indexOf(point) ? 5 : 3}
             className="opsis-curve-point"
+            tabIndex={0}
+            role="button"
+            aria-label={`${point.amount} → ${point.amountOutDisplay} ${outputSymbol}`}
+            onClick={() => setSelected(result.curve!.points.indexOf(point))}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                setSelected(result.curve!.points.indexOf(point));
+              }
+            }}
           />
         ))}
       </svg>
@@ -110,7 +132,9 @@ export default function ExitSizeCurve({
             c("Unavailable", "不可用")}
         </p>
       )}
+      </div>
       <div
+        hidden={view !== "table"}
         className="opsis-curve-table"
         tabIndex={0}
         role="region"

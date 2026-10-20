@@ -1,0 +1,75 @@
+/* The analytical workspace is intentionally scoped to the live Lab, not /quant/. */
+.opsis .opsis-native-lab { min-width: 0; max-width: 100%; }
+.opsis .opsis-native-lab :is(h1,h2,h3,b,strong,summary,label,button) { font-weight: 500; }
+.opsis .opsis-native-lab .opsis-studio-heading { align-items: center; margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+.opsis .opsis-native-lab .opsis-studio-heading h1 { font-size: clamp(25px, 2.5vw, 34px); letter-spacing: -.04em; }
+.opsis .opsis-native-lab .opsis-studio-heading p { max-width: 420px; font-size: 13px; }
+.opsis .opsis-native-lab .opsis-lab-mode { width: 100%; border: 0; background: transparent; gap: 24px; margin-bottom: 16px; flex-wrap: wrap; }
+.opsis .opsis-native-lab .opsis-lab-mode button { min-height: 42px; padding: 8px 2px; gap: 10px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; color: var(--soft); font-size: 14px; }
+.opsis .opsis-native-lab .opsis-lab-mode button[aria-pressed="true"] { border-bottom-color: var(--accent); color: var(--accent); background: transparent; }
+.opsis .opsis-native-lab .opsis-dataset-strip { padding: 12px 16px; margin-bottom: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); font-size: 10px; gap: 14px; flex-wrap: wrap; }
+.opsis .opsis-native-lab .opsis-lab-workbench { grid-template-columns: minmax(0,1fr) minmax(250px, 290px); gap: 12px; border: 0; background: transparent; }
+.opsis .opsis-native-lab :is(.opsis-lab-plot,.opsis-lab-inspector,.opsis-lab-data,.opsis-token-comparison,.opsis-panel,.opsis-lab-methods) { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 2px 6px color-mix(in srgb, var(--ink) 2%, transparent); }
+.opsis .opsis-native-lab .opsis-lab-plot { overflow: hidden; }
+.opsis .opsis-native-lab .opsis-plot-heading { padding: 20px 22px 12px; gap: 12px; }
+.opsis .opsis-native-lab .opsis-plot-heading h2 { font-size: 20px; letter-spacing: -.025em; }
+.opsis .opsis-native-lab .opsis-plot-heading > span { font-size: 9px; max-width: 180px; }
+.opsis .opsis-native-lab .opsis-spatial { background: var(--panel); color: var(--ink); }
+.opsis .opsis-native-lab .opsis-spatial-toolbar { padding: 10px 20px; color: var(--soft); gap: 10px; flex-wrap: wrap; }
+.opsis .opsis-native-lab .opsis-spatial-toolbar > span { flex: 1; font-size: 9px; text-align: right; }
+.opsis .opsis-native-lab .opsis-spatial-toolbar button { border: 1px solid var(--line); color: var(--soft); background: var(--panel); border-radius: 5px; font-size: 11px; min-height: 32px; }
+.opsis .opsis-native-lab .opsis-spatial-toolbar button[aria-pressed="true"] { color: var(--accent); border-color: color-mix(in srgb,var(--accent) 35%,var(--line)); background: color-mix(in srgb,var(--accent) 8%,var(--panel)); }
+.opsis .opsis-native-lab .opsis-spatial canvas { height: clamp(360px, 42vw, 550px); }
+.opsis .opsis-native-lab .opsis-spatial-caption { border-color: var(--line); color: var(--soft); font-size: 10px; }
+.opsis .opsis-native-lab .opsis-plot-note { border-top: 1px solid var(--line); padding: 14px 20px; font-size: 11px; }
+.opsis .opsis-native-lab .opsis-lab-inspector { padding: 20px; display: block; }
+.opsis .opsis-native-lab .opsis-lab-inspector :is(label,.opsis-kicker) { font-size: 11px; letter-spacing: .015em; }
+.opsis .opsis-native-lab :is(input:not([type="checkbox"]):not([type="range"]),select) { min-width: 0; max-width: 100%; border: 1px solid var(--line); border-radius: 5px; background: var(--panel); color: var(--ink); font: inherit; font-size: 12px; padding: 10px; }
+.opsis .opsis-native-lab :is(input,select,button,a,summary,canvas):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.opsis .opsis-native-lab :is(.opsis-pool-inspector dl > div,.opsis-scenario-result) { border-color: var(--line); }
+.opsis .opsis-native-lab .opsis-pool-inspector h3 { margin: 14px 0; font-size: 23px; }
+.opsis .opsis-native-lab .opsis-pool-inspector > strong { color: var(--accent); font-size: 28px; }
+.opsis .opsis-native-lab .opsis-pool-inspector :is(dt,dd,p,a) { font-size: 11px; }
+.opsis .opsis-native-lab .opsis-identity { overflow-wrap: anywhere; }
+.opsis .opsis-native-lab .opsis-scenario-result output { color: var(--accent); font-size: 30px; }
+.opsis .opsis-native-lab :is(.opsis-lab-data,.opsis-token-comparison) { margin-top: 12px; padding: 20px; }
+.opsis .opsis-native-lab .opsis-section-label { color: var(--soft); font-size: 10px; border-color: var(--line); }
+.opsis .opsis-native-lab table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.opsis .opsis-native-lab table :is(th,td) { border-bottom: 1px solid var(--line); padding: 13px 12px; vertical-align: middle; }
+.opsis .opsis-native-lab table th { font-weight: 500; color: var(--soft); font-size: 10px; }
+.opsis .opsis-native-lab table td { font-family: OpsisMono, monospace; font-size: 11px; font-variant-numeric: tabular-nums; }
+.opsis .opsis-native-lab table caption { color: var(--soft); font-size: 10px; text-align: left; padding: 12px 0; }
+.opsis .opsis-native-lab table tr[data-selected="true"] { background: color-mix(in srgb,var(--accent) 7%,var(--panel)); }
+.opsis .opsis-native-lab .opsis-lab-data td button { color: var(--ink); }
+.opsis .opsis-native-lab .opsis-lab-data td small { font-size: 9px; }
+.opsis .opsis-native-lab .opsis-token-choices { gap: 8px; margin: 16px 0; }
+.opsis .opsis-native-lab .opsis-token-choices button { border: 1px solid var(--line); border-radius: 5px; background: var(--panel); color: var(--soft); padding: 10px 14px; }
+.opsis .opsis-native-lab .opsis-token-choices button[aria-pressed="true"] { border-color: var(--accent); background: color-mix(in srgb,var(--accent) 6%,var(--panel)); color: var(--accent); }
+.opsis .opsis-native-lab .opsis-comparison-bars { margin: 24px 0; padding: 20px; border: 1px solid var(--line); border-radius: 5px; }
+.opsis .opsis-native-lab .opsis-comparison-track { height: 16px; background: color-mix(in srgb,var(--accent) 5%,var(--panel)); border-radius: 3px; overflow: hidden; }
+.opsis .opsis-native-lab .opsis-comparison-track i { background: var(--accent); border-radius: 3px; }
+.opsis .opsis-native-lab .opsis-lab-methods { margin-top: 12px; padding: 16px 20px; }
+.opsis .opsis-native-lab .opsis-lab-methods summary { font-size: 12px; }
+.opsis .opsis-native-lab .opsis-lab-subviews { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px; margin-bottom: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+.opsis .opsis-native-lab .opsis-lab-subviews button { min-height: 38px; border: 0; border-radius: 5px; background: transparent; padding: 9px 14px; color: var(--soft); font-size: 12px; }
+.opsis .opsis-native-lab .opsis-lab-subviews button[aria-pressed="true"] { color: var(--accent); background: color-mix(in srgb,var(--accent) 8%,var(--panel)); }
+.opsis .opsis-native-lab [hidden] { display: none !important; }
+.opsis .opsis-native-lab .opsis-lab-research-pane { min-width: 0; }
+.opsis .opsis-native-lab :is(.opsis-basis,.opsis-funding,.opsis-stock-series) { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 22px; margin-top: 12px; }
+.opsis .opsis-native-lab :is(.opsis-basis-chart,.opsis-funding-chart,.opsis-stock-series-chart) { height: 380px; margin-top: 24px; }
+.opsis .opsis-native-lab :is(.opsis-basis,.opsis-funding) :is(label,.opsis-basis-example,.opsis-funding-example) { font-weight: 500; }
+@media (max-width: 1000px) { .opsis .opsis-native-lab .opsis-lab-workbench { grid-template-columns: minmax(0,1fr) 250px; } }
+@media (max-width: 760px) {
+  .opsis .opsis-native-lab .opsis-lab-workbench { grid-template-columns: minmax(0,1fr); }
+  .opsis .opsis-native-lab .opsis-lab-inspector { display: block; }
+  .opsis .opsis-native-lab .opsis-lab-mode { gap: 12px; }
+  .opsis .opsis-native-lab .opsis-lab-mode button { font-size: 12px; gap: 6px; }
+  .opsis .opsis-native-lab .opsis-studio-heading { align-items: flex-start; }
+  .opsis .opsis-native-lab .opsis-plot-heading { flex-direction: column; align-items: flex-start; }
+  .opsis .opsis-native-lab .opsis-spatial-toolbar > span { display: none; }
+  .opsis .opsis-native-lab .opsis-spatial canvas { height: 350px; }
+  .opsis .opsis-native-lab :is(.opsis-lab-data,.opsis-token-comparison) { padding: 14px; }
+  .opsis .opsis-native-lab .opsis-comparison-bars { padding: 12px; }
+}
+.opsis .opsis-native-lab .opsis-spatial-toolbar a { display: inline-flex; align-items: center; justify-content: center; min-height: 32px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 5px; color: var(--soft); font-size: 11px; text-decoration: none; }
+.opsis .opsis-native-lab #lab-observations { scroll-margin-top: 24px; }

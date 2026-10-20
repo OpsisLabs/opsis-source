@@ -24,11 +24,12 @@ import {
 } from "./model";
 // Rendered with the result: a panel revealed later would push the page down under the pointer.
 import QuantityBars from "../opsis/QuantityBars";
+import { TradesWorkspace } from "./TradesWorkspace";
 
 const CARD = "rounded-[4px] border border-[#3a3633] bg-[#201e1c]";
 const LABEL = "text-[11px] font-medium uppercase tracking-[0.08em] text-[#aaa39b]";
 
-type FeeChoice = "auto" | (typeof OBSERVED_TRADES_FEE_OPTIONS)[number];
+export type FeeChoice = "auto" | (typeof OBSERVED_TRADES_FEE_OPTIONS)[number];
 
 export default function BiggestTrades() {
   const { t } = useI18n();
@@ -105,6 +106,23 @@ export default function BiggestTrades() {
       setStatus("error");
     }
   };
+
+  if (OPSIS_PRESENTATION) {
+    return (
+      <TradesWorkspace
+        token={token}
+        fee={fee}
+        windowBlocks={windowBlocks}
+        status={status}
+        data={data}
+        message={message}
+        onToken={(value) => { setToken(value); resetResult(); }}
+        onFee={(value) => { setFee(value); resetResult(); }}
+        onWindow={(value) => { setWindowBlocks(value); resetResult(); }}
+        onSubmit={() => void submit()}
+      />
+    );
+  }
 
   return (
     <main className="mx-auto max-w-4xl px-5 py-10 sm:px-8 sm:py-14">

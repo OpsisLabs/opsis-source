@@ -16,6 +16,8 @@ export const routeNames: Record<string, readonly [string, string]> = {
   "/saved": ["Saved", "已保存"],
   "/lab": ["Quant Lab", "量化实验室"],
   "/guide": ["Find your tool", "选择工具"],
+  "/docs": ["Documentation", "文档"],
+  "/whitepaper": ["Whitepaper", "白皮书"],
   "/status": ["Data status", "数据状态"],
   "/community": ["Community", "社区"],
   "/privacy": ["Privacy", "隐私"],

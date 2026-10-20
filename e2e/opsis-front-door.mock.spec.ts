@@ -6,6 +6,36 @@ const key = "a".repeat(64);
 const frameSelector = 'iframe[src="/opsis-site/index.html"]';
 const names = ["Research", "Trade Check", "Watch", "Stock-token check", "Quant Lab", "World & markets"];
 
+test("opsis preview World section frames the complete capture at desktop and phone widths", async ({ page }) => {
+  test.skip(!enabled || process.env.VITE_SITUATION_ROOM_ENABLED !== "true");
+  await openOverview(page);
+  const film = page.frameLocator(frameSelector);
+  for (const width of [1440, 900, 375]) {
+    await page.setViewportSize({ width, height: 900 });
+    await film.locator("#world-story").scrollIntoViewIfNeeded();
+    await expect(film.locator(".world-preview img")).toBeVisible();
+    const fit = await film.locator(".world-preview img").evaluate((image) => {
+      const frame = image.parentElement!.getBoundingClientRect();
+      const rect = image.getBoundingClientRect();
+      const doc = image.ownerDocument;
+      return { left: rect.left - frame.left, right: frame.right - rect.right,
+        imageWidth: rect.width, imageHeight: rect.height,
+        overflow: doc.documentElement.scrollWidth - doc.documentElement.clientWidth };
+    });
+    expect(fit.left).toBeGreaterThanOrEqual(0);
+    expect(fit.right).toBeGreaterThanOrEqual(0);
+    expect(fit.imageWidth / fit.imageHeight).toBeCloseTo(1.44, 2);
+    expect(fit.overflow).toBeLessThanOrEqual(1);
+    const lines = await film.locator("#world-title").evaluate((heading) => {
+      const range = heading.ownerDocument.createRange();
+      range.selectNodeContents(heading);
+      return new Set(Array.from(range.getClientRects(), rect => Math.round(rect.top))).size;
+    });
+    expect(lines).toBeLessThanOrEqual(2);
+    if (width === 1440) await film.locator("#world-story").screenshot({ path: "output/ui-homepage-world-desktop.png" });
+  }
+});
+
 // Match the existing Opsis public/private mock access flows; no provider calls.
 async function openOverview(page: Page) {
   await page.route("**/v1/private/opsis/access", (route) => route.fulfill({

@@ -66,9 +66,9 @@ it("omits disabled tools rather than leaving disabled links", () => {
     expect(html).not.toContain(`href="${path}"`);
   expect(html).toContain('href="/check/perp-scenario"');
 });
-it("marks detailed research as Research and the perp tool independently", () => {
+it("nests detailed research in Explore data and marks the perp tool independently", () => {
   expect(navigation("/research/details", "zh-CN")).toMatch(
-    /aria-current="page"[^>]*href="\/research"/,
+    /aria-current="page"[^>]*href="\/research\/details"/,
   );
   expect(navigation("/check/perp-scenario", "en")).toMatch(
     /aria-current="page"[^>]*href="\/check\/perp-scenario"/,

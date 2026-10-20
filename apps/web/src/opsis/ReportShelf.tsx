@@ -8,6 +8,8 @@ import { workspaceLink, type Capabilities } from "./model";
 import "../watch/watch.css";
 import { useI18n } from "../i18n";
 import { BackupDownloadLink } from "../vault/BackupDownloadLink";
+import SavedCheckComparison from "./SavedCheckComparison";
+import { savedCheckComparisonsEnabled } from "./saved-checks";
 
 /** Shares the existing encrypted report store; no network requests or implicit saves. */
 export default function ReportShelf({
@@ -163,7 +165,60 @@ export default function ReportShelf({
                   ? c("Trade check", "交易核查")
                   : c("Saved research", "已保存研究")}
               </p>
-              <SavedConversation conversation={report} />
+              <header className="saved-selected-header">
+                <h2>{report.title}</h2>
+                <p className="watch-small">
+                  {c("Saved", "已保存")}{" "}
+                  {new Date(report.updatedAt).toLocaleString()}
+                </p>
+              </header>
+              <div className="saved-report-reading">
+                <div className="saved-report-body">
+                  <SavedConversation conversation={report} />
+                </div>
+                <aside
+                  className="saved-evidence-dock"
+                  aria-label={c("Report details", "报告详情")}
+                >
+                  <h3>{c("Evidence details", "证据详情")}</h3>
+                  <dl>
+                    <div>
+                      <dt>{c("Public identifier", "公开标识符")}</dt>
+                      <dd>{turn?.entity ?? c("Unknown", "未知")}</dd>
+                    </div>
+                    <div>
+                      <dt>{c("Saved at", "保存时间")}</dt>
+                      <dd>{turn?.savedAt ?? c("Unknown", "未知")}</dd>
+                    </div>
+                    <div>
+                      <dt>{c("Sources", "来源")}</dt>
+                      <dd>{turn?.sources.length ?? 0}</dd>
+                    </div>
+                    <div>
+                      <dt>{c("Storage", "存储")}</dt>
+                      <dd>{c("Encrypted local Vault", "本地加密保险库")}</dd>
+                    </div>
+                  </dl>
+                  <p className="watch-notice">
+                    {c(
+                      "Reopening does not refresh data. Choose a new check when you want fresh evidence.",
+                      "重新打开不会刷新数据。需要新证据时，请运行新的核查。",
+                    )}
+                  </p>
+                </aside>
+              </div>
+              {turn &&
+                history.phase === "unlocked" &&
+                savedCheckComparisonsEnabled(capabilities) && (
+                  <SavedCheckComparison
+                    key={`${history.lockEpoch}:${report.id}`}
+                    current={turn}
+                    candidates={history.conversations.filter(
+                      (candidate) => candidate.id !== report.id,
+                    )}
+                    pending={saving || history.busy}
+                  />
+                )}
               {turn?.opsis?.chainId === 4663 &&
                 (capabilities.research ||
                   (turn.opsis.token &&
@@ -242,6 +297,17 @@ export function SavedReportList({
   const { t, locale } = useI18n();
   const [passphrase, setPassphrase] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [kind, setKind] = useState("all");
+  const filteredReports = history.conversations.filter((item) => {
+    const turn = item.turns.at(-1);
+    return (
+      (kind === "all" || turn?.opsis?.workspace === kind) &&
+      `${item.title} ${turn?.entity ?? ""}`
+        .toLocaleLowerCase()
+        .includes(query.toLocaleLowerCase())
+    );
+  });
   return (
     <aside
       className="saved-report-list"
@@ -321,6 +387,40 @@ export function SavedReportList({
       )}
       {history.phase === "unlocked" && (
         <>
+          <div className="saved-report-controls">
+            <label>
+              <span className="sr-only">
+                {c("Search saved reports", "搜索已保存报告")}
+              </span>
+              <input
+                className="watch-input"
+                type="search"
+                placeholder={c("Search saved reports…", "搜索已保存报告…")}
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+              />
+            </label>
+            <div
+              className="saved-report-filters"
+              role="group"
+              aria-label={c("Report type", "报告类型")}
+            >
+              {[
+                ["all", c("All", "全部")],
+                ["research", c("Research", "研究")],
+                ["check", c("Trade check", "交易核查")],
+              ].map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={kind === value}
+                  onClick={() => setKind(value)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
           <nav aria-label={c("Saved conversations", "已保存的对话")}>
             {!history.conversations.length && (
               <p className="watch-small">
@@ -330,7 +430,7 @@ export function SavedReportList({
                 )}
               </p>
             )}
-            {history.conversations.map((item) => {
+            {filteredReports.map((item) => {
               const turn = item.turns.at(-1);
               const entity = turn?.entity ?? "";
               return (
@@ -373,6 +473,14 @@ export function SavedReportList({
                 </div>
               );
             })}
+            {!!history.conversations.length && !filteredReports.length && (
+              <p role="status" className="watch-small">
+                {c(
+                  "No saved reports match this search.",
+                  "没有与搜索匹配的已保存报告。",
+                )}
+              </p>
+            )}
           </nav>
           {deleteId && (
             <div

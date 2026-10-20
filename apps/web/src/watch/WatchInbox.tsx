@@ -43,11 +43,19 @@ export default function WatchInbox({
   const items = deriveWatchInbox(watches);
   const visible = items.filter((item) => !item.acknowledged && !item.snoozed);
   const [showReviewed, setShowReviewed] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [filter, setFilter] = useState("all");
+  const selectedEntry = visible.find((entry) => entry.id === selectedId);
+  const groups = ["changed", "unfinished", "unknown"] as const;
   const reviewed = items.filter((item) => item.acknowledged || item.snoozed);
   const assetLabel = (item: WatchInboxItem) => {
-    const token = watches.find((watch) => watch.id === item.watchId)?.snapshots
-      .flatMap((snapshot) => snapshot.tokens).find((token) => token.contract === item.assetContract);
-    return token ? tokenLabel(token, c) : visibleTokenText(item.titleValues?.label ?? c("Asset", "资产"));
+    const token = watches
+      .find((watch) => watch.id === item.watchId)
+      ?.snapshots.flatMap((snapshot) => snapshot.tokens)
+      .find((token) => token.contract === item.assetContract);
+    return token
+      ? tokenLabel(token, c)
+      : visibleTokenText(item.titleValues?.label ?? c("Asset", "资产"));
   };
   const title = (item: WatchInboxItem) =>
     ({
@@ -82,7 +90,10 @@ export default function WatchInbox({
         "The two observations cannot be compared exactly.",
         "两次观察无法精确比较。",
       ),
-      coverage: c("Some source coverage is unavailable or bounded.", "部分来源覆盖不可用或受限。"),
+      coverage: c(
+        "Some source coverage is unavailable or bounded.",
+        "部分来源覆盖不可用或受限。",
+      ),
       conditionMet: c(
         `Observed change reached ${item.detailValues?.threshold ?? ""} ${item.assetContract ? assetLabel(item) : visibleTokenText(item.detailValues?.unit ?? "")}.`,
         `观察到的变化达到 ${item.detailValues?.threshold ?? ""} ${item.assetContract ? assetLabel(item) : visibleTokenText(item.detailValues?.unit ?? "")}。`,
@@ -213,104 +224,185 @@ export default function WatchInbox({
         </p>
       ) : (
         <>
-          <div className="mt-5 hidden max-w-full overflow-x-auto overscroll-x-contain md:block">
-            <table className="watch-inbox-table w-full min-w-[680px] text-left text-sm">
-              <caption className="sr-only">
-                {c("Watch inbox evidence", "Watch 证据收件箱")}
-              </caption>
-              <thead>
-                <tr className="border-b border-[var(--line)] text-xs uppercase tracking-wide opacity-65">
-                  <th className="px-2 py-2">{c("State", "状态")}</th>
-                  <th className="px-2 py-2">{c("Evidence", "证据")}</th>
-                  <th className="px-2 py-2">{c("Observed", "观察时间")}</th>
-                  <th className="px-2 py-2">{c("Action", "操作")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {visible.map((entry) => (
-                  <tr
-                    key={entry.id}
-                    className="border-b border-[var(--line)] align-top"
-                  >
-                    <td className="px-2 py-3 font-semibold">
-                      {stateLabel(entry)}
-                    </td>
-                    <td className="px-2 py-3">
-                      <div>{title(entry)}</div>
-                      <div className="mt-1 text-xs opacity-70">
-                        {detail(entry)}
-                      </div>
-                      <div className="mt-1 break-all text-xs opacity-60">
-                        {entry.label} · {entry.address}
-                      </div>
-                      <div className="mt-1 text-xs opacity-60">
-                        {c("Not checked since", "上次检查")}:{" "}
-                        {new Date(entry.notCheckedSince).toLocaleString()}
-                      </div>
-                      {entry.anchorHash && (
-                        <div className="mt-1 break-all font-mono text-[11px] opacity-55">
-                          {c("Anchor", "锚点")}: {entry.anchorHash}
-                        </div>
-                      )}
-                      {openLinks(entry)}
-                    </td>
-                    <td className="px-2 py-3 whitespace-nowrap">
-                      <div>{new Date(entry.capturedAt).toLocaleString()}</div>
-                      <div className="text-xs opacity-65">
-                        {entry.blockNumber === null
-                          ? c("block unknown", "区块未知")
-                          : `${c("Block", "区块")} ${entry.blockNumber}`}
-                      </div>
-                    </td>
-                    <td className="px-2 py-3">{actions(entry)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="mt-5 space-y-3 md:hidden">
-            {visible.map((entry) => (
-              <article
-                key={entry.id}
-                className="watch-timeline-item min-w-0 border border-[var(--line)] p-3 text-sm"
-                aria-label={`${stateLabel(entry)}: ${title(entry)}`}
+          <div
+            className="watch-inbox-filters"
+            role="group"
+            aria-label={c("Filter inbox", "筛选收件箱")}
+          >
+            {["all", ...groups].map((value) => (
+              <button
+                key={value}
+                type="button"
+                className="watch-button"
+                aria-pressed={filter === value}
+                onClick={() => setFilter(value)}
               >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="font-semibold">{stateLabel(entry)}</span>
-                  <span className="text-xs opacity-65">
-                    {entry.blockNumber === null
-                      ? c("block unknown", "区块未知")
-                      : `${c("Block", "区块")} ${entry.blockNumber}`}
-                  </span>
-                </div>
-                <h3 className="mt-2 font-medium">{title(entry)}</h3>
-                <p className="mt-1 text-xs opacity-75">{detail(entry)}</p>
-                <p className="mt-2 break-all text-xs opacity-65">
-                  {entry.label} · {entry.address}
-                </p>
-                <p className="mt-1 text-xs opacity-65">
-                  {c("Not checked since", "上次检查")}:{" "}
-                  {new Date(entry.notCheckedSince).toLocaleString()}
-                </p>
-                <p className="mt-1 text-xs opacity-65">
-                  {c("Observed", "观察时间")}:{" "}
-                  {new Date(entry.capturedAt).toLocaleString()}
-                </p>
-                <p className="mt-1 text-xs opacity-65">
-                  {c("Evidence source", "证据来源")}:{" "}
-                  {c("Saved Watch snapshots", "已保存的 Watch 快照")}
-                </p>
-                {entry.anchorHash && (
-                  <p className="mt-1 break-all font-mono text-[11px] opacity-65">
-                    {c("Anchor", "锚点")}: {entry.anchorHash}
-                  </p>
-                )}
-                {openLinks(entry)}
-                <div className="mt-3 border-t border-[var(--line)] pt-3">
-                  {actions(entry)}
-                </div>
-              </article>
+                {value === "all"
+                  ? c("All items", "全部项目")
+                  : value === "changed"
+                    ? c("Changed", "已变化")
+                    : value === "unfinished"
+                      ? c("Unfinished", "未完成")
+                      : c("Unknown coverage", "未知覆盖")}
+                <span>
+                  {value === "all"
+                    ? visible.length
+                    : visible.filter((entry) => entry.status === value).length}
+                </span>
+              </button>
             ))}
+          </div>
+          <div
+            className={`watch-inbox-layout${selectedEntry ? " has-selection" : ""}`}
+          >
+            <div className="watch-inbox-groups">
+              {groups
+                .filter((group) => filter === "all" || filter === group)
+                .map((group) => {
+                  const entries = visible.filter(
+                    (entry) => entry.status === group,
+                  );
+                  if (!entries.length) return null;
+                  return (
+                    <section className="watch-inbox-group" key={group}>
+                      <h3>
+                        {group === "changed"
+                          ? c("Changed", "已变化")
+                          : group === "unfinished"
+                            ? c("Unfinished", "未完成")
+                            : c("Unknown coverage", "未知覆盖")}{" "}
+                        <span>{entries.length}</span>
+                      </h3>
+                      {entries.map((entry) => (
+                        <article
+                          className="watch-inbox-row"
+                          key={entry.id}
+                          data-selected={selectedId === entry.id || undefined}
+                        >
+                          <button
+                            className="watch-inbox-select"
+                            type="button"
+                            aria-pressed={selectedId === entry.id}
+                            onClick={() => setSelectedId(entry.id)}
+                          >
+                            <span className="watch-inbox-state" aria-hidden>
+                              {group === "changed"
+                                ? "↔"
+                                : group === "unfinished"
+                                  ? "◷"
+                                  : "?"}
+                            </span>
+                            <span className="watch-inbox-summary">
+                              <span>{title(entry)}</span>
+                              <small>
+                                {entry.label} · {entry.address}
+                              </small>
+                              <small>{detail(entry)}</small>
+                            </span>
+                            <span className="watch-inbox-time">
+                              {new Date(entry.capturedAt).toLocaleDateString()}
+                              <small>
+                                {entry.blockNumber === null
+                                  ? c("block unknown", "区块未知")
+                                  : `${c("Block", "区块")} ${entry.blockNumber}`}
+                              </small>
+                            </span>
+                            <span aria-hidden>→</span>
+                          </button>
+                        </article>
+                      ))}
+                    </section>
+                  );
+                })}
+            </div>
+            {selectedEntry ? (
+              <aside
+                className="watch-inbox-detail"
+                aria-label={c("Selected finding", "所选发现")}
+              >
+                <header>
+                  <div>
+                    <p className="watch-kicker">{stateLabel(selectedEntry)}</p>
+                    <h3>{title(selectedEntry)}</h3>
+                  </div>
+                  <button
+                    type="button"
+                    className="watch-button"
+                    onClick={() => setSelectedId(null)}
+                    aria-label={c("Close finding", "关闭发现")}
+                  >
+                    ×
+                  </button>
+                </header>
+                <p className="watch-notice">{detail(selectedEntry)}</p>
+                {selectedEntry.detailCode === "balanceDelta" && (
+                  <div className="watch-delta-values">
+                    <div>
+                      <span>{c("Previous value", "先前数值")}</span>
+                      <strong>
+                        {selectedEntry.detailValues?.before ??
+                          c("Unknown", "未知")}
+                      </strong>
+                    </div>
+                    <span aria-hidden>→</span>
+                    <div>
+                      <span>{c("New value", "新数值")}</span>
+                      <strong>
+                        {selectedEntry.detailValues?.after ??
+                          c("Unknown", "未知")}
+                      </strong>
+                    </div>
+                  </div>
+                )}
+                <dl className="watch-inbox-metadata">
+                  <div>
+                    <dt>{c("Wallet", "钱包")}</dt>
+                    <dd>{selectedEntry.label}</dd>
+                  </div>
+                  <div>
+                    <dt>{c("Address", "地址")}</dt>
+                    <dd>{selectedEntry.address}</dd>
+                  </div>
+                  <div>
+                    <dt>{c("Observed", "观察时间")}</dt>
+                    <dd>
+                      {new Date(selectedEntry.capturedAt).toLocaleString()}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>{c("Not checked since", "上次检查")}</dt>
+                    <dd>
+                      {new Date(selectedEntry.notCheckedSince).toLocaleString()}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>{c("Evidence source", "证据来源")}</dt>
+                    <dd>{c("Saved Watch snapshots", "已保存的 Watch 快照")}</dd>
+                  </div>
+                  {selectedEntry.anchorHash && (
+                    <div>
+                      <dt>{c("Anchor", "锚点")}</dt>
+                      <dd>{selectedEntry.anchorHash}</dd>
+                    </div>
+                  )}
+                </dl>
+                {openLinks(selectedEntry)}
+                <div className="watch-inbox-detail-actions">
+                  {actions(selectedEntry)}
+                </div>
+              </aside>
+            ) : (
+              <aside className="watch-inbox-detail watch-inbox-placeholder">
+                <span aria-hidden>↗</span>
+                <h3>{c("Read the evidence", "阅读证据")}</h3>
+                <p className="watch-small">
+                  {c(
+                    "Select an item to inspect its observation, source and review controls.",
+                    "选择项目以查看观察、来源与复核操作。",
+                  )}
+                </p>
+              </aside>
+            )}
           </div>
         </>
       )}
@@ -372,7 +464,10 @@ export default function WatchInbox({
           const selected =
             assets.find((asset) => asset.key === draft.assetKey) ?? assets[0];
           return (
-            <div key={watch.id} className="mt-3 border border-[var(--line)] p-3">
+            <div
+              key={watch.id}
+              className="mt-3 border border-[var(--line)] p-3"
+            >
               <div className="text-sm font-semibold">{watch.label}</div>
               <div className="mt-2 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-4 [&>*]:min-w-0 [&>*]:max-w-full">
                 <select
@@ -457,7 +552,9 @@ export default function WatchInbox({
                 >
                   <span>
                     {condition.assetKey} {condition.direction} ≥{" "}
-                    {condition.threshold} {assets.find((asset) => asset.key === condition.assetKey)?.label ?? visibleTokenText(condition.unit)}
+                    {condition.threshold}{" "}
+                    {assets.find((asset) => asset.key === condition.assetKey)
+                      ?.label ?? visibleTokenText(condition.unit)}
                   </span>
                   <button
                     type="button"

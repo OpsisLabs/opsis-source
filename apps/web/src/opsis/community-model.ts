@@ -2,6 +2,7 @@ export const COMMUNITY_DRAFT_VERSION = 1 as const;
 
 export type SuggestionDraft = {
   version: typeof COMMUNITY_DRAFT_VERSION;
+  topic?: string;
   whatWereYouTrying: string;
   whatStoppedYou: string;
   contact: string;
@@ -13,7 +14,7 @@ export type SuggestionDraft = {
 
 export type SuggestionFields = Pick<
   SuggestionDraft,
-  "whatWereYouTrying" | "whatStoppedYou" | "contact" | "creditName" | "creditOptIn"
+  "topic" | "whatWereYouTrying" | "whatStoppedYou" | "contact" | "creditName" | "creditOptIn"
 >;
 
 export type ChangelogEvidence = {
@@ -53,7 +54,6 @@ export function emptySuggestionFields(): SuggestionFields {
 
 export function validateSuggestion(fields: SuggestionFields): string | null {
   if (text(fields.whatWereYouTrying).length < 10) return "Tell us what you were trying to do.";
-  if (text(fields.whatStoppedYou).length < 10) return "Tell us what stopped you.";
   if (text(fields.contact).length > 320) return "Contact details are too long.";
   if (text(fields.creditName).length > 160) return "The credit name is too long.";
   if (fields.contact && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text(fields.contact))) {
@@ -66,8 +66,9 @@ export function createSuggestionDraft(fields: SuggestionFields, now = new Date()
   const timestamp = now.toISOString();
   return {
     version: COMMUNITY_DRAFT_VERSION,
-    whatWereYouTrying: text(fields.whatWereYouTrying),
-    whatStoppedYou: text(fields.whatStoppedYou),
+    ...(fields.topic ? { topic: text(fields.topic, 40) } : {}),
+    whatWereYouTrying: text(fields.whatWereYouTrying, 120),
+    whatStoppedYou: text(fields.whatStoppedYou, 1000),
     contact: text(fields.contact, 320),
     creditName: text(fields.creditName, 160),
     creditOptIn: Boolean(fields.creditOptIn),
@@ -90,6 +91,7 @@ export function suggestionMarkdown(draft: SuggestionDraft, locale = "en"): strin
   return [
     c("# Opsis improvement suggestion", "# Opsis 改进建议"),
     "",
+    ...(draft.topic ? [c("Topic", "主题") + ": " + ({ feedback: c("Feedback", "反馈"), feature: c("Feature request", "功能建议"), issue: c("Issue", "问题") }[draft.topic] ?? draft.topic), ""] : []),
     `${c("What I was trying to do", "我尝试做什么")}\n\n${draft.whatWereYouTrying}`,
     "",
     `${c("What stopped me", "什么阻止了我")}\n\n${draft.whatStoppedYou}`,

@@ -98,3 +98,12 @@
   outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
+
+.opsis-perp-handoff .opsis-perp-venue,
+.opsis-perp-handoff .opsis-perp-review,
+.opsis-perp-handoff .opsis-perp-regions,
+.opsis-perp-handoff .opsis-perp-summary pre {
+  border-radius: var(--ui-radius, 8px);
+}
+.opsis-perp-handoff .opsis-perp-venue { border: 1px solid var(--line); border-top: 2px solid var(--accent); }
+.opsis-perp-handoff h2 { font-size: 23px; letter-spacing: -.025em; }

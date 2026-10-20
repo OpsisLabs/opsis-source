@@ -3,6 +3,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as localeCookie from "../i18n/locale";
 import I18nProvider from "../i18n/I18nProvider";
 import { PrivacyPage, TermsPage } from "./Legal";
+import { isCollectibleCatalogEnabled } from "../product/availability";
+import { legal as english } from "../i18n/dictionaries/en/legal";
+import { legal as chinese } from "../i18n/dictionaries/zh-CN/legal";
 
 // These tests cover the Opsis build; the legacy build keeps its own chrome.
 vi.mock("../opsis/presentation", async (importOriginal) => ({
@@ -32,11 +35,31 @@ describe.each(["en", "zh-CN"] as const)(
           </I18nProvider>,
         );
         expect(html).toContain("<article");
-        expect(html).not.toMatch(/<(?:header|main|nav|img)\b/);
+        expect(html).not.toMatch(/<(?:header|main|img)\b/);
+        expect(html).toContain('class="legal-ws-index"');
+        expect(html).not.toMatch(/<h1\b/);
+        expect(html.match(/<section id="legal-section-/g)).toHaveLength(9);
         expect(html).not.toContain('role="group"');
         expect(html).not.toContain("CHAIN");
         expect(html).not.toContain("github.com");
         expect(html).not.toContain("security/advisories");
+      },
+    );
+    it.each([["privacy", PrivacyPage], ["terms", TermsPage]] as const)(
+      "preserves every existing %s section body word-for-word",
+      (kind, Page) => {
+        const html = renderToStaticMarkup(<I18nProvider><Page /></I18nProvider>);
+        const document = html.slice(html.indexOf('class="legal-ws-sections"'));
+        const dictionary = locale === "en" ? english : chinese;
+        const omitted = [isCollectibleCatalogEnabled() ? ".collectible.comingSoon" : ".collectible.enabled", ".s05.p5"];
+        for (const [key, value] of Object.entries(dictionary)) {
+          if (!key.startsWith(`legal.${kind}.s`) || key.endsWith(".title") || omitted.some((suffix) => key.endsWith(suffix))) continue;
+          // The contact template fragments apply only when addresses are configured.
+          if (kind === "privacy" && /\.s08\.(support|security|shared)/.test(key)) continue;
+          const escaped = renderToStaticMarkup(<span>{value}</span>).slice(6, -7);
+          expect(document, key).toContain(escaped);
+        }
+        expect(document).toContain('id="legal-section-09"');
       },
     );
     it("publishes a neutral pending contact statement", () => {

@@ -29,4 +29,15 @@ describe("Watch inbox token labels", () => {
     snapshot.tokens = [];
     expect(renderToStaticMarkup(<MemoryRouter><WatchInbox watches={[captureWatch(snapshot, "Sample wallet")]} /></MemoryRouter>)).toContain("ETH");
   });
+  it("keeps evidence review behind an explicit item selection", () => {
+    language.chinese = false;
+    const snapshot = watchFixture();
+    const html = renderToStaticMarkup(<MemoryRouter><WatchInbox watches={[captureWatch(snapshot, "Sample wallet")]} /></MemoryRouter>);
+    expect(html).toContain('aria-label="Filter inbox"');
+    expect(html).toContain("Baseline saved");
+    expect(html).toContain("Read the evidence");
+    expect(html).not.toContain('aria-label="Selected finding"');
+    expect(html).not.toContain(">Acknowledge<");
+  });
+
 });

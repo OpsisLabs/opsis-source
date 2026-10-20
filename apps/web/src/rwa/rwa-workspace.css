@@ -1,0 +1,1495 @@
+/* D29: Stock-token check. All surfaces are scoped to the Opsis presentation. */
+.opsis.opsis-terminal .opsis-content .rwa-ws-page {
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+  color: var(--ink);
+  font:
+    400 14px/1.55 Opsis,
+    sans-serif;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  :is(h2, h3, strong, label, button, summary) {
+  font-weight: 500;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page :is(h2, h3) {
+  margin: 0;
+  color: var(--ink);
+  letter-spacing: -0.015em;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page h2 {
+  font-size: 17px;
+  line-height: 1.4;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page h3 {
+  font-size: 14px;
+  line-height: 1.5;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page p {
+  margin: 8px 0;
+  color: var(--soft);
+  font-size: 13px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  :is(button, input, summary, a, [tabindex="0"]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-panel {
+  min-width: 0;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--ui-radius);
+  background: var(--panel);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--ink) 3%, transparent);
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  :is(button, .rwa-ws-document) {
+  min-height: 36px;
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--ink);
+  font:
+    400 13px/1.4 Opsis,
+    sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
+  cursor: pointer;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page button:hover:enabled {
+  background: var(--panel-hover);
+  border-color: var(--accent);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page button:disabled {
+  color: var(--soft);
+  background: var(--ground);
+  opacity: 1;
+  cursor: default;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page a {
+  color: var(--accent);
+  text-underline-offset: 3px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page a:hover {
+  text-decoration: underline;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-lookup {
+  margin-bottom: 16px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-lookup > label {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 16px;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-lookup > label span {
+  color: var(--soft);
+  font-size: 12px;
+  font-weight: 400;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-input-wrap {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  padding-inline: 12px;
+  gap: 8px;
+  border: 1px solid var(--soft);
+  border-radius: 6px;
+  background: var(--ground);
+  color: var(--soft);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-input-wrap:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-input-wrap svg {
+  flex: none;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-input-wrap input {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  margin: 0;
+  padding: 8px 0;
+  border: 0;
+  outline: none;
+  box-shadow: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  font:
+    13px OpsisMono,
+    monospace;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-input-wrap input::placeholder {
+  color: var(--soft);
+  opacity: 1;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-primary {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding-inline: 20px;
+  background: var(--surface-button);
+  color: var(--surface-button-ink);
+  border-color: var(--surface-button);
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  .rwa-ws-primary:hover:enabled {
+  background: var(--surface-button);
+  filter: brightness(0.97);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-primary:disabled {
+  color: var(--soft);
+  background: var(--ground);
+  border-color: var(--line);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-lookup > p {
+  font-size: 12px;
+  margin-bottom: 0;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(290px, 330px);
+  align-items: start;
+  gap: 12px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-history {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-import {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 12px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-import h2 {
+  font-size: 15px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-import p {
+  margin: 2px 0 0;
+  font-size: 12px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-upload {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  gap: 7px;
+  min-height: 38px;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--accent);
+  font-size: 13px;
+  cursor: pointer;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-upload:hover {
+  background: var(--panel-hover);
+  border-color: var(--accent);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-upload:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  .rwa-ws-upload
+  input[type="file"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-format {
+  flex-basis: 100%;
+  border: 0;
+  margin: 0;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page details > summary {
+  padding: 8px 0;
+  color: var(--ink);
+  font-size: 13px;
+  cursor: pointer;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-format > summary {
+  color: var(--soft);
+  font-weight: 400;
+  padding: 0;
+  font-size: 12px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 14px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-section-head :is(span, a) {
+  color: var(--soft);
+  font-size: 12px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-section-head a {
+  color: var(--accent);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-empty-plot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 290px;
+  padding: 24px;
+  margin: 18px 0;
+  border-block: 1px solid var(--line);
+  background: linear-gradient(180deg, var(--panel), var(--ground));
+  text-align: center;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-empty-plot svg {
+  margin-bottom: 14px;
+  color: var(--accent);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-empty-plot p {
+  max-width: 50ch;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-age-empty {
+  margin: 0;
+  padding-left: 12px;
+  border-left: 2px dashed var(--soft);
+  font-size: 12px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-mono {
+  font:
+    400 13px/1.6 OpsisMono,
+    monospace;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-series-context > p {
+  margin-block: 6px;
+  font-size: 12px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-facts {
+  display: grid;
+  grid-template-columns: 1.1fr 1.25fr 1fr;
+  margin: 16px -4px -4px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-facts > div {
+  min-width: 0;
+  padding: 0 12px;
+  border-right: 1px solid var(--line);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-facts > div:first-child {
+  padding-left: 4px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-facts > div:last-child {
+  border: 0;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-facts dt {
+  margin: 0 0 6px;
+  color: var(--soft);
+  font-size: 12px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-facts dd {
+  margin: 0;
+  color: var(--ink);
+  font:
+    400 15px/1.6 OpsisMono,
+    monospace;
+  overflow-wrap: anywhere;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-facts small {
+  display: block;
+  margin-top: 4px;
+  color: var(--soft);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-plot {
+  margin-top: 14px;
+  min-width: 0;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  :is(.rwa-ws-plot, .rwa-ws-histogram)
+  svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  :is(.rwa-ws-plot, .rwa-ws-histogram)
+  text {
+  fill: var(--soft);
+  font:
+    11px OpsisMono,
+    monospace;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  :is(.rwa-chart-grid line, .rwa-chart-grid-line) {
+  stroke: var(--line);
+}
+.opsis.opsis-terminal .opsis-content .rwa-chart-zero {
+  stroke: var(--soft);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+.opsis.opsis-terminal .opsis-content .rwa-chart-action {
+  stroke: var(--accent);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+}
+.opsis.opsis-terminal .opsis-content .rwa-chart-point {
+  fill: var(--accent);
+  cursor: pointer;
+}
+.opsis.opsis-terminal .opsis-content .rwa-session-closed {
+  fill: var(--surface-negative);
+}
+.opsis.opsis-terminal .opsis-content .rwa-session-unknown {
+  fill: var(--soft);
+}
+.opsis.opsis-terminal .opsis-content .rwa-chart-point .rwa-chart-hit {
+  fill: transparent;
+}
+.opsis.opsis-terminal .opsis-content .rwa-chart-point .rwa-chart-selected {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+.opsis.opsis-terminal .opsis-content .rwa-chart-age {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+.opsis.opsis-terminal .opsis-content .rwa-chart-age-unknown {
+  stroke: var(--soft);
+  stroke-width: 1.5;
+  stroke-dasharray: 2 3;
+}
+.opsis.opsis-terminal .opsis-content .rwa-chart-bin {
+  fill: color-mix(in srgb, var(--accent) 75%, var(--panel));
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-legend {
+  font-size: 12px;
+  margin: 8px 0;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-observation-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-block: 10px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-observation-controls label {
+  flex: 1;
+  min-width: 0;
+  color: var(--soft);
+  font-size: 12px;
+  font-weight: 400;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page input[type="range"] {
+  display: block;
+  width: 100%;
+  min-height: 24px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  accent-color: var(--accent);
+  background: transparent;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-observation-controls button {
+  display: grid;
+  place-items: center;
+  min-width: 38px;
+  min-height: 38px;
+  padding: 8px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-selection {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--ground);
+  color: var(--ink);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-selection strong {
+  font:
+    13px OpsisMono,
+    monospace;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-note {
+  font-size: 12px;
+  margin-bottom: 0;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-histogram {
+  margin-top: 12px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-table-scroll {
+  overflow-x: auto;
+  margin-top: 12px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page caption {
+  text-align: left;
+  margin-bottom: 10px;
+  color: var(--soft);
+  font:
+    12px/1.6 Opsis,
+    sans-serif;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page :is(th, td) {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  vertical-align: top;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page th {
+  font-weight: 400;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page thead th {
+  color: var(--soft);
+  white-space: nowrap;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page td {
+  font-family: OpsisMono, monospace;
+  font-variant-numeric: tabular-nums;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page tbody th button {
+  padding: 4px;
+  border-color: transparent;
+  font:
+    12px OpsisMono,
+    monospace;
+  color: var(--accent);
+  white-space: nowrap;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page tr[aria-current="true"] {
+  background: var(--panel-hover);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-dock {
+  padding: 18px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-result-summary {
+  padding-bottom: 16px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-result-summary > svg {
+  margin-bottom: 8px;
+  color: var(--accent);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-result-summary h2 {
+  font-size: 16px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-kind {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--soft);
+  font-size: 12px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-dock > details {
+  margin: 0;
+  padding: 12px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-dock > details > summary {
+  font-size: 15px;
+  padding: 0 0 6px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-dock-facts {
+  margin: 0;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-dock-facts > div {
+  display: grid;
+  grid-template-columns: minmax(80px, 0.8fr) minmax(0, 1.2fr);
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-dock-facts dt {
+  color: var(--soft);
+  font-size: 12px;
+  font-weight: 400;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-dock-facts dd {
+  margin: 0;
+  text-align: right;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-caution {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--soft) 50%, var(--line));
+  border-radius: 6px;
+  background: var(--ground);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-caution > svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--ink);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-caution p {
+  margin-bottom: 0;
+  font-size: 12px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-document {
+  display: block;
+  text-align: center;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-check-sources {
+  font-size: 11px;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  :is(.rwa-ws-source, .rwa-ws-action, .rwa-ws-check) {
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+.opsis.opsis-terminal
+  .opsis-content
+  :is(.rwa-ws-source, .rwa-ws-action, .rwa-ws-check):first-of-type {
+  border-top: 0;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-source time {
+  color: var(--soft);
+  font:
+    11px OpsisMono,
+    monospace;
+  overflow-wrap: anywhere;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-check > span {
+  font-size: 11px;
+  color: var(--soft);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-check.rwa-check-conflict > span {
+  color: var(--surface-negative);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-dock li {
+  margin-bottom: 8px;
+  overflow-wrap: anywhere;
+  color: var(--soft);
+  font-size: 13px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-morpho > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  border: 0;
+  background: var(--panel);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-morpho > div > div {
+  padding: 12px 0;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-morpho p {
+  margin-block: 6px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-morpho :is(p, span) {
+  font-size: 13px;
+  letter-spacing: 0;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-error {
+  color: var(--surface-negative);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-loading {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-footer {
+  color: var(--soft);
+  font-size: 11px;
+  margin: 16px 0 0;
+}
+
+/* Keep the existing consent handlers and receipt, with a token-based Opsis surface. */
+.opsis.opsis-terminal .opsis-content .rwa-ws-consent {
+  background: color-mix(in srgb, var(--ink) 55%, transparent);
+  overflow-y: auto;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-consent > div {
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  clip-path: none;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--ui-radius);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-consent :is(h2, p, li, button) {
+  letter-spacing: 0;
+  font-family: Opsis, sans-serif;
+  font-weight: 400;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-consent h2 {
+  font-size: 16px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-consent :is(p, li) {
+  color: var(--soft);
+  font-size: 13px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-consent svg {
+  color: var(--soft);
+  flex-shrink: 0;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-consent [data-confirm] {
+  background: var(--surface-button);
+  color: var(--surface-button-ink);
+  border-color: var(--surface-button);
+}
+@media (max-width: 1100px) {
+  .opsis.opsis-terminal .opsis-content .rwa-ws-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(270px, 300px);
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-facts {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-facts > div {
+    padding: 0 4px;
+    border: 0;
+  }
+}
+@media (max-width: 900px) {
+  .opsis.opsis-terminal .opsis-content .rwa-ws-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-panel {
+    padding: 16px;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-empty-plot {
+    min-height: 230px;
+    padding-inline: 8px;
+  }
+}
+@media (max-width: 480px) {
+  .opsis.opsis-terminal .opsis-content .rwa-ws-input-row {
+    flex-direction: column;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-primary {
+    min-height: 42px;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-lookup > label {
+    flex-direction: column;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-dock-facts > div {
+    grid-template-columns: minmax(70px, 0.7fr) minmax(0, 1.3fr);
+    gap: 8px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page * {
+    animation: none;
+    transition: none;
+    scroll-behavior: auto;
+  }
+}
+
+/* Chart-first composition: one instrument workspace and an aligned evidence dock. */
+.opsis.opsis-terminal .opsis-content:has(.rwa-ws-page) > .opsis-tool-path {
+  display: none;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-main {
+  min-width: 0;
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-lookup {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: flex-end;
+  margin: -10px 0 12px;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  .rwa-ws-lookup
+  .rwa-ws-input-row {
+  order: 2;
+  width: 490px;
+  max-width: 100%;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-input-wrap {
+  background: var(--panel);
+  border-color: var(--line);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-lookup-hint {
+  color: var(--soft);
+  font-size: 12px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-grid {
+  grid-template-columns: minmax(0, 1fr) 322px;
+  gap: 12px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-panel {
+  padding: 14px 18px;
+  border-radius: 6px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-intro {
+  padding: 0;
+  overflow: hidden;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-title-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 16px 22px 12px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-instrument-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 54px;
+  height: 54px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: linear-gradient(
+    145deg,
+    var(--panel-hover),
+    color-mix(in srgb, var(--accent) 15%, var(--panel))
+  );
+  color: var(--accent);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-title-copy {
+  flex: 1;
+  min-width: 0;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-title-copy h1 {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 28px;
+  font-weight: 500;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-title-copy p {
+  margin: 2px 0 0;
+  font-size: 15px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-upload {
+  font-size: 12px;
+  padding: 7px 9px;
+  min-height: 34px;
+  white-space: nowrap;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-tabs {
+  display: flex;
+  gap: 10px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--line);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-tabs button {
+  min-height: 42px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 8px 12px;
+  color: var(--soft);
+  background: transparent;
+  font-size: 13px;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  .rwa-ws-tabs
+  button[aria-current] {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-facts {
+  margin: 12px 14px;
+  padding: 12px 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  grid-template-columns: 1.1fr 1fr 1fr;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-facts > div {
+  padding: 0 14px;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  .rwa-ws-facts
+  > div:first-child {
+  padding-left: 14px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-facts dt {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  margin-bottom: 5px;
+  color: var(--ink);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-facts dd {
+  font:
+    400 25px/1.3 Opsis,
+    sans-serif;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  .rwa-ws-facts
+  dd.rwa-ws-range {
+  font-size: 19px;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  .rwa-ws-facts
+  dd.rwa-ws-coverage {
+  font-size: 22px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-facts small {
+  font-size: 11px;
+  margin-top: 3px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-section-head {
+  align-items: center;
+  min-height: 30px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-section-head h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 400;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-date-range {
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-plot {
+  margin-top: 0;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  :is(.rwa-ws-plot, .rwa-ws-histogram, .rwa-ws-empty-chart)
+  svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  :is(.rwa-ws-plot, .rwa-ws-histogram, .rwa-ws-empty-chart)
+  text {
+  fill: var(--soft);
+  font:
+    11px Opsis,
+    sans-serif;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-chart-axis {
+  fill: none;
+  stroke: var(--soft);
+  stroke-width: 0.8;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-chart-line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.7;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-chart-point {
+  fill: var(--accent);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-session-closed {
+  fill: var(--soft);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-session-unknown {
+  fill: var(--soft);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-chart-selected {
+  fill: var(--panel);
+  stroke: var(--accent);
+  stroke-width: 1;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-chart-event {
+  color: var(--accent);
+  fill: currentColor;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-chart-event-1 {
+  color: var(--surface-positive);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-chart-event-2 {
+  color: var(--soft);
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  .rwa-chart-event
+  .rwa-chart-action {
+  stroke: currentColor;
+  opacity: 0.65;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-chart-event text {
+  fill: currentColor;
+  font-size: 10px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-chart-callout rect {
+  fill: var(--panel);
+  stroke: var(--line);
+  filter: drop-shadow(0 2px 3px #17234210);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-chart-callout path {
+  fill: none;
+  stroke: var(--line);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-chart-callout text {
+  fill: var(--ink);
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  .rwa-chart-callout
+  .rwa-chart-callout-value {
+  font-size: 13px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-chart-median {
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-histogram {
+  margin-top: 0;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-legend {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 14px;
+  color: var(--soft);
+  font-size: 11px;
+  margin: 4px 0;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-legend span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-legend i {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  .rwa-ws-legend
+  .rwa-legend-break {
+  background: var(--soft);
+  opacity: 0.6;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  .rwa-ws-legend
+  .rwa-legend-action {
+  width: 24px;
+  height: 0;
+  background: none;
+  border-top: 1px dashed var(--accent);
+  border-radius: 0;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-observation-controls {
+  gap: 8px;
+  padding: 3px 0 0;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  .rwa-ws-observation-controls
+  button {
+  min-width: 30px;
+  min-height: 30px;
+  padding: 6px;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  .rwa-ws-observation-controls
+  label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  .rwa-ws-observation-controls
+  label
+  span {
+  white-space: nowrap;
+  font-size: 10px;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  .rwa-ws-observation-controls
+  input[type="range"] {
+  min-height: 20px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-selected-value {
+  display: none;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-selection {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 14px;
+  margin-top: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 10px;
+  color: var(--soft);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-selection strong {
+  font-size: 11px;
+  color: var(--ink);
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  .rwa-ws-selection
+  span:first-child {
+  display: none;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-exact > summary {
+  font-size: 12px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-dock {
+  padding: 4px 18px 14px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-dock > details {
+  padding: 12px 0;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  .rwa-ws-dock
+  > details:first-child {
+  border-top: 0;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  .rwa-ws-dock
+  > details
+  > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  list-style: none;
+  font-size: 15px;
+  font-weight: 400;
+  padding-bottom: 8px;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  .rwa-ws-dock
+  > details
+  > summary::-webkit-details-marker {
+  display: none;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  .rwa-ws-dock
+  > details
+  > summary::after {
+  content: "⌄";
+  font-size: 16px;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  .rwa-ws-dock
+  > details[open]
+  > summary::after {
+  transform: rotate(180deg);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-dock-facts > div {
+  padding: 6px 0;
+  gap: 10px;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-dock-facts dd {
+  text-align: left;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  .rwa-ws-dock-facts
+  .rwa-ws-mono {
+  font:
+    11px/1.6 OpsisMono,
+    monospace;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-dock p {
+  font-size: 12px;
+  line-height: 1.55;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-caution {
+  background: color-mix(in srgb, var(--surface-negative) 7%, var(--panel));
+  border-color: color-mix(in srgb, var(--surface-negative) 17%, var(--line));
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-caution :is(h3, svg) {
+  color: var(--surface-negative);
+  font-weight: 400;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-format {
+  margin: 0;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-empty-chart {
+  position: relative;
+  min-width: 0;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-empty-chart text {
+  fill: var(--soft);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-empty-message {
+  position: absolute;
+  inset: 12% 7% 18% 14%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-empty-message p {
+  max-width: 43ch;
+  margin: 0;
+  background: var(--panel);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-empty-message h3 {
+  background: var(--panel);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-empty-message button {
+  color: var(--accent);
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-age-empty {
+  margin: 2px 0 10px;
+}
+@media (max-width: 1200px) {
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-grid {
+    grid-template-columns: minmax(0, 1fr) 285px;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-title-row {
+    gap: 12px;
+    padding-inline: 16px;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-title-copy h1 {
+    font-size: 24px;
+  }
+  .opsis.opsis-terminal
+    .opsis-content
+    .rwa-ws-page
+    .rwa-ws-title-row
+    .rwa-ws-upload
+    span {
+    display: none;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-facts {
+    margin-inline: 10px;
+    gap: 0;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-facts > div {
+    padding-inline: 10px;
+    border-right: 1px solid var(--line);
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-facts dd {
+    font-size: 22px;
+  }
+  .opsis.opsis-terminal
+    .opsis-content
+    .rwa-ws-page
+    .rwa-ws-facts
+    dd.rwa-ws-range {
+    font-size: 16px;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-tabs {
+    gap: 0;
+    padding-inline: 8px;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-tabs button {
+    padding-inline: 9px;
+    font-size: 12px;
+  }
+}
+@media (max-width: 900px) {
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-lookup-hint {
+    display: none;
+  }
+  .opsis.opsis-terminal
+    .opsis-content
+    .rwa-ws-page
+    .rwa-ws-lookup
+    .rwa-ws-input-row {
+    width: 100%;
+  }
+}
+@media (max-width: 480px) {
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-panel {
+    padding: 12px;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-intro {
+    padding: 0;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-input-row {
+    flex-direction: row;
+    gap: 6px;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-primary {
+    padding-inline: 10px;
+    gap: 5px;
+    font-size: 12px;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-title-row {
+    gap: 10px;
+    padding: 14px 12px;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-instrument-icon {
+    flex-basis: 40px;
+    height: 40px;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-title-copy h1 {
+    font-size: 22px;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-title-copy p {
+    font-size: 12px;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-tabs {
+    flex-wrap: wrap;
+    padding-inline: 6px;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-tabs button {
+    min-height: 36px;
+    font-size: 11px;
+    padding-inline: 8px;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-facts {
+    grid-template-columns: minmax(0, 1fr);
+    padding-block: 0;
+    margin: 10px;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-facts > div {
+    padding: 9px 12px;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .opsis.opsis-terminal
+    .opsis-content
+    .rwa-ws-page
+    .rwa-ws-facts
+    > div:first-child {
+    padding-left: 12px;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-facts dd {
+    font-size: 23px;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-facts small {
+    display: inline;
+    margin-right: 5px;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-facts dt {
+    margin-bottom: 3px;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-section-head h2 {
+    font-size: 14px;
+    gap: 5px;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-date-range {
+    font-size: 10px;
+  }
+  .opsis.opsis-terminal
+    .opsis-content
+    .rwa-ws-page
+    .rwa-ws-empty-chart:not(.rwa-ws-empty-histogram) {
+    min-height: 280px;
+  }
+  .opsis.opsis-terminal
+    .opsis-content
+    .rwa-ws-page
+    .rwa-ws-empty-chart:not(.rwa-ws-empty-histogram)
+    svg {
+    height: 280px;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-empty-message {
+    inset-inline: 16%;
+  }
+  .opsis.opsis-terminal
+    .opsis-content
+    .rwa-ws-page
+    .rwa-ws-empty-message
+    :is(h3, p) {
+    font-size: 11px;
+  }
+  .opsis.opsis-terminal
+    .opsis-content
+    .rwa-ws-page
+    .rwa-ws-empty-message
+    button {
+    font-size: 11px;
+    min-height: 30px;
+    padding: 5px 8px;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-legend {
+    gap: 10px;
+    font-size: 9px;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-selection {
+    font-size: 10px;
+  }
+}
+
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-history > details {
+  margin: 0;
+  padding-block: 6px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-local-state {
+  display: block;
+  margin-top: 3px;
+  color: var(--soft);
+  font-size: 11px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-distribution-panel {
+  padding-block: 10px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-chart-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 5px;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  .rwa-ws-chart-footer
+  .rwa-ws-legend {
+  order: 2;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-observation-controls {
+  width: 230px;
+  padding: 0;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  .rwa-ws-observation-controls
+  label
+  span {
+  display: none;
+}
+.opsis.opsis-terminal
+  .opsis-content
+  .rwa-ws-page
+  .rwa-ws-observation-controls
+  button {
+  min-height: 26px;
+  min-width: 26px;
+  padding: 3px;
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-selection {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+@media (min-width: 901px) {
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-lookup {
+    position: fixed;
+    top: 11px;
+    right: 190px;
+    width: 490px;
+    margin: 0;
+    z-index: 40;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-lookup-hint {
+    display: none;
+  }
+}
+@media (max-width: 480px) {
+  .opsis.opsis-terminal
+    .opsis-content
+    .rwa-ws-page
+    .rwa-ws-observation-controls {
+    width: 140px;
+  }
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-chart-footer {
+    gap: 4px;
+  }
+}
+.opsis.opsis-terminal .opsis-content .rwa-chart-focus-dot { fill: var(--accent); }
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-table-scroll:focus { outline: 2px solid var(--accent); outline-offset: 3px; }
+.opsis.opsis-terminal .opsis-content .rwa-chart-age { stroke-width: 1; }
+@media (max-width: 480px) {
+  .opsis.opsis-terminal .opsis-content .rwa-chart-age { stroke-width: .5; }
+}
+.opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-lookup .rwa-ws-input-wrap input { border: 0; box-shadow: none; background: transparent; }
+@media (max-width: 480px) {
+  .opsis.opsis-terminal .opsis-content .rwa-ws-page .rwa-ws-facts small { display: block; margin: 3px 0 0; }
+}

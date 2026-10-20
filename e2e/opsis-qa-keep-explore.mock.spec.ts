@@ -197,12 +197,15 @@ for (const width of [320, 375, 1280]) {
           await open(page, "/community");
           await page.locator("#community-attempt").fill("Compare two saved wallet checks");
           await page.locator("#community-blocker").fill("The missing activity state needs clearer wording");
+          await page.getByText(c("Contact & credit (optional)", "联系方式与署名（可选）"), { exact: true }).click();
           await page.locator("#community-credit").fill("demo-account");
           for (const checked of [true, false]) {
-            await page.locator(".community-check input").setChecked(checked);
+            await page.locator(".community-ws-check input").setChecked(checked);
             await page.getByRole("button", { name: c("Save local draft", "保存本地草稿"), exact: true }).click();
-            const json = JSON.parse(await downloaded(page, page.getByRole("button", { name: c("Export JSON", "导出 JSON"), exact: true })));
-            const markdown = await downloaded(page, page.getByRole("button", { name: c("Export Markdown", "导出 Markdown"), exact: true }));
+            await page.getByLabel(c("Export format", "导出格式"), { exact: true }).selectOption("json");
+            const json = JSON.parse(await downloaded(page, page.getByRole("button", { name: c("Export draft", "导出草稿"), exact: true })));
+            await page.getByLabel(c("Export format", "导出格式"), { exact: true }).selectOption("markdown");
+            const markdown = await downloaded(page, page.getByRole("button", { name: c("Export draft", "导出草稿"), exact: true }));
             expect(json.creditOptIn).toBe(checked);
             expect(markdown).toContain(c(`Ask before using this name in a changelog: ${checked ? "Yes" : "No"}`, `在更新日志中使用此名称前请先征得我的同意: ${checked ? "是" : "否"}`));
             expect(markdown.includes("demo-account")).toBe(checked);

@@ -353,3 +353,23 @@ it("keeps the venue directory off by default and enables only its manifest row, 
     expect(() => loadEnv({ NODE_ENV: "test", PERP_HANDOFF_ENABLED: flag })).toThrow();
   }
 });
+
+it("keeps saved-check comparisons off by default and advertises local-only evidence only when enabled", async () => {
+  expect(env().SAVED_CHECK_COMPARISONS_ENABLED).toBe(false);
+  for (const flag of [undefined, "false", "true"] as const) {
+    const config = loadEnv({ NODE_ENV: "test", OPSIS_WORKSPACES_ENABLED: "true", OPSIS_PUBLIC_ACCESS_ENABLED: "true", SAVED_CHECK_COMPARISONS_ENABLED: flag });
+    const app = Fastify();
+    await opsisRoutes(app, config);
+    try {
+      const response = await app.inject({ method: "POST", url: "/v1/private/opsis/access", payload: {} });
+      expect(response.statusCode).toBe(200);
+      const body = response.json();
+      expect(body.savedCheckComparisons).toBe(flag === "true");
+      const row = body.manifest.capabilities.find((item: { id: string }) => item.id === "savedCheckComparisons");
+      if (flag === "true") expect(row).toMatchObject({ enabled: true });
+      else expect(row).toBeUndefined();
+      expect(body.perpExecution).toBe(false);
+    } finally { await app.close(); }
+  }
+  expect(() => loadEnv({ NODE_ENV: "test", SAVED_CHECK_COMPARISONS_ENABLED: "yes" })).toThrow();
+});

@@ -1,6 +1,7 @@
 import type { PrivateAnalysis } from "../private/api";
 import type { ExitCheckQuote, ExitCheckOutputSymbol } from "../exit-check/api";
 import type { VaultConversationTurn } from "../vault/types";
+import { captureResearchCheck, captureTradeCheck } from "./saved-checks";
 
 function sourceUrl(value: string | null): string | null {
   if (!value) return null;
@@ -14,8 +15,10 @@ function sourceUrl(value: string | null): string | null {
   }
 }
 
-export function researchReport(result: PrivateAnalysis): VaultConversationTurn {
+export function researchReport(result: PrivateAnalysis, comparisonEnabled = false): VaultConversationTurn {
+  const comparison = comparisonEnabled ? captureResearchCheck(result) : null;
   return {
+    ...(comparison ? { comparison } : {}),
     question: result.answer.card?.title ?? "Research observation",
     entity: result.entity.value,
     answer: result.answer.answer,
@@ -49,8 +52,11 @@ export function researchReport(result: PrivateAnalysis): VaultConversationTurn {
 export function tradeReport(
   result: ExitCheckQuote,
   output: ExitCheckOutputSymbol,
+  comparisonEnabled = false,
 ): VaultConversationTurn {
+  const comparison = comparisonEnabled ? captureTradeCheck(result, output) : null;
   return {
+    ...(comparison ? { comparison } : {}),
     question: "Trade Check · Robinhood Chain",
     entity: result.input.contract,
     answer:

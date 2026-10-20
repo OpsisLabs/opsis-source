@@ -107,6 +107,7 @@ test("opsis preview watch one-off", async ({ page }) => {
     .getByLabel("Vault passphrase", { exact: true })
     .fill("demo-watch-passphrase");
   await page.getByRole("button", { name: "Unlock watchlist" }).click();
+  await page.locator(".watch-inbox-select").first().click();
   await expect(page.getByText(/Not checked since/).first()).toBeVisible();
   expect(requests).toBe(1);
 });

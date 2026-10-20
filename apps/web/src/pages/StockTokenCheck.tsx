@@ -13,6 +13,8 @@ import { WorkspaceDisclosure } from "../product/WorkspaceDisclosure";
 import { useI18n, type TranslateParams, type TranslationKey } from "../i18n";
 // Imported, not lazy: revealed after the result it would move the evidence below it.
 import EvidenceMap from "../opsis/EvidenceMap";
+import RwaWorkspace from "../rwa/RwaWorkspace";
+import { useCopy } from "../opsis/copy";
 
 const SAMPLE_STOCK = "0xaF3D76f1834A1d425780943C99Ea8A608f8a93f9";
 const SAMPLE_VAULT = "0xBeEff033F34C046626B8D0A041844C5d1A5409dd";
@@ -85,6 +87,13 @@ export default function StockTokenCheck() {
     requestAnimationFrame(() => verifyButton.current?.focus());
   };
 
+  if (OPSIS_PRESENTATION) return <RwaWorkspace
+    address={address} loading={loading} error={error} result={result}
+    setAddress={(value) => { setAddress(value); setResult(null); setError(""); }} prepare={prepare} verifyButton={verifyButton}
+    morphoDetails={result?.morpho ? <MorphoDetails morpho={result.morpho} /> : null}
+    consent={confirming ? <ConsentDialog address={confirmedAddress} onCancel={cancelConsent} onConfirm={run} /> : null}
+  />;
+
   return (
     <div className="min-h-screen bg-[#1d1d1d] text-[#e9e0d1]">
       {!OPSIS_PRESENTATION && (      <header className="sticky top-0 z-30 flex h-[64px] items-center border-b border-[#2e2e2e] bg-[#1d1d1d]/95 px-4 backdrop-blur sm:px-6">
@@ -138,6 +147,7 @@ export default function StockTokenCheck() {
 
 function ConsentDialog({ address, onCancel, onConfirm }: { address: string; onCancel: () => void; onConfirm: () => void }) {
   const { t } = useI18n();
+  const c = useCopy();
   const dialog = useRef<HTMLDivElement>(null);
   useEffect(() => { dialog.current?.querySelector<HTMLButtonElement>("[data-confirm]")?.focus(); }, []);
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -149,15 +159,15 @@ function ConsentDialog({ address, onCancel, onConfirm }: { address: string; onCa
     const next = event.shiftKey ? (current <= 0 ? controls.length - 1 : current - 1) : (current >= controls.length - 1 ? 0 : current + 1);
     event.preventDefault(); controls[next]?.focus();
   };
-  return <div ref={dialog} onKeyDown={onKeyDown} className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4" role="dialog" aria-modal="true" aria-labelledby="rwa-consent-title">
+  return <div ref={dialog} onKeyDown={onKeyDown} className={`${OPSIS_PRESENTATION ? "rwa-ws-consent " : ""}fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4`} role="dialog" aria-modal="true" aria-labelledby="rwa-consent-title">
     <div className="clip-panel w-full max-w-[650px] border border-[#c9a6ff]/40 bg-[#242424] shadow-2xl">
-      <div className="flex items-center border-b border-[#383838] px-6 py-5"><LockKeyhole size={15} className="text-[#c9a6ff]" /><h2 id="rwa-consent-title" className="ml-3 font-mono-d text-[11px] tracking-[0.14em]">{t("rwa.consent.title")}</h2><button onClick={onCancel} aria-label={t("rwa.consent.cancelAria")} className="ml-auto text-[#635d5a] hover:text-[#e9e0d1]"><X size={18} /></button></div>
+      <div className="flex items-center border-b border-[#383838] px-6 py-5"><LockKeyhole size={15} className="text-[#c9a6ff]" /><h2 id="rwa-consent-title" className="ml-3 font-mono-d text-[11px] tracking-[0.14em]">{OPSIS_PRESENTATION ? c("Exact network receipt", "确切网络回执") : t("rwa.consent.title")}</h2><button onClick={onCancel} aria-label={t("rwa.consent.cancelAria")} className="ml-auto text-[#635d5a] hover:text-[#e9e0d1]"><X size={18} /></button></div>
       <div className="p-6">
         <p className="text-[13px] leading-relaxed text-[#9a938a]">{t("rwa.consent.body")}</p>
-        <div className="mt-5 border border-[#383838] bg-[#1d1d1d] p-4"><p className="font-mono-d text-[9px] text-[#635d5a]">{t("rwa.consent.publicContract")}</p><p className="mt-2 break-all font-mono-d text-[11px] text-[#d6ccba]">{address}</p></div>
+        <div className="mt-5 border border-[#383838] bg-[#1d1d1d] p-4"><p className="font-mono-d text-[9px] text-[#635d5a]">{OPSIS_PRESENTATION ? c("Public contract", "公开合约") : t("rwa.consent.publicContract")}</p><p className="mt-2 break-all font-mono-d text-[11px] text-[#d6ccba]">{address}</p></div>
         <ul className="mt-5 space-y-2 text-[12px] text-[#9a938a]"><li className="flex gap-2"><Check size={13} className="mt-0.5 text-[#7fb069]" />{t("rwa.consent.noAccount")}</li><li className="flex gap-2"><Check size={13} className="mt-0.5 text-[#7fb069]" />{t("rwa.consent.noTransaction")}</li><li className="flex gap-2"><AlertTriangle size={13} className="mt-0.5 text-[#d9a441]" />{t("rwa.consent.providers")}</li></ul>
       </div>
-      <div className="flex flex-col-reverse gap-3 border-t border-[#383838] p-5 sm:flex-row sm:justify-end"><button onClick={onCancel} className="min-h-[44px] border border-[#383838] px-5 font-mono-d text-[10px] text-[#9a938a]">{t("rwa.consent.cancel")}</button><button data-confirm onClick={onConfirm} className="clip-btn-sm min-h-[44px] bg-[var(--button,#c9a6ff)] px-6 font-mono-d text-[10px] font-medium text-[var(--button-ink,#1d1d1d)] outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--button-ink,#1d1d1d)]">{t("rwa.consent.confirm")}</button></div>
+      <div className="flex flex-col-reverse gap-3 border-t border-[#383838] p-5 sm:flex-row sm:justify-end"><button onClick={onCancel} className="min-h-[44px] border border-[#383838] px-5 font-mono-d text-[10px] text-[#9a938a]">{OPSIS_PRESENTATION ? c("Cancel lookup", "取消查询") : t("rwa.consent.cancel")}</button><button data-confirm onClick={onConfirm} className="clip-btn-sm min-h-[44px] bg-[var(--button,#c9a6ff)] px-6 font-mono-d text-[10px] font-medium text-[var(--button-ink,#1d1d1d)] outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--button-ink,#1d1d1d)]">{OPSIS_PRESENTATION ? c("Confirm public lookup", "确认公开查询") : t("rwa.consent.confirm")}</button></div>
     </div>
   </div>;
 }

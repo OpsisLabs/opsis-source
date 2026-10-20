@@ -25,6 +25,7 @@ import ToolOrientation from "./ToolOrientation";
 import WorkspaceShell from "./shell/WorkspaceShell";
 import ToolPath from "./shell/ToolPath";
 import ToolWorkspace from "./ToolWorkspace";
+import Status from "./Status";
 import OpsisCopy from "./OpsisCopy";
 import NavigationFeedback, { FrontDoorProgress, RouteReady } from "./NavigationFeedback";
 import { LoadBoundary } from "../product/LoadRecovery";
@@ -37,6 +38,7 @@ import "./opsis.css";
 import "./legacy-theme.css";
 import "./studio.css";
 import "./shell.css";
+import "./workspace-identity.css";
 
 const publicAccess =
   import.meta.env.VITE_OPSIS_PUBLIC_ACCESS_ENABLED === "true";
@@ -75,59 +77,6 @@ function Unavailable() {
 }
 const PerpScenario = lazy(chunks.PerpScenario.load);
 
-function Status({ capabilities }: { capabilities: Capabilities }) {
-  const c = useCopy();
-  const rows = capabilities.manifest?.capabilities ?? [
-    { id: "research", enabled: capabilities.research, scope: "Robinhood Chain public-identifier research", origin: "live on request", freshness: "checked per request", coverage: "bounded by upstream source coverage", limits: "Provider health and complete coverage are unknown until each lookup." },
-    { id: "tokenControls", enabled: capabilities.tokenControls ?? false, scope: "Robinhood Chain standard contract controls", origin: "live RPC on request", freshness: "block-anchored per request", coverage: "bounded evidence", limits: "Optional explorer enrichment may be unavailable." },
-    { id: "exitCheck", enabled: capabilities.exitCheck, scope: "Robinhood Chain official Uniswap V3 standard fee tiers", origin: "live RPC on request", freshness: "block-anchored per quote", coverage: "bounded pools and RPC quota", limits: "Does not prove execution." },
-    { id: "watch", enabled: capabilities.watch, scope: "Robinhood Chain user-triggered wallet snapshots", origin: "captured on user request", freshness: "snapshot timestamp; no background monitoring", coverage: "supported assets", limits: "Not continuous monitoring." },
-    { id: "rwa", enabled: capabilities.rwa, scope: "Existing source-backed stock-token checks", origin: "live on request", freshness: "checked per request", coverage: "bounded sources", limits: "Not an appraisal or proof of tradability." },
-    { id: "observedTrades", enabled: capabilities.observedTrades, scope: "Robinhood Chain decoded Uniswap V3 Swap logs", origin: "live scan on request", freshness: "anchored to captured block window", coverage: "configured block and log caps", limits: "Observed swaps only; transfers are not trades." },
-    { id: "perpHandoff", enabled: capabilities.perpHandoff ?? false, scope: "Reviewed directory of perpetual-futures venues by stated region; no orders and no eligibility verification", origin: "static review, checked 2026-10-12", freshness: "re-review due within 120 days", coverage: "United States and Canada only", limits: "Each venue's own pages govern; Opsis verifies no identity or eligibility" },
-    { id: "swapPreview", enabled: capabilities.swapPreview ?? false, scope: "Robinhood Chain WETH/USDG quote preview", origin: "live quote on request", freshness: "short-lived quote", coverage: "WETH and USDG only", limits: "A preview, not an execution." },
-  ];
-  const details: Record<string, { label: [string, string]; scope: [string, string]; origin: [string, string]; freshness: [string, string]; coverage: [string, string]; limits: [string, string] }> = {
-    research: { label: ["Research", "研究"], scope: ["Robinhood Chain public-identifier research", "Robinhood Chain 公开标识符研究"], origin: ["Live on request", "按请求实时查询"], freshness: ["Checked per request", "每次请求时检查"], coverage: ["Bounded by upstream source coverage", "受上游数据源覆盖范围限制"], limits: ["Provider health and complete coverage are unknown until each lookup.", "每次查询前，提供商运行状况和完整覆盖情况均未知。"] },
-    tokenControls: { label: ["Standard contract controls", "标准合约控制"], scope: ["Robinhood Chain standard contract controls", "Robinhood Chain 标准合约控制"], origin: ["Live RPC on request", "按请求实时 RPC 查询"], freshness: ["Block-anchored per request", "每次请求锚定区块"], coverage: ["Owner, pause responses and three proxy slots only", "仅包括所有者、暂停响应和三个代理槽位"], limits: ["Mint privileges, custom roles, transfer taxes and concentration are not inferred.", "不会推断铸造权限、自定义角色、转账税或持仓集中度。"] },
-    exitCheck: { label: ["Trade Check", "交易核查"], scope: ["Robinhood Chain official Uniswap V3 standard fee tiers", "Robinhood Chain 官方 Uniswap V3 标准费率层"], origin: ["Live RPC on request", "按请求实时 RPC 查询"], freshness: ["Block-anchored per quote", "每份报价锚定区块"], coverage: ["Bounded pools and configured RPC quota", "受限流动池及配置的 RPC 配额"], limits: ["Does not prove transferability, sellability or execution.", "不证明资产可转移、可出售或可成交。"] },
-    watch: { label: ["Watch snapshots", "观察快照"], scope: ["Robinhood Chain user-triggered wallet snapshots", "Robinhood Chain 用户触发的钱包快照"], origin: ["Captured on user request", "按用户请求捕获"], freshness: ["Snapshot timestamp; no background monitoring", "显示快照时间；不在后台监控"], coverage: ["Supported assets and upstream discovery coverage", "受支持资产和上游发现覆盖范围"], limits: ["Not continuous monitoring; missing upstream data stays unknown.", "不提供持续监控；缺失的上游数据保持为未知。"] },
-    rwa: { label: ["Stock-token check", "股票代币核查"], scope: ["Existing source-backed stock-token checks", "现有有来源依据的股票代币核查"], origin: ["Live on request", "按请求实时查询"], freshness: ["Checked per request", "每次请求时检查"], coverage: ["Bounded to supported sources and configured RPC quota", "受支持数据源及配置的 RPC 配额限制"], limits: ["Not an appraisal, eligibility decision or proof of tradability.", "不是估值、资格决定或可交易性证明。"] },
-    perpHandoff: { label: ["Perp venue directory", "永续合约场所目录"], scope: ["Reviewed directory of perpetual-futures venues by stated region; no orders and no eligibility verification", "按自述居住地区提供经查阅的永续合约场所目录；无订单或资格核验"], origin: ["Static review, checked 2026-10-12", "静态查阅，核查日期 2026-10-12"], freshness: ["Re-review due within 120 days", "120 天内需再次查阅"], coverage: ["United States and Canada only", "仅限美国和加拿大"], limits: ["Each venue's own pages govern; Opsis verifies no identity or eligibility", "以各场所自己的页面为准；Opsis 不核验身份或资格"] },
-    swapPreview: { label: ["Swap preview", "兑换预览"], scope: ["Robinhood Chain WETH/USDG quote preview through the Uniswap Trade API", "通过 Uniswap Trade API 预览 Robinhood Chain WETH/USDG 报价"], origin: ["Live quote on request", "按请求实时报价"], freshness: ["Short-lived quote; Uniswap requotes before any trade", "短时有效报价；任何交易前由 Uniswap 重新报价"], coverage: ["WETH and USDG only", "仅限 WETH 和 USDG"], limits: ["A preview, not an execution; Opsis never signs or broadcasts.", "仅为预览，不会执行；Opsis 从不签名或广播交易。"] },
-    observedTrades: { label: ["Big trades", "大额交易"], scope: ["Robinhood Chain decoded Uniswap V3 Swap logs", "Robinhood Chain 解码的 Uniswap V3 Swap 日志"], origin: ["Live scan on request", "按请求实时扫描"], freshness: ["Anchored to captured block window", "锚定已捕获的区块范围"], coverage: ["Configured block and log caps", "受配置的区块和日志上限限制"], limits: ["Observed swaps only; gaps and partial windows remain explicit; transfers are not trades.", "仅表示观察到的兑换；缺口和不完整范围会明确显示；转账不代表交易。"] },
-  };
-  return (
-    <section className="opsis-panel">
-      <h1>{c("Data status", "数据状态")}</h1>
-      <p className="opsis-status-summary">
-        {c(
-          `Robinhood Chain · 4663. Server configuration only; provider health is unknown. ${capabilities.manifest?.build ? `Build ${capabilities.manifest.build}.` : "Build identifier unavailable."}`,
-          `Robinhood Chain · 4663。此处仅显示服务器配置；提供商运行状况未知。${capabilities.manifest?.build ? `构建版本 ${capabilities.manifest.build}。` : "构建标识不可用。"}`,
-        )}
-      </p>
-      <dl className="opsis-status">
-        {rows.map((row) => {
-          const copy = details[row.id];
-          return <div key={row.id}>
-            <dt>{c(...copy.label)}</dt>
-            <dd>{row.enabled ? c("Enabled by server flag · health unknown", "服务器标志已启用 · 运行状况未知") : c("Disabled by server flag", "服务器标志已关闭")}</dd>
-            <dd>{c("Scope", "范围")}: {c(...copy.scope)}</dd>
-            <dd>{c("Origin", "来源")}: {c(...copy.origin)} · {c("Freshness", "时效")}: {c(...copy.freshness)}</dd>
-            <dd>{c("Coverage", "覆盖范围")}: {c(...copy.coverage)}</dd>
-            <dd>{c("Limits", "限制")}: {c(...copy.limits)}</dd>
-          </div>
-        })}
-      </dl>
-      <p>
-        {c(
-          "Perp opening and closing: unavailable. No venue is admitted for the intended Canada/US scope. Network, liquidity and protocol charges apply to external transactions.",
-          "永续合约开仓和平仓：不可用。加拿大／美国目标范围尚无已准入的交易场所。外部交易涉及网络、流动性和协议费用。",
-        )}
-      </p>
-    </section>
-  );
-}
 function RedirectPublic({ to }: { to: "/research" | "/check" }) {
   const location = useLocation();
   return (
@@ -542,7 +491,7 @@ export default function OpsisApp() {
                     />
                     <Route
                       path="/status"
-                      element={<Status capabilities={access} />}
+                      element={<ToolWorkspace><Status capabilities={access} /></ToolWorkspace>}
                     />
                     <Route
                       path="/rwa"
@@ -653,7 +602,7 @@ export default function OpsisApp() {
                         </ToolWorkspace>
                       }
                     />
-                    <Route path="/community" element={<Community />} />
+                    <Route path="/community" element={<ToolWorkspace><Community /></ToolWorkspace>} />
                     <Route path="/changelog" element={<Navigate to="/community" replace />} />
                     <Route
                       path="*"
