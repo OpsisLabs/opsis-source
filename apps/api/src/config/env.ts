@@ -100,6 +100,9 @@ const envSchema = z.object({
   UNISWAP_QUOTE_CACHE_SECONDS: z.coerce.number().int().min(5).max(29).default(15),
   UNISWAP_QUOTE_BUDGET_PER_MINUTE: z.coerce.number().int().min(1).max(120).default(30),
   UNISWAP_QUOTE_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().min(1).max(120).default(20),
+  RECEIPTS_ENABLED: envBoolean.default(false),
+  RECEIPT_SIGNING_KEY: z.string().optional(),
+  RECEIPT_KEY_VALID_FROM: z.string().datetime().refine((value) => Number.isFinite(Date.parse(value)) && new Date(value).toISOString() === value, "Use a canonical UTC timestamp with milliseconds").default("2026-10-19T00:00:00.000Z"),
   TOKEN_CONTROLS_ENABLED: envBoolean.default(false),
   OPSIS_WORKSPACES_ENABLED: envBoolean.default(false),
   OPSIS_PUBLIC_ACCESS_ENABLED: envBoolean.default(false),
@@ -192,6 +195,16 @@ const envSchema = z.object({
   // When set, /metrics requires this bearer token and 404s otherwise.
   METRICS_TOKEN: optionalString
 }).superRefine((env, context) => {
+  if (env.RECEIPTS_ENABLED) {
+    const key = env.RECEIPT_SIGNING_KEY;
+    const order = 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141n;
+    if (!key || !/^0x[0-9a-fA-F]{64}$/.test(key) || BigInt(key) <= 0n || BigInt(key) >= order) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ["RECEIPT_SIGNING_KEY"], message: "A valid receipt signing key is required when receipts are enabled" });
+    }
+    if (!env.BUILD_SHA && !env.RAILWAY_GIT_COMMIT_SHA) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ["BUILD_SHA"], message: "Receipts record the build commit; set BUILD_SHA or deploy from Git" });
+    }
+  }
   const aliases = env.APP_ORIGIN_ALIASES;
   if (aliases.length > 4) {
     context.addIssue({ code: z.ZodIssueCode.custom, path: ["APP_ORIGIN_ALIASES"], message: "APP_ORIGIN_ALIASES accepts at most four origins" });

@@ -1,3 +1,4 @@
+import { receipts } from "./receipts";
 import { common } from "./common";
 import { landing } from "./landing";
 import { product } from "./product";
@@ -23,6 +24,7 @@ import { trades } from "./trades";
 import { exit } from "./exit";
 
 export const en = {
+  ...receipts,
   ...common,
   ...landing,
   ...product,

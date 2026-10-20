@@ -54,6 +54,7 @@ export const chunks = {
   Guide: chunk("/guide", () => importPage("/src/opsis/Guide.tsx", () => import("./Guide"))),
   Community: chunk("/community", () => importPage("/src/opsis/Community.tsx", () => import("./Community"))),
   PerpScenario: chunk("/check/perp-scenario", () => importPage("/src/opsis/PerpScenario.tsx", () => import("./PerpScenario"))),
+  ReceiptVerify: chunk("/verify", () => importPage("/src/opsis/ReceiptVerify.tsx", () => import("./ReceiptVerify"))),
 };
 export function prefetchRoute(path: string) {
   const route = Object.values(chunks).find((entry) => entry.path === path);

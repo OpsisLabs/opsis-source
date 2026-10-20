@@ -34,6 +34,7 @@ import { landingTools, routeTitle } from "./shell-model";
 import { initialTheme, persistTheme, savedTheme } from "./theme";
 import { clearPublicSession } from "./public-session";
 const Lab = lazy(chunks.Lab.load);
+const ReceiptVerify = lazy(chunks.ReceiptVerify.load);
 import "./opsis.css";
 import "./legacy-theme.css";
 import "./studio.css";
@@ -480,6 +481,7 @@ export default function OpsisApp() {
                       path="/check/perp-scenario"
                       element={<PerpScenario capabilities={access} />}
                     />
+                    <Route path="/verify" element={access.receipts === true ? <ToolWorkspace><ReceiptVerify capabilities={access} /></ToolWorkspace> : <Unavailable />} />
                     <Route path="/lab" element={<Lab />} />
                     <Route
                       path="/situation-room"

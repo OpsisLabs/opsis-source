@@ -28,6 +28,7 @@ const sources: Record<CapabilityId, [string, string]> = {
   perpHandoff: ["Reviewed venue pages", "已查阅的场所页面"],
   swapPreview: ["Uniswap Trade API", "Uniswap Trade API"],
   savedCheckComparisons: ["Encrypted browser records", "浏览器加密记录"],
+  receipts: ["Opsis signing key", "Opsis 签名密钥"],
 };
 const destinations: Record<CapabilityId, string> = {
   research: "/research",
@@ -39,6 +40,7 @@ const destinations: Record<CapabilityId, string> = {
   perpHandoff: "/check/perp-scenario",
   swapPreview: "/swap",
   savedCheckComparisons: "/saved",
+  receipts: "/verify",
 };
 const states: Record<Availability, [string, string]> = {
   available: ["Available", "可用"],

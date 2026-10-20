@@ -112,7 +112,7 @@ it("gates reused private engines before parsing and provider work, including exp
     });
     const manifest = access.json().manifest;
     expect(manifest.capabilities.map((item: { id: string }) => item.id)).toEqual([
-      "research", "tokenControls", "exitCheck", "watch", "rwa", "observedTrades", "swapPreview", "perpHandoff",
+      "research", "tokenControls", "exitCheck", "watch", "rwa", "observedTrades", "swapPreview", "receipts", "perpHandoff",
     ]);
     expect(manifest.capabilities.every((item: { scope: string; origin: string; freshness: string; coverage: string; limits: string }) =>
       [item.scope, item.origin, item.freshness, item.coverage, item.limits].every(Boolean),
@@ -164,7 +164,7 @@ it("publishes manifest capability parity from the configured server flags", asyn
     const body = response.json();
     expect(body.manifest.build).toBe(config.BUILD_SHA);
     expect(Object.fromEntries(body.manifest.capabilities.map((row: { id: string; enabled: boolean }) => [row.id, row.enabled]))).toEqual({
-      research: true, tokenControls: true, exitCheck: true, watch: true, rwa: false, observedTrades: true, swapPreview: false, perpHandoff: false,
+      research: true, tokenControls: true, exitCheck: true, watch: true, rwa: false, observedTrades: true, swapPreview: false, receipts: false, perpHandoff: false,
     });
     expect(body.swapPreview).toBe(false);
     expect(body.manifest.capabilities.some((row: { id: string }) => /perpExecution|quant|history/i.test(row.id))).toBe(false);

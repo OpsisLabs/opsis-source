@@ -266,3 +266,15 @@ it("keeps the optional saved-check comparison off when absent and validates its 
     }
   }
 });
+
+it("keeps receipts default-off and rejects capability/manifest mismatches", async () => {
+  type Body = { receipts?: unknown; manifest?: { capabilities: Array<Record<string, unknown>> }; [key: string]: unknown };
+  const body = async () => await response(Date.now() + 60_000).json() as Body;
+  const row = (enabled: boolean) => ({ id: "receipts", enabled, scope: "computation receipts", origin: "on request", freshness: "issued per request", coverage: "controls reference only", limits: "Bitcoin attestation not verified" });
+  const parse = async (fixture: Body) => { vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify(fixture)))); return unlockPreview("", new AbortController().signal); };
+  expect((await parse(await body())).receipts).toBeUndefined();
+  for (const enabled of [false, true]) { const value = await body(); value.receipts = enabled; value.manifest!.capabilities.push(row(enabled)); expect((await parse(value)).receipts).toBe(enabled); }
+  for (const [flag, manifestFlag] of [[true, false], [false, true], [undefined, true]] as const) { const value = await body(); value.receipts = flag; value.manifest!.capabilities.push(row(manifestFlag)); await expect(parse(value)).rejects.toThrow("Invalid preview response"); }
+  const missing = await body(); missing.receipts = true; await expect(parse(missing)).rejects.toThrow("Invalid preview response");
+  for (const invalid of [null, "true", 1, {}, []]) { const value = await body(); value.receipts = invalid; await expect(parse(value)).rejects.toThrow("Invalid preview response"); }
+});

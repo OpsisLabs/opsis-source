@@ -1,3 +1,5 @@
+import { configuredReceiptService } from "./receipts/service.js";
+import { receiptRoutes } from "./routes/receipts.js";
 import { controlsRoutes } from "./routes/controls.js";
 import { ControlsService } from "./controls/service.js";
 import { opsisRoutes, installOpsisPreviewGuard } from "./routes/opsis.js";
@@ -166,7 +168,9 @@ export async function buildApp(
   if (env.ENABLE_METRICS) await installMetrics(app);
   await healthRoutes(app, env, prisma, redis);
   await opsisRoutes(app, env);
-  await controlsRoutes(app, env, new ControlsService(env, createPortfolioBudget(env, redis), undefined, undefined, rpcSpend));
+  const receipts = configuredReceiptService(env);
+  await receiptRoutes(app, env, receipts);
+  await controlsRoutes(app, env, new ControlsService(env, createPortfolioBudget(env, redis), undefined, undefined, rpcSpend), receipts);
   await openDataRoutes(app, env, redis, dependencies?.openDataLimiter);
   await privateRoutes(app, env, prisma, cache, dependencies?.privateAnalysis, rpcSpend);
   await portfolioRoutes(

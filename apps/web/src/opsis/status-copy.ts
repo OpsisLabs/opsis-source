@@ -11,6 +11,17 @@ export const statusDetails: Record<
     limits: [string, string];
   }
 > = {
+  receipts: {
+    label: ["Computation receipts", "计算凭据"],
+    scope: ["Signed block-anchored computation receipts", "签名且锚定区块的计算凭据"],
+    origin: ["On explicit request", "按明确请求生成"],
+    freshness: ["Issued per request", "每次请求时签发"],
+    coverage: ["Token controls reference integration only", "仅标准合约控制参考集成"],
+    limits: [
+      "Does not establish correctness or Bitcoin attestation.",
+      "不证明结论正确或比特币证明有效。",
+    ],
+  },
   savedCheckComparisons: {
     label: ["Saved-check comparisons", "已保存核查对比"],
     scope: [

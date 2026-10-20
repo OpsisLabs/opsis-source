@@ -181,3 +181,54 @@ describe("standard controls on the admitted dRPC transport", () => {
     expect(JSON.stringify(result)).not.toContain(key);
   });
 });
+
+describe("opt-in computation receipts", () => {
+  it("keeps disabled responses byte-identical even when receipt=1", async () => {
+    const app = Fastify(); installErrorHandler(app);
+    const source = fixture();
+    await controlsRoutes(app, env, source.service);
+    const plain = await app.inject({ method: "POST", url: "/v1/private/opsis/controls", payload: { contract } });
+    const asked = await app.inject({ method: "POST", url: "/v1/private/opsis/controls?receipt=1", payload: { contract } });
+    expect(plain.statusCode).toBe(200); expect(asked.statusCode).toBe(200); expect(asked.body).toBe(plain.body); expect(asked.json()).not.toHaveProperty("receipt");
+    await app.close();
+  });
+  it("signs actual per-request RPC evidence without an extra provider read", async () => {
+    const { ReceiptService } = await import("../src/receipts/service.js");
+    const { privateKeyToAccount } = await import("viem/accounts");
+    const { keccak256, recoverAddress } = await import("viem");
+    const { canonicalize, canonicalBytes, sha256, verifyReceipt } = await import("@rh-chain/shared");
+    const account = privateKeyToAccount(`0x${"11".repeat(32)}`);
+    const keys = [{ address: account.address, validFrom: "2026-09-01T00:00:00.000Z", validTo: null }];
+    const receipts = new ReceiptService({ address: account.address, signDigest: (hash) => account.sign({ hash }) }, keys, "a".repeat(40), () => now);
+    const app = Fastify(); installErrorHandler(app); const source = fixture();
+    await controlsRoutes(app, { ...env, RECEIPTS_ENABLED: true }, source.service, receipts);
+    const plain = await app.inject({ method: "POST", url: "/v1/private/opsis/controls", payload: { contract } });
+    expect(plain.json()).not.toHaveProperty("receipt"); source.seen.length = 0;
+    const asked = await app.inject({ method: "POST", url: "/v1/private/opsis/controls?receipt=1", payload: { contract } });
+    expect(asked.statusCode).toBe(200); const result = asked.json(); const { receipt, ...outputs } = result;
+    expect(outputs).toEqual(plain.json()); expect(source.seen).toHaveLength(9); expect(receipt.rpcCalls).toHaveLength(9); expect(receipt.sources).toHaveLength(9);
+    expect(receipt.rpcCalls[0]).toEqual({ method: "eth_chainId", paramsSha256: await sha256(canonicalBytes([])) });
+    expect(receipt.sources[0].responseSha256).toBe(await sha256(canonicalBytes({ id: 1, result: "0x1237" })));
+    expect(receipt.outputs).toEqual(outputs); expect(receipt.block.number).toBe("32"); expect(receipt.timestamp).toBeUndefined();
+    expect((await verifyReceipt(canonicalize(receipt), keys, { keccak256, recoverAddress })).valid).toBe(true);
+    await app.close();
+  });
+  it("refuses receipts when signer/evidence is missing", async () => {
+    const app = Fastify(); installErrorHandler(app); const source = fixture();
+    await controlsRoutes(app, { ...env, RECEIPTS_ENABLED: true }, source.service);
+    expect((await app.inject({ method: "POST", url: "/v1/private/opsis/controls?receipt=1", payload: { contract } })).statusCode).toBe(503);
+    expect(source.seen).toHaveLength(0); await app.close();
+  });
+});
+
+it("refuses missing receipt evidence or signer failure instead of returning an unsigned result", async () => {
+  const { ReceiptService } = await import("../src/receipts/service.js");
+  const outputs = await fixture().service.check(contract);
+  const signer = { address: `0x${"22".repeat(20)}`, signDigest: vi.fn().mockRejectedValue(new Error("fixture signer unavailable")) };
+  const receipts = new ReceiptService(signer, [{ address: signer.address, validFrom: "2026-09-01T00:00:00.000Z", validTo: null }], "a".repeat(40), () => now);
+  for (const service of [{ check: vi.fn(async () => outputs) }, fixture().service]) {
+    const app = Fastify(); installErrorHandler(app); await controlsRoutes(app, { ...env, RECEIPTS_ENABLED: true }, service, receipts);
+    const response = await app.inject({ method: "POST", url: "/v1/private/opsis/controls?receipt=1", payload: { contract } });
+    expect(response.statusCode).toBe(503); expect(response.json()).not.toHaveProperty("receipt"); expect(response.body).not.toContain("signer unavailable"); await app.close();
+  }
+});

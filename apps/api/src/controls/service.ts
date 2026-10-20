@@ -1,3 +1,4 @@
+import { canonicalBytes, sha256, type ReceiptBody } from "@rh-chain/shared";
 import { keccak256, stringToHex } from "viem";
 import type { ControlReading, TokenControls } from "@rh-chain/shared";
 import type { Env } from "../config/env.js";
@@ -25,8 +26,9 @@ const unavailable = () =>
     503,
     "Contract controls could not be verified at one current block",
   );
+export type ControlsEvidence = { rpcCalls: ReceiptBody["rpcCalls"]; sources: ReceiptBody["sources"] };
 export interface ControlsSource {
-  check(contract: string): Promise<TokenControls>;
+  check(contract: string, evidence?: ControlsEvidence): Promise<TokenControls>;
 }
 export class ControlsService implements ControlsSource {
   private readonly rpc: ProviderHttp;
@@ -55,7 +57,7 @@ export class ControlsService implements ControlsSource {
         },
       });
   }
-  async check(input: string): Promise<TokenControls> {
+  async check(input: string, evidence?: ControlsEvidence): Promise<TokenControls> {
     if (!ADDRESS.test(input) || /^0x0{40}$/i.test(input))
       throw new AppError(
         "INVALID_CONTRACT",
@@ -85,6 +87,12 @@ export class ControlsService implements ControlsSource {
         );
       } catch {
         throw unavailable();
+      }
+      if (evidence) {
+        const endpoint = new URL(this.rpcEndpoint.url);
+        if (endpoint.username || endpoint.password || endpoint.search || endpoint.hash || endpoint.protocol !== "https:") throw unavailable();
+        evidence.rpcCalls.push({ method, paramsSha256: await sha256(canonicalBytes(params)) });
+        evidence.sources.push({ id: `rpc-${calls}`, provider: this.rpcEndpoint.id, url: endpoint.origin, fetchedAt: new Date(this.now()).toISOString(), responseSha256: await sha256(canonicalBytes(payload)) });
       }
       if (!payload || typeof payload !== "object" || Array.isArray(payload))
         throw unavailable();

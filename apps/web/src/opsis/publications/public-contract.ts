@@ -27,7 +27,7 @@ export function parsePublicContract(
   return { address, chain: allowedChains[chain] };
 }
 
-/** The founder-published Opsis (OPSIS) token on Robinhood Chain (D33). */
+/** The founder-published Opsis (OPSIS) token on Robinhood Chain (D34). */
 export const publishedContract: PublicContract = {
   address: "0x75cb4182Db44f816d80e946F0b84dBC29e5cf58A",
   chain: "Robinhood Chain · 4663",

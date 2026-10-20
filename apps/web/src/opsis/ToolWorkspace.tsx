@@ -9,6 +9,7 @@ const pages: Record<string, [string, string, string, string, string]> = {
     "Explore captured market observations beside dated reports and their sources.",
     "对照注明日期的报道及其来源，查看采集的市场观测数据。",
   ],
+  "/verify": ["VERIFY / ON THIS DEVICE", "Check an Opsis receipt.", "核对 Opsis 凭据。", "Signature, key and inclusion proof are checked in your browser; the receipt never leaves it.", "签名、密钥与包含证明均在浏览器中核对；凭据不会离开浏览器。"],
   "/status": ["", "Data status", "数据状态", "Source capabilities and evidence coverage across Opsis tools.", "Opsis 工具的数据源功能与证据覆盖范围。"],
   "/community": ["", "Community", "社区", "Share feedback in a private draft and see what has shipped.", "在私密草稿中分享反馈，查看已发布的更新。"],
   "/privacy": ["", "Privacy", "隐私", "How information flows, what stays on your device and the choices you control.", "了解信息流向、保留在设备上的内容，以及由您控制的选择。"],
