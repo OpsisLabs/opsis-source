@@ -1,3 +1,7 @@
+import SqlAccess from "./open-data/SqlAccess";
+import { openDataSqlEnabled } from "./open-data/availability";
+import type { Capabilities } from "./model";
+import { useI18n } from "../i18n";
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router";
 import { parseLabView } from "./lab-view";
@@ -24,7 +28,9 @@ const StockGapSeriesPanel = lazy(() => import("./StockGapSeriesPanel"));
 const FundingWorkbench = lazy(() => import("./quant/FundingWorkbench"));
 const BasisWorkbench = lazy(() => import("./quant/BasisWorkbench"));
 
-export default function Lab() {
+export default function Lab({ capabilities }: { capabilities?: Pick<Capabilities, "openDataSql" | "openDataDatasets"> }) {
+  const { t } = useI18n();
+  const sqlEnabled = openDataSqlEnabled(capabilities);
   const c = useCopy();
   const [data, setData] = useState<LabData | null>(null);
   const [failed, setFailed] = useState(false);
@@ -36,7 +42,7 @@ export default function Lab() {
     next.set("view", view);
     return next;
   });
-  const [researchTool, setResearchTool] = useState<"quant" | "stock" | "funding" | "basis">("quant");
+  const [researchTool, setResearchTool] = useState<"quant" | "stock" | "funding" | "basis" | "sql">("quant");
   const [token, setToken] = useState("all");
   const [minimum, setMinimum] = useState(10000);
   const [selection, setSelection] = useState("");
@@ -143,7 +149,9 @@ export default function Lab() {
               ["funding", c("Funding records", "资金费率记录")],
               ["basis", c("Mark / index basis", "标记价 / 指数价基差")],
             ] as const).map(([id, label]) => <button key={id} type="button" aria-pressed={researchTool === id} onClick={() => setResearchTool(id)}>{label}</button>)}
+            {sqlEnabled && <button type="button" aria-pressed={researchTool === "sql"} onClick={() => setResearchTool("sql")}>{t("sql.title")}</button>}
           </nav>
+          {sqlEnabled && researchTool === "sql" && <SqlAccess capabilities={capabilities} />}
           <div hidden={researchTool !== "quant"}><QuantWorkbench /></div>
           <details open={researchTool === "stock"} className="opsis-lab-methods opsis-lab-research-pane">
             <summary onClick={(event) => { event.preventDefault(); setResearchTool(researchTool === "stock" ? "quant" : "stock"); }}>{c("Stock-token reference gap", "股票代币参考价差")}</summary>

@@ -484,7 +484,7 @@ export default function OpsisApp() {
                     />
                     <Route path="/research/launches" element={access.launchCards === true ? <ToolWorkspace><LaunchRadar enabled /></ToolWorkspace> : <Unavailable />} />
                     <Route path="/verify" element={access.receipts === true ? <ToolWorkspace><ReceiptVerify capabilities={access} /></ToolWorkspace> : <Unavailable />} />
-                    <Route path="/lab" element={<Lab />} />
+                    <Route path="/lab" element={<Lab capabilities={access} />} />
                     <Route
                       path="/situation-room"
                       element={<Navigate to="/research/events" replace />}

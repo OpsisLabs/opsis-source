@@ -1,0 +1,51 @@
+.opsis-sql {
+  min-width: 0;
+}
+.opsis-sql textarea {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  resize: vertical;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 12px;
+  color: var(--ink);
+  background: var(--panel);
+  font:
+    12px/1.6 OpsisMono,
+    monospace;
+}
+.opsis-sql fieldset {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+}
+.opsis-sql code,
+.opsis-sql dd {
+  overflow-wrap: anywhere;
+}
+.opsis-sql dd {
+  margin-left: 0;
+  font-size: 12px;
+}
+.opsis-sql dt {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--soft);
+}
+.opsis-sql pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.opsis-sql th small {
+  display: block;
+  font-weight: 400;
+}
+.opsis-sql td {
+  max-width: 360px;
+  overflow-wrap: anywhere;
+}
+.opsis-sql .opsis-table-scroll {
+  max-height: 560px;
+  overflow: auto;
+}

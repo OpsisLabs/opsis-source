@@ -1,3 +1,4 @@
+import { openDataSql } from "./open-data-sql";
 import { receipts } from "./receipts";
 import { common } from "./common";
 import { landing } from "./landing";
@@ -24,6 +25,7 @@ import { trades } from "./trades";
 import { exit } from "./exit";
 
 export const en = {
+  ...openDataSql,
   ...receipts,
   ...common,
   ...landing,

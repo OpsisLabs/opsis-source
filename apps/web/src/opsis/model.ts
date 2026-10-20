@@ -41,7 +41,7 @@ export function workspaceIdentity(path: "/research" | "/check", search: string):
   const id = publicIdentity(path === "/check" ? params.get("token") ?? params.get("entity") : params.get("entity"));
   return path === "/check" && id.length !== 42 ? "" : id;
 }
-export type CapabilityId = "research" | "tokenControls" | "exitCheck" | "watch" | "rwa" | "observedTrades" | "swapPreview" | "perpHandoff" | "savedCheckComparisons" | "receipts" | "publicCards" | "publicMcp" | "telegramBot" | "stockDesk" | "launchCards";
+export type CapabilityId = "research" | "tokenControls" | "exitCheck" | "watch" | "rwa" | "observedTrades" | "swapPreview" | "perpHandoff" | "savedCheckComparisons" | "receipts" | "publicCards" | "publicMcp" | "telegramBot" | "stockDesk" | "launchCards" | "openDataSql" | "openDataDatasets";
 export type CapabilityStatus = { id: CapabilityId; enabled: boolean; scope: string; origin: string; freshness: string; coverage: string; limits: string };
 export type CapabilityManifest = { version: 1; chain: { id: 4663; name: string }; build: string | null; capabilities: CapabilityStatus[] };
 export type Capabilities = {
@@ -56,6 +56,8 @@ export type Capabilities = {
   swapPreview?: boolean;
   perpHandoff?: boolean;
   savedCheckComparisons?: boolean;
+  openDataSql?: boolean;
+  openDataDatasets?: boolean;
   launchCards?: boolean;
   receipts?: boolean;
   publicCards?: boolean;
@@ -68,7 +70,7 @@ export type Capabilities = {
 
 const requiredCapabilityIds: CapabilityId[] = ["research", "tokenControls", "exitCheck", "watch", "rwa", "observedTrades"];
 // Optional rows let a newer browser build work with an older server manifest.
-const optionalCapabilityIds: CapabilityId[] = ["swapPreview", "perpHandoff", "savedCheckComparisons", "receipts", "publicCards", "publicMcp", "telegramBot", "stockDesk", "launchCards"];
+const optionalCapabilityIds: CapabilityId[] = ["swapPreview", "perpHandoff", "savedCheckComparisons", "receipts", "publicCards", "publicMcp", "telegramBot", "stockDesk", "launchCards", "openDataSql", "openDataDatasets"];
 const capabilityIds: CapabilityId[] = [...requiredCapabilityIds, ...optionalCapabilityIds];
 function parseManifest(value: unknown): CapabilityManifest | undefined {
   if (value === undefined) return undefined; // Older preview fixtures expose the same server-derived booleans.
@@ -130,7 +132,7 @@ export async function unlockPreview(
       typeof data.tokenControls !== "boolean") ||
     (data.swapPreview !== undefined &&
       typeof data.swapPreview !== "boolean") ||
-    [data.publicCards, data.publicMcp, data.telegramBot, data.stockDesk, data.launchCards].some((flag) => flag !== undefined && typeof flag !== "boolean") ||
+    [data.publicCards, data.publicMcp, data.telegramBot, data.stockDesk, data.launchCards, data.openDataSql, data.openDataDatasets].some((flag) => flag !== undefined && typeof flag !== "boolean") ||
     (data.receipts !== undefined && typeof data.receipts !== "boolean") ||
     (data.perpHandoff !== undefined &&
       typeof data.perpHandoff !== "boolean") ||
@@ -157,6 +159,8 @@ export async function unlockPreview(
       swapPreview: data.swapPreview ?? false,
       perpHandoff: data.perpHandoff ?? false,
       savedCheckComparisons: data.savedCheckComparisons ?? false,
+      openDataSql: data.openDataSql ?? false,
+      openDataDatasets: data.openDataDatasets ?? false,
       launchCards: data.launchCards ?? false,
       receipts: data.receipts ?? false,
       publicCards: data.publicCards ?? false,
@@ -164,7 +168,7 @@ export async function unlockPreview(
       telegramBot: data.telegramBot ?? false,
       stockDesk: data.stockDesk ?? false,
     };
-    if (["perpHandoff", "savedCheckComparisons", "receipts", "publicCards", "publicMcp", "telegramBot", "stockDesk", "launchCards"].some(id => legacyFlags[id as CapabilityId] && !manifest.capabilities.some(entry => entry.id === id)) || manifest.capabilities.some((entry) => entry.enabled !== legacyFlags[entry.id])) throw new Error("Invalid preview response");
+    if (["perpHandoff", "savedCheckComparisons", "receipts", "publicCards", "publicMcp", "telegramBot", "stockDesk", "launchCards", "openDataSql", "openDataDatasets"].some(id => legacyFlags[id as CapabilityId] && !manifest.capabilities.some(entry => entry.id === id)) || manifest.capabilities.some((entry) => entry.enabled !== legacyFlags[entry.id])) throw new Error("Invalid preview response");
   }
   return {
     ...data,

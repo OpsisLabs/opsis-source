@@ -11,6 +11,22 @@ export const statusDetails: Record<
     limits: [string, string];
   }
 > = {
+  openDataSql: {
+    label: ["Browser SQL", "浏览器 SQL"],
+    scope: ["SQL over your own CSV files", "对自己的 CSV 文件运行 SQL"],
+    origin: ["Files picked from this device", "从此设备选择的文件"],
+    freshness: ["User-supplied files", "用户提供的文件"],
+    coverage: ["Up to four CSV files", "最多四个 CSV 文件"],
+    limits: ["50 MB each, 100 MB total. Files and queries never leave this device.", "每个 50 MB，总计 100 MB。文件和查询不会离开此设备。"],
+  },
+  openDataDatasets: {
+    label: ["Published Opsis datasets", "Opsis 已发布数据集"],
+    scope: ["Published Opsis datasets: next.", "Opsis 已发布数据集：下一步。"],
+    origin: ["Same-origin static files", "同源静态文件"],
+    freshness: ["Dataset generation time", "数据集生成时间"],
+    coverage: ["Reviewed published files only", "仅经审查的已发布文件"],
+    limits: ["Separate flag; data-rights review and self-hosted Parquet extension required.", "独立开关；需要数据使用权审查及自托管 Parquet 扩展。"],
+  },
   launchCards: {
     label: ["Launch facts and Launch Radar", "发行事实与发行雷达"],
     scope: ["Robinhood Chain reviewed launch events", "Robinhood Chain 已查阅的发行事件"],

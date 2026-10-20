@@ -100,6 +100,8 @@ const envSchema = z.object({
   UNISWAP_QUOTE_CACHE_SECONDS: z.coerce.number().int().min(5).max(29).default(15),
   UNISWAP_QUOTE_BUDGET_PER_MINUTE: z.coerce.number().int().min(1).max(120).default(30),
   UNISWAP_QUOTE_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().min(1).max(120).default(20),
+  OPEN_DATA_DATASETS_ENABLED: envBoolean.default(false),
+  OPEN_DATA_SQL_ENABLED: envBoolean.default(false),
   RECEIPTS_ENABLED: envBoolean.default(false),
   RECEIPT_SIGNING_KEY: z.string().optional(),
   RECEIPT_KEY_VALID_FROM: z.string().datetime().refine((value) => Number.isFinite(Date.parse(value)) && new Date(value).toISOString() === value, "Use a canonical UTC timestamp with milliseconds").default("2026-10-19T00:00:00.000Z"),

@@ -28,6 +28,8 @@ export function capabilityRows(capabilities: Capabilities): CapabilityStatus[] {
     "perpHandoff",
     "swapPreview",
     "savedCheckComparisons",
+    "openDataSql",
+    "openDataDatasets",
     "launchCards",
   ];
   return ids.map((id) => {

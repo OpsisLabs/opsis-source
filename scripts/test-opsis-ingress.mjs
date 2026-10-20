@@ -22,6 +22,16 @@ try {
   const html = await page.text(); const script = /src="([^"]+\.js)"/.exec(html)?.[1]; assert(script);
   assert.equal((await fetch(base+script)).status,401,"assets must also require ingress authentication");
   assert.equal((await fetch(base+script,{headers})).status,200);
+  for (const directive of ["script-src 'self' 'wasm-unsafe-eval'", "worker-src 'self'"]) assert(page.headers.get("content-security-policy").includes(directive));
+  const asset = await fetch(base+script, {headers:{...headers, "accept-encoding":"gzip"}});
+  assert.match(asset.headers.get("cache-control"), /max-age=31536000, immutable/);
+  assert.equal(asset.headers.get("content-encoding"), "gzip");
+  const build = await (await fetch(base+"/open-data-build.json", {headers})).json();
+  const wasmPath = build.engineFiles.find(path => path.endsWith(".wasm"));
+  assert(wasmPath);
+  const wasm = await fetch(base+"/"+wasmPath, {headers:{...headers, "accept-encoding":"gzip"}});
+  assert.equal(wasm.headers.get("content-type"), "application/wasm");
+  assert.equal(wasm.headers.get("content-encoding"), "gzip");
   assert.equal(page.headers.get("x-frame-options"), "DENY", "app remains unframeable");
   const landing = await fetch(base+"/opsis-site/index.html", {headers});
   assert.equal(landing.status, 200);

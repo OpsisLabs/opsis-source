@@ -12,7 +12,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@duckdb/duckdb-wasm": "1.32.0",
     "@gsap/react": "2.1.2",
+    "@phosphor-icons/react": "2.1.10",
     "@rh-chain/quant": "workspace:*",
     "@rh-chain/shared": "workspace:*",
     "class-variance-authority": "^0.7.1",
@@ -24,9 +26,8 @@
     "react-dom": "^19.2.0",
     "react-router": "^7.18.2",
     "tailwind-merge": "^3.4.0",
-    "viem": "^2.55.8",
     "three": "0.186.0",
-    "@phosphor-icons/react": "2.1.10"
+    "viem": "^2.55.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

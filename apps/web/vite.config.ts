@@ -1,3 +1,4 @@
+import { openDataBoundary } from "./build/open-data-boundary";
 import path from "path";
 import react from "@vitejs/plugin-react";
 import { defineConfig, loadEnv } from "vite";
@@ -32,6 +33,7 @@ export default defineConfig(({ mode }) => {
     base: "/",
     plugins: [
       react(),
+      openDataBoundary(),
       {
         name: "opsis-site-files",
         generateBundle() {
