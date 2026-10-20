@@ -23,7 +23,8 @@ describe("capability registry evidence", () => {
   it("never treats configured remote reads or local records as observed provider health", () => {
     const rows = capabilityRows(capabilities);
     expect(rows[0].id).toBe("research");
-    expect(rows).toHaveLength(9);
+    expect(rows).toHaveLength(10);
+    expect(rows.find((row) => row.id === "launchCards")?.enabled).toBe(false);
     for (const row of rows)
       expect(capabilityAvailability(row)).toBe(
         row.enabled ? "unknown" : "not-enabled",

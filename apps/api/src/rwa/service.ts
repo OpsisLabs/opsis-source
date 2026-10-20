@@ -20,6 +20,7 @@ import {
 } from "../chain/robinhood-rpc.js";
 import { AppError } from "../http/errors.js";
 import { createRwaBudget, type RwaBudget } from "./budget.js";
+import { readChainlinkUsd, type AnchoredRead } from "./chainlink.js";
 
 const RHJ_API = "https://api.robinhood.com/rhj";
 const CHAINLINK_RDD = "https://reference-data-directory.vercel.app/feeds-robinhood-mainnet.json";
@@ -528,6 +529,26 @@ type CapturedAnchor = { timestamp?: string; blockNumber: number; blockHex: strin
 type VerificationRun = { rpcUnits: number; rpcCalls?: ReceiptBody["rpcCalls"] };
 type StockAsset = { id: string; symbol: string; name: string; decimals: number; currentMultiplier: string; pendingMultiplier: string | null; status: string };
 type Feed = { proxyAddress: string; name: string; heartbeat: number; decimals: number; multiplierEmbedded: boolean | null };
+
+/** Reuse the stock engine's exact-deployment identity and per-token feed lookup.
+ * The caller supplies budgeted, evidence-recorded reads at its existing anchor. */
+export async function stockPairUsdPrice(address: string, document: (url: string) => Promise<unknown>, read: AnchoredRead, block: string, seconds: number) {
+  const body = await document(`${RHJ_API}/assets`);
+  if (!Array.isArray(asRecord(body).assets)) throw new Error("Stock registry unavailable");
+  const asset = findStockAsset(body, address.toLowerCase());
+  if (!asset) return null;
+  const feed = parseFeedDirectory(await document(CHAINLINK_RDD), asset.symbol);
+  if (feed.state !== "match") throw new Error("Stock per-token feed unavailable");
+  const call = async (functionName: "uid" | "symbol" | "decimals" | "oraclePaused") => decodeFunctionResult({
+    abi: stockAbi, functionName,
+    data: await read("eth_call", [{ to: address, data: encodeFunctionData({ abi: stockAbi, functionName }) }, block]) as Hex,
+  });
+  if (String(await call("uid")).toLowerCase() !== asset.id.toLowerCase() || await call("symbol") !== asset.symbol || await call("decimals") !== asset.decimals || await call("oraclePaused") !== false) throw new Error("Stock pair identity or oracle unavailable");
+  const price = await readChainlinkUsd(read, block, seconds, feed.value);
+  // primaryTokenizedPrice feeds are USD per raw token, with the UI multiplier
+  // already embedded. Never multiply by uiMultiplier or an underlying quote.
+  return { ...price, decimals: asset.decimals, symbol: asset.symbol, source: `${price.source}; per-token price, multiplier already included` };
+}
 
 function findStockAsset(body: unknown, address: string): StockAsset | null {
   const assets = asArray(asRecord(body).assets);

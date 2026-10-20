@@ -11,6 +11,14 @@ export const statusDetails: Record<
     limits: [string, string];
   }
 > = {
+  launchCards: {
+    label: ["Launch facts and Launch Radar", "发行事实与发行雷达"],
+    scope: ["Robinhood Chain reviewed launch events", "Robinhood Chain 已查阅的发行事件"],
+    origin: ["RPC and Chainlink USD conversion on request", "按请求读取 RPC 及 Chainlink 美元换算"],
+    freshness: ["Block-anchored cards and bounded recent feed", "锚定区块的卡片及有限近期列表"],
+    coverage: ["Versioned rules, capped scans and synthetic sell simulations", "版本化规则、受限扫描与合成卖出模拟"],
+    limits: ["Unknown stays unknown. Simulated behaviour can change. Not investment advice.", "未知保持未知。模拟行为可能变化。非投资建议。"],
+  },
   stockDesk: {
     label: ["Stock Token Desk", "股票代币数据台"],
     scope: ["Desk facts and reviewed-sample index", "数据台事实与已审阅样本索引"],

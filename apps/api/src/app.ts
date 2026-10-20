@@ -1,3 +1,6 @@
+import { launchRoutes } from "./routes/launches.js";
+import { LaunchCardsService, type LaunchCardsSource } from "./launches/service.js";
+import { createLaunchCardsBudget } from "./launches/budget.js";
 import { StockDeskService, STOCK_DESK_ASSETS } from "./stock-desk/service.js";
 import { reserveBudget } from "./stock-desk/budget.js";
 import { stockDeskRoutes } from "./routes/stock-desk.js";
@@ -77,6 +80,7 @@ export async function buildApp(
     marketInventory?: MarketInventorySource;
     observedTrades?: ObservedTradesSource;
     openDataLimiter?: OpenDataLimiter;
+    launchCards?: LaunchCardsSource;
     exitCheck?: ExitCheckSource;
     tokenCards?: TokenCardSource;
     telegramBot?: BotApiClient;
@@ -195,6 +199,7 @@ export async function buildApp(
   } }, new EngineCardSources(env, portfolioBudget, rpcSpend), cache, env.PUBLIC_CARDS_CACHE_SECONDS, receipts);
   const openDataLimiter = dependencies?.openDataLimiter ?? createOpenDataLimiter(env, redis);
   await controlsRoutes(app, env, controls, receipts);
+  await launchRoutes(app, env, dependencies?.launchCards ?? new LaunchCardsService(env, cache, { budget: createLaunchCardsBudget(env, redis), rpcSpend, receipts }));
   await openDataRoutes(app, env, redis, openDataLimiter, cards);
   await app.register(async (scope) => {
     reachResponseHeaders(scope);

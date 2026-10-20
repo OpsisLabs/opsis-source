@@ -33,6 +33,7 @@ import { chunks } from "./route-chunks";
 import { landingTools, routeTitle } from "./shell-model";
 import { initialTheme, persistTheme, savedTheme } from "./theme";
 import { clearPublicSession } from "./public-session";
+const LaunchRadar = lazy(chunks.LaunchRadar.load);
 const Lab = lazy(chunks.Lab.load);
 const ReceiptVerify = lazy(chunks.ReceiptVerify.load);
 import "./opsis.css";
@@ -481,6 +482,7 @@ export default function OpsisApp() {
                       path="/check/perp-scenario"
                       element={<PerpScenario capabilities={access} />}
                     />
+                    <Route path="/research/launches" element={access.launchCards === true ? <ToolWorkspace><LaunchRadar enabled /></ToolWorkspace> : <Unavailable />} />
                     <Route path="/verify" element={access.receipts === true ? <ToolWorkspace><ReceiptVerify capabilities={access} /></ToolWorkspace> : <Unavailable />} />
                     <Route path="/lab" element={<Lab />} />
                     <Route

@@ -103,6 +103,15 @@ const envSchema = z.object({
   RECEIPTS_ENABLED: envBoolean.default(false),
   RECEIPT_SIGNING_KEY: z.string().optional(),
   RECEIPT_KEY_VALID_FROM: z.string().datetime().refine((value) => Number.isFinite(Date.parse(value)) && new Date(value).toISOString() === value, "Use a canonical UTC timestamp with milliseconds").default("2026-10-19T00:00:00.000Z"),
+  LAUNCH_CARDS_ENABLED: envBoolean.default(false),
+  // The sell test stays off until eth_simulateV1 results are verified on the production provider.
+  LAUNCH_SELL_TEST_ENABLED: envBoolean.default(false),
+  LAUNCH_LOG_WINDOW_BLOCKS: z.coerce.number().int().min(2_000).max(10_000_000).default(1_000_000),
+  LAUNCH_CARDS_DAILY_RPC_UNIT_BUDGET: z.coerce.number().int().min(100).max(100_000).default(5_000),
+  LAUNCH_CARDS_MAX_RPC_SUBCALLS: z.coerce.number().int().min(40).max(600).default(480),
+  LAUNCH_CARDS_FEED_MAX_RPC_SUBCALLS: z.coerce.number().int().min(40).max(300).default(180),
+  LAUNCH_CARDS_FEED_CACHE_SECONDS: z.coerce.number().int().min(1).max(300).default(60),
+  RATE_LIMIT_LAUNCH_CARDS_PER_HOUR: z.coerce.number().int().min(1).max(60).default(10),
   TOKEN_CONTROLS_ENABLED: envBoolean.default(false),
   OPSIS_WORKSPACES_ENABLED: envBoolean.default(false),
   OPSIS_PUBLIC_ACCESS_ENABLED: envBoolean.default(false),
@@ -422,6 +431,7 @@ const envSchema = z.object({
     || env.STOCK_DESK_ENABLED
     || env.RWA_VERIFY_ENABLED
     || env.EXIT_CHECK_ENABLED
+    || env.LAUNCH_CARDS_ENABLED
     || env.OBSERVED_TRADES_ENABLED;
   if (chainReadsEnabled && env.ROBINHOOD_RPC_PROVIDER !== "drpc") {
     context.addIssue({

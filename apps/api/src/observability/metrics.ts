@@ -20,8 +20,8 @@ type RuntimeMetrics = {
   retentionLastSuccess: Gauge;
 };
 
-export type RpcWorkload = "research" | "observed-trades" | "exit-check" | "controls" | "rwa" | "portfolio" | "unattributed";
-const RPC_WORKLOADS = new Set<RpcWorkload>(["research", "observed-trades", "exit-check", "controls", "rwa", "portfolio", "unattributed"]);
+export type RpcWorkload = "research" | "observed-trades" | "exit-check" | "controls" | "launch-cards" | "rwa" | "portfolio" | "unattributed";
+const RPC_WORKLOADS = new Set<RpcWorkload>(["research", "observed-trades", "exit-check", "controls", "launch-cards", "rwa", "portfolio", "unattributed"]);
 
 let activeMetrics: RuntimeMetrics | undefined;
 

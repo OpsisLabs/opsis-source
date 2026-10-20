@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { useLocation } from "react-router";
 import { useCopy } from "./copy";
 const pages: Record<string, [string, string, string, string, string]> = {
+  "/research/launches": ["", "Which launches appeared in this read window?", "此读取范围内出现了哪些发行事件？", "Recent launch events with their read window and coverage limits.", "近期发行事件及其读取范围和覆盖限制。"],
   "/research/events": [
     "RESEARCH / EVENTS",
     "World & markets",

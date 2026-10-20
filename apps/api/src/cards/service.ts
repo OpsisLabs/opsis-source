@@ -83,6 +83,7 @@ const failure = (error: unknown): Part<never> => ({
 export function thousandDollarAmount(
   price: string,
   decimals: number,
+  notionalUsd = 1000,
 ): string | null {
   if (
     !/^\d{1,30}(?:\.\d{1,30})?$/.test(price) ||
@@ -95,7 +96,8 @@ export function thousandDollarAmount(
   const denominator = BigInt(`${whole}${fraction}`);
   if (denominator <= 0n) return null;
   const scale = 10n ** BigInt(decimals + fraction.length);
-  const numerator = 1000n * scale;
+  if (![100, 1000, 10000].includes(notionalUsd)) return null;
+  const numerator = BigInt(notionalUsd) * scale;
   const raw = numerator / denominator;
   // Refuse a token precision that misses the requested notional by over one cent.
   if ((numerator - raw * denominator) * 100n > scale) return null;

@@ -37,6 +37,7 @@ function chunk<T>(path: string, importer: () => Promise<T>) {
   } };
 }
 export const chunks = {
+  LaunchRadar: chunk("/research/launches", () => importPage("/src/opsis/LaunchRadar.tsx", () => import("./LaunchRadar"))),
   Lab: chunk("/lab", () => importPage("/src/opsis/Lab.tsx", () => import("./Lab"))),
   SituationRoom: chunk("/research/events", () => importPage("/src/situation/SituationRoom.tsx", () => import("../situation/SituationRoom"))),
   Research: chunk("/research", () => importPage("/src/opsis/Research.tsx", () => import("./Research"))),

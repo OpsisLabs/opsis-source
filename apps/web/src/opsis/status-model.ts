@@ -28,6 +28,7 @@ export function capabilityRows(capabilities: Capabilities): CapabilityStatus[] {
     "perpHandoff",
     "swapPreview",
     "savedCheckComparisons",
+    "launchCards",
   ];
   return ids.map((id) => {
     const copy = statusDetails[id];

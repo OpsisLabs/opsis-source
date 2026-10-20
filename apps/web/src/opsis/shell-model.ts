@@ -2,6 +2,7 @@ import { isWatchEnabled } from "../product/availability";
 import type { Capabilities } from "./model";
 
 export const routeNames: Record<string, readonly [string, string]> = {
+  "/research/launches": ["Launch Radar", "发行雷达"],
   "/research": ["Research", "研究"],
   "/research/details": ["Detailed research", "详细研究"],
   "/check": ["Trade Check", "交易核查"],
@@ -47,7 +48,7 @@ export function tradeToolPaths(capabilities: Capabilities, flags = toolFlags): s
   ];
 }
 export function researchToolPaths(capabilities: Capabilities, flags = toolFlags): string[] {
-  return ["/research", ...(capabilities.rwa ? ["/rwa"] : []),
+  return ["/research", ...(capabilities.launchCards === true ? ["/research/launches"] : []), ...(capabilities.rwa ? ["/rwa"] : []),
     ...(capabilities.observedTrades && flags.trades ? ["/biggest-trades"] : []),
     ...(flags.world ? ["/research/events"] : [])];
 }
@@ -80,6 +81,7 @@ const groups: ToolGroup[] = [
     name: ["Look up", "查询"],
     heading: ["Start with the facts.", "从事实开始。"],
     tools: [
+      { path: "/research/launches", name: routeNames["/research/launches"], purpose: ["Recent launch events and their coverage", "近期发行事件及覆盖范围"], icon: "research" },
       {
         path: "/research",
         name: routeNames["/research"],

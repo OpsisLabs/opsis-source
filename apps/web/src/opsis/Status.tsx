@@ -19,6 +19,7 @@ import {
 import "./utility-workspace.css";
 
 const sources: Record<CapabilityId, [string, string]> = {
+  launchCards: ["Reviewed launch registry, RPC and explorer", "已查阅发行登记、RPC 与区块浏览器"],
   research: ["Public chain data", "公开链上数据"],
   tokenControls: ["Read-only RPC", "只读 RPC"],
   exitCheck: ["Uniswap V3 pool reads", "Uniswap V3 流动池读取"],
@@ -35,6 +36,7 @@ const sources: Record<CapabilityId, [string, string]> = {
   telegramBot: ["Shared token card engines", "共享代币卡片引擎"],
 };
 const destinations: Record<CapabilityId, string> = {
+  launchCards: "/research/launches",
   research: "/research",
   tokenControls: "/research",
   exitCheck: "/check",

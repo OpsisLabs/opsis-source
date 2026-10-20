@@ -57,7 +57,10 @@ export class ControlsService implements ControlsSource {
         },
       });
   }
-  async check(input: string, evidence?: ControlsEvidence): Promise<TokenControls> {
+  async checkAt(input: string, anchor: { blockNumber: number; blockHash: string }, evidence?: ControlsEvidence): Promise<TokenControls> {
+    return this.check(input, evidence, anchor);
+  }
+  async check(input: string, evidence?: ControlsEvidence, anchor?: { blockNumber: number; blockHash: string }): Promise<TokenControls> {
     if (!ADDRESS.test(input) || /^0x0{40}$/i.test(input))
       throw new AppError(
         "INVALID_CONTRACT",
@@ -112,7 +115,7 @@ export class ControlsService implements ControlsSource {
     };
     if ((await read("eth_chainId", [])) !== "0x1237") throw unavailable();
     const start = this.now();
-    const rawBlock = await read("eth_getBlockByNumber", ["latest", false]);
+    const rawBlock = await read("eth_getBlockByNumber", [anchor ? `0x${anchor.blockNumber.toString(16)}` : "latest", false]);
     if (!rawBlock || typeof rawBlock !== "object") throw unavailable();
     const block = rawBlock as {
       number?: unknown;
@@ -122,6 +125,7 @@ export class ControlsService implements ControlsSource {
     const number = parseHex(block.number),
       timestamp = parseHex(block.timestamp);
     if (
+      (anchor !== undefined && (block.hash !== anchor.blockHash || number !== anchor.blockNumber)) ||
       number === null ||
       timestamp === null ||
       typeof block.hash !== "string" ||

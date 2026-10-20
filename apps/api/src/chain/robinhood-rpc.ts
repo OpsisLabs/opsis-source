@@ -47,6 +47,8 @@ export function rpcRoutingDisclosure(endpoint: RobinhoodRpcEndpoint): string {
 export const ROBINHOOD_RPC_METHOD_UNITS: Readonly<Record<string, number>> = Object.freeze({
   eth_blockNumber: 20,
   eth_call: 20,
+  // Conservative reservation for bounded multi-block simulations, pending measurement.
+  eth_simulateV1: 2000,
   eth_chainId: 20,
   eth_getBalance: 20,
   eth_getBlockByNumber: 20,
@@ -54,6 +56,7 @@ export const ROBINHOOD_RPC_METHOD_UNITS: Readonly<Record<string, number>> = Obje
   eth_getLogs: 200,
   eth_getStorageAt: 20,
   eth_getTransactionByHash: 20,
+  eth_getTransactionCount: 20,
   eth_getTransactionReceipt: 20
 });
 

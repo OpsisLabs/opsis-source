@@ -29,3 +29,10 @@ describe("route chunk loading", () => {
     expect(importPage).toHaveBeenCalledTimes(2);
   });
 });
+
+it("loads Launch Radar through the guarded page importer", async () => {
+  vi.mocked(importPage).mockResolvedValueOnce({ default: "launch feed" });
+  expect(chunks.LaunchRadar.path).toBe("/research/launches");
+  await expect(chunks.LaunchRadar.load()).resolves.toEqual({ default: "launch feed" });
+  expect(importPage).toHaveBeenCalledWith("/src/opsis/LaunchRadar.tsx", expect.any(Function));
+});

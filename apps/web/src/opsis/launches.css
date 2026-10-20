@@ -1,0 +1,89 @@
+.launch-card {
+  color: var(--ink);
+  min-width: 0;
+  padding: clamp(1rem, 3vw, 2rem);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.launch-card h2,
+.launch-card h3 {
+  font-weight: 500;
+}
+.launch-fact {
+  border-top: 1px solid var(--line);
+  padding: 1rem 0;
+  min-width: 0;
+}
+.launch-fact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 25rem), 1fr));
+  gap: 1.5rem;
+}
+.launch-values {
+  margin: 0.5rem 0;
+}
+.launch-values > div {
+  padding: 0.35rem 0;
+}
+.launch-values dt {
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+.launch-values dd {
+  margin: 0.2rem 0;
+  overflow-wrap: anywhere;
+}
+.launch-values ul {
+  padding-left: 1.2rem;
+}
+.launch-address,
+.launch-table td {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+.launch-table {
+  overflow-x: auto;
+}
+.launch-table table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 38rem;
+  text-align: left;
+}
+.launch-table th,
+.launch-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.launch-table th {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+.launch-simulation {
+  border-top: 1px solid var(--line);
+  padding: 0.75rem 0;
+}
+.launch-tooltip {
+  position: relative;
+  text-decoration: underline dotted;
+}
+.launch-tooltip [role="tooltip"] {
+  display: none;
+  position: absolute;
+  z-index: 3;
+  left: 0;
+  top: 100%;
+  width: min(24rem, 75vw);
+  padding: 0.75rem;
+  background: var(--panel);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  font-family: inherit;
+}
+.launch-tooltip:hover [role="tooltip"],
+.launch-tooltip:focus [role="tooltip"] {
+  display: block;
+}

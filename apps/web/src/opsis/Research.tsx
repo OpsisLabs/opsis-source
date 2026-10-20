@@ -1,3 +1,4 @@
+import LaunchCard from "./LaunchCard";
 import { savedCheckComparisonsEnabled } from "./saved-checks";
 import { isWatchEnabled } from "../product/availability";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -283,6 +284,7 @@ export default function Research({
               ) : null}
               <div className="research-result-columns">
               <div className="research-main">
+              {result.entity.type === "token" && result.entity.chainId === 4663 && <LaunchCard enabled={capabilities.launchCards === true} token={result.entity.value} />}
               {result.entity.type === "token" ? <TokenFacts facts={result.entity.facts} showTiles={false} />
                 : result.entity.type === "wallet" ? <><WalletTransactions facts={result.entity.facts} address={result.entity.value} /><WalletBalances facts={result.entity.facts} /></>
                   : <p className="opsis-result-copy">{result.answer.answer}</p>}
