@@ -275,6 +275,9 @@ export default function PublicPages() {
                 <Link to="/status">{c("Data status", "数据状态")}</Link>
                 <Link to="/privacy">{c("Privacy", "隐私")}</Link>
                 <Link to="/terms">{c("Terms", "条款")}</Link>
+                <a href="https://github.com/OpsisLabs/opsis-source" target="_blank" rel="noopener noreferrer">
+                  GitHub ↗
+                </a>
                 <Link to="/">{c("Back to Opsis", "返回 Opsis")}</Link>
               </nav>
             </footer>
