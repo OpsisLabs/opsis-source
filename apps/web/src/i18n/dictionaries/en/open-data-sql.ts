@@ -55,7 +55,6 @@ export const openDataSql = {
   "sql.pickReplay": "Pick the same CSV files, in the original order, to replay",
   "sql.schemaAfterRun":
     "Run your first query to parse the CSV files and show columns and row counts.",
-  "sql.datasetsNext": "Published Opsis datasets: next.",
   "sql.bytes": "bytes",
   "sql.localLimit":
     "Import refused. Choose 1–4 nonempty CSV files, at most 50 MB each and 100 MB total.",

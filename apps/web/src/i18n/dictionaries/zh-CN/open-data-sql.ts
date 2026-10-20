@@ -48,7 +48,6 @@ export const openDataSql = {
   "sql.pickFiles": "选择 CSV 文件",
   "sql.pickReplay": "按原顺序选择相同的 CSV 文件以重放",
   "sql.schemaAfterRun": "首次运行查询时解析 CSV 文件，并显示列和行数。",
-  "sql.datasetsNext": "Opsis 已发布数据集：下一步。",
   "sql.bytes": "字节",
   "sql.localLimit":
     "已拒绝导入。请选择 1–4 个非空 CSV 文件，每个不超过 50 MB，总计不超过 100 MB。",

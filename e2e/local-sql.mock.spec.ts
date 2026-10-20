@@ -54,9 +54,8 @@ test("local CSV query and manifest replay under production CSP", async ({
     name: "SQL on your own files",
     exact: true,
   });
-  await expect(
-    workspace.getByText("Published Opsis datasets: next.", { exact: true }),
-  ).toBeVisible();
+  // No roadmap claims about features that are not live.
+  await expect(workspace.getByText(/datasets: next/i)).toHaveCount(0);
   const chooser = page.waitForEvent("filechooser");
   await workspace.getByLabel("Choose CSV files", { exact: true }).click();
   await (await chooser).setFiles(fixture);

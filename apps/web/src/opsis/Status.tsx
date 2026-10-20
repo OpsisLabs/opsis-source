@@ -31,7 +31,7 @@ const sources: Record<CapabilityId, [string, string]> = {
   swapPreview: ["Uniswap Trade API", "Uniswap Trade API"],
   savedCheckComparisons: ["Encrypted browser records", "浏览器加密记录"],
   openDataSql: ["Your own CSV files", "自己的 CSV 文件"],
-  openDataDatasets: ["Published Opsis datasets: next.", "Opsis 已发布数据集：下一步。"],
+  openDataDatasets: ["Published Opsis datasets", "Opsis 已发布数据集"],
   receipts: ["Opsis signing key", "Opsis 签名密钥"],
   publicCards: ["Shared token card engines", "共享代币卡片引擎"],
   publicMcp: ["Shared token card engines", "共享代币卡片引擎"],

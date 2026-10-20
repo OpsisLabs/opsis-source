@@ -226,7 +226,6 @@ export default function SqlWorkspace({
             </p>
           ))}
           {localFiles.length > 0 && !run && <p>{t("sql.schemaAfterRun")}</p>}
-          {!datasetsEnabled && <p role="status">{t("sql.datasetsNext")}</p>}
           {datasetsEnabled &&
             (loading ? (
               <p role="status">{t("sql.loading")}</p>

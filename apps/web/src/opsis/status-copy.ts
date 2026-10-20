@@ -35,11 +35,11 @@ export const statusDetails: Record<
   },
   openDataDatasets: {
     label: ["Published Opsis datasets", "Opsis 已发布数据集"],
-    scope: ["Published Opsis datasets: next.", "Opsis 已发布数据集：下一步。"],
+    scope: ["Published Opsis datasets", "Opsis 已发布数据集"],
     origin: ["Same-origin static files", "同源静态文件"],
     freshness: ["Dataset generation time", "数据集生成时间"],
     coverage: ["Reviewed published files only", "仅经审查的已发布文件"],
-    limits: ["Separate flag; data-rights review and self-hosted Parquet extension required.", "独立开关；需要数据使用权审查及自托管 Parquet 扩展。"],
+    limits: ["Not available.", "不可用。"],
   },
   launchCards: {
     label: ["Launch facts and Launch Radar", "发行事实与发行雷达"],
