@@ -55,6 +55,12 @@ function blockscoutFixture(url: string, options: RpcFixtureOptions = {}): unknow
       { id: "9", token_type: "ERC-1155", token: { address_hash: NFT_1155, type: "ERC-1155", name: "Edition", symbol: "EDTN" } }
     ]
   };
+  if (url.endsWith("/transactions") && options.approvalCalls) return { items: options.approvalCalls.map((call, index) => ({
+    hash: call.hash ?? approvalHash(index), block_number: call.blockNumber ?? BLOCK_NUMBER - index,
+    from: call.from ?? OWNER, to: call.contract ?? TOKEN, value: "0",
+    timestamp: "2026-08-10T12:00:00.000Z", method: call.operator ? "setApprovalForAll" : "approve"
+  })) };
+  if (url.endsWith("/token-transfers") && options.approvalCalls) return { items: [] };
   if (url.endsWith("/transactions")) return { items: [
     {
       hash: APPROVAL_HASH,
@@ -87,7 +93,27 @@ function blockscoutFixture(url: string, options: RpcFixtureOptions = {}): unknow
   return { hash: OWNER };
 }
 
+type ApprovalFixtureCall = {
+  blockNumber?: number;
+  transactionIndex?: number;
+  hash?: string;
+  contract?: string;
+  spender?: string;
+  from?: string;
+  operator?: boolean;
+  amount?: bigint;
+};
+
+function approvalHash(index: number): string {
+  return `0x${(index + 1).toString(16).padStart(64, "0")}`;
+}
+
 type RpcFixtureOptions = {
+  approvalCalls?: ApprovalFixtureCall[];
+  classification?: "erc20" | "erc721" | "erc1155" | "invalid";
+  symbolResult?: string;
+  decimalsResult?: string;
+  allowance?: bigint;
   reorg?: boolean;
   nftApproved?: string;
   transferStatus?: "0x0" | "0x1" | "0x2";
@@ -108,7 +134,7 @@ function rpcFixture(options: RpcFixtureOptions = {}): ProviderHttp {
   let blockReads = 0;
   return {
     requestJson: vi.fn(async (_url: string, init?: RequestInit) => {
-      const payload = JSON.parse(String(init?.body)) as { id?: string; method?: string; params?: unknown[] } | Array<{ id: string; method: string }>;
+      const payload = JSON.parse(String(init?.body)) as { id?: string; method?: string; params?: unknown[] } | Array<{ id: string; method: string; params: [{ to: string; data: string }, string] }>;
       if (!Array.isArray(payload) && payload.method === "eth_getBlockByNumber") {
         blockReads += 1;
         return {
@@ -123,6 +149,28 @@ function rpcFixture(options: RpcFixtureOptions = {}): ProviderHttp {
       }
       if (!Array.isArray(payload)) throw new Error("unexpected RPC payload");
       return payload.map((request) => {
+        if (options.approvalCalls && /^(transaction|receipt):/.test(request.id)) {
+          const index = Number(request.id.split(":")[1]);
+          const call = options.approvalCalls[index]!;
+          const hash = call.hash ?? approvalHash(index);
+          const blockNumber = `0x${(call.blockNumber ?? BLOCK_NUMBER - index).toString(16)}`;
+          if (request.id.startsWith("receipt:")) return response(request.id, {
+            transactionHash: hash, blockNumber, blockHash: BLOCK_HASH, status: "0x1", logs: []
+          });
+          return response(request.id, {
+            hash, blockNumber, transactionIndex: `0x${(call.transactionIndex ?? 0).toString(16)}`, blockHash: BLOCK_HASH, from: call.from ?? OWNER, to: call.contract ?? TOKEN, value: "0x0",
+            input: `0x${call.operator ? "a22cb465" : "095ea7b3"}${wordAddress(call.spender ?? SPENDER).slice(2)}${wordUint(call.amount ?? 1n).slice(2)}`
+          });
+        }
+        if (request.id.startsWith("approval-class:")) {
+          if (options.classification === "invalid") return { id: request.id, error: { code: -32000 } };
+          const field = request.id.split(":")[2];
+          if (field === "symbol") return response(request.id, options.symbolResult ?? `0x${Buffer.from("USDG").toString("hex").padEnd(64, "0")}`);
+          if (field === "decimals") return response(request.id, options.decimalsResult ?? wordUint(18n));
+          return response(request.id, wordUint(field === options.classification ? 1n : 0n));
+        }
+        if (options.approvalCalls && request.id.startsWith("approval:")) return response(request.id,
+          wordUint(request.params[0].data.startsWith("0xe985e9c5") ? 1n : options.allowance ?? (2n ** 256n - 1n)));
         if (request.id === "native") return response(request.id, "0xde0b6b3a7640000");
         if (/^token:\d+$/.test(request.id)) return response(request.id, "0xde0b6b3a7640000");
         if (/^token-decimals:\d+$/.test(request.id)) return response(request.id, "0x12");
@@ -186,7 +234,7 @@ function rpcFixture(options: RpcFixtureOptions = {}): ProviderHttp {
           input: `0x095ea7b3${wordAddress(SPENDER).slice(2)}${wordUint(7n).slice(2)}`
         });
         if (request.id === "receipt:2") return response(request.id, { transactionHash: NFT_APPROVAL_HASH, blockNumber: "0x3e6", blockHash: `0x${"9".repeat(64)}`, status: "0x1", logs: [] });
-        if (request.id === "approval:0") return response(request.id, `0x${"f".repeat(64)}`);
+        if (request.id === "approval:0") return response(request.id, wordUint(options.allowance ?? (2n ** 256n - 1n)));
         if (request.id === "approval:1") return response(request.id, wordAddress(options.nftApproved ?? SPENDER));
         throw new Error(`unexpected RPC request ${request.id}`);
       });
@@ -364,6 +412,123 @@ describe("anchored portfolio snapshot", () => {
     ]));
     const finalCheck = JSON.parse(String(calls[3]?.[1]?.body)) as { params: unknown[] };
     expect(finalCheck.params).toEqual([BLOCK_HEX, false]);
+  });
+
+  it("lists an unlimited approval on a token no longer held using anchored on-chain metadata", async () => {
+    const { service, rpc, budget } = makeService({ approvalCalls: [{ contract: UNKNOWN_TOKEN }], classification: "erc20" });
+    const snapshot = await service.snapshot(OWNER);
+    expect(snapshot.tokens.some(token => token.contract === UNKNOWN_TOKEN)).toBe(false);
+    expect(snapshot.approvals).toEqual([expect.objectContaining({ contract: UNKNOWN_TOKEN, symbol: "USDG", kind: "erc20", active: true, unlimited: true })]);
+    const batches = vi.mocked(rpc.requestJson).mock.calls.map(([, init]) => JSON.parse(String(init?.body)));
+    const classification = batches.find(batch => Array.isArray(batch) && batch[0]?.id.startsWith("approval-class:"));
+    expect(classification).toHaveLength(4);
+    expect(classification.map((request: { params: unknown[] }) => request.params)).toEqual([
+      [{ to: UNKNOWN_TOKEN, data: `0x01ffc9a780ac58cd${"0".repeat(56)}` }, BLOCK_HEX],
+      [{ to: UNKNOWN_TOKEN, data: `0x01ffc9a7d9b67a26${"0".repeat(56)}` }, BLOCK_HEX],
+      [{ to: UNKNOWN_TOKEN, data: "0x313ce567" }, BLOCK_HEX],
+      [{ to: UNKNOWN_TOKEN, data: "0x95d89b41" }, BLOCK_HEX]
+    ]);
+    expect(budget.consume).toHaveBeenCalledWith(4);
+    for (const batch of batches.filter(Array.isArray)) {
+      for (const request of batch) if (request.method === "eth_call") expect(request.params[1]).toBe(BLOCK_HEX);
+    }
+    expect(snapshot.approvals[0]?.sourceIds.every(id => snapshot.citations.some(citation => citation.id === id))).toBe(true);
+  });
+
+  it("skips and counts unclassifiable approval calls without guessing", async () => {
+    const snapshot = await makeService({ approvalCalls: [{ contract: UNKNOWN_TOKEN }, { contract: UNKNOWN_TOKEN }], classification: "invalid" }).service.snapshot(OWNER);
+    expect(snapshot.approvals).toEqual([]);
+    expect(snapshot.reconciliation).toMatchObject({ approvalCandidates: 2, approvalConfirmed: 0 });
+    expect(snapshot.reconciliation.truncatedSections).toContain("approvals: 2 calls skipped as unclassified");
+  });
+
+  it.each(["erc721", "erc1155"] as const)("lists an operator on an unheld %s collection", async classification => {
+    const snapshot = await makeService({ approvalCalls: [{ contract: UNKNOWN_TOKEN, operator: true }], classification }).service.snapshot(OWNER);
+    expect(snapshot.approvals).toEqual([expect.objectContaining({ contract: UNKNOWN_TOKEN, symbol: "USDG", kind: "operator", active: true })]);
+  });
+
+  it("still omits single-token ERC-721 approvals unless ownership was confirmed", async () => {
+    const snapshot = await makeService({ approvalCalls: [{ contract: UNKNOWN_TOKEN }], classification: "erc721" }).service.snapshot(OWNER);
+    expect(snapshot.approvals).toEqual([]);
+  });
+
+  it("collapses repeated permissions before reading state and keeps the newest hash and all evidence", async () => {
+    const { service, rpc } = makeService({ approvalCalls: [{}, {}] });
+    const snapshot = await service.snapshot(OWNER);
+    expect(snapshot.approvals).toHaveLength(1);
+    expect(snapshot.approvals[0]).toMatchObject({ transactionHash: approvalHash(0), sourceIds: expect.arrayContaining([
+      `approval-transaction:${approvalHash(0)}`, `approval-transaction:${approvalHash(1)}`
+    ]) });
+    const requests = vi.mocked(rpc.requestJson).mock.calls.flatMap(([, init]) => JSON.parse(String(init?.body)));
+    expect(requests.filter(request => request.id.startsWith("approval:"))).toHaveLength(1);
+    expect(snapshot.reconciliation).toMatchObject({ approvalCandidates: 1, approvalConfirmed: 1 });
+  });
+
+  it("keeps the newest transaction within the same block", async () => {
+    const snapshot = await makeService({ approvalCalls: [
+      { blockNumber: BLOCK_NUMBER, transactionIndex: 1 },
+      { blockNumber: BLOCK_NUMBER, transactionIndex: 2 }
+    ] }).service.snapshot(OWNER);
+    expect(snapshot.approvals[0]?.transactionHash).toBe(approvalHash(1));
+  });
+
+  it("classifies no more than ten unknown contracts in one batch", async () => {
+    const options = { approvalCalls: Array.from({ length: 11 }, (_, index) => ({ contract: indexedTokenAddress(index) })), classification: "erc20" as const };
+    const rpc = rpcFixture(options);
+    const budget: PortfolioBudget = { consume: vi.fn().mockResolvedValue(undefined) };
+    const service = new PortfolioService({ ...portfolioEnv(), PORTFOLIO_MAX_RPC_SUBCALLS: 100 }, {
+      rpc, budget, blockscout: { requestJson: vi.fn(async url => blockscoutFixture(url, options)) }
+    });
+    const snapshot = await service.snapshot(OWNER);
+    const batches = vi.mocked(rpc.requestJson).mock.calls.map(([, init]) => JSON.parse(String(init?.body)))
+      .filter(batch => Array.isArray(batch) && batch.some(request => request.id.startsWith("approval-class:")));
+    expect(batches).toHaveLength(1);
+    expect(batches[0]).toHaveLength(40);
+    expect(budget.consume).toHaveBeenCalledWith(40);
+    expect(snapshot.approvals).toHaveLength(10);
+    expect(snapshot.reconciliation.truncatedSections).toContain("approvals: 10 of 11 indexed approval calls checked");
+  });
+
+  it.each([
+    [2n ** 256n - 1n - 1000n, true], [2n ** 255n, true], [2n ** 255n - 1n, false]
+  ])("classifies allowance %s with unlimited=%s", async (allowance, unlimited) => {
+    const snapshot = await makeService({ allowance }).service.snapshot(OWNER);
+    expect(snapshot.approvals.find(row => row.kind === "erc20")).toMatchObject({ active: true, unlimited });
+  });
+
+  it("discloses approval calls beyond the bounded activity window", async () => {
+    const snapshot = await makeService({ approvalCalls: Array.from({ length: 11 }, (_, index) => ({ spender: indexedTokenAddress(index) })) }).service.snapshot(OWNER);
+    expect(snapshot.approvals).toHaveLength(10);
+    expect(snapshot.reconciliation.truncatedSections).toContain("approvals: 10 of 11 indexed approval calls checked");
+  });
+
+  it("decodes an ABI string symbol, labels unreadable symbols generically and rejects invalid uint8 metadata", async () => {
+    const symbolResult = `0x${wordUint(32n).slice(2)}${wordUint(4n).slice(2)}${Buffer.from("USDG").toString("hex").padEnd(64, "0")}`;
+    const options = { approvalCalls: [{ contract: UNKNOWN_TOKEN }], classification: "erc20" as const };
+    expect((await makeService({ ...options, symbolResult }).service.snapshot(OWNER)).approvals[0]?.symbol).toBe("USDG");
+    // An unreadable or unsafe name never hides a live permission; it gets a generic label.
+    for (const invalid of [
+      { symbolResult: `0x${Buffer.from("<script>").toString("hex").padEnd(64, "0")}` },
+      { symbolResult: "0x" }
+    ]) {
+      const snapshot = await makeService({ ...options, ...invalid }).service.snapshot(OWNER);
+      expect(snapshot.approvals).toHaveLength(1);
+      expect(snapshot.approvals[0]?.symbol).toBe("TOKEN");
+      expect(JSON.stringify(snapshot)).not.toContain("<script>");
+    }
+    // Malformed token metadata stays unclassified and is disclosed, never guessed.
+    const malformed = await makeService({ ...options, decimalsResult: wordUint(256n) }).service.snapshot(OWNER);
+    expect(malformed.approvals).toEqual([]);
+    expect(malformed.reconciliation.truncatedSections).toContain("approvals: 1 calls skipped as unclassified");
+  });
+
+  it("charges classification to the existing RPC safety limit", async () => {
+    const options = { approvalCalls: [{ contract: UNKNOWN_TOKEN }], classification: "erc20" as const };
+    const service = new PortfolioService({ ...portfolioEnv(), PORTFOLIO_MAX_RPC_SUBCALLS: 10 }, {
+      rpc: rpcFixture(options), blockscout: { requestJson: vi.fn(async url => blockscoutFixture(url, options)) },
+      budget: { consume: vi.fn().mockResolvedValue(undefined) }
+    });
+    await expect(service.snapshot(OWNER)).rejects.toMatchObject({ code: "PORTFOLIO_RPC_LIMIT_EXCEEDED" });
   });
 
   it("discards the entire snapshot when the anchor hash changes", async () => {

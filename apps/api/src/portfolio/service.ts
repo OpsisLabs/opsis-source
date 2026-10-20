@@ -24,7 +24,9 @@ import { createPortfolioBudget, type PortfolioBudget } from "./budget.js";
 
 const ADDRESS_PATTERN = /^0x[0-9a-fA-F]{40}$/;
 const HASH_PATTERN = /^0x[0-9a-fA-F]{64}$/;
-const MAX_UINT256 = (2n ** 256n - 1n).toString();
+// Some ERC-20 tokens decrement even maximal allowances when spent.
+const UNLIMITED_ALLOWANCE_THRESHOLD = 2n ** 255n;
+const MAX_UNKNOWN_APPROVAL_CONTRACTS = 10;
 const MAX_TOKENS = 10;
 const MAX_NFTS = 10;
 const MAX_TRANSACTIONS = 10;
@@ -60,6 +62,7 @@ type ApprovalCandidate = {
   tokenId: string | null;
   symbol: string;
   sourceId: string;
+  sourceIds: string[];
 };
 
 type TransferMetadata = {
@@ -338,8 +341,45 @@ export class PortfolioService implements PortfolioSnapshotSource {
       ...tokenCandidates.map((token) => [token.contract, "erc20" as const] as const),
       ...nftCandidates.map((nft) => [nft.contract, nft.kind] as const)
     ]);
-    const approvalCandidates = relevantTransactions
-      .filter(({ transaction }) => transaction.from === address)
+    const outgoingApprovalCalls = relevantTransactions.filter(({ transaction }) =>
+      transaction.from === address && approvalCall(transaction.direct) !== undefined
+    ).sort((left, right) => right.transaction.blockNumber - left.transaction.blockNumber
+      || (hexNumber(right.transaction.direct.transactionIndex) ?? 0) - (hexNumber(left.transaction.direct.transactionIndex) ?? 0));
+    const unknownContracts = [...new Set(outgoingApprovalCalls.flatMap(({ transaction }) => {
+      const contract = addressValue(transaction.direct.to);
+      return contract && !kindByContract.has(contract) ? [contract] : [];
+    }))].slice(0, MAX_UNKNOWN_APPROVAL_CONTRACTS);
+    // One bounded metadata batch, with every read pinned to the snapshot anchor.
+    const classificationResponses = await this.rpcBatch(unknownContracts.flatMap((contract, index) =>
+      [
+        ["erc721", `0x01ffc9a780ac58cd${"0".repeat(56)}`],
+        ["erc1155", `0x01ffc9a7d9b67a26${"0".repeat(56)}`],
+        ["decimals", "0x313ce567"],
+        ["symbol", "0x95d89b41"]
+      ].map(([field, data]) => rpc(`approval-class:${index}:${field}`, "eth_call", [{ to: contract, data }, anchor.blockHex]))
+    ), consumeRpc);
+    unknownContracts.forEach((contract, index) => {
+      const result = (field: string) => classificationResponses.get(`approval-class:${index}:${field}`);
+      const erc721 = abiUint(result("erc721"));
+      const erc1155 = abiUint(result("erc1155"));
+      const decimals = abiUint(result("decimals"));
+      const symbol = decodeApprovalSymbol(result("symbol"));
+      // Conflicting interfaces and malformed metadata remain unclassified.
+      const interfacesValid = [erc721, erc1155].every(value => value === undefined || value === 0n || value === 1n);
+      const kind = !interfacesValid ? undefined : erc721 === 1n && erc1155 !== 1n ? "erc721"
+        : erc1155 === 1n && erc721 !== 1n ? "erc1155"
+        : erc721 !== 1n && erc1155 !== 1n && decimals !== undefined && decimals <= 255n ? "erc20"
+        : undefined;
+      // A live permission is never hidden for an unreadable name; the row falls back to a generic label.
+      if (kind) {
+        kindByContract.set(contract, kind);
+        if (symbol) symbolByContract.set(contract, symbol);
+      }
+    });
+    const unclassifiedApprovalCalls = outgoingApprovalCalls.filter(({ transaction }) =>
+      !kindByContract.has(addressValue(transaction.direct.to) ?? "")
+    ).length;
+    const foundApprovals = outgoingApprovalCalls
       .map(({ transaction }) => parseApprovalCandidate(
         transaction.direct,
         transaction.hash,
@@ -350,8 +390,28 @@ export class PortfolioService implements PortfolioSnapshotSource {
       .filter((value): value is ApprovalCandidate => value !== undefined)
       .filter((approval) => approval.kind !== "erc721-token" || nfts.some((nft) =>
         nft.kind === "erc721" && nft.contract === approval.contract && nft.tokenId === approval.tokenId
-      ))
-      .slice(0, MAX_APPROVALS);
+      ));
+    const permissions = new Map<string, ApprovalCandidate>();
+    // Transactions are newest first; preserve that hash and merge bounded evidence.
+    for (const approval of foundApprovals) {
+      const transactionSourceId = `approval-transaction:${approval.transactionHash}`;
+      citations.push({
+        id: transactionSourceId,
+        provider: "blockscout",
+        url: `https://robinhoodchain.blockscout.com/tx/${approval.transactionHash}`,
+        fetchedAt: anchor.fetchedAt,
+        description: "Historical approval discovery transaction, reconciled against RPC"
+      });
+      const key = [approval.kind, approval.contract, approval.spender, approval.tokenId ?? ""].join(":");
+      const prior = permissions.get(key);
+      const sourceIds = [...new Set([...(prior?.sourceIds ?? []), approval.sourceId, transactionSourceId, rpcCitation.id])];
+      permissions.set(key, prior ? { ...prior, sourceIds } : { ...approval, sourceIds });
+    }
+    const approvalCandidates = [...permissions.values()].slice(0, MAX_APPROVALS);
+    // Activity is independently capped. Disclose indexed approval calls outside
+    // that window as unchecked, without treating their contents as RPC evidence.
+    const uncheckedIndexedApprovalCalls = discoveredTransactionCandidates.slice(MAX_TRANSACTIONS)
+      .filter((transaction) => transaction.from === address && approvalCall(transaction.raw) !== undefined).length;
     const approvalRequests = approvalCandidates.map((approval, index) => rpc(`approval:${index}`, "eth_call", [{
       to: approval.contract,
       data: approval.kind === "operator"
@@ -409,7 +469,7 @@ export class PortfolioService implements PortfolioSnapshotSource {
           unlimited: false,
           tokenId: approval.tokenId ?? undefined,
           currentAmount: approved,
-          sourceIds: [approval.sourceId, rpcCitation.id]
+          sourceIds: approval.sourceIds
         }];
       }
       const currentRaw = rpcHex(approvalResponses.get(`approval:${index}`));
@@ -422,9 +482,9 @@ export class PortfolioService implements PortfolioSnapshotSource {
         kind: approval.kind,
         symbol: approval.symbol,
         active,
-        unlimited: approval.kind === "operator" ? active : currentRaw === MAX_UINT256,
+        unlimited: approval.kind === "operator" ? active : BigInt(currentRaw) >= UNLIMITED_ALLOWANCE_THRESHOLD,
         currentAmount: approval.kind === "operator" ? String(active) : currentRaw,
-        sourceIds: [approval.sourceId, rpcCitation.id]
+        sourceIds: approval.sourceIds
       }];
     });
 
@@ -436,6 +496,9 @@ export class PortfolioService implements PortfolioSnapshotSource {
       ...(heldTokens.length > tokens.length ? [`tokens: ${tokens.length} of ${heldTokens.length} held tokens returned`] : []),
       ...(discoveredNftCandidates.length > MAX_NFTS ? [`nfts: ${MAX_NFTS} of ${discoveredNftCandidates.length} candidates evaluated`] : []),
       ...(discoveredTransactionCandidates.length > MAX_TRANSACTIONS ? [`activity: ${MAX_TRANSACTIONS} of ${discoveredTransactionCandidates.length} candidates evaluated`] : []),
+      ...(permissions.size > MAX_APPROVALS ? [`approvals: ${MAX_APPROVALS} of ${permissions.size} found approvals checked`] : []),
+      ...(uncheckedIndexedApprovalCalls > 0 ? [`approvals: ${outgoingApprovalCalls.length} of ${outgoingApprovalCalls.length + uncheckedIndexedApprovalCalls} indexed approval calls checked`] : []),
+      ...(unclassifiedApprovalCalls > 0 ? [`approvals: ${unclassifiedApprovalCalls} calls skipped as unclassified`] : []),
       ...(verifiedMovements.length > movements.length ? [`movements: ${movements.length} of ${verifiedMovements.length} decoded rows returned`] : [])
     ];
     const unreconciled = {
@@ -514,7 +577,7 @@ export class PortfolioService implements PortfolioSnapshotSource {
         nftConfirmed: nfts.length,
         activityCandidates: discoveredTransactionCandidates.length,
         activityConfirmed: transactions.length,
-        approvalCandidates: approvalCandidates.length,
+        approvalCandidates: permissions.size + unclassifiedApprovalCalls + uncheckedIndexedApprovalCalls,
         approvalConfirmed: approvals.length,
         degradedSources,
         truncatedSections
@@ -727,6 +790,39 @@ function parseTransferTransactionCandidate(value: unknown) {
   };
 }
 
+function approvalInput(row: Record<string, unknown>): string {
+  return String(row.input ?? row.raw_input ?? "").toLowerCase();
+}
+
+function approvalCall(row: Record<string, unknown>): "operator" | "approve" | undefined {
+  const method = String(row.method ?? asRecord(row.decoded_input).method_call ?? "").toLowerCase();
+  const input = approvalInput(row);
+  if (method.includes("setapprovalforall") || input.startsWith("0xa22cb465")) return "operator";
+  if (method === "approve" || method.startsWith("approve(") || input.startsWith("0x095ea7b3")) return "approve";
+  return undefined;
+}
+
+function abiUint(response?: RpcResponse): bigint | undefined {
+  if (response?.error || typeof response?.result !== "string" || !/^0x[0-9a-f]{64}$/i.test(response.result)) return undefined;
+  return BigInt(response.result);
+}
+
+function decodeApprovalSymbol(response?: RpcResponse): string | undefined {
+  if (response?.error || typeof response?.result !== "string" || !/^0x(?:[0-9a-f]{2})+$/i.test(response.result)) return undefined;
+  const hex = response.result.slice(2);
+  let bytes: string;
+  if (hex.length === 64) bytes = hex.replace(/(?:00)+$/, "");
+  else {
+    if (hex.length < 192 || BigInt(`0x${hex.slice(0, 64)}`) !== 32n) return undefined;
+    const length = BigInt(`0x${hex.slice(64, 128)}`);
+    if (length < 1n || length > 32n || hex.length !== 192) return undefined;
+    bytes = hex.slice(128, 128 + Number(length) * 2);
+    if (!/^0*$/.test(hex.slice(128 + Number(length) * 2))) return undefined;
+  }
+  const symbol = bytes.match(/../g)?.map((byte) => String.fromCharCode(parseInt(byte, 16))).join("");
+  return symbol && /^[A-Za-z0-9][A-Za-z0-9._-]{0,31}$/.test(symbol) ? symbol : undefined;
+}
+
 function parseApprovalCandidate(
   row: Record<string, unknown>,
   transactionHash: string,
@@ -738,14 +834,9 @@ function parseApprovalCandidate(
   if (!contract) return undefined;
   const decoded = asRecord(row.decoded_input);
   const parameters = Array.isArray(decoded.parameters) ? decoded.parameters.map(asRecord) : [];
-  const method = String(row.method ?? decoded.method_call ?? "").toLowerCase();
-  const rawInput = typeof row.input === "string"
-    ? row.input.toLowerCase()
-    : typeof row.raw_input === "string"
-      ? row.raw_input.toLowerCase()
-      : "";
-  const isOperator = method.includes("setapprovalforall") || rawInput.startsWith("0xa22cb465");
-  const isApprove = method === "approve" || method.startsWith("approve(") || rawInput.startsWith("0x095ea7b3");
+  const rawInput = approvalInput(row);
+  const isOperator = approvalCall(row) === "operator";
+  const isApprove = approvalCall(row) === "approve";
   const kind = isOperator && (knownKind === "erc721" || knownKind === "erc1155")
     ? "operator"
     : isApprove && knownKind === "erc20"
@@ -771,7 +862,8 @@ function parseApprovalCandidate(
     kind,
     tokenId,
     symbol: boundedText(knownSymbol ?? asRecord(row.token).symbol, kind === "operator" ? "NFT" : "TOKEN"),
-    sourceId
+    sourceId,
+    sourceIds: [sourceId]
   };
 }
 
