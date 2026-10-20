@@ -94,3 +94,18 @@ it("keeps the redesigned workspace unchanged without a desk slot", () => {
     ),
   ).toContain("Stock Token Desk");
 });
+
+it("rounds the small-size pool price for display and keeps the exact value in the title", () => {
+  const exact = "217.210022382317694690382834140505";
+  const withPool = {
+    ...desk,
+    pool: {
+      state: "available",
+      value: { notionalUsd: "100", inputAmount: "0.460400000000000000", outputAmount: "100.003", outputUnit: "USDG", priceUsdG: exact, impactBps: "5", expiresAt: "2026-10-20T04:06:31.079Z" },
+      evidence: [],
+    },
+  } as unknown as StockDeskResult;
+  const html = render(<DeskFacts desk={withPool} />);
+  expect(html).toContain("217.2100 USDG");
+  expect(html).toContain(`title="${exact} USDG"`);
+});

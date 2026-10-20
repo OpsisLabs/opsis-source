@@ -340,7 +340,9 @@ export class StockDeskService implements StockDeskSource {
               q.input.amount !== amount ||
               Date.parse(q.expiresAt) <= this.now() ||
               q.coverage.poolsDiscoveryFailed.length ||
-              q.coverage.poolsFailed.length
+              // An empty or too-thin pool reverts in the quoter; that is not a read failure.
+              // Transport or other failures still mark the quote incomplete.
+              q.coverage.poolsFailed.some((p) => !String(p.reason ?? "").startsWith("reverted"))
             )
               return unknown("POOL_QUOTE_UNAVAILABLE_OR_INCOMPLETE");
             const priceUsdG = ratio(q.quote.amountOutDisplay, amount);

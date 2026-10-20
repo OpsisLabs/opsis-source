@@ -103,6 +103,24 @@ export default function StockDesk({
               )}
             </div>
           ))}
+          {index.entries.some((e) => e.desk.gapBps.state !== "available") && (
+            <div>
+              <h4>{t("desk.noGap")}</h4>
+              <ul>
+                {index.entries
+                  .filter((e) => e.desk.gapBps.state !== "available")
+                  .map((e) => {
+                    const why = e.desk.pool.state !== "available" ? e.desk.pool : e.desk.gapBps;
+                    const reason = why.state === "available" ? "" : why.reason;
+                    return (
+                      <li key={e.desk.address}>
+                        {e.desk.symbol ?? e.desk.address}: {t(reason.startsWith("POOL_QUOTE") ? "desk.noGap.pool" : reason.startsWith("FEED") || reason.startsWith("CHAINLINK") ? "desk.noGap.reference" : "desk.noGap.other")} ({reason})
+                      </li>
+                    );
+                  })}
+              </ul>
+            </div>
+          )}
           <details>
             <summary>{t("desk.unknowns")}</summary>
             {index.entries.map((e) => (
@@ -119,6 +137,16 @@ export default function StockDesk({
     </section>
   );
 }
+/** Round a non-negative decimal string for display; the exact value stays in the title. */
+function roundDecimal(value: string, places: number): string {
+  const match = /^(\d+)(?:\.(\d+))?$/.exec(value);
+  if (!match) return value;
+  const [, whole, fraction = ""] = match;
+  if (fraction.length <= places) return value;
+  const scaled = BigInt(whole + fraction.slice(0, places)) + (Number(fraction[places]) >= 5 ? 1n : 0n);
+  const text = scaled.toString().padStart(places + 1, "0");
+  return `${text.slice(0, -places)}.${text.slice(-places)}`;
+}
 export function DeskFacts({
   desk,
   compact = false,
@@ -131,7 +159,7 @@ export function DeskFacts({
     value.state === "available"
       ? format(value.value)
       : `${t("desk.unknown")} · ${value.reason}`;
-  const rows: Array<[TranslationKey, DeskFact<unknown>, string]> = [
+  const rows: Array<[TranslationKey, DeskFact<unknown>, string, string?]> = [
     [
       "desk.reference",
       desk.reference,
@@ -147,8 +175,9 @@ export function DeskFacts({
       fact(
         desk.pool,
         (v) =>
-          `${v.priceUsdG} USDG · ${v.inputAmount} → ${v.outputAmount} USDG · ${t("desk.expires")} ${v.expiresAt}`,
+          `${roundDecimal(v.priceUsdG, 4)} USDG · ${v.inputAmount} → ${v.outputAmount} USDG · ${t("desk.expires")} ${v.expiresAt}`,
       ),
+      desk.pool.state === "available" ? `${desk.pool.value.priceUsdG} USDG` : undefined,
     ],
     ["desk.gap", desk.gapBps, fact(desk.gapBps, (v) => `${v} bps`)],
     [
@@ -216,10 +245,10 @@ export function DeskFacts({
             </tr>
           </thead>
           <tbody>
-            {rows.map(([label, value, text], i) => (
+            {rows.map(([label, value, text, exact], i) => (
               <tr key={i}>
                 <th scope="row">{t(label)}</th>
-                <td>{text}</td>
+                <td title={exact}>{text}</td>
                 <td>
                   {value.state === "available"
                     ? value.evidence.map((e, j) => (

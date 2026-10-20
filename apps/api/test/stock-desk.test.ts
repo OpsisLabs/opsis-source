@@ -346,6 +346,18 @@ describe("Stock Token Desk", () => {
     }
     expect(f.market.market).not.toHaveBeenCalledWith(expect.stringMatching(/^0x5fc5360d/i));
   });
+  it("keeps a quote when an empty pool reverts but refuses one with a read failure", async () => {
+    for (const [reason, expected] of [["reverted:0x08c379a0", "available"], ["rpc_unavailable", "unknown"]] as const) {
+      const f = fixture();
+      const original = f.exit.quote.getMockImplementation()!;
+      f.exit.quote.mockImplementation(async (input: Parameters<typeof original>[0]) => {
+        const q = await original(input);
+        return { ...q, coverage: { ...q.coverage, poolsFailed: [{ fee: 100, pool: "0x0000000000000000000000000000000000000001", reason }] } };
+      });
+      const desk = await f.service.desk(STOCK_DESK_ASSETS[0]!.address);
+      expect(desk.pool.state).toBe(expected);
+    }
+  });
   it("reports stale feeds without treating off-hours as fresh", async () => {
     const f = fixture({ stale: true });
     const index = await f.service.index();
