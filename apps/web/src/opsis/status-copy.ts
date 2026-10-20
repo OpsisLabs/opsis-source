@@ -11,6 +11,39 @@ export const statusDetails: Record<
     limits: [string, string];
   }
 > = {
+  publicCards: {
+    label: ["Public token cards", "公开代币卡片"],
+    scope: ["Token cards as JSON and image embeds", "以 JSON 和图片嵌入提供的代币卡片"],
+    origin: ["On explicit request", "按明确请求"],
+    freshness: ["Independent source times and anchors", "各数据源有独立时间及锚点"],
+    coverage: ["Partial coverage", "部分覆盖"],
+    limits: [
+      "Not investment advice. Provider and tool budgets apply.",
+      "非投资建议。受数据源及工具预算限制。",
+    ],
+  },
+  publicMcp: {
+    label: ["Read-only MCP", "只读 MCP"],
+    scope: ["Read-only tools for agents and bots", "面向智能体和机器人的只读工具"],
+    origin: ["On explicit request", "按明确请求"],
+    freshness: ["Independent source times and anchors", "各数据源有独立时间及锚点"],
+    coverage: ["Partial coverage", "部分覆盖"],
+    limits: [
+      "Not investment advice. Provider and tool budgets apply.",
+      "非投资建议。受数据源及工具预算限制。",
+    ],
+  },
+  telegramBot: {
+    label: ["Telegram token cards", "Telegram 代币卡片"],
+    scope: ["Token cards in Telegram chats", "Telegram 聊天中的代币卡片"],
+    origin: ["On explicit request", "按明确请求"],
+    freshness: ["Independent source times and anchors", "各数据源有独立时间及锚点"],
+    coverage: ["Partial coverage", "部分覆盖"],
+    limits: [
+      "Not investment advice. Provider and tool budgets apply.",
+      "非投资建议。受数据源及工具预算限制。",
+    ],
+  },
   receipts: {
     label: ["Computation receipts", "计算凭据"],
     scope: ["Signed block-anchored computation receipts", "签名且锚定区块的计算凭据"],

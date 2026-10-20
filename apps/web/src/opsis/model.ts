@@ -41,7 +41,7 @@ export function workspaceIdentity(path: "/research" | "/check", search: string):
   const id = publicIdentity(path === "/check" ? params.get("token") ?? params.get("entity") : params.get("entity"));
   return path === "/check" && id.length !== 42 ? "" : id;
 }
-export type CapabilityId = "research" | "tokenControls" | "exitCheck" | "watch" | "rwa" | "observedTrades" | "swapPreview" | "perpHandoff" | "savedCheckComparisons" | "receipts";
+export type CapabilityId = "research" | "tokenControls" | "exitCheck" | "watch" | "rwa" | "observedTrades" | "swapPreview" | "perpHandoff" | "savedCheckComparisons" | "receipts" | "publicCards" | "publicMcp" | "telegramBot";
 export type CapabilityStatus = { id: CapabilityId; enabled: boolean; scope: string; origin: string; freshness: string; coverage: string; limits: string };
 export type CapabilityManifest = { version: 1; chain: { id: 4663; name: string }; build: string | null; capabilities: CapabilityStatus[] };
 export type Capabilities = {
@@ -57,13 +57,16 @@ export type Capabilities = {
   perpHandoff?: boolean;
   savedCheckComparisons?: boolean;
   receipts?: boolean;
+  publicCards?: boolean;
+  publicMcp?: boolean;
+  telegramBot?: boolean;
   perpExecution: false;
   manifest?: CapabilityManifest;
 };
 
 const requiredCapabilityIds: CapabilityId[] = ["research", "tokenControls", "exitCheck", "watch", "rwa", "observedTrades"];
 // Optional rows let a newer browser build work with an older server manifest.
-const optionalCapabilityIds: CapabilityId[] = ["swapPreview", "perpHandoff", "savedCheckComparisons", "receipts"];
+const optionalCapabilityIds: CapabilityId[] = ["swapPreview", "perpHandoff", "savedCheckComparisons", "receipts", "publicCards", "publicMcp", "telegramBot"];
 const capabilityIds: CapabilityId[] = [...requiredCapabilityIds, ...optionalCapabilityIds];
 function parseManifest(value: unknown): CapabilityManifest | undefined {
   if (value === undefined) return undefined; // Older preview fixtures expose the same server-derived booleans.
@@ -125,6 +128,7 @@ export async function unlockPreview(
       typeof data.tokenControls !== "boolean") ||
     (data.swapPreview !== undefined &&
       typeof data.swapPreview !== "boolean") ||
+    [data.publicCards, data.publicMcp, data.telegramBot].some((flag) => flag !== undefined && typeof flag !== "boolean") ||
     (data.receipts !== undefined && typeof data.receipts !== "boolean") ||
     (data.perpHandoff !== undefined &&
       typeof data.perpHandoff !== "boolean") ||
@@ -152,8 +156,11 @@ export async function unlockPreview(
       perpHandoff: data.perpHandoff ?? false,
       savedCheckComparisons: data.savedCheckComparisons ?? false,
       receipts: data.receipts ?? false,
+      publicCards: data.publicCards ?? false,
+      publicMcp: data.publicMcp ?? false,
+      telegramBot: data.telegramBot ?? false,
     };
-    if (["perpHandoff", "savedCheckComparisons", "receipts"].some(id => legacyFlags[id as CapabilityId] && !manifest.capabilities.some(entry => entry.id === id)) || manifest.capabilities.some((entry) => entry.enabled !== legacyFlags[entry.id])) throw new Error("Invalid preview response");
+    if (["perpHandoff", "savedCheckComparisons", "receipts", "publicCards", "publicMcp", "telegramBot"].some(id => legacyFlags[id as CapabilityId] && !manifest.capabilities.some(entry => entry.id === id)) || manifest.capabilities.some((entry) => entry.enabled !== legacyFlags[entry.id])) throw new Error("Invalid preview response");
   }
   return {
     ...data,

@@ -1,3 +1,10 @@
+import { TokenCardService, type TokenCardSource } from "./cards/service.js";
+import { EngineCardSources } from "./cards/sources.js";
+import { publicMcpRoutes } from "./routes/public-mcp.js";
+import { reachResponseHeaders } from "./routes/public-cards.js";
+import { telegramRoutes, type BotApiClient } from "./telegram/service.js";
+import { createOpenDataLimiter } from "./open-data/limiter.js";
+import { AppError } from "./http/errors.js";
 import { configuredReceiptService } from "./receipts/service.js";
 import { receiptRoutes } from "./routes/receipts.js";
 import { controlsRoutes } from "./routes/controls.js";
@@ -68,6 +75,8 @@ export async function buildApp(
     observedTrades?: ObservedTradesSource;
     openDataLimiter?: OpenDataLimiter;
     exitCheck?: ExitCheckSource;
+    tokenCards?: TokenCardSource;
+    telegramBot?: BotApiClient;
     publicSwapHistory?: PublicSwapHistoryLookup;
   }
 ) {
@@ -170,8 +179,24 @@ export async function buildApp(
   await opsisRoutes(app, env);
   const receipts = configuredReceiptService(env);
   await receiptRoutes(app, env, receipts);
-  await controlsRoutes(app, env, new ControlsService(env, createPortfolioBudget(env, redis), undefined, undefined, rpcSpend), receipts);
-  await openDataRoutes(app, env, redis, dependencies?.openDataLimiter);
+  const portfolioBudget = createPortfolioBudget(env, redis);
+  const controls = new ControlsService(env, portfolioBudget, undefined, undefined, rpcSpend);
+  const exit = dependencies?.exitCheck ?? new ExitCheckService(env, cache, { budget: createExitCheckBudget(env, redis), rpcSpend });
+  const cards = dependencies?.tokenCards ?? new TokenCardService({ check: async (address, evidence) => {
+    if (!env.TOKEN_CONTROLS_ENABLED) throw new AppError("CONTROLS_DISABLED", 503, "Controls unavailable");
+    return controls.check(address, evidence);
+  } }, { quote: async (input) => {
+    if (!env.EXIT_CHECK_ENABLED) throw new AppError("EXIT_CHECK_DISABLED", 503, "Trade Check unavailable");
+    return exit.quote(input);
+  } }, new EngineCardSources(env, portfolioBudget, rpcSpend), cache, env.PUBLIC_CARDS_CACHE_SECONDS, receipts);
+  const openDataLimiter = dependencies?.openDataLimiter ?? createOpenDataLimiter(env, redis);
+  await controlsRoutes(app, env, controls, receipts);
+  await openDataRoutes(app, env, redis, openDataLimiter, cards);
+  await app.register(async (scope) => {
+    reachResponseHeaders(scope);
+    await publicMcpRoutes(scope, env, openDataLimiter, cards, receipts);
+  });
+  await telegramRoutes(app, env, cards, dependencies?.telegramBot);
   await privateRoutes(app, env, prisma, cache, dependencies?.privateAnalysis, rpcSpend);
   await portfolioRoutes(
     app,
@@ -211,7 +236,7 @@ export async function buildApp(
     app,
     env,
     cache,
-    dependencies?.exitCheck ?? new ExitCheckService(env, cache, { budget: createExitCheckBudget(env, redis), rpcSpend })
+    exit
   );
   await adminRoutes(app, env, prisma);
   if (prisma && env.RETENTION_ENABLED) installRetention(app, prisma, env);

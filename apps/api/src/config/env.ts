@@ -140,6 +140,13 @@ const envSchema = z.object({
   OBSERVED_TRADES_TOP_ROWS: z.coerce.number().int().min(1).max(6).default(6),
   PUBLIC_SWAP_HISTORY_ENABLED: envBoolean.default(false),
   OPEN_DATA_API_ENABLED: envBoolean.default(false),
+  PUBLIC_CARDS_ENABLED: envBoolean.default(false),
+  PUBLIC_CARDS_CACHE_SECONDS: z.coerce.number().int().min(15).max(300).default(60),
+  PUBLIC_CARDS_HMAC_SECRET: optionalString,
+  PUBLIC_MCP_ENABLED: envBoolean.default(false),
+  TELEGRAM_BOT_ENABLED: envBoolean.default(false),
+  TELEGRAM_BOT_TOKEN: optionalString,
+  TELEGRAM_WEBHOOK_SECRET: optionalString,
   OPEN_DATA_DAILY_REQUEST_BUDGET: z.coerce.number().int().min(100).max(100_000).default(10_000),
   // The browser sends a custom header and exact Origin on state-changing
   // account routes. Tests opt in explicitly so legacy bearer-token fixtures
@@ -195,6 +202,13 @@ const envSchema = z.object({
   // When set, /metrics requires this bearer token and 404s otherwise.
   METRICS_TOKEN: optionalString
 }).superRefine((env, context) => {
+  if ((env.PUBLIC_CARDS_ENABLED || env.PUBLIC_MCP_ENABLED) && (!env.PUBLIC_CARDS_HMAC_SECRET || Buffer.byteLength(env.PUBLIC_CARDS_HMAC_SECRET) < 32)) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["PUBLIC_CARDS_HMAC_SECRET"], message: "Public cards and MCP require an HMAC secret of at least 32 bytes" });
+  }
+  if (env.TELEGRAM_BOT_ENABLED) {
+    if (!env.TELEGRAM_BOT_TOKEN || !/^\d{5,20}:[A-Za-z0-9_-]{30,128}$/.test(env.TELEGRAM_BOT_TOKEN)) context.addIssue({ code: z.ZodIssueCode.custom, path: ["TELEGRAM_BOT_TOKEN"], message: "Telegram requires a valid bot token" });
+    if (!env.TELEGRAM_WEBHOOK_SECRET || !/^[A-Za-z0-9_-]{32,256}$/.test(env.TELEGRAM_WEBHOOK_SECRET)) context.addIssue({ code: z.ZodIssueCode.custom, path: ["TELEGRAM_WEBHOOK_SECRET"], message: "Telegram requires a webhook secret of 32 to 256 permitted characters" });
+  }
   if (env.RECEIPTS_ENABLED) {
     const key = env.RECEIPT_SIGNING_KEY;
     const order = 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141n;
@@ -401,6 +415,7 @@ const envSchema = z.object({
     context.addIssue({ code: z.ZodIssueCode.custom, message: "Public RPC fallback must be disabled in production" });
   }
   const chainReadsEnabled = env.PRIVATE_MODE_ENABLED
+    || env.PUBLIC_CARDS_ENABLED || env.PUBLIC_MCP_ENABLED || env.TELEGRAM_BOT_ENABLED
     || env.PORTFOLIO_MODE_ENABLED
     || env.RWA_VERIFY_ENABLED
     || env.EXIT_CHECK_ENABLED

@@ -1,5 +1,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type Redis from "ioredis";
+import type { TokenCardSource } from "../cards/service.js";
+import { publicCardRoutes, reachResponseHeaders } from "./public-cards.js";
 import type { Env } from "../config/env.js";
 import { rateLimitClientAddress } from "../http/authenticate.js";
 import { AppError } from "../http/errors.js";
@@ -30,8 +32,13 @@ export async function openDataRoutes(
   env: Env,
   redis?: Redis,
   limiter?: OpenDataLimiter,
+  cards?: TokenCardSource,
 ): Promise<void> {
   const activeLimiter = limiter ?? createOpenDataLimiter(env, redis);
+  if (cards) await app.register(async (scope) => {
+    reachResponseHeaders(scope);
+    await publicCardRoutes(scope, env, activeLimiter, cards);
+  });
   const routeConfig = {
     cors: false,
     rateLimit: false as const,

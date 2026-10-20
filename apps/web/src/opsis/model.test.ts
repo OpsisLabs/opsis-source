@@ -278,3 +278,25 @@ it("keeps receipts default-off and rejects capability/manifest mismatches", asyn
   const missing = await body(); missing.receipts = true; await expect(parse(missing)).rejects.toThrow("Invalid preview response");
   for (const invalid of [null, "true", 1, {}, []]) { const value = await body(); value.receipts = invalid; await expect(parse(value)).rejects.toThrow("Invalid preview response"); }
 });
+
+it("parses optional reach flags and rejects missing or mismatched manifest rows", async () => {
+  const original = vi.fn();
+  vi.stubGlobal("fetch", original);
+  const base = { expiresAt: new Date(Date.now() + 60000).toISOString(), chainId: 4663, research: true, tokenControls: false, exitCheck: false, watch: false, rwa: false, observedTrades: false, perpExecution: false };
+  const parse = async (body: unknown) => {
+    original.mockResolvedValueOnce(new Response(JSON.stringify(body), { status: 200 }));
+    return unlockPreview("", new AbortController().signal);
+  };
+  for (const id of ["publicCards", "publicMcp", "telegramBot"] as const) {
+    expect((await parse(base))[id]).toBeUndefined();
+    for (const enabled of [false, true]) {
+      const capabilities = (["research", "tokenControls", "exitCheck", "watch", "rwa", "observedTrades"] as const).map((key) => ({ id: key, enabled: base[key], scope: "sample", origin: "sample", freshness: "sample", coverage: "partial", limits: "unknown" }));
+      const row = { id, enabled, scope: "sample", origin: "sample", freshness: "sample", coverage: "partial", limits: "unknown" };
+      const manifest = { version: 1, chain: { id: 4663, name: "Robinhood Chain" }, build: null, capabilities: [...capabilities, row] };
+      expect((await parse({ ...base, [id]: enabled, manifest }))[id]).toBe(enabled);
+      await expect(parse({ ...base, [id]: !enabled, manifest })).rejects.toThrow("Invalid preview response");
+      if (enabled) await expect(parse({ ...base, [id]: true, manifest: { ...manifest, capabilities } })).rejects.toThrow("Invalid preview response");
+    }
+    for (const invalid of [null, "true", 1]) await expect(parse({ ...base, [id]: invalid })).rejects.toThrow("Invalid preview response");
+  }
+});

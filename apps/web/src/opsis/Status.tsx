@@ -29,6 +29,9 @@ const sources: Record<CapabilityId, [string, string]> = {
   swapPreview: ["Uniswap Trade API", "Uniswap Trade API"],
   savedCheckComparisons: ["Encrypted browser records", "浏览器加密记录"],
   receipts: ["Opsis signing key", "Opsis 签名密钥"],
+  publicCards: ["Shared token card engines", "共享代币卡片引擎"],
+  publicMcp: ["Shared token card engines", "共享代币卡片引擎"],
+  telegramBot: ["Shared token card engines", "共享代币卡片引擎"],
 };
 const destinations: Record<CapabilityId, string> = {
   research: "/research",
@@ -41,6 +44,9 @@ const destinations: Record<CapabilityId, string> = {
   swapPreview: "/swap",
   savedCheckComparisons: "/saved",
   receipts: "/verify",
+  publicCards: "/docs",
+  publicMcp: "/docs",
+  telegramBot: "/docs",
 };
 const states: Record<Availability, [string, string]> = {
   available: ["Available", "可用"],
