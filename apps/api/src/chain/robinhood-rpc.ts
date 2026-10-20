@@ -50,6 +50,7 @@ export const ROBINHOOD_RPC_METHOD_UNITS: Readonly<Record<string, number>> = Obje
   // Conservative reservation for bounded multi-block simulations, pending measurement.
   eth_simulateV1: 2000,
   eth_chainId: 20,
+  eth_gasPrice: 20,
   eth_getBalance: 20,
   eth_getBlockByNumber: 20,
   eth_getCode: 20,

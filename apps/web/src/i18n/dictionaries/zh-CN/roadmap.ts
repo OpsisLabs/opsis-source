@@ -32,7 +32,7 @@ export const roadmap: Record<string, string> = {
   "roadmap.release.check.ux": "用户体验",
   "roadmap.release.check.safety": "安全",
 
-  "roadmap.release.swap-preview.eyebrow": "实时路径。清晰结果。",
+  "roadmap.release.swap-preview.eyebrow": "当前报价。清晰限制。",
   "roadmap.release.swap-preview.title": "兑换预览",
   "roadmap.release.swap-preview.summary":
     "预览当前的 Uniswap 兑换路径，理解每一项取舍，然后前往官方应用继续操作。",
@@ -40,7 +40,7 @@ export const roadmap: Record<string, string> = {
   "roadmap.release.swap-preview.cap1.kicker": "实时报价",
   "roadmap.release.swap-preview.cap1.title":
     "当前 WETH/USDG 路径、价格影响、Gas 和最低接收量",
-  "roadmap.release.swap-preview.cap1.signal": "免费 API / 实时",
+  "roadmap.release.swap-preview.cap1.signal": "按需 / 只读",
   "roadmap.release.swap-preview.cap2.kicker": "模拟",
   "roadmap.release.swap-preview.cap2.title":
     "通俗易懂地预测余额变化和失败状态",

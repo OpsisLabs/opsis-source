@@ -121,9 +121,9 @@ export const docs: Record<string, string> = {
   "docs.adapters.swapPreview.name": "兑换预览",
   "docs.adapters.swapPreview.input": "WETH/USDG 方向与确切金额",
   "docs.adapters.swapPreview.process":
-    "使用固定非用户预览地址的只读 Uniswap 路径",
+    "默认使用官方链上 Uniswap V3 单池估算；可配置 Trade API 来源",
   "docs.adapters.swapPreview.output":
-    "最低接收量、价格影响、模拟、路径成本、官方交接",
+    "区块、流动池、最低接收量、价格影响、用户支付成本和官方交接",
   "docs.adapters.swapPreview.limit": "Opsis 绝不签名或广播",
   "docs.adapters.portfolio.name": "已保存",
   "docs.adapters.portfolio.input": "一个已批准的 Robinhood Chain 地址",

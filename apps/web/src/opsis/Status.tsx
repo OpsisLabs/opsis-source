@@ -8,7 +8,7 @@ import {
   Search,
 } from "lucide-react";
 import { useCopy } from "./copy";
-import type { Capabilities, CapabilityId } from "./model";
+import type { Capabilities, CapabilityId, CapabilityStatus } from "./model";
 import { statusDetails } from "./status-copy";
 import {
   capabilityAvailability,
@@ -28,7 +28,7 @@ const sources: Record<CapabilityId, [string, string]> = {
   rwa: ["Issuer and chain evidence", "发行方与链上证据"],
   observedTrades: ["Uniswap V3 Swap logs", "Uniswap V3 Swap 日志"],
   perpHandoff: ["Reviewed venue pages", "已查阅的场所页面"],
-  swapPreview: ["Uniswap Trade API", "Uniswap Trade API"],
+  swapPreview: ["Uniswap V3 QuoterV2 · on-chain RPC", "Uniswap V3 QuoterV2 · 链上 RPC"],
   savedCheckComparisons: ["Encrypted browser records", "浏览器加密记录"],
   openDataSql: ["Your own CSV files", "自己的 CSV 文件"],
   openDataDatasets: ["Published Opsis datasets", "Opsis 已发布数据集"],
@@ -67,6 +67,23 @@ const states: Record<Availability, [string, string]> = {
   stale: ["Stale", "已过期"],
   unknown: ["Unknown", "未知"],
 };
+function apiQuoteRow(row: CapabilityStatus) {
+  return row.id === "swapPreview" && row.scope.includes("Trade API");
+}
+function sourceFor(row: CapabilityStatus): [string, string] {
+  return apiQuoteRow(row) ? ["Uniswap Trade API", "Uniswap Trade API"] : sources[row.id];
+}
+function detailsFor(row: CapabilityStatus) {
+  const details = statusDetails[row.id];
+  if (!apiQuoteRow(row)) return details;
+  return { ...details,
+    scope: ["Robinhood Chain WETH/USDG quote preview through the Uniswap Trade API", "通过 Uniswap Trade API 预览 Robinhood Chain WETH/USDG 报价"] as [string, string],
+    origin: ["Live quote on request", "按请求实时报价"] as [string, string],
+    freshness: ["Short-lived quote; Uniswap requotes before any trade", "短时有效报价；任何交易前由 Uniswap 重新报价"] as [string, string],
+    coverage: ["WETH and USDG only", "仅限 WETH 和 USDG"] as [string, string],
+    limits: ["A preview, not an execution; Opsis never signs or broadcasts.", "仅为预览，不会执行；Opsis 从不签名或广播交易。"] as [string, string],
+  };
+}
 const manifestLabels: Record<
   "scope" | "origin" | "freshness" | "coverage" | "limits",
   [string, string]
@@ -91,12 +108,12 @@ export default function Status({
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("all");
   const selected = rows.find((row) => row.id === selectedId) ?? rows[0];
-  const copy = selected && statusDetails[selected.id];
+  const copy = selected && detailsFor(selected);
   const availability = selected && capabilityAvailability(selected);
   const checked = selected && capabilityCheckedAt(selected.id);
   const filtered = rows.filter((row) => {
     const search =
-      `${c(...statusDetails[row.id].label)} ${c(...sources[row.id])} ${row.scope}`.toLocaleLowerCase();
+      `${c(...statusDetails[row.id].label)} ${c(...sourceFor(row))} ${row.scope}`.toLocaleLowerCase();
     return (
       search.includes(query.trim().toLocaleLowerCase()) &&
       (filter === "all" || capabilityAvailability(row) === filter)
@@ -187,7 +204,7 @@ export default function Status({
                       </button>
                     </th>
                     <td data-label={c("Data source", "数据来源")}>
-                      {c(...sources[row.id])}
+                      {c(...sourceFor(row))}
                     </td>
                     <td
                       data-label={c("Last checked", "上次核查")}
@@ -289,7 +306,7 @@ export default function Status({
               </span>
               <div>
                 <h2 id="status-evidence-title">{c(...copy.label)}</h2>
-                <p>{c(...sources[selected.id])}</p>
+                <p>{c(...sourceFor(selected))}</p>
               </div>
             </header>
             <p className="status-ws-banner">

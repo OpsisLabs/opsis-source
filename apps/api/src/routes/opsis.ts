@@ -47,8 +47,8 @@ export async function opsisRoutes(app: FastifyInstance, env: Env, alertsStatus?:
         env,
         request.headers.authorization,
       );
-      // Swap and trade-scenario quotes need the server-side Uniswap key.
-      const swapPreview = env.UNISWAP_QUOTE_ENABLED && Boolean(env.UNISWAP_API_KEY);
+      const onchain = env.SWAP_QUOTE_SOURCE === "onchain";
+      const swapPreview = env.UNISWAP_QUOTE_ENABLED && (onchain || Boolean(env.UNISWAP_API_KEY));
       const manifest = {
         version: 1,
         chain: { id: 4663, name: "Robinhood Chain" },
@@ -61,7 +61,7 @@ export async function opsisRoutes(app: FastifyInstance, env: Env, alertsStatus?:
           { id: "watch", enabled: env.WATCH_ENABLED && env.PORTFOLIO_MODE_ENABLED, scope: "Robinhood Chain user-triggered wallet snapshots", origin: "captured on user request", freshness: "snapshot timestamp; no background monitoring", coverage: "supported assets and upstream discovery coverage", limits: "Not continuous monitoring; missing upstream data stays unknown." },
           { id: "rwa", enabled: env.RWA_VERIFY_ENABLED, scope: "Existing source-backed RWA verification checks", origin: "live on request", freshness: "checked per request", coverage: "bounded to supported sources and configured RPC quota", limits: "Not an appraisal, eligibility decision or proof of tradability." },
           { id: "observedTrades", enabled: env.OBSERVED_TRADES_ENABLED, scope: "Robinhood Chain decoded Uniswap V3 Swap logs", origin: "live scan on request", freshness: "anchored to captured block window", coverage: "configured block and log caps", limits: "Observed swaps only; gaps and partial windows remain explicit; transfers are not trades." },
-          { id: "swapPreview", enabled: swapPreview, scope: "Robinhood Chain WETH/USDG quote preview through the Uniswap Trade API", origin: "live quote on request", freshness: "short-lived quote; Uniswap requotes before any trade", coverage: "WETH and USDG only", limits: "A preview, not an execution; Opsis never signs or broadcasts." },
+          { id: "swapPreview", enabled: swapPreview, scope: onchain ? "Robinhood Chain WETH/USDG single-pool estimate through official Uniswap V3 QuoterV2" : "Robinhood Chain WETH/USDG quote preview through the Uniswap Trade API", origin: onchain ? "on-chain RPC and Chainlink ETH / USD on request" : "live quote on request", freshness: onchain ? "block-anchored quote; Uniswap independently requotes" : "short-lived quote; Uniswap requotes before any trade", coverage: onchain ? "WETH/USDG standard V3 fee tiers; single pool only" : "WETH and USDG only", limits: onchain ? "Uniswap's app may route differently. User-paid network and LP costs apply. Opsis never signs or broadcasts." : "A preview, not an execution; Opsis never signs or broadcasts." },
           { id: "stockDesk", enabled: env.STOCK_DESK_ENABLED && env.RWA_VERIFY_ENABLED && env.EXIT_CHECK_ENABLED, scope: "Stock Token Desk and reviewed-sample index", origin: "on explicit request", freshness: "independent source times and anchors", coverage: "ten reviewed Stock Tokens; unknown facts remain explicit", limits: "Data, not advice. USDG units are not dollars. Tool budgets apply." },
           { id: "publicCards", enabled: env.OPEN_DATA_API_ENABLED && env.PUBLIC_CARDS_ENABLED, scope: "Public token cards and SVG embeds", origin: "on explicit request", freshness: "independent source times and anchors", coverage: "partial; unknown remains unknown", limits: "Not investment advice. Provider and tool budgets apply." },
           { id: "publicMcp", enabled: env.OPEN_DATA_API_ENABLED && env.PUBLIC_MCP_ENABLED, scope: "Read-only MCP tools", origin: "on explicit request", freshness: "independent source times and anchors", coverage: "partial; unknown remains unknown", limits: "Not investment advice. Provider and tool budgets apply." },

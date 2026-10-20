@@ -222,7 +222,7 @@ async function readBoundedJson(response: Response, maxBytes: number): Promise<{ 
 // Metrics must have bounded labels. Never include JSON-RPC parameters, URLs,
 // addresses, transaction hashes, or values supplied by the caller.
 const METRIC_RPC_METHODS = new Set([
-  "eth_blockNumber", "eth_call", "eth_chainId", "eth_getBalance",
+  "eth_blockNumber", "eth_call", "eth_chainId", "eth_gasPrice", "eth_getBalance",
   "eth_getBlockByHash", "eth_getBlockByNumber", "eth_getCode",
   "eth_getLogs", "eth_getStorageAt", "eth_getTransactionByHash",
   "eth_getTransactionReceipt", "eth_getTransactionCount", "eth_estimateGas", "eth_simulateV1",

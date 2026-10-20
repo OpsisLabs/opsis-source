@@ -302,11 +302,13 @@ it("public mode lets anonymous requests reach reused read-only engines", async (
   }
 });
 
-it("enables Swap preview only when live quotes and the server-side Uniswap key are both configured", async () => {
+it("enables Swap preview with the configured source; on-chain quotes need no Uniswap key", async () => {
   const base = { ...loadEnv({ NODE_ENV: "test" }), OPSIS_WORKSPACES_ENABLED: true, OPSIS_PUBLIC_ACCESS_ENABLED: true };
   for (const [overrides, expected] of [
     [{ UNISWAP_QUOTE_ENABLED: false, UNISWAP_API_KEY: undefined }, false],
-    [{ UNISWAP_QUOTE_ENABLED: true, UNISWAP_API_KEY: undefined }, false],
+    [{ UNISWAP_QUOTE_ENABLED: true, UNISWAP_API_KEY: undefined }, true],
+    [{ UNISWAP_QUOTE_ENABLED: true, SWAP_QUOTE_SOURCE: "uniswap-api", UNISWAP_API_KEY: undefined }, false],
+    [{ UNISWAP_QUOTE_ENABLED: true, SWAP_QUOTE_SOURCE: "uniswap-api", UNISWAP_API_KEY: "server-only-key" }, true],
     [{ UNISWAP_QUOTE_ENABLED: true, UNISWAP_API_KEY: "server-only-key" }, true],
   ] as const) {
     const app = Fastify();

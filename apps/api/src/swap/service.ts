@@ -3,6 +3,7 @@ import { z } from "zod";
 import { JsonCache } from "../cache/service.js";
 import type { Env } from "../config/env.js";
 import { ProviderHttpClient, ProviderRequestError, type ProviderHttp } from "../chain/provider-http.js";
+import { OnchainQuoteSource } from "./onchain.js";
 import {
   PREVIEW_SWAPPER,
   SWAP_PREVIEW_CHAIN_ID,
@@ -14,6 +15,20 @@ import {
 } from "./constants.js";
 
 const rawAmount = z.string().regex(/^\d{1,78}$/);
+const onchainSchema = z.object({
+  blockNumber: z.number().int().nonnegative().safe(),
+  blockHash: z.string().regex(/^0x[0-9a-fA-F]{64}$/),
+  capturedAtMs: z.number().int().nonnegative().safe(),
+  poolAddress: z.string().regex(/^0x[0-9a-fA-F]{40}$/),
+  feeTier: z.union([z.literal(100), z.literal(500), z.literal(3000), z.literal(10000)]),
+  lpFeeAmount: z.string().regex(/^\d+(?:\.\d+)?$/),
+  gasEstimate: rawAmount, gasPriceWei: rawAmount,
+  networkFeeEth: z.string().regex(/^\d+(?:\.\d+)?$/),
+  ethUsd: z.string().regex(/^\d+(?:\.\d+)?$/),
+  ethUsdObservedAt: z.string().datetime(),
+  nativeSide: z.enum(["input", "output"]).nullable(),
+  rpcProvider: z.enum(["drpc", "robinhood-public-rpc"]),
+});
 const quoteToken = z.object({
   amount: rawAmount,
   token: z.string(),
@@ -23,6 +38,7 @@ const quoteToken = z.object({
 }).passthrough();
 
 const rawQuoteSchema = z.object({
+  onchain: onchainSchema.optional(),
   requestId: z.string().min(1),
   routing: z.enum(["CLASSIC", "DUTCH_LIMIT", "DUTCH_V2", "DUTCH_V3", "BRIDGE", "LIMIT_ORDER", "PRIORITY", "WRAP", "UNWRAP", "CHAINED"]),
   isTokenApprovalApplicable: z.boolean().optional(),
@@ -43,9 +59,11 @@ const rawQuoteSchema = z.object({
 export type SwapPreviewRequest = {
   direction: SwapPreviewDirection;
   amount: string;
+  slippageTolerancePercent?: number;
 };
 
 export type SwapPreviewQuote = {
+  onchain?: z.infer<typeof onchainSchema>;
   pair: "WETH/USDG";
   chain: { id: 4663; name: "Robinhood Chain" };
   input: { symbol: "WETH" | "USDG"; address: string; amount: string };
@@ -112,6 +130,7 @@ export class UniswapQuoteSource implements SwapQuoteSource {
   }
 
   async requestQuote(request: SwapPreviewRequest): Promise<unknown> {
+    if (request.direction === "ETH_TO_USDG" || request.direction === "USDG_TO_ETH") throw new SwapQuoteProviderError("invalid_request");
     if (this.now() < this.pausedUntil) throw new SwapQuoteProviderError("rate_limited");
     if (!this.env.UNISWAP_API_KEY) throw new SwapQuoteProviderError("unavailable");
     const { input, output } = tokensForDirection(request.direction);
@@ -134,7 +153,7 @@ export class UniswapQuoteSource implements SwapQuoteSource {
           tokenIn: input.address,
           tokenOut: output.address,
           swapper: PREVIEW_SWAPPER,
-          slippageTolerance: SWAP_PREVIEW_SLIPPAGE_PERCENT,
+          slippageTolerance: swapSlippagePercent(request),
           routingPreference: "BEST_PRICE",
           permitAmount: "EXACT"
         })
@@ -162,20 +181,21 @@ export class SwapPreviewService {
   constructor(
     private readonly env: Env,
     private readonly cache: JsonCache,
-    private readonly source: SwapQuoteSource = new UniswapQuoteSource(env),
+    private readonly source: SwapQuoteSource = configuredSwapQuoteSource(env),
     private readonly now: () => number = Date.now
   ) {}
 
   async quote(request: SwapPreviewRequest): Promise<SwapPreviewQuote> {
     const { input } = tokensForDirection(request.direction);
     parseSwapAmount(request.amount, input.decimals);
+    const slippage = swapSlippagePercent(request);
 
     const canonicalRequest = {
       ...request,
       amount: canonicalSwapAmount(request.amount)
     };
 
-    const key = `swap-preview:${canonicalRequest.direction}:${canonicalRequest.amount}`;
+    const key = `swap-preview:${this.env.SWAP_QUOTE_SOURCE}:${canonicalRequest.direction}:${canonicalRequest.amount}:${slippage}`;
     const cached = await this.cache.get<SwapPreviewQuote>(key);
     if (cached && Date.parse(cached.expiresAt) > this.now()) {
       return {
@@ -227,10 +247,26 @@ export function canonicalSwapAmount(value: string): string {
   return trimmed ? `${whole}.${trimmed}` : whole!;
 }
 
+export function swapSlippagePercent(request: SwapPreviewRequest): number {
+  const value = request.slippageTolerancePercent ?? SWAP_PREVIEW_SLIPPAGE_PERCENT;
+  if (!Number.isFinite(value) || value < 0.01 || value > 50 || Math.abs(value * 100 - Math.round(value * 100)) > 1e-8) {
+    throw new SwapQuoteProviderError("invalid_request");
+  }
+  return value;
+}
+
+export function configuredSwapQuoteSource(env: Env): SwapQuoteSource {
+  return env.SWAP_QUOTE_SOURCE === "onchain" ? new OnchainQuoteSource(env) : new UniswapQuoteSource(env);
+}
+
 export function normalizeQuote(raw: unknown, request: SwapPreviewRequest, now: number): SwapPreviewQuote {
   const parsed = rawQuoteSchema.safeParse(raw);
   if (!parsed.success) throw new SwapQuoteProviderError("malformed_response");
   const response = parsed.data;
+  const onchain = response.onchain;
+  const slippage = swapSlippagePercent(request);
+  const captureTime = onchain?.capturedAtMs ?? now;
+  if (captureTime > now || now - captureTime >= SWAP_PREVIEW_FRESHNESS_MS) throw new SwapQuoteProviderError("unavailable");
   const { input, output } = tokensForDirection(request.direction);
   const quote = response.quote;
   if (!isSupportedSwapRoute(response.routing)) throw new SwapQuoteProviderError("malformed_response");
@@ -240,13 +276,13 @@ export function normalizeQuote(raw: unknown, request: SwapPreviewRequest, now: n
 
   const requestedRaw = parseSwapAmount(request.amount, input.decimals).toString();
   const isUniswapX = response.routing.startsWith("DUTCH") || response.routing === "PRIORITY";
-  const minimumSource = quote.output.minimumAmount ? "provider" : "derived_tolerance";
+  const minimumSource = quote.output.minimumAmount && !onchain ? "provider" : "derived_tolerance";
   // The current OAS makes minimumAmount optional and its CLASSIC example omits
   // it. For CLASSIC exact-input quotes only, the requested 0.5% tolerance has
   // normal AMM semantics, so a transparent preview floor can be derived. The
   // same inference is unsafe for UniswapX and therefore fails closed below.
   const minimumRaw = quote.output.minimumAmount ?? (
-    response.routing === "CLASSIC" ? deriveClassicMinimum(quote.output.amount) : undefined
+    response.routing === "CLASSIC" ? deriveClassicMinimum(quote.output.amount, slippage) : undefined
   );
   if (
     quote.input.amount !== requestedRaw ||
@@ -267,7 +303,7 @@ export function normalizeQuote(raw: unknown, request: SwapPreviewRequest, now: n
     : failureReasons.every(isPreviewSimulationLimitation)
       ? "warning"
       : "failed";
-  const gasNative = quote.gasFee ? trimAmount(formatEther(BigInt(quote.gasFee)), 8) : null;
+  const gasNative = onchain?.networkFeeEth ?? (quote.gasFee ? trimAmount(formatEther(BigInt(quote.gasFee)), 8) : null);
   // For UniswapX, classicGasUseEstimateUSD is a comparator for the classic
   // route—not the selected route's user cost—so it must never be relabeled.
   const gasUsd = quote.gasFeeUSD ?? null;
@@ -276,6 +312,7 @@ export function normalizeQuote(raw: unknown, request: SwapPreviewRequest, now: n
   const minimumReceived = trimAmount(formatUnits(BigInt(minimumRaw), output.decimals), output.decimals);
 
   return {
+    ...(onchain ? { onchain } : {}),
     pair: "WETH/USDG",
     chain: { id: SWAP_PREVIEW_CHAIN_ID, name: "Robinhood Chain" },
     input: { symbol: input.symbol, address: input.address, amount },
@@ -292,9 +329,9 @@ export function normalizeQuote(raw: unknown, request: SwapPreviewRequest, now: n
       protocols
     },
     priceImpactPercent: typeof quote.priceImpact === "number" ? quote.priceImpact : null,
-    slippageTolerancePercent: SWAP_PREVIEW_SLIPPAGE_PERCENT,
+    slippageTolerancePercent: slippage,
     estimatedGas: { nativeAmount: gasNative, usdAmount: gasUsd, paidBy: isUniswapX ? "filler_or_user" : "user" },
-    simulation: { status: simulationStatus, reasons: failureReasons },
+    simulation: onchain ? { status: "warning", reasons: ["Single-pool quote only; no wallet or full transaction simulation."] } : { status: simulationStatus, reasons: failureReasons },
     approvalMayBeRequired: response.isTokenApprovalApplicable ?? true,
     transactionPreview: {
       explanationOnly: true,
@@ -308,12 +345,23 @@ export function normalizeQuote(raw: unknown, request: SwapPreviewRequest, now: n
       canSign: false,
       canBroadcast: false
     },
-    quotedAt: new Date(now).toISOString(),
-    expiresAt: new Date(now + SWAP_PREVIEW_FRESHNESS_MS).toISOString(),
-    freshForMs: SWAP_PREVIEW_FRESHNESS_MS,
+    quotedAt: new Date(captureTime).toISOString(),
+    expiresAt: new Date(captureTime + SWAP_PREVIEW_FRESHNESS_MS).toISOString(),
+    freshForMs: SWAP_PREVIEW_FRESHNESS_MS - (now - captureTime),
     provider: { name: "Uniswap", requestId: response.requestId, cached: false },
     handoffUrl: uniswapHandoffUrl(input.address, output.address, amount),
-    disclosures: [
+    disclosures: onchain ? [
+      "Single-pool estimate. Uniswap's app may route differently and show a different price.",
+      `Quote at block ${onchain.blockNumber}. Standard Uniswap V3 fee tiers only; no multi-pool routing, UniswapX or permit paths.`,
+      "Network fee is an estimate you pay: QuoterV2 gas estimate × gas price observed at quote time. Approval, wrapping and chain-specific execution costs may be additional.",
+      "Network fee USD uses Chainlink ETH / USD at the quote block. No sequencer-uptime feed is checked; oracle health coverage is limited.",
+      "Price impact includes the pool fee against the same-block pre-fee spot price. The input-side LP fee is a floor estimate; exact charges can differ with V3 rounding.",
+      ...(onchain.nativeSide ? [`Native ETH ${onchain.nativeSide} is estimated using WETH pools. The displayed pair and official-app prefill use WETH; wrapping or unwrapping is not quoted.`] : []),
+      "You pay network, liquidity-provider and any protocol or token-specific fees. Minimum output is not a total-cost guarantee or proof of transferability.",
+      `Only the pair, amount and public contract reads go to ${onchain.rpcProvider === "drpc" ? "the dRPC Robinhood Chain gateway. dRPC is a paid gateway that may route reads to independent node operators" : "Robinhood Public RPC"}. No wallet address is requested.`,
+      "Opsis holds the pair and amount in a short quote cache for less than 30 seconds. No historical transaction or account is linked to it.",
+      "Opsis cannot sign, approve, submit or broadcast. The official Uniswap app independently requotes and owns execution.",
+    ] : [
       "Uniswap fetches a new quote before execution; this preview is not a guaranteed price.",
       "You may pay network gas, liquidity-provider or protocol fees, price impact, slippage, and token-specific fees.",
       "Your wallet address is not sent for this preview; Uniswap receives the pair, amount, and a fixed non-user preview address.",
@@ -329,8 +377,8 @@ function trimAmount(value: string, maxDecimals: number): string {
   return trimmed ? `${whole}.${trimmed}` : whole!;
 }
 
-function deriveClassicMinimum(outputAmount: string): string {
-  const slippageBps = BigInt(Math.round(SWAP_PREVIEW_SLIPPAGE_PERCENT * 100));
+function deriveClassicMinimum(outputAmount: string, slippage: number): string {
+  const slippageBps = BigInt(Math.round(slippage * 100));
   return ((BigInt(outputAmount) * (10_000n - slippageBps)) / 10_000n).toString();
 }
 

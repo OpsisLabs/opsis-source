@@ -175,11 +175,15 @@ describe("environment validation", () => {
     expect(loadEnv({ NODE_ENV: "test", AI_PROVIDER: "ollama" }).AI_PROVIDER).toBe("ollama");
   });
 
-  it("requires a server-side Uniswap key only when live Swap preview quotes are enabled", () => {
-    expect(() => loadEnv({ NODE_ENV: "test", UNISWAP_QUOTE_ENABLED: "true" })).toThrow(/UNISWAP_API_KEY/);
+  it("validates quote source and requires a key only for uniswap-api", () => {
+    expect(loadEnv({ NODE_ENV: "test", UNISWAP_QUOTE_ENABLED: "true" }).SWAP_QUOTE_SOURCE).toBe("onchain");
+    expect(loadEnv({ NODE_ENV: "test", SWAP_QUOTE_SOURCE: "onchain" }).UNISWAP_API_KEY).toBeUndefined();
+    expect(() => loadEnv({ NODE_ENV: "test", SWAP_QUOTE_SOURCE: "unknown" })).toThrow(/SWAP_QUOTE_SOURCE/);
+    expect(() => loadEnv({ NODE_ENV: "test", SWAP_QUOTE_SOURCE: "uniswap-api" })).toThrow(/UNISWAP_API_KEY/);
     const enabled = loadEnv({
       NODE_ENV: "test",
       UNISWAP_QUOTE_ENABLED: "true",
+      SWAP_QUOTE_SOURCE: "uniswap-api",
       UNISWAP_API_KEY: "server-only-key"
     });
     expect(enabled.UNISWAP_QUOTE_ENABLED).toBe(true);

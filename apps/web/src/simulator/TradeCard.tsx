@@ -49,7 +49,7 @@ export function TradeCard({ quote, weth, usdg, reference, deadline }: { quote: S
       <div><p className="text-sm text-[#b5ada2]">{t("trade.card.expectedOutputLabel")}</p><p className="mt-2 break-all text-3xl font-semibold">{quote.output.amount} <span className="text-lg">{quote.output.symbol}</span></p></div>
       <div><p className="text-sm text-[#b5ada2]">{t("trade.card.minimumOutput")}</p><p className="mt-2 break-all text-2xl text-[#fa6c34]">{quote.output.minimumReceived} <span className="text-lg">{quote.output.symbol}</span></p></div>
     </div>
-    {quote.simulation.status === "warning" && <p role="status" className="text-sm text-[#fa6c34]">{t("trade.card.warningStatus")}</p>}
+    {quote.simulation.status === "warning" && <p role="status" className="text-sm text-[#fa6c34]">{t(quote.onchain ? "trade.onchain.noSimulation" : "trade.card.warningStatus")}</p>}
     <div className="border-t border-[#555] pt-5">
       <h3 className="text-xl">{t("trade.card.makeTitle")}</h3>
       <p className="mt-2 text-sm leading-relaxed text-[#b5ada2]">{t("trade.card.makeBody")}</p>

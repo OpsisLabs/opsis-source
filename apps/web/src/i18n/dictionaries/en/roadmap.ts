@@ -32,15 +32,15 @@ export const roadmap = {
   "roadmap.release.check.ux": "UX",
   "roadmap.release.check.safety": "SAFETY",
 
-  "roadmap.release.swap-preview.eyebrow": "LIVE ROUTE. CLEAR OUTCOME.",
+  "roadmap.release.swap-preview.eyebrow": "CURRENT QUOTE. CLEAR LIMITS.",
   "roadmap.release.swap-preview.title": "Swap preview",
   "roadmap.release.swap-preview.summary":
-    "Preview a current Uniswap route, understand every tradeoff, then continue in the official app.",
+    "Preview a current Uniswap quote, review the limits and user-paid costs, then continue in the official app.",
   "roadmap.release.swap-preview.outcome": "Preview a live swap",
   "roadmap.release.swap-preview.cap1.kicker": "LIVE QUOTE",
   "roadmap.release.swap-preview.cap1.title":
-    "Current WETH/USDG route, price impact, gas, and minimum received",
-  "roadmap.release.swap-preview.cap1.signal": "FREE API / FRESH",
+    "Current WETH/USDG estimate, price impact, network costs and minimum received",
+  "roadmap.release.swap-preview.cap1.signal": "ON REQUEST / READ-ONLY",
   "roadmap.release.swap-preview.cap2.kicker": "SIMULATION",
   "roadmap.release.swap-preview.cap2.title":
     "Plain-English predicted balance changes and failure states",

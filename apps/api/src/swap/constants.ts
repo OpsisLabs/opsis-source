@@ -16,10 +16,10 @@ export const UNISWAP_ROUTER_2_1_1 = "0x8876789976decbfcbbbe364623c63652db8c0904"
 export const PREVIEW_SWAPPER = "0x45F9C7f349aeF15bd852773C4aD3cc0fDcD370e8";
 
 export type SwapPreviewSymbol = keyof typeof SWAP_PREVIEW_TOKENS;
-export type SwapPreviewDirection = "WETH_TO_USDG" | "USDG_TO_WETH";
+export type SwapPreviewDirection = "WETH_TO_USDG" | "USDG_TO_WETH" | "ETH_TO_USDG" | "USDG_TO_ETH";
 
 export function tokensForDirection(direction: SwapPreviewDirection) {
-  return direction === "WETH_TO_USDG"
+  return direction === "WETH_TO_USDG" || direction === "ETH_TO_USDG"
     ? { input: SWAP_PREVIEW_TOKENS.WETH, output: SWAP_PREVIEW_TOKENS.USDG }
     : { input: SWAP_PREVIEW_TOKENS.USDG, output: SWAP_PREVIEW_TOKENS.WETH };
 }

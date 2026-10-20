@@ -121,9 +121,9 @@ export const docs = {
   "docs.adapters.swapPreview.name": "Swap preview",
   "docs.adapters.swapPreview.input": "WETH/USDG direction and exact amount",
   "docs.adapters.swapPreview.process":
-    "Read-only Uniswap route using a fixed non-user preview address",
+    "Official on-chain Uniswap V3 single-pool estimate by default; optional Trade API source",
   "docs.adapters.swapPreview.output":
-    "Minimum, impact, simulation, route cost, official handoff",
+    "Block, pool, minimum, impact, user-paid costs and official handoff",
   "docs.adapters.swapPreview.limit": "Opsis never signs or broadcasts",
   "docs.adapters.portfolio.name": "Saved",
   "docs.adapters.portfolio.input": "One approved Robinhood Chain address",

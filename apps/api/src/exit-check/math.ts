@@ -97,5 +97,7 @@ export function isZeroOrDeadAddress(address: string): boolean {
 
 /** True when a quote ended at a V3 price boundary, which can indicate a partial fill. */
 export function isBoundarySqrtPrice(sqrtPriceX96: bigint): boolean {
-  return sqrtPriceX96 <= MIN_SQRT_RATIO || sqrtPriceX96 >= MAX_SQRT_RATIO;
+  // With sqrtPriceLimitX96=0, V3 QuoterV2 uses MIN+1 / MAX-1.
+  // Reaching either default limit can leave part of the input unconsumed.
+  return sqrtPriceX96 <= MIN_SQRT_RATIO + 1n || sqrtPriceX96 >= MAX_SQRT_RATIO - 1n;
 }

@@ -93,6 +93,7 @@ const envSchema = z.object({
   ALCHEMY_ROBINHOOD_RPC_URL: optionalUrl,
   ALCHEMY_ROBINHOOD_WS_URL: optionalUrl,
   UNISWAP_QUOTE_ENABLED: envBoolean.default(false),
+  SWAP_QUOTE_SOURCE: z.enum(["onchain", "uniswap-api"]).default("onchain"),
   TRADE_SIMULATOR_ENABLED: envBoolean.default(false),
   UNISWAP_API_KEY: optionalString,
   UNISWAP_API_BASE_URL: z.string().url().default("https://trade-api.gateway.uniswap.org/v1"),
@@ -279,8 +280,8 @@ const envSchema = z.object({
   if (env.GOLDRUSH_ENABLED && !env.GOLDRUSH_API_KEY) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: "GOLDRUSH_API_KEY is required when GoldRush is enabled" });
   }
-  if (env.UNISWAP_QUOTE_ENABLED && !env.UNISWAP_API_KEY) {
-    context.addIssue({ code: z.ZodIssueCode.custom, message: "UNISWAP_API_KEY is required when Swap preview quotes are enabled" });
+  if (env.SWAP_QUOTE_SOURCE === "uniswap-api" && !env.UNISWAP_API_KEY) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: "UNISWAP_API_KEY is required when SWAP_QUOTE_SOURCE is uniswap-api" });
   }
   if (env.PORTFOLIO_MODE_ENABLED && env.NODE_ENV !== "test") {
     const publicRpc = new URL(env.ROBINHOOD_PUBLIC_RPC_URL);

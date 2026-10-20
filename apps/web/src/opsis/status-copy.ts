@@ -223,18 +223,18 @@ export const statusDetails: Record<
   swapPreview: {
     label: ["Swap preview", "兑换预览"],
     scope: [
-      "Robinhood Chain WETH/USDG quote preview through the Uniswap Trade API",
-      "通过 Uniswap Trade API 预览 Robinhood Chain WETH/USDG 报价",
+      "Robinhood Chain WETH/USDG single-pool estimate through official Uniswap V3 QuoterV2",
+      "通过官方 Uniswap V3 QuoterV2 估算 Robinhood Chain WETH/USDG 单池报价",
     ],
-    origin: ["Live quote on request", "按请求实时报价"],
+    origin: ["On-chain RPC and Chainlink ETH / USD on request", "按请求读取链上 RPC 和 Chainlink ETH / USD"],
     freshness: [
-      "Short-lived quote; Uniswap requotes before any trade",
-      "短时有效报价；任何交易前由 Uniswap 重新报价",
+      "Block-anchored quote; Uniswap independently requotes",
+      "锚定区块的报价；Uniswap 独立重新报价",
     ],
-    coverage: ["WETH and USDG only", "仅限 WETH 和 USDG"],
+    coverage: ["WETH/USDG standard V3 fee tiers; single pool only", "WETH/USDG 标准 V3 费率层；仅限单池"],
     limits: [
-      "A preview, not an execution; Opsis never signs or broadcasts.",
-      "仅为预览，不会执行；Opsis 从不签名或广播交易。",
+      "Uniswap's app may route differently. User-paid network and LP costs apply. Opsis never signs or broadcasts.",
+      "Uniswap 应用可能采用不同路径。网络费与 LP 费用由用户支付。Opsis 从不签名或广播。",
     ],
   },
   observedTrades: {

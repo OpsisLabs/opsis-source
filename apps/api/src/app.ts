@@ -267,7 +267,7 @@ export async function buildApp(
   await entityRoutes(app, env, prisma, cache);
   await chatRoutes(app, env, prisma, cache);
   await usageRoutes(app, env, prisma);
-  await swapRoutes(app, env, cache);
+  await swapRoutes(app, env, cache, undefined, { budget: exitBudget, rpcSpend });
   await publicSwapHistoryRoutes(app, env, prisma, dependencies?.publicSwapHistory);
   await exitCheckRoutes(
     app,

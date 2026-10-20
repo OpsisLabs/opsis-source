@@ -47,6 +47,7 @@ function enabledEnv() {
     NODE_ENV: "test",
     LOG_LEVEL: "silent",
     UNISWAP_QUOTE_ENABLED: "true",
+    SWAP_QUOTE_SOURCE: "uniswap-api",
     UNISWAP_API_KEY: "private-uniswap-key"
   });
 }

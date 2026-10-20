@@ -19,6 +19,7 @@ import {
   Zap,
 } from "lucide-react";
 import { ApiError } from "../dashboard/http";
+import { OnchainQuoteDetails } from "../swap/OnchainQuoteDetails";
 import { useI18n } from "../i18n";
 import {
   SWAP_TOKENS,
@@ -112,6 +113,7 @@ export function QuotePanel({ quote, elapsedMs }: { quote: SwapQuote; elapsedMs: 
 
   return (
     <div data-testid="swap-quote" className="result-materialize space-y-4">
+      <OnchainQuoteDetails quote={quote} />
       <div className={`flex flex-col gap-3 border px-4 py-3 sm:flex-row sm:items-center sm:justify-between ${
         stale ? "border-[#fa6c34]/50 bg-[#fa6c34]/10" : "border-[#7fb069]/40 bg-[#7fb069]/10"
       }`}>
@@ -136,8 +138,8 @@ export function QuotePanel({ quote, elapsedMs }: { quote: SwapQuote; elapsedMs: 
               ? t("trade.quote.providerMinimum", { percent: quote.slippageTolerancePercent })
               : t("trade.quote.derivedFloor", { percent: quote.slippageTolerancePercent })}
           />
-          <Metric label={t("trade.quote.priceImpact")} value={impact} note={quote.priceImpactPercent === null ? t("trade.quote.priceImpactMissing") : t("trade.quote.priceImpactNote")} tone={(quote.priceImpactPercent ?? 0) >= 1 ? "warn" : "neutral"} />
-          <Metric label={t("trade.quote.estimatedRouteCost")} value={gas} note={quote.estimatedGas.paidBy === "filler_or_user" ? t("trade.quote.uniswapXCost") : t("trade.quote.routeEstimate")} />
+          <Metric label={t("trade.quote.priceImpact")} value={impact} note={quote.onchain ? t("trade.onchain.impact") : quote.priceImpactPercent === null ? t("trade.quote.priceImpactMissing") : t("trade.quote.priceImpactNote")} tone={(quote.priceImpactPercent ?? 0) >= 1 ? "warn" : "neutral"} />
+          <Metric label={quote.onchain ? t("trade.onchain.networkLabel") : t("trade.quote.estimatedRouteCost")} value={gas} note={quote.onchain ? t("trade.onchain.userPays") : quote.estimatedGas.paidBy === "filler_or_user" ? t("trade.quote.uniswapXCost") : t("trade.quote.routeEstimate")} />
         </div>
       </div>
 
@@ -146,18 +148,18 @@ export function QuotePanel({ quote, elapsedMs }: { quote: SwapQuote; elapsedMs: 
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2.5">
               <Route size={15} className="text-[#7cc4f8]" />
-              <h2 className="font-mono-d text-[10.5px] tracking-[0.15em] text-[#d6ccba]">{t("trade.quote.routeExplained")}</h2>
+              <h2 className="font-mono-d text-[10.5px] tracking-[0.15em] text-[#d6ccba]">{t(quote.onchain ? "trade.onchain.evidence" : "trade.quote.routeExplained")}</h2>
             </div>
             <span className="border border-[#7cc4f8]/30 bg-[#7cc4f8]/10 px-2.5 py-1 font-mono-d text-[9px] tracking-wider text-[#7cc4f8]">{quote.route.routing}</span>
           </div>
-          <p className="mt-5 break-all text-[19px] leading-snug text-[#e9e0d1]">{quote.route.label}</p>
+          <p className="mt-5 break-all text-[19px] leading-snug text-[#e9e0d1]">{quote.onchain ? t("trade.onchain.route", { fee: quote.onchain.feeTier / 10000 }) : quote.route.label}</p>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <div className="border border-[#383838] bg-[#1d1d1d] p-4">
               <p className="font-mono-d text-[9px] tracking-wider text-[#635d5a]">{t("trade.quote.simulation")}</p>
               <div className="mt-2 flex items-center gap-2">
                 {simulationOkay ? <Check size={14} className="text-[#7fb069]" /> : <AlertTriangle size={14} className="text-[#fa6c34]" />}
                 <span className={simulationOkay ? "text-[12px] text-[#7fb069]" : "text-[12px] text-[#fa6c34]"}>
-                  {quote.simulation.status === "passed"
+                  {quote.onchain ? t("trade.onchain.noSimulation") : quote.simulation.status === "passed"
                     ? t("trade.quote.simulationPassed")
                     : quote.simulation.status === "warning"
                       ? t("trade.quote.simulationWarning")

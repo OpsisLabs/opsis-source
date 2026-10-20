@@ -5,6 +5,13 @@ import { translateCurrent } from "../i18n/translate";
 export type SwapDirection = "WETH_TO_USDG" | "USDG_TO_WETH";
 
 export type SwapQuote = {
+  onchain?: {
+    blockNumber: number; blockHash: string; capturedAtMs: number;
+    poolAddress: string; feeTier: 100 | 500 | 3000 | 10000; lpFeeAmount: string;
+    gasEstimate: string; gasPriceWei: string; networkFeeEth: string;
+    ethUsd: string; ethUsdObservedAt: string;
+    nativeSide: "input" | "output" | null; rpcProvider: "drpc" | "robinhood-public-rpc";
+  };
   pair: "WETH/USDG";
   chain: { id: number; name: string };
   input: { symbol: "WETH" | "USDG"; address: string; amount: string };
@@ -45,6 +52,7 @@ const UNISWAP_ROUTER_2_1_1 = "0x8876789976decbfcbbbe364623c63652db8c0904";
 export async function getSwapQuote(request: {
   direction: SwapDirection;
   amount: string;
+  slippageTolerancePercent?: number;
 }, signal?: AbortSignal, simulator = false): Promise<SwapQuote> {
   const canonicalRequest = { ...request, amount: canonicalSwapAmount(request.amount) };
   const response = simulator
@@ -76,7 +84,7 @@ export function officialUniswapUrl(direction: SwapDirection, amount: string): st
 
 function assertSwapQuote(
   value: SwapQuote,
-  request: { direction: SwapDirection; amount: string },
+  request: { direction: SwapDirection; amount: string; slippageTolerancePercent?: number },
 ): void {
   const input = request.direction === "WETH_TO_USDG" ? SWAP_TOKENS.WETH : SWAP_TOKENS.USDG;
   const output = request.direction === "WETH_TO_USDG" ? SWAP_TOKENS.USDG : SWAP_TOKENS.WETH;
@@ -109,7 +117,8 @@ function assertSwapQuote(
     !["CLASSIC", "DUTCH_V2", "DUTCH_V3", "PRIORITY"].includes(value.route?.routing) ||
     !boundedText(value.route?.label, 180) ||
     (value.priceImpactPercent !== null && !finiteNumber(value.priceImpactPercent, 0, 100)) ||
-    value.slippageTolerancePercent !== 0.5 ||
+    value.slippageTolerancePercent !== (request.slippageTolerancePercent ?? 0.5) ||
+    (value.onchain !== undefined && !validOnchain(value)) ||
     !optionalNonnegativeDecimal(value.estimatedGas?.nativeAmount) ||
     !optionalNonnegativeDecimal(value.estimatedGas?.usdAmount) ||
     value.estimatedGas?.paidBy !== expectedPaidBy ||
@@ -151,6 +160,23 @@ function assertSwapQuote(
   ) {
     throw new Error(translateCurrent("trade.error.invalidQuote"));
   }
+}
+
+function validOnchain(value: SwapQuote): boolean {
+  const quote = value.onchain!;
+  return !!quote && Number.isSafeInteger(quote.blockNumber) && quote.blockNumber >= 0 &&
+    /^0x[0-9a-fA-F]{64}$/.test(quote.blockHash) &&
+    Number.isSafeInteger(quote.capturedAtMs) && quote.capturedAtMs === Date.parse(value.quotedAt) &&
+    /^0x[0-9a-fA-F]{40}$/.test(quote.poolAddress) && !/^0x0{40}$/i.test(quote.poolAddress) &&
+    [100, 500, 3000, 10000].includes(quote.feeTier) &&
+    optionalNonnegativeDecimal(quote.lpFeeAmount) && typeof quote.lpFeeAmount === "string" &&
+    positiveDecimal(quote.gasEstimate) && optionalNonnegativeDecimal(quote.gasPriceWei) && typeof quote.gasPriceWei === "string" &&
+    positiveDecimal(quote.ethUsd) && Number.isFinite(Date.parse(quote.ethUsdObservedAt)) &&
+    quote.networkFeeEth === value.estimatedGas.nativeAmount &&
+    [null, "input", "output"].includes(quote.nativeSide) && ["drpc", "robinhood-public-rpc"].includes(quote.rpcProvider) &&
+    value.route.routing === "CLASSIC" && value.route.protocols.join(",") === "V3" &&
+    value.route.label === `Uniswap v3 · single pool (fee ${quote.feeTier / 10000}%)` &&
+    value.simulation.status === "warning" && value.output.minimumSource === "derived_tolerance";
 }
 
 function safeUrl(value: unknown): URL | null {

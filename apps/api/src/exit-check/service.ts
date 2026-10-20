@@ -48,7 +48,7 @@ const ADDRESS_PATTERN = /^0x[0-9a-fA-F]{40}$/;
 const HASH_PATTERN = /^0x[0-9a-fA-F]{64}$/;
 const MAX_DECIMALS = 36;
 
-const factoryAbi = [
+export const factoryAbi = [
   {
     type: "function",
     name: "getPool",
@@ -62,7 +62,7 @@ const factoryAbi = [
   },
 ] as const satisfies Abi;
 
-const poolAbi = [
+export const poolAbi = [
   {
     type: "function",
     name: "slot0",
@@ -87,7 +87,7 @@ const poolAbi = [
   },
 ] as const satisfies Abi;
 
-const quoterAbi = [
+export const quoterAbi = [
   {
     type: "function",
     name: "quoteExactInputSingle",

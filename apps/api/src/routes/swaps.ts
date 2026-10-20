@@ -4,19 +4,25 @@ import { JsonCache } from "../cache/service.js";
 import type { Env } from "../config/env.js";
 import { AppError } from "../http/errors.js";
 import { SwapPreviewService, SwapQuoteProviderError, type SwapQuoteSource } from "../swap/service.js";
+import { OnchainQuoteSource } from "../swap/onchain.js";
+import type { ExitCheckBudget } from "../exit-check/budget.js";
+import type { RpcSpendBudget } from "../chain/robinhood-rpc.js";
 
 const quoteBody = z.object({
-  direction: z.enum(["WETH_TO_USDG", "USDG_TO_WETH"]),
-  amount: z.string().min(1).max(40)
+  direction: z.enum(["WETH_TO_USDG", "USDG_TO_WETH", "ETH_TO_USDG", "USDG_TO_ETH"]),
+  amount: z.string().min(1).max(40),
+  slippageTolerancePercent: z.number().min(0.01).max(50).optional(),
 }).strict();
 
 export async function swapRoutes(
   app: FastifyInstance,
   env: Env,
   cache: JsonCache,
-  source?: SwapQuoteSource
+  source?: SwapQuoteSource,
+  budgets?: { budget: ExitCheckBudget; rpcSpend: RpcSpendBudget },
 ): Promise<void> {
-  const service = new SwapPreviewService(env, cache, source);
+  const configured = source ?? (env.SWAP_QUOTE_SOURCE === "onchain" ? new OnchainQuoteSource(env, budgets) : undefined);
+  const service = new SwapPreviewService(env, cache, configured);
 
   for (const path of ["/v1/swaps/quote", "/v1/private/trade-simulator/quote"]) app.post(path, {
     config: {
@@ -42,7 +48,7 @@ export async function swapRoutes(
         throw new AppError("SWAP_PROVIDER_MALFORMED_RESPONSE", 503, "Uniswap returned an incomplete quote; no preview was shown");
       }
       if (error.code === "no_route") {
-        throw new AppError("SWAP_NO_ROUTE", 422, "Uniswap could not find a route for that amount right now");
+        throw new AppError("SWAP_NO_ROUTE", 422, "No supported quote was available for that amount; the official Uniswap app quotes independently");
       }
       if (error.code === "rate_limited") {
         throw new AppError("SWAP_RATE_LIMITED", 503, "Live quotes are cooling down after a provider rate limit");
